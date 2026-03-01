@@ -19,8 +19,7 @@ const FEATURES = {
     { id: 'route', emoji: '🗺️', nameKey: 'fbFeatRoute', descKey: 'fbDescRoute', longDescKey: 'fbLongRoute', status: 'available' },
     { id: 'gas-stations', emoji: '⛽', nameKey: 'fbFeatGasStations', descKey: 'fbDescGasStations', longDescKey: 'fbLongGasStations', status: 'available' },
     { id: 'spot-detail', emoji: '📊', nameKey: 'fbFeatSpotDetail', descKey: 'fbDescSpotDetail', longDescKey: 'fbLongSpotDetail', status: 'available' },
-    { id: 'offline-map', emoji: '📶', nameKey: 'fbFeatOfflineMap', descKey: 'fbDescOfflineMap', longDescKey: 'fbLongOfflineMap', status: 'coming' },
-    { id: 'en-route', emoji: '👁️', nameKey: 'fbFeatEnRoute', descKey: 'fbDescEnRoute', longDescKey: 'fbLongEnRoute', status: 'coming' },
+    { id: 'offline-map', emoji: '📶', nameKey: 'fbFeatOfflineMap', descKey: 'fbDescOfflineMap', longDescKey: 'fbLongOfflineMap', status: 'available' },
     { id: 'city-pages', emoji: '🏙️', nameKey: 'fbFeatCityPages', descKey: 'fbDescCityPages', longDescKey: 'fbLongCityPages', status: 'coming' },
   ],
   voyage: [
@@ -253,6 +252,41 @@ function renderFeedbackDetail(state, featureId) {
               class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
               style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
               🏙️ ${escapeHTML(t('cityDemoTryBtn') || 'Tester la démo')}
+            </button>
+          ` : ''}
+          ${featureId === 'thumbs-partners' || featureId === 'leagues' ? `
+            <button onclick="showPointsDemo()"
+              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+              🎯 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo')}
+            </button>
+          ` : ''}
+          ${featureId === 'journal' ? `
+            <button onclick="showJournalDemo()"
+              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+              🎯 ${escapeHTML(t('journalDemoTryBtn') || 'Tester la démo')}
+            </button>
+          ` : ''}
+          ${featureId === 'groups-races' || featureId === 'events' ? `
+            <button onclick="showSocialDemo()"
+              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+              🎯 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo')}
+            </button>
+          ` : ''}
+          ${featureId === 'guardian-mode' ? `
+            <button onclick="showCompanionDemo()"
+              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+              🎯 ${escapeHTML(t('companionDemoTryBtn') || 'Tester la démo')}
+            </button>
+          ` : ''}
+          ${featureId === 'hostels' ? `
+            <button onclick="showHostelsDemo()"
+              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+              🎯 ${escapeHTML(t('hostelsDemoTryBtn') || 'Tester la démo')}
             </button>
           ` : ''}
         </div>

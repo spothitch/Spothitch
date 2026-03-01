@@ -12,6 +12,7 @@ import { renderToggle } from '../../utils/toggle.js'
 import { getVipLevel } from '../../data/vip-levels.js'
 import { allBadges } from '../../data/badges.js'
 import { escapeHTML } from '../../utils/sanitize.js'
+import './ProfileDemos.js' // Interactive demo overlays for Prochainement features
 
 // ==================== FIRESTORE PROFILE SYNC ====================
 
@@ -850,6 +851,8 @@ const ROADMAP_FEATURES = [
   { id: 'hostels', icon: '🏨', title: { fr: 'Auberges partenaires', en: 'Partner Hostels', es: 'Albergues asociados', de: 'Partnerherbergen' }, desc: { fr: 'Chill, Cheap, Party par ville', en: 'Chill, Cheap, Party by city', es: 'Chill, Barato, Fiesta por ciudad', de: 'Chill, Günstig, Party nach Stadt' }, status: 'thinking' },
   { id: 'events', icon: '🎉', title: { fr: 'Événements', en: 'Events', es: 'Eventos', de: 'Veranstaltungen' }, desc: { fr: 'Meetups, rassemblements', en: 'Meetups, gatherings', es: 'Encuentros, reuniones', de: 'Meetups, Treffen' }, status: 'thinking' },
   { id: 'groups', icon: '👥', title: { fr: 'Groupes & Courses', en: 'Groups & Races', es: 'Grupos & Carreras', de: 'Gruppen & Rennen' }, desc: { fr: 'Localisation amis, courses', en: 'Friends location, races', es: 'Ubicación amigos, carreras', de: 'Freunde-Standort, Rennen' }, status: 'thinking' },
+  { id: 'journal', icon: '📔', title: { fr: 'Carnet de Voyage', en: 'Travel Journal', es: 'Diario de Viaje', de: 'Reisetagebuch' }, desc: { fr: 'Enregistre et partage tes voyages', en: 'Record and share your trips', es: 'Registra y comparte tus viajes', de: 'Reisen aufzeichnen und teilen' }, status: 'thinking' },
+  { id: 'companion', icon: '🛡️', title: { fr: 'Mode Compagnon Sécurité', en: 'Safety Companion Mode', es: 'Modo Compañero de Seguridad', de: 'Sicherheits-Begleitmodus' }, desc: { fr: 'Suivi en direct, check-ins, gardiens', en: 'Live tracking, check-ins, guardians', es: 'Seguimiento en vivo, check-ins, guardianes', de: 'Live-Tracking, Check-ins, Wächter' }, status: 'thinking' },
 ]
 
 const ROADMAP_STATUS = {
@@ -1076,6 +1079,11 @@ function renderFeatureDetailThumbs() {
         </div>
         <p class="text-sm text-slate-300 leading-relaxed">${t('roadmapThumbsExplain') || 'Gagne des points en contribuant (ajout de spots, voyages, invitations). Echange-les contre des reductions chez nos partenaires voyage.'}</p>
       </div>
+      <button onclick="showPointsDemo()"
+        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+        🎯 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo')}
+      </button>
       <h3 class="font-bold text-sm mb-2">${t('roadmapHowItWorks') || 'Comment ca marchera'}</h3>
       <div class="space-y-2">
         <div class="card p-3">
@@ -1104,6 +1112,11 @@ function renderFeatureDetailThumbs() {
 function renderFeatureDetailLeagues() {
   return `
     <div class="mb-5">
+      <button onclick="showPointsDemo()"
+        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+        🎯 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo')}
+      </button>
       <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-4 mb-3">
         <div class="flex justify-between items-center">
           <div><p class="text-white/70 text-xs">SAISON 3</p><p class="text-white font-bold">Spring 2026</p></div>
@@ -1306,6 +1319,11 @@ function renderFeatureDetailCities() {
 function renderFeatureDetailHostels() {
   return `
     <div class="mb-5">
+      <button onclick="showHostelsDemo()"
+        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+        🎯 ${escapeHTML(t('hostelsDemoTryBtn') || 'Tester la démo')}
+      </button>
       <div class="card p-3 mb-3 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
         <div class="flex items-center justify-between mb-2">
           <div><h3 class="font-bold text-sm">🏨 Nos partenaires</h3><p class="text-slate-400 text-xs">Auberges recommandées</p></div>
@@ -1359,6 +1377,11 @@ function renderFeatureDetailHostels() {
 function renderFeatureDetailEvents() {
   return `
     <div class="mb-5">
+      <button onclick="showSocialDemo()"
+        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+        🎯 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo')}
+      </button>
       <div class="bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl p-4 mb-3">
         <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full">⭐ FEATURED</span>
         <h3 class="text-white text-lg font-bold mt-1.5">Hitchgathering Europe 2026</h3>
@@ -1423,6 +1446,11 @@ function renderFeatureDetailEvents() {
 function renderFeatureDetailGroups() {
   return `
     <div class="mb-5">
+      <button onclick="showSocialDemo()"
+        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+        🎯 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo')}
+      </button>
       <div class="bg-slate-700/50 rounded-xl relative overflow-hidden mb-3" style="height:200px">
         <div class="absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/70 to-transparent">
           <span class="bg-emerald-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">🟢 5 en ligne</span>
@@ -1448,6 +1476,52 @@ function renderFeatureDetailGroups() {
   `
 }
 
+function renderFeatureDetailJournal() {
+  return `
+    <div class="mb-5">
+      <button onclick="showJournalDemo()"
+        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+        🎯 ${escapeHTML(t('journalDemoTryBtn') || 'Tester la démo')}
+      </button>
+      <div class="card p-4 border-amber-500/20 bg-amber-500/5 mb-3">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold">${t('roadmapConcept') || 'CONCEPT'}</span>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(t('roadmapJournalExplain') || 'Ton voyage enregistré automatiquement, étape par étape. Revois tes stats, partage tes itinéraires et inspire la communauté.')}</p>
+      </div>
+      <div class="space-y-2">
+        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-amber-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">📝</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapJournalStep1') || 'Enregistrement auto')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapJournalStep1Desc') || 'Chaque lift, chaque ville, chaque étape')}</p></div></div></div>
+        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-emerald-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">📊</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapJournalStep2') || 'Stats complètes')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapJournalStep2Desc') || 'Km parcourus, temps d\'attente, pays traversés')}</p></div></div></div>
+        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-purple-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">🌍</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapJournalStep3') || 'Partage')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapJournalStep3Desc') || 'Inspire les autres autostoppeurs avec tes itinéraires')}</p></div></div></div>
+      </div>
+    </div>
+  `
+}
+
+function renderFeatureDetailCompanion() {
+  return `
+    <div class="mb-5">
+      <button onclick="showCompanionDemo()"
+        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+        🎯 ${escapeHTML(t('companionDemoTryBtn') || 'Tester la démo')}
+      </button>
+      <div class="card p-4 border-emerald-500/20 bg-emerald-500/5 mb-3">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold">${t('roadmapConcept') || 'CONCEPT'}</span>
+        </div>
+        <p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(t('roadmapCompanionExplain') || 'Tes proches suivent ta position en direct. Check-in toutes les heures. Alerte automatique si tu ne réponds pas.')}</p>
+      </div>
+      <div class="space-y-2">
+        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-emerald-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">📍</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapCompanionStep1') || 'Position en direct')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapCompanionStep1Desc') || 'Tes gardiens voient où tu es sur la carte')}</p></div></div></div>
+        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-amber-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">✅</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapCompanionStep2') || 'Check-in régulier')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapCompanionStep2Desc') || 'Un bouton toutes les heures pour dire que tout va bien')}</p></div></div></div>
+        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-red-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">🆘</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapCompanionStep3') || 'Alerte automatique')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapCompanionStep3Desc') || 'Si tu manques un check-in, tes gardiens sont alertés')}</p></div></div></div>
+      </div>
+    </div>
+  `
+}
+
 const FEATURE_DETAIL_RENDERERS = {
   tech: renderFeatureDetailTech,
   thumbs: renderFeatureDetailThumbs,
@@ -1456,6 +1530,8 @@ const FEATURE_DETAIL_RENDERERS = {
   hostels: renderFeatureDetailHostels,
   events: renderFeatureDetailEvents,
   groups: renderFeatureDetailGroups,
+  journal: renderFeatureDetailJournal,
+  companion: renderFeatureDetailCompanion,
 }
 
 function renderRoadmapDetail(state, feature) {

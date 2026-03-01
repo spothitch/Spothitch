@@ -334,6 +334,17 @@ const MAIN_JS_HANDLERS = [
   'acceptRoadmapIntro', 'dismissRoadmapDetailIntro',
   // City Pages Demo (defined in Profile.js)
   'switchCityDemoTab', 'showCityPageDemo', 'closeCityPageDemo', 'startCityPageDemo',
+  // Feature demos — generic + 5 demo overlays (defined in ProfileDemos.js)
+  'switchDemoTab',
+  'showPointsDemo', 'closePointsDemo', 'startPointsDemo', 'switchPointsDemoTab',
+  // Journal Demo (defined in Profile.js)
+  'showJournalDemo', 'closeJournalDemo', 'startJournalDemo', 'switchJournalDemoTab',
+  // Social Demo (defined in Profile.js)
+  'showSocialDemo', 'closeSocialDemo', 'startSocialDemo', 'switchSocialDemoTab',
+  // Companion Demo (defined in Profile.js)
+  'showCompanionDemo', 'closeCompanionDemo', 'startCompanionDemo', 'switchCompanionDemoTab',
+  // Hostels Demo (defined in Profile.js)
+  'showHostelsDemo', 'closeHostelsDemo', 'startHostelsDemo', 'switchHostelsDemoTab',
   // Map extras (defined in Map.js)
   'searchLocation',
   // Chat extras (defined in Chat.js)
