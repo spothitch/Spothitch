@@ -24,6 +24,7 @@ import { renderCookieBanner } from './modals/CookieBanner.js';
 import { renderBetaBanner } from './modals/BetaBanner.js';
 import { icon } from '../utils/icons.js'
 import { trapFocus } from '../utils/a11y.js'
+import { registerMarkerImages, getMarkerType } from '../utils/mapMarkers.js'
 
 // Everything else is lazy-loaded on demand via lazyRender() below
 
@@ -585,6 +586,7 @@ function ensureMapControls(state) {
       <button onclick="homeZoomOut()" class="w-10 h-10 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center hover:bg-dark-primary/80 transition-colors text-lg font-bold shadow-lg" aria-label="Zoom out">\u2212</button>
       <button onclick="homeCenterOnUser()" class="w-10 h-10 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-primary-400 flex items-center justify-center hover:bg-dark-primary/80 transition-colors shadow-lg" aria-label="My location">${icon('locate', 'w-5 h-5')}</button>
       <button id="gas-toggle-btn" onclick="toggleGasStations()" class="w-10 h-10 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Gas stations"><span class="text-lg">\u26FD</span></button>
+      <button id="legend-toggle-btn" onclick="toggleMapLegend()" class="w-10 h-10 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Legend">${icon('info', 'w-5 h-5')}</button>
     `
     map.appendChild(ctrl)
   }
@@ -696,7 +698,6 @@ function initHomeMap(state) {
     container.dataset.initialized = 'true'
 
     const maplibregl = maplibreModule.default || maplibreModule
-    const { getFreshnessColor } = await import('../services/spotFreshness.js')
     const {
       addCountryBubbleLayers, updateCountryBubbleData,
       createBubblePopup, setBubbleLayersVisibility, setSpotLayersVisibility,
@@ -814,10 +815,7 @@ function initHomeMap(state) {
           properties: {
             id: spot.id,
             isFav: isFav ? 1 : 0,
-            color: isFav ? '#f59e0b' : (getFreshnessColor(spot) || '#22c55e'),
-            strokeColor: isFav ? '#fbbf24' : '#ffffff',
-            radius: isFav ? 10 : 7,
-            strokeWidth: isFav ? 2 : 1.5,
+            markerType: getMarkerType(spot, isFav),
           },
         })
       })
@@ -827,7 +825,7 @@ function initHomeMap(state) {
     // Add spots layers once map is loaded
     let spotsSourceAdded = false
 
-    const addSpotsSource = (geojson) => {
+    const addSpotsSource = async (geojson) => {
       if (spotsSourceAdded) {
         // Update existing source data
         const source = map.getSource('home-spots')
@@ -873,18 +871,26 @@ function initHomeMap(state) {
         paint: { 'text-color': '#ffffff' },
       })
 
-      // Individual spot dots
+      // Register SVG marker images then add symbol layer
+      await registerMarkerImages(map)
+
+      // Individual spot markers (Style 4: split + crown + gold ring)
       map.addLayer({
         id: 'home-spot-points',
-        type: 'circle',
+        type: 'symbol',
         source: 'home-spots',
         filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': ['get', 'color'],
-          'circle-radius': ['get', 'radius'],
-          'circle-stroke-color': ['get', 'strokeColor'],
-          'circle-stroke-width': ['get', 'strokeWidth'],
-          'circle-opacity': 0.85,
+        layout: {
+          'icon-image': ['get', 'markerType'],
+          'icon-size': [
+            'interpolate', ['linear'], ['zoom'],
+            5, 0.4,
+            10, 0.6,
+            13, 0.8,
+            16, 1,
+          ],
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
         },
       })
 

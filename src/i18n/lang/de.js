@@ -1756,6 +1756,8 @@ export default {
   position: 'Position',
   country: 'Land',
   season: 'Saison',
+  mapLegend: 'Legende',
+  favorite: 'Favorit',
   gasStation: 'Tankstelle',
   gasStations: 'Tankstellen',
   loadingGasStations: 'Tankstellen werden geladen...',

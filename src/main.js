@@ -2646,6 +2646,23 @@ window.homeZoomOut = () => {
   if (window.homeMapInstance) window.homeMapInstance.zoomOut()
 }
 
+window.toggleMapLegend = () => {
+  const existing = document.getElementById('map-legend-overlay')
+  if (existing) {
+    existing.remove()
+    return
+  }
+  const mapEl = document.getElementById('home-map')
+  if (!mapEl) return
+  import('./utils/mapMarkers.js').then(({ buildLegendHTML }) => {
+    const overlay = document.createElement('div')
+    overlay.id = 'map-legend-overlay'
+    overlay.className = 'map-legend-overlay'
+    overlay.innerHTML = buildLegendHTML(t)
+    mapEl.appendChild(overlay)
+  })
+}
+
 // ==================== HANDLERS MANQUANTS (Wolf audit) ====================
 
 // Navigation shortcuts

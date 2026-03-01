@@ -1753,6 +1753,8 @@ export default {
   country: 'Country',
   season: 'season',
   // Map & Spots
+  mapLegend: 'Legend',
+  favorite: 'Favorite',
   gasStation: 'Gas station',
   gasStations: 'Gas stations',
   loadingGasStations: 'Loading gas stations...',

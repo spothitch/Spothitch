@@ -654,6 +654,29 @@
   padding: 0.25rem;
 }
 
+/* Map legend overlay */
+.map-legend-overlay {
+  position: absolute;
+  top: 5rem;
+  left: 1rem;
+  z-index: 25;
+  background: rgba(15, 21, 32, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  max-width: 240px;
+}
+.light-theme .map-legend-overlay {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: #e5e2d9;
+  color: #1c1917;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 /* Gas station popup — inherit same dark styling */
 .gas-popup .maplibregl-popup-content {
   background-color: rgba(15, 21, 32, 0.95) !important;

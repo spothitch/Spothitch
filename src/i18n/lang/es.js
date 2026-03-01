@@ -1756,6 +1756,8 @@ export default {
   position: 'Posición',
   country: 'País',
   season: 'temporada',
+  mapLegend: 'Leyenda',
+  favorite: 'Favorito',
   gasStation: 'Gasolinera',
   gasStations: 'Gasolineras',
   loadingGasStations: 'Cargando gasolineras...',

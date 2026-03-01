@@ -254,6 +254,8 @@ const MAIN_JS_HANDLERS = [
   'companionClearHistory',
   // Gas Stations (navigation)
   'toggleGasStations',
+  // Map legend
+  'toggleMapLegend',
   // Community Tips (defined in communityTips.js)
   'submitCommunityTip', 'voteCommunityTip',
   // main.js — missing handlers
