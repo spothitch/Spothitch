@@ -2,16 +2,18 @@
  * Map Marker Generator — Style 4
  * "Split net + couronne 3 pointes + anneau fin doré"
  *
- * 9 marker types:
+ * 8 marker types:
  *   marker-gray            — Non validé (0 validations)
- *   marker-gray-station    — Non validé + station-service
+ *   marker-gray-station    — Non validé + station-service (split gris/rouge)
  *   marker-gray-gold       — Certifié ambassadeur (non validé)
  *   marker-green           — Validé (3+ validations)
- *   marker-green-station   — Validé + station-service
+ *   marker-green-station   — Validé + station-service (split vert/rouge)
  *   marker-green-gold      — Certifié ambassadeur + validé
  *   marker-green-gold-station — Certifié + validé + station
  *   marker-fav             — Favori utilisateur (ambre)
- *   marker-red             — Signalé dangereux
+ *
+ * NOTE: Le rouge = station-service, PAS dangereux.
+ * Les spots dangereux sont vérifiés par admin et supprimés.
  */
 
 const C = {
@@ -84,7 +86,6 @@ const MARKERS = {
   'marker-green-gold': () => goldSvg(C.green),
   'marker-green-gold-station': () => goldStationSvg(C.green, C.red),
   'marker-fav': favSvg,
-  'marker-red': () => circleSvg(C.red),
 }
 
 /** Load SVG string as HTMLImageElement */
@@ -123,7 +124,6 @@ export async function registerMarkerImages(map) {
  */
 export function getMarkerType(spot, isFav) {
   if (isFav) return 'marker-fav'
-  if (spot.dangerous || spot.reported) return 'marker-red'
 
   const validated = (spot.userValidations || 0) >= 3
   const isStation = spot.spotType === 'station'
@@ -169,7 +169,6 @@ ${row(sp('#22c55e', '#ef4444'), (t('reliableSpot') || 'Validé') + ' + ' + (t('g
 ${row(g('#22c55e'), (t('ambassadorVerified') || 'Certifié') + ' + ' + (t('reliableSpot') || 'validé').toLowerCase())}
 ${row(gs('#22c55e', '#ef4444'), (t('ambassadorVerified') || 'Certifié') + ' + ' + (t('gasStation') || 'station').toLowerCase())}
 ${row(c('#f59e0b', '#fbbf24', 2), t('favorite') || 'Favori')}
-${row(c('#ef4444'), t('dangerousSpot') || 'Signalé')}
 `
 }
 
