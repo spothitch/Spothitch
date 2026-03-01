@@ -4257,4 +4257,12 @@ export default {
   stationsFailed: 'Fehler beim Herunterladen der Tankstellen',
   estimatedSize: 'Geschätzte Größe',
   offlineMapIncluded: 'Offline-Karte enthalten',
+
+  // City Pages Demo
+  cityDemoIntroTitle: 'Stadtseiten',
+  cityDemoIntroDesc: 'Jede Stadt wird ihre eigene, von der Community bereicherte Seite haben. Je mehr Tramper ihre Tipps, Spots und Empfehlungen teilen, desto nützlicher wird die Seite für alle!',
+  cityDemoIntroBtn: 'Demo testen',
+  cityDemoRoadmapIntro: 'So wird jede Stadtseite aussehen. Spots, Tipps, Hostels, Events, lokale Gesetze und praktische Infos — alles von der Community bereichert.',
+  cityDemoTryBtn: 'Demo testen',
+  cityDemoCloseBtn: 'Schließen',
 }

@@ -4202,4 +4202,12 @@ export default {
   stationsFailed: 'Échec du téléchargement des stations',
   estimatedSize: 'Taille estimée',
   offlineMapIncluded: 'Carte hors-ligne incluse',
+
+  // City Pages Demo
+  cityDemoIntroTitle: 'Pages Villes',
+  cityDemoIntroDesc: 'Chaque ville aura sa propre page enrichie par la communauté. Plus les autostoppeurs partagent leurs conseils, spots et bons plans, plus la page devient utile pour tout le monde !',
+  cityDemoIntroBtn: 'Découvrir la démo',
+  cityDemoRoadmapIntro: 'Voici à quoi ressemblera chaque page ville. Spots, conseils, auberges, événements, loi locale et infos pratiques — tout enrichi par la communauté.',
+  cityDemoTryBtn: 'Tester la démo',
+  cityDemoCloseBtn: 'Fermer',
 }

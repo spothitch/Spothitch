@@ -11,6 +11,7 @@ import { renderEmptyState } from '../EmptyState.js'
 import { renderToggle } from '../../utils/toggle.js'
 import { getVipLevel } from '../../data/vip-levels.js'
 import { allBadges } from '../../data/badges.js'
+import { escapeHTML } from '../../utils/sanitize.js'
 
 // ==================== FIRESTORE PROFILE SYNC ====================
 
@@ -1154,61 +1155,149 @@ function renderFeatureDetailLeagues() {
 function renderFeatureDetailCities() {
   return `
     <div class="mb-5">
-      <div class="bg-slate-700/50 rounded-xl h-36 relative mb-3 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-dark-primary/80"></div>
-        <div class="absolute top-1/4 left-1/3 w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div>
-        <div class="absolute top-1/3 right-1/4 w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-        <div class="absolute bottom-1/3 left-1/4 w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-        <div class="absolute bottom-4 left-3 right-3">
-          <div class="bg-black/70 rounded-xl p-2.5">
-            <p class="text-slate-400 text-[10px] mb-1">Direction</p>
-            <div class="flex gap-1.5">
-              <span class="bg-amber-500 text-black px-2.5 py-0.5 rounded-lg text-xs font-bold">Sud</span>
-              <span class="bg-white/10 text-white px-2.5 py-0.5 rounded-lg text-xs">Nord</span>
-              <span class="bg-white/10 text-white px-2.5 py-0.5 rounded-lg text-xs">Est</span>
-              <span class="bg-white/10 text-white px-2.5 py-0.5 rounded-lg text-xs">Ouest</span>
+      <!-- Intro card -->
+      <div class="rounded-xl p-3 mb-4" style="background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25)">
+        <p class="text-sm font-bold" style="color: #fbbf24">🏙️ ${escapeHTML(t('cityDemoIntroTitle') || 'Pages Villes')}</p>
+        <p class="text-xs mt-1" style="color: #94a3b8; line-height: 1.4">${escapeHTML(t('cityDemoRoadmapIntro') || 'Voici à quoi ressemblera chaque page ville.')}</p>
+      </div>
+
+      <!-- City Demo: Design #2 -->
+      <div data-city-demo="roadmap" style="background: #0f1520; border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.06)">
+        <!-- City Hero -->
+        <div style="margin-bottom: 8px">
+          <h3 style="font-size: 1.2rem; color: #fff; margin: 0">🇫🇷 Paris</h3>
+          <div style="font-size: 0.7rem; color: #94a3b8">France · Île-de-France</div>
+        </div>
+
+        <!-- Dashboard stats -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 6px 0">
+          <div style="background: #1a2332; border-radius: 8px; padding: 8px; text-align: center"><div style="font-size: 1.1rem; font-weight: 800; color: #fbbf24">43</div><div style="font-size: 0.5rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em">Spots</div></div>
+          <div style="background: #1a2332; border-radius: 8px; padding: 8px; text-align: center"><div style="font-size: 1.1rem; font-weight: 800; color: #fbbf24">847</div><div style="font-size: 0.5rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em">Lifts</div></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; margin-bottom: 4px">
+          <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.8rem; font-weight: 800; color: #22c55e">4.3</div><div style="font-size: 0.5rem; color: #64748b">Sécu</div></div>
+          <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.8rem; font-weight: 800; color: #f59e0b">3.8</div><div style="font-size: 0.5rem; color: #64748b">Trafic</div></div>
+          <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.8rem; font-weight: 800; color: #22c55e">4.1</div><div style="font-size: 0.5rem; color: #64748b">Accès</div></div>
+          <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.8rem; font-weight: 800; color: #22c55e">~25'</div><div style="font-size: 0.5rem; color: #64748b">Attente</div></div>
+        </div>
+
+        <!-- CTA -->
+        <div style="display: block; background: linear-gradient(135deg,#fbbf24,#d97706); color: #0f1520; font-weight: 700; text-align: center; padding: 10px; border-radius: 10px; margin: 10px 0; font-size: 0.8rem">📍 Ouvrir dans l'app</div>
+
+        <!-- Tabs -->
+        <div style="display: flex; gap: 4px; margin: 8px 0; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch">
+          <span class="cd-tab cd-tab-active" onclick="switchCityDemoTab(this, 'spots')">📍 Spots</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'conseils')">💬 Conseils</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'auberges')">🏨 Dormir</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'events')">🎪 Events</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'loi')">⚖️ Loi</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'pratique')">🗣️ Pratique</span>
+        </div>
+
+        <!-- Panel: Spots (default visible) -->
+        <div data-cd-panel="spots" style="display: block">
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🧭</span> Directions</div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4; display: flex; justify-content: space-between; align-items: center"><div><strong>→ Lyon</strong><div style="font-size: 0.6rem; color: #64748b">5 spots · A6</div></div><div style="font-size: 0.75rem; font-weight: 700; color: #22c55e">~25'</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4; display: flex; justify-content: space-between; align-items: center"><div><strong>→ Bruxelles</strong><div style="font-size: 0.6rem; color: #64748b">4 spots · A1</div></div><div style="font-size: 0.75rem; font-weight: 700; color: #22c55e">~20'</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4; display: flex; justify-content: space-between; align-items: center"><div><strong>→ Nantes</strong><div style="font-size: 0.6rem; color: #64748b">3 spots · A11</div></div><div style="font-size: 0.75rem; font-weight: 700; color: #22c55e">~30'</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4; display: flex; justify-content: space-between; align-items: center"><div><strong>→ Bordeaux</strong><div style="font-size: 0.6rem; color: #64748b">3 spots · A10</div></div><div style="font-size: 0.75rem; font-weight: 700; color: #22c55e">~35'</div></div>
+          </div>
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">⏰</span> Quand partir</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px">
+              <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🌅</div><div style="font-size: 0.5rem; color: #64748b">Matin</div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">~18'</div></div>
+              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">☀️</div><div style="font-size: 0.5rem; color: #64748b">Aprèm</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">~28'</div></div>
+              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🌆</div><div style="font-size: 0.5rem; color: #64748b">Soir</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">~40'</div></div>
+              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🌙</div><div style="font-size: 0.5rem; color: #64748b">Nuit</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">~55'</div></div>
+            </div>
+          </div>
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">📊</span> Types de spots</div>
+            <div style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 6px 0"><div style="width:40%;background:#22c55e;height:100%"></div><div style="width:30%;background:#ef4444;height:100%"></div><div style="width:18%;background:#3b82f6;height:100%"></div><div style="width:12%;background:#94a3b8;height:100%"></div></div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.6rem; color: #94a3b8"><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#22c55e"></span>Sortie 40%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#ef4444"></span>Station 30%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#3b82f6"></span>Route 18%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#94a3b8"></span>Autre 12%</span></div>
+          </div>
+        </div>
+
+        <!-- Panel: Conseils -->
+        <div data-cd-panel="conseils" style="display: none">
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">💬</span> Conseils (12)</div>
+            <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.72rem; line-height: 1.35; font-style: italic">"Aire de Fleury sur l'A6, direction Lyon. 15 min max."</div><div style="font-size: 0.58rem; color: #64748b; margin-top: 3px">👤 RoadSophie · ⭐ 12</div></div>
+            <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.72rem; line-height: 1.35; font-style: italic">"Porte Maillot, terre-plein avant le périph → A1. Panneau 'Lille' obligatoire."</div><div style="font-size: 0.58rem; color: #64748b; margin-top: 3px">👤 MarcoHitch · ⭐ 8</div></div>
+            <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.72rem; line-height: 1.35; font-style: italic">"Évitez Porte d'Orléans le vendredi soir. Samedi matin tôt = parfait."</div><div style="font-size: 0.58rem; color: #64748b; margin-top: 3px">👤 LunaVoyage · ⭐ 5</div></div>
+            <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.72rem; line-height: 1.35; font-style: italic">"Station Total de Rungis, accès RER. Les routiers vont vers le sud."</div><div style="font-size: 0.58rem; color: #64748b; margin-top: 3px">👤 TomPouce34 · ⭐ 3</div></div>
+          </div>
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">✋</span> Méthode la plus efficace</div>
+            <div style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 6px 0"><div style="width:58%;background:#fbbf24;height:100%"></div><div style="width:33%;background:#22c55e;height:100%"></div><div style="width:9%;background:#3b82f6;height:100%"></div></div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.6rem; color: #94a3b8"><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#fbbf24"></span>Panneau 58%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#22c55e"></span>Pouce 33%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#3b82f6"></span>Demander 9%</span></div>
+          </div>
+        </div>
+
+        <!-- Panel: Auberges -->
+        <div data-cd-panel="auberges" style="display: none">
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🏨</span> Où dormir pas cher</div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">💰</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">Le Village Hostel</div><div style="font-size: 0.6rem; color: #64748b">Montmartre · Vue Sacré-Cœur</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">19€</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">🎉</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">St Christopher's Inn</div><div style="font-size: 0.6rem; color: #64748b">Gare du Nord · Bar intégré</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">22€</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">🌍</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">Plug Inn Hostel</div><div style="font-size: 0.6rem; color: #64748b">Montmartre · Petit-déj inclus</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">24€</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">🤝</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">Les Piaules</div><div style="font-size: 0.6rem; color: #64748b">Belleville · Design</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">25€</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">😴</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">Generator Paris</div><div style="font-size: 0.6rem; color: #64748b">Colonel Fabien · Rooftop</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">28€</div></div>
+          </div>
+          <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; font-size: 0.68rem">💡 Prix = dortoir, basse saison. Haute saison (juin-sept) : +30-50%</div>
+        </div>
+
+        <!-- Panel: Events -->
+        <div data-cd-panel="events" style="display: none">
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🎪</span> Prochains événements</div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.75rem; font-weight: 600">🎶 Fête de la Musique</div><div style="font-size: 0.6rem; color: #fbbf24">21 juin 2026</div><div style="font-size: 0.6rem; color: #94a3b8; margin-top: 2px">Concerts gratuits — routards nombreux, lifts faciles le lendemain</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.75rem; font-weight: 600">🎆 14 Juillet</div><div style="font-size: 0.6rem; color: #fbbf24">14 juillet 2026</div><div style="font-size: 0.6rem; color: #94a3b8; margin-top: 2px">Feux d'artifice — éviter l'A6 le 15</div></div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.75rem; font-weight: 600">🎨 Nuit Blanche</div><div style="font-size: 0.6rem; color: #fbbf24">3 oct 2026</div><div style="font-size: 0.6rem; color: #94a3b8; margin-top: 2px">Art toute la nuit — transports gratuits</div></div>
+          </div>
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🌡️</span> Meilleure saison</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px">
+              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">❄️</div><div style="font-size: 0.5rem; color: #64748b">Hiver</div><div style="font-size: 0.7rem; font-weight: 700; color: #ef4444">2/5</div></div>
+              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🌸</div><div style="font-size: 0.5rem; color: #64748b">Print.</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">4/5</div></div>
+              <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">☀️</div><div style="font-size: 0.5rem; color: #64748b">Été</div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">5/5</div></div>
+              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🍂</div><div style="font-size: 0.5rem; color: #64748b">Auto.</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">3/5</div></div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="flex gap-1.5 mb-3 overflow-x-auto">
-        <span class="bg-amber-500 text-black px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">Tous</span>
-        <span class="bg-white/10 text-white px-2.5 py-1 rounded-full text-[10px] whitespace-nowrap">⭐ 4.5+</span>
-        <span class="bg-white/10 text-white px-2.5 py-1 rounded-full text-[10px] whitespace-nowrap">🕐 Matin</span>
-        <span class="bg-white/10 text-white px-2.5 py-1 rounded-full text-[10px] whitespace-nowrap">🌙 Soir</span>
-      </div>
-      <div class="card p-3 mb-3 border-amber-500/20 bg-amber-500/5">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🇪🇸</span>
-          <div class="flex-1"><p class="font-bold text-sm">Vers Barcelone</p><p class="text-slate-400 text-xs">Direction Sud • A6 puis A7</p></div>
-        </div>
-      </div>
-      <h3 class="font-bold text-sm mb-2">📍 12 spots disponibles</h3>
-      <div class="space-y-2.5">
-        <div class="card p-3">
-          <div class="flex justify-between items-start mb-1.5">
-            <div><p class="font-bold text-sm">Porte d'Orléans</p><p class="text-slate-400 text-xs">Sortie périphérique sud</p></div>
-            <div class="flex items-center gap-1 bg-amber-500/20 px-1.5 py-0.5 rounded-lg"><span class="text-amber-500 text-xs">⭐</span><span class="text-amber-500 font-bold text-xs">4.8</span></div>
+
+        <!-- Panel: Loi -->
+        <div data-cd-panel="loi" style="display: none">
+          <div style="text-align: center; margin: 10px 0"><span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3)">✅ Légal en France</span></div>
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">📜</span> Règles</div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4">🚫 <strong>Autoroute</strong> — interdit sur la voie, OK sur bretelles/aires</div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4">⚠️ <strong>Périph</strong> — interdit, mais portes de Paris OK</div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4">✅ <strong>Nationales</strong> — aucune restriction</div>
           </div>
-          <div class="flex gap-1.5 mb-2">
-            <span class="bg-emerald-500/20 text-emerald-500 text-[10px] px-1.5 py-0.5 rounded-full">⏱️ 15min</span>
-            <span class="bg-blue-500/20 text-blue-400 text-[10px] px-1.5 py-0.5 rounded-full">👥 342</span>
-          </div>
-          <div class="bg-white/5 rounded-lg p-2">
-            <p class="text-slate-300 text-xs italic">"Spot hyper efficace, j'ai eu une voiture en 10min direction Lyon !"</p>
-            <p class="text-slate-500 text-[10px] mt-0.5">— TomHitchiker, il y a 3 jours</p>
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">📞</span> Urgences</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px">
+              <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.9rem">🚑</div><div style="font-size: 0.5rem; color: #64748b">15</div></div>
+              <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.9rem">🚔</div><div style="font-size: 0.5rem; color: #64748b">17</div></div>
+              <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.9rem">🚒</div><div style="font-size: 0.5rem; color: #64748b">18</div></div>
+            </div>
           </div>
         </div>
-        <div class="card p-3">
-          <div class="flex justify-between items-start mb-1.5">
-            <div><p class="font-bold text-sm">Aire de Fleury</p><p class="text-slate-400 text-xs">A6 direction Lyon</p></div>
-            <div class="flex items-center gap-1 bg-amber-500/20 px-1.5 py-0.5 rounded-lg"><span class="text-amber-500 text-xs">⭐</span><span class="text-amber-500 font-bold text-xs">4.6</span></div>
+
+        <!-- Panel: Pratique -->
+        <div data-cd-panel="pratique" style="display: none">
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🗣️</span> Phrases utiles</div>
+            <div style="background: #1a2332; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center"><div style="font-size: 0.72rem; font-weight: 600">Je vais à Lyon</div><div style="font-size: 0.65rem; color: #64748b">I'm going to Lyon</div></div>
+            <div style="background: #1a2332; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center"><div style="font-size: 0.72rem; font-weight: 600">Quelle direction ?</div><div style="font-size: 0.65rem; color: #64748b">Which way?</div></div>
+            <div style="background: #1a2332; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center"><div style="font-size: 0.72rem; font-weight: 600">Déposez-moi ici</div><div style="font-size: 0.65rem; color: #64748b">Drop me here</div></div>
+            <div style="background: #1a2332; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center"><div style="font-size: 0.72rem; font-weight: 600">Merci pour le lift !</div><div style="font-size: 0.65rem; color: #64748b">Thanks for the ride!</div></div>
           </div>
-          <div class="flex gap-1.5">
-            <span class="bg-emerald-500/20 text-emerald-500 text-[10px] px-1.5 py-0.5 rounded-full">⏱️ 20min</span>
-            <span class="bg-blue-500/20 text-blue-400 text-[10px] px-1.5 py-0.5 rounded-full">👥 189</span>
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">💱</span> Monnaie & budget</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px">
+              <div style="background: #1a2332; border-radius: 8px; padding: 8px; text-align: center"><div style="font-size: 0.9rem; font-weight: 800; color: #fbbf24">€</div><div style="font-size: 0.5rem; color: #64748b">Euro</div></div>
+              <div style="background: #1a2332; border-radius: 8px; padding: 8px; text-align: center"><div style="font-size: 0.85rem; font-weight: 800; color: #fbbf24">~15€</div><div style="font-size: 0.5rem; color: #64748b">Budget/jour</div></div>
+            </div>
+            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; font-size: 0.68rem; margin-top: 4px; line-height: 1.4">☕ Café : 1.50€ · 🥖 Baguette : 1.10€ · 🚇 Métro : 2.15€ · 🍕 Pizza : 8€</div>
+          </div>
+          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🌐</span> Villes proches</div>
+            <div style="display: flex; align-items: center; gap: 8px; background: #1a2332; border-radius: 8px; padding: 6px 10px; margin-bottom: 4px"><div style="font-size: 0.8rem; font-weight: 800; color: #fbbf24; min-width: 20px">→</div><div style="flex: 1"><div style="font-size: 0.72rem; font-weight: 600">Lyon</div><div style="font-size: 0.58rem; color: #64748b">465 km · 52 spots</div></div><div style="font-size: 0.72rem; font-weight: 700; color: #22c55e">~25'</div></div>
+            <div style="display: flex; align-items: center; gap: 8px; background: #1a2332; border-radius: 8px; padding: 6px 10px; margin-bottom: 4px"><div style="font-size: 0.8rem; font-weight: 800; color: #fbbf24; min-width: 20px">→</div><div style="flex: 1"><div style="font-size: 0.72rem; font-weight: 600">Bruxelles</div><div style="font-size: 0.58rem; color: #64748b">310 km · 18 spots</div></div><div style="font-size: 0.72rem; font-weight: 700; color: #22c55e">~20'</div></div>
+            <div style="display: flex; align-items: center; gap: 8px; background: #1a2332; border-radius: 8px; padding: 6px 10px; margin-bottom: 4px"><div style="font-size: 0.8rem; font-weight: 800; color: #fbbf24; min-width: 20px">→</div><div style="flex: 1"><div style="font-size: 0.72rem; font-weight: 600">Nantes</div><div style="font-size: 0.58rem; color: #64748b">385 km · 31 spots</div></div><div style="font-size: 0.72rem; font-weight: 700; color: #22c55e">~30'</div></div>
           </div>
         </div>
+
       </div>
     </div>
   `
@@ -2200,6 +2289,198 @@ window.acceptRoadmapIntro = () => {
 window.dismissRoadmapDetailIntro = () => {
   localStorage.setItem('spothitch_roadmap_detail_seen', '1')
   window._forceRender?.()
+}
+
+// --- City Pages Demo handlers ---
+
+window.switchCityDemoTab = (btn, tabName) => {
+  const container = btn.closest('[data-city-demo]')
+  if (!container) return
+  container.querySelectorAll('.cd-tab').forEach(t => t.classList.remove('cd-tab-active'))
+  container.querySelectorAll('[data-cd-panel]').forEach(p => { p.style.display = 'none' })
+  btn.classList.add('cd-tab-active')
+  const panel = container.querySelector(`[data-cd-panel="${tabName}"]`)
+  if (panel) panel.style.display = 'block'
+}
+
+window.showCityPageDemo = () => {
+  // Remove existing overlay if any
+  document.getElementById('city-page-demo-overlay')?.remove()
+
+  const overlay = document.createElement('div')
+  overlay.id = 'city-page-demo-overlay'
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:80;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;overflow-y:auto'
+  overlay.setAttribute('role', 'dialog')
+  overlay.setAttribute('aria-modal', 'true')
+
+  overlay.innerHTML = `
+    <div id="city-demo-overlay-content" style="width:100%;max-width:420px;margin:16px;position:relative">
+      <!-- Close button -->
+      <button onclick="closeCityPageDemo()" style="position:absolute;top:8px;right:8px;z-index:5;background:rgba(255,255,255,0.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+
+      <!-- Intro screen -->
+      <div id="city-demo-intro-screen" style="background:#1e293b;border-radius:16px;padding:28px 20px;text-align:center">
+        <div style="font-size:3rem;margin-bottom:12px">🏙️</div>
+        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('cityDemoIntroTitle') || 'Pages Villes')}</h2>
+        <p style="font-size:0.85rem;color:#94a3b8;line-height:1.5;margin:0 0 20px">${escapeHTML(t('cityDemoIntroDesc') || 'Chaque ville aura sa propre page enrichie par la communauté.')}</p>
+        <button onclick="startCityPageDemo()" style="background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;font-weight:700;border:none;padding:12px 28px;border-radius:12px;font-size:0.9rem;cursor:pointer">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
+      </div>
+
+      <!-- Demo screen (hidden initially) -->
+      <div id="city-demo-main-screen" style="display:none"></div>
+    </div>
+  `
+
+  document.body.appendChild(overlay)
+}
+
+window.closeCityPageDemo = () => {
+  document.getElementById('city-page-demo-overlay')?.remove()
+}
+
+window.startCityPageDemo = () => {
+  const intro = document.getElementById('city-demo-intro-screen')
+  const main = document.getElementById('city-demo-main-screen')
+  if (!intro || !main) return
+
+  intro.style.display = 'none'
+  main.style.display = 'block'
+  main.innerHTML = `
+    <div data-city-demo="overlay" style="background:#0f1520;border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.06)">
+      <!-- City Hero -->
+      <div style="margin-bottom:8px"><h3 style="font-size:1.3rem;color:#fff;margin:0">🇫🇷 Paris</h3><div style="font-size:0.75rem;color:#94a3b8">France · Île-de-France</div></div>
+
+      <!-- Dashboard stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:6px 0">
+        <div style="background:#1a2332;border-radius:8px;padding:8px;text-align:center"><div style="font-size:1.1rem;font-weight:800;color:#fbbf24">43</div><div style="font-size:0.5rem;color:#64748b;text-transform:uppercase;letter-spacing:0.04em">Spots</div></div>
+        <div style="background:#1a2332;border-radius:8px;padding:8px;text-align:center"><div style="font-size:1.1rem;font-weight:800;color:#fbbf24">847</div><div style="font-size:0.5rem;color:#64748b;text-transform:uppercase;letter-spacing:0.04em">Lifts</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:4px">
+        <div style="background:#1a2332;border-radius:8px;padding:6px;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#22c55e">4.3</div><div style="font-size:0.5rem;color:#64748b">Sécu</div></div>
+        <div style="background:#1a2332;border-radius:8px;padding:6px;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#f59e0b">3.8</div><div style="font-size:0.5rem;color:#64748b">Trafic</div></div>
+        <div style="background:#1a2332;border-radius:8px;padding:6px;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#22c55e">4.1</div><div style="font-size:0.5rem;color:#64748b">Accès</div></div>
+        <div style="background:#1a2332;border-radius:8px;padding:6px;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#22c55e">~25&rsquo;</div><div style="font-size:0.5rem;color:#64748b">Attente</div></div>
+      </div>
+
+      <!-- CTA -->
+      <div style="display:block;background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;font-weight:700;text-align:center;padding:10px;border-radius:10px;margin:10px 0;font-size:0.8rem">📍 Ouvrir dans l&rsquo;app</div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:4px;margin:8px 0;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch">
+        <span class="cd-tab cd-tab-active" onclick="switchCityDemoTab(this,'spots')">📍 Spots</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'conseils')">💬 Conseils</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'auberges')">🏨 Dormir</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'events')">🎪 Events</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'loi')">⚖️ Loi</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'pratique')">🗣️ Pratique</span>
+      </div>
+
+      <!-- Panel: Spots -->
+      <div data-cd-panel="spots" style="display:block">
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">🧭</span> Directions</div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;font-size:0.75rem;line-height:1.4;display:flex;justify-content:space-between;align-items:center"><div><strong>→ Lyon</strong><div style="font-size:0.6rem;color:#64748b">5 spots · A6</div></div><div style="font-size:0.75rem;font-weight:700;color:#22c55e">~25&rsquo;</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;font-size:0.75rem;line-height:1.4;display:flex;justify-content:space-between;align-items:center"><div><strong>→ Bruxelles</strong><div style="font-size:0.6rem;color:#64748b">4 spots · A1</div></div><div style="font-size:0.75rem;font-weight:700;color:#22c55e">~20&rsquo;</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;font-size:0.75rem;line-height:1.4;display:flex;justify-content:space-between;align-items:center"><div><strong>→ Nantes</strong><div style="font-size:0.6rem;color:#64748b">3 spots · A11</div></div><div style="font-size:0.75rem;font-weight:700;color:#22c55e">~30&rsquo;</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;font-size:0.75rem;line-height:1.4;display:flex;justify-content:space-between;align-items:center"><div><strong>→ Bordeaux</strong><div style="font-size:0.6rem;color:#64748b">3 spots · A10</div></div><div style="font-size:0.75rem;font-weight:700;color:#22c55e">~35&rsquo;</div></div>
+        </div>
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">⏰</span> Quand partir</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px">
+            <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.3);border-radius:6px;padding:5px 3px;text-align:center"><div style="font-size:0.9rem">🌅</div><div style="font-size:0.5rem;color:#64748b">Matin</div><div style="font-size:0.7rem;font-weight:700;color:#22c55e">~18&rsquo;</div></div>
+            <div style="background:#1a2332;border-radius:6px;padding:5px 3px;text-align:center"><div style="font-size:0.9rem">☀️</div><div style="font-size:0.5rem;color:#64748b">Aprèm</div><div style="font-size:0.7rem;font-weight:700;color:#fbbf24">~28&rsquo;</div></div>
+            <div style="background:#1a2332;border-radius:6px;padding:5px 3px;text-align:center"><div style="font-size:0.9rem">🌆</div><div style="font-size:0.5rem;color:#64748b">Soir</div><div style="font-size:0.7rem;font-weight:700;color:#fbbf24">~40&rsquo;</div></div>
+            <div style="background:#1a2332;border-radius:6px;padding:5px 3px;text-align:center"><div style="font-size:0.9rem">🌙</div><div style="font-size:0.5rem;color:#64748b">Nuit</div><div style="font-size:0.7rem;font-weight:700;color:#fbbf24">~55&rsquo;</div></div>
+          </div>
+        </div>
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">📊</span> Types de spots</div>
+          <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin:6px 0"><div style="width:40%;background:#22c55e;height:100%"></div><div style="width:30%;background:#ef4444;height:100%"></div><div style="width:18%;background:#3b82f6;height:100%"></div><div style="width:12%;background:#94a3b8;height:100%"></div></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:0.6rem;color:#94a3b8"><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#22c55e"></span>Sortie 40%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#ef4444"></span>Station 30%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#3b82f6"></span>Route 18%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#94a3b8"></span>Autre 12%</span></div>
+        </div>
+      </div>
+
+      <!-- Panel: Conseils -->
+      <div data-cd-panel="conseils" style="display:none">
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">💬</span> Conseils (12)</div>
+          <div style="background:#1a2332;border-left:2px solid #fbbf24;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:5px"><div style="font-size:0.72rem;line-height:1.35;font-style:italic">"Aire de Fleury sur l&rsquo;A6, direction Lyon. 15 min max."</div><div style="font-size:0.58rem;color:#64748b;margin-top:3px">👤 RoadSophie · ⭐ 12</div></div>
+          <div style="background:#1a2332;border-left:2px solid #fbbf24;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:5px"><div style="font-size:0.72rem;line-height:1.35;font-style:italic">"Porte Maillot, terre-plein avant le périph → A1. Panneau &lsquo;Lille&rsquo; obligatoire."</div><div style="font-size:0.58rem;color:#64748b;margin-top:3px">👤 MarcoHitch · ⭐ 8</div></div>
+          <div style="background:#1a2332;border-left:2px solid #fbbf24;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:5px"><div style="font-size:0.72rem;line-height:1.35;font-style:italic">"Évitez Porte d&rsquo;Orléans le vendredi soir. Samedi matin tôt = parfait."</div><div style="font-size:0.58rem;color:#64748b;margin-top:3px">👤 LunaVoyage · ⭐ 5</div></div>
+          <div style="background:#1a2332;border-left:2px solid #fbbf24;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:5px"><div style="font-size:0.72rem;line-height:1.35;font-style:italic">"Station Total de Rungis, accès RER. Routiers vers le sud."</div><div style="font-size:0.58rem;color:#64748b;margin-top:3px">👤 TomPouce34 · ⭐ 3</div></div>
+        </div>
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">✋</span> Méthode efficace</div>
+          <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin:6px 0"><div style="width:58%;background:#fbbf24;height:100%"></div><div style="width:33%;background:#22c55e;height:100%"></div><div style="width:9%;background:#3b82f6;height:100%"></div></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:0.6rem;color:#94a3b8"><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#fbbf24"></span>Panneau 58%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#22c55e"></span>Pouce 33%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#3b82f6"></span>Demander 9%</span></div>
+        </div>
+      </div>
+
+      <!-- Panel: Auberges -->
+      <div data-cd-panel="auberges" style="display:none">
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">🏨</span> Où dormir pas cher</div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;display:flex;gap:8px;align-items:center"><div style="font-size:1.3rem">💰</div><div style="flex:1"><div style="font-size:0.75rem;font-weight:600">Le Village Hostel</div><div style="font-size:0.6rem;color:#64748b">Montmartre · Vue Sacré-Cœur</div></div><div style="font-size:0.7rem;font-weight:700;color:#22c55e">19€</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;display:flex;gap:8px;align-items:center"><div style="font-size:1.3rem">🎉</div><div style="flex:1"><div style="font-size:0.75rem;font-weight:600">St Christopher&rsquo;s Inn</div><div style="font-size:0.6rem;color:#64748b">Gare du Nord · Bar intégré</div></div><div style="font-size:0.7rem;font-weight:700;color:#22c55e">22€</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;display:flex;gap:8px;align-items:center"><div style="font-size:1.3rem">🌍</div><div style="flex:1"><div style="font-size:0.75rem;font-weight:600">Plug Inn Hostel</div><div style="font-size:0.6rem;color:#64748b">Montmartre · Petit-déj inclus</div></div><div style="font-size:0.7rem;font-weight:700;color:#22c55e">24€</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;display:flex;gap:8px;align-items:center"><div style="font-size:1.3rem">🤝</div><div style="flex:1"><div style="font-size:0.75rem;font-weight:600">Les Piaules</div><div style="font-size:0.6rem;color:#64748b">Belleville · Design</div></div><div style="font-size:0.7rem;font-weight:700;color:#22c55e">25€</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;display:flex;gap:8px;align-items:center"><div style="font-size:1.3rem">😴</div><div style="flex:1"><div style="font-size:0.75rem;font-weight:600">Generator Paris</div><div style="font-size:0.6rem;color:#64748b">Colonel Fabien · Rooftop</div></div><div style="font-size:0.7rem;font-weight:700;color:#22c55e">28€</div></div>
+        </div>
+        <div style="background:#1a2332;border-left:2px solid #fbbf24;border-radius:0 8px 8px 0;padding:8px 10px;font-size:0.68rem">💡 Prix = dortoir, basse saison. Haute saison : +30-50%</div>
+      </div>
+
+      <!-- Panel: Events -->
+      <div data-cd-panel="events" style="display:none">
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">🎪</span> Prochains événements</div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px"><div style="font-size:0.75rem;font-weight:600">🎶 Fête de la Musique</div><div style="font-size:0.6rem;color:#fbbf24">21 juin 2026</div><div style="font-size:0.6rem;color:#94a3b8;margin-top:2px">Concerts gratuits — lifts faciles le lendemain</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px"><div style="font-size:0.75rem;font-weight:600">🎆 14 Juillet</div><div style="font-size:0.6rem;color:#fbbf24">14 juillet 2026</div><div style="font-size:0.6rem;color:#94a3b8;margin-top:2px">Feux d&rsquo;artifice — éviter l&rsquo;A6 le 15</div></div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px"><div style="font-size:0.75rem;font-weight:600">🎨 Nuit Blanche</div><div style="font-size:0.6rem;color:#fbbf24">3 oct 2026</div><div style="font-size:0.6rem;color:#94a3b8;margin-top:2px">Art toute la nuit — transports gratuits</div></div>
+        </div>
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">🌡️</span> Meilleure saison</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px">
+            <div style="background:#1a2332;border-radius:6px;padding:5px 3px;text-align:center"><div style="font-size:0.9rem">❄️</div><div style="font-size:0.5rem;color:#64748b">Hiver</div><div style="font-size:0.7rem;font-weight:700;color:#ef4444">2/5</div></div>
+            <div style="background:#1a2332;border-radius:6px;padding:5px 3px;text-align:center"><div style="font-size:0.9rem">🌸</div><div style="font-size:0.5rem;color:#64748b">Print.</div><div style="font-size:0.7rem;font-weight:700;color:#fbbf24">4/5</div></div>
+            <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.3);border-radius:6px;padding:5px 3px;text-align:center"><div style="font-size:0.9rem">☀️</div><div style="font-size:0.5rem;color:#64748b">Été</div><div style="font-size:0.7rem;font-weight:700;color:#22c55e">5/5</div></div>
+            <div style="background:#1a2332;border-radius:6px;padding:5px 3px;text-align:center"><div style="font-size:0.9rem">🍂</div><div style="font-size:0.5rem;color:#64748b">Auto.</div><div style="font-size:0.7rem;font-weight:700;color:#fbbf24">3/5</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Loi -->
+      <div data-cd-panel="loi" style="display:none">
+        <div style="text-align:center;margin:10px 0"><span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">✅ Légal en France</span></div>
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">📜</span> Règles</div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;font-size:0.75rem;line-height:1.4">🚫 <strong>Autoroute</strong> — interdit sur la voie, OK sur bretelles/aires</div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;font-size:0.75rem;line-height:1.4">⚠️ <strong>Périph</strong> — interdit, mais portes de Paris OK</div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;margin-bottom:5px;font-size:0.75rem;line-height:1.4">✅ <strong>Nationales</strong> — aucune restriction</div>
+        </div>
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">📞</span> Urgences</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+            <div style="background:#1a2332;border-radius:8px;padding:6px;text-align:center"><div style="font-size:0.9rem">🚑</div><div style="font-size:0.5rem;color:#64748b">15</div></div>
+            <div style="background:#1a2332;border-radius:8px;padding:6px;text-align:center"><div style="font-size:0.9rem">🚔</div><div style="font-size:0.5rem;color:#64748b">17</div></div>
+            <div style="background:#1a2332;border-radius:8px;padding:6px;text-align:center"><div style="font-size:0.9rem">🚒</div><div style="font-size:0.5rem;color:#64748b">18</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Pratique -->
+      <div data-cd-panel="pratique" style="display:none">
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">🗣️</span> Phrases utiles</div>
+          <div style="background:#1a2332;border-radius:6px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.72rem;font-weight:600">Je vais à Lyon</div><div style="font-size:0.65rem;color:#64748b">I&rsquo;m going to Lyon</div></div>
+          <div style="background:#1a2332;border-radius:6px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.72rem;font-weight:600">Quelle direction ?</div><div style="font-size:0.65rem;color:#64748b">Which way?</div></div>
+          <div style="background:#1a2332;border-radius:6px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.72rem;font-weight:600">Déposez-moi ici</div><div style="font-size:0.65rem;color:#64748b">Drop me here</div></div>
+          <div style="background:#1a2332;border-radius:6px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.72rem;font-weight:600">Merci pour le lift !</div><div style="font-size:0.65rem;color:#64748b">Thanks for the ride!</div></div>
+        </div>
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">💱</span> Monnaie & budget</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+            <div style="background:#1a2332;border-radius:8px;padding:8px;text-align:center"><div style="font-size:0.9rem;font-weight:800;color:#fbbf24">€</div><div style="font-size:0.5rem;color:#64748b">Euro</div></div>
+            <div style="background:#1a2332;border-radius:8px;padding:8px;text-align:center"><div style="font-size:0.85rem;font-weight:800;color:#fbbf24">~15€</div><div style="font-size:0.5rem;color:#64748b">Budget/jour</div></div>
+          </div>
+          <div style="background:#1a2332;border-radius:8px;padding:8px 10px;font-size:0.68rem;margin-top:4px;line-height:1.4">☕ Café : 1.50€ · 🥖 Baguette : 1.10€ · 🚇 Métro : 2.15€ · 🍕 Pizza : 8€</div>
+        </div>
+        <div style="margin-top:10px"><div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span style="font-size:0.9rem">🌐</span> Villes proches</div>
+          <div style="display:flex;align-items:center;gap:8px;background:#1a2332;border-radius:8px;padding:6px 10px;margin-bottom:4px"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24;min-width:20px">→</div><div style="flex:1"><div style="font-size:0.72rem;font-weight:600">Lyon</div><div style="font-size:0.58rem;color:#64748b">465 km · 52 spots</div></div><div style="font-size:0.72rem;font-weight:700;color:#22c55e">~25&rsquo;</div></div>
+          <div style="display:flex;align-items:center;gap:8px;background:#1a2332;border-radius:8px;padding:6px 10px;margin-bottom:4px"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24;min-width:20px">→</div><div style="flex:1"><div style="font-size:0.72rem;font-weight:600">Bruxelles</div><div style="font-size:0.58rem;color:#64748b">310 km · 18 spots</div></div><div style="font-size:0.72rem;font-weight:700;color:#22c55e">~20&rsquo;</div></div>
+          <div style="display:flex;align-items:center;gap:8px;background:#1a2332;border-radius:8px;padding:6px 10px;margin-bottom:4px"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24;min-width:20px">→</div><div style="flex:1"><div style="font-size:0.72rem;font-weight:600">Nantes</div><div style="font-size:0.58rem;color:#64748b">385 km · 31 spots</div></div><div style="font-size:0.72rem;font-weight:700;color:#22c55e">~30&rsquo;</div></div>
+        </div>
+      </div>
+
+    </div>
+  `
 }
 
 export default { renderProfile }

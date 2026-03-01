@@ -248,6 +248,13 @@ function renderFeedbackDetail(state, featureId) {
             </div>
           </div>
           <p class="text-[13px] mt-3 leading-relaxed px-1" style="color: #94a3b8">${escapeHTML(desc)}</p>
+          ${featureId === 'city-pages' ? `
+            <button onclick="showCityPageDemo()"
+              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
+              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
+              🏙️ ${escapeHTML(t('cityDemoTryBtn') || 'Tester la démo')}
+            </button>
+          ` : ''}
         </div>
 
         <div class="flex-1 overflow-y-auto px-4 pb-8">

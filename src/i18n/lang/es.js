@@ -4199,4 +4199,12 @@ export default {
   stationsFailed: 'Error al descargar las gasolineras',
   estimatedSize: 'Tamaño estimado',
   offlineMapIncluded: 'Mapa sin conexión incluido',
+
+  // City Pages Demo
+  cityDemoIntroTitle: 'Páginas de Ciudades',
+  cityDemoIntroDesc: 'Cada ciudad tendrá su propia página enriquecida por la comunidad. Cuanto más compartan los autoestopistas sus consejos, spots y recomendaciones, más útil será la página para todos.',
+  cityDemoIntroBtn: 'Probar la demo',
+  cityDemoRoadmapIntro: 'Así se verá cada página de ciudad. Spots, consejos, albergues, eventos, leyes locales e información práctica — todo enriquecido por la comunidad.',
+  cityDemoTryBtn: 'Probar la demo',
+  cityDemoCloseBtn: 'Cerrar',
 }

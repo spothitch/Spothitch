@@ -4202,4 +4202,12 @@ export default {
   stationsFailed: 'Failed to download gas stations',
   estimatedSize: 'Estimated size',
   offlineMapIncluded: 'Offline map included',
+
+  // City Pages Demo
+  cityDemoIntroTitle: 'City Pages',
+  cityDemoIntroDesc: 'Each city will have its own page enriched by the community. The more hitchhikers share their tips, spots and recommendations, the more useful the page becomes for everyone!',
+  cityDemoIntroBtn: 'Try the demo',
+  cityDemoRoadmapIntro: 'Here is what each city page will look like. Spots, tips, hostels, events, local law and practical info — all enriched by the community.',
+  cityDemoTryBtn: 'Try the demo',
+  cityDemoCloseBtn: 'Close',
 }

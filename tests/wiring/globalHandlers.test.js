@@ -332,6 +332,8 @@ const MAIN_JS_HANDLERS = [
   'roadmapVote', 'roadmapVoteDetail', 'roadmapShowCommentInput',
   'roadmapHideCommentInput', 'submitRoadmapComment', 'openProgressionStats',
   'acceptRoadmapIntro', 'dismissRoadmapDetailIntro',
+  // City Pages Demo (defined in Profile.js)
+  'switchCityDemoTab', 'showCityPageDemo', 'closeCityPageDemo', 'startCityPageDemo',
   // Map extras (defined in Map.js)
   'searchLocation',
   // Chat extras (defined in Chat.js)
