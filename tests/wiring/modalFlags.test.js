@@ -11,7 +11,7 @@ import { initI18n } from '../../src/i18n/index.js'
 
 // Import all modals
 import { renderSOS } from '../../src/components/modals/SOS.js'
-import { renderAuth } from '../../src/components/modals/Auth.js'
+import { renderAuth, renderCompleteProfile } from '../../src/components/modals/Auth.js'
 import { renderAddSpot } from '../../src/components/modals/AddSpot.js'
 import { renderSpotDetail } from '../../src/components/modals/SpotDetail.js'
 import { renderWelcome } from '../../src/components/modals/Welcome.js'
@@ -110,6 +110,14 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
     expect(html).toBeTruthy()
     expect(html.length).toBeGreaterThan(100)
     expect(html.toLowerCase()).toContain('auth')
+  })
+
+  test('showCompleteProfile flag renders Complete Profile modal', () => {
+    const state = { ...mockState, showCompleteProfile: true }
+    const html = renderCompleteProfile(state)
+    expect(html).toBeTruthy()
+    expect(html.length).toBeGreaterThan(100)
+    expect(html.toLowerCase()).toContain('pseudo')
   })
 
   test('showAddSpot flag renders AddSpot modal', () => {

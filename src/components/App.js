@@ -39,6 +39,7 @@ const _lazyLoaders = {
   renderValidateSpot: () => import('./modals/ValidateSpot.js'),
   renderSOS: () => import('./modals/SOS.js'),
   renderAuth: () => import('./modals/Auth.js'),
+  renderCompleteProfile: () => import('./modals/Auth.js'),
   renderTutorial: () => import('./modals/Tutorial.js'),
   renderFiltersModal: () => import('./modals/Filters.js'),
   renderStatsModal: () => import('./modals/Stats.js'),
@@ -177,6 +178,7 @@ export function renderApp(state) {
     ${state.showValidateSpot ? lazyRender('renderValidateSpot', state) : ''}
     ${state.showSOS ? lazyRender('renderSOS', state) : ''}
     ${state.showAuth ? lazyRender('renderAuth', state) : ''}
+    ${state.showCompleteProfile ? lazyRender('renderCompleteProfile', state) : ''}
     ${state.showTutorial ? lazyRender('renderTutorial', state) : ''}
     ${state.showFilters ? lazyRender('renderFiltersModal') : ''}
     ${state.showStats ? lazyRender('renderStatsModal') : ''}

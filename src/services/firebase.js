@@ -292,10 +292,12 @@ export async function createOrUpdateUserProfile(user) {
         const reg = window._pendingRegistrationData
         if (reg.birthYear && !snapshot.data().birthYear) updates.birthYear = reg.birthYear
         if (reg.gender && !snapshot.data().gender) updates.gender = reg.gender
+        if (reg.username && !snapshot.data().username) updates.username = reg.username
         window._pendingRegistrationData = null
       }
       await updateDoc(userDocRef, updates)
-      return { success: true, profile: snapshot.data(), isNew: false }
+      const profile = snapshot.data()
+      return { success: true, profile, isNew: false, hasUsername: !!profile.username }
     } else {
       // New user — create profile
       const reg = window._pendingRegistrationData || {}
@@ -304,6 +306,7 @@ export async function createOrUpdateUserProfile(user) {
         email: user.email || null,
         displayName: user.displayName || 'Hitchhiker',
         photoURL: user.photoURL || null,
+        username: reg.username || null,
         birthYear: reg.birthYear || null,
         gender: reg.gender || null,
         verifiedPhone: null,
@@ -320,7 +323,7 @@ export async function createOrUpdateUserProfile(user) {
       }
       window._pendingRegistrationData = null
       await setDoc(userDocRef, profile)
-      return { success: true, profile, isNew: true }
+      return { success: true, profile, isNew: true, hasUsername: !!reg.username }
     }
   } catch (error) {
     console.error('Error creating/updating user profile:', error)
@@ -635,6 +638,114 @@ async function hashToken(token) {
 export function onForegroundMessage(callback) {
   if (!messaging) return () => {}
   return onMessage(messaging, callback)
+}
+
+// ==================== USERNAME SYSTEM ====================
+
+// Basic profanity filter — common offensive words in EN/FR/ES/DE
+const PROFANITY_LIST = [
+  'fuck', 'shit', 'ass', 'bitch', 'dick', 'cock', 'pussy', 'nigger', 'faggot',
+  'merde', 'putain', 'connard', 'connasse', 'salope', 'enculer', 'nique',
+  'puta', 'mierda', 'coño', 'joder', 'cabron',
+  'scheiße', 'scheisse', 'arschloch', 'hurensohn', 'fotze', 'wichser',
+  'admin', 'spothitch', 'moderator', 'support', 'system', 'root',
+]
+
+/**
+ * Validate username format (client-side, before Firestore check)
+ * Rules: 3-20 chars, lowercase alphanumeric + _ + ., no start/end with . or _
+ * @param {string} username
+ * @returns {{ valid: boolean, errorKey: string|null }}
+ */
+export function validateUsername(username) {
+  if (!username) return { valid: false, errorKey: 'usernameRequired' }
+  const u = username.toLowerCase().trim()
+  if (u.length < 3) return { valid: false, errorKey: 'usernameTooShort' }
+  if (u.length > 20) return { valid: false, errorKey: 'usernameTooLong' }
+  if (!/^[a-z0-9._]+$/.test(u)) return { valid: false, errorKey: 'usernameInvalidChars' }
+  if (/^[._]|[._]$/.test(u)) return { valid: false, errorKey: 'usernameInvalidFormat' }
+  if (/[.]{2}|[_]{2}/.test(u)) return { valid: false, errorKey: 'usernameInvalidFormat' }
+  // Profanity check
+  const lower = u.replace(/[._]/g, '')
+  if (PROFANITY_LIST.some(w => lower.includes(w))) return { valid: false, errorKey: 'usernameProfanity' }
+  return { valid: true, errorKey: null }
+}
+
+/**
+ * Check if a username is available in Firestore
+ * Uses `usernames/{lowercase}` document for O(1) uniqueness check
+ * @param {string} username
+ * @returns {Promise<boolean>}
+ */
+export async function checkUsernameAvailability(username) {
+  if (!db) return false
+  try {
+    const u = username.toLowerCase().trim()
+    const docRef = doc(db, 'usernames', u)
+    const snapshot = await getDoc(docRef)
+    return !snapshot.exists()
+  } catch (error) {
+    console.error('Error checking username:', error)
+    return false
+  }
+}
+
+/**
+ * Reserve a username for a user (atomic: check + claim)
+ * Creates `usernames/{lowercase}` with the user's UID
+ * @param {string} username - The desired username
+ * @param {string} uid - User ID
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
+export async function reserveUsername(username, uid) {
+  if (!db) return { success: false, error: 'no_db' }
+  try {
+    const u = username.toLowerCase().trim()
+    const docRef = doc(db, 'usernames', u)
+    const snapshot = await getDoc(docRef)
+
+    if (snapshot.exists()) {
+      // Already taken (race condition check)
+      if (snapshot.data().uid === uid) return { success: true } // Same user re-claiming
+      return { success: false, error: 'taken' }
+    }
+
+    await setDoc(docRef, {
+      uid,
+      username: u,
+      createdAt: serverTimestamp(),
+    })
+
+    // Also update the user's profile with the username
+    const userRef = doc(db, 'users', uid)
+    await updateDoc(userRef, { username: u }).catch(async () => {
+      // Profile may not exist yet — create it
+      await setDoc(userRef, { username: u }, { merge: true })
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error reserving username:', error)
+    return { success: false, error: error.code || 'unknown' }
+  }
+}
+
+/**
+ * Release a username (for changing username later)
+ * @param {string} oldUsername
+ * @returns {Promise<boolean>}
+ */
+export async function releaseUsername(oldUsername) {
+  if (!db || !oldUsername) return false
+  try {
+    const u = oldUsername.toLowerCase().trim()
+    const { deleteDoc: delDoc } = await import('firebase/firestore')
+    await delDoc(doc(db, 'usernames', u))
+    return true
+  } catch (error) {
+    console.error('Error releasing username:', error)
+    return false
+  }
 }
 
 // ==================== QUICK VALIDATE (spot exists) ====================

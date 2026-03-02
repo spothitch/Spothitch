@@ -200,6 +200,7 @@ const MAIN_JS_HANDLERS = [
   'sendSOSTemplate',
   // Auth (defined in Auth.js)
   'loginAsAdmin', 'handleAuth',
+  'checkUsernameField', 'submitCompleteProfile', 'closeCompleteProfile',
   // SpotDetail (defined in navigation controller/utils)
   'showNavigationPicker', 'openInNavigationApp', 'voteSpot',
   // Welcome (defined in Welcome.js)

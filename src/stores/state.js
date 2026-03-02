@@ -73,6 +73,7 @@ const initialState = {
   showSettings: false,
   showQuiz: false,
   showAuth: false,
+  showCompleteProfile: false,
   showFilters: false,
   showStats: false,
   showBadges: false,

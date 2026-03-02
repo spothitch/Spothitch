@@ -104,6 +104,31 @@ export function renderAuth(state) {
         <!-- Form -->
         <div class="px-6 pb-4" role="tabpanel" id="auth-form-panel">
           <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4" aria-label="${t('loginForm') || 'Login form'}">
+            <!-- @Pseudo (Register only) -->
+            ${isSignUp ? `
+              <div>
+                <label for="auth-pseudo" class="text-sm text-slate-400 block mb-1.5">${t('usernameLabel')} <span class="text-red-400">*</span></label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">@</span>
+                  <input
+                    type="text"
+                    id="auth-pseudo"
+                    name="pseudo"
+                    class="input-modern pl-8"
+                    placeholder="${t('usernamePlaceholder')}"
+                    maxlength="20"
+                    minlength="3"
+                    required
+                    autocomplete="username"
+                    aria-required="true"
+                    aria-describedby="pseudo-status"
+                    oninput="checkUsernameField(this.value)"
+                  />
+                </div>
+                <div id="pseudo-status" class="text-xs mt-1 h-4" aria-live="polite"></div>
+              </div>
+            ` : ''}
+
             <!-- Display Name (Register only) -->
             ${isSignUp ? `
               <div>
@@ -115,7 +140,7 @@ export function renderAuth(state) {
                   class="input-modern"
                   placeholder="${t('displayNamePlaceholder')}"
                   maxlength="30"
-                  autocomplete="username"
+                  autocomplete="name"
                 />
               </div>
             ` : ''}
@@ -258,6 +283,97 @@ export function renderAuth(state) {
   `
 }
 
+/**
+ * Complete Profile Modal — shown after Google sign-in (first time)
+ * Asks for @pseudo + birthYear + gender
+ */
+export function renderCompleteProfile(_state) {
+  return `
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="complete-profile-title"
+      tabindex="0">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true"></div>
+      <div
+        class="relative modal-panel rounded-3xl w-full max-w-md overflow-hidden slide-up max-h-[90vh] overflow-y-auto"
+        onclick="event.stopPropagation()"
+      >
+        <div class="p-6 pb-4 text-center">
+          <div class="text-4xl mb-3" aria-hidden="true">👋</div>
+          <h2 id="complete-profile-title" class="text-2xl font-bold gradient-text">
+            ${t('completeYourProfile')}
+          </h2>
+          <p class="mt-2 text-sm text-slate-400">${t('completeProfileDesc')}</p>
+        </div>
+
+        <form id="complete-profile-form" onsubmit="submitCompleteProfile(event)" class="px-6 pb-6 space-y-4">
+          <!-- @Pseudo -->
+          <div>
+            <label for="cp-pseudo" class="text-sm text-slate-400 block mb-1.5">${t('usernameLabel')} <span class="text-red-400">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">@</span>
+              <input
+                type="text"
+                id="cp-pseudo"
+                name="pseudo"
+                class="input-modern pl-8"
+                placeholder="${t('usernamePlaceholder')}"
+                maxlength="20"
+                minlength="3"
+                required
+                autocomplete="username"
+                aria-required="true"
+                aria-describedby="cp-pseudo-status"
+                oninput="checkUsernameField(this.value)"
+              />
+            </div>
+            <div id="cp-pseudo-status" class="text-xs mt-1 h-4" aria-live="polite"></div>
+            <p class="text-xs text-slate-500 mt-1">${t('usernameHint')}</p>
+          </div>
+
+          <!-- Birth Year -->
+          <div>
+            <label for="cp-birthyear" class="text-sm text-slate-400 block mb-1.5">${t('birthYear')} <span class="text-red-400">*</span></label>
+            <input
+              type="number"
+              id="cp-birthyear"
+              name="birthyear"
+              class="input-modern"
+              placeholder="${t('birthYearPlaceholder')}"
+              min="1920"
+              max="${new Date().getFullYear() - 16}"
+              required
+              inputmode="numeric"
+              aria-required="true"
+            />
+          </div>
+
+          <!-- Gender -->
+          <div>
+            <label for="cp-gender" class="text-sm text-slate-400 block mb-1.5">${t('gender')}</label>
+            <select id="cp-gender" name="gender" class="input-modern">
+              <option value="">${t('genderPreferNotToSay')}</option>
+              <option value="female">${t('genderFemale')}</option>
+              <option value="male">${t('genderMale')}</option>
+              <option value="non-binary">${t('genderNonBinary')}</option>
+            </select>
+          </div>
+
+          <!-- Error -->
+          <div id="cp-error-msg" class="hidden text-red-400 text-sm text-center py-2 px-3 bg-red-500/10 rounded-xl"></div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn btn-primary w-full" id="cp-submit-btn">
+            <span id="cp-submit-text">${t('letsGo')}</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  `
+}
+
 // Auth mode state (kept for backward compat with inline handlers in other modals)
 window.authMode = 'login'
 
@@ -302,9 +418,21 @@ window.handleAuth = async (event) => {
 
     if (authMode === 'register') {
       const confirmPassword = document.getElementById('auth-password-confirm')?.value
-      const username = document.getElementById('auth-username')?.value.trim() || 'Hitchhiker'
+      const displayName = document.getElementById('auth-username')?.value.trim() || 'Hitchhiker'
+      const pseudo = document.getElementById('auth-pseudo')?.value?.toLowerCase().trim()
       const birthYearStr = document.getElementById('auth-birthyear')?.value
       const gender = document.getElementById('auth-gender')?.value || ''
+
+      // Validate @pseudo
+      if (!pseudo) {
+        if (errorDiv) { errorDiv.textContent = t('usernameRequired'); errorDiv.classList.remove('hidden') }
+        return
+      }
+      const pseudoValidation = fb.validateUsername(pseudo)
+      if (!pseudoValidation.valid) {
+        if (errorDiv) { errorDiv.textContent = t(pseudoValidation.errorKey); errorDiv.classList.remove('hidden') }
+        return
+      }
 
       if (password !== confirmPassword) {
         if (errorDiv) {
@@ -332,10 +460,23 @@ window.handleAuth = async (event) => {
         return
       }
 
-      // Store birth year + gender temporarily for profile creation
-      window._pendingRegistrationData = { birthYear, gender: gender || null }
+      // Check username availability before creating account
+      fb.initializeFirebase()
+      const usernameAvailable = await fb.checkUsernameAvailability(pseudo)
+      if (!usernameAvailable) {
+        if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
+        return
+      }
 
-      result = await fb.signUp(email, password, username)
+      // Store registration data temporarily for profile creation
+      window._pendingRegistrationData = { username: pseudo, birthYear, gender: gender || null }
+
+      result = await fb.signUp(email, password, displayName)
+
+      // Reserve username after account creation
+      if (result.success && result.user) {
+        await fb.reserveUsername(pseudo, result.user.uid).catch(() => {})
+      }
     } else {
       result = await fb.signIn(email, password)
     }
@@ -419,17 +560,22 @@ window.handleGoogleSignIn = async () => {
       const user = result.user
       // Block page reloads for 15s after auth (SW update, version.json)
       window._authJustCompleted = Date.now()
-      await fb.createOrUpdateUserProfile(user).catch(() => {})
+      const profileResult = await fb.createOrUpdateUserProfile(user).catch(() => ({ success: false }))
       fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
       const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
+
+      // Check if user needs to complete profile (new user or no username)
+      const needsProfile = profileResult?.isNew || !profileResult?.hasUsername
+
       setState({
         showAuth: false,
-        authPendingAction: null,
+        authPendingAction: needsProfile ? getState().authPendingAction : null,
         showAuthReason: null,
+        showCompleteProfile: needsProfile,
         currentUser: user,
         isLoggedIn: true,
         user,
-        username: user.displayName || 'Hitchhiker',
+        username: profileResult?.profile?.username || user.displayName || 'Hitchhiker',
         isAdmin: ADMIN_EMAILS.includes(user.email?.toLowerCase()),
         userProfile: {
           uid: user.uid,
@@ -438,16 +584,19 @@ window.handleGoogleSignIn = async () => {
           photoURL: user.photoURL,
         },
       })
-      const { showToast } = await import('../../services/notifications.js')
-      showToast(t('googleLoginSuccess') || 'Connexion réussie !', 'success')
 
-      // Execute pending action
-      const { authPendingAction } = getState()
-      if (authPendingAction === 'addSpot') setTimeout(() => window.openAddSpot?.(), 300)
-      else if (authPendingAction === 'sos') setTimeout(() => window.openSOS?.(), 300)
-      else if (authPendingAction === 'companion') setTimeout(() => window.showCompanionModal?.(), 300)
-      else if (authPendingAction === 'social') setTimeout(() => setState({ activeTab: 'social' }), 300)
-      else if (authPendingAction === 'tripPlanner') setTimeout(() => window.openTripPlanner?.(), 300)
+      if (!needsProfile) {
+        const { showToast } = await import('../../services/notifications.js')
+        showToast(t('googleLoginSuccess') || 'Connexion réussie !', 'success')
+
+        // Execute pending action
+        const { authPendingAction } = getState()
+        if (authPendingAction === 'addSpot') setTimeout(() => window.openAddSpot?.(), 300)
+        else if (authPendingAction === 'sos') setTimeout(() => window.openSOS?.(), 300)
+        else if (authPendingAction === 'companion') setTimeout(() => window.showCompanionModal?.(), 300)
+        else if (authPendingAction === 'social') setTimeout(() => setState({ activeTab: 'social' }), 300)
+        else if (authPendingAction === 'tripPlanner') setTimeout(() => window.openTripPlanner?.(), 300)
+      }
     } else if (result?.error === 'auth/popup-closed-by-user') {
       // User cancelled — restore button silently
       if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = '<svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continuer avec Google' }
@@ -463,6 +612,164 @@ window.handleGoogleSignIn = async () => {
     const { showError } = await import('../../services/notifications.js')
     showError(t('authError') || 'Erreur de connexion')
   }
+}
+
+// ==================== USERNAME CHECK ====================
+
+let _usernameCheckTimer = null
+let _lastCheckedUsername = ''
+
+window.checkUsernameField = (value) => {
+  const v = value.toLowerCase().trim()
+
+  // Find the status div (works for both auth form and complete profile form)
+  const statusDiv = document.getElementById('pseudo-status') || document.getElementById('cp-pseudo-status')
+  if (!statusDiv) return
+
+  // Clear previous timer
+  if (_usernameCheckTimer) clearTimeout(_usernameCheckTimer)
+
+  if (!v) {
+    statusDiv.textContent = ''
+    statusDiv.className = 'text-xs mt-1 h-4'
+    return
+  }
+
+  // Client-side validation first
+  import('../../services/firebase.js').then(({ validateUsername }) => {
+    const result = validateUsername(v)
+    if (!result.valid) {
+      statusDiv.textContent = t(result.errorKey)
+      statusDiv.className = 'text-xs mt-1 h-4 text-red-400'
+      return
+    }
+
+    // Show "checking..." and debounce the Firestore check
+    statusDiv.textContent = t('usernameChecking')
+    statusDiv.className = 'text-xs mt-1 h-4 text-slate-400'
+
+    _usernameCheckTimer = setTimeout(async () => {
+      if (v === _lastCheckedUsername) return
+      _lastCheckedUsername = v
+
+      const { checkUsernameAvailability } = await import('../../services/firebase.js')
+      const { initializeFirebase } = await import('../../services/firebase.js')
+      initializeFirebase()
+
+      const available = await checkUsernameAvailability(v)
+      // Only update if the input hasn't changed
+      const currentInput = document.getElementById('auth-pseudo') || document.getElementById('cp-pseudo')
+      if (currentInput && currentInput.value.toLowerCase().trim() === v) {
+        if (available) {
+          statusDiv.textContent = t('usernameAvailable')
+          statusDiv.className = 'text-xs mt-1 h-4 text-emerald-400'
+        } else {
+          statusDiv.textContent = t('usernameTaken')
+          statusDiv.className = 'text-xs mt-1 h-4 text-red-400'
+        }
+      }
+    }, 500) // 500ms debounce
+  })
+}
+
+// ==================== COMPLETE PROFILE (after Google sign-in) ====================
+
+window.submitCompleteProfile = async (event) => {
+  event.preventDefault()
+
+  const pseudoInput = document.getElementById('cp-pseudo')
+  const birthYearInput = document.getElementById('cp-birthyear')
+  const genderInput = document.getElementById('cp-gender')
+  const errorDiv = document.getElementById('cp-error-msg')
+  const submitBtn = document.getElementById('cp-submit-btn')
+
+  const pseudo = pseudoInput?.value?.toLowerCase().trim()
+  const birthYearStr = birthYearInput?.value
+  const gender = genderInput?.value || ''
+
+  if (!pseudo) return
+
+  // Hide previous errors
+  if (errorDiv) { errorDiv.classList.add('hidden'); errorDiv.textContent = '' }
+
+  // Validate username
+  const fb = await import('../../services/firebase.js')
+  const validation = fb.validateUsername(pseudo)
+  if (!validation.valid) {
+    if (errorDiv) { errorDiv.textContent = t(validation.errorKey); errorDiv.classList.remove('hidden') }
+    return
+  }
+
+  // Validate birth year
+  const birthYear = parseInt(birthYearStr, 10)
+  const currentYear = new Date().getFullYear()
+  if (!birthYear || birthYear < 1920 || birthYear > currentYear) {
+    if (errorDiv) { errorDiv.textContent = t('birthYearInvalid'); errorDiv.classList.remove('hidden') }
+    return
+  }
+  if (currentYear - birthYear < 16) {
+    if (errorDiv) { errorDiv.textContent = t('birthYearTooYoung'); errorDiv.classList.remove('hidden') }
+    return
+  }
+
+  // Show loading
+  if (submitBtn) {
+    submitBtn.disabled = true
+    const { icon: iconFn } = await import('../../utils/icons.js')
+    submitBtn.innerHTML = iconFn('loader-circle', 'w-5 h-5 animate-spin')
+  }
+
+  try {
+    fb.initializeFirebase()
+
+    // Check availability
+    const available = await fb.checkUsernameAvailability(pseudo)
+    if (!available) {
+      if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
+      return
+    }
+
+    // Get current user
+    const user = fb.getCurrentUser()
+    if (!user) return
+
+    // Reserve username
+    const reserveResult = await fb.reserveUsername(pseudo, user.uid)
+    if (!reserveResult.success) {
+      if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
+      return
+    }
+
+    // Update profile with birthYear + gender
+    await fb.updateUserProfile(user.uid, {
+      username: pseudo,
+      birthYear,
+      gender: gender || null,
+    })
+
+    // Update local state
+    const { setState } = await import('../../stores/state.js')
+    setState({
+      showCompleteProfile: false,
+      username: pseudo,
+    })
+
+    const { showSuccess } = await import('../../services/notifications.js')
+    showSuccess(t('accountCreated') || 'Profile complete!')
+  } catch (error) {
+    console.error('Complete profile error:', error)
+    if (errorDiv) { errorDiv.textContent = t('authError'); errorDiv.classList.remove('hidden') }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false
+      submitBtn.innerHTML = `<span id="cp-submit-text">${t('letsGo')}</span>`
+    }
+  }
+}
+
+window.closeCompleteProfile = async () => {
+  const { setState } = await import('../../stores/state.js')
+  setState({ showCompleteProfile: false })
 }
 
 // Apple Sign-In removed (requires $99/yr Apple Developer account)
