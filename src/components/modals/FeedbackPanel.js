@@ -249,45 +249,75 @@ function renderFeedbackDetail(state, featureId) {
           <p class="text-[13px] mt-3 leading-relaxed px-1" style="color: #94a3b8">${escapeHTML(desc)}</p>
           ${featureId === 'city-pages' ? `
             <button onclick="showCityPageDemo()"
-              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-              🏙️ ${escapeHTML(t('cityDemoTryBtn') || 'Tester la démo')}
+              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
+              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
+              🎮 ${escapeHTML(t('cityDemoTryBtn') || 'Tester la démo interactive')}
             </button>
+            <div class="mt-3 space-y-1.5 px-1">
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏙️</span><span class="text-[11px] text-slate-400 leading-snug">Pages villes enrichies par la communauté</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📊</span><span class="text-[11px] text-slate-400 leading-snug">Stats, temps d'attente, meilleurs spots</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">⚖️</span><span class="text-[11px] text-slate-400 leading-snug">Lois locales et infos pratiques</span></div>
+            </div>
           ` : ''}
           ${featureId === 'thumbs-partners' || featureId === 'leagues' ? `
             <button onclick="showPointsDemo()"
-              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-              🎯 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo')}
+              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
+              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
+              🎮 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo interactive')}
             </button>
+            <div class="mt-3 space-y-1.5 px-1">
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📍</span><span class="text-[11px] text-slate-400 leading-snug">Gagne des points en créant et validant des spots</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏅</span><span class="text-[11px] text-slate-400 leading-snug">Classement pays, Europe et mondial</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🎁</span><span class="text-[11px] text-slate-400 leading-snug">Réductions chez nos partenaires voyage</span></div>
+            </div>
           ` : ''}
           ${featureId === 'journal' ? `
             <button onclick="showJournalDemo()"
-              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-              🎯 ${escapeHTML(t('journalDemoTryBtn') || 'Tester la démo')}
+              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
+              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
+              🎮 ${escapeHTML(t('journalDemoTryBtn') || 'Tester la démo interactive')}
             </button>
+            <div class="mt-3 space-y-1.5 px-1">
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📝</span><span class="text-[11px] text-slate-400 leading-snug">Chaque lift enregistré automatiquement</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📊</span><span class="text-[11px] text-slate-400 leading-snug">Stats complètes : km, lifts, pays</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🌍</span><span class="text-[11px] text-slate-400 leading-snug">Partage et inspire la communauté</span></div>
+            </div>
           ` : ''}
           ${featureId === 'groups-races' || featureId === 'events' ? `
             <button onclick="showSocialDemo()"
-              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-              🎯 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo')}
+              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
+              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
+              🎮 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo interactive')}
             </button>
+            <div class="mt-3 space-y-1.5 px-1">
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🎉</span><span class="text-[11px] text-slate-400 leading-snug">Meetups, courses, festivals</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏁</span><span class="text-[11px] text-slate-400 leading-snug">Course entre potes avec classement live</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">👥</span><span class="text-[11px] text-slate-400 leading-snug">Autostoppeurs proches en temps réel</span></div>
+            </div>
           ` : ''}
           ${featureId === 'guardian-mode' ? `
             <button onclick="showCompanionDemo()"
-              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-              🎯 ${escapeHTML(t('companionDemoTryBtn') || 'Tester la démo')}
+              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
+              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
+              🎮 ${escapeHTML(t('companionDemoTryBtn') || 'Tester la démo interactive')}
             </button>
+            <div class="mt-3 space-y-1.5 px-1">
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📍</span><span class="text-[11px] text-slate-400 leading-snug">Position live pour tes proches</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">✅</span><span class="text-[11px] text-slate-400 leading-snug">Check-in régulier automatique</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🆘</span><span class="text-[11px] text-slate-400 leading-snug">Alerte SOS immédiate</span></div>
+            </div>
           ` : ''}
           ${featureId === 'hostels' ? `
             <button onclick="showHostelsDemo()"
-              class="w-full mt-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-              style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-              🎯 ${escapeHTML(t('hostelsDemoTryBtn') || 'Tester la démo')}
+              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
+              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
+              🎮 ${escapeHTML(t('hostelsDemoTryBtn') || 'Tester la démo interactive')}
             </button>
+            <div class="mt-3 space-y-1.5 px-1">
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏨</span><span class="text-[11px] text-slate-400 leading-snug">Auberges recommandées par la communauté</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">💰</span><span class="text-[11px] text-slate-400 leading-snug">-15% avec tes points SpotHitch</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏷️</span><span class="text-[11px] text-slate-400 leading-snug">Filtres : Festif, Calme, Budget, Social</span></div>
+            </div>
           ` : ''}
         </div>
 

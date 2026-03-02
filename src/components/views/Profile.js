@@ -1073,37 +1073,17 @@ function renderFeatureDetailTech() {
 function renderFeatureDetailThumbs() {
   return `
     <div class="mb-5">
-      <div class="card p-4 border-amber-500/20 bg-amber-500/5 mb-3">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold">${t('roadmapConcept') || 'CONCEPT'}</span>
-        </div>
-        <p class="text-sm text-slate-300 leading-relaxed">${t('roadmapThumbsExplain') || 'Gagne des points en contribuant (ajout de spots, voyages, invitations). Echange-les contre des reductions chez nos partenaires voyage.'}</p>
-      </div>
       <button onclick="showPointsDemo()"
-        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-        🎯 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo')}
+        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
+        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
+        🎮 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo interactive')}
       </button>
-      <h3 class="font-bold text-sm mb-2">${t('roadmapHowItWorks') || 'Comment ca marchera'}</h3>
-      <div class="space-y-2">
-        <div class="card p-3">
-          <div class="flex items-start gap-3">
-            <div class="w-9 h-9 bg-amber-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">📍</span></div>
-            <div><p class="font-bold text-sm">${t('roadmapThumbsStep1') || 'Contribue'}</p><p class="text-slate-400 text-xs">${t('roadmapThumbsStep1Desc') || 'Ajoute des spots, partage tes experiences, aide la communaute'}</p></div>
-          </div>
-        </div>
-        <div class="card p-3">
-          <div class="flex items-start gap-3">
-            <div class="w-9 h-9 bg-emerald-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">⭐</span></div>
-            <div><p class="font-bold text-sm">${t('roadmapThumbsStep2') || 'Accumule'}</p><p class="text-slate-400 text-xs">${t('roadmapThumbsStep2Desc') || 'Chaque contribution te rapporte des points'}</p></div>
-          </div>
-        </div>
-        <div class="card p-3">
-          <div class="flex items-start gap-3">
-            <div class="w-9 h-9 bg-purple-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">🎁</span></div>
-            <div><p class="font-bold text-sm">${t('roadmapThumbsStep3') || 'Echange'}</p><p class="text-slate-400 text-xs">${t('roadmapThumbsStep3Desc') || 'Utilise tes points pour des reductions auberges, equipement, transports'}</p></div>
-          </div>
-        </div>
+      <div class="space-y-2.5 px-1">
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Gagne des points en créant et validant des spots, en ajoutant des photos et des conseils (+5 à +100 pts par action)</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏅</span><span class="text-xs text-slate-300 leading-relaxed">Monte dans le classement de ton pays, d'Europe et mondial — compare-toi à tes amis</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🔔</span><span class="text-xs text-slate-300 leading-relaxed">Reçois une notification quand tu passes près d'un spot à valider — même sans faire de stop (+20 pts)</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🎁</span><span class="text-xs text-slate-300 leading-relaxed">Échange tes points contre des réductions : Hostelworld (-15%), Booking (-10%), Decathlon (-15%), Flixbus, Interrail...</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🌟</span><span class="text-xs text-slate-300 leading-relaxed">6 niveaux : Débutant → Explorateur → Aventurier → Voyageur → Expert → Légende</span></div>
       </div>
     </div>
   `
@@ -1113,9 +1093,9 @@ function renderFeatureDetailLeagues() {
   return `
     <div class="mb-5">
       <button onclick="showPointsDemo()"
-        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-        🎯 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo')}
+        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
+        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
+        🎮 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo interactive')}
       </button>
       <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-4 mb-3">
         <div class="flex justify-between items-center">
@@ -1168,10 +1148,17 @@ function renderFeatureDetailLeagues() {
 function renderFeatureDetailCities() {
   return `
     <div class="mb-5">
-      <!-- Intro card -->
-      <div class="rounded-xl p-3 mb-4" style="background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25)">
-        <p class="text-sm font-bold" style="color: #fbbf24">🏙️ ${escapeHTML(t('cityDemoIntroTitle') || 'Pages Villes')}</p>
-        <p class="text-xs mt-1" style="color: #94a3b8; line-height: 1.4">${escapeHTML(t('cityDemoRoadmapIntro') || 'Voici à quoi ressemblera chaque page ville.')}</p>
+      <button onclick="showCityPageDemo()"
+        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
+        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
+        🎮 ${escapeHTML(t('cityDemoTryBtn') || 'Tester la démo interactive')}
+      </button>
+      <div class="space-y-2.5 px-1 mb-4">
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏙️</span><span class="text-xs text-slate-300 leading-relaxed">Chaque ville aura sa propre page enrichie par la communauté avec spots, conseils et infos pratiques</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📊</span><span class="text-xs text-slate-300 leading-relaxed">Stats détaillées : nombre de spots, temps d'attente moyen, meilleure heure, meilleure saison</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💬</span><span class="text-xs text-slate-300 leading-relaxed">Conseils des autostoppeurs locaux : meilleurs spots de sortie, astuces pour chaque direction</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏨</span><span class="text-xs text-slate-300 leading-relaxed">Hébergements pas chers triés par ambiance (Chill, Budget, Party) avec prix en temps réel</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">⚖️</span><span class="text-xs text-slate-300 leading-relaxed">Lois locales sur l'auto-stop, numéros d'urgence et phrases utiles dans la langue locale</span></div>
       </div>
 
       <!-- City Demo: Design #2 -->
@@ -1320,55 +1307,16 @@ function renderFeatureDetailHostels() {
   return `
     <div class="mb-5">
       <button onclick="showHostelsDemo()"
-        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-        🎯 ${escapeHTML(t('hostelsDemoTryBtn') || 'Tester la démo')}
+        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
+        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
+        🎮 ${escapeHTML(t('hostelsDemoTryBtn') || 'Tester la démo interactive')}
       </button>
-      <div class="card p-3 mb-3 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
-        <div class="flex items-center justify-between mb-2">
-          <div><h3 class="font-bold text-sm">🏨 Nos partenaires</h3><p class="text-slate-400 text-xs">Auberges recommandées</p></div>
-          <span class="bg-amber-500 text-black text-[10px] px-2 py-0.5 rounded-full font-bold">-15%</span>
-        </div>
-        <p class="text-slate-300 text-xs mb-3">On a testé ces auberges pour toi. Utilise tes pouces pour avoir une réduction !</p>
-        <div class="grid grid-cols-3 gap-1.5">
-          <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2 text-center"><span class="text-xl">🌿</span><p class="text-emerald-400 text-[10px] font-bold mt-0.5">Chill</p></div>
-          <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 text-center"><span class="text-xl">💰</span><p class="text-amber-400 text-[10px] font-bold mt-0.5">Cheap</p></div>
-          <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-2 text-center"><span class="text-xl">🎉</span><p class="text-pink-400 text-[10px] font-bold mt-0.5">Party</p></div>
-        </div>
-      </div>
-      <div class="space-y-2.5">
-        <div class="card p-3">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 bg-emerald-500 rounded-xl flex items-center justify-center"><span class="text-xl">🌿</span></div>
-            <div class="flex-1"><div class="flex items-center gap-1.5"><p class="font-bold text-sm">The Circus</p><span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded-full">Chill</span></div><p class="text-slate-400 text-xs">Mitte • ⭐ 4.7</p></div>
-            <div class="text-right"><p class="font-bold text-sm">24€</p><p class="text-emerald-500 text-xs line-through">28€</p></div>
-          </div>
-          <div class="flex gap-1 mt-1.5 text-slate-500 text-[10px]"><span>Yoga</span><span>•</span><span>Rooftop</span><span>•</span><span>Petit-déj</span></div>
-        </div>
-        <div class="card p-3">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 bg-amber-500 rounded-xl flex items-center justify-center"><span class="text-xl">💰</span></div>
-            <div class="flex-1"><div class="flex items-center gap-1.5"><p class="font-bold text-sm">Generator</p><span class="bg-amber-500/20 text-amber-400 text-[10px] px-1.5 py-0.5 rounded-full">Cheap</span></div><p class="text-slate-400 text-xs">Prenzlauer • ⭐ 4.2</p></div>
-            <div class="text-right"><p class="font-bold text-sm">14€</p><p class="text-emerald-500 text-xs line-through">16€</p></div>
-          </div>
-          <div class="flex gap-1 mt-1.5 text-slate-500 text-[10px]"><span>Central</span><span>•</span><span>24/7</span><span>•</span><span>Propre</span></div>
-        </div>
-        <div class="card p-3">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 bg-pink-500 rounded-xl flex items-center justify-center"><span class="text-xl">🎉</span></div>
-            <div class="flex-1"><div class="flex items-center gap-1.5"><p class="font-bold text-sm">St Christopher's</p><span class="bg-pink-500/20 text-pink-400 text-[10px] px-1.5 py-0.5 rounded-full">Party</span></div><p class="text-slate-400 text-xs">Alexanderplatz • ⭐ 4.4</p></div>
-            <div class="text-right"><p class="font-bold text-sm">18€</p><p class="text-emerald-500 text-xs line-through">21€</p></div>
-          </div>
-          <div class="flex gap-1 mt-1.5 text-slate-500 text-[10px]"><span>Bar</span><span>•</span><span>DJ</span><span>•</span><span>Pub crawl</span></div>
-        </div>
-      </div>
-      <div class="card p-3 mt-3">
-        <h3 class="font-bold text-sm mb-1.5">💡 Comment ça marche ?</h3>
-        <div class="space-y-1 text-xs">
-          <div class="flex items-center gap-2"><span class="text-amber-500">1.</span><span class="text-slate-400">Choisis ton auberge</span></div>
-          <div class="flex items-center gap-2"><span class="text-amber-500">2.</span><span class="text-slate-400">Utilise 300 👍 pour -15%</span></div>
-          <div class="flex items-center gap-2"><span class="text-amber-500">3.</span><span class="text-slate-400">Reçois ton code de réduction</span></div>
-        </div>
+      <div class="space-y-2.5 px-1">
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏨</span><span class="text-xs text-slate-300 leading-relaxed">Auberges recommandées par la communauté dans chaque ville avec avis et photos</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💰</span><span class="text-xs text-slate-300 leading-relaxed">-15% sur les réservations en utilisant tes points SpotHitch (2 000 pts = code de réduction)</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏷️</span><span class="text-xs text-slate-300 leading-relaxed">Filtres par ambiance : Festif, Calme, Budget, Social, Éco — trouve l'auberge qui te correspond</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🎉</span><span class="text-xs text-slate-300 leading-relaxed">Organise des meetups, courses, festivals et ateliers pour la communauté (+40 pts par événement)</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Découvre les événements autour de toi et inscris-toi en un clic</span></div>
       </div>
     </div>
   `
@@ -1378,66 +1326,16 @@ function renderFeatureDetailEvents() {
   return `
     <div class="mb-5">
       <button onclick="showSocialDemo()"
-        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-        🎯 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo')}
+        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
+        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
+        🎮 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo interactive')}
       </button>
-      <div class="bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl p-4 mb-3">
-        <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full">⭐ FEATURED</span>
-        <h3 class="text-white text-lg font-bold mt-1.5">Hitchgathering Europe 2026</h3>
-        <p class="text-white/80 text-sm">🇵🇹 Algarve, Portugal</p>
-        <p class="text-white/80 text-xs">15-20 Août 2026</p>
-        <div class="flex items-center justify-between mt-3">
-          <div class="flex items-center gap-2">
-            <div class="flex -space-x-1.5">
-              <div class="w-6 h-6 bg-amber-500 rounded-full border-2 border-purple-600"></div>
-              <div class="w-6 h-6 bg-emerald-500 rounded-full border-2 border-purple-600"></div>
-              <div class="w-6 h-6 bg-blue-500 rounded-full border-2 border-purple-600"></div>
-            </div>
-            <span class="text-white text-xs">${t('roadmapComingSoon') || 'Bientot'}</span>
-          </div>
-          <span class="bg-white text-purple-600 px-3 py-1.5 rounded-full font-bold text-xs">S'inscrire</span>
-        </div>
-      </div>
-      <h3 class="font-bold text-sm mb-2">📍 Près de toi</h3>
-      <div class="space-y-2.5">
-        <div class="card p-3">
-          <div class="flex gap-3">
-            <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center"><span class="text-xl">🍻</span></div>
-            <div class="flex-1">
-              <h4 class="font-bold text-sm">Apéro Autostoppeurs</h4>
-              <p class="text-slate-400 text-xs">📍 Paris • 12 mars, 19h</p>
-              <div class="flex items-center gap-1.5 mt-1">
-                <div class="flex -space-x-1"><div class="w-4 h-4 bg-blue-500 rounded-full border border-dark-primary"></div><div class="w-4 h-4 bg-emerald-500 rounded-full border border-dark-primary"></div></div>
-                <span class="text-slate-500 text-[10px]">23 inscrits</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card p-3">
-          <div class="flex gap-3">
-            <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center"><span class="text-xl">🏕️</span></div>
-            <div class="flex-1">
-              <h4 class="font-bold text-sm">Weekend Camping</h4>
-              <p class="text-slate-400 text-xs">📍 Fontainebleau • 20-21 mars</p>
-              <span class="text-slate-500 text-[10px]">12 inscrits</span>
-            </div>
-          </div>
-        </div>
-        <div class="card p-3">
-          <div class="flex gap-3">
-            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center"><span class="text-xl">🎤</span></div>
-            <div class="flex-1">
-              <h4 class="font-bold text-sm">Soirée Contes de Route</h4>
-              <p class="text-slate-400 text-xs">📍 Lyon • 28 mars, 20h</p>
-              <span class="text-slate-500 text-[10px]">8 inscrits</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card p-3 mt-3 border-amber-500/20 bg-amber-500/5">
-        <h3 class="text-amber-500 font-bold text-sm mb-1">📌 Mes inscriptions</h3>
-        <p class="text-slate-400 text-xs">Tu es inscrit à 2 événements</p>
+      <div class="space-y-2.5 px-1">
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🎉</span><span class="text-xs text-slate-300 leading-relaxed">Rejoins des événements : meetups mensuels, courses officielles, festivals, ateliers sécurité</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏁</span><span class="text-xs text-slate-300 leading-relaxed">Fais la course entre potes avec classement en direct ! Crée un trajet et invite tes amis</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Partage tes meilleurs spots en temps réel avec les participants de ta course</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">👥</span><span class="text-xs text-slate-300 leading-relaxed">Vois les autostoppeurs à moins de 5 km de toi en temps réel — active ta position pour 2h</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💬</span><span class="text-xs text-slate-300 leading-relaxed">Discute avec les autostoppeurs proches et trouve des compagnons de route pour tes trajets</span></div>
       </div>
     </div>
   `
@@ -1447,30 +1345,16 @@ function renderFeatureDetailGroups() {
   return `
     <div class="mb-5">
       <button onclick="showSocialDemo()"
-        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-        🎯 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo')}
+        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
+        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
+        🎮 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo interactive')}
       </button>
-      <div class="bg-slate-700/50 rounded-xl relative overflow-hidden mb-3" style="height:200px">
-        <div class="absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/70 to-transparent">
-          <span class="bg-emerald-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">🟢 5 en ligne</span>
-          <h3 class="text-white font-bold mt-1">Les Routards</h3>
-        </div>
-        <div class="absolute top-1/3 left-1/4 flex flex-col items-center"><div class="w-10 h-10 bg-blue-500 rounded-full border-3 border-white flex items-center justify-center font-bold text-sm shadow-lg">M</div><span class="bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full mt-0.5">Marie</span></div>
-        <div class="absolute top-1/2 left-1/2 flex flex-col items-center"><div class="w-10 h-10 bg-emerald-500 rounded-full border-3 border-white flex items-center justify-center font-bold text-sm shadow-lg">T</div><span class="bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full mt-0.5">Tom</span></div>
-        <div class="absolute bottom-1/3 left-1/3 flex flex-col items-center"><div class="w-10 h-10 bg-pink-500 rounded-full border-3 border-white flex items-center justify-center font-bold text-sm shadow-lg">S</div><span class="bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full mt-0.5">Sophie</span></div>
-        <div class="absolute top-1/4 right-1/3 flex flex-col items-center"><div class="w-10 h-10 bg-amber-500 rounded-full border-3 border-white flex items-center justify-center font-bold text-sm shadow-lg">A</div><span class="bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full mt-0.5">Alex</span></div>
-      </div>
-      <div class="flex items-center justify-between mb-2"><h3 class="font-bold text-sm">👥 Membres</h3><span class="text-amber-500 text-xs">+ Inviter</span></div>
-      <div class="space-y-1.5">
-        <div class="card p-2.5 flex items-center gap-2.5"><div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center font-bold text-xs">M</div><div class="flex-1"><p class="font-bold text-sm">Marie</p><p class="text-emerald-400 text-[10px]">📍 Cologne • 2 min</p></div><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span></div>
-        <div class="card p-2.5 flex items-center gap-2.5"><div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center font-bold text-xs">T</div><div class="flex-1"><p class="font-bold text-sm">Tom</p><p class="text-emerald-400 text-[10px]">📍 Luxembourg • 5 min</p></div><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span></div>
-        <div class="card p-2.5 flex items-center gap-2.5"><div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center font-bold text-xs">S</div><div class="flex-1"><p class="font-bold text-sm">Sophie</p><p class="text-emerald-400 text-[10px]">📍 Metz • 1 min</p></div><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span></div>
-        <div class="card p-2.5 flex items-center gap-2.5 opacity-50"><div class="w-8 h-8 bg-slate-500 rounded-full flex items-center justify-center font-bold text-xs">L</div><div class="flex-1"><p class="font-bold text-sm">Lucas</p><p class="text-slate-500 text-[10px]">Dernière position il y a 3h</p></div><span class="w-2.5 h-2.5 bg-slate-500 rounded-full"></span></div>
-      </div>
-      <div class="flex gap-2 mt-3">
-        <span class="flex-1 bg-amber-500 text-black py-2.5 rounded-xl font-bold text-sm text-center">🏁 Lancer une course</span>
-        <span class="bg-white/10 text-white px-4 py-2.5 rounded-xl text-center">💬</span>
+      <div class="space-y-2.5 px-1">
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Vois les autostoppeurs à moins de 5 km de toi en temps réel — active ta position pour 2h</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏁</span><span class="text-xs text-slate-300 leading-relaxed">Fais la course entre potes avec classement en direct ! Crée un trajet et invite tes amis</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Partage tes meilleurs spots en temps réel avec les participants de ta course</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🎉</span><span class="text-xs text-slate-300 leading-relaxed">Rejoins des événements : meetups mensuels, courses officielles, festivals, ateliers sécurité</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💬</span><span class="text-xs text-slate-300 leading-relaxed">Discute avec les autostoppeurs proches et trouve des compagnons de route pour tes trajets</span></div>
       </div>
     </div>
   `
@@ -1480,20 +1364,16 @@ function renderFeatureDetailJournal() {
   return `
     <div class="mb-5">
       <button onclick="showJournalDemo()"
-        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-        🎯 ${escapeHTML(t('journalDemoTryBtn') || 'Tester la démo')}
+        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
+        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
+        🎮 ${escapeHTML(t('journalDemoTryBtn') || 'Tester la démo interactive')}
       </button>
-      <div class="card p-4 border-amber-500/20 bg-amber-500/5 mb-3">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold">${t('roadmapConcept') || 'CONCEPT'}</span>
-        </div>
-        <p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(t('roadmapJournalExplain') || 'Ton voyage enregistré automatiquement, étape par étape. Revois tes stats, partage tes itinéraires et inspire la communauté.')}</p>
-      </div>
-      <div class="space-y-2">
-        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-amber-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">📝</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapJournalStep1') || 'Enregistrement auto')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapJournalStep1Desc') || 'Chaque lift, chaque ville, chaque étape')}</p></div></div></div>
-        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-emerald-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">📊</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapJournalStep2') || 'Stats complètes')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapJournalStep2Desc') || 'Km parcourus, temps d\'attente, pays traversés')}</p></div></div></div>
-        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-purple-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">🌍</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapJournalStep3') || 'Partage')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapJournalStep3Desc') || 'Inspire les autres autostoppeurs avec tes itinéraires')}</p></div></div></div>
+      <div class="space-y-2.5 px-1">
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📝</span><span class="text-xs text-slate-300 leading-relaxed">Chaque lift enregistré automatiquement : ville de départ, spot utilisé, temps d'attente, véhicule</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📊</span><span class="text-xs text-slate-300 leading-relaxed">Stats complètes de chaque voyage : km parcourus, nombre de lifts, temps total, pays traversés</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🗺️</span><span class="text-xs text-slate-300 leading-relaxed">Visualise ton parcours étape par étape sur une carte avec la timeline de chaque jour</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🌍</span><span class="text-xs text-slate-300 leading-relaxed">Partage tes itinéraires avec la communauté — tes spots, temps d'attente et conseils aident tout le monde</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">❤️</span><span class="text-xs text-slate-300 leading-relaxed">Explore les voyages des autres autostoppeurs pour trouver l'inspiration et planifier tes prochaines aventures</span></div>
       </div>
     </div>
   `
@@ -1503,20 +1383,16 @@ function renderFeatureDetailCompanion() {
   return `
     <div class="mb-5">
       <button onclick="showCompanionDemo()"
-        class="w-full mb-3 py-2.5 rounded-xl text-[13px] font-bold cursor-pointer"
-        style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.10)); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24">
-        🎯 ${escapeHTML(t('companionDemoTryBtn') || 'Tester la démo')}
+        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
+        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
+        🎮 ${escapeHTML(t('companionDemoTryBtn') || 'Tester la démo interactive')}
       </button>
-      <div class="card p-4 border-emerald-500/20 bg-emerald-500/5 mb-3">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold">${t('roadmapConcept') || 'CONCEPT'}</span>
-        </div>
-        <p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(t('roadmapCompanionExplain') || 'Tes proches suivent ta position en direct. Check-in toutes les heures. Alerte automatique si tu ne réponds pas.')}</p>
-      </div>
-      <div class="space-y-2">
-        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-emerald-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">📍</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapCompanionStep1') || 'Position en direct')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapCompanionStep1Desc') || 'Tes gardiens voient où tu es sur la carte')}</p></div></div></div>
-        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-amber-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">✅</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapCompanionStep2') || 'Check-in régulier')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapCompanionStep2Desc') || 'Un bouton toutes les heures pour dire que tout va bien')}</p></div></div></div>
-        <div class="card p-3"><div class="flex items-start gap-3"><div class="w-9 h-9 bg-red-500/20 rounded-lg flex items-center justify-center shrink-0"><span class="text-lg">🆘</span></div><div><p class="font-bold text-sm">${escapeHTML(t('roadmapCompanionStep3') || 'Alerte automatique')}</p><p class="text-slate-400 text-xs">${escapeHTML(t('roadmapCompanionStep3Desc') || 'Si tu manques un check-in, tes gardiens sont alertés')}</p></div></div></div>
+      <div class="space-y-2.5 px-1">
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Tes proches (gardiens) voient ta position en direct sur la carte SpotHitch</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">✅</span><span class="text-xs text-slate-300 leading-relaxed">Check-in régulier (30min, 1h ou 2h) — un bouton pour confirmer que tout va bien</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">⚠️</span><span class="text-xs text-slate-300 leading-relaxed">Si tu manques un check-in, alerte automatique à tes gardiens avec ta dernière position</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🆘</span><span class="text-xs text-slate-300 leading-relaxed">Bouton SOS : alerte immédiate à tous tes gardiens + appel urgences + enregistrement audio</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🛡️</span><span class="text-xs text-slate-300 leading-relaxed">Version améliorée du compagnon de route actuel avec position live et connexion directe au SOS</span></div>
       </div>
     </div>
   `
