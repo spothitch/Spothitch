@@ -1154,11 +1154,11 @@ function renderFeatureDetailCities() {
         🎮 ${escapeHTML(t('cityDemoTryBtn') || 'Tester la démo interactive')}
       </button>
       <div class="space-y-2.5 px-1 mb-4">
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏙️</span><span class="text-xs text-slate-300 leading-relaxed">Chaque ville aura sa propre page enrichie par la communauté avec spots, conseils et infos pratiques</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📊</span><span class="text-xs text-slate-300 leading-relaxed">Stats détaillées : nombre de spots, temps d'attente moyen, meilleure heure, meilleure saison</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💬</span><span class="text-xs text-slate-300 leading-relaxed">Conseils des autostoppeurs locaux : meilleurs spots de sortie, astuces pour chaque direction</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏨</span><span class="text-xs text-slate-300 leading-relaxed">Hébergements pas chers triés par ambiance (Chill, Budget, Party) avec prix en temps réel</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">⚖️</span><span class="text-xs text-slate-300 leading-relaxed">Lois locales sur l'auto-stop, numéros d'urgence et phrases utiles dans la langue locale</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏙️</span><span class="text-xs text-slate-300 leading-relaxed">Chaque ville a sa propre page avec spots classés par direction, temps d'attente moyen et meilleure heure</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💬</span><span class="text-xs text-slate-300 leading-relaxed">Conseils et astuces partagés par les autostoppeurs locaux — les meilleurs spots, les endroits à éviter</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏨</span><span class="text-xs text-slate-300 leading-relaxed">Où dormir pas cher : auberges triées par ambiance (Chill, Budget, Party) avec prix en temps réel</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">⚖️</span><span class="text-xs text-slate-300 leading-relaxed">Lois locales sur l'auto-stop, numéros d'urgence et phrases utiles dans la langue du pays</span></div>
+        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📊</span><span class="text-xs text-slate-300 leading-relaxed">Stats complètes : meilleure saison, types de spots, temps d'attente par moment de la journée</span></div>
       </div>
 
       <!-- City Demo: Design #2 -->
@@ -2274,7 +2274,14 @@ window.showCityPageDemo = () => {
       <div id="city-demo-intro-screen" style="background:#1e293b;border-radius:16px;padding:28px 20px;text-align:center">
         <div style="font-size:3rem;margin-bottom:12px">🏙️</div>
         <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('cityDemoIntroTitle') || 'Pages Villes')}</h2>
-        <p style="font-size:0.85rem;color:#94a3b8;line-height:1.5;margin:0 0 20px">${escapeHTML(t('cityDemoIntroDesc') || 'Chaque ville aura sa propre page enrichie par la communauté.')}</p>
+        <p style="font-size:0.82rem;color:#94a3b8;line-height:1.5;margin:0 0 16px">${escapeHTML(t('cityDemoIntroDesc') || 'Chaque ville aura sa propre page enrichie par la communauté.')}</p>
+        <div style="margin:0 auto 20px;max-width:340px">
+          <div style="display:flex;align-items:start;gap:10px;text-align:left;margin-bottom:8px"><span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">🏙️</span><span style="font-size:0.78rem;color:#cbd5e1;line-height:1.4">Chaque ville a sa propre page avec spots classés par direction, temps d'attente moyen et meilleure heure</span></div>
+          <div style="display:flex;align-items:start;gap:10px;text-align:left;margin-bottom:8px"><span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">💬</span><span style="font-size:0.78rem;color:#cbd5e1;line-height:1.4">Conseils et astuces partagés par les autostoppeurs locaux — les meilleurs spots, les endroits à éviter</span></div>
+          <div style="display:flex;align-items:start;gap:10px;text-align:left;margin-bottom:8px"><span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">🏨</span><span style="font-size:0.78rem;color:#cbd5e1;line-height:1.4">Où dormir pas cher : auberges triées par ambiance (Chill, Budget, Party) avec prix en temps réel</span></div>
+          <div style="display:flex;align-items:start;gap:10px;text-align:left;margin-bottom:8px"><span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">⚖️</span><span style="font-size:0.78rem;color:#cbd5e1;line-height:1.4">Lois locales sur l'auto-stop, numéros d'urgence et phrases utiles dans la langue du pays</span></div>
+          <div style="display:flex;align-items:start;gap:10px;text-align:left;margin-bottom:8px"><span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">📊</span><span style="font-size:0.78rem;color:#cbd5e1;line-height:1.4">Stats complètes : meilleure saison, types de spots, temps d'attente par moment de la journée</span></div>
+        </div>
         <button onclick="startCityPageDemo()" style="background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;font-weight:700;border:none;padding:12px 28px;border-radius:12px;font-size:0.9rem;cursor:pointer">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
       </div>
 
