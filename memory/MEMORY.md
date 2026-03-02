@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-02-26 (session 24)
+> Dernière mise à jour : 2026-03-02 (session 34 — Phase A+B spots complet)
 
 ---
 
@@ -87,7 +87,7 @@
 
 ## À venir — prochaine session
 
-- **Mode Gardien (Companion In-App)** : gardiens voient position live de l'autostoppeur sur la carte SpotHitch. Timer check-in : si l'autostoppeur ne remet pas à zéro → alerte + notif push au gardien (point rouge sur la carte). Arrivée = confirmation manuelle. Pas d'alerte immobile. Firebase onSnapshot. Lien smart (app si installée, sinon web). Discuté session 23.
+- **Mode Gardien (Companion In-App)** : gardiens voient position live de l'autostoppeur sur la carte SpotHitch. Timer check-in. Nécessite plan Blaze + Cloud Functions.
 
 ---
 

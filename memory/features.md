@@ -9,7 +9,8 @@
 
 - [x] Carte interactive MapLibre GL JS avec tuiles OpenFreeMap
 - [x] Clustering dynamique des spots (dé-cluster au zoom)
-- [x] Couleurs de fraîcheur (vert=récent, jaune=ancien, gris=très vieux)
+- [x] Système 3 tiers spots : gris (basique) → vert (3+ tests ET validations) → or (10+) + couronne ambassadeur + anneau rouge station
+- [x] Marqueurs carte couleurs combinées (tier + anneau rouge station-service)
 - [x] Centrage GPS sur position utilisateur (bouton visible sur tous les appareils, demande permission au clic)
 - [x] ~~Split view (carte + liste côte à côte)~~ (supprimé session 16 — bouton "nearby spots" retiré)
 - [x] Affichage stations-service (toggle ⛽, Overpass API, viewport actuel, zoom guard >= 8)
@@ -39,8 +40,12 @@
 - [x] 3 critères notation : sécurité, trafic, accessibilité (1-5 étoiles)
 - [x] Tags enrichis : abri, visibilité, parking, commodités, méthode signalisation
 - [x] Direction/destination obligatoire
-- [x] Détail spot : stats, badges, reviews, navigation
-- [x] Validation spot (modal dédiée)
+- [x] Détail spot K9 : photo+badge overlay, score cercle, métriques, sections dépliables, tips experts, créneaux, spots proches
+- [x] 2 boutons spot : "Je valide" (quick 1-tap, validationCount) + "J'ai testé" (formulaire, testCount)
+- [x] Infos légales par pays dans SpotDetail (vert/jaune/rouge depuis guides.js)
+- [x] Spots alternatifs proches (rayon 5km, triés par rating)
+- [x] Tips experts (reviews marquées isTip par utilisateurs vérifiés)
+- [x] Meilleurs créneaux horaires (agrégation timeOfDay + waitTime)
 - [x] Check-in : temps d'attente, résultat, photo, tracker "personnages"
 - [x] Favoris : sauvegarder/retirer, tri par date/note, affichage sur carte
 - [x] Export favoris

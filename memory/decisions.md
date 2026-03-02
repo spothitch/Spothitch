@@ -54,6 +54,10 @@
 | Firebase plan Spark | Rester gratuit pour maintenant, Blaze plus tard | Pas de coût tant que pas de notifs entre utilisateurs | 2026-02-26 |
 | Proximité spots | 500m rayon, 1 vote/an, pas de popup permanente | Non-intrusif, anti-spam | 2026-02-26 |
 | Mode En Route | Point bleu GPS live, pause/arrêt, pas de barre progression | Simple, réaliste (pas de progression linéaire en stop) | 2026-02-26 |
+| Spots 3 tiers | Gris/Vert/Or au lieu de 6 couleurs | Plus simple, basé sur testCount+validationCount au lieu de userValidations seul | 2026-03-02 |
+| Rouge = station uniquement | Rouge n'est PAS "dangereux", c'est station-service | Combinable avec n'importe quel tier (gris-rouge, vert-rouge, or-rouge) | 2026-03-02 |
+| Valider vs Tester | 2 boutons séparés (quick validate + formulaire test) | Valider = le spot existe (drive-by), Tester = j'ai fait du stop ici | 2026-03-02 |
+| SpotDetail K9 | Design arrondi organique avec sections dépliables | Plus lisible, moins de scroll, info hiérarchisée | 2026-03-02 |
 
 ## Performance
 

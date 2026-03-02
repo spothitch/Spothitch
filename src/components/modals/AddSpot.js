@@ -15,6 +15,14 @@ import { icon } from '../../utils/icons.js'
 // Wait time slider steps (minutes)
 const WAIT_STEPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 45, 60, 90, 120, 180]
 
+function detectSeason() {
+  const month = new Date().getMonth()
+  if (month >= 2 && month <= 4) return 'spring'
+  if (month >= 5 && month <= 7) return 'summer'
+  if (month >= 8 && month <= 10) return 'autumn'
+  return 'winter'
+}
+
 /**
  * Render interactive star rating for a criterion
  */
@@ -74,9 +82,9 @@ function renderStep1(state) {
   const spotType = state.addSpotType || ''
   return `
     <div class="step-transition">
-      <!-- Photo -->
+      <!-- Photo (optional, bonus points) -->
       <div>
-        <label for="spot-photo" class="text-sm text-slate-400 block mb-2">${t('photoRequired')}</label>
+        <label for="spot-photo" class="text-sm text-slate-400 block mb-2">${t('photoBonus')}</label>
         <div
           id="photo-upload"
           class="photo-upload"
@@ -136,6 +144,25 @@ function renderStep1(state) {
           ${icon('map-pin', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
         </button>
       </div>
+
+      <!-- Station Name (gas_station only) -->
+      ${spotType === 'gas_station' ? `
+        <div>
+          <label for="spot-station-name" class="text-sm text-slate-400 block mb-2">
+            ${t('stationNameLabel')} <span aria-label="obligatoire">*</span>
+          </label>
+          <input
+            type="text"
+            id="spot-station-name"
+            name="stationName"
+            class="input-modern"
+            placeholder="${t('stationNamePlaceholder')}"
+            maxlength="100"
+            value="${window.spotFormData?.stationName || ''}"
+            oninput="window.spotFormData.stationName = this.value"
+          />
+        </div>
+      ` : ''}
 
       <!-- GPS Position -->
       ${renderPositionBlock()}
@@ -210,7 +237,7 @@ function renderStep2(state) {
       <div class="mb-4">
         <label class="text-sm text-slate-400 block mb-2">
           ${icon('clock', 'w-4 h-4 mr-1')}
-          ${t('waitTimeLabel') || "Temps d'attente"}
+          ${t('waitTimeLabel') || "Temps d'attente"} <span class="text-red-400">*</span>
         </label>
         <input
           type="range"
@@ -237,7 +264,7 @@ function renderStep2(state) {
       <div class="mb-4">
         <label class="text-sm text-slate-400 block mb-2">
           ${icon('hand', 'w-4 h-4 mr-1')}
-          ${t('practicalTips') || 'Méthode'}
+          ${t('practicalTips') || 'Méthode'} <span class="text-red-400">*</span>
         </label>
         <div class="radio-group">
           <button type="button" onclick="setMethod('sign')"
@@ -259,7 +286,7 @@ function renderStep2(state) {
       <div class="mb-4">
         <label class="text-sm text-slate-400 block mb-2">
           ${icon('users', 'w-4 h-4 mr-1')}
-          ${t('groupSizeLabel') || 'Combien étiez-vous ?'}
+          ${t('groupSizeLabel') || 'Combien étiez-vous ?'} <span class="text-red-400">*</span>
         </label>
         <div class="radio-group">
           <button type="button" onclick="setGroupSize('solo')"
@@ -281,7 +308,7 @@ function renderStep2(state) {
       <div class="mb-4">
         <label class="text-sm text-slate-400 block mb-2">
           ${icon('sun', 'w-4 h-4 mr-1')}
-          ${t('timeOfDayLabel') || 'Moment de la journée'}
+          ${t('timeOfDayLabel') || 'Moment de la journée'} <span class="text-red-400">*</span>
         </label>
         <div class="radio-group">
           <button type="button" onclick="setTimeOfDay('morning')"
@@ -367,7 +394,7 @@ function renderStep3(state) {
 
       <!-- Description -->
       <div class="mb-5">
-        <label for="spot-description" class="text-sm text-slate-400 block mb-2">${t('description')}</label>
+        <label for="spot-description" class="text-sm text-slate-400 block mb-2">${t('description')} <span class="text-red-400">*</span></label>
         <textarea
           id="spot-description"
           name="description"
@@ -667,11 +694,7 @@ window.addSpotNextStep = async () => {
   const currentStep = state.addSpotStep || 1
 
   if (currentStep === 1) {
-    // Validate photo + type + position + departure city
-    if (!window.spotFormData.photo) {
-      showError(t('photoRequired') || 'Une photo est requise')
-      return
-    }
+    // Validate type + position + departure city (photo is optional for bonus points)
     const spotType = state.addSpotType || window.spotFormData.spotType
     if (!spotType) {
       showError(t('selectSpotType') || 'Choisis un type de spot')
@@ -689,9 +712,21 @@ window.addSpotNextStep = async () => {
     document.activeElement?.blur()
     setState({ addSpotStep: 2, addSpotType: spotType })
   } else if (currentStep === 2) {
-    // Validate direction
+    // Validate direction + experience fields (all mandatory)
     if (!window.spotFormData.directionCity) {
       showError(t('destinationRequired') || 'Destination obligatoire')
+      return
+    }
+    if (!window.spotFormData.method) {
+      showError(t('methodRequired'))
+      return
+    }
+    if (!window.spotFormData.groupSize) {
+      showError(t('groupSizeRequired'))
+      return
+    }
+    if (!window.spotFormData.timeOfDay) {
+      showError(t('timeOfDayRequired'))
       return
     }
     // Blur focused input so render() is not blocked by the typing guard
@@ -1001,6 +1036,7 @@ window.openSpotDraft = async (draftId) => {
     timeOfDay: draft.timeOfDay,
     waitTime: draft.waitTime,
     season: draft.season,
+    stationName: draft.stationName || '',
   }
 
   setState({
@@ -1131,36 +1167,41 @@ window.handleAddSpot = async (event) => {
   const to = window.spotFormData.directionCity || ''
   const direction = window.spotFormData.directionCity || ''
 
-  // Validation
-  if (!window.spotFormData.photo) {
-    const { showError } = await import('../../services/notifications.js')
-    showError(t('photoRequired') || 'Une photo est requise')
-    return
-  }
+  // Validation — ALL fields mandatory EXCEPT photo (bonus points)
+  const { showError } = await import('../../services/notifications.js')
 
   if (!window.spotFormData.lat || !window.spotFormData.lng) {
-    const { showError } = await import('../../services/notifications.js')
     showError(t('positionRequired') || 'Position obligatoire')
     return
   }
-
   if (!direction) {
-    const { showError } = await import('../../services/notifications.js')
     showError(t('directionRequired'))
     return
   }
-
-  // City autocomplete validation — must have been selected from the list
   if (!window.spotFormData.departureCity) {
-    const { showError } = await import('../../services/notifications.js')
     showError(t('departureRequired') || 'Ville de départ obligatoire')
+    return
+  }
+  if (!window.spotFormData.method) {
+    showError(t('methodRequired'))
+    return
+  }
+  if (!window.spotFormData.groupSize) {
+    showError(t('groupSizeRequired'))
+    return
+  }
+  if (!window.spotFormData.timeOfDay) {
+    showError(t('timeOfDayRequired'))
+    return
+  }
+  if (!description) {
+    showError(t('descriptionRequired'))
     return
   }
 
   // Ratings validation — all 3 criteria required
   const ratingsCheck = window.spotFormData.ratings || {}
   if (!ratingsCheck.safety || !ratingsCheck.traffic || !ratingsCheck.accessibility) {
-    const { showError } = await import('../../services/notifications.js')
     showError(t('ratingsRequired') || 'Note les 3 critères (sécurité, trafic, accessibilité)')
     return
   }
@@ -1194,11 +1235,16 @@ window.handleAddSpot = async (event) => {
 
   try {
     const { uploadImage, addSpot } = await import('../../services/firebase.js')
-    const photoPath = `spots/${Date.now()}.jpg`
-    const photoResult = await uploadImage(window.spotFormData.photo, photoPath)
 
-    if (!photoResult.success) {
-      throw new Error('Photo upload failed')
+    // Photo is optional — upload if provided (bonus points)
+    let photoUrl = ''
+    const hasPhoto = !!window.spotFormData.photo
+    if (hasPhoto) {
+      const photoPath = `spots/${Date.now()}.jpg`
+      const photoResult = await uploadImage(window.spotFormData.photo, photoPath)
+      if (photoResult.success) {
+        photoUrl = photoResult.url
+      }
     }
 
     // Build complete spot data — ALL fields structured
@@ -1214,12 +1260,12 @@ window.handleAddSpot = async (event) => {
       roadNumber: window.spotFormData.roadNumber || '',
       positionSource: window.spotFormData.positionSource || 'gps',
 
-      // Experience data (unique!)
-      method: window.spotFormData.method || null,
-      groupSize: window.spotFormData.groupSize || null,
-      timeOfDay: window.spotFormData.timeOfDay || null,
-      waitTime: window.spotFormData.waitTime || null,
-      season: window.spotFormData.season || null,
+      // Experience data (ALL mandatory!)
+      method: window.spotFormData.method,
+      groupSize: window.spotFormData.groupSize,
+      timeOfDay: window.spotFormData.timeOfDay,
+      waitTime: window.spotFormData.waitTime || 10,
+      season: detectSeason(),
 
       // Legacy fields (backward compat)
       from: from,
@@ -1228,7 +1274,8 @@ window.handleAddSpot = async (event) => {
 
       // Standard fields
       description,
-      photoUrl: photoResult.url,
+      photoUrl: photoUrl,
+      hasPhoto: hasPhoto,
       coordinates: {
         lat: window.spotFormData.lat,
         lng: window.spotFormData.lng,
@@ -1242,7 +1289,11 @@ window.handleAddSpot = async (event) => {
       avgWaitTime: window.spotFormData.waitTime || 30,
       spotType,
       fromCity: from,
-      tags: window.spotFormData.tags || {},
+      tags: {
+        ...(window.spotFormData.tags || {}),
+        signMethod: window.spotFormData.method || null,
+      },
+      stationName: window.spotFormData.stationName || '',
       dataSource: 'community',
       createdAt: new Date().toISOString(),
     }
@@ -1253,8 +1304,14 @@ window.handleAddSpot = async (event) => {
       const { showSuccess } = await import('../../services/notifications.js')
       const { actions, setState: setStateFn } = await import('../../stores/state.js')
 
-      showSuccess(t('spotShared') || 'Spot partagé avec succès !')
+      showSuccess(hasPhoto
+        ? (t('spotShared') || 'Spot partagé !') + ' 📸 +50 pts'
+        : (t('spotShared') || 'Spot partagé avec succès !'))
       actions.incrementSpotsCreated()
+      // Bonus points for photo
+      if (hasPhoto) {
+        actions.addPoints?.(50)
+      }
       setStateFn({
         showAddSpot: false,
         addSpotStep: 1,
@@ -1275,6 +1332,7 @@ window.handleAddSpot = async (event) => {
         directionCity: null, directionCityCoords: null,
         locationName: null, roadNumber: null, positionSource: null,
         method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
+        stationName: '',
       }
 
       // Show contextual tip for first spot created

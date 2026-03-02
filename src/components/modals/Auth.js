@@ -170,6 +170,38 @@ export function renderAuth(state) {
               </div>
             ` : ''}
 
+            <!-- Birth Year (Register only) -->
+            ${isSignUp ? `
+              <div>
+                <label for="auth-birthyear" class="text-sm text-slate-400 block mb-1.5">${t('birthYear')} <span class="text-red-400">*</span></label>
+                <input
+                  type="number"
+                  id="auth-birthyear"
+                  name="birthyear"
+                  class="input-modern"
+                  placeholder="${t('birthYearPlaceholder')}"
+                  min="1920"
+                  max="${new Date().getFullYear() - 16}"
+                  required
+                  inputmode="numeric"
+                  aria-required="true"
+                />
+              </div>
+            ` : ''}
+
+            <!-- Gender (Register only) -->
+            ${isSignUp ? `
+              <div>
+                <label for="auth-gender" class="text-sm text-slate-400 block mb-1.5">${t('gender')}</label>
+                <select id="auth-gender" name="gender" class="input-modern">
+                  <option value="">${t('genderPreferNotToSay')}</option>
+                  <option value="female">${t('genderFemale')}</option>
+                  <option value="male">${t('genderMale')}</option>
+                  <option value="non-binary">${t('genderNonBinary')}</option>
+                </select>
+              </div>
+            ` : ''}
+
             <!-- Forgot Password (Login only) -->
             ${!isSignUp ? `
               <div class="text-right">
@@ -271,6 +303,8 @@ window.handleAuth = async (event) => {
     if (authMode === 'register') {
       const confirmPassword = document.getElementById('auth-password-confirm')?.value
       const username = document.getElementById('auth-username')?.value.trim() || 'Hitchhiker'
+      const birthYearStr = document.getElementById('auth-birthyear')?.value
+      const gender = document.getElementById('auth-gender')?.value || ''
 
       if (password !== confirmPassword) {
         if (errorDiv) {
@@ -279,6 +313,27 @@ window.handleAuth = async (event) => {
         }
         return
       }
+
+      // Validate birth year
+      const birthYear = parseInt(birthYearStr, 10)
+      const currentYear = new Date().getFullYear()
+      if (!birthYear || birthYear < 1920 || birthYear > currentYear) {
+        if (errorDiv) {
+          errorDiv.textContent = t('birthYearInvalid')
+          errorDiv.classList.remove('hidden')
+        }
+        return
+      }
+      if (currentYear - birthYear < 16) {
+        if (errorDiv) {
+          errorDiv.textContent = t('birthYearTooYoung')
+          errorDiv.classList.remove('hidden')
+        }
+        return
+      }
+
+      // Store birth year + gender temporarily for profile creation
+      window._pendingRegistrationData = { birthYear, gender: gender || null }
 
       result = await fb.signUp(email, password, username)
     } else {

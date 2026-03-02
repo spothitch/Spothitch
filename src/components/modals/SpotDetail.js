@@ -338,17 +338,29 @@ function renderTagsSection(spot) {
         <span class="badge bg-slate-500/20 text-slate-300 border border-slate-400/30 text-xs">
           🛤️ ${escapeHTML(spot.roadNumber)}
         </span>` : ''}
-      ${spot.tags?.signMethod === 'sign' ? `
+      ${spot.method === 'sign' || spot.tags?.signMethod === 'sign' ? `
         <span class="badge bg-primary-500/20 text-primary-300 border border-primary-500/30 text-xs">
-          ${icon('file-text', 'w-3 h-3 mr-1')} ${t('signMethod') || 'Sign'}
+          ${icon('file-text', 'w-3 h-3 mr-1')} ${t('signMethod') || 'Panneau'}
         </span>` : ''}
-      ${spot.tags?.signMethod === 'thumb' ? `
+      ${spot.method === 'thumb' || spot.tags?.signMethod === 'thumb' ? `
         <span class="badge bg-primary-500/20 text-primary-300 border border-primary-500/30 text-xs">
           ${icon('hand', 'w-3 h-3 mr-1')} ${t('thumbMethod') || 'Pouce'}
         </span>` : ''}
-      ${spot.tags?.hasShelter ? `
+      ${spot.method === 'asking' || spot.tags?.signMethod === 'asking' ? `
+        <span class="badge bg-primary-500/20 text-primary-300 border border-primary-500/30 text-xs">
+          ${icon('message-circle', 'w-3 h-3 mr-1')} ${t('methodAsking') || 'En demandant'}
+        </span>` : ''}
+      ${spot.tags?.shelter || spot.tags?.hasShelter ? `
         <span class="badge bg-blue-500/20 text-blue-300 border border-blue-500/30 text-xs">
           ${icon('umbrella', 'w-3 h-3 mr-1')} ${t('hasShelter') || 'Abri'}
+        </span>` : ''}
+      ${spot.tags?.waterFood ? `
+        <span class="badge bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs">
+          ${icon('droplets', 'w-3 h-3 mr-1')} ${t('amenityWaterFood') || 'Eau/nourriture'}
+        </span>` : ''}
+      ${spot.tags?.toilets ? `
+        <span class="badge bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs">
+          🚻 ${t('amenityToilets') || 'Toilettes'}
         </span>` : ''}
       ${spot.tags?.visibility ? `
         <span class="badge bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs">
@@ -357,10 +369,6 @@ function renderTagsSection(spot) {
       ${spot.tags?.stoppingSpace ? `
         <span class="badge bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs">
           ${icon('square-parking', 'w-3 h-3 mr-1')} ${t('stoppingSpaceTag') || 'Place'}
-        </span>` : ''}
-      ${spot.tags?.amenities ? `
-        <span class="badge bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs">
-          ${icon('droplets', 'w-3 h-3 mr-1')} ${t('nearbyAmenities') || 'Services'}
         </span>` : ''}
     </div>
   `

@@ -282,19 +282,30 @@ export async function createOrUpdateUserProfile(user) {
 
     if (snapshot.exists()) {
       // Existing user — update last login
-      await updateDoc(userDocRef, {
+      const updates = {
         lastLoginAt: serverTimestamp(),
         displayName: user.displayName || snapshot.data().displayName,
         photoURL: user.photoURL || snapshot.data().photoURL,
-      })
+      }
+      // If pending registration data (from social login post-auth), merge it
+      if (window._pendingRegistrationData) {
+        const reg = window._pendingRegistrationData
+        if (reg.birthYear && !snapshot.data().birthYear) updates.birthYear = reg.birthYear
+        if (reg.gender && !snapshot.data().gender) updates.gender = reg.gender
+        window._pendingRegistrationData = null
+      }
+      await updateDoc(userDocRef, updates)
       return { success: true, profile: snapshot.data(), isNew: false }
     } else {
       // New user — create profile
+      const reg = window._pendingRegistrationData || {}
       const profile = {
         uid: user.uid,
         email: user.email || null,
         displayName: user.displayName || 'Hitchhiker',
         photoURL: user.photoURL || null,
+        birthYear: reg.birthYear || null,
+        gender: reg.gender || null,
         verifiedPhone: null,
         verifiedIdentity: false,
         createdAt: serverTimestamp(),
@@ -307,6 +318,7 @@ export async function createOrUpdateUserProfile(user) {
         checkins: 0,
         reviewsGiven: 0,
       }
+      window._pendingRegistrationData = null
       await setDoc(userDocRef, profile)
       return { success: true, profile, isNew: true }
     }
@@ -387,7 +399,13 @@ export async function addSpot(spotData) {
       createdAt: serverTimestamp(),
       totalReviews: 0,
       checkins: 0,
-      verified: false
+      verified: false,
+      validationCount: 0,
+      testCount: 0,
+      lastValidated: null,
+      lastTested: null,
+      lastValidatedBy: null,
+      lastTestedBy: null,
     });
     return { success: true, id: docRef.id };
   } catch (error) {
@@ -743,11 +761,14 @@ export async function saveValidationToFirebase(spotId, userId) {
       validatedAt: serverTimestamp(),
     });
 
-    // Increment spot checkins
+    // Increment spot validationCount + checkins
     const spotRef = doc(db, 'spots', spotId);
     const { increment } = await import('firebase/firestore');
     await updateDoc(spotRef, {
+      validationCount: increment(1),
       checkins: increment(1),
+      lastValidated: new Date().toISOString(),
+      lastValidatedBy: user?.uid || userId || 'anonymous',
       lastUsed: new Date().toISOString().split('T')[0],
     });
 
@@ -776,11 +797,14 @@ export async function addValidation(data) {
       createdAt: serverTimestamp(),
     })
 
-    // Update spot stats
+    // Update spot stats — increment testCount (full experience) + checkins
     const spotRef = doc(db, 'spots', spotId)
     const { increment } = await import('firebase/firestore')
     await updateDoc(spotRef, {
+      testCount: increment(1),
       checkins: increment(1),
+      lastTested: new Date().toISOString(),
+      lastTestedBy: user?.uid || 'anonymous',
       lastUsed: new Date().toISOString().split('T')[0],
     }).catch(() => {}) // May fail if spot is from Hitchmap (not in Firestore)
 

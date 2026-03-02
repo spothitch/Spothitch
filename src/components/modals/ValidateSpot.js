@@ -253,12 +253,20 @@ window.openValidateSpot = async (spotId) => {
     ratings: { safety: 0, traffic: 0, accessibility: 0 },
     photo: null, comment: '', rideResult: null,
   }
-  setState({ showValidateSpot: true, validateSpotId: spotId })
+  setState({ showValidateSpot: true, validateSpotId: spotId, validateSpotMode: 'validate' })
 }
 
-// openTestSpot — alias to openValidateSpot (same form, full test experience)
+// openTestSpot — opens the same form but marks it as a "test" (full hitchhiking experience)
 window.openTestSpot = async (spotId) => {
-  window.openValidateSpot(spotId)
+  const { setState } = await import('../../stores/state.js')
+  // Reset form
+  window.validateFormData = {
+    waitTime: 10, method: null, groupSize: null, timeOfDay: null,
+    directionCity: null, directionCityCoords: null,
+    ratings: { safety: 0, traffic: 0, accessibility: 0 },
+    photo: null, comment: '', rideResult: null,
+  }
+  setState({ showValidateSpot: true, validateSpotId: spotId, validateSpotMode: 'test' })
 }
 
 window.closeValidateSpot = async () => {
@@ -343,9 +351,13 @@ window.submitValidation = async (event) => {
   }
 
   try {
+    // Determine mode: 'test' = full hitchhiking experience, 'validate' = confirm spot exists
+    const mode = state.validateSpotMode || 'test'
+
     // Build validation data — ALL structured
     const validationData = {
       spotId,
+      type: mode, // 'test' or 'validate'
       waitTime: vf.waitTime,
       method: vf.method,
       groupSize: vf.groupSize,
@@ -381,14 +393,16 @@ window.submitValidation = async (event) => {
     const { actions } = await import('../../stores/state.js')
     actions.addCheckinToHistory({
       spotId,
-      type: 'validation',
+      type: mode,
       ...validationData,
     })
     actions.incrementCheckins()
 
     const { showSuccess } = await import('../../services/notifications.js')
-    showSuccess(t('validationSubmitted') || 'Validation envoyée ! Merci')
-    setState({ showValidateSpot: false, validateSpotId: null })
+    showSuccess(mode === 'test'
+      ? (t('testSubmitted') || 'Test envoyé ! Merci')
+      : (t('validationSubmitted') || 'Validation envoyée ! Merci'))
+    setState({ showValidateSpot: false, validateSpotId: null, validateSpotMode: null })
 
   } catch (error) {
     console.error('Validation failed:', error)

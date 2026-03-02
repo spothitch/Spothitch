@@ -174,9 +174,10 @@ export function renderProximityAlert(spot) {
 // ==================== GLOBAL HANDLERS ====================
 
 /**
- * Quick validate a spot — save lightweight check-in
+ * Quick validate a spot — confirms spot exists (drive-by, no stop made)
+ * Saves to local state AND Firebase (increments validationCount)
  */
-window.quickValidateSpot = (spotId) => {
+window.quickValidateSpot = async (spotId) => {
   const state = getState()
   const checkinHistory = state.checkinHistory || []
   const newCheckin = {
@@ -190,6 +191,12 @@ window.quickValidateSpot = (spotId) => {
     proximityAlertSpot: null,
   })
   showToast(t('thanksForValidation'), 'success')
+
+  // Persist to Firebase (non-blocking)
+  try {
+    const { quickValidateSpot: fbQuickValidate } = await import('./firebase.js')
+    fbQuickValidate(spotId).catch(() => {})
+  } catch { /* offline or Firebase not loaded */ }
 }
 
 /**

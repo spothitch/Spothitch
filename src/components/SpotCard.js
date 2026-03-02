@@ -1,13 +1,14 @@
 /**
  * SpotCard Component
  * Displays a spot in list or compact view
+ * Uses the 3-tier system (grey/green/gold) from spotFreshness.js
  */
 
 import { t } from '../i18n/index.js';
 import { escapeHTML } from '../utils/sanitize.js';
 import { getStatusBadge, getSpotVerification } from '../services/verification.js';
-import { renderFreshnessIndicator, getFreshnessLevel, getFreshnessBadge, getTimeAgo } from '../utils/dateHelpers.js';
-import { renderFreshnessBadge as renderReliabilityBadge } from '../services/spotFreshness.js';
+import { renderFreshnessIndicator, getTimeAgo } from '../utils/dateHelpers.js';
+import { renderFreshnessBadge as renderReliabilityBadge, getSpotFreshness } from '../services/spotFreshness.js';
 import { icon } from '../utils/icons.js'
 
 export function renderSpotCard(spot, variant = 'default') {
@@ -18,13 +19,12 @@ export function renderSpotCard(spot, variant = 'default') {
 }
 
 function renderDefaultCard(spot) {
-  const typeClass = getSpotTypeClass(spot);
-  const typeLabel = getSpotTypeLabel(spot);
-  const validations = spot.userValidations || 0;
-  const ratingText = validations > 0 ? `${t('validations') || 'Validations'}: ${validations}` : (t('unverifiedSpot') || 'Non vérifié');
+  const freshness = getSpotFreshness(spot)
+  const validationCount = spot.validationCount || spot.userValidations || 0
+  const testCount = spot.testCount || 0
+  const totalCount = validationCount + testCount
+  const ratingText = totalCount > 0 ? `${totalCount} ${t('validations') || 'validations'}` : (t('unverifiedSpot') || 'Non vérifié')
   const waitText = spot.avgWaitTime ? `${t('avgWait') || 'Attente moyenne'}: ${spot.avgWaitTime} min` : '';
-  const freshnessLevel = getFreshnessLevel(spot.lastCheckin || spot.lastUsed);
-  const freshnessBadge = getFreshnessBadge(freshnessLevel);
   const lastCheckinTime = getTimeAgo(spot.lastCheckin || spot.lastUsed);
 
   // Sanitize user-provided data
@@ -53,16 +53,16 @@ function renderDefaultCard(spot) {
           <span class="text-4xl">📍</span>
         </div>`}
         <div class="absolute top-3 right-3 flex flex-col gap-2 items-end">
-          <span class="badge ${typeClass}" aria-label="${t('spotType') || 'Type'}: ${typeLabel}">${typeLabel}</span>
-          <!-- Freshness Badge -->
-          <span
-            class="badge ${freshnessBadge.bgColor} ${freshnessBadge.textColor} border ${freshnessBadge.borderColor}"
-            aria-label="${t('freshness') || 'Fraîcheur'}: ${freshnessBadge.label}"
-            title="${freshnessBadge.description}"
-          >
-            ${icon('circle', `w-5 h-5 ${freshnessBadge.iconColor} text-[10px] mr-1`)}
-            ${freshnessBadge.label}
+          <!-- Tier badge (grey/green/gold) -->
+          <span class="badge bg-${freshness.color}-500/20 text-${freshness.color}-300 border border-${freshness.color}-500/30 text-xs">
+            ${icon(freshness.icon, `w-4 h-4 mr-1`)}
+            ${t(freshness.labelKey)}
+            ${freshness.isCertified ? ' 👑' : ''}
           </span>
+          ${freshness.isStation ? `
+            <span class="badge bg-red-500/20 text-red-300 border border-red-500/30 text-xs">
+              ⛽ ${t('spotStation') || 'Station'}
+            </span>` : ''}
         </div>
         ${(() => {
     const verification = getSpotVerification(spot.id);
@@ -91,13 +91,13 @@ function renderDefaultCard(spot) {
         <p class="text-slate-400 text-sm line-clamp-2 mb-3">
           ${safeDescription}
         </p>
-        
+
         <!-- Stats -->
         <div class="flex items-center justify-between text-sm">
           <div class="flex items-center gap-3">
-            <span class="flex items-center gap-1 text-emerald-400" aria-label="${t('validations') || 'Validations'}: ${validations}">
+            <span class="flex items-center gap-1 text-${freshness.color}-400" aria-label="${ratingText}">
               ${icon('circle-check', 'w-5 h-5')}
-              <span>${validations}</span>
+              <span>${totalCount}</span>
             </span>
             <span class="text-slate-400">
               ${t('validations') || 'Validations'}
@@ -128,10 +128,11 @@ function renderDefaultCard(spot) {
 }
 
 function renderCompactCard(spot) {
-  const compactValidations = spot.userValidations || 0;
-  const ratingText = compactValidations > 0 ? `${t('validations') || 'Validations'}: ${compactValidations}` : (t('unverifiedSpot') || 'Non vérifié');
-  const freshnessLevel = getFreshnessLevel(spot.lastCheckin || spot.lastUsed);
-  const freshnessBadge = getFreshnessBadge(freshnessLevel);
+  const freshness = getSpotFreshness(spot)
+  const validationCount = spot.validationCount || spot.userValidations || 0
+  const testCount = spot.testCount || 0
+  const totalCount = validationCount + testCount
+  const ratingText = totalCount > 0 ? `${totalCount} ${t('validations') || 'validations'}` : (t('unverifiedSpot') || 'Non vérifié')
 
   // Sanitize user-provided data
   const safeFrom = escapeHTML(spot.from || '');
@@ -147,7 +148,7 @@ function renderCompactCard(spot) {
       tabindex="0"
       aria-label="${t('hitchSpot') || 'Spot'}: ${safeFrom} → ${safeTo}. ${ratingText}."
     >
-      <!-- Photo with freshness indicator -->
+      <!-- Photo with tier color dot -->
       <div class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
         ${safePhotoUrl ? `<img
           src="${safePhotoUrl}"
@@ -157,8 +158,8 @@ function renderCompactCard(spot) {
         />` : `<div class="w-full h-full bg-gradient-to-br from-dark-secondary to-dark-primary flex items-center justify-center">
           <span class="text-2xl">📍</span>
         </div>`}
-        <!-- Freshness indicator dot -->
-        <div class="absolute bottom-1 right-1" title="${freshnessBadge.label}">
+        <!-- Tier color indicator -->
+        <div class="absolute bottom-1 right-1">
           ${renderFreshnessIndicator(spot.lastCheckin || spot.lastUsed)}
         </div>
       </div>
@@ -173,9 +174,9 @@ function renderCompactCard(spot) {
               : `📍 ${t('spotLocation') || 'Spot'} #${spot.id}`}
         </h3>
         <div class="flex items-center gap-2 mt-1 text-xs text-slate-400">
-          <span class="flex items-center gap-1 text-emerald-400" aria-label="${ratingText}">
+          <span class="flex items-center gap-1 text-${freshness.color}-400" aria-label="${ratingText}">
             ${icon('circle-check', 'w-5 h-5')}
-            <span>${compactValidations}</span>
+            <span>${totalCount}</span>
           </span>
           <span aria-hidden="true">•</span>
           <span aria-label="${t('waitTime') || 'Attente'}: ${spot.avgWaitTime || '?'} min">~${spot.avgWaitTime || '?'} min</span>
@@ -191,32 +192,6 @@ function renderCompactCard(spot) {
       </div>
     </article>
   `;
-}
-
-function getSpotTypeClass(spot) {
-  const v = spot.userValidations || 0
-  if (v >= 5) return 'bg-blue-600 text-blue-100'; // Very reliable
-  if (v >= 3) return 'badge-success'; // Reliable
-  if (v >= 1) return 'badge-warning'; // Some activity
-  if (isRecent(spot.createdAt)) return 'badge-warning'; // New spot
-  return 'bg-slate-600 text-slate-300'; // Unverified
-}
-
-function getSpotTypeLabel(spot) {
-  const v = spot.userValidations || 0
-  if (v >= 5) return t('veryReliableSpot')
-  if (v >= 3) return t('reliableSpot')
-  if (v >= 1) return t('partiallyVerified')
-  if (isRecent(spot.createdAt)) return t('newSpot')
-  return t('unverifiedSpot')
-}
-
-function isRecent(dateStr) {
-  if (!dateStr) return false;
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffDays = (now - date) / (1000 * 60 * 60 * 24);
-  return diffDays < 30;
 }
 
 export default { renderSpotCard };
