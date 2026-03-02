@@ -42,7 +42,7 @@ export function renderSpotDetail(state) {
       >
         <!-- ========== PHOTO — arrondie avec padding ========== -->
         <div style="padding:10px 10px 0">
-          <div class="relative cursor-pointer" style="aspect-ratio:2/1" onclick="openPhotoFullscreen(0)">
+          <div class="relative cursor-pointer" style="aspect-ratio:2/1" onclick="openPhotoFullscreen(0)" role="button" tabindex="0">
             ${renderPhotoSection(spot)}
             <!-- Gradient overlay -->
             <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(15,21,32,.9) 5%,transparent 50%);border-radius:20px"></div>
@@ -552,7 +552,7 @@ function renderNearbyAlternatives(spot, state) {
 
     return `
       <div class="flex items-center gap-2.5 cursor-pointer" style="padding:10px;border-radius:14px;background:rgba(255,255,255,.03)"
-        onclick="selectSpot(${sId})">
+        onclick="selectSpot(${sId})" role="button" tabindex="0">
         <div style="width:28px;height:28px;border-radius:50%;background:${sFreshness.hexColor};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff">${s.globalRating ? s.globalRating.toFixed(1) : '?'}</div>
         <div class="flex-1 min-w-0">
           <div style="font-size:12px;font-weight:700">${s.spotType === 'gas_station' ? '⛽ ' : ''}${escapeHTML(s.from || s.direction || t('spotLocation') || 'Spot')}</div>
