@@ -311,9 +311,10 @@ describe('Integration: SpotDetail Modal', () => {
     expect(html).toContain('closeSpotDetail')
   })
 
-  it('has checkin button', () => {
+  it('has validate and test buttons', () => {
     const html = renderSpotDetail(stateWithSpot)
-    expect(html).toContain('openCheckinModal')
+    expect(html).toContain('quickValidateSpot')
+    expect(html).toContain('openTestSpot')
   })
 })
 

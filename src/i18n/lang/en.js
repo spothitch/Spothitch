@@ -4305,4 +4305,14 @@ export default {
   markAsTip: 'Mark as tip',
   tipCategory: 'Tip category',
   details: 'Details',
+
+  // Spot Demo (ProfileDemos.js)
+  spotDemoTryBtn: 'See the new spot demo',
+  spotDemoIntroTitle: 'New spot page',
+  spotDemoIntroDesc: 'Here is what a complete spot will look like with all info, photos, reviews and community tools.',
+  spotDemoBullet1: 'Clickable photo gallery — see the spot from every angle before going',
+  spotDemoBullet2: 'Validate = confirm the spot exists (drive-by), Test = give your full review (after hitching)',
+  spotDemoBullet3: 'Status badges: Basic → Reliable → Certified → Gold Spot based on validations and reviews',
+  spotDemoBullet4: 'Expert tips, best time slots, nearby alternatives and emergencies — all in one',
+  spotDemoBullet5: 'Open directly in Google Maps to walk there — one button',
 }

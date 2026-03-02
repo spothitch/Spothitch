@@ -4302,4 +4302,14 @@ export default {
   markAsTip: 'Marcar como tip',
   tipCategory: 'Categoría del tip',
   details: 'Detalles',
+
+  // Spot Demo (ProfileDemos.js)
+  spotDemoTryBtn: 'Ver la demo del nuevo spot',
+  spotDemoIntroTitle: 'Nueva ficha de spot',
+  spotDemoIntroDesc: 'Así se verá un spot completo con toda la info, fotos, reseñas y herramientas de la comunidad.',
+  spotDemoBullet1: 'Galería de fotos clicable — ve el spot desde todos los ángulos antes de ir',
+  spotDemoBullet2: 'Validar = confirmar que el spot existe (de paso), Probar = dar tu opinión completa (después de hacer dedo)',
+  spotDemoBullet3: 'Insignias de estado: Básico → Fiable → Certificado → Spot de Oro según validaciones y reseñas',
+  spotDemoBullet4: 'Tips de expertos, mejores horarios, spots alternativos cercanos y emergencias — todo en uno',
+  spotDemoBullet5: 'Abrir directamente en Google Maps para ir caminando — un solo botón',
 }

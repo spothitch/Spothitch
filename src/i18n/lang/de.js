@@ -4360,4 +4360,14 @@ export default {
   markAsTip: 'Als Tipp markieren',
   tipCategory: 'Tipp-Kategorie',
   details: 'Details',
+
+  // Spot Demo (ProfileDemos.js)
+  spotDemoTryBtn: 'Neue Spot-Demo ansehen',
+  spotDemoIntroTitle: 'Neue Spot-Seite',
+  spotDemoIntroDesc: 'So wird ein vollständiger Spot aussehen mit allen Infos, Fotos, Bewertungen und Community-Tools.',
+  spotDemoBullet1: 'Klickbare Fotogalerie — sieh den Spot aus allen Blickwinkeln bevor du hingehst',
+  spotDemoBullet2: 'Bestätigen = bestätigen dass der Spot existiert (im Vorbeifahren), Testen = vollständige Bewertung (nach dem Trampen)',
+  spotDemoBullet3: 'Status-Abzeichen: Basis → Zuverlässig → Zertifiziert → Gold Spot basierend auf Bestätigungen und Bewertungen',
+  spotDemoBullet4: 'Experten-Tipps, beste Zeiten, nahe Alternativen und Notfälle — alles an einem Ort',
+  spotDemoBullet5: 'Direkt in Google Maps öffnen um hinzulaufen — ein einziger Knopf',
 }
