@@ -4303,6 +4303,7 @@ export default {
   noAlternatives: 'Pas de spot alternatif',
   expertTips: 'Tips experts',
   bestTimeSlots: 'Meilleurs créneaux',
+  avgWaitLabel: '~{time} min d\'attente',
   photoGallery: 'photos',
   markAsTip: 'Marquer comme tip',
   tipCategory: 'Catégorie du tip',

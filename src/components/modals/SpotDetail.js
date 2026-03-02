@@ -296,7 +296,7 @@ function renderPhotoSection(spot) {
     />`
   }
 
-  // Multi-photo: show first with gallery indicator
+  // Multi-photo: show first with gallery indicator (clickable to open gallery)
   return `
     <img
       src="${escapeHTML(mainPhoto)}"
@@ -304,10 +304,12 @@ function renderPhotoSection(spot) {
       class="w-full h-full object-cover"
       loading="lazy"
     />
-    <div class="absolute bottom-14 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+    <button type="button" onclick="openPhotoFullscreen(0)"
+      class="absolute bottom-14 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 cursor-pointer hover:bg-black/80 transition-colors"
+      aria-label="${t('photoGallery') || 'Voir les photos'}">
       ${icon('camera', 'w-3 h-3')}
       <span>${photos.length} ${t('photoGallery') || 'photos'}</span>
-    </div>
+    </button>
   `
 }
 
@@ -511,34 +513,63 @@ function renderExpertTips(spot) {
 }
 
 /**
- * Render best time slots (B3) — aggregate from reviews
+ * Render best time slots (B3) — aggregate timeOfDay + waitTime from reviews,
+ * comments, and validation data to show when hitchhiking works best.
  */
 function renderBestTimeSlots(spot) {
+  // Gather all data sources that may contain timeOfDay + waitTime
   const reviews = spot.reviews || spot._reviews || []
-  if (reviews.length < 2) return ''
+  const comments = spot.comments || []
+  const validations = spot.validations || []
+  const allEntries = [...reviews, ...comments, ...validations]
 
-  // Count timeOfDay occurrences with wait times
+  // Need at least 1 entry with timeOfDay data
+  const entriesWithTime = allEntries.filter(e => e.timeOfDay)
+  if (entriesWithTime.length === 0) return ''
+
+  // Slot metadata: icon, i18n key, display order
+  const slotMeta = {
+    morning:   { icon: '🌅', i18nKey: 'timeMorning',   order: 0 },
+    afternoon: { icon: '☀️', i18nKey: 'timeAfternoon', order: 1 },
+    evening:   { icon: '🌆', i18nKey: 'timeEvening',   order: 2 },
+    night:     { icon: '🌙', i18nKey: 'timeNight',     order: 3 },
+  }
+
+  // Aggregate stats per time slot
   const slotStats = {}
-  for (const r of reviews) {
-    if (!r.timeOfDay) continue
-    if (!slotStats[r.timeOfDay]) slotStats[r.timeOfDay] = { count: 0, totalWait: 0 }
-    slotStats[r.timeOfDay].count++
-    if (r.waitTime) slotStats[r.timeOfDay].totalWait += r.waitTime
+  for (const entry of entriesWithTime) {
+    const slot = entry.timeOfDay
+    if (!slotMeta[slot]) continue
+    if (!slotStats[slot]) slotStats[slot] = { count: 0, totalWait: 0, hasWaitData: false }
+    slotStats[slot].count++
+    if (entry.waitTime != null && entry.waitTime > 0) {
+      slotStats[slot].totalWait += entry.waitTime
+      slotStats[slot].hasWaitData = true
+    }
   }
 
   const slots = Object.entries(slotStats)
   if (slots.length === 0) return ''
 
-  // Sort by most reviews and shortest avg wait
+  // Compute average wait per slot
+  for (const [, stats] of slots) {
+    stats.avgWait = stats.hasWaitData ? Math.round(stats.totalWait / stats.count) : null
+  }
+
+  // Sort: slots with wait data first (lowest avg), then by count desc
   slots.sort((a, b) => {
-    const avgA = a[1].totalWait / a[1].count || 999
-    const avgB = b[1].totalWait / b[1].count || 999
-    return avgA - avgB
+    const aAvg = a[1].avgWait
+    const bAvg = b[1].avgWait
+    if (aAvg != null && bAvg != null) return aAvg - bAvg
+    if (aAvg != null) return -1
+    if (bAvg != null) return 1
+    return b[1].count - a[1].count
   })
 
-  const best = slots[0]
-  const bestLabel = best[0]
-  const bestAvg = best[1].totalWait ? Math.round(best[1].totalWait / best[1].count) : null
+  // Find max wait for bar chart scaling
+  const maxWait = Math.max(...slots.map(([, s]) => s.avgWait || 0), 1)
+
+  const bestSlotKey = slots[0][0]
 
   return `
     <details class="mb-3 group">
@@ -546,22 +577,34 @@ function renderBestTimeSlots(spot) {
         <span aria-hidden="true">⏰</span> ${t('bestTimeSlots') || 'Meilleurs créneaux'}
         ${icon('chevron-down', 'w-4 h-4 ml-auto transition-transform group-open:rotate-180')}
       </summary>
-      <div class="pt-1 pb-2">
-        <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-          <div class="text-sm font-medium text-emerald-400">${escapeHTML(bestLabel)}</div>
-          ${bestAvg ? `<div class="text-xs text-slate-400">~${bestAvg} min ${t('estimatedWait') || 'attente'}</div>` : ''}
-          <div class="text-xs text-slate-500 mt-1">${best[1].count} ${t('reviews') || 'avis'}</div>
-        </div>
-        ${slots.length > 1 ? `
-          <div class="mt-2 space-y-1">
-            ${slots.slice(1, 4).map(([label, stats]) => `
-              <div class="flex items-center justify-between text-xs text-slate-400 px-2">
-                <span>${escapeHTML(label)}</span>
-                <span>${stats.totalWait ? '~' + Math.round(stats.totalWait / stats.count) + ' min' : ''} (${stats.count})</span>
+      <div class="pt-1 pb-2 space-y-2">
+        ${slots.map(([slotKey, stats]) => {
+          const meta = slotMeta[slotKey] || { icon: '⏰', i18nKey: slotKey, order: 9 }
+          const label = t(meta.i18nKey) || slotKey
+          const isBest = slotKey === bestSlotKey
+          const barWidth = stats.avgWait != null ? Math.max(10, Math.round((stats.avgWait / maxWait) * 100)) : 0
+          const waitLabel = stats.avgWait != null ? t('avgWaitLabel', { time: stats.avgWait }) : ''
+
+          return `
+            <div class="p-2 rounded-xl ${isBest ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-white/5'}">
+              <div class="flex items-center gap-2 mb-1">
+                <span aria-hidden="true">${meta.icon}</span>
+                <span class="text-sm font-medium ${isBest ? 'text-emerald-400' : 'text-slate-300'}">${escapeHTML(label)}</span>
+                ${isBest ? `<span class="text-[10px] font-semibold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded-full ml-auto">${icon('star', 'w-3 h-3 inline')} Best</span>` : ''}
               </div>
-            `).join('')}
-          </div>
-        ` : ''}
+              ${stats.avgWait != null ? `
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div class="h-full rounded-full transition-all ${isBest ? 'bg-emerald-500' : 'bg-slate-500'}"
+                      style="width: ${barWidth}%;"></div>
+                  </div>
+                  <span class="text-xs text-slate-400 whitespace-nowrap">${escapeHTML(waitLabel)}</span>
+                </div>
+              ` : ''}
+              <div class="text-[10px] text-slate-500 mt-1">${stats.count} ${t('reviews') || 'avis'}</div>
+            </div>
+          `
+        }).join('')}
       </div>
     </details>
   `

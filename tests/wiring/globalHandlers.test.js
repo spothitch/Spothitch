@@ -355,7 +355,7 @@ const MAIN_JS_HANDLERS = [
   'toggleFAQItem', 'scrollToFAQCategory', 'filterFAQ', 'clearFAQSearch',
   'closeFAQ', 'searchFAQ', 'getFAQQuestionById',
   // AddSpot extras (defined in AddSpot.js)
-  'handleAddSpot', 'setSpotTag',
+  'handleAddSpot', 'setSpotTag', 'removeSpotPhoto',
   // AddSpot v2 (defined in AddSpot.js)
   'selectSpotType', 'setWaitTime', 'setMethod',
   'setGroupSize', 'setTimeOfDay', 'toggleAmenity',
@@ -365,7 +365,7 @@ const MAIN_JS_HANDLERS = [
   'setValidationWaitTime', 'setValidationRideResult',
   'setValidationMethod', 'setValidationGroupSize',
   'setValidationTimeOfDay', 'setValidationRating',
-  'handleValidationPhoto', 'toggleValAmenity',
+  'handleValidationPhoto', 'toggleValAmenity', 'removeValPhoto',
   // Favorites (defined in favorites.js)
   // User Blocking (defined in userBlocking.js)
   'unblockUserById', 'openBlockModal', 'closeBlockModal', 'confirmBlockUser',

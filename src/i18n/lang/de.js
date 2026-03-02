@@ -4358,6 +4358,7 @@ export default {
   noAlternatives: 'Kein alternativer Spot',
   expertTips: 'Experten-Tipps',
   bestTimeSlots: 'Beste Zeiten',
+  avgWaitLabel: '~{time} Min. Wartezeit',
   photoGallery: 'Fotos',
   markAsTip: 'Als Tipp markieren',
   tipCategory: 'Tipp-Kategorie',

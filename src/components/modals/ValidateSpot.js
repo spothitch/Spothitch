@@ -23,7 +23,7 @@ window.validateFormData = window.validateFormData || {
   directionCityCoords: null,
   ratings: { safety: 0, traffic: 0, accessibility: 0 },
   tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
-  photo: null,
+  photos: [],
   comment: '',
   rideResult: null,
 }
@@ -248,18 +248,32 @@ export function renderValidateSpot(state) {
                 maxlength="500"></textarea>
             </div>
 
-            <!-- Photo (optional, +50 pts bonus) -->
+            <!-- Photo (optional, +50 pts bonus — up to 3) -->
             <div>
               <label class="text-sm text-slate-400 block mb-2">
                 ${icon('camera', 'w-4 h-4 mr-1')} ${t('photoBonus')}
+                <span class="text-xs text-slate-500 ml-1">(${t('maxPhotos')})</span>
               </label>
               <input type="file" id="val-photo" accept="image/*" capture="environment"
                 class="hidden" onchange="handleValidationPhoto(event)" />
+              ${(vf.photos?.length || 0) < 3 ? `
               <button type="button" onclick="document.getElementById('val-photo')?.click()"
                 class="btn btn-ghost btn-sm w-full">
                 ${icon('camera', 'w-4 h-4')} ${t('takePhoto')}
               </button>
-              <div id="val-photo-preview" class="mt-2"></div>
+              ` : ''}
+              <div id="val-photo-preview" class="flex gap-2 mt-2 flex-wrap">
+                ${(vf.photos || []).map((p, i) => `
+                  <div class="relative w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                    <img src="${p}" alt="Photo ${i + 1}" class="w-full h-full object-cover" />
+                    <button type="button" onclick="removeValPhoto(${i})"
+                      class="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center text-red-400 hover:text-red-300"
+                      aria-label="${t('close') || 'Supprimer'}">
+                      ${icon('x', 'w-3 h-3')}
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
             </div>
 
             <!-- Submit -->
@@ -282,7 +296,7 @@ window.openValidateSpot = async (spotId) => {
     directionCity: null, directionCityCoords: null,
     ratings: { safety: 0, traffic: 0, accessibility: 0 },
     tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
-    photo: null, comment: '', rideResult: null,
+    photos: [], comment: '', rideResult: null,
   }
   setState({ showValidateSpot: true, validateSpotId: spotId, validateSpotMode: 'validate' })
 }
@@ -295,7 +309,7 @@ window.openTestSpot = async (spotId) => {
     directionCity: null, directionCityCoords: null,
     ratings: { safety: 0, traffic: 0, accessibility: 0 },
     tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
-    photo: null, comment: '', rideResult: null,
+    photos: [], comment: '', rideResult: null,
   }
   setState({ showValidateSpot: true, validateSpotId: spotId, validateSpotMode: 'test' })
 }
@@ -361,15 +375,27 @@ window.toggleValAmenity = (name) => {
 window.handleValidationPhoto = async (event) => {
   const file = event.target.files?.[0]
   if (!file) return
+
+  if (!window.validateFormData.photos) window.validateFormData.photos = []
+  if (window.validateFormData.photos.length >= 3) {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('maxPhotos'))
+    return
+  }
+
   try {
     const { compressImage } = await import('../../utils/image.js')
     const compressed = await compressImage(file)
-    window.validateFormData.photo = compressed
-    const preview = document.getElementById('val-photo-preview')
-    if (preview) {
-      preview.innerHTML = `<img src="${compressed}" alt="Preview" class="w-full h-32 object-cover rounded-xl" />`
-    }
+    window.validateFormData.photos.push(compressed)
+    // Re-render to update thumbnails
+    import('../../stores/state.js').then(({ setState }) => setState({ _valRefresh: Date.now() }))
   } catch { /* no-op */ }
+}
+
+window.removeValPhoto = async (index) => {
+  if (!window.validateFormData.photos) return
+  window.validateFormData.photos.splice(index, 1)
+  import('../../stores/state.js').then(({ setState }) => setState({ _valRefresh: Date.now() }))
 }
 
 window.submitValidation = async (event) => {
@@ -421,14 +447,22 @@ window.submitValidation = async (event) => {
       dataSource: 'community',
     }
 
-    // Upload photo if provided
-    if (vf.photo) {
+    // Upload photos if provided (up to 3)
+    const photosToUpload = vf.photos || []
+    if (photosToUpload.length > 0) {
       try {
         const { uploadImage } = await import('../../services/firebase.js')
-        const photoPath = `validations/${Date.now()}.jpg`
-        const photoResult = await uploadImage(vf.photo, photoPath)
-        if (photoResult.success) {
-          validationData.photoUrl = photoResult.url
+        const uploadedUrls = []
+        for (let i = 0; i < photosToUpload.length; i++) {
+          const photoPath = `validations/${Date.now()}_${i}.jpg`
+          const photoResult = await uploadImage(photosToUpload[i], photoPath)
+          if (photoResult.success) {
+            uploadedUrls.push(photoResult.url)
+          }
+        }
+        if (uploadedUrls.length > 0) {
+          validationData.photoUrl = uploadedUrls[0]
+          validationData.photos = uploadedUrls
         }
       } catch { /* no-op — validation still valid without photo */ }
     }
@@ -448,13 +482,14 @@ window.submitValidation = async (event) => {
     })
     actions.incrementCheckins()
 
-    // Bonus 50 pts if photo provided
-    if (vf.photo) {
+    // Bonus 50 pts if at least 1 photo provided
+    const hasValPhotos = (vf.photos || []).length > 0
+    if (hasValPhotos) {
       actions.addPoints?.(50)
     }
 
     const { showSuccess } = await import('../../services/notifications.js')
-    const photoMsg = vf.photo ? ' 📸 +50 pts' : ''
+    const photoMsg = hasValPhotos ? ' 📸 +50 pts' : ''
     showSuccess(mode === 'test'
       ? (t('testSubmitted') || 'Test envoyé ! Merci') + photoMsg
       : (t('validationSubmitted') || 'Validation envoyée ! Merci') + photoMsg)

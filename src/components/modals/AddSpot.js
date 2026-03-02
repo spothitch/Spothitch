@@ -82,9 +82,22 @@ function renderStep1(state) {
   const spotType = state.addSpotType || ''
   return `
     <div class="step-transition">
-      <!-- Photo (optional, bonus points) -->
+      <!-- Photo (optional, bonus points — up to 3) -->
       <div>
-        <label for="spot-photo" class="text-sm text-slate-400 block mb-2">${t('photoBonus')}</label>
+        <label for="spot-photo" class="text-sm text-slate-400 block mb-2">
+          ${t('photoBonus')}
+          <span class="text-xs text-slate-500 ml-1">(${t('maxPhotos')})</span>
+        </label>
+        <input
+          type="file"
+          id="spot-photo"
+          name="photo"
+          accept="image/*"
+          class="hidden"
+          onchange="handlePhotoSelect(event)"
+          aria-describedby="photo-help"
+        />
+        ${(window.spotFormData?.photos?.length || 0) < 3 ? `
         <div
           id="photo-upload"
           class="photo-upload"
@@ -94,24 +107,24 @@ function renderStep1(state) {
           tabindex="0"
           aria-label="${t('clickToAddPhoto') || 'Cliquez pour ajouter une photo'}"
         >
-          <input
-            type="file"
-            id="spot-photo"
-            name="photo"
-            accept="image/*"
-            class="hidden"
-            onchange="handlePhotoSelect(event)"
-            aria-describedby="photo-help"
-          />
-          <div id="photo-preview">
-            ${window.spotFormData?.photo
-              ? `<img src="${window.spotFormData.photo}" alt="Preview" class="max-h-40 rounded-lg object-cover" />
-                 <p class="text-green-400 text-sm mt-1">${t('photoReady') || 'Photo prête'}</p>`
-              : `${icon('camera', 'w-10 h-10 text-slate-400 mb-2')}
-                 <p class="text-slate-400">${t('takePhoto')}</p>
-                 <p class="text-slate-400 text-sm" id="photo-help">${t('chooseFromGallery')}</p>`
-            }
+          <div>
+            ${icon('camera', 'w-10 h-10 text-slate-400 mb-2')}
+            <p class="text-slate-400">${t('takePhoto')}</p>
+            <p class="text-slate-400 text-sm" id="photo-help">${t('chooseFromGallery')}</p>
           </div>
+        </div>
+        ` : ''}
+        <div id="photo-preview" class="flex gap-2 mt-2 flex-wrap">
+          ${(window.spotFormData?.photos || []).map((p, i) => `
+            <div class="relative w-24 h-24 rounded-lg overflow-hidden border border-white/10">
+              <img src="${p}" alt="Photo ${i + 1}" class="w-full h-full object-cover" />
+              <button type="button" onclick="removeSpotPhoto(${i})"
+                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center text-red-400 hover:text-red-300"
+                aria-label="${t('close') || 'Supprimer'}">
+                ${icon('x', 'w-4 h-4')}
+              </button>
+            </div>
+          `).join('')}
         </div>
       </div>
 
@@ -537,7 +550,7 @@ export function renderAddSpot(_state) {
 
 // Form state — ALL data structured for export/analysis
 window.spotFormData = window.spotFormData || {
-  photo: null,
+  photos: [],
   lat: null,
   lng: null,
   ratings: { safety: 0, traffic: 0, accessibility: 0 },
@@ -580,23 +593,33 @@ window.handlePhotoSelect = async (event) => {
   const file = event.target.files?.[0]
   if (!file) return
 
+  if (!window.spotFormData.photos) window.spotFormData.photos = []
+  if (window.spotFormData.photos.length >= 3) {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('maxPhotos'))
+    return
+  }
+
   try {
     const { compressImage } = await import('../../utils/image.js')
     const compressed = await compressImage(file)
-    window.spotFormData.photo = compressed
+    window.spotFormData.photos.push(compressed)
 
-    const uploadDiv = document.getElementById('photo-upload')
-    const previewDiv = document.getElementById('photo-preview')
-
-    if (uploadDiv && previewDiv) {
-      uploadDiv.classList.add('has-photo')
-      previewDiv.innerHTML = `<img src="${compressed}" alt="Preview" loading="lazy" />`
-    }
+    // Re-render to update thumbnails and hide upload button if at max
+    const { setState } = await import('../../stores/state.js')
+    setState({ _photoRefresh: Date.now() })
   } catch (error) {
     console.error('Photo processing failed:', error)
     const { showError } = await import('../../services/notifications.js')
     showError(t('photoError') || 'Erreur lors du traitement de la photo')
   }
+}
+
+window.removeSpotPhoto = async (index) => {
+  if (!window.spotFormData.photos) return
+  window.spotFormData.photos.splice(index, 1)
+  const { setState } = await import('../../stores/state.js')
+  setState({ _photoRefresh: Date.now() })
 }
 
 window.setSpotRating = (criterion, value) => {
@@ -1049,7 +1072,7 @@ window.openSpotDraft = async (draftId) => {
 
   // Restore ALL form data
   window.spotFormData = {
-    photo: draft.photo,
+    photos: draft.photos || (draft.photo ? [draft.photo] : []),
     lat: draft.lat,
     lng: draft.lng,
     ratings: draft.ratings || { safety: 0, traffic: 0, accessibility: 0 },
@@ -1272,16 +1295,18 @@ window.handleAddSpot = async (event) => {
   try {
     const { uploadImage, addSpot } = await import('../../services/firebase.js')
 
-    // Photo is optional — upload if provided (bonus points)
-    let photoUrl = ''
-    const hasPhoto = !!window.spotFormData.photo
-    if (hasPhoto) {
-      const photoPath = `spots/${Date.now()}.jpg`
-      const photoResult = await uploadImage(window.spotFormData.photo, photoPath)
+    // Photos are optional — upload if provided (bonus points for at least 1)
+    const photosToUpload = window.spotFormData.photos || []
+    const hasPhoto = photosToUpload.length > 0
+    const uploadedUrls = []
+    for (let i = 0; i < photosToUpload.length; i++) {
+      const photoPath = `spots/${Date.now()}_${i}.jpg`
+      const photoResult = await uploadImage(photosToUpload[i], photoPath)
       if (photoResult.success) {
-        photoUrl = photoResult.url
+        uploadedUrls.push(photoResult.url)
       }
     }
+    const photoUrl = uploadedUrls[0] || ''
 
     // Build complete spot data — ALL fields structured
     const spotData = {
@@ -1312,6 +1337,7 @@ window.handleAddSpot = async (event) => {
       // Standard fields
       description,
       photoUrl: photoUrl,
+      photos: uploadedUrls,
       hasPhoto: hasPhoto,
       coordinates: {
         lat: window.spotFormData.lat,
@@ -1342,10 +1368,10 @@ window.handleAddSpot = async (event) => {
       const { actions, setState: setStateFn } = await import('../../stores/state.js')
 
       showSuccess(hasPhoto
-        ? (t('spotShared') || 'Spot partagé !') + ' 📸 +50 pts'
+        ? (t('spotShared') || 'Spot partagé !') + ` 📸 +50 pts (${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''})`
         : (t('spotShared') || 'Spot partagé avec succès !'))
       actions.incrementSpotsCreated()
-      // Bonus points for photo
+      // Bonus points for photo (50 pts if at least 1 photo)
       if (hasPhoto) {
         actions.addPoints?.(50)
       }
@@ -1362,7 +1388,7 @@ window.handleAddSpot = async (event) => {
 
       // Reset form data
       window.spotFormData = {
-        photo: null, lat: null, lng: null,
+        photos: [], lat: null, lng: null,
         ratings: { safety: 0, traffic: 0, accessibility: 0 },
         tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
         country: null, countryName: null,
