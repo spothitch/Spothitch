@@ -12,6 +12,7 @@ import { getAvailableNavigationApps } from '../../utils/navigation.js'
 import { renderFreshnessBadge as renderReliabilityBadge, renderAgeBadge, getSpotFreshness } from '../../services/spotFreshness.js'
 import { renderTranslateButton } from '../../services/autoTranslate.js'
 import { icon } from '../../utils/icons.js'
+import { renderMiniTrustBadge } from '../../services/trustScore.js'
 
 export function renderSpotDetail(state) {
   const spot = state.selectedSpot
@@ -264,7 +265,7 @@ export function renderSpotDetail(state) {
           <!-- Source -->
           ${spot.source ? `
             <div class="text-center text-xs text-slate-400 mt-4">
-              Source: ${escapeHTML(spot.source)} • ${t('createdBy') || 'Créé par'} ${escapeHTML(spot.creator || (t('anonymous') || 'Anonyme'))}
+              Source: ${escapeHTML(spot.source)} • ${t('createdBy') || 'Créé par'} ${escapeHTML(spot.creator || (t('anonymous') || 'Anonyme'))} ${spot.creatorTrustScore != null ? renderMiniTrustBadge(spot.creatorTrustScore, spot.creatorIdVerified) : ''}
             </div>
           ` : ''}
         </div>
@@ -669,6 +670,7 @@ function renderSpotReviews(spot) {
               >
                 <span class="text-lg">${review.avatar || '🤙'}</span>
                 <span class="text-sm font-medium text-primary-400">${escapeHTML(review.userName || t('traveler'))}</span>
+                ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
               </button>
               <time class="text-xs text-slate-500 ml-auto">${review.date ? formatReviewDate(review.date) : ''}</time>
             </div>

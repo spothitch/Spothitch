@@ -5,7 +5,7 @@
 
 import { t } from '../../i18n/index.js'
 import { renderDonationCard } from '../ui/DonationCard.js'
-import { renderTrustScoreCard } from '../../services/trustScore.js'
+import { renderTrustScoreCard, renderVerifiedCheckmark, getUserTrustScore } from '../../services/trustScore.js'
 import { icon } from '../../utils/icons.js'
 import { renderEmptyState } from '../EmptyState.js'
 import { renderToggle } from '../../utils/toggle.js'
@@ -219,10 +219,8 @@ function renderProfilTab(state) {
 function renderProfileHeader(state) {
   const level = state.level || 1
   const vipLevel = getVipLevel(state.points || 0)
-  const verifiedLevel = state.verificationLevel || 0
-  const verifiedBadge = verifiedLevel >= 2
-    ? `<span class="text-emerald-400 text-xs font-semibold ml-1">✓</span>`
-    : ''
+  const { isIdVerified } = getUserTrustScore()
+  const verifiedBadge = renderVerifiedCheckmark(isIdVerified)
   const memberSince = state.user?.metadata?.creationTime
     ? new Date(state.user.metadata.creationTime).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
     : null

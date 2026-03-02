@@ -33,7 +33,7 @@ export const verificationLevels = {
     color: '#9ca3af',
     description: 'Adresse email confirmee',
     descriptionEn: 'Email address confirmed',
-    trustScore: 10,
+    trustScore: 0.5,
     benefits: [
       'Messagerie privee activee',
       'Notifications par email',
@@ -53,7 +53,7 @@ export const verificationLevels = {
     color: '#3b82f6',
     description: 'Numero de telephone confirme par SMS',
     descriptionEn: 'Phone number confirmed by SMS',
-    trustScore: 25,
+    trustScore: 1.5,
     benefits: [
       'Badge bleu "Telephone verifie"',
       'Priorite dans les resultats de recherche',
@@ -73,7 +73,7 @@ export const verificationLevels = {
     color: '#f59e0b',
     description: 'Photos en attente de verification moderateur',
     descriptionEn: 'Photos pending moderator review',
-    trustScore: 40,
+    trustScore: 2,
     benefits: [
       'Badge jaune "En attente de verification"',
       'Verification en cours',
@@ -93,7 +93,7 @@ export const verificationLevels = {
     color: '#10b981',
     description: 'Piece d\'identite validee par moderateur',
     descriptionEn: 'ID document validated by moderator',
-    trustScore: 70,
+    trustScore: 5,
     benefits: [
       'Badge vert "Identite verifiee"',
       'Priorite maximale dans les recherches',
@@ -115,7 +115,7 @@ export const verificationLevels = {
     color: '#fbbf24',
     description: 'Membre verifie avec anciennete et activite elevee',
     descriptionEn: 'Verified member with high seniority and activity',
-    trustScore: 100,
+    trustScore: 7,
     benefits: [
       'Badge dore "Membre de confiance"',
       'Statut premium dans la communaute',
@@ -242,7 +242,7 @@ export function getVerificationProgress() {
     maxLevel: 5,
     progress: (currentLevel / 5) * 100,
     trustScore: verificationLevels[currentLevel]?.trustScore || 0,
-    maxTrustScore: 100,
+    maxTrustScore: 10,
     completedSteps: currentLevel,
     totalSteps: 5,
     verifications: {
@@ -690,7 +690,7 @@ export function renderVerificationStatus() {
           <span>Score de confiance</span>
         </div>
         <div class="text-xl font-bold" style="color: ${currentLevel.color};">
-          ${progress.trustScore}/100
+          ${progress.trustScore}/10
         </div>
       </div>
 

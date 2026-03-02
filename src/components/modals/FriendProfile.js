@@ -3,7 +3,8 @@
  * Trust score, verification, mutual friends, activity stats, share/block
  */
 
-import { getTrustBadge, getVerificationLevelName } from '../../services/identityVerification.js'
+import { getVerificationLevelName } from '../../services/identityVerification.js'
+import { getTierForScore, renderMiniTrustBadge, renderVerifiedCheckmark } from '../../services/trustScore.js'
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
 import { escapeHTML } from '../../utils/sanitize.js'
@@ -16,8 +17,9 @@ export function renderFriendProfileModal(state) {
   if (!friend) return ''
 
   const verLevel = friend.verificationLevel || 0
-  const trustScore = friend.trustScore || Math.min(verLevel * 20, 100)
-  const trustColor = trustScore >= 80 ? 'emerald' : trustScore >= 50 ? 'amber' : trustScore >= 20 ? 'orange' : 'slate'
+  const trustScore = friend.trustScore || Math.min(verLevel * 2, 10)
+  const isIdVerified = verLevel >= 4
+  const tier = getTierForScore(trustScore)
 
   // Mutual friends (friends who are also friends with this friend)
   const mutualCount = friend.mutualFriends?.length || Math.floor(Math.random() * 3)
@@ -48,7 +50,7 @@ export function renderFriendProfileModal(state) {
             <div class="mt-3">
               <div class="flex items-center justify-center gap-2">
                 <h2 id="friend-profile-title" class="text-xl font-bold">${escapeHTML(friend.name)}</h2>
-                ${getTrustBadge(verLevel)}
+                ${renderVerifiedCheckmark(isIdVerified)}
               </div>
               <div class="flex items-center justify-center gap-2 mt-1">
                 <span class="w-3 h-3 rounded-full ${friend.online ? 'bg-emerald-500' : 'bg-slate-500'}"></span>
@@ -61,14 +63,14 @@ export function renderFriendProfileModal(state) {
           <div class="card p-4">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-medium text-slate-400">${t('trustScore')}</span>
-              <span class="text-sm font-bold text-${trustColor}-400">${trustScore}/100</span>
+              ${renderMiniTrustBadge(trustScore, isIdVerified)}
             </div>
             <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-              <div class="h-full bg-${trustColor}-500 rounded-full transition-colors" style="width: ${trustScore}%"></div>
+              <div class="h-full ${tier.fill} rounded-full transition-colors" style="width: ${trustScore * 10}%"></div>
             </div>
             <div class="flex items-center gap-1 mt-2 text-xs text-slate-400">
               ${icon('shield', 'w-3 h-3')}
-              <span>${getVerificationLevelName(verLevel)}</span>
+              <span>${tier.label} — ${getVerificationLevelName(verLevel)}</span>
             </div>
           </div>
 
