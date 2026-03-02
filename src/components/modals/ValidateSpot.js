@@ -256,6 +256,11 @@ window.openValidateSpot = async (spotId) => {
   setState({ showValidateSpot: true, validateSpotId: spotId })
 }
 
+// openTestSpot — alias to openValidateSpot (same form, full test experience)
+window.openTestSpot = async (spotId) => {
+  window.openValidateSpot(spotId)
+}
+
 window.closeValidateSpot = async () => {
   const { setState } = await import('../../stores/state.js')
   setState({ showValidateSpot: false, validateSpotId: null })

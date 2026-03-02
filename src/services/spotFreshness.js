@@ -1,14 +1,15 @@
 /**
  * Spot Freshness/Reliability Service
- * Color-coded system based on USER validations (not HitchWiki ratings)
+ * Color-coded tier system based on validations + tests
  *
- * Reliability (based on user check-ins/validations):
- *   - Grey:  Unverified (HitchWiki import, 0 user validations)
- *   - Amber: Some activity (1-2 validations)
- *   - Emerald: Reliable (3+ validations)
- *   - Blue:  Very reliable (5+ validations)
- *   - Purple: Ambassador-verified
- *   - Red:   Reported dangerous
+ * Tiers (based on validationCount + testCount):
+ *   - Grey (#94a3b8): Unverified (0 validations, HitchWiki import)
+ *   - Green (#10b981): Reliable (3+ testCount AND 3+ validationCount)
+ *   - Gold (#fbbf24): Gold Spot (10+ testCount AND 10+ validationCount)
+ *
+ * Overlays:
+ *   - Crown (👑): ambassadorVerified = true
+ *   - Station (red #ef4444): spotType === 'gas_station'
  *
  * Freshness (age without new validation):
  *   - < 1 year: Nouveau / New
@@ -21,93 +22,75 @@ import { t } from '../i18n/index.js'
 import { icon } from '../utils/icons.js'
 
 /**
- * Get spot reliability status based on USER validations
+ * Get spot tier based on validationCount + testCount
  * @param {Object} spot - Spot object
- * @returns {Object} { color, labelKey, icon, bgClass, textClass, borderClass }
+ * @returns {Object} { tier, color, hexColor, labelKey, icon, bgClass, textClass, borderClass, isCertified, isStation }
  */
 export function getSpotFreshness(spot) {
   if (!spot) {
     return {
+      tier: 'grey',
       color: 'slate',
-      labelKey: 'unverifiedSpot',
+      hexColor: '#94a3b8',
+      labelKey: 'spotStatusBasic',
       icon: 'help-circle',
       bgClass: 'bg-slate-500/20',
       textClass: 'text-slate-400',
-      borderClass: 'border-slate-500/30'
+      borderClass: 'border-slate-500/30',
+      isCertified: false,
+      isStation: false,
     }
   }
 
-  // RED: Dangerous or reported
-  if (spot.dangerous === true || spot.reported === true) {
+  const validationCount = spot.validationCount || spot.userValidations || 0
+  const testCount = spot.testCount || 0
+  const isCertified = spot.ambassadorVerified === true
+  const isStation = spot.spotType === 'gas_station'
+
+  // GOLD: 10+ tests AND 10+ validations
+  if (testCount >= 10 && validationCount >= 10) {
     return {
-      color: 'red',
-      labelKey: 'dangerousSpot',
-      icon: 'triangle-alert',
-      bgClass: 'bg-red-500/20',
-      textClass: 'text-red-400',
-      borderClass: 'border-red-500/30'
+      tier: 'gold',
+      color: 'amber',
+      hexColor: '#fbbf24',
+      labelKey: isCertified ? 'spotStatusGoldCertified' : 'spotStatusGold',
+      icon: 'trophy',
+      bgClass: 'bg-amber-500/20',
+      textClass: 'text-amber-400',
+      borderClass: 'border-amber-500/30',
+      isCertified,
+      isStation,
     }
   }
 
-  // PURPLE: Ambassador-verified
-  if (spot.ambassadorVerified === true) {
+  // GREEN: 3+ tests AND 3+ validations
+  if (testCount >= 3 && validationCount >= 3) {
     return {
-      color: 'purple',
-      labelKey: 'ambassadorVerified',
-      icon: 'badge-check',
-      bgClass: 'bg-purple-500/20',
-      textClass: 'text-purple-400',
-      borderClass: 'border-purple-500/30'
-    }
-  }
-
-  // Count user validations (check-ins from app users, not HitchWiki reviews)
-  const userValidations = spot.userValidations || 0
-
-  // BLUE: Very reliable (5+ user validations)
-  if (userValidations >= 5) {
-    return {
-      color: 'blue',
-      labelKey: 'veryReliableSpot',
-      icon: 'shield-check',
-      bgClass: 'bg-blue-500/20',
-      textClass: 'text-blue-400',
-      borderClass: 'border-blue-500/30'
-    }
-  }
-
-  // EMERALD: Reliable (3+ user validations)
-  if (userValidations >= 3) {
-    return {
+      tier: 'green',
       color: 'emerald',
-      labelKey: 'reliableSpot',
+      hexColor: '#10b981',
+      labelKey: isCertified ? 'spotStatusReliableCertified' : 'spotStatusReliable',
       icon: 'circle-check',
       bgClass: 'bg-emerald-500/20',
       textClass: 'text-emerald-400',
-      borderClass: 'border-emerald-500/30'
+      borderClass: 'border-emerald-500/30',
+      isCertified,
+      isStation,
     }
   }
 
-  // AMBER: Some activity (1-2 user validations)
-  if (userValidations >= 1) {
-    return {
-      color: 'amber',
-      labelKey: 'partiallyVerified',
-      icon: 'circle-alert',
-      bgClass: 'bg-amber-500/20',
-      textClass: 'text-amber-400',
-      borderClass: 'border-amber-500/30'
-    }
-  }
-
-  // GREY: Unverified (HitchWiki import or no user validation)
+  // GREY: Unverified (default)
   return {
+    tier: 'grey',
     color: 'slate',
-    labelKey: 'unverifiedSpot',
-    icon: 'help-circle',
+    hexColor: '#94a3b8',
+    labelKey: isCertified ? 'spotStatusCertified' : 'spotStatusBasic',
+    icon: isCertified ? 'badge-check' : 'help-circle',
     bgClass: 'bg-slate-500/20',
     textClass: 'text-slate-400',
-    borderClass: 'border-slate-500/30'
+    borderClass: 'border-slate-500/30',
+    isCertified,
+    isStation,
   }
 }
 
@@ -117,7 +100,7 @@ export function getSpotFreshness(spot) {
  * @returns {Object} { labelKey, icon, bgClass, textClass, borderClass }
  */
 export function getSpotAge(spot) {
-  const lastDate = spot?.lastCheckin || spot?.lastUsed || spot?.createdAt
+  const lastDate = spot?.lastTested || spot?.lastValidated || spot?.lastCheckin || spot?.lastUsed || spot?.createdAt
   if (!lastDate) {
     return { labelKey: 'unknownAge', icon: 'clock', bgClass: 'bg-slate-500/20', textClass: 'text-slate-400', borderClass: 'border-slate-500/30' }
   }
@@ -136,12 +119,11 @@ export function getSpotAge(spot) {
   if (diffYears < 5) {
     return { labelKey: 'oldSpot', icon: 'archive', bgClass: 'bg-orange-500/20', textClass: 'text-orange-400', borderClass: 'border-orange-500/30' }
   }
-  // > 5 years — should have been auto-deleted, but fallback
   return { labelKey: 'oldSpot', icon: 'archive', bgClass: 'bg-red-500/20', textClass: 'text-red-400', borderClass: 'border-red-500/30' }
 }
 
 /**
- * Render reliability badge HTML
+ * Render reliability badge HTML with crown + station overlay
  * @param {Object} spot - Spot object
  * @param {string} size - Badge size: 'sm', 'md', 'lg'
  * @returns {string} HTML string for the badge
@@ -162,15 +144,27 @@ export function renderFreshnessBadge(spot, size = 'md') {
     lg: 'w-4 h-4'
   }
 
-  const validations = spot?.userValidations || 0
+  const validations = (spot?.validationCount || spot?.userValidations || 0) + (spot?.testCount || 0)
   const countText = validations > 0 ? ` (${validations})` : ''
+  const crownHtml = freshness.isCertified ? ' 👑' : ''
 
-  return `
+  let html = `
     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${sizes[size]} font-medium ${freshness.bgClass} ${freshness.textClass} border ${freshness.borderClass}">
       ${icon(freshness.icon, `${iconSizes[size]}`)}
-      <span>${label}${countText}</span>
+      <span>${label}${countText}${crownHtml}</span>
     </span>
   `
+
+  // Station overlay badge
+  if (freshness.isStation) {
+    html += `
+      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${sizes[size]} font-medium bg-red-500/20 text-red-400 border border-red-500/30">
+        ⛽ <span>${t('spotStation') || 'Station'}</span>
+      </span>
+    `
+  }
+
+  return html
 }
 
 /**
@@ -205,20 +199,22 @@ export function renderAgeBadge(spot, size = 'sm') {
 
 /**
  * Get hex color for marker tinting
+ * Returns the tier color (grey/green/gold) — station overlay is handled separately on map
  * @param {Object} spot - Spot object
  * @returns {string} Hex color code
  */
 export function getFreshnessColor(spot) {
   const freshness = getSpotFreshness(spot)
-  const colors = {
-    slate: '#94a3b8',    // Grey — unverified
-    amber: '#f59e0b',    // Some activity
-    emerald: '#10b981',  // Reliable
-    blue: '#3b82f6',     // Very reliable
-    purple: '#a855f7',   // Ambassador verified
-    red: '#ef4444',      // Dangerous
-  }
-  return colors[freshness.color] || colors.slate
+  return freshness.hexColor || '#94a3b8'
+}
+
+/**
+ * Check if spot is a gas station (for map layer)
+ * @param {Object} spot - Spot object
+ * @returns {boolean}
+ */
+export function isGasStation(spot) {
+  return spot?.spotType === 'gas_station'
 }
 
 export default {
@@ -226,5 +222,6 @@ export default {
   getSpotAge,
   renderFreshnessBadge,
   renderAgeBadge,
-  getFreshnessColor
+  getFreshnessColor,
+  isGasStation,
 }

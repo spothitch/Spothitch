@@ -619,6 +619,42 @@ export function onForegroundMessage(callback) {
   return onMessage(messaging, callback)
 }
 
+// ==================== QUICK VALIDATE (spot exists) ====================
+
+/**
+ * Quick validate a spot (1 tap — confirms spot exists, no stop made)
+ * Increments validationCount + updates lastValidated
+ * @param {string} spotId - Spot ID
+ */
+export async function quickValidateSpot(spotId) {
+  try {
+    const user = getCurrentUser()
+    if (!user) return { success: false, error: 'not_authenticated' }
+
+    const spotRef = doc(db, 'spots', String(spotId))
+    const { increment } = await import('firebase/firestore')
+    await updateDoc(spotRef, {
+      validationCount: increment(1),
+      lastValidated: new Date().toISOString(),
+      lastValidatedBy: user.uid,
+    }).catch(() => {}) // May fail if spot is from Hitchmap (not in Firestore)
+
+    // Log the validation
+    const validationsRef = collection(db, 'spots', String(spotId), 'validations')
+    await addDoc(validationsRef, {
+      type: 'quick_validate',
+      userId: user.uid,
+      userName: user.displayName || 'Anonyme',
+      createdAt: serverTimestamp(),
+    }).catch(() => {})
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error quick validating spot:', error)
+    return { success: false, error }
+  }
+}
+
 // ==================== ENHANCED SPOT OPERATIONS ====================
 
 /**

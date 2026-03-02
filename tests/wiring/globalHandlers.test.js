@@ -361,7 +361,7 @@ const MAIN_JS_HANDLERS = [
   'setGroupSize', 'setTimeOfDay', 'toggleAmenity',
   'saveDraftAndClose',
   // ValidateSpot (defined in ValidateSpot.js)
-  'openValidateSpot', 'closeValidateSpot', 'submitValidation',
+  'openValidateSpot', 'closeValidateSpot', 'submitValidation', 'openTestSpot',
   'setValidationWaitTime', 'setValidationRideResult',
   'setValidationMethod', 'setValidationGroupSize',
   'setValidationTimeOfDay', 'setValidationRating',

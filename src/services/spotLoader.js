@@ -222,6 +222,7 @@ function convertToAppFormat(rawSpots, countryCode) {
         to: '',
         description: bestComment,
         photoUrl: null,
+        photos: [],
         creator: 'Hitchwiki',
         creatorAvatar: '🗺️',
         coordinates: { lat: s.lat, lng: s.lon },
@@ -237,6 +238,14 @@ function convertToAppFormat(rawSpots, countryCode) {
         avgWaitTime: s.wait,
         lastUsed: s.lastUsed,
         checkins: 0,
+        // New tier system fields
+        validationCount: 0,
+        testCount: 0,
+        lastValidated: null,
+        lastTested: null,
+        lastValidatedBy: null,
+        lastTestedBy: null,
+        // Legacy (kept for backward compat)
         userValidations: 0,
         verified: false,
         ambassadorVerified: false,

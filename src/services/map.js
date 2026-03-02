@@ -7,7 +7,7 @@ import { getState } from '../stores/state.js'
 import { sampleSpots } from '../data/spots.js'
 import { loadSpotsInBounds, getAllLoadedSpots } from './spotLoader.js'
 import { getFilteredSpots } from '../components/modals/Filters.js'
-import { getFreshnessColor } from './spotFreshness.js'
+import { getFreshnessColor, isGasStation } from './spotFreshness.js'
 
 // Map instances
 let mainMap = null
@@ -69,6 +69,7 @@ function spotsToGeoJSON(spots) {
         source: spot.source || 'user',
         color: getFreshnessColor(spot),
         verified: spot.verified || false,
+        isStation: isGasStation(spot) ? 1 : 0,
       },
     })
   }
@@ -147,6 +148,21 @@ function addSpotLayers(map, geojson) {
         2,
       ],
       'circle-opacity': 0.85,
+    },
+  })
+
+  // Station ring overlay (red ring around gas stations)
+  map.addLayer({
+    id: 'spot-station-ring',
+    type: 'circle',
+    source: 'spots',
+    filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'isStation'], 1]],
+    paint: {
+      'circle-color': 'transparent',
+      'circle-radius': 10,
+      'circle-stroke-color': '#ef4444',
+      'circle-stroke-width': 2.5,
+      'circle-opacity': 0.9,
     },
   })
 
