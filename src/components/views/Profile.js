@@ -1186,12 +1186,12 @@ function renderFeatureDetailCities() {
 
         <!-- Tabs -->
         <div style="display: flex; gap: 4px; margin: 8px 0; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch">
-          <span class="cd-tab cd-tab-active" onclick="switchCityDemoTab(this, 'spots')">📍 Spots</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'conseils')">💬 Conseils</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'auberges')">🏨 Dormir</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'events')">🎪 Events</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'loi')">⚖️ Loi</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'pratique')">🗣️ Pratique</span>
+          <span class="cd-tab cd-tab-active" onclick="switchCityDemoTab(this, 'spots')" role="button" tabindex="0">📍 Spots</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'conseils')" role="button" tabindex="0">💬 Conseils</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'auberges')" role="button" tabindex="0">🏨 Dormir</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'events')" role="button" tabindex="0">🎪 Events</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'loi')" role="button" tabindex="0">⚖️ Loi</span>
+          <span class="cd-tab" onclick="switchCityDemoTab(this, 'pratique')" role="button" tabindex="0">🗣️ Pratique</span>
         </div>
 
         <!-- Panel: Spots (default visible) -->
@@ -2319,12 +2319,12 @@ window.startCityPageDemo = () => {
 
       <!-- Tabs -->
       <div style="display:flex;gap:4px;margin:8px 0;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch">
-        <span class="cd-tab cd-tab-active" onclick="switchCityDemoTab(this,'spots')">📍 Spots</span>
-        <span class="cd-tab" onclick="switchCityDemoTab(this,'conseils')">💬 Conseils</span>
-        <span class="cd-tab" onclick="switchCityDemoTab(this,'auberges')">🏨 Dormir</span>
-        <span class="cd-tab" onclick="switchCityDemoTab(this,'events')">🎪 Events</span>
-        <span class="cd-tab" onclick="switchCityDemoTab(this,'loi')">⚖️ Loi</span>
-        <span class="cd-tab" onclick="switchCityDemoTab(this,'pratique')">🗣️ Pratique</span>
+        <span class="cd-tab cd-tab-active" onclick="switchCityDemoTab(this,'spots')" role="button" tabindex="0">📍 Spots</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'conseils')" role="button" tabindex="0">💬 Conseils</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'auberges')" role="button" tabindex="0">🏨 Dormir</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'events')" role="button" tabindex="0">🎪 Events</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'loi')" role="button" tabindex="0">⚖️ Loi</span>
+        <span class="cd-tab" onclick="switchCityDemoTab(this,'pratique')" role="button" tabindex="0">🗣️ Pratique</span>
       </div>
 
       <!-- Panel: Spots -->

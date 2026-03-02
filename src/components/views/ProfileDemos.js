@@ -93,10 +93,10 @@ window.startPointsDemo = () => {
       </div>
 
       <div style="${_s.tabs}">
-        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'pts-points')">⭐ Mes Points</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'pts-earn')">💰 Gagner</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'pts-rank')">🏅 Classement</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'pts-partners')">🎁 Réductions</span>
+        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'pts-points')" role="button" tabindex="0">⭐ Mes Points</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'pts-earn')" role="button" tabindex="0">💰 Gagner</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'pts-rank')" role="button" tabindex="0">🏅 Classement</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'pts-partners')" role="button" tabindex="0">🎁 Réductions</span>
       </div>
 
       <!-- Mes Points -->
@@ -227,9 +227,9 @@ window.startJournalDemo = () => {
       </div>
 
       <div style="${_s.tabs}">
-        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'jrn-current')">🗺️ Voyage en cours</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'jrn-history')">📚 Mes voyages</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'jrn-community')">🌍 Communauté</span>
+        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'jrn-current')" role="button" tabindex="0">🗺️ Voyage en cours</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'jrn-history')" role="button" tabindex="0">📚 Mes voyages</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'jrn-community')" role="button" tabindex="0">🌍 Communauté</span>
       </div>
 
       <!-- Voyage en cours -->
@@ -308,10 +308,10 @@ window.startSocialDemo = () => {
   main.innerHTML = `
     <div data-demo="overlay" style="${_s.demo}">
       <div style="${_s.tabs}">
-        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'soc-nearby')">📍 Proches</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'soc-races')">🏁 Courses</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'soc-events')">🎉 Événements</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'soc-spots')">📍 Spots partagés</span>
+        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'soc-nearby')" role="button" tabindex="0">📍 Proches</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'soc-races')" role="button" tabindex="0">🏁 Courses</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'soc-events')" role="button" tabindex="0">🎉 Événements</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'soc-spots')" role="button" tabindex="0">📍 Spots partagés</span>
       </div>
 
       <!-- Proches -->
@@ -401,9 +401,9 @@ window.startCompanionDemo = () => {
   main.innerHTML = `
     <div data-demo="overlay" style="${_s.demo}">
       <div style="${_s.tabs}">
-        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'cmp-me')">🧳 Mon trajet</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'cmp-guardian')">👁️ Vue Gardien</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'cmp-config')">⚙️ Réglages</span>
+        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'cmp-me')" role="button" tabindex="0">🧳 Mon trajet</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'cmp-guardian')" role="button" tabindex="0">👁️ Vue Gardien</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'cmp-config')" role="button" tabindex="0">⚙️ Réglages</span>
       </div>
 
       <!-- Mon trajet -->
@@ -511,9 +511,9 @@ window.startHostelsDemo = () => {
   main.innerHTML = `
     <div data-demo="overlay" style="${_s.demo}">
       <div style="${_s.tabs}">
-        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'htl-hostels')">🏨 Auberges</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'htl-events')">🎉 Événements</span>
-        <span class="cd-tab" onclick="switchDemoTab(this,'htl-create')">✏️ Créer un event</span>
+        <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'htl-hostels')" role="button" tabindex="0">🏨 Auberges</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'htl-events')" role="button" tabindex="0">🎉 Événements</span>
+        <span class="cd-tab" onclick="switchDemoTab(this,'htl-create')" role="button" tabindex="0">✏️ Créer un event</span>
       </div>
 
       <!-- Auberges -->
