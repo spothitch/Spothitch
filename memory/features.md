@@ -55,11 +55,15 @@
 
 - [x] Planificateur de voyage multi-villes (OSRM routing)
 - [x] Analyse de route (distance, durée, spots le long du trajet)
-- [x] Historique des voyages (sauvegarder/charger)
+- [x] Historique des voyages (sauvegarder/charger/renommer/supprimer avec confirmation)
+- [x] Chargement voyage sauvegardé → rouvre carte + bottom sheet
+- [x] Date relative affichée sur les voyages sauvegardés
+- [x] Système favori unifié ❤️ (coeur unique au lieu de ⭐ highlight + 🔖 bookmark séparés)
+- [x] Bouton coeur ❤️ dans bottom sheet itinéraire + popup carte
 - [x] Commodités le long de la route
 - [x] Barre de voyage active (indicateur flottant pendant planification)
 - [x] Suggestions de spots le long de l'itinéraire
-- [x] Filtres route (station, note 4+, attente <20min, vérifié, récent, abri)
+- [x] Filtres route (station, note 4+, attente <20min, vérifié, récent, abri) — unifiés en tripFilters.js, compteurs par chip, chips grisés si 0, masquage carte, reset auto
 - [x] Labels spots sans overlap sur carte trip (halo + collision detection)
 - [x] Nommage spots par distance au lieu de commentaires
 
