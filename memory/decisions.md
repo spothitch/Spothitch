@@ -58,6 +58,11 @@
 | Rouge = station uniquement | Rouge n'est PAS "dangereux", c'est station-service | Combinable avec n'importe quel tier (gris-rouge, vert-rouge, or-rouge) | 2026-03-02 |
 | Valider vs Tester | 2 boutons séparés (quick validate + formulaire test) | Valider = le spot existe (drive-by), Tester = j'ai fait du stop ici | 2026-03-02 |
 | SpotDetail K9 | Design arrondi organique avec sections dépliables | Plus lisible, moins de scroll, info hiérarchisée | 2026-03-02 |
+| Marqueurs carte Style D | Split vertical (gauche=tier, droite=rouge) pour stations + bordure dorée brillante pour certifié. **VERROUILLÉ** — ne jamais changer sans accord Antoine. | Choisi par Antoine parmi 6 propositions (A-F). Icônes canvas, symbol layer. | 2026-03-02 |
+| Or auto-certifié | Spot d'Or (10+ tests + 10+ validations) est TOUJOURS certifié, même sans ambassadeur | La communauté qui valide massivement = preuve suffisante | 2026-03-02 |
+| Photo optionnelle + 50pts | Photo pas obligatoire à la création ni au test, mais donne +50 points bonus | Testeurs ajoutent beaucoup de spots sans photos au début | 2026-03-02 |
+| Champs spot obligatoires | Tout obligatoire sauf photo : position, type, ville, direction, méthode, groupe, heure, résultat, description, 3 notes | Qualité des données avant retrait Hitchwiki | 2026-03-02 |
+| Âge/genre inscription | birthYear (obligatoire, 16+) et gender (optionnel) collectés à l'inscription | Données communautaires pour analytics | 2026-03-02 |
 
 ## Performance
 
