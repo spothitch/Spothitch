@@ -1472,13 +1472,13 @@ function showTripSpotPopup(map, maplibregl, spotId, coords, spots) {
     b.onclick = fn
     return b
   }
-  const starBtn = mkBtn('⭐', () => { window.highlightTripSpot?.(spotId); tripActivePopup?.remove() })
-  starBtn.style.background = 'rgba(245,158,11,0.2)'; starBtn.style.color = '#fbbf24'
+  const heartBtn = mkBtn('❤️', () => { window.toggleFavorite?.(spotId); tripActivePopup?.remove() })
+  heartBtn.style.background = 'rgba(239,68,68,0.2)'; heartBtn.style.color = '#f87171'
   const removeBtn = mkBtn('✕', () => { window.removeTripMapSpot?.(spotId); tripActivePopup?.remove() })
   removeBtn.style.background = 'rgba(239,68,68,0.2)'; removeBtn.style.color = '#f87171'
   const detailBtn = mkBtn('🔍', () => { window.selectSpot?.(spotId) })
   detailBtn.style.background = 'rgba(59,130,246,0.2)'; detailBtn.style.color = '#60a5fa'
-  btnRow.appendChild(starBtn)
+  btnRow.appendChild(heartBtn)
   btnRow.appendChild(removeBtn)
   btnRow.appendChild(detailBtn)
   popupEl.appendChild(btnRow)
@@ -1495,15 +1495,11 @@ window._tripMapUpdateSpots = () => {
   const results = state.tripResults
   if (!results?.spots) return
   const removedSet = new Set((state.tripRemovedSpots || []).map(String))
-  const highlighted = (() => {
-    try { return new Set(JSON.parse(localStorage.getItem('spothitch_highlighted_trip_spots') || '[]').map(String)) }
-    catch { return new Set() }
-  })()
   const routeFilter = state.routeFilter
   const allSpots = results.spots.filter(s => !removedSet.has(String(s.id)))
   // Apply route filter — only matching spots appear on the map (no fading)
   const displaySpots = (routeFilter && routeFilter !== 'all')
-    ? applyTripFilter(allSpots, routeFilter, highlighted)
+    ? applyTripFilter(allSpots, routeFilter)
     : allSpots
   const favSet = getFavoritesSet()
   const spotFeatures = []
@@ -1511,18 +1507,17 @@ window._tripMapUpdateSpots = () => {
     const lat = spot.coordinates?.lat || spot.lat
     const lng = spot.coordinates?.lng || spot.lng
     if (!lat || !lng) return
-    const isHighlighted = highlighted.has(String(spot.id))
-    const isFav = favSet.has(spot.id) || isHighlighted
+    const isFav = favSet.has(spot.id) || favSet.has(String(spot.id))
     spotFeatures.push({
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [lng, lat] },
       properties: {
         id: spot.id,
         index: i + 1,
-        color: isHighlighted ? '#f59e0b' : isFav ? '#f59e0b' : '#22c55e',
-        strokeColor: isHighlighted ? '#fbbf24' : '#ffffff',
-        radius: isHighlighted ? 14 : 12,
-        strokeWidth: isHighlighted ? 3 : 2,
+        color: isFav ? '#f59e0b' : '#22c55e',
+        strokeColor: '#ffffff',
+        radius: isFav ? 14 : 12,
+        strokeWidth: isFav ? 3 : 2,
         opacity: 1,
       },
     })

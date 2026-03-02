@@ -70,7 +70,21 @@ if (!window.saveTripWithSpots) {
 
 const SAVED_TRIPS_KEY = 'spothitch_saved_trips'
 const ACTIVE_TRIP_KEY = 'spothitch_active_trip'
-const HIGHLIGHTED_SPOTS_KEY = 'spothitch_highlighted_trip_spots'
+const FAVORITES_KEY = 'spothitch_favorites'
+
+function formatRelativeDate(isoStr) {
+  try {
+    const diff = Date.now() - new Date(isoStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 60) return t('justNow') || "à l'instant"
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h`
+    const days = Math.floor(hours / 24)
+    if (days < 7) return `${days}j`
+    if (days < 30) return `${Math.floor(days / 7)}sem`
+    return new Date(isoStr).toLocaleDateString()
+  } catch { return '' }
+}
 
 // ==================== MAIN RENDER ====================
 
@@ -149,9 +163,9 @@ function renderMapFirstView(state) {
   const removedSet = new Set((state.tripRemovedSpots || []).map(String))
   const visibleSpots = allSpots.filter(s => !removedSet.has(String(s.id)))
   const routeFilter = state.routeFilter
-  const highlighted = getHighlightedSpots()
-  const filteredSpots = applyTripFilter(visibleSpots, routeFilter, highlighted)
-  const counts = countByFilter(visibleSpots, highlighted)
+  const favSet = getFavoritesSet()
+  const filteredSpots = applyTripFilter(visibleSpots, routeFilter)
+  const counts = countByFilter(visibleSpots)
   const sheetState = state.tripBottomSheetState || 'collapsed'
   const showGas = state.tripShowGasStations || false
 
@@ -264,12 +278,11 @@ function renderMapFirstView(state) {
               ${renderFilterChip('verified', `✓ ${t('tripFilterVerified') || 'Vérifié'} (${counts.verified})`, routeFilter === 'verified', counts.verified === 0)}
               ${renderFilterChip('shelter', `🏠 ${t('filterShelter') || 'Abri'} (${counts.shelter})`, routeFilter === 'shelter', counts.shelter === 0)}
               ${renderFilterChip('recent', `🕐 ${t('filterRecent') || 'Récent'} (${counts.recent})`, routeFilter === 'recent', counts.recent === 0)}
-              ${counts.highlighted > 0 ? renderFilterChip('highlighted', `⭐ (${counts.highlighted})`, routeFilter === 'highlighted', false) : ''}
             </div>
 
             <!-- Spot list -->
             <div class="space-y-1.5 mb-4">
-              ${filteredSpots.map((spot, i) => renderBottomSheetSpotItem(spot, i, results, highlighted)).join('')}
+              ${filteredSpots.map((spot, i) => renderBottomSheetSpotItem(spot, i, results, favSet)).join('')}
               ${filteredSpots.length === 0 ? `
                 <div class="text-center py-6 text-slate-500 text-sm">
                   ${icon('search', 'w-6 h-6 mb-1')}
@@ -309,13 +322,13 @@ function renderMapFirstView(state) {
   `
 }
 
-function renderBottomSheetSpotItem(spot, i, results, highlighted) {
+function renderBottomSheetSpotItem(spot, i, results, favSet) {
   const sLat = spot.coordinates?.lat || spot.lat
   const sLng = spot.coordinates?.lng || spot.lng
   const distFromStart = (sLat && sLng && results.fromCoords)
     ? Math.round(haversineKm(results.fromCoords[0], results.fromCoords[1], sLat, sLng))
     : null
-  const isHighlighted = highlighted.has(String(spot.id))
+  const isFav = favSet.has(spot.id) || favSet.has(String(spot.id))
   const spotName = spot.from || spot.city || spot.stationName || spot.description?.substring(0, 50) || (spot.country ? `${t('spot')} · ${spot.country}` : `${t('spot')} #${i + 1}`)
 
   // Spot type label
@@ -325,28 +338,38 @@ function renderBottomSheetSpotItem(spot, i, results, highlighted) {
   // Stars display (1-5 based on rating)
   const rating = spot.globalRating || spot._hitchwikiRating || 0
   const stars = rating > 0 ? '★'.repeat(Math.round(Math.min(5, rating))) + '☆'.repeat(5 - Math.round(Math.min(5, rating))) : ''
+  const safeSpotId = escapeJSString(String(spot.id))
 
   return `
-    <button
-      onclick="tripMapShowSpot(${spot.id})"
-      class="w-full flex items-center gap-3 p-3 rounded-xl bg-dark-secondary hover:bg-white/5 transition-colors text-left ${isHighlighted ? 'border border-amber-500/30' : 'border border-transparent'}"
-      role="button" tabindex="0"
-    >
-      <span class="w-7 h-7 rounded-full ${isHighlighted ? 'bg-amber-500' : 'bg-emerald-500'} flex items-center justify-center shrink-0">
-        <span class="text-xs font-bold text-white">${i + 1}</span>
-      </span>
-      <div class="flex-1 min-w-0">
-        <div class="text-sm font-semibold text-white truncate">${spotName}</div>
+    <div class="flex items-center gap-1">
+      <button
+        onclick="tripMapShowSpot(${spot.id})"
+        class="flex-1 flex items-center gap-3 p-3 rounded-xl bg-dark-secondary hover:bg-white/5 transition-colors text-left ${isFav ? 'border border-amber-500/30' : 'border border-transparent'}"
+        role="button" tabindex="0"
+      >
+        <span class="w-7 h-7 rounded-full ${isFav ? 'bg-amber-500' : 'bg-emerald-500'} flex items-center justify-center shrink-0">
+          <span class="text-xs font-bold text-white">${i + 1}</span>
+        </span>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold text-white truncate">${spotName}</div>
         <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
           ${stars ? `<span class="text-primary-400">${stars}</span>` : ''}
           ${spotType ? `<span>${spotType}</span>` : ''}
           ${waitTime ? `<span>~${waitTime}min</span>` : ''}
         </div>
       </div>
-      <div class="text-xs text-slate-500 font-medium shrink-0 text-right">
-        ${distFromStart !== null ? `${distFromStart} km` : ''}
-      </div>
-    </button>
+        <div class="text-xs text-slate-500 font-medium shrink-0 text-right">
+          ${distFromStart !== null ? `${distFromStart} km` : ''}
+        </div>
+      </button>
+      <button
+        onclick="toggleFavorite('${safeSpotId}')"
+        class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${isFav ? 'text-red-500' : 'text-slate-600 hover:text-red-400'}"
+        aria-label="${isFav ? (t('removeFromFavorites') || 'Retirer des favoris') : (t('addToFavorites') || 'Ajouter aux favoris')}"
+      >
+        ${isFav ? '❤️' : '🤍'}
+      </button>
+    </div>
   `
 }
 
@@ -629,6 +652,8 @@ function renderSavedTripsPreview(_state) {
       </h3>
       ${notCompleted.slice(0, 3).map((trip, _i) => {
         const idx = savedTrips.indexOf(trip)
+        const tripLabel = trip.name || `${trip.from?.split(',')[0] || '?'} → ${trip.to?.split(',')[0] || '?'}`
+        const dateStr = trip.savedAt ? formatRelativeDate(trip.savedAt) : ''
         return `
         <div class="card p-3 flex items-center gap-3">
           <button onclick="loadSavedTrip(${idx})" class="flex-1 flex items-center gap-3 text-left">
@@ -636,8 +661,8 @@ function renderSavedTripsPreview(_state) {
               ${icon('route', 'w-4 h-4 text-primary-400')}
             </div>
             <div class="min-w-0">
-              <div class="text-sm font-medium truncate">${trip.from?.split(',')[0] || '?'} → ${trip.to?.split(',')[0] || '?'}</div>
-              <div class="text-xs text-slate-500">${trip.spots?.length || 0} spots · ${trip.distance || '?'} km</div>
+              <div class="text-sm font-medium truncate">${tripLabel}</div>
+              <div class="text-xs text-slate-500">${trip.spots?.length || 0} spots · ${trip.distance || '?'} km${dateStr ? ` · ${dateStr}` : ''}</div>
             </div>
           </button>
           <button onclick="startTrip(${idx})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/25 transition-colors flex-shrink-0">
@@ -1061,10 +1086,9 @@ function getActiveTrip() {
   } catch { return null }
 }
 
-function getHighlightedSpots() {
+function getFavoritesSet() {
   try {
-    const ids = JSON.parse(localStorage.getItem(HIGHLIGHTED_SPOTS_KEY) || '[]')
-    return new Set(ids.map(String))
+    return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]').map(String))
   } catch { return new Set() }
 }
 
@@ -1078,40 +1102,7 @@ window.setJournalSubTab = (tab) => {
   window.setState?.({ journalSubTab: tab })
 }
 
-window.highlightTripSpot = (spotId) => {
-  try {
-    const ids = JSON.parse(localStorage.getItem(HIGHLIGHTED_SPOTS_KEY) || '[]')
-    const strId = String(spotId)
-    const idx = ids.indexOf(strId)
-    const wasHighlighted = idx !== -1
-    if (wasHighlighted) {
-      ids.splice(idx, 1)
-    } else {
-      ids.push(strId)
-    }
-    safeSetItem(HIGHLIGHTED_SPOTS_KEY, JSON.stringify(ids))
-
-    // Update map spots without full re-render
-    window._tripMapUpdateSpots?.()
-
-    // Update bottom sheet item directly via DOM
-    const sheet = document.getElementById('trip-bottom-sheet')
-    if (sheet) {
-      const starBtns = sheet.querySelectorAll(`button[onclick*="highlightTripSpot(${spotId})"]`)
-      starBtns.forEach(btn => {
-        if (wasHighlighted) {
-          btn.classList.remove('text-amber-400', 'bg-amber-500/20')
-          btn.classList.add('text-slate-600')
-        } else {
-          btn.classList.add('text-amber-400', 'bg-amber-500/20')
-          btn.classList.remove('text-slate-600')
-        }
-      })
-    }
-  } catch (e) {
-    console.error('highlightTripSpot error:', e)
-  }
-}
+// highlightTripSpot removed — replaced by toggleFavorite (❤️ system)
 
 window.startTrip = (savedTripIndex) => {
   try {

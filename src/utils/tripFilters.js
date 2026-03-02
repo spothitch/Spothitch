@@ -7,10 +7,9 @@
  * Apply a trip filter to an array of spots
  * @param {Array} spots - spots to filter
  * @param {string} filter - filter key (all, station, rating4, wait20, etc.)
- * @param {Set} [highlightedSet] - optional set of highlighted spot IDs (strings)
  * @returns {Array} filtered spots
  */
-export function applyTripFilter(spots, filter, highlightedSet) {
+export function applyTripFilter(spots, filter) {
   if (!filter || filter === 'all') return spots
   switch (filter) {
     case 'station':
@@ -36,8 +35,6 @@ export function applyTripFilter(spots, filter, highlightedSet) {
           desc.includes('roof') || desc.includes('toit') ||
           desc.includes('covered') || desc.includes('couvert')
       })
-    case 'highlighted':
-      return spots.filter(s => highlightedSet && highlightedSet.has(String(s.id)))
     default:
       return spots
   }
@@ -46,10 +43,9 @@ export function applyTripFilter(spots, filter, highlightedSet) {
 /**
  * Count spots for each filter
  * @param {Array} spots - visible spots
- * @param {Set} [highlightedSet] - optional highlighted set
  * @returns {Object} counts keyed by filter name
  */
-export function countByFilter(spots, highlightedSet) {
+export function countByFilter(spots) {
   return {
     all: spots.length,
     station: applyTripFilter(spots, 'station').length,
@@ -58,6 +54,5 @@ export function countByFilter(spots, highlightedSet) {
     verified: applyTripFilter(spots, 'verified').length,
     recent: applyTripFilter(spots, 'recent').length,
     shelter: applyTripFilter(spots, 'shelter').length,
-    highlighted: highlightedSet ? highlightedSet.size : 0,
   }
 }

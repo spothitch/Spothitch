@@ -17,6 +17,20 @@ import { applyTripFilter } from '../../utils/tripFilters.js'
 const SAVED_TRIPS_KEY = 'spothitch_saved_trips'
 const FAVORITES_KEY = 'spothitch_favorites'
 
+function formatRelativeDate(isoStr) {
+  try {
+    const diff = Date.now() - new Date(isoStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 60) return t('justNow') || "à l'instant"
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h`
+    const days = Math.floor(hours / 24)
+    if (days < 7) return `${days}j`
+    if (days < 30) return `${Math.floor(days / 7)}sem`
+    return new Date(isoStr).toLocaleDateString()
+  } catch { return '' }
+}
+
 // Haversine distance — imported from utils/geo.js as haversineKm
 
 export function renderTravel(state) {
@@ -399,7 +413,10 @@ function renderSavedTrips(savedTrips) {
         ${t('savedTrips') || 'Voyages sauvegardés'}
       </h3>
 
-      ${savedTrips.map((trip, index) => `
+      ${savedTrips.map((trip, index) => {
+        const tripLabel = trip.name || `${trip.from?.split(',')[0] || '?'} → ${trip.to?.split(',')[0] || '?'}`
+        const dateStr = trip.savedAt ? formatRelativeDate(trip.savedAt) : ''
+        return `
         <div class="card p-4">
           <div class="flex items-center justify-between">
             <button onclick="loadSavedTrip(${index})" class="flex-1 text-left flex items-center gap-3">
@@ -407,20 +424,27 @@ function renderSavedTrips(savedTrips) {
                 ${icon('route', 'w-5 h-5 text-primary-400')}
               </div>
               <div class="min-w-0">
-                <div class="font-medium truncate">${trip.from?.split(',')[0] || '?'} → ${trip.to?.split(',')[0] || '?'}</div>
-                <div class="text-sm text-slate-400">${trip.spots?.length || 0} spots • ${trip.distance || '?'} km</div>
+                <div class="font-medium truncate">${tripLabel}</div>
+                <div class="text-sm text-slate-400">${trip.spots?.length || 0} spots • ${trip.distance || '?'} km${dateStr ? ` • ${dateStr}` : ''}</div>
               </div>
             </button>
             <button
+              onclick="renameSavedTrip(${index})"
+              class="shrink-0 w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary-400 hover:bg-primary-500/10 transition-colors ml-1"
+              aria-label="${t('rename') || 'Renommer'}"
+            >
+              ${icon('pencil', 'w-3 h-3')}
+            </button>
+            <button
               onclick="deleteSavedTrip(${index})"
-              class="shrink-0 w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors ml-2"
+              class="shrink-0 w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors ml-1"
               aria-label="${t('delete') || 'Supprimer'}"
             >
               ${icon('trash', 'w-3 h-3')}
             </button>
           </div>
         </div>
-      `).join('')}
+      `}).join('')}
     </div>
   `
 }
@@ -1174,7 +1198,7 @@ window.saveTripWithSpots = () => {
   }
 }
 
-// Load a saved trip
+// Load a saved trip — open map-first view with bottom sheet
 window.loadSavedTrip = (index) => {
   try {
     const saved = JSON.parse(localStorage.getItem(SAVED_TRIPS_KEY) || '[]')
@@ -1185,14 +1209,18 @@ window.loadSavedTrip = (index) => {
       tripTo: trip.to,
       tripResults: trip,
       showTripMap: false,
+      tripFormCollapsed: true,
+      tripBottomSheetState: 'half',
+      routeFilter: 'all',
     })
   } catch (e) {
     console.error('Failed to load saved trip:', e)
   }
 }
 
-// Delete a saved trip
+// Delete a saved trip (with confirmation)
 window.deleteSavedTrip = (index) => {
+  if (!confirm(t('confirmDeleteTrip') || 'Supprimer ce voyage sauvegardé ?')) return
   try {
     const saved = JSON.parse(localStorage.getItem(SAVED_TRIPS_KEY) || '[]')
     saved.splice(index, 1)
@@ -1200,6 +1228,25 @@ window.deleteSavedTrip = (index) => {
     window.setState?.({ savedTrips: saved })
     window.showToast?.(t('tripDeleted') || 'Voyage supprimé', 'success')
   } catch (e) { /* localStorage parse error */ }
+}
+
+// Rename a saved trip
+window.renameSavedTrip = (index) => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVED_TRIPS_KEY) || '[]')
+    const trip = saved[index]
+    if (!trip) return
+    const currentName = trip.name || `${trip.from?.split(',')[0] || '?'} → ${trip.to?.split(',')[0] || '?'}`
+    const newName = prompt(t('renameTripPrompt') || 'Nom du voyage :', currentName)
+    if (!newName || newName.trim() === '') return
+    trip.name = newName.trim()
+    saved[index] = trip
+    localStorage.setItem(SAVED_TRIPS_KEY, JSON.stringify(saved))
+    window.setState?.({ savedTrips: saved })
+    window.showToast?.(t('tripRenamed') || 'Voyage renommé', 'success')
+  } catch (e) {
+    console.error('renameSavedTrip error:', e)
+  }
 }
 
 // Toggle favorite spot

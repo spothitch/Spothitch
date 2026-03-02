@@ -73,7 +73,7 @@ const MAIN_JS_HANDLERS = [
   // Trip (defined in Travel.js)
   'updateTripField', 'swapTripPoints', 'calculateTrip',
   'viewTripOnMap', 'closeTripMap', 'clearTripResults',
-  'removeSpotFromTrip', 'saveTripWithSpots', 'loadSavedTrip', 'deleteSavedTrip',
+  'removeSpotFromTrip', 'saveTripWithSpots', 'loadSavedTrip', 'deleteSavedTrip', 'renameSavedTrip',
   'toggleFavorite', 'isFavorite',
   // Trip (old planner step-based, kept for compat)
   'searchTripCity', 'addTripStepFromSearch', 'addFirstSuggestion',
@@ -164,7 +164,7 @@ const MAIN_JS_HANDLERS = [
   // Guide tips feedback (defined in feedbackService.js)
   'voteGuideTip', 'submitGuideSuggestion',
   // Voyage view (defined in Voyage.js)
-  'setVoyageSubTab', 'setJournalSubTab', 'highlightTripSpot', 'startTrip', 'tripNextStop', 'finishTrip',
+  'setVoyageSubTab', 'setJournalSubTab', 'startTrip', 'tripNextStop', 'finishTrip',
   'toggleTripPublic', 'openTripDetail', 'closeTripDetail', 'deleteJournalTrip',
   'openAddTripNote', 'openTripPhotoUpload',
   // Voyage map-first handlers (defined in Voyage.js)
