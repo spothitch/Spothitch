@@ -2386,6 +2386,170 @@
       ],
       "errors": 0,
       "recommendations": 1
+    },
+    {
+      "date": "2026-03-02T01:46:27.782Z",
+      "score": 64,
+      "confidence": "MOYENNE",
+      "duration": "269.0s",
+      "mode": "delta",
+      "bundleSize": 258,
+      "phases": [
+        {
+          "name": "Code Quality",
+          "score": 15,
+          "max": 15
+        },
+        {
+          "name": "Unit Tests",
+          "score": 20,
+          "max": 20
+        },
+        {
+          "name": "Build",
+          "score": 15,
+          "max": 15
+        },
+        {
+          "name": "Impact Analysis",
+          "score": 0,
+          "max": 10
+        },
+        {
+          "name": "Feature Inventory",
+          "score": 15,
+          "max": 15
+        },
+        {
+          "name": "Regression Guard",
+          "score": 4,
+          "max": 10
+        },
+        {
+          "name": "Wiring Integrity",
+          "score": 6,
+          "max": 12
+        },
+        {
+          "name": "Button & Link Audit",
+          "score": 5,
+          "max": 15
+        },
+        {
+          "name": "Dead Code",
+          "score": 5,
+          "max": 10
+        },
+        {
+          "name": "Multi-Level Audit",
+          "score": 13,
+          "max": 15
+        },
+        {
+          "name": "Lighthouse",
+          "score": 3,
+          "max": 8
+        },
+        {
+          "name": "Screenshots",
+          "score": 5,
+          "max": 5
+        },
+        {
+          "name": "Feature Scores",
+          "score": 10,
+          "max": 10
+        },
+        {
+          "name": "Circular Imports",
+          "score": 2,
+          "max": 8
+        },
+        {
+          "name": "Code Duplication",
+          "score": 3,
+          "max": 8
+        },
+        {
+          "name": "Test Coverage/Feature",
+          "score": 8,
+          "max": 8
+        },
+        {
+          "name": "File Size Audit",
+          "score": 1,
+          "max": 6
+        },
+        {
+          "name": "Dependency Freshness",
+          "score": 3,
+          "max": 6
+        },
+        {
+          "name": "Score Trend Tracking",
+          "score": 5,
+          "max": 5
+        },
+        {
+          "name": "Unused CSS Classes",
+          "score": 1,
+          "max": 5
+        },
+        {
+          "name": "Console.log Cleanup",
+          "score": 4,
+          "max": 5
+        },
+        {
+          "name": "Bundle Size Analysis",
+          "score": 1,
+          "max": 6
+        },
+        {
+          "name": "TODO/FIXME Scanner",
+          "score": 5,
+          "max": 5
+        },
+        {
+          "name": "External API Inventory",
+          "score": 1,
+          "max": 5
+        },
+        {
+          "name": "Accessibility Template Lint",
+          "score": 1,
+          "max": 8
+        },
+        {
+          "name": "License Compliance",
+          "score": 3,
+          "max": 5
+        }
+      ],
+      "errors": 1,
+      "recommendations": 176
+    },
+    {
+      "date": "2026-03-02T02:42:10.804Z",
+      "score": 90,
+      "confidence": "HAUTE",
+      "duration": "20.4s",
+      "mode": "delta",
+      "bundleSize": null,
+      "phases": [
+        {
+          "name": "Code Quality",
+          "score": 15,
+          "max": 15
+        },
+        {
+          "name": "Score Trend Tracking",
+          "score": 3,
+          "max": 5
+        }
+      ],
+      "errors": 0,
+      "recommendations": 0
     }
   ],
   "errors": [
@@ -2471,264 +2635,253 @@
   "recommendations": [
     {
       "source": "External API Inventory",
-      "text": "API not in CSP: schema.org (used in: src/utils/seo.js)",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "API not in CSP: www.decathlon.fr (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Protection de securite manquante",
       "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
       "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
       "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
+      "followedAt": "2026-03-02T02:42:10.720Z"
     },
     {
       "source": "External API Inventory",
-      "text": "API not in CSP: www.sitemaps.org (used in: src/utils/seo.js)",
-      "createdAt": "2026-02-26T00:06:09.231Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Le site est peu visible sur Google",
-      "explain": "Il manque des pages de contenu (guides, pages villes) qui permettent a Google de trouver le site quand quelqu'un cherche \"autostop\" ou \"hitchhiking spot\".",
-      "action": "Generer des pages guides pour les destinations populaires (ex: \"Autostop a Paris\", \"Hitchhiking from Berlin\").",
-      "impact": "Plus de visiteurs venant de Google = plus d'utilisateurs sans pub payante.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "External API Inventory",
-      "text": "API not in CSP: twitter.com (used in: src/utils/share.js)",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "API not in CSP: www.asadventure.com (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Protection de securite manquante",
       "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
       "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
       "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
+      "followedAt": "2026-03-02T02:42:10.720Z"
     },
     {
       "source": "External API Inventory",
-      "text": "API not in CSP: www.facebook.com (used in: src/utils/share.js)",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "API not in CSP: www.amazon.fr (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Protection de securite manquante",
       "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
       "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
       "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
+      "followedAt": "2026-03-02T02:42:10.720Z"
     },
     {
       "source": "External API Inventory",
-      "text": "API not in CSP: t.me (used in: src/utils/share.js)",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "API not in CSP: www.flixbus.fr (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Protection de securite manquante",
       "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
       "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
       "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
+      "followedAt": "2026-03-02T02:42:10.720Z"
     },
     {
       "source": "External API Inventory",
-      "text": "API not in CSP: www.linkedin.com (used in: src/utils/share.js)",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "API not in CSP: www.blablacar.fr (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Protection de securite manquante",
       "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
       "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
       "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: www.trainline.fr (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: www.getyourguide.com (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: www.civitatis.com (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: www.chapkadirect.fr (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: www.worldnomads.com (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: www.toogoodtogo.com (used in: src/data/rewards.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: openstreetmap.org (used in: src/services/map.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: router.project-osrm.org (used in: src/services/navigation.js, src/services/osrm.js, src/utils/seo.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: wa.me (used in: src/services/shareCard.js, src/utils/share.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: waze.com (used in: src/utils/navigation.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.720Z"
+    },
+    {
+      "source": "External API Inventory",
+      "text": "API not in CSP: api.example.com (used in: src/utils/prefetch.js, src/utils/seo.js)",
+      "createdAt": "2026-03-02T01:46:27.734Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Protection de securite manquante",
+      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
+      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
+      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
+      "followedAt": "2026-03-02T02:42:10.727Z"
     },
     {
       "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/App.js: onclick on <div> without role=\"button\"",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "[a11y] src/components/App.js: ... and 8 more",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Ameliorer l'accessibilite",
       "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
       "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
       "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
+      "followedAt": "2026-03-02T02:42:10.727Z"
     },
     {
       "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/App.js: ... and 6 more",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "[a11y] src/components/DeviceManager.js: ... and 2 more",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Ameliorer l'accessibilite",
       "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
       "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
       "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
+      "followedAt": "2026-03-02T02:42:10.727Z"
     },
     {
       "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/DeviceManager.js: onclick on <div> without role=\"button\"",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "[a11y] src/components/modals/SOS.js: onclick on <div> without role=\"button\"",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Ameliorer l'accessibilite",
       "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
       "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
       "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
+      "followedAt": "2026-03-02T02:42:10.727Z"
     },
     {
       "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/DeviceManager.js: ... and 3 more",
-      "createdAt": "2026-02-26T00:06:09.231Z",
+      "text": "[a11y] src/components/modals/SOS.js: ... and 1 more",
+      "createdAt": "2026-03-02T01:46:27.734Z",
       "followed": true,
       "priority": "HAUTE",
       "title": "Ameliorer l'accessibilite",
       "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
       "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
       "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/modals/Badges.js: onclick on <div> without role=\"button\"",
-      "createdAt": "2026-02-26T00:06:09.231Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Ameliorer l'accessibilite",
-      "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
-      "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
-      "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/modals/Badges.js: ... and 2 more",
-      "createdAt": "2026-02-26T00:06:09.231Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Ameliorer l'accessibilite",
-      "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
-      "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
-      "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/modals/Companion.js: onclick on <div> without role=\"button\"",
-      "createdAt": "2026-02-26T00:06:09.232Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Ameliorer l'accessibilite",
-      "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
-      "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
-      "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/modals/Companion.js: ... and 2 more",
-      "createdAt": "2026-02-26T00:06:09.232Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Ameliorer l'accessibilite",
-      "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
-      "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
-      "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/views/Profile.js: input without aria-label or associated label",
-      "createdAt": "2026-02-26T00:06:09.232Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Ameliorer l'accessibilite",
-      "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
-      "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
-      "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/views/Profile.js: onclick on <div> without role=\"button\"",
-      "createdAt": "2026-02-26T00:06:09.232Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Ameliorer l'accessibilite",
-      "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
-      "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
-      "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "Accessibility Template Lint",
-      "text": "[a11y] src/components/views/Profile.js: ... and 2 more",
-      "createdAt": "2026-02-26T00:06:09.232Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Ameliorer l'accessibilite",
-      "explain": "Les personnes avec un handicap (malvoyants, utilisateurs de lecteurs d'ecran) peuvent avoir du mal a utiliser l'app.",
-      "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
-      "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "License Compliance",
-      "text": "License unknown: @axe-core/playwright (MPL-2.0) — verify manually",
-      "createdAt": "2026-02-26T00:06:09.232Z",
-      "followed": true,
-      "priority": "MOYENNE",
-      "title": "Dependance sans licence identifiee",
-      "explain": "Un package npm n'a pas de licence identifiable. Ca pose un risque juridique car on ne sait pas sous quelles conditions on peut l'utiliser.",
-      "action": "Verifier le repository du package pour trouver sa licence reelle, ou le remplacer par un equivalent.",
-      "impact": "SpotHitch reste utilisable commercialement sans risque juridique.",
-      "followedAt": "2026-02-26T00:36:19.013Z"
-    },
-    {
-      "source": "Score Trend Tracking",
-      "text": "DEGRADATION: \"Build\" a baisse de 100% a 0%",
-      "createdAt": "2026-02-26T00:36:19.013Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Le build ne fonctionne pas",
-      "explain": "Le site ne peut pas etre construit correctement — il ne se mettra pas a jour tant que ce n'est pas corrige.",
-      "action": "Lancer npm run build pour voir l'erreur exacte et la corriger.",
-      "impact": "Le site peut etre mis a jour normalement.",
-      "followedAt": "2026-02-26T14:21:01.929Z"
-    },
-    {
-      "source": "Score Trend Tracking",
-      "text": "DEGRADATION: \"Impact Analysis\" a baisse de 50% a 0%",
-      "createdAt": "2026-02-26T00:36:19.013Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Score en degradation sur une phase",
-      "explain": "Le score de cette phase a baisse depuis le dernier run. Ca veut dire que la qualite se degrade au lieu de s'ameliorer.",
-      "action": "Corriger les problemes detectes dans cette phase avant de continuer a ajouter du code.",
-      "impact": "Le score remonte et la qualite du code est maintenue.",
-      "followedAt": "2026-02-26T14:21:01.929Z"
-    },
-    {
-      "source": "Score Trend Tracking",
-      "text": "DEGRADATION: \"Score Trend Tracking\" a baisse de 100% a 60%",
-      "createdAt": "2026-02-26T14:21:01.928Z",
-      "followed": false,
-      "priority": "HAUTE",
-      "title": "Score en degradation sur une phase",
-      "explain": "Le score de cette phase a baisse depuis le dernier run. Ca veut dire que la qualite se degrade au lieu de s'ameliorer.",
-      "action": "Corriger les problemes detectes dans cette phase avant de continuer a ajouter du code.",
-      "impact": "Le score remonte et la qualite du code est maintenue."
+      "followedAt": "2026-03-02T02:42:10.727Z"
     }
   ],
   "featureBaseline": null,
   "dependencyGraph": {
-    "totalFiles": 173,
-    "totalLinks": 434,
-    "updatedAt": "2026-02-26T00:05:20.857Z"
+    "totalFiles": 182,
+    "totalLinks": 467,
+    "updatedAt": "2026-03-02T01:45:50.132Z"
   },
   "selfEvaluation": {
-    "date": "2026-02-26T14:21:01.969Z",
+    "date": "2026-03-02T02:42:10.803Z",
     "score": 90,
     "perPhase": [
       {
@@ -2743,30 +2896,17 @@
       }
     ],
     "globalInsights": [
-      "Tres peu de recommandations (1). Le loup est peut-etre trop indulgent.",
-      "Tendance positive: score actuel (90) au-dessus de la moyenne des 5 derniers runs (72).",
-      "Couverture de tests: 121/173 fichiers src/ references dans les tests (70%).",
+      "Tres peu de recommandations (0). Le loup est peut-etre trop indulgent.",
+      "Tendance negative: score actuel (90) sous la moyenne recente (74). Corriger les regressions.",
+      "Couverture de tests: 130/182 fichiers src/ references dans les tests (71%).",
       "100% des recommandations suivies — bonne discipline."
     ],
     "evolutionItems": [
       "Prochain ajout possible: phase \"Test Coverage/Feature\" (couverture par feature)."
     ],
-    "coveragePct": 70,
+    "coveragePct": 71,
     "recommendationFollowRate": 100
   },
-  "_dedupedRecs": [
-    {
-      "source": "Score Trend Tracking",
-      "text": "DEGRADATION: \"Score Trend Tracking\" a baisse de 100% a 60%",
-      "createdAt": "2026-02-26T14:21:01.928Z",
-      "followed": false,
-      "priority": "HAUTE",
-      "title": "Score en degradation sur une phase",
-      "explain": "Le score de cette phase a baisse depuis le dernier run. Ca veut dire que la qualite se degrade au lieu de s'ameliorer.",
-      "action": "Corriger les problemes detectes dans cette phase avant de continuer a ajouter du code.",
-      "impact": "Le score remonte et la qualite du code est maintenue.",
-      "count": 1
-    }
-  ],
-  "lastRunCommit": "30189ca26e8a9f7a1695d8b0e3334153c6327872"
+  "_dedupedRecs": [],
+  "lastRunCommit": "a84ebca95ca4d014b725e25a6b8fa64a14fd349c"
 }

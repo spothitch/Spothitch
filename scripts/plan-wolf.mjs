@@ -1068,8 +1068,27 @@ function phase6_regressionGuard() {
         if (!handlersByFile[h].includes(relPath)) handlersByFile[h].push(relPath)
       }
     }
+    // FIX 2026-03-02: Exclude expected duplicates from lazy-loading pattern.
+    // main.js often defines stubs (window.xxx = () => {}) that are later overridden
+    // by the real component when it lazy-loads. This is intentional, not a bug.
+    // Also exclude state variables (window._xxx, window.spotFormData, etc.) and
+    // handlers set multiple times in the same file (e.g. flag toggles like _authInProgress).
     const duplicateHandlers = Object.entries(handlersByFile)
-      .filter(([, files]) => files.length > 1)
+      .filter(([name, files]) => {
+        if (files.length <= 1) return false
+        // Skip internal state flags (prefixed with _)
+        if (name.startsWith('_')) return false
+        // Skip known state variables that are set multiple times intentionally
+        const stateVars = ['spotFormData', 'spotHitchMap', 'mapInstance', 'timestamps',
+          'blocked', 'identityVerificationState', 'selectedLanguageCode',
+          'tripSearchSuggestions', 'showToast']
+        if (stateVars.includes(name)) return false
+        // Skip if one of the files is main.js (lazy-loading stub pattern)
+        const hasMain = files.some(f => f.endsWith('main.js'))
+        if (hasMain && files.length === 2) return false
+        // Real duplicate: same handler in 2+ non-main files
+        return true
+      })
       .sort((a, b) => b[1].length - a[1].length)
 
     if (duplicateHandlers.length > 0) {
@@ -3460,22 +3479,38 @@ function phase25_apiInventory() {
       'spothitch.com', 'www.spothitch.com',
     ])
 
+    // FIX 2026-03-02: Only check URLs that are actually FETCHED (fetch(), XMLHttpRequest, import()).
+    // Links in <a href> and window.open() are navigations, NOT API calls — they don't need connect-src.
+    // Previously, ALL URLs in source files were flagged, causing 37 false positives (social links,
+    // affiliate links, support pages, etc.)
+    const apiCallPatterns = [
+      /fetch\s*\(\s*[`'"](https?:\/\/[^`'"]+)/gi,
+      /new\s+XMLHttpRequest[^]*?\.open\s*\([^,]*,\s*[`'"](https?:\/\/[^`'"]+)/gi,
+      /\.src\s*=\s*[`'"](https?:\/\/[^`'"]+)/gi,
+      /import\s*\(\s*[`'"](https?:\/\/[^`'"]+)/gi,
+    ]
+
     for (const file of allFiles) {
       const content = readFile(file)
       const rel = relative(ROOT, file)
 
-      // Find all URLs
+      // Only find URLs that are actually fetched/loaded (not just linked)
       let match
-      urlPattern.lastIndex = 0
-      while ((match = urlPattern.exec(content))) {
-        const domain = match[1].toLowerCase()
-        if (!ignoreDomains.has(domain)) {
-          if (!externalDomains.has(domain)) externalDomains.set(domain, new Set())
-          externalDomains.get(domain).add(rel)
+      for (const pattern of apiCallPatterns) {
+        pattern.lastIndex = 0
+        while ((match = pattern.exec(content))) {
+          const urlDomainMatch = match[1].match(/https?:\/\/([a-z0-9.-]+\.[a-z]{2,})/i)
+          if (urlDomainMatch) {
+            const domain = urlDomainMatch[1].toLowerCase()
+            if (!ignoreDomains.has(domain)) {
+              if (!externalDomains.has(domain)) externalDomains.set(domain, new Set())
+              externalDomains.get(domain).add(rel)
+            }
+          }
         }
       }
 
-      // Find fetch() calls specifically
+      // Also detect inline fetch patterns: fetch(`https://...`)
       fetchPattern.lastIndex = 0
       while ((match = fetchPattern.exec(content))) {
         const urlDomainMatch = match[1].match(/https?:\/\/([a-z0-9.-]+\.[a-z]{2,})/i)

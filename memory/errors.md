@@ -641,3 +641,35 @@ Chaque erreur suit ce format :
   - **`GoogleAuthProvider.credential(idToken)` + `signInWithCredential`** = pont entre GIS et Firebase Auth
 - **Fichiers** : `src/services/firebase.js`, `index.html`
 - **Statut** : CORRIGÉ
+
+### ERR-051 — Wolf faux positifs : dead code + circular imports
+- **Date** : 2026-03-02
+- **Gravité** : MINEUR
+- **Description** : Le Plan Wolf (plan-wolf.mjs) signalait 24 fonctions locales mortes et 4 cycles d'imports circulaires qui étaient des faux positifs.
+- **Cause racine** :
+  1. Dead code : le lookbehind `(?<!export\s)` ne détecte pas `export async function` (le mot `async` entre `export` et `function` fait échouer le lookbehind)
+  2. Circular imports : les `import()` dynamiques (lazy loading) étaient inclus dans le graphe d'imports comme des imports statiques, créant de faux cycles
+- **Correction** :
+  1. Dead code : remplacé le regex lookbehind par une vérification ligne par ligne (`line.startsWith('export')`). Ajouté aussi une vérification cross-fichiers pour les fonctions utilisées via namespace import (`fb.signUp()`)
+  2. Circular imports : retiré les `import()` dynamiques du graphe d'imports (ils sont lazy-loaded, pas de vrai cycle)
+- **Leçon** :
+  - **TOUJOURS vérifier les outils d'analyse eux-mêmes** — un outil QA peut avoir des bugs comme tout code
+  - **Les lookbehinds regex ne gèrent pas les cas avec mots intercalés** — préférer parser ligne par ligne
+  - **`import()` dynamique ≠ `import ... from`** — ne JAMAIS les traiter comme des imports statiques dans l'analyse de dépendances
+  - **Tester les faux positifs d'un outil QA avant de supprimer du code "mort"**
+- **Fichiers** : `scripts/plan-wolf.mjs`
+- **Statut** : CORRIGÉ
+
+### ERR-052 — Script CSS cleanup casse les @layer
+- **Date** : 2026-03-02
+- **Gravité** : MAJEUR
+- **Description** : Un script automatique de nettoyage CSS (suppression de classes inutilisées) a supprimé des blocs qui contenaient les accolades fermantes des `@layer components` et `@layer utilities`, cassant le build Vite (Tailwind CSS 4).
+- **Cause racine** : Le script de nettoyage matchait les blocs CSS par regex `{}` sans comprendre la structure imbriquée des `@layer`. En supprimant un bloc à l'intérieur d'un `@layer`, il retirait parfois l'accolade fermante du layer parent.
+- **Correction** : Restauré le CSS depuis git, réécrit le script de nettoyage pour supprimer les règles individuellement tout en vérifiant le balance des accolades avant d'écrire le fichier (abort si déséquilibre).
+- **Leçon** :
+  - **TOUJOURS vérifier le balance des accolades `{}`** avant d'écrire un fichier CSS modifié
+  - **JAMAIS supprimer des blocs CSS par regex simple** — utiliser un parseur qui comprend l'imbrication @layer/@media
+  - **TOUJOURS build-tester IMMÉDIATEMENT après un changement CSS** avant de commit
+  - **Garder un safety check : `if (opens !== closes) { abort }` dans tout script CSS**
+- **Fichiers** : `src/styles/main.css`
+- **Statut** : CORRIGÉ
