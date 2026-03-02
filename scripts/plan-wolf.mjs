@@ -1573,13 +1573,22 @@ function phase9_deadCode() {
 
   // Check for defined-but-unused local functions
   // Only flag functions that are clearly dead — not callbacks, handlers, or lifecycle functions
+  // FIX 2026-03-02: lookbehind (?<!export\s) missed `export async function` — now check full line
   for (const file of allFiles) {
     const content = allContent[file]
     const rel = relative(ROOT, file)
-    // Match: function xxx( but NOT export function xxx
-    const localFns = content.match(/(?<!export\s)function\s+(\w+)\s*\(/g) || []
-    for (const m of localFns) {
-      const name = m.replace(/function\s+/, '').replace(/\s*\(/, '')
+    const lines = content.split('\n')
+    // Find function declarations line by line to properly exclude exports
+    for (let li = 0; li < lines.length; li++) {
+      const line = lines[li].trim()
+      // Skip exported functions (handles: export function, export async function, export default function)
+      if (line.startsWith('export')) continue
+      // Skip comments
+      if (line.startsWith('//') || line.startsWith('*') || line.startsWith('/*')) continue
+      // Match function declarations
+      const fnMatch = line.match(/^(?:async\s+)?function\s+(\w+)\s*\(/)
+      if (!fnMatch) continue
+      const name = fnMatch[1]
       if (name.length < 4) continue
       // Skip lifecycle/handler patterns
       if (name.startsWith('render') || name.startsWith('init') || name.startsWith('setup')) continue
@@ -1590,9 +1599,17 @@ function phase9_deadCode() {
       // Count occurrences in same file (should be > 1: definition + at least one call)
       const count = (content.match(new RegExp(`\\b${name}\\b`, 'g')) || []).length
       if (count <= 1) {
-        deadFunctions++
-        if (deadFunctions <= 5) {
-          details.push(`Fonction morte: "${name}" dans ${rel} — definie mais jamais appelee`)
+        // Double-check: also search OTHER files (handles namespace imports like fb.xxx())
+        let usedElsewhere = false
+        for (const otherFile of allFiles) {
+          if (otherFile === file) continue
+          if (allContent[otherFile].includes(name)) { usedElsewhere = true; break }
+        }
+        if (!usedElsewhere) {
+          deadFunctions++
+          if (deadFunctions <= 5) {
+            details.push(`Fonction morte: "${name}" dans ${rel}:${li + 1} — definie mais jamais appelee`)
+          }
         }
       }
     }
@@ -2421,18 +2438,10 @@ function phase15_circularImports() {
           graph[rel].push(resolvedRel)
         }
       }
-      // Also detect dynamic imports: import('./xxx')
-      const dynamicRegex = /import\(['"](\.[^'"]+)['"]\)/g
-      while ((match = dynamicRegex.exec(content)) !== null) {
-        const importPath = match[1]
-        const dir = join(file, '..')
-        let resolved = resolve(dir, importPath)
-        if (!resolved.endsWith('.js')) resolved += '.js'
-        const resolvedRel = relative(ROOT, resolved)
-        if (existsSync(resolved)) {
-          graph[rel].push(resolvedRel)
-        }
-      }
+      // NOTE: Dynamic imports (import('./xxx')) are NOT included in the cycle graph
+      // because they are lazy-loaded at runtime and do NOT create real circular dependencies.
+      // FIX 2026-03-02: Previously included dynamic imports which caused false positive cycles
+      // (e.g. state -> proximityVerification -> location -> state via dynamic import())
     }
 
     // DFS-based cycle detection (Tarjan-like coloring: WHITE=0, GRAY=1, BLACK=2)

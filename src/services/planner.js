@@ -8,28 +8,9 @@ import { getRoute, searchLocation } from './osrm.js';
 import { sampleSpots } from '../data/spots.js';
 import { showToast } from './notifications.js';
 import { t } from '../i18n/index.js';
+import { haversineKm } from '../utils/geo.js';
 
-/**
- * Calculate distance between two points (Haversine formula)
- * @param {number} lat1 - Latitude 1
- * @param {number} lng1 - Longitude 1
- * @param {number} lat2 - Latitude 2
- * @param {number} lng2 - Longitude 2
- * @returns {number} Distance in kilometers
- */
-function haversineDistance(lat1, lng1, lat2, lng2) {
-  const R = 6371; // Earth's radius in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+// Haversine distance — imported from utils/geo.js as haversineKm
 
 /**
  * Check if a point is near a route segment
@@ -47,7 +28,7 @@ function isPointNearRoute(point, routeCoords, maxDistanceKm = 10) {
     const midLat = (lat1 + lat2) / 2;
     const midLng = (lng1 + lng2) / 2;
 
-    const distance = haversineDistance(point.lat, point.lng, midLat, midLng);
+    const distance = haversineKm(point.lat, point.lng, midLat, midLng);
     if (distance <= maxDistanceKm) {
       return true;
     }
@@ -80,8 +61,8 @@ export async function getSpotsForRoute(from, to, maxDistanceKm = 15) {
 
     // Sort by distance from start
     nearbySpots.sort((a, b) => {
-      const distA = haversineDistance(from.lat, from.lng, a.coordinates.lat, a.coordinates.lng);
-      const distB = haversineDistance(from.lat, from.lng, b.coordinates.lat, b.coordinates.lng);
+      const distA = haversineKm(from.lat, from.lng, a.coordinates.lat, a.coordinates.lng);
+      const distB = haversineKm(from.lat, from.lng, b.coordinates.lat, b.coordinates.lng);
       return distA - distB;
     });
 
@@ -156,15 +137,15 @@ export async function createTrip(steps) {
       const legEnd = steps[i + 1];
       const legSpots = allSpots.filter(spot => {
         if (!spot.coordinates) return false;
-        const distStart = haversineDistance(
+        const distStart = haversineKm(
           legStart.lat, legStart.lng,
           spot.coordinates.lat, spot.coordinates.lng
         );
-        const distEnd = haversineDistance(
+        const distEnd = haversineKm(
           legEnd.lat, legEnd.lng,
           spot.coordinates.lat, spot.coordinates.lng
         );
-        const legDist = haversineDistance(
+        const legDist = haversineKm(
           legStart.lat, legStart.lng,
           legEnd.lat, legEnd.lng
         );
@@ -330,7 +311,7 @@ export function getSuggestedStartingSpots(location, limit = 5) {
     .filter(spot => spot.coordinates)
     .map(spot => ({
       ...spot,
-      distance: haversineDistance(
+      distance: haversineKm(
         location.lat, location.lng,
         spot.coordinates.lat, spot.coordinates.lng
       ),

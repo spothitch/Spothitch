@@ -8,6 +8,7 @@ import { countryGuides, getGuideByCode } from '../../data/guides.js'
 import { renderCommunityTips } from '../../services/communityTips.js'
 import { renderHostelSection } from '../../services/hostelRecommendations.js'
 import { escapeHTML } from '../../utils/sanitize.js'
+import { haversineKm } from '../../utils/geo.js'
 import { renderToggle } from '../../utils/toggle.js'
 import { icon } from '../../utils/icons.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
@@ -15,16 +16,7 @@ import { renderSearchInput } from '../../utils/searchInput.js'
 const SAVED_TRIPS_KEY = 'spothitch_saved_trips'
 const FAVORITES_KEY = 'spothitch_favorites'
 
-// Haversine distance in km
-function haversine(lat1, lng1, lat2, lng2) {
-  const R = 6371
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLng = (lng2 - lng1) * Math.PI / 180
-  const a = Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-}
+// Haversine distance — imported from utils/geo.js as haversineKm
 
 export function renderTravel(state) {
   // Trip map view takes over the ENTIRE tab (no sub-tabs visible)
@@ -296,7 +288,7 @@ function renderTripResults(results) {
             const sLat = spot.coordinates?.lat || spot.lat
             const sLng = spot.coordinates?.lng || spot.lng
             const distFromStart = (sLat && sLng && results.fromCoords)
-              ? Math.round(haversine(results.fromCoords[0], results.fromCoords[1], sLat, sLng))
+              ? Math.round(haversineKm(results.fromCoords[0], results.fromCoords[1], sLat, sLng))
               : null
             return `
             <div class="relative flex items-start gap-3 pb-4 cursor-pointer hover:bg-white/5 -mx-2 px-2 rounded-xl transition-colors" role="button" tabindex="0" onclick="selectSpot(${spot.id})">
@@ -1014,7 +1006,7 @@ window.calculateTrip = async () => {
         if (!lat || !lng) return false
         if (lat < minLat || lat > maxLat || lng < minLng || lng > maxLng) return false
         for (const [pLng, pLat] of sampledPoints) {
-          if (haversine(lat, lng, pLat, pLng) < corridorKm) return true
+          if (haversineKm(lat, lng, pLat, pLng) < corridorKm) return true
         }
         return false
       })
@@ -1038,15 +1030,15 @@ window.calculateTrip = async () => {
       const aLng = a.coordinates?.lng || a.lng
       const bLat = b.coordinates?.lat || b.lat
       const bLng = b.coordinates?.lng || b.lng
-      const aDist = haversine(from.lat, from.lng, aLat, aLng)
-      const bDist = haversine(from.lat, from.lng, bLat, bLng)
+      const aDist = haversineKm(from.lat, from.lng, aLat, aLng)
+      const bDist = haversineKm(from.lat, from.lng, bLat, bLng)
       return aDist - bDist
     })
 
     // 5. Format results
     const distanceKm = routeDistance
       ? Math.round(routeDistance / 1000)
-      : Math.round(haversine(from.lat, from.lng, to.lat, to.lng))
+      : Math.round(haversineKm(from.lat, from.lng, to.lat, to.lng))
     const durationHours = routeDuration
       ? Math.round(routeDuration / 3600)
       : Math.ceil(distanceKm / 60)

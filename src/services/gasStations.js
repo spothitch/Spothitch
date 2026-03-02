@@ -7,6 +7,7 @@
 import { getState, setState } from '../stores/state.js'
 import { t } from '../i18n/index.js'
 import { cacheGet, cacheSet } from '../utils/idb.js'
+import { haversineKm } from '../utils/geo.js'
 
 const OVERPASS_API = 'https://overpass-api.de/api/interpreter'
 const STATION_CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
@@ -115,17 +116,8 @@ function isNearRoute(point, routeCoords, maxDistKm) {
 }
 
 /**
- * Haversine distance in km
+ * Haversine distance — imported from utils/geo.js
  */
-function haversineKm(lat1, lng1, lat2, lng2) {
-  const R = 6371
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLng = (lng2 - lng1) * Math.PI / 180
-  const a = Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-}
 
 /**
  * Fetch gas stations in map viewport

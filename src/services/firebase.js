@@ -202,7 +202,7 @@ export async function signInWithGoogle() {
       return { success: false, error: 'no-user' }
     } catch (gisError) {
       // GIS unavailable — fallback to Firebase popup
-      console.log('GIS fallback to popup:', gisError.message)
+      console.warn('GIS fallback to popup:', gisError.message)
       const provider = new GoogleAuthProvider()
       const result = await signInWithPopup(auth, provider)
       window._authInProgress = false

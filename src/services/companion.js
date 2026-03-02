@@ -20,6 +20,7 @@
 
 import { sendLocalNotification } from './notifications.js'
 import { t } from '../i18n/index.js'
+import { haversineKm } from '../utils/geo.js'
 
 const STORAGE_KEY = 'spothitch_companion'
 const HISTORY_KEY = 'spothitch_trip_history'
@@ -256,21 +257,8 @@ function calculateAverageSpeed(positions) {
 }
 
 /**
- * Haversine distance between two points in km
+ * Haversine distance — imported from utils/geo.js
  */
-function haversineKm(lat1, lng1, lat2, lng2) {
-  const R = 6371
-  const dLat = toRad(lat2 - lat1)
-  const dLng = toRad(lng2 - lng1)
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-}
-
-function toRad(deg) {
-  return (deg * Math.PI) / 180
-}
 
 /**
  * Get ETA info based on current speed and remaining distance
