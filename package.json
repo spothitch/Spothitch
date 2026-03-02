@@ -37,7 +37,7 @@
     "@sentry/browser": "^10.40.0",
     "dompurify": "^3.0.6",
     "firebase": "^12.9.0",
-    "globals": "^17.3.0",
+    "globals": "^17.4.0",
     "lucide": "^0.575.0",
     "maplibre-gl": "^5.18.0"
   },
