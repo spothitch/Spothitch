@@ -120,6 +120,7 @@ const initialState = {
   tripGpsPosition: null,
   tripOfflineData: null,
   tripDownloadProgress: null,
+  routeFilter: 'all',
 
   // Gamification
   points: 0,

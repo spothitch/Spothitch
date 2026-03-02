@@ -12,6 +12,7 @@ import { renderGuides } from './Guides.js'
 import { safeSetItem } from '../../utils/storage.js'
 import { haversineKm } from '../../utils/geo.js'
 import { escapeJSString } from '../../utils/sanitize.js'
+import { applyTripFilter, countByFilter } from '../../utils/tripFilters.js'
 
 // Load Travel.js handlers (calculateTrip, syncTripFieldsAndCalculate, swapTripPoints, etc.)
 // Travel.js defines the window.* handlers that the trip form buttons call
@@ -148,8 +149,9 @@ function renderMapFirstView(state) {
   const removedSet = new Set((state.tripRemovedSpots || []).map(String))
   const visibleSpots = allSpots.filter(s => !removedSet.has(String(s.id)))
   const routeFilter = state.routeFilter
-  const filteredSpots = applyVoyageFilter(visibleSpots, routeFilter)
   const highlighted = getHighlightedSpots()
+  const filteredSpots = applyTripFilter(visibleSpots, routeFilter, highlighted)
+  const counts = countByFilter(visibleSpots, highlighted)
   const sheetState = state.tripBottomSheetState || 'collapsed'
   const showGas = state.tripShowGasStations || false
 
@@ -255,12 +257,14 @@ function renderMapFirstView(state) {
           <div data-trip-scroll class="trip-sheet-scroll overflow-y-auto px-4 pb-6" style="max-height:calc(${sheetHeight} - 80px)">
             <!-- Filter chips -->
             <div class="flex gap-2 overflow-x-auto scrollbar-none pb-3">
-              ${renderFilterChip('all', `${t('tripFilterAll') || 'Tous'} (${visibleSpots.length})`, !routeFilter || routeFilter === 'all')}
-              ${renderFilterChip('rating4', `⭐ 4+`, routeFilter === 'rating4')}
-              ${renderFilterChip('wait20', `⏱ <20min`, routeFilter === 'wait20')}
-              ${renderFilterChip('station', `⛽ Station`, routeFilter === 'station')}
-              ${renderFilterChip('verified', `✓ ${t('tripFilterVerified') || 'Verifie'}`, routeFilter === 'verified')}
-              ${highlighted.size > 0 ? renderFilterChip('highlighted', `⭐ (${highlighted.size})`, routeFilter === 'highlighted') : ''}
+              ${renderFilterChip('all', `${t('tripFilterAll') || 'Tous'} (${counts.all})`, !routeFilter || routeFilter === 'all', false)}
+              ${renderFilterChip('rating4', `⭐ 4+ (${counts.rating4})`, routeFilter === 'rating4', counts.rating4 === 0)}
+              ${renderFilterChip('wait20', `⏱ <20min (${counts.wait20})`, routeFilter === 'wait20', counts.wait20 === 0)}
+              ${renderFilterChip('station', `⛽ Station (${counts.station})`, routeFilter === 'station', counts.station === 0)}
+              ${renderFilterChip('verified', `✓ ${t('tripFilterVerified') || 'Vérifié'} (${counts.verified})`, routeFilter === 'verified', counts.verified === 0)}
+              ${renderFilterChip('shelter', `🏠 ${t('filterShelter') || 'Abri'} (${counts.shelter})`, routeFilter === 'shelter', counts.shelter === 0)}
+              ${renderFilterChip('recent', `🕐 ${t('filterRecent') || 'Récent'} (${counts.recent})`, routeFilter === 'recent', counts.recent === 0)}
+              ${counts.highlighted > 0 ? renderFilterChip('highlighted', `⭐ (${counts.highlighted})`, routeFilter === 'highlighted', false) : ''}
             </div>
 
             <!-- Spot list -->
@@ -593,14 +597,17 @@ function renderTripForm(state) {
 
 // renderTripResults removed — replaced by renderMapFirstView + renderTripResultsSummary
 
-function renderFilterChip(filter, label, active) {
+function renderFilterChip(filter, label, active, disabled = false) {
   return `
     <button
       onclick="setRouteFilter('${filter}')"
+      ${disabled ? 'disabled' : ''}
       class="px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-colors border ${
         active
           ? 'bg-primary-500 text-dark-primary font-semibold border-primary-500'
-          : 'bg-dark-secondary text-slate-400 border-white/10 hover:bg-white/10'
+          : disabled
+            ? 'bg-dark-secondary text-slate-600 border-white/5 opacity-50 cursor-not-allowed'
+            : 'bg-dark-secondary text-slate-400 border-white/10 hover:bg-white/10'
       }"
     >${label}</button>
   `
@@ -1040,26 +1047,7 @@ function computeBilan() {
   }
 }
 
-function applyVoyageFilter(spots, filter) {
-  const highlighted = getHighlightedSpots()
-  if (!filter || filter === 'all') return spots
-  switch (filter) {
-    case 'station': return spots.filter(s => (s.spotType || '').toLowerCase().includes('station') || (s.description || '').toLowerCase().includes('station'))
-    case 'rating4': return spots.filter(s => (s.globalRating || 0) >= 4 || (s._hitchwikiRating || 0) >= 4)
-    case 'wait20': return spots.filter(s => s.avgWaitTime && s.avgWaitTime <= 20)
-    case 'verified': return spots.filter(s => s.userValidations > 0 || s.verified)
-    case 'recent': return spots.filter(s => {
-      if (!s.lastUsed) return false
-      return new Date(s.lastUsed).getTime() > Date.now() - 365 * 24 * 60 * 60 * 1000
-    })
-    case 'shelter': return spots.filter(s => {
-      const desc = (s.description || '').toLowerCase()
-      return desc.includes('shelter') || desc.includes('abri') || desc.includes('covered') || desc.includes('couvert')
-    })
-    case 'highlighted': return spots.filter(s => highlighted.has(String(s.id)))
-    default: return spots
-  }
-}
+// applyVoyageFilter removed — unified in src/utils/tripFilters.js
 
 function getSavedTrips() {
   try {

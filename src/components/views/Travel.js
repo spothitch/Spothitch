@@ -12,6 +12,7 @@ import { haversineKm } from '../../utils/geo.js'
 import { renderToggle } from '../../utils/toggle.js'
 import { icon } from '../../utils/icons.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
+import { applyTripFilter } from '../../utils/tripFilters.js'
 
 const SAVED_TRIPS_KEY = 'spothitch_saved_trips'
 const FAVORITES_KEY = 'spothitch_favorites'
@@ -156,30 +157,12 @@ function getSavedTrips(state) {
   } catch (e) { return [] }
 }
 
-function applyRouteFilter(spots, filter) {
-  if (!filter || filter === 'all') return spots
-  switch (filter) {
-    case 'station': return spots.filter(s => (s.spotType || '').toLowerCase().includes('station') || (s.description || '').toLowerCase().includes('station'))
-    case 'rating4': return spots.filter(s => (s.globalRating || 0) >= 4 || (s._hitchwikiRating || 0) >= 4)
-    case 'wait20': return spots.filter(s => s.avgWaitTime && s.avgWaitTime <= 20)
-    case 'verified': return spots.filter(s => s.userValidations > 0 || s.verified)
-    case 'recent': return spots.filter(s => {
-      if (!s.lastUsed) return false
-      const oneYear = Date.now() - 365 * 24 * 60 * 60 * 1000
-      return new Date(s.lastUsed).getTime() > oneYear
-    })
-    case 'shelter': return spots.filter(s => {
-      const desc = (s.description || '').toLowerCase()
-      return desc.includes('shelter') || desc.includes('abri') || desc.includes('roof') || desc.includes('toit') || desc.includes('covered') || desc.includes('couvert')
-    })
-    default: return spots
-  }
-}
+// applyRouteFilter removed — unified in src/utils/tripFilters.js
 
 function renderTripResults(results) {
   const allSpots = results.spots || []
   const state = window.getState?.() || {}
-  const spots = applyRouteFilter(allSpots, state.routeFilter)
+  const spots = applyTripFilter(allSpots, state.routeFilter)
   const showAmenities = state.showRouteAmenities || false
   const amenities = state.routeAmenities || []
   const loadingAmenities = state.loadingRouteAmenities || false
@@ -1071,6 +1054,7 @@ window.calculateTrip = async () => {
       tripFormCollapsed: true,  // Switch to map-first view
       tripBottomSheetState: 'half',  // Open bottom sheet at half
       tripRemovedSpots: [],  // Reset removed spots
+      routeFilter: 'all',  // Reset filter for new trip
       tripLoading: false,
     })
 
@@ -1127,6 +1111,7 @@ window.closeTripMap = () => {
     showTripMap: false, tripFormCollapsed: false,
     tripBottomSheetState: 'collapsed', tripShowGasStations: false,
     showRouteAmenities: false, routeAmenities: [], loadingRouteAmenities: false,
+    routeFilter: 'all',
   })
 }
 
@@ -1137,7 +1122,7 @@ window.clearTripResults = () => {
     tripFormCollapsed: false, tripBottomSheetState: 'collapsed',
     tripRemovedSpots: [], tripShowGasStations: false,
     showRouteAmenities: false, routeAmenities: [],
-    loadingRouteAmenities: false,
+    loadingRouteAmenities: false, routeFilter: 'all',
   })
 }
 

@@ -25,6 +25,7 @@ import { renderBetaBanner } from './modals/BetaBanner.js';
 import { icon } from '../utils/icons.js'
 import { trapFocus } from '../utils/a11y.js'
 import { registerMarkerImages, getMarkerType } from '../utils/mapMarkers.js'
+import { applyTripFilter } from '../utils/tripFilters.js'
 
 // Everything else is lazy-loaded on demand via lazyRender() below
 
@@ -1157,28 +1158,7 @@ function initHomeMap(state) {
   })
 }
 
-/**
- * Apply trip route filter (mirrors Voyage.js applyVoyageFilter logic)
- */
-function _applyTripFilter(spots, filter, highlighted) {
-  if (!filter || filter === 'all') return spots
-  switch (filter) {
-    case 'station': return spots.filter(s => (s.spotType || '').toLowerCase().includes('station') || (s.description || '').toLowerCase().includes('station'))
-    case 'rating4': return spots.filter(s => (s.globalRating || 0) >= 4 || (s._hitchwikiRating || 0) >= 4)
-    case 'wait20': return spots.filter(s => s.avgWaitTime && s.avgWaitTime <= 20)
-    case 'verified': return spots.filter(s => s.userValidations > 0 || s.verified)
-    case 'recent': return spots.filter(s => {
-      if (!s.lastUsed) return false
-      return new Date(s.lastUsed).getTime() > Date.now() - 365 * 24 * 60 * 60 * 1000
-    })
-    case 'shelter': return spots.filter(s => {
-      const desc = (s.description || '').toLowerCase()
-      return desc.includes('shelter') || desc.includes('abri') || desc.includes('covered') || desc.includes('couvert')
-    })
-    case 'highlighted': return spots.filter(s => highlighted && highlighted.has(String(s.id)))
-    default: return spots
-  }
-}
+// _applyTripFilter removed — unified in src/utils/tripFilters.js
 
 /**
  * Initialize trip map (MapLibre GL — shows only trip spots along route)
@@ -1521,22 +1501,18 @@ window._tripMapUpdateSpots = () => {
   })()
   const routeFilter = state.routeFilter
   const allSpots = results.spots.filter(s => !removedSet.has(String(s.id)))
-  // Apply route filter to determine which spots are "active" vs "faded"
-  const filteredIds = new Set()
-  if (routeFilter && routeFilter !== 'all') {
-    const filtered = _applyTripFilter(allSpots, routeFilter, highlighted)
-    filtered.forEach(s => filteredIds.add(String(s.id)))
-  }
-  const hasFilter = routeFilter && routeFilter !== 'all'
+  // Apply route filter — only matching spots appear on the map (no fading)
+  const displaySpots = (routeFilter && routeFilter !== 'all')
+    ? applyTripFilter(allSpots, routeFilter, highlighted)
+    : allSpots
   const favSet = getFavoritesSet()
   const spotFeatures = []
-  allSpots.forEach((spot, i) => {
+  displaySpots.forEach((spot, i) => {
     const lat = spot.coordinates?.lat || spot.lat
     const lng = spot.coordinates?.lng || spot.lng
     if (!lat || !lng) return
     const isHighlighted = highlighted.has(String(spot.id))
     const isFav = favSet.has(spot.id) || isHighlighted
-    const isFaded = hasFilter && !filteredIds.has(String(spot.id))
     spotFeatures.push({
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [lng, lat] },
@@ -1545,9 +1521,9 @@ window._tripMapUpdateSpots = () => {
         index: i + 1,
         color: isHighlighted ? '#f59e0b' : isFav ? '#f59e0b' : '#22c55e',
         strokeColor: isHighlighted ? '#fbbf24' : '#ffffff',
-        radius: isHighlighted ? 14 : isFaded ? 8 : 12,
-        strokeWidth: isHighlighted ? 3 : isFaded ? 1 : 2,
-        opacity: isFaded ? 0.2 : 1,
+        radius: isHighlighted ? 14 : 12,
+        strokeWidth: isHighlighted ? 3 : 2,
+        opacity: 1,
       },
     })
   })
