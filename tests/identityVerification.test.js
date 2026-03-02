@@ -87,7 +87,7 @@ describe('Identity Verification Service', () => {
       const level = verificationLevels[1]
       expect(level.id).toBe(1)
       expect(level.name).toBe('Email verifie')
-      expect(level.trustScore).toBe(10)
+      expect(level.trustScore).toBe(0.5)
       expect(level.benefits.length).toBeGreaterThan(0)
     })
 
@@ -95,21 +95,21 @@ describe('Identity Verification Service', () => {
       const level = verificationLevels[2]
       expect(level.id).toBe(2)
       expect(level.name).toBe('Telephone verifie')
-      expect(level.trustScore).toBe(25)
+      expect(level.trustScore).toBe(1.5)
     })
 
     it('should have photo verified level at index 3', () => {
       const level = verificationLevels[3]
       expect(level.id).toBe(3)
       expect(level.name).toBe('Selfie + ID soumis')
-      expect(level.trustScore).toBe(40)
+      expect(level.trustScore).toBe(2)
     })
 
     it('should have identity verified level at index 4', () => {
       const level = verificationLevels[4]
       expect(level.id).toBe(4)
       expect(level.name).toBe('Identite verifiee')
-      expect(level.trustScore).toBe(70)
+      expect(level.trustScore).toBe(5)
     })
 
     it('should have color property for each level', () => {
@@ -193,7 +193,7 @@ describe('Identity Verification Service', () => {
       expect(progress.maxLevel).toBe(5)
       expect(progress.progress).toBeDefined()
       expect(progress.trustScore).toBeDefined()
-      expect(progress.maxTrustScore).toBe(100)
+      expect(progress.maxTrustScore).toBe(10)
     })
 
     it('should calculate correct progress percentage', () => {
