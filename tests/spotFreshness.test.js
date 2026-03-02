@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { getSpotFreshness, getSpotAge, renderFreshnessBadge, renderAgeBadge, getFreshnessColor, isGasStation } from '../src/services/spotFreshness.js'
+import { getSpotFreshness, getSpotAge, renderFreshnessBadge, renderAgeBadge, getFreshnessColor, isGasStation, getMarkerIcon } from '../src/services/spotFreshness.js'
 import { setState } from '../src/stores/state.js'
 
 describe('spotFreshness', () => {
@@ -70,7 +70,7 @@ describe('spotFreshness', () => {
       expect(result.tier).toBe('gold')
       expect(result.color).toBe('amber')
       expect(result.hexColor).toBe('#fbbf24')
-      expect(result.labelKey).toBe('spotStatusGold')
+      expect(result.labelKey).toBe('spotStatusGoldCertified')
       expect(result.icon).toBe('trophy')
     })
 
@@ -107,8 +107,16 @@ describe('spotFreshness', () => {
       expect(result.labelKey).toBe('spotStatusReliableCertified')
     })
 
-    it('should set isCertified for gold spot', () => {
+    it('should set isCertified for gold spot (with ambassador)', () => {
       const spot = { ambassadorVerified: true, validationCount: 15, testCount: 15 }
+      const result = getSpotFreshness(spot)
+      expect(result.tier).toBe('gold')
+      expect(result.isCertified).toBe(true)
+      expect(result.labelKey).toBe('spotStatusGoldCertified')
+    })
+
+    it('should auto-certify gold spot even WITHOUT ambassador', () => {
+      const spot = { ambassadorVerified: false, validationCount: 10, testCount: 10 }
       const result = getSpotFreshness(spot)
       expect(result.tier).toBe('gold')
       expect(result.isCertified).toBe(true)
@@ -296,6 +304,36 @@ describe('spotFreshness', () => {
 
     it('should return false for null', () => {
       expect(isGasStation(null)).toBe(false)
+    })
+  })
+
+  describe('getMarkerIcon', () => {
+    it('should return marker-grey for unverified spot', () => {
+      expect(getMarkerIcon({ validationCount: 0, testCount: 0 })).toBe('marker-grey')
+    })
+
+    it('should return marker-grey-certified for ambassador grey', () => {
+      expect(getMarkerIcon({ validationCount: 0, testCount: 0, ambassadorVerified: true })).toBe('marker-grey-certified')
+    })
+
+    it('should return marker-green for reliable spot', () => {
+      expect(getMarkerIcon({ validationCount: 5, testCount: 5 })).toBe('marker-green')
+    })
+
+    it('should return marker-green-station for reliable gas station', () => {
+      expect(getMarkerIcon({ validationCount: 5, testCount: 5, spotType: 'gas_station' })).toBe('marker-green-station')
+    })
+
+    it('should return marker-gold-certified for gold (auto-certified)', () => {
+      expect(getMarkerIcon({ validationCount: 10, testCount: 10 })).toBe('marker-gold-certified')
+    })
+
+    it('should return marker-gold-station-certified for gold station', () => {
+      expect(getMarkerIcon({ validationCount: 10, testCount: 10, spotType: 'gas_station' })).toBe('marker-gold-station-certified')
+    })
+
+    it('should return marker-grey-station for basic station', () => {
+      expect(getMarkerIcon({ validationCount: 0, testCount: 0, spotType: 'gas_station' })).toBe('marker-grey-station')
     })
   })
 })

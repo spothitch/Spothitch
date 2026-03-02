@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotHitch — Propositions Marqueurs</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f1520;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 16px;
+  }
+  h1 { text-align: center; font-size: 20px; color: #f59e0b; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #94a3b8; font-size: 12px; margin-bottom: 24px; }
+
+  .proposal {
+    background: #1a2332;
+    border-radius: 16px;
+    padding: 20px 16px;
+    margin-bottom: 20px;
+    border: 2px solid rgba(255,255,255,0.08);
+  }
+  .proposal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #f59e0b;
+  }
+  .proposal-desc {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .row:last-child { margin-bottom: 0; }
+  .row-label {
+    width: 100%;
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: -8px;
+    padding-left: 4px;
+  }
+
+  .dot-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 50px;
+  }
+  .dot-label {
+    font-size: 9px;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  /* Base dot */
+  .dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.7);
+    position: relative;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .dot.small {
+    width: 12px;
+    height: 12px;
+    border-width: 1.5px;
+  }
+
+  /* ========================================
+     PROPOSAL A — Split vertical (gauche/droite)
+     ======================================== */
+  .splitV {
+    overflow: hidden;
+    background: transparent;
+  }
+  .splitV-grey { background: linear-gradient(90deg, #94a3b8 50%, #ef4444 50%); }
+  .splitV-green { background: linear-gradient(90deg, #10b981 50%, #ef4444 50%); }
+  .splitV-gold { background: linear-gradient(90deg, #fbbf24 50%, #ef4444 50%); }
+
+  /* Crown A: petit cercle doré en haut à droite */
+  .crownA::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fbbf24;
+    border: 1px solid #0f1520;
+    z-index: 2;
+  }
+
+  /* ========================================
+     PROPOSAL B — Split horizontal (haut/bas)
+     ======================================== */
+  .splitH-grey { background: linear-gradient(180deg, #94a3b8 50%, #ef4444 50%); }
+  .splitH-green { background: linear-gradient(180deg, #10b981 50%, #ef4444 50%); }
+  .splitH-gold { background: linear-gradient(180deg, #fbbf24 50%, #ef4444 50%); }
+
+  /* Crown B: trait doré horizontal au milieu */
+  .crownB::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 3px;
+    border-radius: 2px;
+    background: #fbbf24;
+    border: 0.5px solid rgba(0,0,0,0.3);
+    z-index: 2;
+  }
+
+  /* ========================================
+     PROPOSAL C — Split diagonal
+     ======================================== */
+  .splitD-grey { background: linear-gradient(135deg, #94a3b8 50%, #ef4444 50%); }
+  .splitD-green { background: linear-gradient(135deg, #10b981 50%, #ef4444 50%); }
+  .splitD-gold { background: linear-gradient(135deg, #fbbf24 50%, #ef4444 50%); }
+
+  /* Crown C: étoile dorée au centre */
+  .crownC::after {
+    content: '★';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 7px;
+    color: #fbbf24;
+    text-shadow: 0 0 2px rgba(0,0,0,0.8);
+    z-index: 2;
+    line-height: 1;
+  }
+
+  /* ========================================
+     PROPOSAL D — Split vertical + bordure dorée pour crown
+     ======================================== */
+  .crownD {
+    border-color: #fbbf24 !important;
+    border-width: 2.5px !important;
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.5), 0 1px 4px rgba(0,0,0,0.4) !important;
+  }
+
+  /* ========================================
+     PROPOSAL E — Split 60/40 (tier dominant)
+     ======================================== */
+  .split60-grey { background: linear-gradient(90deg, #94a3b8 60%, #ef4444 40%); }
+  .split60-green { background: linear-gradient(90deg, #10b981 60%, #ef4444 40%); }
+  .split60-gold { background: linear-gradient(90deg, #fbbf24 60%, #ef4444 40%); }
+
+  /* Crown E: anneau doré */
+  .crownE {
+    border-color: #fbbf24 !important;
+    box-shadow: 0 0 4px rgba(251, 191, 36, 0.6), 0 1px 4px rgba(0,0,0,0.4) !important;
+  }
+
+  /* ========================================
+     PROPOSAL F — Demi-lune (arc rouge en bas)
+     ======================================== */
+  .halfmoon-grey {
+    background: #94a3b8;
+    box-shadow: 0 3px 0 0 #ef4444, 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .halfmoon-green {
+    background: #10b981;
+    box-shadow: 0 3px 0 0 #ef4444, 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .halfmoon-gold {
+    background: #fbbf24;
+    box-shadow: 0 3px 0 0 #ef4444, 0 1px 4px rgba(0,0,0,0.4);
+  }
+  /* Crown F: point blanc au centre */
+  .crownF::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: white;
+    z-index: 2;
+  }
+
+  /* Separator */
+  .sep {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Propositions Marqueurs Carte</h1>
+<p class="subtitle">Split couleur pour stations + indicateur certifié sur le rond</p>
+
+<!-- PROPOSAL A — Split vertical -->
+<div class="proposal">
+  <div class="proposal-title">A — Split vertical (gauche/droite)</div>
+  <div class="proposal-desc">Moitié gauche = couleur tier, moitié droite = rouge station. Couronne = petit point doré en haut à droite.</div>
+
+  <div class="row-label">Spots normaux (pas station)</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownA" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #10b981;"></div>
+      <div class="dot-label">Vert</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownA" style="background: #10b981;"></div>
+      <div class="dot-label">Vert<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownA" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or<br>certifié</div>
+    </div>
+  </div>
+  <hr class="sep">
+  <div class="row-label">Stations-service (split)</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot splitV splitV-grey"></div>
+      <div class="dot-label">Gris<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-grey crownA"></div>
+      <div class="dot-label">Gris st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-green"></div>
+      <div class="dot-label">Vert<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-green crownA"></div>
+      <div class="dot-label">Vert st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-gold"></div>
+      <div class="dot-label">Or<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-gold crownA"></div>
+      <div class="dot-label">Or st.<br>certifié</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPOSAL B — Split horizontal -->
+<div class="proposal">
+  <div class="proposal-title">B — Split horizontal (haut/bas)</div>
+  <div class="proposal-desc">Moitié haute = couleur tier, moitié basse = rouge station. Couronne = barre dorée en haut.</div>
+
+  <div class="row-label">Spots normaux</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownB" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #10b981;"></div>
+      <div class="dot-label">Vert</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownB" style="background: #10b981;"></div>
+      <div class="dot-label">Vert<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownB" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or<br>certifié</div>
+    </div>
+  </div>
+  <hr class="sep">
+  <div class="row-label">Stations-service (split)</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot splitH-grey"></div>
+      <div class="dot-label">Gris<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitH-grey crownB"></div>
+      <div class="dot-label">Gris st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitH-green"></div>
+      <div class="dot-label">Vert<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitH-green crownB"></div>
+      <div class="dot-label">Vert st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitH-gold"></div>
+      <div class="dot-label">Or<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitH-gold crownB"></div>
+      <div class="dot-label">Or st.<br>certifié</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPOSAL C — Split diagonal -->
+<div class="proposal">
+  <div class="proposal-title">C — Split diagonal</div>
+  <div class="proposal-desc">Diagonale : tier en haut-gauche, rouge en bas-droite. Couronne = étoile dorée au centre.</div>
+
+  <div class="row-label">Spots normaux</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownC" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #10b981;"></div>
+      <div class="dot-label">Vert</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownC" style="background: #10b981;"></div>
+      <div class="dot-label">Vert<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownC" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or<br>certifié</div>
+    </div>
+  </div>
+  <hr class="sep">
+  <div class="row-label">Stations-service (split)</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot splitD-grey"></div>
+      <div class="dot-label">Gris<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitD-grey crownC"></div>
+      <div class="dot-label">Gris st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitD-green"></div>
+      <div class="dot-label">Vert<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitD-green crownC"></div>
+      <div class="dot-label">Vert st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitD-gold"></div>
+      <div class="dot-label">Or<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitD-gold crownC"></div>
+      <div class="dot-label">Or st.<br>certifié</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPOSAL D — Split vertical + bordure dorée -->
+<div class="proposal">
+  <div class="proposal-title">D — Split vertical + bordure dorée</div>
+  <div class="proposal-desc">Split gauche/droite comme A, mais la couronne = bordure dorée brillante autour du rond entier.</div>
+
+  <div class="row-label">Spots normaux</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownD" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #10b981;"></div>
+      <div class="dot-label">Vert</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownD" style="background: #10b981;"></div>
+      <div class="dot-label">Vert<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownD" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or<br>certifié</div>
+    </div>
+  </div>
+  <hr class="sep">
+  <div class="row-label">Stations-service (split)</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot splitV splitV-grey"></div>
+      <div class="dot-label">Gris<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-grey crownD"></div>
+      <div class="dot-label">Gris st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-green"></div>
+      <div class="dot-label">Vert<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-green crownD"></div>
+      <div class="dot-label">Vert st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-gold"></div>
+      <div class="dot-label">Or<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-gold crownD"></div>
+      <div class="dot-label">Or st.<br>certifié</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPOSAL E — Split 60/40 + anneau doré -->
+<div class="proposal">
+  <div class="proposal-title">E — Split 60/40 + anneau doré</div>
+  <div class="proposal-desc">Le tier prend 60% du rond, le rouge station 40%. La couronne = anneau doré (la bordure blanche devient dorée).</div>
+
+  <div class="row-label">Spots normaux</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownE" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #10b981;"></div>
+      <div class="dot-label">Vert</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownE" style="background: #10b981;"></div>
+      <div class="dot-label">Vert<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownE" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or<br>certifié</div>
+    </div>
+  </div>
+  <hr class="sep">
+  <div class="row-label">Stations-service (split)</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot split60-grey" style="overflow: hidden;"></div>
+      <div class="dot-label">Gris<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot split60-grey crownE" style="overflow: hidden;"></div>
+      <div class="dot-label">Gris st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot split60-green" style="overflow: hidden;"></div>
+      <div class="dot-label">Vert<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot split60-green crownE" style="overflow: hidden;"></div>
+      <div class="dot-label">Vert st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot split60-gold" style="overflow: hidden;"></div>
+      <div class="dot-label">Or<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot split60-gold crownE" style="overflow: hidden;"></div>
+      <div class="dot-label">Or st.<br>certifié</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPOSAL F — Split vertical + point blanc -->
+<div class="proposal">
+  <div class="proposal-title">F — Split vertical + point blanc</div>
+  <div class="proposal-desc">Split gauche/droite. La couronne = point blanc au centre du rond (simple, visible).</div>
+
+  <div class="row-label">Spots normaux</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownF" style="background: #94a3b8;"></div>
+      <div class="dot-label">Gris<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #10b981;"></div>
+      <div class="dot-label">Vert</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownF" style="background: #10b981;"></div>
+      <div class="dot-label">Vert<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot crownF" style="background: #fbbf24;"></div>
+      <div class="dot-label">Or<br>certifié</div>
+    </div>
+  </div>
+  <hr class="sep">
+  <div class="row-label">Stations-service (split)</div>
+  <div class="row">
+    <div class="dot-item">
+      <div class="dot splitV splitV-grey"></div>
+      <div class="dot-label">Gris<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-grey crownF"></div>
+      <div class="dot-label">Gris st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-green"></div>
+      <div class="dot-label">Vert<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-green crownF"></div>
+      <div class="dot-label">Vert st.<br>certifié</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-gold"></div>
+      <div class="dot-label">Or<br>station</div>
+    </div>
+    <div class="dot-item">
+      <div class="dot splitV splitV-gold crownF"></div>
+      <div class="dot-label">Or st.<br>certifié</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

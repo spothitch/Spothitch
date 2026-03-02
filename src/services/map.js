@@ -7,7 +7,7 @@ import { getState } from '../stores/state.js'
 import { sampleSpots } from '../data/spots.js'
 import { loadSpotsInBounds, getAllLoadedSpots } from './spotLoader.js'
 import { getFilteredSpots } from '../components/modals/Filters.js'
-import { getFreshnessColor, isGasStation } from './spotFreshness.js'
+import { getFreshnessColor, isGasStation, getMarkerIcon } from './spotFreshness.js'
 
 // Map instances
 let mainMap = null
@@ -68,12 +68,93 @@ function spotsToGeoJSON(spots) {
         rating: spot.globalRating || 0,
         source: spot.source || 'user',
         color: getFreshnessColor(spot),
+        icon: getMarkerIcon(spot),
         verified: spot.verified || false,
         isStation: isGasStation(spot) ? 1 : 0,
       },
     })
   }
   return { type: 'FeatureCollection', features }
+}
+
+/**
+ * Generate all marker icon variants on canvas and register them with MapLibre.
+ * Style D: split vertical for stations + golden border glow for certified.
+ * Gold tier is ALWAYS certified (community-proven).
+ *
+ * LOCKED DESIGN — DO NOT CHANGE without Antoine's explicit approval.
+ */
+function generateMarkerIcons(map) {
+  const S = 32 // canvas px (rendered smaller via icon-size)
+  const cx = S / 2
+  const cy = S / 2
+  const r = S / 2 - 3
+  const STATION_RED = '#ef4444'
+
+  const tiers = [
+    { name: 'grey', hex: '#94a3b8' },
+    { name: 'green', hex: '#10b981' },
+    { name: 'gold', hex: '#fbbf24' },
+  ]
+
+  for (const tier of tiers) {
+    for (const isStation of [false, true]) {
+      // Gold is always certified → only one variant
+      const certifiedOptions = tier.name === 'gold' ? [true] : [false, true]
+      for (const isCertified of certifiedOptions) {
+        const iconName = `marker-${tier.name}${isStation ? '-station' : ''}${isCertified ? '-certified' : ''}`
+
+        const canvas = document.createElement('canvas')
+        canvas.width = S
+        canvas.height = S
+        const ctx = canvas.getContext('2d')
+
+        // --- Fill ---
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(cx, cy, r, 0, Math.PI * 2)
+        ctx.clip()
+
+        if (isStation) {
+          // Split vertical: left = tier, right = red
+          ctx.fillStyle = tier.hex
+          ctx.fillRect(0, 0, cx, S)
+          ctx.fillStyle = STATION_RED
+          ctx.fillRect(cx, 0, cx, S)
+        } else {
+          ctx.fillStyle = tier.hex
+          ctx.fillRect(0, 0, S, S)
+        }
+        ctx.restore()
+
+        // --- Border ---
+        if (isCertified) {
+          // Golden glow (outer)
+          ctx.beginPath()
+          ctx.arc(cx, cy, r + 1, 0, Math.PI * 2)
+          ctx.lineWidth = 2
+          ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)'
+          ctx.stroke()
+          // Golden border
+          ctx.beginPath()
+          ctx.arc(cx, cy, r, 0, Math.PI * 2)
+          ctx.lineWidth = 3
+          ctx.strokeStyle = '#fbbf24'
+          ctx.stroke()
+        } else {
+          // White border
+          ctx.beginPath()
+          ctx.arc(cx, cy, r, 0, Math.PI * 2)
+          ctx.lineWidth = 2
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)'
+          ctx.stroke()
+        }
+
+        const imgData = ctx.getImageData(0, 0, S, S)
+        map.addImage(iconName, { width: S, height: S, data: new Uint8Array(imgData.data.buffer) })
+      }
+    }
+  }
 }
 
 /**
@@ -128,41 +209,28 @@ function addSpotLayers(map, geojson) {
     },
   })
 
-  // Individual spot dots (unclustered)
+  // Generate all marker icon variants (Style D: split + golden border)
+  generateMarkerIcons(map)
+
+  // Individual spot markers (unclustered) — symbol layer with canvas icons
+  // LOCKED DESIGN — DO NOT CHANGE without Antoine's explicit approval.
   map.addLayer({
     id: 'spot-points',
-    type: 'circle',
+    type: 'symbol',
     source: 'spots',
     filter: ['!', ['has', 'point_count']],
-    paint: {
-      'circle-color': ['get', 'color'],
-      'circle-radius': [
+    layout: {
+      'icon-image': ['get', 'icon'],
+      'icon-size': [
         'case',
-        ['==', ['get', 'source'], 'hitchwiki'], 5,
-        7,
+        ['==', ['get', 'source'], 'hitchwiki'], 0.34,
+        0.47,
       ],
-      'circle-stroke-color': 'rgba(255, 255, 255, 0.7)',
-      'circle-stroke-width': [
-        'case',
-        ['==', ['get', 'source'], 'hitchwiki'], 1,
-        2,
-      ],
-      'circle-opacity': 0.85,
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
     },
-  })
-
-  // Station ring overlay (red ring around gas stations)
-  map.addLayer({
-    id: 'spot-station-ring',
-    type: 'circle',
-    source: 'spots',
-    filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'isStation'], 1]],
     paint: {
-      'circle-color': 'transparent',
-      'circle-radius': 10,
-      'circle-stroke-color': '#ef4444',
-      'circle-stroke-width': 2.5,
-      'circle-opacity': 0.9,
+      'icon-opacity': 0.9,
     },
   })
 

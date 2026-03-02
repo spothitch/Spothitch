@@ -47,18 +47,18 @@ export function getSpotFreshness(spot) {
   const isCertified = spot.ambassadorVerified === true
   const isStation = spot.spotType === 'gas_station'
 
-  // GOLD: 10+ tests AND 10+ validations
+  // GOLD: 10+ tests AND 10+ validations — always certified (community-proven)
   if (testCount >= 10 && validationCount >= 10) {
     return {
       tier: 'gold',
       color: 'amber',
       hexColor: '#fbbf24',
-      labelKey: isCertified ? 'spotStatusGoldCertified' : 'spotStatusGold',
+      labelKey: 'spotStatusGoldCertified',
       icon: 'trophy',
       bgClass: 'bg-amber-500/20',
       textClass: 'text-amber-400',
       borderClass: 'border-amber-500/30',
-      isCertified,
+      isCertified: true,
       isStation,
     }
   }
@@ -217,6 +217,21 @@ export function isGasStation(spot) {
   return spot?.spotType === 'gas_station'
 }
 
+/**
+ * Get the marker icon name for the map (Style D: split vertical + golden border)
+ * Naming: marker-{tier}[-station][-certified]
+ * Gold is always certified (community-proven).
+ * @param {Object} spot
+ * @returns {string}
+ */
+export function getMarkerIcon(spot) {
+  const f = getSpotFreshness(spot)
+  let name = `marker-${f.tier}`
+  if (f.isStation) name += '-station'
+  if (f.isCertified) name += '-certified'
+  return name
+}
+
 export default {
   getSpotFreshness,
   getSpotAge,
@@ -224,4 +239,5 @@ export default {
   renderAgeBadge,
   getFreshnessColor,
   isGasStation,
+  getMarkerIcon,
 }
