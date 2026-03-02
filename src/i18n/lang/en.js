@@ -3514,6 +3514,7 @@ export default {
   day: "Day",
   dailyRewardCycle: "Reward cycle",
   gotARide: "Did you get a ride?",
+  rideResultRequired: "Please indicate if you got a ride",
   monthly: "Monthly",
   strategies: "Strategies",
   usefulPhrases: "Useful phrases",

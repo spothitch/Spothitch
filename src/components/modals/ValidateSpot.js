@@ -22,6 +22,7 @@ window.validateFormData = window.validateFormData || {
   directionCity: null,
   directionCityCoords: null,
   ratings: { safety: 0, traffic: 0, accessibility: 0 },
+  tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
   photo: null,
   comment: '',
   rideResult: null,
@@ -191,13 +192,43 @@ export function renderValidateSpot(state) {
               </div>
             </div>
 
-            <!-- Direction (optional, can differ from spot) -->
+            <!-- Direction (mandatory — can differ from spot's original direction) -->
             <div class="relative">
               <label for="val-direction-city" class="text-sm text-slate-400 block mb-2">
-                ${icon('compass', 'w-4 h-4 mr-1')} ${t('yourDirection') || 'Ta direction'}
+                ${icon('compass', 'w-4 h-4 mr-1')} ${t('yourDirection') || 'Ta direction'} <span class="text-red-400">*</span>
               </label>
               <input type="text" id="val-direction-city" class="input-modern"
-                placeholder="${t('destinationCity') || 'Direction'}" />
+                placeholder="${t('destinationCity') || 'Direction'}" required aria-required="true" />
+            </div>
+
+            <!-- Amenities -->
+            <div>
+              <label class="text-sm text-slate-400 block mb-2">
+                ${icon('map-pin', 'w-4 h-4 mr-1 text-emerald-400')}
+                ${t('amenitiesLabel') || 'Équipements à proximité'}
+              </label>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="toggleValAmenity('shelter')"
+                  class="amenity-chip ${vf.tags?.shelter ? 'active' : ''}">
+                  ${icon('umbrella', 'w-4 h-4 mr-1')} ${t('amenityShelter') || 'Abri'}
+                </button>
+                <button type="button" onclick="toggleValAmenity('waterFood')"
+                  class="amenity-chip ${vf.tags?.waterFood ? 'active' : ''}">
+                  ${icon('droplets', 'w-4 h-4 mr-1')} ${t('amenityWaterFood') || 'Eau/nourriture'}
+                </button>
+                <button type="button" onclick="toggleValAmenity('toilets')"
+                  class="amenity-chip ${vf.tags?.toilets ? 'active' : ''}">
+                  🚻 ${t('amenityToilets') || 'Toilettes'}
+                </button>
+                <button type="button" onclick="toggleValAmenity('visibility')"
+                  class="amenity-chip ${vf.tags?.visibility ? 'active' : ''}">
+                  ${icon('eye', 'w-4 h-4 mr-1')} ${t('goodVisibilityTag') || 'Visible'}
+                </button>
+                <button type="button" onclick="toggleValAmenity('stoppingSpace')"
+                  class="amenity-chip ${vf.tags?.stoppingSpace ? 'active' : ''}">
+                  ${icon('square-parking', 'w-4 h-4 mr-1')} ${t('stoppingSpaceTag') || 'Place'}
+                </button>
+              </div>
             </div>
 
             <!-- Ratings -->
@@ -217,10 +248,10 @@ export function renderValidateSpot(state) {
                 maxlength="500"></textarea>
             </div>
 
-            <!-- Photo (optional) -->
+            <!-- Photo (optional, +50 pts bonus) -->
             <div>
               <label class="text-sm text-slate-400 block mb-2">
-                ${icon('camera', 'w-4 h-4 mr-1')} ${t('optionalPhoto') || 'Photo (optionnel)'}
+                ${icon('camera', 'w-4 h-4 mr-1')} ${t('photoBonus')}
               </label>
               <input type="file" id="val-photo" accept="image/*" capture="environment"
                 class="hidden" onchange="handleValidationPhoto(event)" />
@@ -246,11 +277,11 @@ export function renderValidateSpot(state) {
 
 window.openValidateSpot = async (spotId) => {
   const { setState } = await import('../../stores/state.js')
-  // Reset form
   window.validateFormData = {
     waitTime: 10, method: null, groupSize: null, timeOfDay: null,
     directionCity: null, directionCityCoords: null,
     ratings: { safety: 0, traffic: 0, accessibility: 0 },
+    tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
     photo: null, comment: '', rideResult: null,
   }
   setState({ showValidateSpot: true, validateSpotId: spotId, validateSpotMode: 'validate' })
@@ -259,11 +290,11 @@ window.openValidateSpot = async (spotId) => {
 // openTestSpot — opens the same form but marks it as a "test" (full hitchhiking experience)
 window.openTestSpot = async (spotId) => {
   const { setState } = await import('../../stores/state.js')
-  // Reset form
   window.validateFormData = {
     waitTime: 10, method: null, groupSize: null, timeOfDay: null,
     directionCity: null, directionCityCoords: null,
     ratings: { safety: 0, traffic: 0, accessibility: 0 },
+    tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
     photo: null, comment: '', rideResult: null,
   }
   setState({ showValidateSpot: true, validateSpotId: spotId, validateSpotMode: 'test' })
@@ -320,6 +351,13 @@ window.setValidationRating = (criterion, value) => {
   if (el) el.textContent = `${value}/5`
 }
 
+window.toggleValAmenity = (name) => {
+  window.validateFormData.tags = window.validateFormData.tags || {}
+  window.validateFormData.tags[name] = !window.validateFormData.tags[name]
+  const chip = document.querySelector(`[onclick*="toggleValAmenity('${name}')"]`)
+  if (chip) chip.classList.toggle('active', window.validateFormData.tags[name])
+}
+
 window.handleValidationPhoto = async (event) => {
   const file = event.target.files?.[0]
   if (!file) return
@@ -350,6 +388,17 @@ window.submitValidation = async (event) => {
     submitBtn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('sending') || 'Envoi...'}`
   }
 
+  // Direction is mandatory
+  if (!directionCity) {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('destinationRequired') || 'Direction obligatoire')
+    if (submitBtn) {
+      submitBtn.disabled = false
+      submitBtn.innerHTML = `${icon('circle-check', 'w-5 h-5')} ${t('submitValidation')}`
+    }
+    return
+  }
+
   try {
     // Determine mode: 'test' = full hitchhiking experience, 'validate' = confirm spot exists
     const mode = state.validateSpotMode || 'test'
@@ -365,6 +414,7 @@ window.submitValidation = async (event) => {
       rideResult: vf.rideResult,
       directionCity: directionCity,
       ratings: vf.ratings,
+      tags: vf.tags || {},
       comment: comment,
       season: detectSeason(),
       timestamp: new Date().toISOString(),
@@ -398,10 +448,16 @@ window.submitValidation = async (event) => {
     })
     actions.incrementCheckins()
 
+    // Bonus 50 pts if photo provided
+    if (vf.photo) {
+      actions.addPoints?.(50)
+    }
+
     const { showSuccess } = await import('../../services/notifications.js')
+    const photoMsg = vf.photo ? ' 📸 +50 pts' : ''
     showSuccess(mode === 'test'
-      ? (t('testSubmitted') || 'Test envoyé ! Merci')
-      : (t('validationSubmitted') || 'Validation envoyée ! Merci'))
+      ? (t('testSubmitted') || 'Test envoyé ! Merci') + photoMsg
+      : (t('validationSubmitted') || 'Validation envoyée ! Merci') + photoMsg)
     setState({ showValidateSpot: false, validateSpotId: null, validateSpotMode: null })
 
   } catch (error) {

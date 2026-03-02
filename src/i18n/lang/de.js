@@ -3511,6 +3511,7 @@ export default {
   day: "Tag",
   dailyRewardCycle: "Belohnungszyklus",
   gotARide: "Hast du eine Mitfahrt bekommen?",
+  rideResultRequired: "Bitte angeben, ob du eine Mitfahrt bekommen hast",
   monthly: "Monatlich",
   strategies: "Strategien",
   usefulPhrases: "Nuetzliche Saetze",

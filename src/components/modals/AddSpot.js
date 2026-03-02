@@ -330,6 +330,28 @@ function renderStep2(state) {
         </div>
       </div>
 
+      <!-- Got a ride? -->
+      <div class="mb-4">
+        <label class="text-sm text-slate-400 block mb-2">
+          ${icon('thumbs-up', 'w-4 h-4 mr-1')}
+          ${t('gotARide') || 'Tu as eu un lift ?'} <span class="text-red-400">*</span>
+        </label>
+        <div class="radio-group">
+          <button type="button" onclick="setRideResult('yes')"
+            class="radio-btn ${state.addSpotRideResult === 'yes' ? 'active' : ''}">
+            ✅ ${t('yes') || 'Oui'}
+          </button>
+          <button type="button" onclick="setRideResult('no')"
+            class="radio-btn ${state.addSpotRideResult === 'no' ? 'active' : ''}">
+            ❌ ${t('no') || 'Non'}
+          </button>
+          <button type="button" onclick="setRideResult('gaveUp')"
+            class="radio-btn ${state.addSpotRideResult === 'gaveUp' ? 'active' : ''}">
+            🏳️ ${t('gaveUp') || 'Abandonné'}
+          </button>
+        </div>
+      </div>
+
       <!-- Navigation buttons -->
       <div class="flex gap-3">
         <button type="button" onclick="addSpotPrevStep()" class="btn btn-ghost flex-1">
@@ -662,6 +684,12 @@ window.setTimeOfDay = (time) => {
   })
 }
 
+window.setRideResult = async (result) => {
+  window.spotFormData.rideResult = result
+  const { setState } = await import('../../stores/state.js')
+  setState({ addSpotRideResult: result })
+}
+
 // Toggle amenity chip — DOM-only, no re-render
 window.toggleAmenity = (name) => {
   window.spotFormData.tags = window.spotFormData.tags || {}
@@ -727,6 +755,10 @@ window.addSpotNextStep = async () => {
     }
     if (!window.spotFormData.timeOfDay) {
       showError(t('timeOfDayRequired'))
+      return
+    }
+    if (!window.spotFormData.rideResult) {
+      showError(t('rideResultRequired'))
       return
     }
     // Blur focused input so render() is not blocked by the typing guard
@@ -1194,6 +1226,10 @@ window.handleAddSpot = async (event) => {
     showError(t('timeOfDayRequired'))
     return
   }
+  if (!window.spotFormData.rideResult) {
+    showError(t('rideResultRequired'))
+    return
+  }
   if (!description) {
     showError(t('descriptionRequired'))
     return
@@ -1265,6 +1301,7 @@ window.handleAddSpot = async (event) => {
       groupSize: window.spotFormData.groupSize,
       timeOfDay: window.spotFormData.timeOfDay,
       waitTime: window.spotFormData.waitTime || 10,
+      rideResult: window.spotFormData.rideResult,
       season: detectSeason(),
 
       // Legacy fields (backward compat)
@@ -1320,6 +1357,7 @@ window.handleAddSpot = async (event) => {
         addSpotGroupSize: null,
         addSpotTimeOfDay: null,
         addSpotWaitTime: null,
+        addSpotRideResult: null,
       })
 
       // Reset form data
@@ -1332,7 +1370,7 @@ window.handleAddSpot = async (event) => {
         directionCity: null, directionCityCoords: null,
         locationName: null, roadNumber: null, positionSource: null,
         method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
-        stationName: '',
+        rideResult: null, stationName: '',
       }
 
       // Show contextual tip for first spot created

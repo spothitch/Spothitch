@@ -3514,6 +3514,7 @@ export default {
   day: "Jour",
   dailyRewardCycle: "Cycle de récompenses",
   gotARide: "Tu as eu un lift ?",
+  rideResultRequired: "Indique si tu as eu un lift",
   monthly: "Mensuel",
   strategies: "Strategies",
   usefulPhrases: "Phrases utiles",
