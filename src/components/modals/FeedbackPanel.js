@@ -247,6 +247,18 @@ function renderFeedbackDetail(state, featureId) {
             </div>
           </div>
           <p class="text-[13px] mt-3 leading-relaxed px-1" style="color: #94a3b8">${escapeHTML(desc)}</p>
+          ${featureId === 'spot-detail' ? `
+            <button onclick="showSpotDemo()"
+              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
+              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
+              🎮 ${escapeHTML(t('spotDemoTryBtn') || 'Voir la démo du nouveau spot')}
+            </button>
+            <div class="mt-3 space-y-1.5 px-1">
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📸</span><span class="text-[11px] text-slate-400 leading-snug">Galerie photos cliquable + badge statut</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">✅</span><span class="text-[11px] text-slate-400 leading-snug">Valider (le spot existe) ou Tester (j'ai fait du stop)</span></div>
+              <div class="flex items-start gap-2"><span class="text-sm shrink-0">💡</span><span class="text-[11px] text-slate-400 leading-snug">Tips, créneaux, avis, urgences, alternatives</span></div>
+            </div>
+          ` : ''}
           ${featureId === 'city-pages' ? `
             <button onclick="showCityPageDemo()"
               class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"

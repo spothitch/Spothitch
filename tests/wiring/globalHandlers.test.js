@@ -345,6 +345,8 @@ const MAIN_JS_HANDLERS = [
   'showCompanionDemo', 'closeCompanionDemo', 'startCompanionDemo', 'switchCompanionDemoTab',
   // Hostels Demo (defined in Profile.js)
   'showHostelsDemo', 'closeHostelsDemo', 'startHostelsDemo', 'switchHostelsDemoTab',
+  // Spot Demo (defined in ProfileDemos.js)
+  'showSpotDemo', 'closeSpotDemo', 'startSpotDemo', 'switchSpotDemoTab',
   // Map extras (defined in Map.js)
   'searchLocation',
   // Chat extras (defined in Chat.js)

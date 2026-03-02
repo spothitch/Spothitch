@@ -23,6 +23,7 @@ window.switchJournalDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchSocialDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchCompanionDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchHostelsDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
+window.switchSpotDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 
 // ==================== HELPER ====================
 const _s = {
@@ -553,6 +554,232 @@ window.startHostelsDemo = () => {
         <div style="margin-bottom:6px"><div style="font-size:0.65rem;font-weight:600;margin-bottom:3px">📍 Lieu</div><div style="${_s.card}">Bar Le Petit Vélo, Toulouse</div></div>
         <div style="margin-bottom:6px"><div style="font-size:0.65rem;font-weight:600;margin-bottom:3px">📝 Description</div><div style="${_s.card}">Première rencontre des autostoppeurs toulousains ! Venez partager vos aventures et trouver des compagnons de route.</div></div>
         <div style="display:block;background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;font-weight:700;text-align:center;padding:10px;border-radius:10px;margin-top:8px;font-size:0.75rem">🎉 Créer l'événement · +40 pts</div>
+      </div>
+    </div>
+  `
+}
+
+// ==================== 6. FICHE SPOT (NOUVEAU DESIGN) ====================
+window.showSpotDemo = () => {
+  const ov = _createDemo('spot-demo-overlay')
+  ov.innerHTML = `
+    <div style="${_s.wrap}">
+      <button onclick="closeSpotDemo()" style="${_s.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+      <div id="spot-demo-intro" style="${_s.intro}">
+        <div style="font-size:3rem;margin-bottom:12px">📍</div>
+        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('spotDemoIntroTitle') || 'Nouvelle fiche spot')}</h2>
+        <p style="font-size:0.82rem;color:#94a3b8;line-height:1.5;margin:0 0 16px">${escapeHTML(t('spotDemoIntroDesc') || 'Voici à quoi ressemblera un spot complet avec toutes les infos, photos, avis et outils de la communauté.')}</p>
+        <div style="margin:0 auto 20px;max-width:340px">
+          <div style="${_s.bullet}"><span style="${_s.bicon}">📸</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet1') || 'Galerie photos cliquable — vois le spot sous tous les angles avant d\'y aller')}</span></div>
+          <div style="${_s.bullet}"><span style="${_s.bicon}">✅</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet2') || 'Valider = confirmer que le spot existe (en passant), Tester = donner ton avis complet (après du stop)')}</span></div>
+          <div style="${_s.bullet}"><span style="${_s.bicon}">🏅</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet3') || 'Badges de statut : Basique → Fiable → Certifié → Spot d\'Or selon les validations et avis')}</span></div>
+          <div style="${_s.bullet}"><span style="${_s.bicon}">💡</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet4') || 'Tips d\'experts, meilleurs créneaux, spots alternatifs proches et urgences — tout en un')}</span></div>
+          <div style="${_s.bullet}"><span style="${_s.bicon}">📍</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet5') || 'Ouvre directement dans Google Maps pour y aller à pied — un seul bouton')}</span></div>
+        </div>
+        <button onclick="startSpotDemo()" style="${_s.btn}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
+      </div>
+      <div id="spot-demo-main" style="display:none"></div>
+    </div>
+  `
+  document.body.appendChild(ov)
+}
+
+window.closeSpotDemo = () => { document.getElementById('spot-demo-overlay')?.remove() }
+
+window.startSpotDemo = () => {
+  const intro = document.getElementById('spot-demo-intro')
+  const main = document.getElementById('spot-demo-main')
+  if (!intro || !main) return
+  intro.style.display = 'none'
+  main.style.display = 'block'
+
+  const _spot = {
+    brd: 'border-radius:18px',
+    photoWrap: 'position:relative;aspect-ratio:2/1;cursor:pointer;border-radius:16px;overflow:hidden',
+    gradient: 'position:absolute;inset:0;background:linear-gradient(to top,rgba(15,21,32,.9) 5%,transparent 50%);border-radius:16px',
+    statusBadge: 'display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:0.6rem;font-weight:700',
+    statusGreenCrown: 'background:#065f46;color:#6ee7b7;border:2px solid #34d399',
+    score: 'width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;border:3px solid rgba(15,21,32,.8)',
+    btnV: 'flex:1;padding:12px 6px;border-radius:20px;border:none;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;font-size:0.78rem;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 4px 12px rgba(16,185,129,.3)',
+    btnT: 'flex:1;padding:12px 6px;border-radius:20px;border:none;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0f1520;font-weight:800;font-size:0.78rem;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 4px 12px rgba(245,158,11,.3)',
+    btnM: 'display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border-radius:20px;border:none;cursor:pointer;font-weight:800;font-size:0.78rem;background:linear-gradient(135deg,#4285f4,#1a73e8);color:#fff;box-shadow:0 4px 12px rgba(66,133,244,.3)',
+    dateCard: 'padding:8px;border-radius:14px',
+    metric: 'padding:8px 4px;border-radius:14px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)',
+    badge: 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:0.55rem;font-weight:600',
+    bg: 'background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2)',
+    ba: 'background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2)',
+    bb: 'background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.2)',
+    sum: 'padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;font-size:0.72rem;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center',
+    inner: 'padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.03)',
+    secBtn: 'flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;border-radius:16px;font-size:0.6rem;font-weight:700;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#fff;cursor:pointer',
+  }
+
+  main.innerHTML = `
+    <div data-demo="overlay" style="${_s.demo};padding:10px;border-radius:22px">
+      <div style="${_s.tabs}">
+        <span class="cd-tab cd-tab-active" onclick="switchSpotDemoTab(this,'spot-overview')" role="button" tabindex="0">📍 Aperçu</span>
+        <span class="cd-tab" onclick="switchSpotDemoTab(this,'spot-details')" role="button" tabindex="0">📊 Détails</span>
+        <span class="cd-tab" onclick="switchSpotDemoTab(this,'spot-community')" role="button" tabindex="0">💬 Communauté</span>
+        <span class="cd-tab" onclick="switchSpotDemoTab(this,'spot-emergency')" role="button" tabindex="0">🆘 Urgence</span>
+      </div>
+
+      <!-- ===== TAB 1: APERÇU ===== -->
+      <div data-cd-panel="spot-overview" style="display:block">
+        <!-- Photo -->
+        <div style="padding:4px 4px 0;margin-bottom:8px">
+          <div style="${_spot.photoWrap}">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a2332,#0f1520);display:flex;align-items:center;justify-content:center;font-size:2rem">🏞️</div>
+            <div style="${_spot.gradient}"></div>
+            <div style="position:absolute;top:6px;left:6px;${_spot.statusBadge};${_spot.statusGreenCrown}"><span style="font-size:0.65rem">👑</span> Fiable certifié</div>
+            <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);padding:3px 8px;border-radius:12px;font-size:0.55rem;font-weight:600">📷 4 photos</div>
+            <div style="position:absolute;bottom:8px;left:8px">
+              <div style="font-size:0.9rem;font-weight:800">Namur → Liège</div>
+              <div style="font-size:0.55rem;color:rgba(255,255,255,.5)">🏙️ Sortie de ville · E411 · 🇧🇪</div>
+            </div>
+            <div style="position:absolute;bottom:6px;right:50px;${_spot.score}">4.2</div>
+          </div>
+        </div>
+
+        <!-- Actions Valider / Testé -->
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <button style="${_spot.btnV}"><span style="font-size:1.1rem">✅</span>Je valide<span style="font-size:0.5rem;font-weight:400;opacity:.7">Ce spot existe</span></button>
+          <button style="${_spot.btnT}"><span style="font-size:1.1rem">🤙</span>J'ai testé<span style="font-size:0.5rem;font-weight:400;opacity:.5">Donner mon avis</span></button>
+        </div>
+
+        <!-- Google Maps -->
+        <button style="${_spot.btnM};margin-bottom:8px">📍 Ouvrir dans Google Maps</button>
+
+        <!-- Dates -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="${_spot.dateCard};background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.1)">
+            <div style="font-size:0.5rem;color:#475569">✅ Dernière validation</div>
+            <div style="font-size:0.65rem;font-weight:700;color:#6ee7b7">il y a 2 sem.</div>
+            <div style="font-size:0.5rem;color:#475569">par @TravelMarc</div>
+          </div>
+          <div style="${_spot.dateCard};background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.1)">
+            <div style="font-size:0.5rem;color:#475569">🤙 Dernier test</div>
+            <div style="font-size:0.65rem;font-weight:700;color:#fbbf24">il y a 3 jours</div>
+            <div style="font-size:0.5rem;color:#475569">@BenTheRoad · ★★★★★</div>
+          </div>
+        </div>
+
+        <!-- Météo + Légal -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,.02);border-radius:16px;margin-bottom:8px;font-size:0.65rem">
+          <span>⛅ 14°C <span style="${_spot.badge};${_spot.bg};font-size:0.45rem">👍</span></span>
+          <span style="${_spot.badge};${_spot.bg}">⚖️ Légal</span>
+          <span style="${_spot.badge};${_spot.ba}">🌸 Printemps</span>
+        </div>
+
+        <!-- 4 Métriques -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:8px">
+          <div style="${_spot.metric}"><div style="font-size:0.55rem;color:#475569">⏱️</div><div style="font-size:0.7rem;font-weight:800;color:#f59e0b">8 min</div></div>
+          <div style="${_spot.metric}"><div style="font-size:0.55rem;color:#475569">🛡️</div><div style="font-size:0.7rem;font-weight:800;color:#10b981">4/5</div></div>
+          <div style="${_spot.metric}"><div style="font-size:0.55rem;color:#475569">🎯</div><div style="font-size:0.7rem;font-weight:800;color:#10b981">87%</div></div>
+          <div style="${_spot.metric}"><div style="font-size:0.55rem;color:#475569">✅</div><div style="font-size:0.7rem;font-weight:800;color:#3b82f6">12</div></div>
+        </div>
+
+        <!-- Tags -->
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+          <span style="${_spot.badge};${_spot.bg}">☂️ Abri</span>
+          <span style="${_spot.badge};${_spot.bg}">👁️ Visible</span>
+          <span style="${_spot.badge};${_spot.bg}">🅿️ Place</span>
+          <span style="${_spot.badge};${_spot.bb}">💡 Éclairé</span>
+          <span style="${_spot.badge};${_spot.ba}">🤙 Pouce</span>
+        </div>
+
+        <!-- Actions secondaires -->
+        <div style="display:flex;gap:4px">
+          <div style="${_spot.secBtn}">🔖 Sauver</div>
+          <div style="${_spot.secBtn}">📤 Partager</div>
+          <div style="${_spot.secBtn}">🚩 Signaler</div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 2: DÉTAILS ===== -->
+      <div data-cd-panel="spot-details" style="display:none">
+        <div style="${_s.secT}">📊 Notation détaillée</div>
+        <div style="${_s.card}">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.65rem">🛡️ Sécurité</span><span style="font-size:0.65rem;font-weight:700;color:#6ee7b7">4/5</span></div>
+          <div style="height:5px;background:#1e293b;border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:80%;background:#10b981;border-radius:3px"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.65rem">🚗 Trafic</span><span style="font-size:0.65rem;font-weight:700;color:#6ee7b7">5/5</span></div>
+          <div style="height:5px;background:#1e293b;border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:100%;background:#f59e0b;border-radius:3px"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.65rem">♿ Accessibilité</span><span style="font-size:0.65rem;font-weight:700;color:#fbbf24">3/5</span></div>
+          <div style="height:5px;background:#1e293b;border-radius:3px;overflow:hidden"><div style="height:100%;width:60%;background:#f59e0b;border-radius:3px"></div></div>
+        </div>
+
+        <div style="${_s.secT};margin-top:10px">🕐 Meilleurs créneaux</div>
+        <div style="${_s.card};background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15)">
+          <div style="font-size:0.72rem;font-weight:700;color:#6ee7b7">✨ Mardi–Vendredi 9h–12h</div>
+          <div style="font-size:0.58rem;color:#64748b;margin-top:2px">4 min d'attente vs 15 min le dimanche soir</div>
+        </div>
+
+        <div style="${_s.secT};margin-top:10px">📊 Statuts des spots</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:#334155;color:#cbd5e1;border:1px solid #475569;font-size:0.5rem">📍</span><span style="font-size:0.5rem;color:#64748b">1+ avis</span></div>
+          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:#334155;color:#cbd5e1;border:2px solid #94a3b8;font-size:0.5rem">👑</span><span style="font-size:0.5rem;color:#64748b">Certifié</span></div>
+          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:#065f46;color:#6ee7b7;border:1px solid #10b981;font-size:0.5rem">⭐</span><span style="font-size:0.5rem;color:#64748b">3+ avis & valid.</span></div>
+          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};${_spot.statusGreenCrown};font-size:0.5rem">👑</span><span style="font-size:0.5rem;color:#64748b">Fiable certifié</span></div>
+          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444;font-size:0.5rem">⛽</span><span style="font-size:0.5rem;color:#64748b">Station</span></div>
+          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:linear-gradient(135deg,#78350f,#92400e);color:#fde047;border:2px solid #eab308;font-size:0.5rem">✨</span><span style="font-size:0.5rem;color:#64748b">Spot d'Or</span></div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 3: COMMUNAUTÉ ===== -->
+      <div data-cd-panel="spot-community" style="display:none">
+        <div style="${_s.secT}">💡 Tips d'experts</div>
+        <div style="${_s.card};background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);margin-bottom:5px">
+          <div style="font-size:0.65rem"><strong style="color:#fbbf24">@TravelMarc :</strong> Se placer APRÈS le feu rouge. Les voitures tournent toutes vers l'E411.</div>
+        </div>
+        <div style="${_s.card};background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15)">
+          <div style="font-size:0.65rem"><strong style="color:#fbbf24">@BenTheRoad :</strong> Écrire "LIÈGE" sur la pancarte, pas "E411".</div>
+        </div>
+
+        <div style="${_s.secT};margin-top:10px">💬 Avis communauté (12)</div>
+        <div style="${_s.card};margin-bottom:5px">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px"><span>🤙</span><span style="font-size:0.68rem;font-weight:700;color:#fbbf24">@TravelMarc</span><span style="font-size:0.55rem;color:#64748b">★★★★★ · 5 min · Solo</span></div>
+          <div style="font-size:0.62rem;color:#94a3b8">Super spot ! Pris en 5 min un lundi matin. Je recommande.</div>
+        </div>
+        <div style="${_s.card}">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px"><span>🌍</span><span style="font-size:0.68rem;font-weight:700;color:#fbbf24">@SarahVoyage</span><span style="font-size:0.55rem;color:#64748b">★★★★ · 12 min · Duo</span></div>
+          <div style="font-size:0.62rem;color:#94a3b8">Bon spot, un peu long à deux mais ça passe.</div>
+        </div>
+
+        <div style="${_s.secT};margin-top:10px">📍 Spots alternatifs proches</div>
+        <div style="${_s.card};display:flex;align-items:center;gap:8px">
+          <div style="width:26px;height:26px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:900;color:#fff;flex-shrink:0">4.5</div>
+          <div style="flex:1"><div style="font-weight:700;font-size:0.72rem">⛽ Station Total</div><div style="font-size:0.55rem;color:#64748b">800m · 5 min · 18 valid.</div></div>
+          <span style="${_spot.badge};${_spot.bg};font-size:0.45rem">Mieux!</span>
+        </div>
+      </div>
+
+      <!-- ===== TAB 4: URGENCE ===== -->
+      <div data-cd-panel="spot-emergency" style="display:none">
+        <div style="${_s.secT}">🆘 Urgence & plan B</div>
+        <div style="${_s.card};display:flex;align-items:center;gap:8px;margin-bottom:5px">
+          <span style="font-size:1.1rem">🏥</span>
+          <div><div style="font-weight:700;font-size:0.72rem">CHU Namur</div><div style="font-size:0.55rem;color:#64748b">2.8 km · ☎️ +32 81 72 61 11</div></div>
+        </div>
+        <div style="${_s.card};display:flex;align-items:center;gap:8px;margin-bottom:5px">
+          <span style="font-size:1.1rem">👮</span>
+          <div><div style="font-weight:700;font-size:0.72rem">Police locale</div><div style="font-size:0.55rem;color:#64748b">1.5 km · ☎️ +32 81 24 81 11</div></div>
+        </div>
+        <div style="${_s.card};display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.1rem">🚌</span>
+          <div><div style="font-weight:700;font-size:0.72rem">Bus 38 → Liège</div><div style="font-size:0.55rem;color:#64748b">400m · ~7€ · Toutes les 30 min</div></div>
+        </div>
+
+        <div style="${_s.secT};margin-top:10px">⚖️ Auto-stop en Belgique</div>
+        <div style="${_s.card};border-left:3px solid #6ee7b7">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px"><span style="${_spot.badge};${_spot.bg}">✅ Légal</span></div>
+          <div style="font-size:0.62rem;color:#94a3b8">L'auto-stop est légal en Belgique. Interdit sur les autoroutes (accotements), mais autorisé aux entrées et aires de repos.</div>
+        </div>
+
+        <div style="${_s.secT};margin-top:10px">🆘 Bouton SOS</div>
+        <div style="${_s.card};background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);text-align:center;padding:12px">
+          <div style="font-size:1.5rem;margin-bottom:4px">🆘</div>
+          <div style="font-size:0.72rem;font-weight:700;color:#fca5a5">En cas d'urgence</div>
+          <div style="font-size:0.58rem;color:#64748b;margin-top:2px">Envoie ta position + alerte à tes contacts</div>
+        </div>
       </div>
     </div>
   `
