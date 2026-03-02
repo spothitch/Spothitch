@@ -1,10 +1,10 @@
 /**
  * Tests for Spot Freshness/Reliability Service
- * New system: user validations (not HitchWiki globalRating)
+ * New system: 3 tiers (grey/green/gold) + crown + station overlay
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { getSpotFreshness, getSpotAge, renderFreshnessBadge, renderAgeBadge, getFreshnessColor } from '../src/services/spotFreshness.js'
+import { getSpotFreshness, getSpotAge, renderFreshnessBadge, renderAgeBadge, getFreshnessColor, isGasStation } from '../src/services/spotFreshness.js'
 import { setState } from '../src/stores/state.js'
 
 describe('spotFreshness', () => {
@@ -12,93 +12,76 @@ describe('spotFreshness', () => {
     setState({ lang: 'fr' })
   })
 
-  describe('getSpotFreshness — reliability by user validations', () => {
+  describe('getSpotFreshness — 3-tier system', () => {
     it('should return SLATE for null spot', () => {
       const result = getSpotFreshness(null)
       expect(result.color).toBe('slate')
-      expect(result.labelKey).toBe('unverifiedSpot')
+      expect(result.tier).toBe('grey')
+      expect(result.labelKey).toBe('spotStatusBasic')
       expect(result.icon).toBe('help-circle')
     })
 
-    it('should return SLATE for unverified spot (0 validations)', () => {
-      const spot = { userValidations: 0 }
+    it('should return GREY tier for unverified spot (0 validations)', () => {
+      const spot = { validationCount: 0, testCount: 0 }
       const result = getSpotFreshness(spot)
+      expect(result.tier).toBe('grey')
       expect(result.color).toBe('slate')
-      expect(result.labelKey).toBe('unverifiedSpot')
+      expect(result.hexColor).toBe('#94a3b8')
+      expect(result.labelKey).toBe('spotStatusBasic')
     })
 
-    it('should return SLATE for spot with no userValidations field', () => {
-      const spot = { globalRating: 4.5 }
+    it('should return GREY for spot with only validations (no tests)', () => {
+      const spot = { validationCount: 5, testCount: 0 }
       const result = getSpotFreshness(spot)
-      expect(result.color).toBe('slate')
+      expect(result.tier).toBe('grey')
     })
 
-    it('should return AMBER for 1 validation', () => {
-      const spot = { userValidations: 1 }
+    it('should return GREY for spot with only tests (no validations)', () => {
+      const spot = { validationCount: 0, testCount: 5 }
       const result = getSpotFreshness(spot)
-      expect(result.color).toBe('amber')
-      expect(result.labelKey).toBe('partiallyVerified')
-      expect(result.icon).toBe('circle-alert')
+      expect(result.tier).toBe('grey')
     })
 
-    it('should return AMBER for 2 validations', () => {
-      const spot = { userValidations: 2 }
+    it('should use legacy userValidations as fallback for validationCount', () => {
+      const spot = { userValidations: 5, testCount: 5 }
       const result = getSpotFreshness(spot)
-      expect(result.color).toBe('amber')
+      expect(result.tier).toBe('green')
     })
 
-    it('should return EMERALD for 3 validations', () => {
-      const spot = { userValidations: 3 }
+    it('should return GREEN tier for 3+ tests AND 3+ validations', () => {
+      const spot = { validationCount: 3, testCount: 3 }
       const result = getSpotFreshness(spot)
+      expect(result.tier).toBe('green')
       expect(result.color).toBe('emerald')
-      expect(result.labelKey).toBe('reliableSpot')
+      expect(result.hexColor).toBe('#10b981')
+      expect(result.labelKey).toBe('spotStatusReliable')
       expect(result.icon).toBe('circle-check')
     })
 
-    it('should return EMERALD for 4 validations', () => {
-      const spot = { userValidations: 4 }
+    it('should return GREEN for 5 tests AND 5 validations', () => {
+      const spot = { validationCount: 5, testCount: 5 }
       const result = getSpotFreshness(spot)
-      expect(result.color).toBe('emerald')
+      expect(result.tier).toBe('green')
     })
 
-    it('should return BLUE for 5 validations (very reliable)', () => {
-      const spot = { userValidations: 5 }
+    it('should return GOLD tier for 10+ tests AND 10+ validations', () => {
+      const spot = { validationCount: 10, testCount: 10 }
       const result = getSpotFreshness(spot)
-      expect(result.color).toBe('blue')
-      expect(result.labelKey).toBe('veryReliableSpot')
-      expect(result.icon).toBe('shield-check')
+      expect(result.tier).toBe('gold')
+      expect(result.color).toBe('amber')
+      expect(result.hexColor).toBe('#fbbf24')
+      expect(result.labelKey).toBe('spotStatusGold')
+      expect(result.icon).toBe('trophy')
     })
 
-    it('should return BLUE for 10+ validations', () => {
-      const spot = { userValidations: 10 }
+    it('should return GOLD for 20+ each', () => {
+      const spot = { validationCount: 20, testCount: 20 }
       const result = getSpotFreshness(spot)
-      expect(result.color).toBe('blue')
-    })
-
-    it('should return RED for dangerous spot', () => {
-      const spot = { dangerous: true, userValidations: 5 }
-      const result = getSpotFreshness(spot)
-      expect(result.color).toBe('red')
-      expect(result.labelKey).toBe('dangerousSpot')
-      expect(result.icon).toBe('triangle-alert')
-    })
-
-    it('should return RED for reported spot', () => {
-      const spot = { reported: true, userValidations: 3 }
-      const result = getSpotFreshness(spot)
-      expect(result.color).toBe('red')
-    })
-
-    it('should return PURPLE for ambassador-verified spot', () => {
-      const spot = { ambassadorVerified: true, userValidations: 2 }
-      const result = getSpotFreshness(spot)
-      expect(result.color).toBe('purple')
-      expect(result.labelKey).toBe('ambassadorVerified')
-      expect(result.icon).toBe('badge-check')
+      expect(result.tier).toBe('gold')
     })
 
     it('should include all CSS classes', () => {
-      const spot = { userValidations: 3 }
+      const spot = { validationCount: 3, testCount: 3 }
       const result = getSpotFreshness(spot)
       expect(result.bgClass).toBeDefined()
       expect(result.textClass).toBeDefined()
@@ -106,25 +89,52 @@ describe('spotFreshness', () => {
     })
   })
 
-  describe('Priority rules', () => {
-    it('RED overrides BLUE even with 10 validations', () => {
-      const spot = { dangerous: true, userValidations: 10 }
-      expect(getSpotFreshness(spot).color).toBe('red')
+  describe('Crown overlay (ambassadorVerified)', () => {
+    it('should set isCertified for grey spot', () => {
+      const spot = { ambassadorVerified: true, validationCount: 0, testCount: 0 }
+      const result = getSpotFreshness(spot)
+      expect(result.tier).toBe('grey')
+      expect(result.isCertified).toBe(true)
+      expect(result.labelKey).toBe('spotStatusCertified')
+      expect(result.icon).toBe('badge-check')
     })
 
-    it('RED overrides PURPLE', () => {
-      const spot = { dangerous: true, ambassadorVerified: true, userValidations: 5 }
-      expect(getSpotFreshness(spot).color).toBe('red')
+    it('should set isCertified for green spot', () => {
+      const spot = { ambassadorVerified: true, validationCount: 5, testCount: 5 }
+      const result = getSpotFreshness(spot)
+      expect(result.tier).toBe('green')
+      expect(result.isCertified).toBe(true)
+      expect(result.labelKey).toBe('spotStatusReliableCertified')
     })
 
-    it('PURPLE overrides BLUE', () => {
-      const spot = { ambassadorVerified: true, userValidations: 10 }
-      expect(getSpotFreshness(spot).color).toBe('purple')
+    it('should set isCertified for gold spot', () => {
+      const spot = { ambassadorVerified: true, validationCount: 15, testCount: 15 }
+      const result = getSpotFreshness(spot)
+      expect(result.tier).toBe('gold')
+      expect(result.isCertified).toBe(true)
+      expect(result.labelKey).toBe('spotStatusGoldCertified')
+    })
+  })
+
+  describe('Station overlay', () => {
+    it('should set isStation for gas_station spots', () => {
+      const spot = { spotType: 'gas_station', validationCount: 0, testCount: 0 }
+      const result = getSpotFreshness(spot)
+      expect(result.isStation).toBe(true)
     })
 
-    it('Both dangerous and reported gives RED', () => {
-      const spot = { dangerous: true, reported: true }
-      expect(getSpotFreshness(spot).color).toBe('red')
+    it('should not set isStation for non-station spots', () => {
+      const spot = { spotType: 'city_exit', validationCount: 0, testCount: 0 }
+      const result = getSpotFreshness(spot)
+      expect(result.isStation).toBe(false)
+    })
+
+    it('station keeps tier color (green station)', () => {
+      const spot = { spotType: 'gas_station', validationCount: 5, testCount: 5 }
+      const result = getSpotFreshness(spot)
+      expect(result.tier).toBe('green')
+      expect(result.isStation).toBe(true)
+      expect(result.hexColor).toBe('#10b981')
     })
   })
 
@@ -160,6 +170,14 @@ describe('spotFreshness', () => {
       expect(age.labelKey).toBe('oldSpot')
     })
 
+    it('should use lastTested as date source', () => {
+      const sixMonthsAgo = new Date()
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+      const spot = { lastTested: sixMonthsAgo.toISOString() }
+      const age = getSpotAge(spot)
+      expect(age.labelKey).toBe('freshSpot')
+    })
+
     it('should use createdAt as fallback', () => {
       const sixMonthsAgo = new Date()
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
@@ -170,41 +188,47 @@ describe('spotFreshness', () => {
   })
 
   describe('renderFreshnessBadge', () => {
-    it('should render HTML badge for reliable spot', () => {
-      const spot = { userValidations: 3 }
+    it('should render HTML badge for green spot', () => {
+      const spot = { validationCount: 5, testCount: 5 }
       const html = renderFreshnessBadge(spot)
       expect(html).toContain('<svg')
       expect(html).toContain('bg-emerald-500/20')
       expect(html).toContain('text-emerald-400')
     })
 
-    it('should render HTML badge for dangerous spot', () => {
-      const spot = { dangerous: true }
+    it('should render station badge for gas_station spot', () => {
+      const spot = { spotType: 'gas_station', validationCount: 0, testCount: 0 }
       const html = renderFreshnessBadge(spot)
-      expect(html).toContain('<svg')
       expect(html).toContain('bg-red-500/20')
+      expect(html).toContain('⛽')
+    })
+
+    it('should render crown for certified spot', () => {
+      const spot = { ambassadorVerified: true, validationCount: 0, testCount: 0 }
+      const html = renderFreshnessBadge(spot)
+      expect(html).toContain('👑')
     })
 
     it('should render badge for unverified spot', () => {
-      const spot = { userValidations: 0 }
+      const spot = { validationCount: 0, testCount: 0 }
       const html = renderFreshnessBadge(spot)
       expect(html).toContain('bg-slate-500/20')
     })
 
-    it('should show validation count in badge', () => {
-      const spot = { userValidations: 7 }
+    it('should show total count in badge', () => {
+      const spot = { validationCount: 5, testCount: 3 }
       const html = renderFreshnessBadge(spot)
-      expect(html).toContain('(7)')
+      expect(html).toContain('(8)')
     })
 
-    it('should not show count for 0 validations', () => {
-      const spot = { userValidations: 0 }
+    it('should not show count for 0 total', () => {
+      const spot = { validationCount: 0, testCount: 0 }
       const html = renderFreshnessBadge(spot)
       expect(html).not.toContain('(0)')
     })
 
     it('should support different sizes', () => {
-      const spot = { userValidations: 3 }
+      const spot = { validationCount: 5, testCount: 5 }
 
       const htmlSm = renderFreshnessBadge(spot, 'sm')
       const htmlMd = renderFreshnessBadge(spot, 'md')
@@ -216,7 +240,7 @@ describe('spotFreshness', () => {
     })
 
     it('should default to md size', () => {
-      const spot = { userValidations: 3 }
+      const spot = { validationCount: 3, testCount: 3 }
       const html = renderFreshnessBadge(spot)
       expect(html).toContain('text-xs px-2 py-1')
     })
@@ -240,34 +264,38 @@ describe('spotFreshness', () => {
   })
 
   describe('getFreshnessColor — hex colors for markers', () => {
-    it('should return slate hex for unverified spots', () => {
-      const spot = { userValidations: 0 }
+    it('should return slate hex for grey spots', () => {
+      const spot = { validationCount: 0, testCount: 0 }
       expect(getFreshnessColor(spot)).toBe('#94a3b8')
     })
 
-    it('should return amber hex for partially verified spots', () => {
-      const spot = { userValidations: 1 }
-      expect(getFreshnessColor(spot)).toBe('#f59e0b')
-    })
-
-    it('should return emerald hex for reliable spots', () => {
-      const spot = { userValidations: 3 }
+    it('should return emerald hex for green spots', () => {
+      const spot = { validationCount: 3, testCount: 3 }
       expect(getFreshnessColor(spot)).toBe('#10b981')
     })
 
-    it('should return blue hex for very reliable spots', () => {
-      const spot = { userValidations: 5 }
-      expect(getFreshnessColor(spot)).toBe('#3b82f6')
+    it('should return amber hex for gold spots', () => {
+      const spot = { validationCount: 10, testCount: 10 }
+      expect(getFreshnessColor(spot)).toBe('#fbbf24')
     })
 
-    it('should return purple hex for ambassador-verified spots', () => {
-      const spot = { ambassadorVerified: true }
-      expect(getFreshnessColor(spot)).toBe('#a855f7')
+    it('should return slate for certified grey (crown does not change color)', () => {
+      const spot = { ambassadorVerified: true, validationCount: 0, testCount: 0 }
+      expect(getFreshnessColor(spot)).toBe('#94a3b8')
+    })
+  })
+
+  describe('isGasStation', () => {
+    it('should return true for gas_station spots', () => {
+      expect(isGasStation({ spotType: 'gas_station' })).toBe(true)
     })
 
-    it('should return red hex for dangerous spots', () => {
-      const spot = { dangerous: true }
-      expect(getFreshnessColor(spot)).toBe('#ef4444')
+    it('should return false for non-station spots', () => {
+      expect(isGasStation({ spotType: 'city_exit' })).toBe(false)
+    })
+
+    it('should return false for null', () => {
+      expect(isGasStation(null)).toBe(false)
     })
   })
 })
