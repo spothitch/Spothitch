@@ -13,6 +13,13 @@
 
 import { haversineKm } from '../utils/geo.js'
 import { getByIndex, putAll, cacheGet, cacheSet } from '../utils/idb.js'
+import { countryGuides } from '../data/guides.js'
+
+// Build legality lookup by country code (once)
+const legalityByCountry = {}
+for (const g of countryGuides) {
+  legalityByCountry[g.code] = { legality: g.legality, text: g.legalityText, textEn: g.legalityTextEn }
+}
 
 const BASE = import.meta.env.BASE_URL || '/'
 const HITCHMAP_ENABLED = import.meta.env.VITE_HITCHMAP_ENABLED !== 'false'
@@ -215,6 +222,7 @@ function convertToAppFormat(rawSpots, countryCode) {
     .map((s, i) => {
       const id = `hm_${countryCode}_${i}`
       const bestComment = s.comments?.[0]?.text || ''
+      const legal = legalityByCountry[countryCode]
 
       return {
         id,
@@ -253,6 +261,10 @@ function convertToAppFormat(rawSpots, countryCode) {
         country: countryCode,
         signal: s.signal,
         comments: s.comments || [],
+        // Legal info from guides.js (for SpotDetail A4)
+        _legality: legal?.legality || null,
+        _legalityText: legal?.text || null,
+        _legalityTextEn: legal?.textEn || null,
         // Keep original HitchWiki data for reference (not displayed)
         _hitchwikiRating: s.rating,
         _hitchwikiReviews: s.reviews || 0,

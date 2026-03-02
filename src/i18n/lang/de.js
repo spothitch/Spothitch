@@ -4352,6 +4352,7 @@ export default {
   legalStatus: 'Rechtlicher Status',
   legalInCountry: 'Legal',
   legalRestricted: 'Eingeschränkt',
+  legalVaries: 'Variiert je nach Region',
   legalProhibited: 'Verboten',
   nearbyAlternatives: 'Nahe Spots',
   noAlternatives: 'Kein alternativer Spot',

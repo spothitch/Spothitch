@@ -375,23 +375,23 @@ function renderTagsSection(spot) {
 }
 
 /**
- * Render legality strip (A4) — uses data from guides.js
+ * Render legality strip (A4) — uses data from guides.js injected by spotLoader
  */
 function renderLegalityStrip(spot) {
   const country = spot.country
   if (!country) return ''
 
-  // Dynamic import of guides data is too heavy for inline render
-  // Use the cached legality info if available on the spot
   const legality = spot._legality || null
-  const legalityText = spot._legalityText || null
-
-  // If no legality data available, show nothing (will be populated when guides load)
   if (!legality) return ''
+
+  // Pick localized text (FR text by default, EN for other languages)
+  const lang = document.documentElement.lang || 'fr'
+  const legalityText = lang === 'fr' ? (spot._legalityText || spot._legalityTextEn || null) : (spot._legalityTextEn || spot._legalityText || null)
 
   const legalColors = {
     legal: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30', emoji: '🟢', label: t('legalInCountry') || 'Légal' },
     restricted: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/30', emoji: '🟡', label: t('legalRestricted') || 'Restreint' },
+    varies: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/30', emoji: '🟡', label: t('legalVaries') || 'Variable' },
     illegal: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30', emoji: '🔴', label: t('legalProhibited') || 'Interdit' },
   }
 

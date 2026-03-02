@@ -4297,6 +4297,7 @@ export default {
   legalStatus: 'Legal status',
   legalInCountry: 'Legal',
   legalRestricted: 'Restricted',
+  legalVaries: 'Varies by region',
   legalProhibited: 'Prohibited',
   nearbyAlternatives: 'Nearby spots',
   noAlternatives: 'No alternative spot',

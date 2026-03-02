@@ -4294,6 +4294,7 @@ export default {
   legalStatus: 'Estado legal',
   legalInCountry: 'Legal',
   legalRestricted: 'Restringido',
+  legalVaries: 'Varía según la región',
   legalProhibited: 'Prohibido',
   nearbyAlternatives: 'Spots cercanos',
   noAlternatives: 'Sin spot alternativo',
