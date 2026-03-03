@@ -2550,6 +2550,72 @@
       ],
       "errors": 0,
       "recommendations": 0
+    },
+    {
+      "date": "2026-03-02T02:54:53.465Z",
+      "score": 90,
+      "confidence": "HAUTE",
+      "duration": "24.9s",
+      "mode": "delta",
+      "bundleSize": null,
+      "phases": [
+        {
+          "name": "Code Quality",
+          "score": 15,
+          "max": 15
+        },
+        {
+          "name": "Score Trend Tracking",
+          "score": 3,
+          "max": 5
+        }
+      ],
+      "errors": 0,
+      "recommendations": 1
+    },
+    {
+      "date": "2026-03-02T02:55:21.556Z",
+      "score": 90,
+      "confidence": "HAUTE",
+      "duration": "23.7s",
+      "mode": "delta",
+      "bundleSize": null,
+      "phases": [
+        {
+          "name": "Code Quality",
+          "score": 15,
+          "max": 15
+        },
+        {
+          "name": "Score Trend Tracking",
+          "score": 3,
+          "max": 5
+        }
+      ],
+      "errors": 0,
+      "recommendations": 0
+    },
+    {
+      "date": "2026-03-02T02:55:45.808Z",
+      "score": 95,
+      "confidence": "HAUTE",
+      "duration": "19.9s",
+      "mode": "delta",
+      "bundleSize": null,
+      "phases": [
+        {
+          "name": "Code Quality",
+          "score": 15,
+          "max": 15
+        },
+        {
+          "name": "Score Trend Tracking",
+          "score": 4,
+          "max": 5
+        }
+      ],
+      "errors": 0,
+      "recommendations": 1
     }
   ],
   "errors": [
@@ -2633,18 +2699,6 @@
   ],
   "patterns": [],
   "recommendations": [
-    {
-      "source": "External API Inventory",
-      "text": "API not in CSP: www.decathlon.fr (used in: src/data/rewards.js)",
-      "createdAt": "2026-03-02T01:46:27.734Z",
-      "followed": true,
-      "priority": "HAUTE",
-      "title": "Protection de securite manquante",
-      "explain": "Certaines protections contre les attaques web (injection de code, vol de donnees) ne sont pas en place.",
-      "action": "Ajouter une Content-Security-Policy dans index.html et verifier que DOMPurify est actif.",
-      "impact": "Les utilisateurs sont proteges contre les attaques courantes.",
-      "followedAt": "2026-03-02T02:42:10.720Z"
-    },
     {
       "source": "External API Inventory",
       "text": "API not in CSP: www.asadventure.com (used in: src/data/rewards.js)",
@@ -2872,6 +2926,29 @@
       "action": "Ajouter les attributs ARIA manquants et verifier la navigation au clavier.",
       "impact": "L'app est utilisable par tout le monde, y compris les personnes en situation de handicap.",
       "followedAt": "2026-03-02T02:42:10.727Z"
+    },
+    {
+      "source": "Score Trend Tracking",
+      "text": "DEGRADATION: \"Score Trend Tracking\" a baisse de 100% a 60%",
+      "createdAt": "2026-03-02T02:54:53.326Z",
+      "followed": true,
+      "priority": "HAUTE",
+      "title": "Score en degradation sur une phase",
+      "explain": "Le score de cette phase a baisse depuis le dernier run. Ca veut dire que la qualite se degrade au lieu de s'ameliorer.",
+      "action": "Corriger les problemes detectes dans cette phase avant de continuer a ajouter du code.",
+      "impact": "Le score remonte et la qualite du code est maintenue.",
+      "followedAt": "2026-03-02T02:55:21.497Z"
+    },
+    {
+      "source": "Tendance",
+      "text": "Le score baisse depuis 3 runs consecutifs",
+      "title": "Score en baisse",
+      "explain": "Le score du loup diminue a chaque verification. Ca veut dire que le code se degrade petit a petit au lieu de s'ameliorer.",
+      "action": "Regarder les recommandations non-suivies ci-dessous et les corriger une par une.",
+      "impact": "Remonter le score et eviter que des bugs s'accumulent.",
+      "priority": "HAUTE",
+      "createdAt": "2026-03-02T02:55:45.763Z",
+      "followed": false
     }
   ],
   "featureBaseline": null,
@@ -2881,8 +2958,8 @@
     "updatedAt": "2026-03-02T01:45:50.132Z"
   },
   "selfEvaluation": {
-    "date": "2026-03-02T02:42:10.803Z",
-    "score": 90,
+    "date": "2026-03-02T02:55:45.807Z",
+    "score": 95,
     "perPhase": [
       {
         "name": "Code Quality",
@@ -2891,22 +2968,36 @@
       },
       {
         "name": "Score Trend Tracking",
-        "pct": 60,
-        "verdict": "A AMELIORER"
+        "pct": 80,
+        "verdict": "BON"
       }
     ],
     "globalInsights": [
-      "Tres peu de recommandations (0). Le loup est peut-etre trop indulgent.",
-      "Tendance negative: score actuel (90) sous la moyenne recente (74). Corriger les regressions.",
+      "Tres peu de recommandations (1). Le loup est peut-etre trop indulgent.",
+      "Tendance positive: score actuel (95) au-dessus de la moyenne des 5 derniers runs (85).",
       "Couverture de tests: 130/182 fichiers src/ references dans les tests (71%).",
       "100% des recommandations suivies — bonne discipline."
     ],
     "evolutionItems": [
+      "\"Score Trend Tracking\" bloquee a 60% depuis 3 runs. Besoin d'une action differente.",
       "Prochain ajout possible: phase \"Test Coverage/Feature\" (couverture par feature)."
     ],
     "coveragePct": 71,
     "recommendationFollowRate": 100
   },
-  "_dedupedRecs": [],
+  "_dedupedRecs": [
+    {
+      "source": "Tendance",
+      "text": "Le score baisse depuis 3 runs consecutifs",
+      "title": "Score en baisse",
+      "explain": "Le score du loup diminue a chaque verification. Ca veut dire que le code se degrade petit a petit au lieu de s'ameliorer.",
+      "action": "Regarder les recommandations non-suivies ci-dessous et les corriger une par une.",
+      "impact": "Remonter le score et eviter que des bugs s'accumulent.",
+      "priority": "HAUTE",
+      "createdAt": "2026-03-02T02:55:45.763Z",
+      "followed": false,
+      "count": 1
+    }
+  ],
   "lastRunCommit": "a84ebca95ca4d014b725e25a6b8fa64a14fd349c"
 }

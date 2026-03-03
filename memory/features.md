@@ -40,7 +40,7 @@
 - [x] 3 critères notation : sécurité, trafic, accessibilité (1-5 étoiles)
 - [x] Tags enrichis : abri, visibilité, parking, commodités, méthode signalisation
 - [x] Direction/destination obligatoire
-- [x] Détail spot K9 : photo+badge overlay, score cercle, métriques, sections dépliables, tips experts, créneaux, spots proches
+- [x] Détail spot design final : photo arrondie 20px+padding, badge statut solide opaque, score cercle émeraude, boutons vert/ambre/bleu, cartes dates 2 colonnes, strip météo/légal/saison, 4 métriques, tags badges, 6 sections dépliables, 3 boutons secondaires, dates relatives
 - [x] 2 boutons spot : "Je valide" (quick 1-tap, validationCount) + "J'ai testé" (formulaire, testCount)
 - [x] Infos légales par pays dans SpotDetail (vert/jaune/rouge depuis guides.js)
 - [x] Spots alternatifs proches (rayon 5km, triés par rating)

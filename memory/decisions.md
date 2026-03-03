@@ -1,6 +1,6 @@
 # decisions.md - Historique des décisions SpotHitch
 
-> Dernière mise à jour : 2026-02-26
+> Dernière mise à jour : 2026-03-02
 
 ---
 
@@ -63,6 +63,11 @@
 | Photo optionnelle + 50pts | Photo pas obligatoire à la création ni au test, mais donne +50 points bonus | Testeurs ajoutent beaucoup de spots sans photos au début | 2026-03-02 |
 | Champs spot obligatoires | Tout obligatoire sauf photo : position, type, ville, direction, méthode, groupe, heure, résultat, description, 3 notes | Qualité des données avant retrait Hitchwiki | 2026-03-02 |
 | Âge/genre inscription | birthYear (obligatoire, 16+) et gender (optionnel) collectés à l'inscription | Données communautaires pour analytics | 2026-03-02 |
+| @pseudo obligatoire | Username unique style Instagram (@pseudo), 3-20 chars, lettres/chiffres/._. Firestore `usernames/{pseudo}` pour unicité. Obligatoire email + Google. | Identité communautaire, mentions futures, social | 2026-03-02 |
+| Complete Profile Google | Après 1er Google sign-in, modal "Complète ton profil" (pseudo+âge+genre) avant de continuer | Google ne fournit pas ces infos, on les demande post-auth | 2026-03-02 |
+| Favori unique ❤️ | Coeur unique remplace ⭐ highlight + 🔖 bookmark séparés | Simplification UX, 1 geste = 1 action | 2026-03-02 |
+| Renommer voyage | prompt() natif pour renommer un voyage sauvegardé | Simple, pas besoin de modal custom | 2026-03-02 |
+| Confirm suppression voyage | confirm() natif avant suppression | Protection contre les clics accidentels | 2026-03-02 |
 
 ## Performance
 
