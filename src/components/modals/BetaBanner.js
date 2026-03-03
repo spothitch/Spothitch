@@ -32,13 +32,13 @@ export function renderBetaBanner() {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
       onclick="closeBetaPopup()" role="dialog" aria-modal="true" tabindex="0">
       <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true"></div>
-      <div class="relative bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-amber-500/30"
+      <div id="beta-popup-card" class="relative bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-amber-500/30"
         onclick="event.stopPropagation()">
 
         <!-- Header -->
         <div class="text-center mb-5">
           <div class="text-5xl mb-3">🚀</div>
-          <h2 class="text-xl font-bold text-white mb-1">
+          <h2 class="beta-popup-title text-xl font-bold text-white mb-1">
             ${t('betaPopupTitle') || 'Bienvenue sur SpotHitch !'}
           </h2>
           <div class="inline-block px-3 py-1 rounded-full text-xs font-bold mt-1"
@@ -49,10 +49,10 @@ export function renderBetaBanner() {
 
         <!-- Explanation -->
         <div class="space-y-3 mb-5">
-          <p class="text-sm text-slate-200 leading-relaxed">
+          <p class="beta-popup-text text-sm text-slate-200 leading-relaxed">
             ${t('betaPopupExplain') || 'Tu fais partie des premiers à tester SpotHitch ! L\'app est en cours de développement et ton avis compte énormément pour nous.'}
           </p>
-          <p class="text-sm text-slate-300 leading-relaxed">
+          <p class="beta-popup-text text-sm text-slate-300 leading-relaxed">
             ${t('betaPopupHelp') || 'Si tu trouves un bug ou si tu as une idée, on veut le savoir !'}
           </p>
         </div>
@@ -67,10 +67,10 @@ export function renderBetaBanner() {
               </div>
             </div>
             <div>
-              <p class="text-sm font-bold text-amber-400 mb-1">
+              <p class="text-sm font-bold text-amber-500 mb-1">
                 ${t('betaPopupFeedbackTitle') || 'Bouton "Avis" sur le côté gauche'}
               </p>
-              <p class="text-xs text-slate-300">
+              <p class="beta-popup-text text-xs text-slate-300">
                 ${t('betaPopupFeedbackDesc') || 'Clique sur le bouton orange "Avis" à gauche de l\'écran pour noter chaque fonctionnalité et nous dire ce que tu en penses.'}
               </p>
             </div>
@@ -81,15 +81,15 @@ export function renderBetaBanner() {
         <div class="grid grid-cols-3 gap-2 mb-5 text-center">
           <div class="card p-2">
             <div class="text-lg mb-1">🐛</div>
-            <div class="text-[10px] text-slate-300">${t('betaPopupBugs') || 'Signale les bugs'}</div>
+            <div class="beta-popup-text text-[10px] text-slate-300">${t('betaPopupBugs') || 'Signale les bugs'}</div>
           </div>
           <div class="card p-2">
             <div class="text-lg mb-1">💡</div>
-            <div class="text-[10px] text-slate-300">${t('betaPopupIdeas') || 'Propose des idées'}</div>
+            <div class="beta-popup-text text-[10px] text-slate-300">${t('betaPopupIdeas') || 'Propose des idées'}</div>
           </div>
           <div class="card p-2">
             <div class="text-lg mb-1">👍</div>
-            <div class="text-[10px] text-slate-300">${t('betaPopupLike') || 'Dis ce que tu aimes'}</div>
+            <div class="beta-popup-text text-[10px] text-slate-300">${t('betaPopupLike') || 'Dis ce que tu aimes'}</div>
           </div>
         </div>
 

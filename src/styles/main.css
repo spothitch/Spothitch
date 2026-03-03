@@ -3094,3 +3094,15 @@ textarea[aria-invalid="true"] {
   color: #0f1520 !important;
   border-color: #fbbf24 !important;
 }
+
+/* ===== BETA POPUP — MODE CLAIR ===== */
+.light-theme #beta-popup-card {
+  background: #ffffff !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+.light-theme .beta-popup-title {
+  color: #111827 !important;
+}
+.light-theme .beta-popup-text {
+  color: #4b5563 !important;
+}
