@@ -602,18 +602,24 @@ window.submitFeatureOpinion = async (featureId) => {
     opinions[featureId] = { ...existing, comment, ts: new Date().toISOString() }
     localStorage.setItem('spothitch_feature_opinions', JSON.stringify(opinions))
 
-    // Try to save to Firebase
+    // Try to save to Firebase (requires auth)
     if (existing.opinion) {
       try {
-        const { getFirestore, collection, addDoc } = await import('firebase/firestore')
+        const { getAuth } = await import('firebase/auth')
         const { getApp } = await import('firebase/app')
-        const db = getFirestore(getApp())
-        await addDoc(collection(db, 'featureOpinions'), {
-          featureId,
-          opinion: existing.opinion,
-          comment,
-          timestamp: new Date().toISOString(),
-        })
+        const auth = getAuth(getApp())
+        const user = auth.currentUser
+        if (user) {
+          const { getFirestore, collection, addDoc } = await import('firebase/firestore')
+          const db = getFirestore(getApp())
+          await addDoc(collection(db, 'featureOpinions'), {
+            featureId,
+            opinion: existing.opinion,
+            comment,
+            userId: user.uid,
+            timestamp: new Date().toISOString(),
+          })
+        }
       } catch { /* Firebase not required */ }
     }
 

@@ -232,6 +232,7 @@ export const STORAGE_KEYS = [
   // === Feedback ===
   { key: 'spothitch_feedback_reviewed', category: DataCategory.ACTIVITY, description: 'IDs of features the user has reviewed' },
   { key: 'spothitch_feedback_data', category: DataCategory.ACTIVITY, description: 'Feedback data (reactions, comments) per feature' },
+  { key: 'spothitch_feature_opinions', category: DataCategory.ACTIVITY, description: 'Quick opinions (love/like/meh/detail) per coming-soon feature' },
 
   // === STATE (via Storage.js with spothitch_v4_ prefix) ===
   { key: 'spothitch_v4_state', category: DataCategory.PERSONAL, description: 'Main app state (via Storage.js)', sensitive: true },
