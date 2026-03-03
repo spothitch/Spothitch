@@ -10,6 +10,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/antoine/Spothitch/.claude/hooks/auto-save-session.sh"
+          }
+        ]
+      }
     ]
   }
 }
