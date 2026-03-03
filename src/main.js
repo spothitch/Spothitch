@@ -75,6 +75,7 @@ import { initAutoOfflineSync } from './services/autoOfflineSync.js';
 import { resetFilters as resetFiltersUtil } from './components/modals/Filters.js';
 // redeemReward registered globally by Shop.js itself (canonical)
 import './components/modals/Leaderboard.js'; // Register global handlers
+import './components/modals/FeatureSlides.js'; // Feature Slides (openFeatureSlides, closeFeatureSlides, etc.)
 import { registerCheckinHandlers } from './components/modals/CheckinModal.js'; // Checkin modal handlers
 import { startNavigation } from './services/navigation.js'; // stopNavigation/openExternalNavigation registered by navigation.js itself
 import './services/gasStations.js'; // Gas stations (registers window.toggleGasStations)

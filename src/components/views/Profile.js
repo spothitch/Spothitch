@@ -850,7 +850,7 @@ const ROADMAP_FEATURES = [
   { id: 'events', icon: '🎉', title: { fr: 'Événements', en: 'Events', es: 'Eventos', de: 'Veranstaltungen' }, desc: { fr: 'Meetups, rassemblements', en: 'Meetups, gatherings', es: 'Encuentros, reuniones', de: 'Meetups, Treffen' }, status: 'thinking' },
   { id: 'groups', icon: '👥', title: { fr: 'Groupes & Courses', en: 'Groups & Races', es: 'Grupos & Carreras', de: 'Gruppen & Rennen' }, desc: { fr: 'Localisation amis, courses', en: 'Friends location, races', es: 'Ubicación amigos, carreras', de: 'Freunde-Standort, Rennen' }, status: 'thinking' },
   { id: 'journal', icon: '📔', title: { fr: 'Carnet de Voyage', en: 'Travel Journal', es: 'Diario de Viaje', de: 'Reisetagebuch' }, desc: { fr: 'Enregistre et partage tes voyages', en: 'Record and share your trips', es: 'Registra y comparte tus viajes', de: 'Reisen aufzeichnen und teilen' }, status: 'thinking' },
-  { id: 'companion', icon: '🛡️', title: { fr: 'Mode Compagnon Sécurité', en: 'Safety Companion Mode', es: 'Modo Compañero de Seguridad', de: 'Sicherheits-Begleitmodus' }, desc: { fr: 'Suivi en direct, check-ins, gardiens', en: 'Live tracking, check-ins, guardians', es: 'Seguimiento en vivo, check-ins, guardianes', de: 'Live-Tracking, Check-ins, Wächter' }, status: 'thinking' },
+  { id: 'guardian-mode', icon: '👁️', title: { fr: 'Mode Gardien', en: 'Guardian Mode', es: 'Modo Guardián', de: 'Wächter-Modus' }, desc: { fr: 'Suivi en direct, check-ins, gardiens', en: 'Live tracking, check-ins, guardians', es: 'Seguimiento en vivo, check-ins, guardianes', de: 'Live-Tracking, Check-ins, Wächter' }, status: 'thinking' },
 ]
 
 const ROADMAP_STATUS = {
@@ -1380,10 +1380,10 @@ function renderFeatureDetailJournal() {
 function renderFeatureDetailCompanion() {
   return `
     <div class="mb-5">
-      <button onclick="showCompanionDemo()"
+      <button onclick="openFeatureSlides('guardian-mode')"
         class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
         style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        🎮 ${escapeHTML(t('companionDemoTryBtn') || 'Tester la démo interactive')}
+        ${escapeHTML(t('guardianDemoTryBtn') || 'Voir les slides Mode Gardien')}
       </button>
       <div class="space-y-2.5 px-1">
         <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Tes proches (gardiens) voient ta position en direct sur la carte SpotHitch</span></div>
@@ -1405,7 +1405,7 @@ const FEATURE_DETAIL_RENDERERS = {
   events: renderFeatureDetailEvents,
   groups: renderFeatureDetailGroups,
   journal: renderFeatureDetailJournal,
-  companion: renderFeatureDetailCompanion,
+  'guardian-mode': renderFeatureDetailCompanion,
 }
 
 function renderRoadmapDetail(state, feature) {

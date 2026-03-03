@@ -259,82 +259,49 @@ function renderFeedbackDetail(state, featureId) {
               <div class="flex items-start gap-2"><span class="text-sm shrink-0">💡</span><span class="text-[11px] text-slate-400 leading-snug">Tips, créneaux, avis, urgences, alternatives</span></div>
             </div>
           ` : ''}
-          ${featureId === 'city-pages' ? `
-            <button onclick="showCityPageDemo()"
-              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
-              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
-              🎮 ${escapeHTML(t('cityDemoTryBtn') || 'Tester la démo interactive')}
+          ${status === 'coming' ? `
+            <button onclick="openFeatureSlides('${escapeJSString(featureId)}')"
+              class="w-full mt-3 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1">
+              ${escapeHTML(t('featureSlidesBtn') || '▶ Voir la démo en slides')}
             </button>
-            <div class="mt-3 space-y-1.5 px-1">
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏙️</span><span class="text-[11px] text-slate-400 leading-snug">Pages villes enrichies par la communauté</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📊</span><span class="text-[11px] text-slate-400 leading-snug">Stats, temps d'attente, meilleurs spots</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">⚖️</span><span class="text-[11px] text-slate-400 leading-snug">Lois locales et infos pratiques</span></div>
-            </div>
-          ` : ''}
-          ${featureId === 'thumbs-partners' || featureId === 'leagues' ? `
-            <button onclick="showPointsDemo()"
-              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
-              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
-              🎮 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo interactive')}
-            </button>
-            <div class="mt-3 space-y-1.5 px-1">
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📍</span><span class="text-[11px] text-slate-400 leading-snug">Gagne des points en créant et validant des spots</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏅</span><span class="text-[11px] text-slate-400 leading-snug">Classement pays, Europe et mondial</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🎁</span><span class="text-[11px] text-slate-400 leading-snug">Réductions chez nos partenaires voyage</span></div>
-            </div>
-          ` : ''}
-          ${featureId === 'journal' ? `
-            <button onclick="showJournalDemo()"
-              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
-              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
-              🎮 ${escapeHTML(t('journalDemoTryBtn') || 'Tester la démo interactive')}
-            </button>
-            <div class="mt-3 space-y-1.5 px-1">
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📝</span><span class="text-[11px] text-slate-400 leading-snug">Chaque lift enregistré automatiquement</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📊</span><span class="text-[11px] text-slate-400 leading-snug">Stats complètes : km, lifts, pays</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🌍</span><span class="text-[11px] text-slate-400 leading-snug">Partage et inspire la communauté</span></div>
-            </div>
-          ` : ''}
-          ${featureId === 'groups-races' || featureId === 'events' ? `
-            <button onclick="showSocialDemo()"
-              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
-              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
-              🎮 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo interactive')}
-            </button>
-            <div class="mt-3 space-y-1.5 px-1">
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🎉</span><span class="text-[11px] text-slate-400 leading-snug">Meetups, courses, festivals</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏁</span><span class="text-[11px] text-slate-400 leading-snug">Course entre potes avec classement live</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">👥</span><span class="text-[11px] text-slate-400 leading-snug">Autostoppeurs proches en temps réel</span></div>
-            </div>
-          ` : ''}
-          ${featureId === 'guardian-mode' ? `
-            <button onclick="showCompanionDemo()"
-              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
-              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
-              🎮 ${escapeHTML(t('companionDemoTryBtn') || 'Tester la démo interactive')}
-            </button>
-            <div class="mt-3 space-y-1.5 px-1">
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">📍</span><span class="text-[11px] text-slate-400 leading-snug">Position live pour tes proches</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">✅</span><span class="text-[11px] text-slate-400 leading-snug">Check-in régulier automatique</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🆘</span><span class="text-[11px] text-slate-400 leading-snug">Alerte SOS immédiate</span></div>
-            </div>
-          ` : ''}
-          ${featureId === 'hostels' ? `
-            <button onclick="showHostelsDemo()"
-              class="w-full mt-3 py-3.5 rounded-2xl font-extrabold cursor-pointer"
-              style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 0.95rem">
-              🎮 ${escapeHTML(t('hostelsDemoTryBtn') || 'Tester la démo interactive')}
-            </button>
-            <div class="mt-3 space-y-1.5 px-1">
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏨</span><span class="text-[11px] text-slate-400 leading-snug">Auberges recommandées par la communauté</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">💰</span><span class="text-[11px] text-slate-400 leading-snug">-15% avec tes points SpotHitch</span></div>
-              <div class="flex items-start gap-2"><span class="text-sm shrink-0">🏷️</span><span class="text-[11px] text-slate-400 leading-snug">Filtres : Festif, Calme, Budget, Social</span></div>
-            </div>
           ` : ''}
         </div>
 
         <div class="flex-1 overflow-y-auto px-4 pb-8">
-          <div class="text-[13px] font-bold mt-5 mb-2.5" style="color: #e2e8f0">${escapeHTML(t('fbReactTitle') || 'Ton avis (choix multiples)')}</div>
+          ${status === 'coming' ? `
+            <div class="text-[13px] font-bold mt-5 mb-3" style="color: #e2e8f0">${escapeHTML(t('featureOpinionTitle') || 'Ton avis sur cette feature :')}</div>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+              ${[
+                { opinion: 'love', emoji: '🔥', label: t('featureOpinionLove') || 'J\'adore', sub: t('featureOpinionFirst') || 'Je veux ça en premier' },
+                { opinion: 'like', emoji: '👍', label: t('featureOpinionLike') || 'Bien', sub: t('featureOpinionGood') || 'Bonne idée' },
+                { opinion: 'meh', emoji: '😐', label: t('featureOpinionMeh') || 'Bof', sub: t('featureOpinionNope') || 'Pas ma priorité' },
+                { opinion: 'detail', emoji: '💬', label: t('featureOpinionDetail') || 'Avis détaillé', sub: t('featureOpinionWrite') || 'J\'écris ma remarque' },
+              ].map(btn => `
+                <button onclick="selectFeatureOpinion('${escapeJSString(featureId)}','${btn.opinion}')"
+                  data-opinion-btn="${btn.opinion}"
+                  class="p-3 rounded-xl cursor-pointer text-center transition-all"
+                  style="background:rgba(255,255,255,0.02);border:2px solid rgba(255,255,255,0.06);color:#fff">
+                  <span class="text-2xl block">${btn.emoji}</span>
+                  <span class="text-xs font-bold block mt-1" style="color:#f59e0b">${escapeHTML(btn.label)}</span>
+                  <span class="text-[10px]" style="color:#64748b">${escapeHTML(btn.sub)}</span>
+                </button>
+              `).join('')}
+            </div>
+            <textarea id="feature-opinion-comment" rows="3"
+              placeholder="${escapeHTML(t('fbCommentPlaceholder') || 'Explique ton avis...')}"
+              class="w-full p-3 rounded-xl text-sm text-white resize-none mb-3"
+              style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);min-height:80px;font-family:inherit;display:none"
+              maxlength="500"></textarea>
+            <button onclick="submitFeatureOpinion('${escapeJSString(featureId)}')"
+              class="w-full py-3 rounded-xl text-sm font-bold mb-5 cursor-pointer"
+              style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">
+              ${escapeHTML(t('featureAvisBtn') || '💬 Donner mon avis sur cette feature')}
+            </button>
+            <div class="text-[13px] font-bold mb-2.5" style="color: #e2e8f0">${escapeHTML(t('fbReactTitle') || 'Ton avis (choix multiples)')}</div>
+          ` : `
+            <div class="text-[13px] font-bold mt-5 mb-2.5" style="color: #e2e8f0">${escapeHTML(t('fbReactTitle') || 'Ton avis (choix multiples)')}</div>
+          `}
 
           <div class="flex flex-wrap gap-2">
             ${REACTIONS.map((r, i) => {
