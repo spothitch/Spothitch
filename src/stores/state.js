@@ -34,6 +34,12 @@ const initialState = {
   showCompanionSearch: false,
   activeGroupChat: null,
   showZoneChat: false,
+  // Group Conversations (Firebase)
+  groupConversations: [],
+  activeGroupConversation: null,
+  showCreateGroupConversation: false,
+  groupConversationSelectedFriends: [],
+  groupConversationLoading: false,
   ambassadorSearchQuery: '',
   userOnline: false,
   ambassadorSearchResults: [],

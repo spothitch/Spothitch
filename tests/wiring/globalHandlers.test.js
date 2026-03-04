@@ -182,6 +182,11 @@ const MAIN_JS_HANDLERS = [
   'setFeedFilter', 'toggleFeedVisibility',
   // Conversations (defined in Conversations.js)
   'openGroupChat', 'closeGroupChat', 'openZoneChat', 'closeZoneChat',
+  // Group Conversations Firebase (defined in Conversations.js)
+  'openGroupConversation', 'closeGroupConversation',
+  'openCreateGroupConversation', 'closeCreateGroupConversation',
+  'createGroupConversation', 'sendGroupConversationMessage',
+  'toggleFriendForGroup', 'leaveGroupConversation', 'addMemberToGroupConversation',
   // Friends (defined in social/Friends.js)
   'searchAmbassadorsByCity',
   // Ambassadors (defined in ambassadors.js)

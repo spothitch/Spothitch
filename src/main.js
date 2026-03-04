@@ -384,12 +384,14 @@ async function init() {
               }
               // Start Firebase subscriptions for friends + DMs
               try {
-                const [friendsModule, dmModule] = await Promise.all([
+                const [friendsModule, dmModule, gcModule] = await Promise.all([
                   import('./services/friends.js'),
                   import('./services/directMessages.js'),
+                  import('./services/groupConversations.js'),
                 ])
                 friendsModule.subscribeFriendsList(user.uid)
                 dmModule.subscribeToAllConversations(user.uid)
+                gcModule.subscribeToAllGroupConversations(user.uid)
               } catch { /* non-bloquant */ }
               // If we're returning from a Google redirect, close the auth modal
               // (getRedirectResult can return null on some browsers — this is the backup)
@@ -1212,12 +1214,14 @@ if (!window.handleLogout) {
   window.handleLogout = async () => {
     // Cleanup Firebase subscriptions before logout
     try {
-      const [friendsModule, dmModule] = await Promise.all([
+      const [friendsModule, dmModule, gcModule] = await Promise.all([
         import('./services/friends.js'),
         import('./services/directMessages.js'),
+        import('./services/groupConversations.js'),
       ])
       friendsModule.unsubscribeFriendsList()
       dmModule.unsubscribeFromAllConversations()
+      gcModule.unsubscribeFromAllGroupConversations()
     } catch { /* non-bloquant */ }
     const fb = await getFirebase()
     await fb.logOut()

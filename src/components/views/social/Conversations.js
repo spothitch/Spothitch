@@ -10,16 +10,27 @@ import { escapeHTML } from '../../../utils/sanitize.js'
 import { formatTime, formatRelativeTime } from '../../../utils/formatters.js'
 import { renderSkeletonChatList } from '../../ui/Skeleton.js'
 import { getConversationsList, getConversationMessages } from '../../../services/directMessages.js'
+import { getGroupConversationMessages } from '../../../services/groupConversations.js'
 
 export function renderConversations(state) {
-  // If a DM conversation is open, show it directly
+  // If DM conversation is open
   if (state.activeDMConversation) {
     return renderDMChat(state, state.activeDMConversation)
   }
 
-  // If a group chat is open, show it
+  // If Firebase group conversation is open
+  if (state.activeGroupConversation) {
+    return renderFirebaseGroupChat(state, state.activeGroupConversation)
+  }
+
+  // If travel group chat is open (localStorage groups)
   if (state.activeGroupChat) {
     return renderGroupChat(state, state.activeGroupChat)
+  }
+
+  // Show create group conversation modal overlay
+  if (state.showCreateGroupConversation) {
+    return renderCreateGroupConversationForm(state)
   }
 
   return renderConversationList(state)
@@ -27,9 +38,10 @@ export function renderConversations(state) {
 
 function renderConversationList(state) {
   const dmConversations = getConversationsList()
-  const groups = state.travelGroups || []
+  const travelGroups = state.travelGroups || []
+  const fbGroups = state.groupConversations || []
   const userId = state.user?.uid || 'local-user'
-  const myGroups = groups.filter(g =>
+  const myTravelGroups = travelGroups.filter(g =>
     Array.isArray(g.members) ? g.members.includes(userId) || g.members.some(m => m.id === userId) : false
   )
 
@@ -51,8 +63,24 @@ function renderConversationList(state) {
     })
   })
 
-  // Groups
-  myGroups.forEach(group => {
+  // Firebase group conversations
+  fbGroups.forEach(group => {
+    allConversations.push({
+      type: 'fbgroup',
+      id: group.id,
+      name: group.name,
+      avatar: group.icon || '👥',
+      lastMessage: group.lastMessage?.text || t('noMessagesYet'),
+      lastMessageTime: group.updatedAt,
+      unreadCount: 0,
+      online: false,
+      isGroup: true,
+      memberCount: Array.isArray(group.members) ? group.members.length : 0,
+    })
+  })
+
+  // Travel groups (localStorage)
+  myTravelGroups.forEach(group => {
     const lastChat = group.chat?.[group.chat.length - 1]
     allConversations.push({
       type: 'group',
@@ -105,13 +133,13 @@ function renderConversationList(state) {
       ${allConversations.length > 0 ? `
         ${allConversations.map(conv => `
           <button
-            onclick="${conv.isGroup ? `openGroupChat('${conv.id}')` : `openConversation('${conv.id}')`}"
+            onclick="${conv.type === 'fbgroup' ? `openGroupConversation('${conv.id}')` : conv.type === 'group' ? `openGroupChat('${conv.id}')` : `openConversation('${conv.id}')`}"
             class="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5"
           >
             <div class="relative shrink-0">
               <span class="text-3xl">${conv.avatar}</span>
               ${conv.isGroup ? `
-                <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-purple-500/80 text-white text-[10px] flex items-center justify-center">${conv.memberCount}</span>
+                <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${conv.type === 'fbgroup' ? 'bg-emerald-500/80' : 'bg-purple-500/80'} text-white text-[10px] flex items-center justify-center">${conv.memberCount}</span>
               ` : conv.online ? `
                 <span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-dark-primary bg-emerald-500"></span>
               ` : ''}
@@ -120,7 +148,7 @@ function renderConversationList(state) {
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-1.5">
                   <span class="font-medium text-sm truncate">${escapeHTML(conv.name)}</span>
-                  ${conv.isGroup ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">${t('group')}</span>` : ''}
+                  ${conv.type === 'fbgroup' ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400">${t('group')}</span>` : conv.type === 'group' ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">${t('group')}</span>` : ''}
                 </div>
                 <time class="text-xs text-slate-400 shrink-0 ml-2">${formatRelativeTime(conv.lastMessageTime)}</time>
               </div>
@@ -135,17 +163,28 @@ function renderConversationList(state) {
         `).join('')}
       ` : ''}
 
-      <!-- Create group button -->
-      <div class="px-4 py-3">
+      <!-- Create group buttons -->
+      <div class="px-4 py-3 flex gap-2">
+        <button
+          onclick="openCreateGroupConversation()"
+          class="card p-3 flex-1 text-left border-dashed border-2 border-emerald-500/30 hover:border-emerald-500/60 transition-colors"
+        >
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
+              ${icon('users', 'w-4 h-4 text-emerald-400')}
+            </div>
+            <div class="text-xs text-slate-300">${t('newGroupConversation')}</div>
+          </div>
+        </button>
         <button
           onclick="openCreateTravelGroup()"
-          class="card p-3 w-full text-left border-dashed border-2 border-white/15 hover:border-primary-500/40 transition-colors"
+          class="card p-3 flex-1 text-left border-dashed border-2 border-white/15 hover:border-primary-500/40 transition-colors"
         >
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
-              ${icon('plus', 'w-5 h-5 text-slate-400')}
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+              ${icon('map-pin', 'w-4 h-4 text-slate-400')}
             </div>
-            <div class="text-sm text-slate-400">${t('createTravelGroup')}</div>
+            <div class="text-xs text-slate-400">${t('createTravelGroup')}</div>
           </div>
         </button>
       </div>
@@ -350,6 +389,183 @@ function renderGroupMessage(msg, state) {
   `
 }
 
+// --- Firebase Group Conversation Chat View ---
+function renderFirebaseGroupChat(state, groupId) {
+  const group = (state.groupConversations || []).find(g => g.id === groupId)
+  if (!group) return ''
+
+  const messages = getGroupConversationMessages(groupId)
+  const memberCount = Array.isArray(group.members) ? group.members.length : 0
+  const memberProfiles = group.memberProfiles || {}
+
+  return `
+    <!-- Header -->
+    <div class="p-3 bg-dark-secondary/50 flex items-center gap-3">
+      <button onclick="closeGroupConversation()" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white" aria-label="${t('back')}">
+        ${icon('arrow-left', 'w-5 h-5')}
+      </button>
+      <span class="text-2xl">${group.icon || '👥'}</span>
+      <div class="flex-1 min-w-0">
+        <div class="font-medium text-sm truncate">${escapeHTML(group.name)}</div>
+        <div class="text-xs text-slate-400">${memberCount} ${t('members')}</div>
+      </div>
+      <button onclick="leaveGroupConversation('${groupId}')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-danger-400 transition-colors" aria-label="${t('leaveGroup')}" title="${t('leaveGroup')}">
+        ${icon('log-out', 'w-4 h-4')}
+      </button>
+    </div>
+
+    <!-- Members chips -->
+    <div class="px-4 py-2 flex gap-1.5 overflow-x-auto border-b border-white/5 scrollbar-hide">
+      ${Object.entries(memberProfiles).map(([_uid, p]) => `
+        <span class="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 text-xs text-slate-300">
+          <span>${p.avatar || '🤙'}</span>
+          <span class="max-w-[80px] truncate">${escapeHTML(p.name || t('traveler'))}</span>
+        </span>
+      `).join('')}
+    </div>
+
+    <!-- Messages -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-3" id="fb-group-chat-messages" role="log" aria-live="polite">
+      ${messages.length > 0
+    ? messages.slice(-50).map(msg => renderFBGroupMessage(msg, state)).join('')
+    : `
+          <div class="text-center py-12">
+            <span class="text-4xl mb-4 block">👥</span>
+            <p class="text-slate-400 text-sm">${t('startConversation')}</p>
+          </div>
+        `}
+    </div>
+
+    <!-- Input -->
+    <div class="p-3 glass-dark">
+      <form class="flex gap-2" onsubmit="event.preventDefault(); sendGroupConversationMessage('${groupId}');">
+        <input
+          type="text"
+          class="input-field flex-1"
+          placeholder="${t('typeMessage')}..."
+          id="group-conv-input"
+          autocomplete="off"
+          aria-label="${t('typeMessage')}"
+        />
+        <button type="submit" class="btn-primary px-4" aria-label="${t('send')}">
+          ${icon('send', 'w-5 h-5')}
+        </button>
+      </form>
+    </div>
+  `
+}
+
+function renderFBGroupMessage(msg, state) {
+  const isSent = msg.senderId === (state.user?.uid || 'local-user')
+
+  return `
+    <div class="flex ${isSent ? 'justify-end' : 'justify-start'}">
+      <div class="max-w-[80%] ${isSent ? 'bg-primary-500/20' : 'bg-white/5'} rounded-2xl px-4 py-2 ${isSent ? 'rounded-br-md' : 'rounded-bl-md'}">
+        ${!isSent ? `
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-sm">${msg.senderAvatar || '🤙'}</span>
+            <span class="text-xs font-medium text-emerald-400">${escapeHTML(msg.senderName || t('traveler'))}</span>
+          </div>
+        ` : ''}
+        <p class="text-sm text-white">${escapeHTML(msg.text || '')}</p>
+        <time class="text-xs text-slate-400 mt-1 block ${isSent ? 'text-right' : ''}">
+          ${formatTime(msg.createdAt)}
+        </time>
+      </div>
+    </div>
+  `
+}
+
+// --- Create Group Conversation Form ---
+function renderCreateGroupConversationForm(state) {
+  const friends = state.friends || []
+  const selected = state.groupConversationSelectedFriends || []
+  const loading = state.groupConversationLoading || false
+
+  return `
+    <div class="flex-1 overflow-y-auto">
+      <!-- Header -->
+      <div class="p-3 bg-dark-secondary/50 flex items-center gap-3">
+        <button onclick="closeCreateGroupConversation()" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white" aria-label="${t('back')}">
+          ${icon('arrow-left', 'w-5 h-5')}
+        </button>
+        <h2 class="font-semibold text-sm flex items-center gap-2">
+          ${icon('users', 'w-4 h-4 text-emerald-400')}
+          ${t('createGroupConversation')}
+        </h2>
+      </div>
+
+      <div class="p-4 space-y-4">
+        <!-- Group name -->
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">${t('groupName')} *</label>
+          <input
+            type="text"
+            id="group-conv-name"
+            class="input-field w-full"
+            placeholder="${t('groupNamePlaceholder')}"
+            maxlength="50"
+          />
+        </div>
+
+        <!-- Friend selection -->
+        <div>
+          <label class="text-xs text-slate-400 mb-2 block">
+            ${t('selectFriends')}
+            ${selected.length > 0 ? `<span class="ml-1 text-emerald-400">(${selected.length} ${t('selected') || 'sélectionnés'})</span>` : ''}
+          </label>
+          ${friends.length === 0 ? `
+            <div class="text-center py-6">
+              <span class="text-3xl mb-2 block">👥</span>
+              <p class="text-sm text-slate-400">${t('noFriendsYet')}</p>
+            </div>
+          ` : `
+            <div class="space-y-1">
+              ${friends.map(friend => {
+    const isSelected = selected.includes(friend.id)
+    return `
+                  <button
+                    onclick="toggleFriendForGroup('${friend.id}')"
+                    class="w-full flex items-center gap-3 p-2.5 rounded-xl transition-colors ${isSelected ? 'bg-emerald-500/15 border border-emerald-500/30' : 'hover:bg-white/5'}"
+                  >
+                    <div class="relative shrink-0">
+                      <span class="text-2xl">${friend.avatar || '🤙'}</span>
+                      ${isSelected ? `
+                        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
+                          ${icon('check', 'w-2.5 h-2.5 text-white')}
+                        </span>
+                      ` : ''}
+                    </div>
+                    <div class="flex-1 text-left min-w-0">
+                      <div class="text-sm font-medium truncate">${escapeHTML(friend.name)}</div>
+                      <div class="text-xs text-slate-400">${friend.online ? t('online') : t('offline')}</div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border-2 ${isSelected ? 'border-emerald-500 bg-emerald-500' : 'border-slate-500'} flex items-center justify-center shrink-0">
+                      ${isSelected ? icon('check', 'w-3 h-3 text-white') : ''}
+                    </div>
+                  </button>
+                `
+  }).join('')}
+            </div>
+          `}
+        </div>
+
+        <!-- Create button -->
+        <button
+          onclick="createGroupConversation()"
+          class="w-full py-3 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2 ${loading ? 'opacity-70 pointer-events-none' : ''}"
+          ${loading ? 'disabled' : ''}
+        >
+          ${loading
+    ? `<span class="animate-spin w-5 h-5 border-2 border-white/30 border-t-white rounded-full"></span>`
+    : icon('users', 'w-5 h-5')}
+          ${loading ? t('loading') : t('createGroupConversation')}
+        </button>
+      </div>
+    </div>
+  `
+}
+
 // Global handlers
 window.openGroupChat = (groupId) => {
   window.setState?.({ activeGroupChat: groupId, socialSubTab: 'conversations' })
@@ -365,6 +581,119 @@ window.openZoneChat = () => {
 
 window.closeZoneChat = () => {
   window.setState?.({ showZoneChat: false })
+}
+
+window.openGroupConversation = (groupId) => {
+  const { subscribeToGroupConversation } = window._gcModule || {}
+  if (subscribeToGroupConversation) {
+    subscribeToGroupConversation(groupId)
+  } else {
+    import('../../../services/groupConversations.js').then(m => {
+      window._gcModule = m
+      m.subscribeToGroupConversation(groupId)
+    })
+  }
+  window.setState?.({ activeGroupConversation: groupId, socialSubTab: 'conversations' })
+}
+
+window.closeGroupConversation = () => {
+  window.setState?.({ activeGroupConversation: null })
+}
+
+window.openCreateGroupConversation = () => {
+  window.setState?.({ showCreateGroupConversation: true, groupConversationSelectedFriends: [], socialSubTab: 'conversations' })
+}
+
+window.closeCreateGroupConversation = () => {
+  window.setState?.({ showCreateGroupConversation: false, groupConversationSelectedFriends: [] })
+}
+
+window.toggleFriendForGroup = async (friendId) => {
+  const { getState, setState } = await import('../../../stores/state.js')
+  const selected = getState().groupConversationSelectedFriends || []
+  if (selected.includes(friendId)) {
+    setState({ groupConversationSelectedFriends: selected.filter(id => id !== friendId) })
+  } else {
+    setState({ groupConversationSelectedFriends: [...selected, friendId] })
+  }
+}
+
+window.createGroupConversation = async () => {
+  const { t: tFn } = await import('../../../i18n/index.js')
+  const { getState, setState } = await import('../../../stores/state.js')
+  const state = getState()
+
+  if (!state.isLoggedIn) { window.requireAuth?.('social'); return }
+
+  const name = document.getElementById('group-conv-name')?.value?.trim()
+  const selected = state.groupConversationSelectedFriends || []
+
+  if (!name) { window.showToast?.(tFn('enterGroupName'), 'warning'); return }
+  if (selected.length === 0) { window.showToast?.(tFn('selectAtLeastOneFriend'), 'warning'); return }
+
+  setState({ groupConversationLoading: true })
+  try {
+    const { createGroupConversation: create } = await import('../../../services/groupConversations.js')
+    const result = await create(name, selected)
+    if (result.success) {
+      setState({
+        showCreateGroupConversation: false,
+        groupConversationSelectedFriends: [],
+        groupConversationLoading: false,
+        activeGroupConversation: result.groupId,
+      })
+      window.showToast?.(tFn('groupCreated'), 'success')
+    } else {
+      setState({ groupConversationLoading: false })
+      window.showToast?.(tFn('errorOccurred') || 'Error', 'error')
+    }
+  } catch {
+    setState({ groupConversationLoading: false })
+    window.showToast?.(tFn('errorOccurred') || 'Error', 'error')
+  }
+}
+
+window.sendGroupConversationMessage = async (groupId) => {
+  const input = document.getElementById('group-conv-input')
+  const text = input?.value?.trim()
+  if (!text) return
+  input.value = ''
+
+  try {
+    const { sendGroupConversationMessage: send } = await import('../../../services/groupConversations.js')
+    await send(groupId, text)
+    setTimeout(() => {
+      const el = document.getElementById('fb-group-chat-messages')
+      if (el) el.scrollTop = el.scrollHeight
+    }, 50)
+  } catch {
+    window.showToast?.((await import('../../../i18n/index.js')).t('errorOccurred') || 'Error', 'error')
+  }
+}
+
+window.leaveGroupConversation = async (groupId) => {
+  if (!confirm((await import('../../../i18n/index.js')).t('leaveGroup') + ' ?')) return
+  try {
+    const { leaveGroupConversation: leave } = await import('../../../services/groupConversations.js')
+    const result = await leave(groupId)
+    if (result.success) {
+      window.setState?.({ activeGroupConversation: null })
+      window.showToast?.((await import('../../../i18n/index.js')).t('leftGroup'), 'info')
+    }
+  } catch {
+    window.showToast?.((await import('../../../i18n/index.js')).t('errorOccurred') || 'Error', 'error')
+  }
+}
+
+window.addMemberToGroupConversation = async (groupId, userId) => {
+  try {
+    const { addMemberToGroupConversation: add } = await import('../../../services/groupConversations.js')
+    const { t: tFn } = await import('../../../i18n/index.js')
+    const result = await add(groupId, userId)
+    window.showToast?.(result.success ? tFn('memberAdded') : tFn('errorOccurred') || 'Error', result.success ? 'success' : 'error')
+  } catch {
+    window.showToast?.((await import('../../../i18n/index.js')).t('errorOccurred') || 'Error', 'error')
+  }
 }
 
 export default { renderConversations }

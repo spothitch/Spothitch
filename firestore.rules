@@ -58,6 +58,24 @@ service cloud.firestore {
       }
     }
 
+    // Group Conversations
+    // convId généré par Firebase (addDoc)
+    match /groupConversations/{groupId} {
+      allow read: if request.auth != null
+        && request.auth.uid in resource.data.members;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null
+        && request.auth.uid in resource.data.members;
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null
+          && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
     // Reviews collection
     match /reviews/{reviewId} {
       allow read: if true;

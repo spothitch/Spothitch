@@ -35,3 +35,4 @@ wolf-screenshots/
 # Visual regression
 visual-baselines/
 visual-regression-output/
+.firebase-admin-key.json
