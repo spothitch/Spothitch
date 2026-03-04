@@ -9,11 +9,12 @@ import { isCompanionActive } from '../services/companion.js'
 
 export function renderNavigation(state) {
   const companionActive = isCompanionActive()
+  const hasPendingGuideTip = !!state.pendingGuideCountry
   const tabs = [
     { id: 'map', icon: 'map-pinned', label: t('navMap') || 'Carte' },
     { id: 'challenges', icon: 'compass', label: t('navVoyage') || 'Voyage' },
     { id: 'social', icon: 'users', label: t('navSocial') || 'Social' },
-    { id: 'profile', icon: 'user', label: t('navProfile') || 'Profil' },
+    { id: 'profile', icon: 'user', label: t('navProfile') || 'Profil', badge: hasPendingGuideTip },
   ]
 
   return `
@@ -42,7 +43,10 @@ export function renderNavigation(state) {
               aria-controls="panel-${tab.id}"
               tabindex="${state.activeTab === tab.id ? '0' : '-1'}"
             >
-              ${icon(tab.icon, 'w-5 h-5')}
+              <div class="relative">
+                ${icon(tab.icon, 'w-5 h-5')}
+                ${tab.badge ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>' : ''}
+              </div>
               <span class="text-[11px] font-medium leading-tight">${tab.label}</span>
               ${state.activeTab === tab.id ? '<span class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-primary-400"></span>' : ''}
             </button>

@@ -40,6 +40,7 @@ import { renderEmailVerification } from '../../src/components/modals/EmailVerifi
 import { renderLocationPermission } from '../../src/components/modals/LocationPermission.js'
 import { renderLanguageSelector } from '../../src/components/modals/LanguageSelector.js'
 import { renderFeedbackPanel } from '../../src/components/modals/FeedbackPanel.js'
+import { renderGuideNudge } from '../../src/components/modals/GuideNudge.js'
 
 // Landing
 import { renderLanding } from '../../src/components/Landing.js'
@@ -414,6 +415,19 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
     expect(html.length).toBeGreaterThan(100)
     expect(html).toContain('closeFeedbackPanel')
     expect(html).toContain('setFeedbackTab')
+  })
+
+  test('showGuideNudge flag renders GuideNudge modal', () => {
+    const state = {
+      ...mockState,
+      showGuideNudge: true,
+      pendingGuideCountry: { code: 'ES', name: 'Espagne', flag: '🇪🇸' },
+    }
+    const html = renderGuideNudge(state)
+    expect(html).toBeTruthy()
+    expect(html.length).toBeGreaterThan(100)
+    expect(html).toContain('closeGuideNudge')
+    expect(html).toContain('acceptGuideNudge')
   })
 })
 

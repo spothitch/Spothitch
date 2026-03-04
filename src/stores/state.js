@@ -383,6 +383,10 @@ const initialState = {
   offlineDownloadProgress: 0,
   offlineAutoDownloadEnabled: true,
 
+  // Guide Nudge (after spot creation)
+  pendingGuideCountry: null, // { code, name, flag }
+  showGuideNudge: false,
+
   // Loading states
   isLoading: false,
   isLoadingSpots: false,

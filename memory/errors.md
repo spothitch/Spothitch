@@ -673,3 +673,30 @@ Chaque erreur suit ce format :
   - **Garder un safety check : `if (opens !== closes) { abort }` dans tout script CSS**
 - **Fichiers** : `src/styles/main.css`
 - **Statut** : CORRIGÉ
+
+### ERR-053 — renderProfileReviews crash quand reviews est undefined
+
+- **Date** : 2026-03-04
+- **Gravité** : MINEUR
+- **Description** : `renderProfileReviews` dans FriendProfile.js crashait avec "Cannot read properties of undefined (reading 'length')" quand `state.profileReviews` était `undefined` (pas encore chargé).
+- **Cause racine** : Le code vérifiait `reviews !== null` avant d'accéder à `reviews.length`, mais `undefined !== null` est `true`. Le state initial est `undefined` (absent) pas `null`.
+- **Correction** : Remplacé `reviews !== null` par `Array.isArray(reviews)` pour les deux vérifications. Aussi remplacé `reviews === null` par `!Array.isArray(reviews)` pour le cas loading.
+- **Leçon** :
+  - **TOUJOURS utiliser `Array.isArray(x)` pour vérifier un tableau**, pas `x !== null` ni `x?.length`
+  - **JAMAIS supposer qu'un state absents est `null`** — il peut être `undefined`
+  - **Pour les états loading/empty/data** : utiliser `!Array.isArray(reviews)` (loading), `reviews.length === 0` (empty), sinon data
+- **Fichiers** : `src/components/modals/FriendProfile.js`
+- **Statut** : CORRIGÉ
+
+### ERR-054 — localStorage beta_seen vérifié avec '1' mais initialisé avec 'true'
+
+- **Date** : 2026-03-04
+- **Gravité** : MINEUR
+- **Description** : Lors des tests Playwright, mettre `localStorage.setItem('spothitch_beta_seen', 'true')` ne cachait pas le popup beta car `hasSeen()` vérifie `=== '1'`.
+- **Cause racine** : `BetaBanner.js` ligne 13 : `return localStorage.getItem(BETA_SEEN_KEY) === '1'`. Le code utilise `'1'` comme valeur booléenne, pas `'true'`.
+- **Correction** : Dans les scripts de test, utiliser `localStorage.setItem(key, '1')` et non `'true'`.
+- **Leçon** :
+  - **Vérifier la valeur exacte** attendue par `hasSeen()` / `hasKey()` dans chaque module avant de la simuler
+  - **Convention projet** : SpotHitch utilise `'1'` (pas `'true'`) pour les drapeaux boolean localStorage
+- **Fichiers** : `src/components/modals/BetaBanner.js`
+- **Statut** : CORRIGÉ (connaissance acquise)

@@ -92,6 +92,7 @@ const _lazyLoaders = {
   renderInstallBanner: () => import('../utils/pwa.js'),
   renderLanguageSelector: () => import('./modals/LanguageSelector.js'),
   renderFeedbackPanel: () => import('./modals/FeedbackPanel.js'),
+  renderGuideNudge: () => import('./modals/GuideNudge.js'),
 }
 
 // Lazy-loaded module cache
@@ -482,6 +483,9 @@ export function renderApp(state) {
 
     <!-- Feedback Panel -->
     ${state.showFeedbackPanel ? lazyRender('renderFeedbackPanel', state) : ''}
+
+    <!-- Guide Nudge Modal (shown after spot creation) -->
+    ${state.showGuideNudge && state.pendingGuideCountry ? lazyRender('renderGuideNudge', state) : ''}
   `
 
   // Landing overlay for first-time visitors (map loads behind it)

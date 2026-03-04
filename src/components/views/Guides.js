@@ -219,6 +219,8 @@ export function renderGuides(state) {
 
   return `
     <div class="space-y-4">
+      ${state.pendingGuideCountry ? renderPendingTipBanner(state.pendingGuideCountry) : ''}
+
       <!-- Section tabs -->
       <div class="grid grid-cols-3 gap-2">
         ${GUIDE_SECTIONS.map(s => `
@@ -242,8 +244,91 @@ export function renderGuides(state) {
         `).join('')}
       </div>
 
+      <!-- Pending guide tip form (shown when user just created a spot) -->
+      ${state.pendingGuideCountry && activeSection === 'start' ? renderGuideTipForm(state.pendingGuideCountry) : ''}
+
       <!-- Section content -->
       ${renderSection(activeSection, state)}
+    </div>
+  `
+}
+
+function renderPendingTipBanner(country) {
+  const flag = country.flag || ''
+  const name = country.name || country.code
+  return `
+    <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30">
+      <span class="text-2xl">${flag}</span>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-emerald-300">${t('guidePendingTipBanner') || 'Partage tes conseils sur'} ${name}</p>
+        <p class="text-xs text-emerald-400/70">${t('guideNudgeBtn') || 'Partager mes conseils'}</p>
+      </div>
+      <span class="w-2.5 h-2.5 bg-red-500 rounded-full shrink-0"></span>
+    </div>
+  `
+}
+
+function renderGuideTipForm(country) {
+  const flag = country.flag || ''
+  const name = country.name || country.code
+  const categories = [
+    { key: 'safety', label: t('guideTipCategorySafety') || 'Sécurité' },
+    { key: 'transport', label: t('guideTipCategoryTransport') || 'Transports' },
+    { key: 'accommodation', label: t('guideTipCategoryAccommodation') || 'Hébergement' },
+    { key: 'food', label: t('guideTipCategoryFood') || 'Nourriture' },
+    { key: 'culture', label: t('guideTipCategoryCulture') || 'Culture' },
+    { key: 'other', label: t('guideTipCategoryOther') || 'Autre' },
+  ]
+
+  return `
+    <div class="card p-4 space-y-3 border border-emerald-500/20">
+      <div class="flex items-center gap-2">
+        ${icon('book-open', 'w-5 h-5 text-emerald-400')}
+        <h3 class="font-bold text-sm">${flag} ${name} — ${t('guideNudgeBtn') || 'Partager mes conseils'}</h3>
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label class="text-xs text-slate-400 block mb-2">${t('guideTipCategory') || 'Catégorie'}</label>
+        <div class="flex flex-wrap gap-2" id="guide-tip-categories">
+          ${categories.map(cat => `
+            <button
+              type="button"
+              onclick="selectGuideTipCategory('${cat.key}')"
+              class="guide-tip-cat px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+              data-cat="${cat.key}"
+            >
+              ${cat.label}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Text -->
+      <div>
+        <textarea
+          id="guide-tip-text"
+          class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-emerald-500/50"
+          rows="3"
+          placeholder="${t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...'}"
+          maxlength="500"
+        ></textarea>
+        <p class="text-xs text-slate-500 mt-1 text-right"><span id="guide-tip-char-count">0</span>/500</p>
+      </div>
+
+      <!-- Submit -->
+      <button
+        onclick="submitGuideTip()"
+        class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+      >
+        ${icon('send', 'w-4 h-4')}
+        ${t('guideTipSubmit') || 'Envoyer mon conseil'}
+      </button>
+
+      <div id="guide-tip-success" class="hidden text-center py-2 text-emerald-400 text-sm font-medium">
+        ${icon('check-circle', 'w-4 h-4 inline mr-1')}
+        ${t('guideTipSubmitted') || 'Conseil envoyé, merci !'}
+      </div>
     </div>
   `
 }
@@ -1069,5 +1154,90 @@ window.setGuideSection = (section) => {
   window.setState?.({ guideSection: section })
 }
 // selectGuide and filterGuides are defined in Travel.js (authoritative source)
+
+// Track selected category for guide tip form
+let _guideTipCategory = null
+
+window.selectGuideTipCategory = (cat) => {
+  _guideTipCategory = cat
+  // Update UI: deactivate all, activate selected
+  document.querySelectorAll('.guide-tip-cat').forEach(btn => {
+    const isSelected = btn.dataset.cat === cat
+    btn.classList.toggle('bg-emerald-500', isSelected)
+    btn.classList.toggle('text-white', isSelected)
+    btn.classList.toggle('bg-white/5', !isSelected)
+    btn.classList.toggle('text-slate-400', !isSelected)
+  })
+}
+
+// Char counter for guide tip textarea
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'guide-tip-text') {
+    const count = document.getElementById('guide-tip-char-count')
+    if (count) count.textContent = e.target.value.length
+  }
+})
+
+window.submitGuideTip = async () => {
+  const { getState, setState } = await import('../../stores/state.js')
+  const { showError, showSuccess } = await import('../../services/notifications.js')
+  const state = getState()
+
+  const tipText = document.getElementById('guide-tip-text')?.value?.trim()
+  if (!tipText) {
+    showError(t('guideTipPlaceholder') || 'Écris un conseil avant d\'envoyer')
+    return
+  }
+  if (!_guideTipCategory) {
+    showError(t('guideTipCategory') || 'Choisis une catégorie')
+    return
+  }
+
+  const country = state.pendingGuideCountry
+  if (!country) return
+
+  try {
+    const { getApps } = await import('firebase/app')
+    const { getFirestore, doc, setDoc } = await import('firebase/firestore')
+    const { getAuth } = await import('firebase/auth')
+
+    const apps = getApps()
+    const app = apps.length > 0 ? apps[0] : null
+    if (!app) throw new Error('Firebase not initialized')
+
+    const db = getFirestore(app)
+    const auth = getAuth(app)
+    const uid = auth.currentUser?.uid || 'anonymous'
+    const timestamp = Date.now()
+    const tipId = `${uid}_${timestamp}`
+
+    await setDoc(
+      doc(db, 'guideTips', country.code, 'tips', tipId),
+      {
+        uid,
+        countryCode: country.code,
+        countryName: country.name,
+        category: _guideTipCategory,
+        text: tipText,
+        createdAt: new Date().toISOString(),
+        flag: country.flag,
+      }
+    )
+  } catch { /* offline or not authed — still clear the state */ }
+
+  // Show success and clear pending state
+  const successEl = document.getElementById('guide-tip-success')
+  if (successEl) {
+    successEl.classList.remove('hidden')
+    const form = document.getElementById('guide-tip-text')
+    if (form) form.disabled = true
+  }
+
+  showSuccess(t('guideTipSubmitted') || 'Conseil envoyé, merci !')
+  _guideTipCategory = null
+
+  // Clear the pending country from state (badge disappears)
+  setState({ pendingGuideCountry: null, showGuideNudge: false })
+}
 
 export default { renderGuides, renderCountryDetail, renderSafety }

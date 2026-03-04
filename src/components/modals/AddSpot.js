@@ -1404,6 +1404,23 @@ window.handleAddSpot = async (event) => {
         const { triggerSpotCreatedTip } = await import('../../services/contextualTips.js')
         triggerSpotCreatedTip()
       } catch { /* no-op */ }
+
+      // Guide nudge: invite user to share tips for the country they just added a spot in
+      try {
+        const countryCode = spotData.country
+        const countryName = spotData.countryName
+        if (countryCode) {
+          const nudgeSeen = localStorage.getItem('spothitch_guide_nudge_seen')
+          // Get country flag emoji from country code
+          const flagEmoji = countryCode
+            .toUpperCase()
+            .replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)))
+          setStateFn({
+            pendingGuideCountry: { code: countryCode, name: countryName || countryCode, flag: flagEmoji },
+            showGuideNudge: !nudgeSeen,
+          })
+        }
+      } catch { /* no-op */ }
     } else {
       throw new Error('Failed to add spot')
     }

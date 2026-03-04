@@ -437,6 +437,11 @@ const MAIN_JS_HANDLERS = [
   'openFeedbackOnFeature',
   'selectFeatureOpinion',
   'submitFeatureOpinion',
+  // Guide Nudge (session 2026-03-04)
+  'closeGuideNudge',
+  'acceptGuideNudge',
+  'submitGuideTip',
+  'selectGuideTipCategory',
 ]
 
 MAIN_JS_HANDLERS.forEach(h => KNOWN_HANDLERS.add(h))
@@ -533,6 +538,8 @@ const mockState = {
   checkinSpot: null,
   newBadge: null,
   navigationActive: false,
+  pendingGuideCountry: null,
+  showGuideNudge: false,
   points: 500,
   level: 5,
   checkins: 20,
