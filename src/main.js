@@ -2742,6 +2742,18 @@ if (!window.syncTripFieldsAndCalculate) {
 // Must be set up AFTER all handlers are defined
 
 ;(function setupFeatureIntroWrappers() {
+  // Si l'utilisateur a déjà des données (username ou points), il est existant
+  // → marquer toutes les features comme vues pour ne pas lui montrer les intros
+  try {
+    const saved = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+    const isExisting = (saved.points > 0 || saved.username) && !localStorage.getItem('spothitch_feature_seen')
+    if (isExisting) {
+      const seen = {}
+      ;['carte','stations','add-spot','profil','amis','chat','carnet','stats','classements','niveaux','conseils','dons','hors-ligne','sos','compagnon','notif-spot','activite-amis','defis','score-confiance','avis-profils','itineraire','radar','quiz','guides','gardien','evenements','auberges'].forEach(id => { seen[id] = Date.now() })
+      localStorage.setItem('spothitch_feature_seen', JSON.stringify(seen))
+    }
+  } catch { /* ignore */ }
+
   // Helper: wrap a window.* handler to show intro on first use
   const wrapHandler = (name, introId) => {
     const orig = window[name]
