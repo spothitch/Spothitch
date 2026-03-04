@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fenêtres choisies — 28 validées</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#06080f; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; padding:32px 24px 60px; }
+h1 { color:#f59e0b; font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+.sub { color:#475569; font-size:0.72rem; margin-bottom:36px; }
+.status-badge { display:inline-block; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981; font-size:0.6rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:8px; }
+.pending-badge { display:inline-block; background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#f59e0b; font-size:0.6rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:8px; }
+
+.section { margin-bottom:48px; }
+.section-title { color:#fff; font-size:0.85rem; font-weight:700; margin-bottom:4px; }
+.section-desc { color:#475569; font-size:0.68rem; margin-bottom:20px; }
+
+.phones { display:flex; flex-wrap:wrap; gap:28px; align-items:flex-start; }
+.phone-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; }
+.phone-label { color:#10b981; font-size:0.65rem; text-align:center; max-width:220px; font-weight:600; }
+
+.phone { width:240px; height:490px; background:#08090f; border-radius:32px; overflow:hidden; position:relative; box-shadow:0 0 0 1px rgba(255,255,255,0.07), 0 24px 60px rgba(0,0,0,0.9); flex-shrink:0; }
+.glass-bg { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,0.7); }
+.glass-glow { position:absolute; width:220px; height:220px; border-radius:50%; filter:blur(60px); opacity:0.3; top:50%; left:50%; transform:translate(-50%,-65%); pointer-events:none; }
+.glass-card { position:relative; z-index:2; width:100%; background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.12); border-radius:22px; padding:20px 16px 16px; text-align:center; }
+.glass-icon-wrap { width:52px; height:52px; border-radius:15px; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; font-size:1.5rem; border:1px solid rgba(255,255,255,0.1); position:relative; }
+.glass-icon-glow { position:absolute; inset:-6px; border-radius:21px; filter:blur(12px); opacity:0.45; z-index:-1; }
+.glass-badge { display:inline-block; font-size:0.58rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px; border-radius:20px; margin-bottom:8px; border:1px solid currentColor; }
+.glass-title { color:#fff; font-size:0.88rem; font-weight:700; line-height:1.3; margin-bottom:7px; }
+.glass-sub { color:#94a3b8; font-size:0.68rem; line-height:1.45; margin-bottom:12px; }
+.glass-tags { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin-bottom:14px; }
+.glass-tag { font-size:0.58rem; padding:3px 7px; border-radius:10px; background:rgba(255,255,255,0.08); color:#94a3b8; border:1px solid rgba(255,255,255,0.08); }
+.glass-btn { width:100%; padding:11px; border-radius:14px; font-size:0.78rem; font-weight:600; border:none; cursor:pointer; color:#fff; }
+.glass-divider { height:1px; background:rgba(255,255,255,0.08); margin:9px 0; }
+.glass-quote { font-size:0.66rem; color:#6b7280; font-style:italic; line-height:1.4; margin-bottom:10px; }
+.glass-highlight { background:rgba(255,255,255,0.06); border-radius:10px; padding:8px 10px; margin-bottom:11px; text-align:left; }
+.glass-highlight-title { font-size:0.64rem; font-weight:700; color:#fff; margin-bottom:3px; }
+.glass-highlight-desc { font-size:0.6rem; color:#94a3b8; line-height:1.4; }
+.glass-steps { text-align:left; margin-bottom:12px; display:flex; flex-direction:column; gap:6px; }
+.glass-step { display:flex; gap:8px; align-items:flex-start; }
+.glass-step-num { width:18px; height:18px; border-radius:50%; flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:0.55rem; font-weight:700; color:#fff; }
+.glass-step-text { font-size:0.65rem; color:#94a3b8; line-height:1.4; }
+.glass-persona { display:flex; align-items:center; gap:8px; margin-bottom:11px; }
+.glass-avatar { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; }
+.glass-persona-text { font-size:0.6rem; color:#94a3b8; line-height:1.35; text-align:left; }
+.glass-persona-name { color:#fff; font-weight:600; }
+.glass-stats { display:flex; gap:8px; justify-content:center; margin-bottom:11px; }
+.glass-stat { text-align:center; }
+.glass-stat-num { font-size:0.95rem; font-weight:700; color:#fff; }
+.glass-stat-label { font-size:0.56rem; color:#64748b; }
+.glass-scenario { background:rgba(0,0,0,0.3); border-radius:10px; padding:8px 10px; margin-bottom:11px; text-align:left; border-left:2px solid; }
+.glass-scenario-text { font-size:0.63rem; color:#cbd5e1; line-height:1.4; font-style:italic; }
+
+.pending-section { opacity:0.5; border:2px dashed rgba(245,158,11,0.3); border-radius:16px; padding:16px; margin-top:40px; }
+.pending-title { color:#f59e0b; font-size:0.75rem; font-weight:700; margin-bottom:8px; }
+.pending-list { color:#94a3b8; font-size:0.72rem; line-height:1.8; }
+</style>
+</head>
+<body>
+
+<h1>Fenêtres "À venir" — Sélections validées <span class="status-badge">28 VALIDÉES</span></h1>
+<div class="sub">Les fenêtres que tu as choisies. Elles seront implémentées dans l'app quand toutes les décisions seront prises.</div>
+
+<!-- ======= COMPAGNON V1 ======= -->
+<div class="section">
+  <div class="section-title">🧑‍🤝‍🧑 Compagnon de route <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : match direct par destination. "Tu vas à Istanbul ?"</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#8b5cf6"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(139,92,246,0.15)"><div class="glass-icon-glow" style="background:#8b5cf6"></div>🧑‍🤝‍🧑</div>
+            <div class="glass-badge" style="color:#8b5cf6">Bêta</div>
+            <div class="glass-title">Tu vas à Istanbul ?</div>
+            <div class="glass-sub">Camille part dans 3 jours depuis Lyon. Même direction. Vous pourriez partir ensemble.</div>
+            <div class="glass-tags"><span class="glass-tag">Match par destination</span><span class="glass-tag">Date flexible</span><span class="glass-tag">Profil vérifié</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">Ça m'intéresse</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= NOTIF SPOT V1 ======= -->
+<div class="section">
+  <div class="section-title">🔔 Notification spot à valider <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : proximité. "Tu passes à 200m d'un spot"</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#f59e0b"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(245,158,11,0.15)"><div class="glass-icon-glow" style="background:#f59e0b"></div>🔔</div>
+            <div class="glass-badge" style="color:#f59e0b">Bêta</div>
+            <div class="glass-title">Tu passes à 200m d'un spot</div>
+            <div class="glass-sub">Ce spot n'a pas été vu depuis 8 mois. En passant, tu peux confirmer qu'il existe encore. 30 secondes.</div>
+            <div class="glass-tags"><span class="glass-tag">Alerte intelligente</span><span class="glass-tag">Seulement si tu veux</span><span class="glass-tag">+5 points</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706)">Bonne idée</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ACTIVITÉ AMIS V4 ======= -->
+<div class="section">
+  <div class="section-title">👥 Activité récente des amis <span class="status-badge">✓ CHOISI — V4</span></div>
+  <div class="section-desc">Angle : inspiration. "Leur route t'inspire"</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#3b82f6"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(59,130,246,0.15)"><div class="glass-icon-glow" style="background:#3b82f6"></div>👥</div>
+            <div class="glass-badge" style="color:#3b82f6">Bêta</div>
+            <div class="glass-title">Leur route t'inspire</div>
+            <div class="glass-highlight">
+              <div class="glass-highlight-title">🗺️ Léa vient de traverser l'Albanie</div>
+              <div class="glass-highlight-desc">"8 spots, 3 jours, des photos incroyables." Tu n'avais pas pensé à ce pays. Maintenant si.</div>
+            </div>
+            <div class="glass-sub">L'activité de tes amis est la meilleure source d'inspiration pour ta prochaine destination.</div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Exactement ça</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= DÉFIS V3 ======= -->
+<div class="section">
+  <div class="section-title">🥇 Défis entre voyageurs <span class="status-badge">✓ CHOISI — V3</span></div>
+  <div class="section-desc">Angle : badge régional. "🏅 Routard des Balkans"</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#f97316"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(249,115,22,0.15)"><div class="glass-icon-glow" style="background:#f97316"></div>🥇</div>
+            <div class="glass-badge" style="color:#f97316">Bêta</div>
+            <div class="glass-title">🏅 Routard des Balkans</div>
+            <div class="glass-highlight">
+              <div class="glass-highlight-title">Conditions du badge</div>
+              <div class="glass-highlight-desc">Hitche en Serbie, Croatie, Bosnie, Albanie et Monténégro. Dans n'importe quel ordre.</div>
+            </div>
+            <div class="glass-sub">200 autostoppeurs ont ce badge dans le monde. Tu voyages dans la région ? C'est le moment.</div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#f97316,#ea580c)">Je vise ce badge</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= SCORE CONFIANCE V1 ======= -->
+<div class="section">
+  <div class="section-title">🛡️ Score de confiance <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : sécurité avant de voyager avec un inconnu</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#059669"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(5,150,105,0.15)"><div class="glass-icon-glow" style="background:#059669"></div>🛡️</div>
+            <div class="glass-badge" style="color:#059669">Bêta</div>
+            <div class="glass-title">Avant de voyager avec un inconnu...</div>
+            <div class="glass-sub">Score 87/100 · Vérifié · 3 ans sur SpotHitch · 47 avis positifs · 200 spots contribués.</div>
+            <div class="glass-tags"><span class="glass-tag">Profil vérifié</span><span class="glass-tag">Historique voyage</span><span class="glass-tag">Avis communauté</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#059669,#047857)">Important pour moi</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= AVIS PROFILS V4 ======= -->
+<div class="section">
+  <div class="section-title">💬 Avis sur les profils <span class="status-badge">✓ CHOISI — V4</span></div>
+  <div class="section-desc">Angle : utilité pour les autres. "Ton témoignage aide les prochains voyageurs"</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#ec4899"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(236,72,153,0.15)"><div class="glass-icon-glow" style="background:#ec4899"></div>💬</div>
+            <div class="glass-badge" style="color:#ec4899">Bêta</div>
+            <div class="glass-title">Ton témoignage aide les prochains voyageurs</div>
+            <div class="glass-persona">
+              <div class="glass-avatar">👩</div>
+              <div class="glass-persona-text"><span class="glass-persona-name">Anna cherche un compagnon de route</span><br>Elle lit les avis sur ton profil avant de décider de voyager avec toi. Tes avis = sa décision.</div>
+            </div>
+            <div class="glass-sub">Un avis bien écrit peut déclencher une belle rencontre pour quelqu'un d'autre.</div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#ec4899,#db2777)">Je comprends</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ITINÉRAIRE — VERSION FINALE ======= -->
+<div class="section">
+  <div class="section-title">🧭 Itinéraire optimisé <span class="status-badge">✓ VERSION FINALE</span></div>
+  <div class="section-desc">Style V5 (étape par étape) + stations-essence intégrées</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#10b981"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(16,185,129,0.15)"><div class="glass-icon-glow" style="background:#10b981"></div>🧭</div>
+            <div class="glass-badge" style="color:#10b981">Bêta</div>
+            <div class="glass-title">Ton voyage, spot par spot</div>
+            <div class="glass-steps">
+              <div class="glass-step"><div class="glass-step-num" style="background:#10b981">1</div><div class="glass-step-text">Entre ta ville de départ et ta destination</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#10b981">2</div><div class="glass-step-text">L'app calcule la route via les meilleurs spots (4★+)</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#10b981">3</div><div class="glass-step-text">Les stations-essence sur ta route s'affichent aussi — idéal pour approcher les conducteurs</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#10b981">4</div><div class="glass-step-text">Tout est téléchargeable — fonctionne sans réseau</div></div>
+            </div>
+            <div class="glass-tags"><span class="glass-tag">📍 Spots 4★+</span><span class="glass-tag">⛽ Stations</span><span class="glass-tag">📴 Offline</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#10b981,#059669)">J'en ai besoin</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- Fenêtres en attente de décision -->
+<!-- ======= RADAR V1 ======= -->
+<div class="section">
+  <div class="section-title">📡 Radar de proximité <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : tableau complet — toggle ON/OFF + mini-carte + message reçu</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#06b6d4"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(6,182,212,0.15)"><div class="glass-icon-glow" style="background:#06b6d4"></div>📡</div>
+            <div class="glass-badge" style="color:#06b6d4">Bêta</div>
+            <div class="glass-title">Vois et contacte les autostoppeurs proches</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.3);border-radius:10px;padding:7px 10px;margin-bottom:10px">
+              <span style="font-size:0.62rem;color:#e2e8f0;font-weight:500">📡 Radar actif</span>
+              <div style="width:32px;height:18px;background:#06b6d4;border-radius:9px;position:relative;flex-shrink:0"><div style="content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;right:2px"></div></div>
+            </div>
+            <div style="width:100%;height:72px;background:rgba(0,0,0,0.4);border-radius:10px;position:relative;overflow:hidden;margin-bottom:9px;border:1px solid rgba(255,255,255,0.08)">
+              <div style="position:absolute;width:3px;height:100%;background:rgba(255,255,255,0.1);left:50%;top:0"></div>
+              <div style="position:absolute;width:12px;height:12px;background:#06b6d4;border-radius:50%;border:2px solid #fff;left:50%;top:55%;transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(6,182,212,0.2)"></div>
+              <div style="position:absolute;width:10px;height:10px;background:#f59e0b;border-radius:50%;border:2px solid #fff;right:25%;top:28%;box-shadow:0 0 0 5px rgba(245,158,11,0.2)"></div>
+              <div style="position:absolute;font-size:0.5rem;color:#94a3b8;background:rgba(0,0,0,0.6);padding:2px 5px;border-radius:6px;right:4px;top:14px;white-space:nowrap">Lucas · 280m</div>
+            </div>
+            <div style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.25);border-radius:8px 8px 8px 2px;padding:6px 9px;text-align:left;margin-bottom:12px">
+              <div style="font-size:0.62rem;color:#e2e8f0">Je vais vers Lyon. Même direction ?</div>
+              <div style="font-size:0.52rem;color:#64748b;margin-top:2px">Lucas · il y a 2 min</div>
+            </div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">J'active le radar</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= QUIZ V4 ======= -->
+<div class="section">
+  <div class="section-title">🧠 Quiz voyage <span class="status-badge">✓ CHOISI — V4</span></div>
+  <div class="section-desc">Angle : streak quotidien. Joue tous les jours, apprends pour toujours.</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#6366f1"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(99,102,241,0.15)"><div class="glass-icon-glow" style="background:#6366f1"></div>🧠</div>
+            <div class="glass-badge" style="color:#6366f1">Bêta</div>
+            <div class="glass-title">Joue tous les jours. Apprends pour toujours.</div>
+            <div style="display:flex;align-items:center;gap:6px;background:rgba(99,102,241,0.1);border-radius:8px;padding:5px 8px;margin-bottom:10px">
+              <span style="font-size:0.9rem">🔥</span>
+              <div style="flex:1"><div style="font-size:0.6rem;color:#94a3b8">Série en cours</div><div style="font-size:0.72rem;font-weight:700;color:#f59e0b">14 jours</div></div>
+              <div style="text-align:right"><div style="font-size:0.6rem;color:#94a3b8">Record</div><div style="font-size:0.72rem;font-weight:700;color:#6366f1">28 jours</div></div>
+            </div>
+            <div class="glass-steps">
+              <div class="glass-step"><div class="glass-step-num" style="background:#6366f1">🎯</div><div class="glass-step-text">10 questions · 30 secondes chacune · culture du monde entier</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#6366f1">⚡</div><div class="glass-step-text">Série de 7 jours = bonus points ×2</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#6366f1">🏆</div><div class="glass-step-text">Série de 30 jours = badge "Globe-Trotter"</div></div>
+            </div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">Je veux le streak</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= GUIDES V5 ======= -->
+<div class="section">
+  <div class="section-title">📚 Guides par pays <span class="status-badge">✓ CHOISI — V5</span></div>
+  <div class="section-desc">Angle : les touristes visitent, les autostoppeurs comprennent</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#84cc16"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(132,204,22,0.15)"><div class="glass-icon-glow" style="background:#84cc16"></div>📚</div>
+            <div class="glass-badge" style="color:#84cc16">Bêta</div>
+            <div class="glass-title">Les touristes visitent. Les autostoppeurs comprennent.</div>
+            <div class="glass-scenario" style="border-color:#84cc16"><div class="glass-scenario-text">Un touriste en Albanie voit les paysages. Un autostoppeur sait que les voitures bleues ne s'arrêtent jamais, que le matin les camionniers vont vers le port, et que "ku shkon ?" veut dire "où tu vas ?"</div></div>
+            <div class="glass-sub">Ce type de connaissance ne s'écrit nulle part. Sauf ici. Par des autostoppeurs, pour des autostoppeurs.</div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#84cc16,#65a30d)">C'est ça que je veux</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= AJOUTER UN SPOT V3 ======= -->
+<div class="section">
+  <div class="section-title">📍 Ajouter un spot <span class="status-badge">✓ CHOISI — V3</span></div>
+  <div class="section-desc">Angle : tu passes le flambeau — 6h vs 20 minutes</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#10b981"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(16,185,129,0.15)"><div class="glass-icon-glow" style="background:#10b981"></div>📍</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Tu passes le flambeau</div>
+            <div class="glass-quote">"J'ai mis 6h à trouver comment sortir de São Paulo. J'ai ajouté le spot. Le prochain mettra 20 minutes. C'est le deal."</div>
+            <div class="glass-sub">3 minutes pour ajouter un spot. Des dizaines de voyageurs épargnent des heures de galère. Pour des années.</div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#10b981,#059669)">J'ajoute mon spot</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= GARDIEN V5 ======= -->
+<div class="section">
+  <div class="section-title">🛡️ Mode Gardien live <span class="status-badge">✓ CHOISI — V5</span></div>
+  <div class="section-desc">Angle : avant, pendant, après — le cycle complet du trajet protégé</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#3b82f6"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(59,130,246,0.15)"><div class="glass-icon-glow" style="background:#3b82f6"></div>🛡️</div>
+            <div class="glass-badge" style="color:#3b82f6">Bêta</div>
+            <div class="glass-title">Avant, pendant, après. Ils sont avec toi.</div>
+            <div class="glass-highlight"><div class="glass-highlight-title">🛫 Avant de monter</div><div class="glass-highlight-desc">Tu partages ta route prévue. Tes gardiens voient le trajet.</div></div>
+            <div class="glass-highlight"><div class="glass-highlight-title">🚗 Pendant le trajet</div><div class="glass-highlight-desc">Position live + batterie + ETA + check-in auto + alerte si silence.</div></div>
+            <div class="glass-highlight"><div class="glass-highlight-title">🏠 À l'arrivée</div><div class="glass-highlight-desc">Notification automatique à tes gardiens. Pas besoin d'appeler.</div></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Activer le Gardien</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= CARTE V5 ======= -->
+<div class="section">
+  <div class="section-title">🗺️ Carte interactive <span class="status-badge">✓ CHOISI — V5</span></div>
+  <div class="section-desc">Angle : planification avant de partir</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#3b82f6"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(59,130,246,0.15)"><div class="glass-icon-glow" style="background:#3b82f6"></div>🗺️</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Planifie avant de partir</div>
+            <div class="glass-scenario" style="border-color:#3b82f6"><div class="glass-scenario-text">Tu pars pour Lyon demain. Tu zoomes sur les sorties d'autoroute ce soir. Tu enregistres les 2 meilleurs spots en offline. Demain matin, tu es prêt.</div></div>
+            <div class="glass-tags"><span class="glass-tag">Préparation voyage</span><span class="glass-tag">Enregistrer offline</span><span class="glass-tag">Notes personnelles</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Je planifie</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= STATIONS V3 ======= -->
+<div class="section">
+  <div class="section-title">⛽ Stations-service <span class="status-badge">✓ CHOISI — V3</span></div>
+  <div class="section-desc">Angle : stratégie — avant péage = plus de voitures</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#f97316"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(249,115,22,0.15)"><div class="glass-icon-glow" style="background:#f97316"></div>⛽</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Avant l'autoroute ou à la sortie ?</div>
+            <div class="glass-steps">
+              <div class="glass-step"><div class="glass-step-num" style="background:#f97316">1</div><div class="glass-step-text">Active le filtre Stations sur la carte</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#f97316">2</div><div class="glass-step-text">Vois celles qui sont sur ta route</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#f97316">3</div><div class="glass-step-text">Choisis la plus stratégique (avant péage = plus de voitures)</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#f97316">4</div><div class="glass-step-text">Approche naturellement</div></div>
+            </div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#f97316,#ea580c)">Stratégique</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= PROFIL V1 ======= -->
+<div class="section">
+  <div class="section-title">👤 Profil voyageur <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : identité de routard, pas réseau social</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#8b5cf6"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(139,92,246,0.15)"><div class="glass-icon-glow" style="background:#8b5cf6"></div>👤</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Ton identité de voyageur</div>
+            <div class="glass-sub">Photo, bio, langues, pays visités, réseaux sociaux. Pas un profil de réseau social — un profil de routard.</div>
+            <div class="glass-tags"><span class="glass-tag">Photo de profil</span><span class="glass-tag">Langues parlées</span><span class="glass-tag">Pays visités</span><span class="glass-tag">Bio voyage</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">Voir mon profil</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= AMIS & DMs V1 ======= -->
+<div class="section">
+  <div class="section-title">🤝 Amis & Messages privés <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : retrouver ceux croisés sur la route</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#ec4899"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(236,72,153,0.15)"><div class="glass-icon-glow" style="background:#ec4899"></div>🤝</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Retrouve ceux que tu as croisés sur la route</div>
+            <div class="glass-sub">Tu as rencontré quelqu'un à un spot ou dans une voiture. Vous vous ajoutez. Vous restez en contact pour vos prochains voyages.</div>
+            <div class="glass-tags"><span class="glass-tag">Demande d'ami</span><span class="glass-tag">Profil complet</span><span class="glass-tag">Voyages communs</span><span class="glass-tag">Messages privés</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#ec4899,#db2777)">Ajouter des amis</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= CHAT V1 ======= -->
+<div class="section">
+  <div class="section-title">💬 Chat communauté <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : réponses rapides de la communauté mondiale</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#06b6d4"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(6,182,212,0.15)"><div class="glass-icon-glow" style="background:#06b6d4"></div>💬</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Des réponses en quelques minutes</div>
+            <div class="glass-sub">Est-ce que la frontière est ouverte ? Quel spot pour quitter Amsterdam vite ? La communauté mondiale répond, 24h/24.</div>
+            <div class="glass-tags"><span class="glass-tag">Réponses rapides</span><span class="glass-tag">Communauté mondiale</span><span class="glass-tag">24/7</span><span class="glass-tag">4 langues</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">Poser une question</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= CARNET V4 ======= -->
+<div class="section">
+  <div class="section-title">📔 Carnet de voyage <span class="status-badge">✓ CHOISI — V4</span></div>
+  <div class="section-desc">Angle : public ou privé, tu choisis ligne par ligne</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#a855f7"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(168,85,247,0.15)"><div class="glass-icon-glow" style="background:#a855f7"></div>📔</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Public ou privé — tu choisis</div>
+            <div class="glass-sub">Certains lifts, tu veux les partager avec tes amis. D'autres sont rien qu'à toi. Contrôle ligne par ligne ce qui est visible.</div>
+            <div class="glass-tags"><span class="glass-tag">Privé par défaut</span><span class="glass-tag">Partage sélectif</span><span class="glass-tag">Amis uniquement</span><span class="glass-tag">Profil public</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#a855f7,#9333ea)">Je contrôle</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= STATS V2 ======= -->
+<div class="section">
+  <div class="section-title">📊 Statistiques personnelles <span class="status-badge">✓ CHOISI — V2</span></div>
+  <div class="section-desc">Angle : ton année en chiffres</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#3b82f6"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(59,130,246,0.15)"><div class="glass-icon-glow" style="background:#3b82f6"></div>📊</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Ton année en chiffres</div>
+            <div class="glass-scenario" style="border-color:#3b82f6"><div class="glass-scenario-text">Janvier → Décembre : 18 pays, 47 conducteurs, 9 200 km. Temps d'attente moyen : 23 minutes. Lift le plus rapide : 45 secondes à Hambourg.</div></div>
+            <div class="glass-tags"><span class="glass-tag">Par année</span><span class="glass-tag">Par pays</span><span class="glass-tag">Comparatif mois</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Mon bilan annuel</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= CLASSEMENTS V5 ======= -->
+<div class="section">
+  <div class="section-title">🏆 Classements <span class="status-badge">✓ CHOISI — V5</span></div>
+  <div class="section-desc">Angle : #1 France cette semaine — tu peux être là</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#eab308"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(234,179,8,0.15)"><div class="glass-icon-glow" style="background:#eab308"></div>🏆</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">#1 France cette semaine</div>
+            <div class="glass-persona">
+              <div class="glass-avatar">🥇</div>
+              <div class="glass-persona-text"><span class="glass-persona-name">Sophie — #1 France</span><br>2 847 points. 34 spots créés, 127 validations. 3 ans de stop en Europe. La reine du classement national.</div>
+            </div>
+            <div class="glass-tags"><span class="glass-tag">Chaque semaine un nouveau leader</span><span class="glass-tag">Tu peux être là</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#eab308,#ca8a04)">Je veux ça</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= NIVEAUX V3 ======= -->
+<div class="section">
+  <div class="section-title">📈 Niveaux & Badges <span class="status-badge">✓ CHOISI — V3</span></div>
+  <div class="section-desc">Angle : chaque badge raconte une vraie expérience</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#f59e0b"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(245,158,11,0.15)"><div class="glass-icon-glow" style="background:#f59e0b"></div>📈</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Badges par expérience</div>
+            <div class="glass-highlight"><div class="glass-highlight-title">🏅 Un badge = une expérience réelle</div><div class="glass-highlight-desc">Premier lift en France, traversée des Balkans, stop en Asie Centrale, 100 lifts en 1 an. Chaque badge raconte une vraie partie de ton voyage.</div></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706)">Mes badges</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= CONSEILS V3 ======= -->
+<div class="section">
+  <div class="section-title">💡 Conseils de la communauté <span class="status-badge">✓ CHOISI — V3</span></div>
+  <div class="section-desc">Angle : 1 phrase, c'est tout ce qu'il faut</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#84cc16"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(132,204,22,0.15)"><div class="glass-icon-glow" style="background:#84cc16"></div>💡</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">1 phrase. C'est tout ce qu'il faut.</div>
+            <div class="glass-highlight"><div class="glass-highlight-title">🎯 Un conseil utile = une phrase</div><div class="glass-highlight-desc">"En Albanie, commence tôt le matin." Voilà. C'est un conseil utile. Tu n'as pas besoin d'écrire un roman.</div></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#84cc16,#65a30d)">Facile</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= DONS V5 ======= -->
+<div class="section">
+  <div class="section-title">💛 Dons & Soutien <span class="status-badge">✓ CHOISI — V5</span></div>
+  <div class="section-desc">Angle : rejoindre les soutiens — chiffres communauté</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#fbbf24"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(251,191,36,0.15)"><div class="glass-icon-glow" style="background:#fbbf24"></div>💛</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Rejoins les soutiens</div>
+            <div class="glass-stats">
+              <div class="glass-stat"><div class="glass-stat-num" style="color:#fbbf24">340</div><div class="glass-stat-label">Soutiens</div></div>
+              <div class="glass-stat"><div class="glass-stat-num" style="color:#fbbf24">18</div><div class="glass-stat-label">Pays</div></div>
+              <div class="glass-stat"><div class="glass-stat-num" style="color:#fbbf24">💛</div><div class="glass-stat-label">Merci</div></div>
+            </div>
+            <div class="glass-sub">Chaque don, même petit, garde SpotHitch vivant. Au nom de tous ceux qui ne peuvent pas donner.</div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">Rejoindre</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= HORS-LIGNE V2 ======= -->
+<div class="section">
+  <div class="section-title">📴 Mode hors-ligne <span class="status-badge">✓ CHOISI — V2</span></div>
+  <div class="section-desc">Angle : télécharge avant de partir — 4 étapes</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#22c55e"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(34,197,94,0.15)"><div class="glass-icon-glow" style="background:#22c55e"></div>📴</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">Télécharge avant de partir</div>
+            <div class="glass-steps">
+              <div class="glass-step"><div class="glass-step-num" style="background:#22c55e">1</div><div class="glass-step-text">Va dans Profil → Réglages → Données hors-ligne</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#22c55e">2</div><div class="glass-step-text">Choisis un ou plusieurs pays</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#22c55e">3</div><div class="glass-step-text">Téléchargement en quelques secondes</div></div>
+              <div class="glass-step"><div class="glass-step-num" style="background:#22c55e">4</div><div class="glass-step-text">Disponible même en mode avion</div></div>
+            </div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#22c55e,#16a34a)">Comment faire</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= SOS V1 ======= -->
+<div class="section">
+  <div class="section-title">🚨 SOS urgence <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : l'alerte qui peut sauver ta vie</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#ef4444"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(239,68,68,0.15)"><div class="glass-icon-glow" style="background:#ef4444"></div>🚨</div>
+            <div class="glass-badge" style="color:#10b981">Disponible</div>
+            <div class="glass-title">L'alerte qui peut sauver ta vie</div>
+            <div class="glass-sub">3 pressions sur le bouton SOS. SMS + position GPS à tes contacts. Même sans internet. Même si tu ne peux pas parler.</div>
+            <div class="glass-tags"><span class="glass-tag">3 pressions</span><span class="glass-tag">SMS + GPS</span><span class="glass-tag">Offline</span><span class="glass-tag">Même sans parler</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#ef4444,#dc2626)">Configurer maintenant</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ÉVÉNEMENTS V1 ======= -->
+<div class="section">
+  <div class="section-title">🎉 Événements communauté <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : la communauté se retrouve IRL</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#eab308"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(234,179,8,0.15)"><div class="glass-icon-glow" style="background:#eab308"></div>🎉</div>
+            <div class="glass-badge" style="color:#f59e0b">Bêta</div>
+            <div class="glass-title">La communauté se retrouve IRL</div>
+            <div class="glass-sub">Des événements organisés par et pour les autostoppeurs. Rencontres dans une ville, festivals de stop, soirées d'échange.</div>
+            <div class="glass-tags"><span class="glass-tag">Créer un événement</span><span class="glass-tag">Rejoindre</span><span class="glass-tag">Agenda communauté</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#eab308,#ca8a04)">Voir les événements</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= AUBERGES V1 ======= -->
+<div class="section">
+  <div class="section-title">🏨 Auberges sélectionnées <span class="status-badge">✓ CHOISI — V1</span></div>
+  <div class="section-desc">Angle : pas Booking — la sélection de la communauté</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="glass-bg">
+          <div class="glass-glow" style="background:#f97316"></div>
+          <div class="glass-card">
+            <div class="glass-icon-wrap" style="background:rgba(249,115,22,0.15)"><div class="glass-icon-glow" style="background:#f97316"></div>🏨</div>
+            <div class="glass-badge" style="color:#f59e0b">Bêta</div>
+            <div class="glass-title">Pas Booking. La sélection de la communauté.</div>
+            <div class="glass-sub">Auberges testées par des routards. Pas les meilleures photos — les meilleures expériences.</div>
+            <div class="glass-tags"><span class="glass-tag">Sélection communautaire</span><span class="glass-tag">Note autostoppeur</span><span class="glass-tag">Avis vrais</span><span class="glass-tag">Critères route</span></div>
+            <button class="glass-btn" style="background:linear-gradient(135deg,#f97316,#ea580c)">Voir la sélection</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">✓ Sélectionné</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

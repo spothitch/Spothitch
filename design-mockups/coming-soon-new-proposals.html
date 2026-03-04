@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nouvelles propositions — Ajouter un spot + Gardien</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#06080f; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+.top-bar { position:sticky; top:0; z-index:100; background:rgba(6,8,15,0.97); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.07); padding:10px 16px; }
+.top-bar h1 { color:#f59e0b; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+.nav-pills { display:flex; gap:8px; }
+.pill { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:6px 14px; font-size:0.68rem; color:#94a3b8; cursor:pointer; transition:all 0.2s; }
+.pill:hover { background:rgba(255,255,255,0.1); color:#fff; }
+.pill.active { color:var(--c); border-color:var(--c); background:rgba(255,255,255,0.04); }
+
+.feature-section { display:none; padding:28px 20px 60px; }
+.feature-section.visible { display:block; }
+.fh { margin-bottom:28px; }
+.fh-emoji { font-size:1.8rem; margin-bottom:6px; }
+.fh-name { color:#fff; font-size:1.1rem; font-weight:700; margin-bottom:6px; }
+.fh-desc { color:#64748b; font-size:0.76rem; line-height:1.5; max-width:680px; }
+
+.phones { display:flex; flex-wrap:wrap; gap:26px; }
+.pw { display:flex; flex-direction:column; align-items:center; gap:9px; }
+.pl { color:#475569; font-size:0.62rem; text-align:center; max-width:210px; line-height:1.4; }
+.pl b { color:#94a3b8; }
+
+.phone { width:238px; height:480px; background:#08090f; border-radius:32px; overflow:hidden; position:relative; box-shadow:0 0 0 1px rgba(255,255,255,0.07), 0 22px 55px rgba(0,0,0,0.9); flex-shrink:0; }
+.gbg { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:15px; background:rgba(0,0,0,0.72); }
+.gg { position:absolute; width:210px; height:210px; border-radius:50%; filter:blur(58px); opacity:0.28; top:50%; left:50%; transform:translate(-50%,-65%); pointer-events:none; }
+.gc { position:relative; z-index:2; width:100%; background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.11); border-radius:21px; padding:19px 15px 15px; text-align:center; }
+.gi { width:50px; height:50px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 9px; font-size:1.45rem; border:1px solid rgba(255,255,255,0.1); position:relative; }
+.gig { position:absolute; inset:-5px; border-radius:19px; filter:blur(10px); opacity:0.42; z-index:-1; }
+.gbadge { display:inline-block; font-size:0.57rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:2px 7px; border-radius:18px; margin-bottom:8px; border:1px solid currentColor; }
+.gt { color:#fff; font-size:0.86rem; font-weight:700; line-height:1.3; margin-bottom:6px; }
+.gs { color:#94a3b8; font-size:0.67rem; line-height:1.43; margin-bottom:11px; }
+.gtags { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin-bottom:13px; }
+.gtag { font-size:0.57rem; padding:2px 7px; border-radius:10px; background:rgba(255,255,255,0.07); color:#94a3b8; border:1px solid rgba(255,255,255,0.07); }
+.gbtn { width:100%; padding:11px; border-radius:13px; font-size:0.76rem; font-weight:600; border:none; cursor:pointer; color:#fff; }
+.gdiv { height:1px; background:rgba(255,255,255,0.08); margin:9px 0; }
+.gq { font-size:0.65rem; color:#6b7280; font-style:italic; line-height:1.38; margin-bottom:9px; }
+.ghl { background:rgba(255,255,255,0.06); border-radius:9px; padding:7px 9px; margin-bottom:10px; text-align:left; }
+.ghlt { font-size:0.63rem; font-weight:700; color:#fff; margin-bottom:2px; }
+.ghld { font-size:0.59rem; color:#94a3b8; line-height:1.38; }
+.gsteps { text-align:left; margin-bottom:11px; display:flex; flex-direction:column; gap:5px; }
+.gstep { display:flex; gap:7px; align-items:flex-start; }
+.gsn { width:17px; height:17px; border-radius:50%; flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:0.53rem; font-weight:700; color:#fff; }
+.gst { font-size:0.64rem; color:#94a3b8; line-height:1.38; }
+.gsc { background:rgba(0,0,0,0.3); border-radius:9px; padding:7px 9px; margin-bottom:10px; text-align:left; border-left:2px solid; }
+.gsct { font-size:0.62rem; color:#cbd5e1; line-height:1.38; font-style:italic; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Nouvelles propositions</h1>
+  <div class="nav-pills">
+    <div class="pill active" style="--c:#10b981" onclick="show('spot')">📍 Ajouter un spot</div>
+    <div class="pill" style="--c:#3b82f6" onclick="show('gardien')">🛡️ Mode Gardien</div>
+  </div>
+</div>
+
+
+<!-- ======================================================= -->
+<!-- AJOUTER UN SPOT — Grandes villes + entraide -->
+<!-- ======================================================= -->
+<div class="feature-section visible" id="f-spot">
+  <div class="fh">
+    <div class="fh-emoji">📍</div>
+    <div class="fh-name">Ajouter un spot</div>
+    <div class="fh-desc">Sortir de Tokyo en direction de Nagoya depuis le centre-ville, c'est quasi impossible si tu ne sais pas d'où partir. Un autostoppeur qui connaît a posé un spot. Tu l'utilises, tu pars en 45 minutes. Sans ce spot, des heures perdues. C'est ça, l'entraide de la communauté.</div>
+  </div>
+  <div class="phones">
+
+    <!-- V1 : Tokyo → Nagoya -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#10b981"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(16,185,129,0.15)"><div class="gig" style="background:#10b981"></div>📍</div>
+            <div class="gbadge" style="color:#10b981">Disponible</div>
+            <div class="gt">Sans ce spot, tu restes coincé·e en centre-ville</div>
+            <div class="gsc" style="border-color:#10b981">
+              <div class="gsct">Tokyo, direction Nagoya. Depuis le centre, c'est impossible en stop. Quelqu'un qui le savait a posé un spot à la bonne sortie express. Tu pars en 45 minutes.</div>
+            </div>
+            <div class="gs" style="margin-bottom:12px">Les grandes villes sont des pièges pour l'autostop. Un seul spot bien placé change tout.</div>
+            <div class="gtags">
+              <span class="gtag">Grandes villes</span>
+              <span class="gtag">Connaissance locale</span>
+              <span class="gtag">Partager ce que tu sais</span>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#10b981,#059669)">Partager mon spot</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V1 — L'anecdote Tokyo.</b> Le problème concret des grandes villes. Un spot = la différence entre être bloqué et partir. Très parlant.</div>
+    </div>
+
+    <!-- V2 : Quelqu'un t'a aidé. Aide à ton tour. -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#10b981"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(16,185,129,0.15)"><div class="gig" style="background:#10b981"></div>📍</div>
+            <div class="gbadge" style="color:#10b981">Disponible</div>
+            <div class="gt">Quelqu'un t'a aidé. Aide à ton tour.</div>
+            <div class="ghl">
+              <div class="ghlt">Le cycle de l'entraide</div>
+              <div class="ghld">Un autostoppeur que tu ne connaîtras jamais a posé LE spot qui t'a sauvé la mise à Bangkok. Toi, tu connais LE spot pour sortir de Moscou vers l'autoroute. Partagez-le.</div>
+            </div>
+            <div class="gtags">
+              <span class="gtag">Entraide communauté</span>
+              <span class="gtag">Connaissance locale</span>
+              <span class="gtag">Tu passes le flambeau</span>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#10b981,#059669)">Je donne en retour</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V2 — L'entraide.</b> Le cycle : quelqu'un t'a aidé avec un spot, tu aides le suivant. L'esprit du stop appliqué à la carte.</div>
+    </div>
+
+    <!-- V3 : 6h vs 20 minutes -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#10b981"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(16,185,129,0.15)"><div class="gig" style="background:#10b981"></div>📍</div>
+            <div class="gbadge" style="color:#10b981">Disponible</div>
+            <div class="gt">Tu passes le flambeau</div>
+            <div class="gq">"J'ai mis 6h à trouver comment sortir de São Paulo. J'ai ajouté le spot. Le prochain mettra 20 minutes. C'est le deal."</div>
+            <div class="gdiv"></div>
+            <div class="gs" style="margin-bottom:12px">3 minutes pour ajouter un spot. Des dizaines de voyageurs épargnent des heures de galère. Pour des années.</div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#10b981,#059669)">J'ajoute mon spot</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V3 — 6h vs 20 minutes.</b> La citation vraie. Le deal implicite de la communauté autostop. Très émotionnel.</div>
+    </div>
+
+    <!-- V4 : La carte que les locaux n'ont pas -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#10b981"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(16,185,129,0.15)"><div class="gig" style="background:#10b981"></div>📍</div>
+            <div class="gbadge" style="color:#10b981">Disponible</div>
+            <div class="gt">La carte que même les locaux n'ont pas</div>
+            <div class="gsc" style="border-color:#10b981">
+              <div class="gsct">Un Tokyoïte né dans la ville ne sait pas d'où partir en stop. Toi tu sais. Parce que des autostoppeurs avant toi ont cartographié ça pour que personne n'ait à le redécouvrir.</div>
+            </div>
+            <div class="gtags">
+              <span class="gtag">Savoir collectif</span>
+              <span class="gtag">Unique au monde</span>
+              <span class="gtag">Construit ensemble</span>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#10b981,#059669)">Ajouter ma connaissance</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V4 — La connaissance unique.</b> Les locaux ne savent pas faire du stop dans leur propre ville. Nous, si. C'est notre savoir collectif.</div>
+    </div>
+
+    <!-- V5 : Ce que tu sais sur cette ville -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#10b981"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(16,185,129,0.15)"><div class="gig" style="background:#10b981"></div>📍</div>
+            <div class="gbadge" style="color:#10b981">Disponible</div>
+            <div class="gt">Tu sais comment sortir de cette ville. D'autres ne savent pas encore.</div>
+            <div class="gsteps">
+              <div class="gstep"><div class="gsn" style="background:#10b981">📸</div><div class="gst">Prends une photo — elle dit tout sur le spot</div></div>
+              <div class="gstep"><div class="gsn" style="background:#10b981">🧭</div><div class="gst">Direction obligatoire — vers quelle ville/route</div></div>
+              <div class="gstep"><div class="gsn" style="background:#10b981">⭐</div><div class="gst">Sécurité, trafic, accessibilité — 3 curseurs</div></div>
+              <div class="gstep"><div class="gsn" style="background:#10b981">🌍</div><div class="gst">Visible immédiatement par la communauté mondiale</div></div>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#10b981,#059669)">Ajouter ce spot</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V5 — La transmission.</b> Tu sais. D'autres ne savent pas encore. Montre aussi le fonctionnement en 4 étapes. Pratique et émotionnel.</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ======================================================= -->
+<!-- MODE GARDIEN — 5 nouvelles propositions -->
+<!-- ======================================================= -->
+<div class="feature-section" id="f-gardien">
+  <div class="fh">
+    <div class="fh-emoji">🛡️</div>
+    <div class="fh-name">Mode Gardien live</div>
+    <div class="fh-desc">Ta position en temps réel, visible par les personnes que tu choisis. Pas juste un SMS — un point bleu sur une carte qui avance. Tes gardiens savent que tu es ok sans que tu aies besoin de les appeler. Et si tu ne réponds plus, alerte automatique.</div>
+  </div>
+  <div class="phones">
+
+    <!-- V1 : Vue gardien — ce qu'ils voient -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#3b82f6"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(59,130,246,0.15)"><div class="gig" style="background:#3b82f6"></div>🛡️</div>
+            <div class="gbadge" style="color:#3b82f6">Bêta</div>
+            <div class="gt">Ce que tes gardiens voient en ce moment</div>
+            <div style="background:rgba(0,0,0,0.35);border-radius:10px;padding:9px 10px;margin-bottom:10px;text-align:left;border:1px solid rgba(59,130,246,0.2)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+                <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px #22c55e"></div>
+                <div style="font-size:0.63rem;color:#fff;font-weight:600">Léa · En mouvement</div>
+                <div style="margin-left:auto;font-size:0.56rem;color:#64748b">🔋 72%</div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                <div style="font-size:0.58rem;color:#94a3b8">📍 A8, Slovénie</div>
+                <div style="font-size:0.58rem;color:#3b82f6">→ Zagreb 80km</div>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <div style="font-size:0.58rem;color:#94a3b8">⏱ Dernier check-in : 14 min</div>
+                <div style="font-size:0.58rem;color:#22c55e">✓ OK</div>
+              </div>
+            </div>
+            <div class="gtags">
+              <span class="gtag">GPS live</span><span class="gtag">Check-in auto</span><span class="gtag">Batterie</span><span class="gtag">ETA</span>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Activer pour eux</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V1 — La vue gardien.</b> Ce que voit concrètement ton gardien : position, batterie, ETA, dernier check-in. Tout d'un coup d'œil.</div>
+    </div>
+
+    <!-- V2 : Les 3 gardiens + check-in timer -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#3b82f6"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(59,130,246,0.15)"><div class="gig" style="background:#3b82f6"></div>🛡️</div>
+            <div class="gbadge" style="color:#3b82f6">Bêta</div>
+            <div class="gt">3 gardiens. 0 appel. Alerte automatique.</div>
+            <div class="gsteps">
+              <div class="gstep"><div class="gsn" style="background:#3b82f6">👨‍👩‍👧</div><div class="gst">Choisis jusqu'à 5 gardiens (famille, amis)</div></div>
+              <div class="gstep"><div class="gsn" style="background:#3b82f6">⏱</div><div class="gst">Timer check-in : tu confirmes que tu vas bien toutes les X heures</div></div>
+              <div class="gstep"><div class="gsn" style="background:#3b82f6">🚨</div><div class="gst">Pas de réponse → SMS automatique à tes gardiens</div></div>
+              <div class="gstep"><div class="gsn" style="background:#3b82f6">📱</div><div class="gst">Faux appel discret si tu dois partir vite</div></div>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Configurer mes gardiens</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V2 — Le système complet.</b> 4 étapes montrant les fonctions clés : contacts multiples, timer, alerte auto, faux appel. Pratique et rassurant.</div>
+    </div>
+
+    <!-- V3 : La grille de toutes les fonctionnalités -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#3b82f6"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(59,130,246,0.15)"><div class="gig" style="background:#3b82f6"></div>🛡️</div>
+            <div class="gbadge" style="color:#3b82f6">Bêta</div>
+            <div class="gt">Tout ce dont tu as besoin sur la route</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:11px">
+              <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:7px;text-align:left">
+                <div style="font-size:0.75rem;margin-bottom:3px">📍</div>
+                <div style="font-size:0.6rem;font-weight:600;color:#fff;margin-bottom:2px">GPS live</div>
+                <div style="font-size:0.55rem;color:#64748b">Position toutes les 30s</div>
+              </div>
+              <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:7px;text-align:left">
+                <div style="font-size:0.75rem;margin-bottom:3px">⏱</div>
+                <div style="font-size:0.6rem;font-weight:600;color:#fff;margin-bottom:2px">Check-in</div>
+                <div style="font-size:0.55rem;color:#64748b">Alerte si silence</div>
+              </div>
+              <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:7px;text-align:left">
+                <div style="font-size:0.75rem;margin-bottom:3px">📱</div>
+                <div style="font-size:0.6rem;font-weight:600;color:#fff;margin-bottom:2px">Faux appel</div>
+                <div style="font-size:0.55rem;color:#64748b">S'extraire discrètement</div>
+              </div>
+              <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:7px;text-align:left">
+                <div style="font-size:0.75rem;margin-bottom:3px">🎙</div>
+                <div style="font-size:0.6rem;font-weight:600;color:#fff;margin-bottom:2px">Enregistrement</div>
+                <div style="font-size:0.55rem;color:#64748b">Audio discret</div>
+              </div>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Voir tout</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V3 — La grille.</b> 4 fonctionnalités clés en tuiles. D'un coup d'œil on voit l'étendue : GPS, check-in, faux appel, enregistrement.</div>
+    </div>
+
+    <!-- V4 : Le scénario de nuit -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#3b82f6"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(59,130,246,0.15)"><div class="gig" style="background:#3b82f6"></div>🛡️</div>
+            <div class="gbadge" style="color:#3b82f6">Bêta</div>
+            <div class="gt">23h. Dernier lift. Tu montes seul·e dans ce camion.</div>
+            <div class="gsteps">
+              <div class="gstep"><div class="gsn" style="background:#22c55e">1</div><div class="gst">Tu actives le Gardien → tes 3 contacts reçoivent ta position GPS en direct</div></div>
+              <div class="gstep"><div class="gsn" style="background:#3b82f6">2</div><div class="gst">Quelque chose cloche → faux appel en 1 tap. Tu as une "urgence".</div></div>
+              <div class="gstep"><div class="gsn" style="background:#3b82f6">3</div><div class="gst">Tu enregistres discrètement si besoin. Preuve conservée.</div></div>
+              <div class="gstep"><div class="gsn" style="background:#f59e0b">4</div><div class="gst">Pas de check-in après 2h → SMS automatique à tes gardiens</div></div>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Me protéger</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V4 — Le scénario réel.</b> La nuit, seul·e, dernier lift. Le Gardien répond à une situation concrète que tout autostoppeur connaît.</div>
+    </div>
+
+    <!-- V5 : Avant / pendant / après -->
+    <div class="pw">
+      <div class="phone">
+        <div class="gbg">
+          <div class="gg" style="background:#3b82f6"></div>
+          <div class="gc">
+            <div class="gi" style="background:rgba(59,130,246,0.15)"><div class="gig" style="background:#3b82f6"></div>🛡️</div>
+            <div class="gbadge" style="color:#3b82f6">Bêta</div>
+            <div class="gt">Avant, pendant, après. Ils sont avec toi.</div>
+            <div class="ghl" style="margin-bottom:7px">
+              <div class="ghlt">🛫 Avant de monter</div>
+              <div class="ghld">Tu partages ta route prévue. Tes gardiens voient le trajet.</div>
+            </div>
+            <div class="ghl" style="margin-bottom:7px">
+              <div class="ghlt">🚗 Pendant le trajet</div>
+              <div class="ghld">Position live + batterie + ETA + check-in auto + alerte si silence.</div>
+            </div>
+            <div class="ghl" style="margin-bottom:11px">
+              <div class="ghlt">🏠 À l'arrivée</div>
+              <div class="ghld">Notification automatique à tes gardiens. Pas besoin d'appeler.</div>
+            </div>
+            <button class="gbtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Activer le Gardien</button>
+          </div>
+        </div>
+      </div>
+      <div class="pl"><b>V5 — Avant/pendant/après.</b> Le cycle complet d'un trajet protégé. Montre que le Gardien couvre TOUT le trajet, pas juste un aspect.</div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+function show(id) {
+  document.querySelectorAll('.feature-section').forEach(s => s.classList.remove('visible'));
+  document.getElementById('f-' + id).classList.add('visible');
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
