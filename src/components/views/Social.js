@@ -1,5 +1,5 @@
 /**
- * Social View Component — WhatsApp Style
+ * Social View Component — SMS Style
  * 2 tabs: Messagerie | Événements
  * Orchestrator that delegates to sub-components
  */
@@ -135,7 +135,7 @@ function renderSocialTabs(activeTab, state) {
   `
 }
 
-// ==================== TAB 1: MESSAGERIE (WhatsApp Style) ====================
+// ==================== TAB 1: MESSAGERIE (SMS Style) ====================
 
 function renderMessagerieTab(state) {
   const friends = state.friends || []

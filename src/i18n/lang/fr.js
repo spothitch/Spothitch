@@ -2387,7 +2387,7 @@ export default {
   shareCardCheckedSpot: "Je viens de checker un spot d'autostop",
   shareCardTitle: 'Partager ton check-in',
   shareCardScreenshotHint: 'Fais une capture d\'écran pour partager cette carte !',
-  shareCardWhatsApp: 'Partager sur WhatsApp',
+  shareCardSMS: 'Partager sur SMS',
   shareCardCopyLink: 'Copier le lien du spot',
   shareCardLinkCopied: 'Lien copié dans le presse-papier !',
   shareCardCopyError: 'Erreur lors de la copié',
@@ -3634,12 +3634,10 @@ export default {
   sosPrimaryContact: 'Principal',
   sosSetPrimary: 'Définir comme contact principal',
   sosChannelSMS: 'SMS uniquement',
-  sosChannelWhatsApp: 'WhatsApp uniquement',
-  sosChannelBoth: 'SMS + WhatsApp',
+  sosChannelBoth: 'SMS + In-App',
   sosChannelBothShort: 'Les 2',
   sosChannelSMSDesc: 'Les alertes seront envoyées par SMS',
-  sosChannelWhatsAppDesc: 'Les alertes seront envoyées par WhatsApp',
-  sosChannelBothDesc: 'Les alertes seront envoyées par SMS et WhatsApp',
+  sosChannelBothDesc: 'Les alertes seront envoyées par SMS et in-app',
   sosCustomMessage: 'Message personnalisé',
   sosCustomMsgPlaceholder: 'Ajouté en tête de chaque alerte...',
   sosCustomMsgHint: 'Ce texte sera ajouté au début de vos messages d\'alerte.',
@@ -3996,7 +3994,7 @@ export default {
   roadmapComingSoon: 'Bientôt disponible',
   roadmapVote: 'Voter',
 
-  // Compagnon — Notifications push uniquement (pas de SMS/WhatsApp)
+  // Compagnon — Notifications push uniquement (pas de SMS)
   companionPushOnly: 'Notifications push',
   companionPushOnlyDesc: "Les alertes sont envoyees par notifications push dans l'app. Ton gardien recoit les alertes instantanement meme a l'etranger, sans frais de SMS. Le gardien doit avoir l'app SpotHitch ou ouvrir le lien web.",
   companionAlertSent: 'Alerte envoyée par notification push !',

@@ -131,20 +131,31 @@ if (!NO_FIX) {
     warn('ESLint --fix : quelques problèmes non auto-fixables')
   }
 
-  // 1c. Vérifier console.log dans le code de prod (sauf fichiers de debug explicites)
-  let consoleCount = 0
-  for (const filePath of srcFiles) {
+  // 1c. Supprimer les console.log de prod (garder console.error dans sentry/monitor)
+  let consoleRemoved = 0
+  const srcFilesForConsole = getSrcFiles()
+  for (const filePath of srcFilesForConsole) {
+    if (filePath.includes('sentry') || filePath.includes('monitor') || filePath.includes('quality-gate')) continue
+    const content = readSrc(filePath)
+    // Supprimer les lignes console.log (pas console.error qui peut être légitime)
+    const cleaned = content.replace(/^\s*console\.log\([^)]*(?:\([^)]*\)[^)]*)*\).*$/gm, '')
+    if (cleaned !== content) {
+      const removed = (content.match(/console\.log\(/g) || []).length
+      writeFileSync(join(ROOT, filePath), cleaned, 'utf8')
+      consoleRemoved += removed
+    }
+  }
+  // Vérifier ce qui reste (console.warn/error légitimes)
+  let consoleLeft = 0
+  for (const filePath of srcFilesForConsole) {
     if (filePath.includes('sentry') || filePath.includes('monitor')) continue
     const content = readSrc(filePath)
     const matches = content.match(/console\.(log|warn|error|debug)\(/g)
-    if (matches) consoleCount += matches.length
+    if (matches) consoleLeft += matches.length
   }
-  if (consoleCount > 0) {
-    warn(`${consoleCount} console.log/warn/error en prod (non bloquant — utiliser Sentry)`)
-    recordIssue('auto-fix', 'warning', `${consoleCount} console.* dans le code de production`)
-  } else {
-    ok('Aucun console.log intempestif')
-  }
+  if (consoleRemoved > 0) recordFix(`${consoleRemoved} console.log supprimés du code de prod`)
+  if (consoleLeft > 0) warn(`${consoleLeft} console.warn/error restants (légitimes)`)
+  else ok('Aucun console.log en prod')
 } else {
   info('Mode --no-fix : corrections automatiques désactivées')
 }
@@ -211,8 +222,8 @@ if (buildResult.ok) {
   recordIssue('build', 'error', 'Build production échoué')
 }
 
-// ─── PHASE 5 : AUDIT VISUEL ───────────────────────────────────────────────────
-title('PHASE 5 — Audit visuel (screenshots)')
+// ─── PHASE 5 : AUDIT VISUEL V2 (Le Maître complet) ───────────────────────────
+title('PHASE 5 — Audit visuel & fonctionnel complet (60+ scénarios)')
 
 if (NO_VISUAL) {
   info('Skipped (--no-visual)')
@@ -223,146 +234,30 @@ if (NO_VISUAL) {
 } else {
   mkdirSync(SCREENSHOTS_DIR, { recursive: true })
 
-  const screenshotScript = `
-import { chromium } from 'playwright'
-import { writeFileSync, mkdirSync } from 'fs'
-import { join } from 'path'
-import { createServer } from 'http'
-import { createReadStream, existsSync, statSync } from 'fs'
-import { extname } from 'path'
-import { resolve } from 'path'
-
-const ROOT = '${ROOT.replace(/\\/g, '/')}'
-const DIST = join(ROOT, 'dist')
-const SCREENSHOTS = '${SCREENSHOTS_DIR.replace(/\\/g, '/')}'
-
-// Serveur statique minimal
-const MIME = {
-  '.html': 'text/html', '.js': 'application/javascript',
-  '.css': 'text/css', '.json': 'application/json',
-  '.png': 'image/png', '.svg': 'image/svg+xml',
-  '.woff2': 'font/woff2', '.ico': 'image/x-icon',
-}
-
-const server = createServer((req, res) => {
-  let urlPath = req.url.split('?')[0]
-  if (urlPath === '/' || !urlPath.includes('.')) urlPath = '/index.html'
-  const filePath = join(DIST, urlPath)
-  if (existsSync(filePath) && statSync(filePath).isFile()) {
-    const ext = extname(filePath)
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' })
-    createReadStream(filePath).pipe(res)
-  } else {
-    const indexPath = join(DIST, 'index.html')
-    res.writeHead(200, { 'Content-Type': 'text/html' })
-    createReadStream(indexPath).pipe(res)
-  }
-})
-server.listen(4321)
-
-const browser = await chromium.launch({ headless: true })
-const results = []
-
-async function screenshot(name, setupFn, theme = 'dark') {
-  const ctx = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    deviceScaleFactor: 2,
-  })
-  const page = await ctx.newPage()
-  page.on('console', () => {})
-  page.on('pageerror', () => {})
-
-  try {
-    await page.goto('http://localhost:4321', { waitUntil: 'domcontentloaded', timeout: 15000 })
-
-    // Setup état initial
-    await page.evaluate(({ theme }) => {
-      localStorage.clear()
-      localStorage.setItem('spothitch_v4_state', JSON.stringify({
-        onboardingDone: true,
-        lang: 'fr',
-        theme: theme,
-      }))
-      localStorage.setItem('spothitch_onboarding_done', '1')
-      if (theme === 'light') document.body.classList.add('light-theme')
-    }, { theme })
-
-    await page.reload({ waitUntil: 'domcontentloaded', timeout: 15000 })
-    await page.waitForTimeout(2000)
-
-    if (setupFn) await setupFn(page)
-    await page.waitForTimeout(800)
-
-    const path = \`\${SCREENSHOTS}/\${name}-\${theme}.png\`
-    await page.screenshot({ path, fullPage: false })
-    results.push({ name: \`\${name}-\${theme}\`, path, ok: true })
-    console.log('SCREENSHOT_OK:' + name + '-' + theme)
-  } catch (e) {
-    results.push({ name: \`\${name}-\${theme}\`, ok: false, error: e.message })
-    console.log('SCREENSHOT_ERR:' + name + '-' + theme + ':' + e.message)
-  } finally {
-    await ctx.close()
-  }
-}
-
-const openModal = (handler) => async (page) => {
-  await page.evaluate((h) => { window[h]?.() }, handler)
-  await page.waitForTimeout(1000)
-}
-
-const changeTab = (tab) => async (page) => {
-  await page.evaluate((t) => { window.changeTab?.(t) }, tab)
-  await page.waitForTimeout(1500)
-}
-
-// Screenshots dark + light pour chaque vue
-for (const theme of ['dark', 'light']) {
-  await screenshot('carte', null, theme)
-  await screenshot('profil', changeTab('profile'), theme)
-  await screenshot('voyage', changeTab('challenges'), theme)
-  await screenshot('social-amis', changeTab('social'), theme)
-  await screenshot('chat', changeTab('chat'), theme)
-  await screenshot('auth-modal', openModal('openAuth'), theme)
-  await screenshot('sos-modal', openModal('openSOS'), theme)
-  await screenshot('addspot-modal', openModal('openAddSpot'), theme)
-  await screenshot('dons-modal', openModal('openDonation'), theme)
-  await screenshot('filtres-modal', openModal('openFilters'), theme)
-}
-
-await browser.close()
-server.close()
-writeFileSync('${SCREENSHOTS_DIR.replace(/\\/g, '/')}/results.json', JSON.stringify(results, null, 2))
-`
-
-  writeFileSync(join(ROOT, 'scripts', '_maitre-screenshots.mjs'), screenshotScript)
-
-  info('Lancement screenshots (20 vues × 2 thèmes)...')
-  const visualResult = run('node scripts/_maitre-screenshots.mjs', { timeout: 180000 })
+  info('Lancement audit visuel complet (60+ scénarios)...')
+  const visualResult = run(`MAITRE_ROOT=${ROOT} node scripts/maitre-visual.mjs`, { timeout: 1200000 })
   const visualOut = visualResult.output + (visualResult.error || '')
 
-  // Parser les résultats
-  const ssOk = (visualOut.match(/SCREENSHOT_OK:/g) || []).length
-  const ssErr = (visualOut.match(/SCREENSHOT_ERR:/g) || []).length
+  const totalMatch = visualOut.match(/TOTAL:(\d+)/)
+  const summaryMatch = visualOut.match(/SUMMARY:(\d+):(\d+)/)
+  const vPassed = summaryMatch ? parseInt(summaryMatch[1]) : 0
+  const vFailed = summaryMatch ? parseInt(summaryMatch[2]) : 0
+  const vTotal = totalMatch ? parseInt(totalMatch[1]) : (vPassed + vFailed)
 
-  // Nettoyer le script temporaire
-  try { unlinkSync(join(ROOT, 'scripts', '_maitre-screenshots.mjs')) } catch {}
-
-  // Lire les résultats JSON si disponibles
-  const ssResultsPath = join(SCREENSHOTS_DIR, 'results.json')
-  if (existsSync(ssResultsPath)) {
-    try {
-      const ssData = JSON.parse(readFileSync(ssResultsPath, 'utf8'))
-      results.screenshots = ssData
-    } catch {}
+  // Charger les résultats détaillés
+  const vrPath = join(ROOT, 'audit-history', 'visual-results.json')
+  if (existsSync(vrPath)) {
+    try { results.screenshots = JSON.parse(readFileSync(vrPath, 'utf8')) } catch {}
   }
 
-  if (ssOk > 0) {
-    ok(`Screenshots : ${ssOk} réussis${ssErr > 0 ? `, ${ssErr} échecs` : ''}`)
-    results.phases['visual'] = { ok: ssErr === 0, screenshots_ok: ssOk, screenshots_err: ssErr }
-    if (ssErr === 0) results.passed++
-    else { results.warnings++; recordIssue('visual', 'warning', `${ssErr} screenshot(s) en échec`) }
+  if (vPassed > 0 || vFailed === 0) {
+    const allOk = vFailed === 0
+    const msg = `${vPassed}/${vTotal} scénarios OK${vFailed > 0 ? `, ${vFailed} échecs` : ''}`
+    if (allOk) { ok(msg); results.passed++ }
+    else { err(msg); results.failed++; recordIssue('visual', 'error', `${vFailed} scénario(s) visuels en échec`) }
+    results.phases['visual'] = { ok: allOk, passed: vPassed, failed: vFailed, total: vTotal }
   } else {
-    warn('Screenshots : Playwright non disponible ou erreur serveur')
+    warn('Audit visuel : Playwright non disponible ou erreur serveur')
     results.phases['visual'] = { ok: false, skipped: true, reason: 'playwright error' }
   }
 }

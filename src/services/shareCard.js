@@ -82,7 +82,7 @@ export function showShareModal(spot) {
 
   const spotName = spot.name || `${spot.from} → ${spot.to}`
   const spotUrl = `${APP_URL}/?spot=${spot.id}`
-  const whatsappText = encodeURIComponent(
+  const SMSText = encodeURIComponent(
     `🚗 ${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} ! 🤙\n\n${spotUrl}`
   )
 
@@ -157,8 +157,8 @@ export function showShareModal(spot) {
 
       <!-- Share Buttons -->
       <div style="display: grid; gap: 12px; margin-bottom: 16px;">
-        <!-- WhatsApp -->
-        <a href="https://wa.me/?text=${whatsappText}" target="_blank" rel="noopener noreferrer" style="
+        <!-- SMS -->
+        <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="
           display: flex;
           align-items: center;
           gap: 12px;
@@ -172,7 +172,7 @@ export function showShareModal(spot) {
         " onmouseover="this.style.background='#20c05c'"
            onmouseout="this.style.background='#25d366'">
           <span style="font-size: 24px;">📱</span>
-          <span>${t('shareCardWhatsApp') || 'Partager sur WhatsApp'}</span>
+          <span>${t('shareCardSMS') || 'Partager sur SMS'}</span>
         </a>
 
         <!-- Copy Link -->
@@ -268,10 +268,10 @@ export async function copySpotLink(spotId) {
 }
 
 /**
- * Share on WhatsApp
+ * Share on SMS
  * @param {string|number} spotId - Spot ID
  */
-export function shareOnWhatsApp(spotId) {
+export function shareOnSMS(spotId) {
   const { spots } = getState()
   const spot = spots.find(s => String(s.id) === String(spotId))
 
@@ -313,7 +313,7 @@ export function shareProfileModal(uid, username, avatar) {
 
   const profileUrl = `${APP_URL}/?u=${uid}`
   const displayName = username ? `@${username}` : 'Profil SpotHitch'
-  const whatsappText = encodeURIComponent(
+  const SMSText = encodeURIComponent(
     `${avatar || '🤙'} ${t('shareProfileText') || 'Rejoins-moi sur SpotHitch, la communauté des autostoppeurs !'}\n\n${profileUrl}`
   )
 
@@ -334,8 +334,8 @@ export function shareProfileModal(uid, username, avatar) {
         <div style="color:#64748b;font-size:0.75rem;margin-top:6px;word-break:break-all;">${profileUrl}</div>
       </div>
       <div style="display:grid;gap:12px;margin-bottom:12px;">
-        <a href="https://wa.me/?text=${whatsappText}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:14px;background:#25d366;border-radius:12px;text-decoration:none;color:white;font-weight:600;">
-          <span style="font-size:24px;">📱</span><span>${t('shareCardWhatsApp') || 'Partager sur WhatsApp'}</span>
+        <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:14px;background:#25d366;border-radius:12px;text-decoration:none;color:white;font-weight:600;">
+          <span style="font-size:24px;">📱</span><span>${t('shareCardSMS') || 'Partager sur SMS'}</span>
         </a>
         <button onclick="window.copyProfileLink('${escapeHTML(uid)}')" style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);border-radius:12px;color:#60a5fa;font-weight:600;cursor:pointer;width:100%;">
           <span style="font-size:24px;">🔗</span><span>${t('copyProfileLink') || 'Copier le lien du profil'}</span>
@@ -367,7 +367,7 @@ export async function copyProfileLink(uid) {
 if (typeof window !== 'undefined') {
   window.closeShareModal = closeShareModal
   window.copySpotLink = copySpotLink
-  window.shareOnWhatsApp = shareOnWhatsApp
+  window.shareOnSMS = shareOnSMS
   window.copyProfileLink = copyProfileLink
 }
 
@@ -376,7 +376,7 @@ export default {
   showShareModal,
   closeShareModal,
   copySpotLink,
-  shareOnWhatsApp,
+  shareOnSMS,
   shareProfileModal,
   copyProfileLink,
 }

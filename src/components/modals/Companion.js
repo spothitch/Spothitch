@@ -4,7 +4,7 @@
  * If check-in is missed, alert guardian with last known position.
  *
  * Features:
- * - SMS/WhatsApp channel toggle (#22)
+ * - SMS channel toggle (#22)
  * - GPS breadcrumb timeline (#24)
  * - Safe arrival notification toggle (#25)
  * - Departure notification toggle (#26)

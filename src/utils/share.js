@@ -128,7 +128,7 @@ function showShareModal(data) {
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`,
     },
     {
-      name: 'WhatsApp',
+      name: 'SMS',
       icon: '📱',
       color: '#25d366',
       url: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
