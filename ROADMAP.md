@@ -23,7 +23,7 @@
 | 📊 Stats de voyage | |
 | 🏆 Classements | Par points, en temps réel |
 | 📈 Niveaux & points | Pour donner envie de la suite |
-| 📚 Conseils par pays | Contribués par les voyageurs |
+| 💡 Partage tes conseils | Formulaire simple par catégorie — alimente les guides Beta |
 | 💛 Support / dons | |
 | 📴 Mode hors ligne | Spots téléchargés par pays |
 | 🌍 FR / EN / ES / DE | |
@@ -45,6 +45,7 @@
 | 🥇 Défis | Challenges entre voyageurs |
 | 🧠 Quiz voyage | Questions quotidiennes sur les pays et le monde |
 | 🛡️ Score de confiance | Basé sur ta réputation dans la communauté |
+| 📚 Guides par pays | Construits à partir des conseils collectés en Alpha |
 
 ---
 
@@ -65,6 +66,7 @@
 - 🥇 Défis entre voyageurs
 - 🧠 Quiz voyage (questions quotidiennes, anecdotes pays)
 - 🛡️ Score de confiance visible
+- 📚 Guides par pays (basés sur les conseils collectés en Alpha)
 - ⚠️ Suppression des données Hitchmap (spots 100% communautaires)
 
 ---
