@@ -176,11 +176,13 @@ const MAIN_JS_HANDLERS = [
   // Social view (defined in Social.js + sub-components)
   'setSocialTab', 'postCompanionRequest', 'addFriendByName',
   'showCompanionSearchView', 'closeCompanionSearch', 'toggleCustomSelect', 'selectCustomOption', 'setEventFilter',
+  // Friends Firebase (defined in Social.js)
+  'sendFriendRequest',
   // Feed (defined in Feed.js)
   'setFeedFilter', 'toggleFeedVisibility',
   // Conversations (defined in Conversations.js)
   'openGroupChat', 'closeGroupChat', 'openZoneChat', 'closeZoneChat',
-  // Friends (defined in Friends.js)
+  // Friends (defined in social/Friends.js)
   'searchAmbassadorsByCity',
   // Ambassadors (defined in ambassadors.js)
   'searchAmbassadors', 'registerAmbassador', 'contactAmbassador',

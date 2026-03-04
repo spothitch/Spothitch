@@ -1544,6 +1544,8 @@ export default {
   searchByCity: 'Rechercher par ville',
   noAmbassadorsFound: 'Aucun ambassadeur trouvé',
   noAmbassadorsAvailable: 'Aucun ambassadeur disponible',
+  noUsersFound: 'Aucun utilisateur trouvé',
+  searchResults: 'Résultats',
   available: 'Disponible',
   busy: 'Occupé',
   unavailableStatus: 'Indisponible',

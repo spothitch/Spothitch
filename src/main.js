@@ -359,7 +359,7 @@ async function init() {
           fb.initializeFirebase()
 
           // Handle auth state changes (fires immediately with current state, then on every change)
-          fb.onAuthChange((user) => {
+          fb.onAuthChange(async (user) => {
             if (user) {
               // Skip if handleGoogleSignIn already set the same user (avoid duplicate re-render)
               const current = getState()
@@ -382,6 +382,15 @@ async function init() {
                   photoURL: user.photoURL,
                 },
               }
+              // Start Firebase subscriptions for friends + DMs
+              try {
+                const [friendsModule, dmModule] = await Promise.all([
+                  import('./services/friends.js'),
+                  import('./services/directMessages.js'),
+                ])
+                friendsModule.subscribeFriendsList(user.uid)
+                dmModule.subscribeToAllConversations(user.uid)
+              } catch { /* non-bloquant */ }
               // If we're returning from a Google redirect, close the auth modal
               // (getRedirectResult can return null on some browsers — this is the backup)
               if (sessionStorage.getItem('spothitch_auth_redirect')) {
@@ -1201,6 +1210,15 @@ if (!window.handleForgotPassword) {
 }
 if (!window.handleLogout) {
   window.handleLogout = async () => {
+    // Cleanup Firebase subscriptions before logout
+    try {
+      const [friendsModule, dmModule] = await Promise.all([
+        import('./services/friends.js'),
+        import('./services/directMessages.js'),
+      ])
+      friendsModule.unsubscribeFriendsList()
+      dmModule.unsubscribeFromAllConversations()
+    } catch { /* non-bloquant */ }
     const fb = await getFirebase()
     await fb.logOut()
     actions.setUser(null)

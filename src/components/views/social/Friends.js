@@ -14,6 +14,8 @@ export function renderFriends(state) {
   const friends = state.friends || []
   const friendRequests = state.friendRequests || []
   const ambassadorQuery = state.ambassadorSearchQuery || ''
+  const searchResults = state.friendSearchResults || null
+  const searchLoading = state.friendSearchLoading || false
 
   return `
     <div class="flex-1 overflow-y-auto">
@@ -29,9 +31,40 @@ export function renderFriends(state) {
           wrapperClass: 'flex-1',
         })}
         <button onclick="addFriendByName()" class="btn-primary px-3" aria-label="${t('addFriend')}">
-          ${icon('user-plus', 'w-5 h-5')}
+          ${searchLoading
+            ? `<span class="animate-spin inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full"></span>`
+            : icon('user-plus', 'w-5 h-5')}
         </button>
       </div>
+
+      <!-- Search results -->
+      ${searchResults !== null ? `
+        <div class="px-4 pb-3">
+          <div class="card p-3 border-primary-500/30">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="font-bold text-xs text-primary-400">${t('searchResults') || 'Résultats'} (${searchResults.length})</h4>
+              <button onclick="setState({ friendSearchResults: null })" class="text-xs text-slate-400 hover:text-white">${t('close') || '✕'}</button>
+            </div>
+            ${searchResults.length === 0
+              ? `<p class="text-sm text-slate-400">${t('noUsersFound') || 'Aucun utilisateur trouvé'}</p>`
+              : searchResults.map(user => `
+                <div class="flex items-center justify-between py-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl">${escapeHTML(user.avatar || '🤙')}</span>
+                    <div>
+                      <div class="text-sm font-medium">${escapeHTML(user.displayName || user.username || 'Traveler')}</div>
+                      ${user.username ? `<div class="text-xs text-slate-400">@${escapeHTML(user.username)}</div>` : ''}
+                    </div>
+                  </div>
+                  <button onclick="sendFriendRequest('${escapeHTML(user.id)}')" class="px-3 py-1.5 rounded-xl bg-primary-500/20 text-primary-400 text-xs font-medium hover:bg-primary-500/30 transition-colors">
+                    ${icon('user-plus', 'w-3.5 h-3.5 mr-1')}
+                    ${t('addFriend') || 'Ajouter'}
+                  </button>
+                </div>
+              `).join('')}
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Friend Requests -->
       ${friendRequests.length > 0 ? `

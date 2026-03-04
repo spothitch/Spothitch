@@ -1108,26 +1108,52 @@ window.sendPrivateMessage = async (friendId) => {
   }, 50)
 }
 
-window.acceptFriendRequest = async (_requestId) => {
-  window.showSuccess?.(t('friendAdded'))
+window.acceptFriendRequest = async (requestId) => {
+  const { getState } = await import('../../stores/state.js')
+  const state = getState()
+  if (!state.isLoggedIn) {
+    window.requireAuth?.('social')
+    return
+  }
   try {
-    const { triggerFriendAddedTip } = await import('../../services/contextualTips.js')
-    triggerFriendAddedTip()
-  } catch { /* no-op */ }
+    const { acceptFriendRequest } = await import('../../services/friends.js')
+    const result = await acceptFriendRequest(requestId)
+    if (result.success) {
+      window.showSuccess?.(t('friendAdded'))
+      try {
+        const { triggerFriendAddedTip } = await import('../../services/contextualTips.js')
+        triggerFriendAddedTip()
+      } catch { /* no-op */ }
+    } else {
+      window.showToast?.(t('errorOccurred') || 'Error', 'error')
+    }
+  } catch {
+    window.showToast?.(t('errorOccurred') || 'Error', 'error')
+  }
 }
 
-window.declineFriendRequest = (requestId) => {
-  const state = window.getState?.()
-  if (state?.friendRequests) {
-    const updated = state.friendRequests.filter(r => r.id !== requestId)
-    window.setState?.({ friendRequests: updated })
+window.declineFriendRequest = async (requestId) => {
+  const { getState } = await import('../../stores/state.js')
+  const state = getState()
+  if (!state.isLoggedIn) {
+    window.requireAuth?.('social')
+    return
   }
+  try {
+    const { declineFriendRequest } = await import('../../services/friends.js')
+    await declineFriendRequest(requestId)
+  } catch { /* no-op */ }
   window.showToast?.(t('requestDeclined') || 'Request declined', 'info')
 }
 
 window.showAddFriend = () => {
   window.setState?.({ socialSubTab: 'messagerie' })
-  setTimeout(() => document.getElementById('friend-search')?.focus() || document.getElementById('social-search')?.focus(), 100)
+  setTimeout(
+    () =>
+      document.getElementById('friend-search')?.focus() ||
+      document.getElementById('social-search')?.focus(),
+    100
+  )
 }
 
 window.addFriendByName = async () => {
@@ -1140,36 +1166,65 @@ window.addFriendByName = async () => {
 
   const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
-  const friends = state.friends || []
 
-  if (friends.some(f => f.name.toLowerCase() === name.toLowerCase())) {
-    window.showToast?.(t('alreadyFriend'), 'warning')
+  if (!state.isLoggedIn) {
+    window.requireAuth?.('social')
     return
   }
 
-  const avatars = ['🤙', '🧗', '🏄', '🚶', '🧭', '🎒', '🌍', '🛤️']
-  const rng = crypto.getRandomValues(new Uint32Array(3))
-  // Unbiased random: multiply then shift to avoid modulo bias (CodeQL: biased random fix)
-  const unbiasedInt = (val, max) => Math.floor((val / 0x100000000) * max)
-  const newFriend = {
-    id: `friend_${Date.now()}`,
-    name,
-    avatar: avatars[unbiasedInt(rng[0], avatars.length)],
-    level: unbiasedInt(rng[1], 10) + 1,
-    online: unbiasedInt(rng[2], 2) === 0,
-    unread: 0,
-    addedAt: new Date().toISOString(),
+  // Search real users in Firestore
+  setState({ friendSearchLoading: true, friendSearchResults: null })
+  try {
+    const { searchUsers } = await import('../../services/friends.js')
+    const results = await searchUsers(name)
+    if (results.length === 0) {
+      window.showToast?.(t('noUsersFound') || 'Aucun utilisateur trouvé', 'warning')
+      setState({ friendSearchLoading: false, friendSearchResults: null })
+    } else {
+      setState({ friendSearchLoading: false, friendSearchResults: results })
+    }
+  } catch {
+    setState({ friendSearchLoading: false, friendSearchResults: null })
+    window.showToast?.(t('errorOccurred') || 'Error', 'error')
   }
+}
 
-  setState({ friends: [...friends, newFriend] })
-  if (input) input.value = ''
-  window.showToast?.(t('friendAdded'), 'success')
+window.sendFriendRequest = async (targetUserId) => {
+  const { getState, setState } = await import('../../stores/state.js')
+  const state = getState()
+  if (!state.isLoggedIn) {
+    window.requireAuth?.('social')
+    return
+  }
+  try {
+    const { sendFriendRequest } = await import('../../services/friends.js')
+    const result = await sendFriendRequest(targetUserId)
+    if (result.success) {
+      window.showToast?.(t('friendRequestSent') || 'Demande envoyée !', 'success')
+    } else if (result.error === 'already_friends') {
+      window.showToast?.(t('alreadyFriend') || 'Déjà ami', 'warning')
+    } else if (result.error === 'request_already_sent') {
+      window.showToast?.(t('requestAlreadySent') || 'Demande déjà envoyée', 'warning')
+    } else {
+      window.showToast?.(t('errorOccurred') || 'Error', 'error')
+    }
+    setState({ friendSearchResults: null })
+    const input = document.getElementById('friend-search')
+    if (input) input.value = ''
+  } catch {
+    window.showToast?.(t('errorOccurred') || 'Error', 'error')
+  }
 }
 
 window.removeFriend = async (friendId) => {
-  const { getState, setState } = await import('../../stores/state.js')
+  const { getState } = await import('../../stores/state.js')
   const state = getState()
-  setState({ friends: (state.friends || []).filter(f => f.id !== friendId) })
+  if (!state.isLoggedIn) return
+
+  try {
+    const { removeFriend } = await import('../../services/friends.js')
+    await removeFriend(friendId)
+  } catch { /* no-op — state updated by onSnapshot */ }
   window.showToast?.(t('friendRemoved'), 'info')
 }
 

@@ -1548,6 +1548,8 @@ export default {
   searchByCity: 'Buscar por ciudad',
   noAmbassadorsFound: 'No se encontraron embajadores',
   noAmbassadorsAvailable: 'No hay embajadores disponibles',
+  noUsersFound: 'No se encontraron usuarios',
+  searchResults: 'Resultados',
   available: 'Disponible',
   busy: 'Ocupado',
   unavailableStatus: 'No disponible',
