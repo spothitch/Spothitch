@@ -350,17 +350,14 @@ function renderVerificationCard(state) {
 
 function renderMyReviewsCard(state) {
   const reviews = state.myProfileReviews
-  const avg = reviews?.length > 0
-    ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1)
-    : null
 
   return `
     <div class="card p-4">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold flex items-center gap-2">
-          ${icon('star', 'w-4 h-4 text-amber-400')}
+          ${icon('message-square', 'w-4 h-4 text-slate-400')}
           ${t('receivedReviews') || 'Avis reçus'}
-          ${avg ? `<span class="text-amber-400 font-bold">${avg}/5</span>` : ''}
+          ${Array.isArray(reviews) && reviews.length > 0 ? `<span class="text-slate-500 font-normal text-xs">(${reviews.length})</span>` : ''}
         </h3>
         <button
           onclick="loadMyProfileReviews()"
@@ -374,7 +371,7 @@ function renderMyReviewsCard(state) {
           class="w-full py-3 text-sm text-slate-500 hover:text-slate-400 border border-dashed border-white/10 rounded-xl transition-colors"
           type="button"
         >
-          ${icon('star', 'w-4 h-4 inline mr-1')}
+          ${icon('message-square', 'w-4 h-4 inline mr-1')}
           ${t('loadReviews') || 'Voir mes avis'}
         </button>
       ` : reviews.length === 0 ? `
@@ -385,10 +382,7 @@ function renderMyReviewsCard(state) {
             <div class="flex items-start gap-2 bg-white/5 rounded-xl p-2.5">
               <span class="text-xl">${r.reviewerAvatar || '🤙'}</span>
               <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-medium text-slate-300">${escapeHTML(r.reviewerName || 'Hitchhiker')}</span>
-                  <span class="text-amber-400 text-xs">${'⭐'.repeat(r.rating || 1)}</span>
-                </div>
+                <span class="text-xs font-medium text-slate-300">${escapeHTML(r.reviewerName || 'Hitchhiker')}</span>
                 ${r.comment ? `<p class="text-xs text-slate-400 mt-0.5 leading-relaxed">${escapeHTML(r.comment)}</p>` : ''}
               </div>
             </div>

@@ -1285,11 +1285,11 @@ window.cancelWriteReview = () => {
   window.setState?.({ showWriteReview: false, reviewTargetUid: null })
 }
 
-window.submitProfileReview = async (targetUid, rating, comment) => {
-  if (!targetUid || !rating) return
+window.submitProfileReview = async (targetUid, comment) => {
+  if (!targetUid || !comment?.trim()) return
   try {
     const { submitProfileReview } = await import('../../services/userReviews.js')
-    const result = await submitProfileReview(targetUid, parseInt(rating), comment)
+    const result = await submitProfileReview(targetUid, null, comment)
     if (result.success) {
       window.showToast?.(t('reviewSubmitted') || 'Avis envoyé !', 'success')
       window.setState?.({ showWriteReview: false, reviewTargetUid: null })

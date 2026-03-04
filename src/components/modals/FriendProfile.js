@@ -264,18 +264,12 @@ function renderProfileReviews(state, targetUid) {
 
   const canReview = currentUid && currentUid !== targetUid
 
-  // Average rating
-  const avg = reviews?.length > 0
-    ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1)
-    : null
-
   return `
     <div class="space-y-2">
       <div class="flex items-center justify-between">
         <div class="text-xs text-slate-400 font-medium flex items-center gap-1">
-          ${icon('star', 'w-3 h-3 text-amber-400')}
+          ${icon('message-square', 'w-3 h-3 text-slate-400')}
           ${t('profileReviews') || 'Avis'}
-          ${avg ? `<span class="text-amber-400 font-semibold">${avg}/5</span>` : ''}
           ${Array.isArray(reviews) ? `<span class="text-slate-600">(${reviews.length})</span>` : ''}
         </div>
         ${canReview && !isWriting ? `
@@ -303,7 +297,6 @@ function renderProfileReviews(state, targetUid) {
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-base">${r.reviewerAvatar || '🤙'}</span>
                 <span class="font-medium text-slate-300">${escapeHTML(r.reviewerName || 'Hitchhiker')}</span>
-                <span class="text-amber-400 ml-auto">${'⭐'.repeat(r.rating || 1)}</span>
               </div>
               ${r.comment ? `<p class="text-slate-400 leading-relaxed">${escapeHTML(r.comment)}</p>` : ''}
             </div>
@@ -317,26 +310,16 @@ function renderProfileReviews(state, targetUid) {
 function renderWriteReviewForm(targetUid) {
   return `
     <div class="bg-white/5 rounded-xl p-3 space-y-2">
-      <div class="flex items-center gap-1 justify-center" id="star-rating-${targetUid}">
-        ${[1,2,3,4,5].map(n => `
-          <button
-            type="button"
-            onclick="document.querySelectorAll('#star-rating-${targetUid} button').forEach((b,i)=>{b.textContent=i<${n}?'⭐':'☆'}); document.getElementById('review-rating-${targetUid}').value=${n}"
-            class="text-2xl transition-transform hover:scale-110"
-          >${n <= 3 ? '⭐' : '☆'}</button>
-        `).join('')}
-      </div>
-      <input type="hidden" id="review-rating-${targetUid}" value="3">
       <textarea
         id="review-comment-${targetUid}"
-        class="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs resize-none h-16 focus:border-primary-500/50 focus:outline-none text-slate-300"
+        class="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs resize-none h-20 focus:border-primary-500/50 focus:outline-none text-slate-300"
         placeholder="${t('reviewPlaceholder') || 'Ton expérience avec cet autostoppeur...'}"
         maxlength="500"
       ></textarea>
       <div class="flex gap-2">
         <button
           type="button"
-          onclick="submitProfileReview('${targetUid}', document.getElementById('review-rating-${targetUid}').value, document.getElementById('review-comment-${targetUid}').value)"
+          onclick="submitProfileReview('${targetUid}', document.getElementById('review-comment-${targetUid}').value)"
           class="flex-1 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-600 transition-colors"
         >${t('submit') || 'Envoyer'}</button>
         <button
