@@ -13,9 +13,13 @@ import { renderToggle } from '../../utils/toggle.js'
 import { icon } from '../../utils/icons.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
 import { applyTripFilter } from '../../utils/tripFilters.js'
+import {
+  addFavorite as _addFavorite,
+  removeFavorite as _removeFavorite,
+  isFavorite as _isFavorite,
+} from '../../services/favorites.js'
 
 const SAVED_TRIPS_KEY = 'spothitch_saved_trips'
-const FAVORITES_KEY = 'spothitch_favorites'
 
 function formatRelativeDate(isoStr) {
   try {
@@ -1249,24 +1253,22 @@ window.renameSavedTrip = (index) => {
   }
 }
 
-// Toggle favorite spot
-window.toggleFavorite = (spotId) => {
+// Toggle favorite spot (localStorage + Firebase)
+window.toggleFavorite = async (spotId) => {
   if (!spotId) return
   try {
-    const favs = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')
-    const idx = favs.indexOf(spotId)
-    if (idx >= 0) {
-      favs.splice(idx, 1)
+    const currently = _isFavorite(spotId)
+    if (currently) {
+      await _removeFavorite(spotId)
       window.showToast?.(t('removeFromFavorites') || 'Retiré des favoris', 'success')
     } else {
-      favs.push(spotId)
+      await _addFavorite(spotId)
       window.showToast?.(t('addToFavorites') || 'Ajouté aux favoris', 'success')
     }
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs))
     // Update heart icon directly in DOM (no full re-render)
     const btn = document.querySelector(`[onclick="toggleFavorite('${spotId}')"]`)
     if (btn) {
-      const isFav = favs.includes(spotId)
+      const isFav = _isFavorite(spotId)
       btn.className = btn.className.replace(/text-(amber|slate)-\d+/g, isFav ? 'text-amber-400' : 'text-slate-400')
     }
   } catch (e) {
@@ -1275,12 +1277,7 @@ window.toggleFavorite = (spotId) => {
 }
 
 // Check if spot is favorite
-window.isFavorite = (spotId) => {
-  try {
-    const favs = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')
-    return favs.includes(spotId)
-  } catch (e) { return false }
-}
+window.isFavorite = (spotId) => _isFavorite(spotId)
 
 // Toggle route amenities (gas stations / rest areas)
 window.toggleRouteAmenities = async () => {

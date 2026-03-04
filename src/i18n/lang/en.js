@@ -1923,6 +1923,7 @@ export default {
   daysLeft: 'days left',
   leaderboardTitle: 'Leaderboard',
   leaderboardSubtitle: 'Top hitchhikers',
+  leaderboardEmpty: 'Be the first to appear here!',
   levelN: 'Level',
   yourRank: 'Your rank',
   thisWeek: 'This week',

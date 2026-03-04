@@ -1,15 +1,25 @@
 /**
  * Feedback Service
  * Centralized storage for guide tip votes and user suggestions
- * Uses localStorage for persistence
+ * Uses localStorage for personal votes + Firestore for community aggregates
  */
 
 import { Storage } from '../utils/storage.js'
 import { t } from '../i18n/index.js'
 import { icon } from '../utils/icons.js'
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment as fsIncrement } from 'firebase/firestore'
+import { getApps, getApp } from 'firebase/app'
+import { getCurrentUser } from './firebase.js'
 
 const VOTES_KEY = 'spothitch_guide_votes'
 const SUGGESTIONS_KEY = 'spothitch_guide_suggestions'
+
+// In-memory cache of community vote counts { [key]: { up, down } }
+const _communityVotes = {}
+
+function getDb() {
+  return getApps().length > 0 ? getFirestore(getApp()) : null
+}
 
 // ==================== VOTES ====================
 
@@ -19,6 +29,21 @@ function getVotes() {
 
 function saveVotes(votes) {
   Storage.set(VOTES_KEY, votes)
+}
+
+/**
+ * Load community vote totals for a tip from Firestore (updates in-memory cache)
+ */
+export async function loadCommunityVotes(section, tipIndex) {
+  const db = getDb()
+  if (!db) return
+  const key = `${section}_${tipIndex}`
+  try {
+    const snap = await getDoc(doc(db, 'guideVotes', key))
+    if (snap.exists()) {
+      _communityVotes[key] = { up: snap.data().up || 0, down: snap.data().down || 0 }
+    }
+  } catch { /* silent */ }
 }
 
 /**
@@ -40,7 +65,37 @@ export function voteGuideTip(section, tipIndex, direction) {
     votedAt: new Date().toISOString(),
   }
   saveVotes(votes)
+
+  // Update community totals in cache immediately
+  if (!_communityVotes[key]) _communityVotes[key] = { up: 0, down: 0 }
+  _communityVotes[key][direction]++
+
+  // Sync to Firestore (best effort, async)
+  _syncVoteToFirestore(key, direction)
+
   return true
+}
+
+async function _syncVoteToFirestore(key, direction) {
+  const db = getDb()
+  if (!db) return
+  const user = getCurrentUser()
+  try {
+    const ref = doc(db, 'guideVotes', key)
+    const snap = await getDoc(ref)
+    if (snap.exists()) {
+      await updateDoc(ref, { [direction]: fsIncrement(1), updatedAt: new Date().toISOString() })
+    } else {
+      await setDoc(ref, { up: direction === 'up' ? 1 : 0, down: direction === 'down' ? 1 : 0, updatedAt: new Date().toISOString() })
+    }
+    // Also record user's vote in their profile (for cross-device sync)
+    if (user) {
+      await setDoc(doc(db, 'users', user.uid, 'guideVotes', key), {
+        direction,
+        votedAt: new Date().toISOString(),
+      })
+    }
+  } catch { /* silent — local vote already saved */ }
 }
 
 /**
@@ -125,10 +180,11 @@ export function getSuggestionsBySection(section) {
  * @returns {{ up: number, down: number }}
  */
 export function getTipVoteCounts(section, tipIndex) {
-  const votes = getVotes()
   const key = `${section}_${tipIndex}`
+  // Return community totals if available, else personal vote count
+  if (_communityVotes[key]) return _communityVotes[key]
+  const votes = getVotes()
   const myVote = votes[key]
-  // Only show real user votes — no fake counts
   return {
     up: myVote?.direction === 'up' ? 1 : 0,
     down: myVote?.direction === 'down' ? 1 : 0,

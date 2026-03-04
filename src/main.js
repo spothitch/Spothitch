@@ -382,16 +382,19 @@ async function init() {
                   photoURL: user.photoURL,
                 },
               }
-              // Start Firebase subscriptions for friends + DMs
+              // Start Firebase subscriptions for friends + DMs + favorites
               try {
-                const [friendsModule, dmModule, gcModule] = await Promise.all([
+                const [friendsModule, dmModule, gcModule, favsModule] = await Promise.all([
                   import('./services/friends.js'),
                   import('./services/directMessages.js'),
                   import('./services/groupConversations.js'),
+                  import('./services/favorites.js'),
                 ])
                 friendsModule.subscribeFriendsList(user.uid)
                 dmModule.subscribeToAllConversations(user.uid)
                 gcModule.subscribeToAllGroupConversations(user.uid)
+                favsModule.subscribeFavorites(user.uid)
+                favsModule.syncLocalFavoritesToFirestore(user.uid)
               } catch { /* non-bloquant */ }
               // If we're returning from a Google redirect, close the auth modal
               // (getRedirectResult can return null on some browsers — this is the backup)
@@ -414,6 +417,8 @@ async function init() {
               setState(updates)
               // Hydrate profile from Firestore (bio, languages, etc.)
               fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
+              // Sync points/badges from Firestore (multi-device sync)
+              import('./services/gamification.js').then(m => m.loadPointsFromFirestore(user.uid)).catch(() => {})
             } else {
               actions.setUser(null)
               setState({ currentUser: null, userProfile: null, isAdmin: false })

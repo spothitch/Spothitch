@@ -329,6 +329,7 @@ const initialState = {
   quizTimeLeft: 0,
   challengeTab: 'active',
   leaderboardTab: 'weekly',
+  leaderboardData: null,
   shopCategory: 'all',
   profileFrame: null,
   profileTitle: null,

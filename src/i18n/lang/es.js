@@ -1920,6 +1920,7 @@ export default {
   daysLeft: 'días restantes',
   leaderboardTitle: 'Clasificación',
   leaderboardSubtitle: 'Los mejores autoestopistas',
+  leaderboardEmpty: '¡Sé el primero en aparecer aquí!',
   levelN: 'Nivel',
   yourRank: 'Tu posición',
   thisWeek: 'Esta semana',

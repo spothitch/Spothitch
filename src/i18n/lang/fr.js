@@ -1923,6 +1923,7 @@ export default {
   daysLeft: 'jours restants',
   leaderboardTitle: 'Classement',
   leaderboardSubtitle: 'Les meilleurs autostoppeurs',
+  leaderboardEmpty: 'Sois le premier à apparaître ici !',
   levelN: 'Niveau',
   yourRank: 'Votre rang',
   thisWeek: 'Cette semaine',

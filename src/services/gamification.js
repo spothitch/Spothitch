@@ -9,6 +9,59 @@ import { leagues, getLeague, getVipLevel, getNextVipLevel } from '../data/vip-le
 import { getTitleForLevel, checkTitleChange, getTitleProgress, getUnlockedTitles, getLockedTitles, getAllTitles } from '../data/titles.js';
 import { showToast } from './notifications.js';
 import { t } from '../i18n/index.js';
+import { getCurrentUser } from './firebase.js';
+import { getFirestore, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { getApps, getApp } from 'firebase/app';
+
+// Debounce Firestore sync to avoid excessive writes
+let _syncTimer = null
+
+function syncPointsToFirestore() {
+  clearTimeout(_syncTimer)
+  _syncTimer = setTimeout(async () => {
+    try {
+      if (!getApps().length) return
+      const user = getCurrentUser()
+      if (!user) return
+      const s = getState()
+      const db = getFirestore(getApp())
+      await updateDoc(doc(db, 'users', user.uid), {
+        points: s.points || 0,
+        level: s.level || 1,
+        seasonPoints: s.seasonPoints || 0,
+        badges: s.badges || [],
+        checkins: s.checkins || 0,
+        spotsCreated: s.spotsCreated || 0,
+        reviewsGiven: s.reviewsGiven || 0,
+      })
+    } catch { /* silent — local state is source of truth */ }
+  }, 3000)
+}
+
+/**
+ * Load points/badges from Firestore on login and merge into local state
+ * Firestore wins (multi-device source of truth)
+ * @param {string} userId
+ */
+export async function loadPointsFromFirestore(userId) {
+  try {
+    if (!getApps().length) return
+    const db = getFirestore(getApp())
+    const snap = await getDoc(doc(db, 'users', userId))
+    if (!snap.exists()) return
+    const p = snap.data()
+    const s = getState()
+    setState({
+      points: Math.max(s.points || 0, p.points || 0),
+      level: Math.max(s.level || 1, p.level || 1),
+      seasonPoints: Math.max(s.seasonPoints || 0, p.seasonPoints || 0),
+      badges: (p.badges?.length || 0) > (s.badges?.length || 0) ? p.badges : (s.badges || []),
+      checkins: Math.max(s.checkins || 0, p.checkins || 0),
+      spotsCreated: Math.max(s.spotsCreated || 0, p.spotsCreated || 0),
+      reviewsGiven: Math.max(s.reviewsGiven || 0, p.reviewsGiven || 0),
+    })
+  } catch { /* silent — local state remains */ }
+}
 
 /**
  * Add points to user's total
@@ -65,6 +118,9 @@ export function addPoints(pts, _reason = '') {
 
   // Check badges
   checkBadges();
+
+  // Sync to Firestore (debounced)
+  syncPointsToFirestore();
 
   return multipliedPts;
 }

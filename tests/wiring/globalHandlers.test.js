@@ -384,9 +384,6 @@ const MAIN_JS_HANDLERS = [
   'getUserTrustScore', 'showTrustDetails',
   // Companion Search (defined in companionSearch.js) 'closeTravelPlanDetail',
   // Dangerous Spots (defined in dangerousSpots.js) 'closeDangerReportModal',
-  // TravelGroups extras (defined in travelGroups.js)
-  'createGroup', 'acceptGroupInvitation', 'declineGroupInvitation',
-  'addItineraryStop', 'removeItineraryStop',
   // Private Messages (defined in privateMessages.js)
   // Nearby Friends extras (defined in nearbyFriends.js)
   'setNotificationRadius', 'toggleNearbyFriendsList',

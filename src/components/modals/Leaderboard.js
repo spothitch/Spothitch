@@ -5,46 +5,48 @@
 
 import { getState, setState } from '../../stores/state.js';
 import { t } from '../../i18n/index.js';
+import { getFirestore, collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { getApps, getApp } from 'firebase/app';
 
-// Mock leaderboard data (in real app, this would come from Firebase)
-const mockLeaderboardData = {
-  weekly: [
-    { id: 1, username: 'RoadRunner', avatar: '🏃', points: 1250, level: 15, country: 'FR' },
-    { id: 2, username: 'ThumbsUp', avatar: '👍', points: 1180, level: 14, country: 'DE' },
-    { id: 3, username: 'WanderlustPro', avatar: '🌍', points: 1050, level: 13, country: 'NL' },
-    { id: 4, username: 'FreeSoul', avatar: '✌️', points: 920, level: 12, country: 'ES' },
-    { id: 5, username: 'HitchKing', avatar: '👑', points: 850, level: 11, country: 'IT' },
-    { id: 6, username: 'Nomad42', avatar: '🎒', points: 780, level: 10, country: 'BE' },
-    { id: 7, username: 'RoadTripper', avatar: '🚗', points: 720, level: 9, country: 'PT' },
-    { id: 8, username: 'Backpacker', avatar: '🧳', points: 650, level: 8, country: 'AT' },
-    { id: 9, username: 'Explorer99', avatar: '🧭', points: 580, level: 7, country: 'CH' },
-    { id: 10, username: 'Adventurer', avatar: '⛺', points: 520, level: 6, country: 'PL' },
-  ],
-  monthly: [
-    { id: 1, username: 'LegendHitcher', avatar: '🏆', points: 5200, level: 25, country: 'FR' },
-    { id: 2, username: 'RoadRunner', avatar: '🏃', points: 4800, level: 24, country: 'FR' },
-    { id: 3, username: 'ThumbsUp', avatar: '👍', points: 4500, level: 22, country: 'DE' },
-    { id: 4, username: 'WanderlustPro', avatar: '🌍', points: 4200, level: 21, country: 'NL' },
-    { id: 5, username: 'MasterNomad', avatar: '🎯', points: 3900, level: 20, country: 'ES' },
-    { id: 6, username: 'FreeSoul', avatar: '✌️', points: 3600, level: 19, country: 'ES' },
-    { id: 7, username: 'HitchKing', avatar: '👑', points: 3300, level: 18, country: 'IT' },
-    { id: 8, username: 'Nomad42', avatar: '🎒', points: 3000, level: 17, country: 'BE' },
-    { id: 9, username: 'RoadTripper', avatar: '🚗', points: 2700, level: 16, country: 'PT' },
-    { id: 10, username: 'Backpacker', avatar: '🧳', points: 2400, level: 15, country: 'AT' },
-  ],
-  allTime: [
-    { id: 1, username: 'LegendHitcher', avatar: '🏆', points: 52000, level: 50, country: 'FR' },
-    { id: 2, username: 'MasterNomad', avatar: '🎯', points: 48000, level: 48, country: 'ES' },
-    { id: 3, username: 'RoadRunner', avatar: '🏃', points: 45000, level: 45, country: 'FR' },
-    { id: 4, username: 'ThumbsUp', avatar: '👍', points: 42000, level: 42, country: 'DE' },
-    { id: 5, username: 'WanderlustPro', avatar: '🌍', points: 38000, level: 38, country: 'NL' },
-    { id: 6, username: 'FreeSoul', avatar: '✌️', points: 35000, level: 35, country: 'ES' },
-    { id: 7, username: 'HitchKing', avatar: '👑', points: 32000, level: 32, country: 'IT' },
-    { id: 8, username: 'Nomad42', avatar: '🎒', points: 28000, level: 28, country: 'BE' },
-    { id: 9, username: 'RoadTripper', avatar: '🚗', points: 25000, level: 25, country: 'PT' },
-    { id: 10, username: 'Backpacker', avatar: '🧳', points: 22000, level: 22, country: 'AT' },
-  ],
-};
+// Cache leaderboard data to avoid excessive Firestore reads
+let _cache = { data: null, tab: null, ts: 0 }
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+async function fetchLeaderboardData(tab) {
+  // Return cache if fresh and same tab
+  if (_cache.data && _cache.tab === tab && Date.now() - _cache.ts < CACHE_TTL) {
+    return _cache.data
+  }
+
+  if (!getApps().length) return []
+
+  try {
+    const db = getFirestore(getApp())
+    const sortField = tab === 'allTime' ? 'points' : 'seasonPoints'
+    const q = query(collection(db, 'users'), orderBy(sortField, 'desc'), limit(20))
+    const snap = await getDocs(q)
+
+    const data = snap.docs
+      .map((d, i) => {
+        const p = d.data()
+        return {
+          id: i + 1,
+          uid: d.id,
+          username: p.username || p.displayName || 'Hitchhiker',
+          avatar: p.avatar || '🤙',
+          points: tab === 'allTime' ? (p.points || 0) : (p.seasonPoints || 0),
+          level: p.level || 1,
+          country: p.country || '',
+        }
+      })
+      .filter(u => u.points > 0)
+
+    _cache = { data, tab, ts: Date.now() }
+    return data
+  } catch {
+    return []
+  }
+}
 
 const countryFlags = {
   FR: '🇫🇷', DE: '🇩🇪', NL: '🇳🇱', ES: '🇪🇸', IT: '🇮🇹',
@@ -61,10 +63,8 @@ const countryNames = {
  */
 function getAvailableCountries(data) {
   const countries = new Set();
-  for (const tab of Object.values(data)) {
-    for (const user of tab) {
-      if (user.country) countries.add(user.country);
-    }
+  for (const user of data) {
+    if (user.country) countries.add(user.country);
   }
   return [...countries].sort();
 }
@@ -78,19 +78,26 @@ export function renderLeaderboardModal() {
 
   if (!showLeaderboard) return '';
 
-  const rawData = mockLeaderboardData[leaderboardTab] || [];
-  const leaderboardData = leaderboardCountry === 'all'
+  // leaderboardData: null = loading, [] = empty, [...] = loaded
+  const rawData = state.leaderboardData ?? null;
+  const isLoading = rawData === null;
+  const filteredData = isLoading ? [] : (leaderboardCountry === 'all'
     ? rawData
-    : rawData.filter(u => u.country === leaderboardCountry);
+    : rawData.filter(u => u.country === leaderboardCountry));
 
-  const availableCountries = getAvailableCountries(mockLeaderboardData);
+  const availableCountries = isLoading ? [] : getAvailableCountries(rawData);
+
+  // Compute user's rank in current list
+  const currentUid = state.currentUser?.uid
+  const userRankIdx = filteredData.findIndex(u => u.uid === currentUid)
+  const userRank = userRankIdx >= 0 ? userRankIdx + 1 : null
 
   const currentUser = {
     username: state.username || 'Vous',
     avatar: state.avatar || '🤙',
     points: state.points || 0,
     level: state.level || 1,
-    rank: 42, // Mock rank
+    rank: userRank,
   };
 
   return `
@@ -124,7 +131,7 @@ export function renderLeaderboardModal() {
                 <div class="text-white/70 text-sm">${t('levelN') || 'Level'} ${currentUser.level} • ${currentUser.points.toLocaleString()} 👍</div>
               </div>
               <div class="text-right">
-                <div class="text-3xl font-bold text-white">#${currentUser.rank}</div>
+                <div class="text-3xl font-bold text-white">${currentUser.rank ? `#${currentUser.rank}` : '—'}</div>
                 <div class="text-white/70 text-xs">${t('yourRank') || 'Your rank'}</div>
               </div>
             </div>
@@ -188,21 +195,29 @@ export function renderLeaderboardModal() {
 
         <!-- Leaderboard List -->
         <div class="flex-1 overflow-y-auto">
-          ${leaderboardData.length > 0 ? `
+          ${isLoading ? `
+          <div class="flex justify-center items-center py-16">
+            <div class="text-center">
+              <div class="text-4xl mb-3 animate-bounce">🏆</div>
+              <div class="text-slate-400 text-sm">${t('loading') || 'Chargement...'}</div>
+            </div>
+          </div>
+          ` : filteredData.length > 0 ? `
           <!-- Top 3 Podium -->
           <div class="flex justify-center items-end gap-4 p-8 bg-gradient-to-b from-dark-secondary/50 to-transparent">
-            ${renderPodiumPlace(leaderboardData[1], 2, leaderboardTab === 'monthly')}
-            ${renderPodiumPlace(leaderboardData[0], 1, leaderboardTab === 'monthly')}
-            ${renderPodiumPlace(leaderboardData[2], 3, leaderboardTab === 'monthly')}
+            ${renderPodiumPlace(filteredData[1], 2, leaderboardTab === 'monthly')}
+            ${renderPodiumPlace(filteredData[0], 1, leaderboardTab === 'monthly')}
+            ${renderPodiumPlace(filteredData[2], 3, leaderboardTab === 'monthly')}
           </div>
 
           <!-- Rest of Leaderboard -->
           <div class="px-5 pb-5 space-y-3">
-            ${leaderboardData.slice(3).map((user, index) => renderLeaderboardRow(user, index + 4)).join('')}
+            ${filteredData.slice(3).map((user, index) => renderLeaderboardRow(user, index + 4)).join('')}
           </div>
           ` : `
           <div class="text-center text-slate-400 py-12">
-            ${t('noResults') || 'No results'}
+            <div class="text-4xl mb-3">🌍</div>
+            <div>${t('leaderboardEmpty') || 'Sois le premier à apparaître ici !'}</div>
           </div>
           `}
         </div>
@@ -211,15 +226,15 @@ export function renderLeaderboardModal() {
         <div class="p-5 border-t border-white/10 bg-dark-secondary/50">
           <div class="flex justify-around text-center">
             <div>
-              <div class="text-2xl font-bold text-amber-400">${leaderboardData.reduce((sum, u) => sum + u.points, 0).toLocaleString()}</div>
+              <div class="text-2xl font-bold text-amber-400">${isLoading ? '...' : filteredData.reduce((sum, u) => sum + u.points, 0).toLocaleString()}</div>
               <div class="text-xs text-slate-400">${t('totalPoints') || 'Pouces totaux'}</div>
             </div>
             <div>
-              <div class="text-2xl font-bold text-emerald-400">${leaderboardData.length * 10}+</div>
+              <div class="text-2xl font-bold text-emerald-400">${isLoading ? '...' : `${filteredData.length}`}</div>
               <div class="text-xs text-slate-400">${t('participants') || 'Participants'}</div>
             </div>
             <div>
-              <div class="text-2xl font-bold text-purple-400">${leaderboardData.length > 0 ? Math.max(...leaderboardData.map(u => u.level)) : 0}</div>
+              <div class="text-2xl font-bold text-purple-400">${isLoading || filteredData.length === 0 ? '—' : Math.max(...filteredData.map(u => u.level))}</div>
               <div class="text-xs text-slate-400">${t('bestLevel') || 'Best level'}</div>
             </div>
           </div>
@@ -284,9 +299,16 @@ function renderLeaderboardRow(user, rank) {
 }
 
 // Global handlers
-window.openLeaderboard = () => setState({ showLeaderboard: true });
+window.openLeaderboard = () => {
+  setState({ showLeaderboard: true, leaderboardData: null });
+  const tab = getState().leaderboardTab || 'weekly';
+  fetchLeaderboardData(tab).then(data => setState({ leaderboardData: data }));
+};
 window.closeLeaderboard = () => setState({ showLeaderboard: false });
-window.setLeaderboardTab = (tab) => setState({ leaderboardTab: tab });
+window.setLeaderboardTab = (tab) => {
+  setState({ leaderboardTab: tab, leaderboardData: null });
+  fetchLeaderboardData(tab).then(data => setState({ leaderboardData: data }));
+};
 window.setLeaderboardCountry = (country) => setState({ leaderboardCountry: country });
 
 export default {

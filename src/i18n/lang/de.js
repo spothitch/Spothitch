@@ -1920,6 +1920,7 @@ export default {
   daysLeft: 'Tage übrig',
   leaderboardTitle: 'Rangliste',
   leaderboardSubtitle: 'Die besten Tramper',
+  leaderboardEmpty: 'Sei der Erste, der hier erscheint!',
   levelN: 'Level',
   yourRank: 'Dein Rang',
   thisWeek: 'Diese Woche',
