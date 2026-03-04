@@ -29,7 +29,6 @@ const MAIN_JS_HANDLERS = [
   'openSOS', 'closeSOS', 'shareSOSLocation', 'markSafe',
   'addEmergencyContact', 'removeEmergencyContact',
   // SOS Extended
-  'sosStartCountdown', 'sosCancelCountdown',
   'sosToggleSilent', 'sosUpdateCustomMsg',
   'sosSetPrimaryContact',
   'sosOpenFakeCall', 'sosFakeCallAnswer', 'sosFakeCallDecline',
@@ -210,7 +209,7 @@ const MAIN_JS_HANDLERS = [
   // IdentityVerification (defined in IdentityVerification.js)
   'startVerificationStep',
   // FriendProfile (defined in FriendProfile.js / Social.js)
-  'removeFriend', 'shareProfile', 'shareMyProfile', 'copyProfileLink',
+  'removeFriend', 'shareProfile', 'shareMyProfile', 'copyProfileLink', 'shareOnSMS',
   // User Reviews (defined in Social.js)
   'openWriteReview', 'cancelWriteReview', 'submitProfileReview', 'loadMyProfileReviews',
   // AddSpot (all defined in AddSpot.js)
@@ -414,7 +413,7 @@ const MAIN_JS_HANDLERS = [
   'handleCreateTeam', 'forceOfflineSync',
   'translateElement', 'showOriginal',
   'startNavigation', 'removeKnownDevice',
-  'closeShareModal', 'copySpotLink', 'shareOnWhatsApp',
+  'closeShareModal', 'copySpotLink',
   'exportUserData', 'shareLink', 'generateShareUrl',
   'openInGoogleMaps', 'openInWaze', 'openInAppleMaps', 'openInNativeMaps',
   'selectNavigationApp', 'closeNavigationPicker',

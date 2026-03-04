@@ -739,3 +739,23 @@ Chaque erreur suit ce format :
 - **Leçon** : **Pour les états UI persistants entre re-renders**, stocker l'état dans un attribut `data-*` sur l'élément DOM lui-même, pas seulement dans une variable module.
 - **Fichiers** : `src/components/views/Voyage.js`
 - **Statut** : CORRIGÉ
+
+### ERR-058 — WhatsApp mentionné à répétition malgré interdiction
+
+- **Date** : 2026-03-04
+- **Gravité** : MAJEUR
+- **Description** : WhatsApp continuait d'apparaître dans le code SOS, Companion, et i18n malgré l'interdiction explicite et répétée d'Antoine.
+- **Cause racine** : La règle n'était pas assez visible/prioritaire dans les fichiers mémoire.
+- **Correction** : Supprimé toutes les références WhatsApp dans SOS.js, Companion.js, i18n. Règle écrite en mémoire permanente.
+- **Leçon** : **JAMAIS WhatsApp dans SpotHitch. Jamais. Nulle part.** SOS et Companion = SMS + in-app uniquement. Si WhatsApp apparaît dans le code → le supprimer immédiatement sans discussion. Cette règle ne changera pas.
+- **Fichiers** : `src/components/modals/SOS.js`, `src/components/modals/Companion.js`, `src/i18n/lang/*.js`
+- **Statut** : CORRIGÉ
+
+### ERR-MAITRE-2026-03-04 — Problèmes détectés par Le Maître
+
+- **Date** : 2026-03-04
+- **Gravité** : MAJEUR
+- **Problèmes** :
+  - [quality-gate] Score 94/100 (seuil 85)
+  - [tests] 1 test(s) en échec
+- **Statut** : À CORRIGER
