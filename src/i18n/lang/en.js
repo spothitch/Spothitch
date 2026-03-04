@@ -2387,7 +2387,7 @@ export default {
   shareCardCheckedSpot: 'I just checked a hitchhiking spot',
   shareCardTitle: 'Share your check-in',
   shareCardScreenshotHint: 'Take a screenshot to share this card!',
-  shareCardWhatsApp: 'Share on WhatsApp',
+  shareCardSMS: 'Share on SMS',
   shareCardCopyLink: 'Copy spot link',
   shareCardLinkCopied: 'Link copied to clipboard!',
   shareCardCopyError: 'Error while copying',
@@ -3634,12 +3634,10 @@ export default {
   sosPrimaryContact: 'Primary',
   sosSetPrimary: 'Set as primary contact',
   sosChannelSMS: 'SMS only',
-  sosChannelWhatsApp: 'WhatsApp only',
-  sosChannelBoth: 'SMS + WhatsApp',
+  sosChannelBoth: 'SMS + In-App',
   sosChannelBothShort: 'Both',
-  sosChannelSMSDesc: 'Alerts will be sent by SMS',
-  sosChannelWhatsAppDesc: 'Alerts will be sent via WhatsApp',
-  sosChannelBothDesc: 'Alerts will be sent by SMS and WhatsApp',
+  sosChannelSMSDesc: 'Alerts will be sent via SMS',
+  sosChannelBothDesc: 'Alerts will be sent by SMS and in-app',
   sosCustomMessage: 'Custom message',
   sosCustomMsgPlaceholder: 'Prepended to every alert...',
   sosCustomMsgHint: 'This text will be added to the beginning of your alert messages.',
@@ -3996,7 +3994,7 @@ export default {
   roadmapComingSoon: 'Coming soon',
   roadmapVote: 'Vote',
 
-  // Companion — Push only (no SMS/WhatsApp)
+  // Companion — Push only (no SMS)
   companionPushOnly: 'Push notifications',
   companionPushOnlyDesc: 'Alerts are sent via push notifications in the app. Your guardian receives instant alerts even abroad, with no SMS cost. The guardian needs the SpotHitch app or can open the web link.',
   companionAlertSent: 'Alert sent via push notification!',

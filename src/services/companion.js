@@ -7,7 +7,7 @@
  * with their last known position.
  *
  * Features:
- * - Push notification alerts (push-only, no SMS/WhatsApp)
+ * - Push notification alerts (push-only, no SMS)
  * - GPS breadcrumb trail (#24)
  * - Safe arrival notification (#25)
  * - Departure notification (#26)
@@ -372,11 +372,11 @@ function buildBatteryAlertMessage(state, pct) {
   return msg
 }
 
-// ---- Alert sending — Push notifications only (no SMS/WhatsApp) ----
+// ---- Alert sending — Push notifications only (no SMS) ----
 
 /**
  * Send push notification alerts to all contacts.
- * Companion mode uses ONLY app push notifications — no SMS/WhatsApp.
+ * Companion mode uses ONLY app push notifications — no SMS.
  * The guardian must have the SpotHitch app or open the web link.
  * @param {string} message - Alert message
  * @param {object} state - Companion state
@@ -610,7 +610,7 @@ export function getShareLink() {
 
 /**
  * Send push notification alert to ALL contacts (guardian + trusted contacts).
- * Companion mode is app-only — no SMS/WhatsApp.
+ * Companion mode is app-only — no SMS.
  * Marks alert as sent. Returns number of notifications sent.
  */
 export function sendAlert() {

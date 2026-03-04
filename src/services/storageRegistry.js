@@ -144,7 +144,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_last_app_open', category: DataCategory.ANALYTICS, description: 'Last app open timestamp' },
   { key: 'spothitch_share_count_facebook', category: DataCategory.ANALYTICS, description: 'Facebook share count' },
   { key: 'spothitch_share_count_twitter', category: DataCategory.ANALYTICS, description: 'Twitter share count' },
-  { key: 'spothitch_share_count_whatsapp', category: DataCategory.ANALYTICS, description: 'WhatsApp share count' },
+  { key: 'spothitch_share_count_SMS', category: DataCategory.ANALYTICS, description: 'SMS share count' },
   { key: 'spothitch_share_count_telegram', category: DataCategory.ANALYTICS, description: 'Telegram share count' },
   { key: 'spothitch_total_shares', category: DataCategory.ANALYTICS, description: 'Total shares count' },
 
@@ -206,7 +206,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_roadmap_detail_seen', category: DataCategory.SETTINGS, description: 'Roadmap detail intro dismissed flag' },
 
   // === SOS v2 ===
-  { key: 'spothitch_sos_channel', category: DataCategory.SETTINGS, description: 'SOS alert channel preference (sms/whatsapp)' },
+  { key: 'spothitch_sos_channel', category: DataCategory.SETTINGS, description: 'SOS alert channel preference (SMS)' },
   { key: 'spothitch_sos_silent', category: DataCategory.SETTINGS, description: 'SOS silent alarm mode flag' },
   { key: 'spothitch_sos_custom_msg', category: DataCategory.SECURITY, description: 'Custom SOS alert message', sensitive: true },
   { key: 'spothitch_sos_primary', category: DataCategory.SECURITY, description: 'Primary emergency contact', sensitive: true },
