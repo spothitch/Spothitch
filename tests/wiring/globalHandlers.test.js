@@ -771,18 +771,30 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
 // doit être refusée par ce test.
 // ============================================================
 
-// Liste des handlers protégés contre les wrappers premier-clic
+// Liste des handlers protégés — RÈGLES ABSOLUES :
+// 1. Ces fonctions ne peuvent jamais être wrappées par setupFeatureIntroWrappers()
+// 2. Elles ne peuvent jamais être supprimées ou renommées sans mise à jour de ce test
+//
+// Raisons :
+// - toggleGasStations : bouton rapide carte (ERR-056)
+// - openSOS / closeSOS / markSafe : sécurité physique critique — ne jamais bloquer
+// - changeTab('map') : onglet principal — l'utilisateur doit toujours pouvoir revenir sur la carte
+// - changeTab('profile') : accès aux réglages — navigation fondamentale
+// - selectSpot / closeSpotDetail : interaction de base avec la carte
+// - openNavigation : navigation GPS en route
 const PROTECTED_HANDLERS = [
-  'toggleGasStations',   // bouton rapide carte → jamais intercepté
-  'openNavigation',      // navigation GPS → jamais intercepté
-  'openSOS',             // SOS → jamais intercepté (sécurité critique)
+  'toggleGasStations',
+  'openNavigation',
+  'openSOS',
   'closeSOS',
   'markSafe',
-  'selectSpot',          // tap sur un spot → jamais intercepté
+  'selectSpot',
   'closeSpotDetail',
-  'changeTab',           // la navigation entre onglets → wrapHandler existant est OK
-                         // mais on vérifie que changeTab lui-même est toujours défini
+  'changeTab',
 ]
+
+// Onglets qui ne doivent PAS avoir d'intro glassmorphism devant eux
+const PROTECTED_TABS = ['map', 'profile']
 
 describe('Wiring: Protected handlers cannot be undefined', () => {
   it('all protected handlers are present in KNOWN_HANDLERS', () => {
@@ -792,6 +804,26 @@ describe('Wiring: Protected handlers cannot be undefined', () => {
       `Ces handlers protégés ont été supprimés ou renommés : ${missing.join(', ')}. ` +
       `NE JAMAIS supprimer ces fonctions sans mettre à jour ce test.`
     ).toEqual([])
+  })
+})
+
+describe('Wiring: Protected tabs are not in TAB_INTROS wrappers', () => {
+  it('map and profile tabs must not be wrapped by glassmorphism intros', async () => {
+    // Vérifier dans main.js que TAB_INTROS ne contient pas 'map' ni 'profile'
+    const { readFileSync } = await import('fs')
+    const { resolve } = await import('path')
+    const mainJs = readFileSync(resolve('src/main.js'), 'utf8')
+    const tabIntrosMatch = mainJs.match(/TAB_INTROS\s*=\s*\{([^}]+)\}/)
+    if (tabIntrosMatch) {
+      const tabIntrosStr = tabIntrosMatch[1]
+      for (const tab of PROTECTED_TABS) {
+        expect(
+          tabIntrosStr.includes(`'${tab}'`) || tabIntrosStr.includes(`"${tab}"`),
+          `L'onglet '${tab}' est dans TAB_INTROS — INTERDIT. ` +
+          `Les onglets carte et profil ne doivent jamais avoir de fenêtre d'intro devant eux.`
+        ).toBe(false)
+      }
+    }
   })
 })
 

@@ -2766,10 +2766,11 @@ if (!window.syncTripFieldsAndCalculate) {
     }
   }
 
-  // Tab-based features — wrap changeTab for specific tabs
+  // Tab-based features — wrap changeTab pour Social et Chat uniquement
+  // NOTE: 'map' et 'profile' sont EXCLUS — onglets fondamentaux de navigation
   const _origChangeTab = window.changeTab
   window.changeTab = (tab) => {
-    const TAB_INTROS = { map: 'carte', profile: 'profil', social: 'amis', chat: 'chat' }
+    const TAB_INTROS = { social: 'amis', chat: 'chat' }
     const introId = TAB_INTROS[tab]
     if (introId && !isFeatureSeen(introId)) {
       window.showFeatureIntro?.(introId)
@@ -2780,7 +2781,7 @@ if (!window.syncTripFieldsAndCalculate) {
 
   // Modal-based available features
   wrapHandler('openAddSpot', 'add-spot')
-  wrapHandler('openSOS', 'sos')
+  // NOTE: openSOS JAMAIS wrappé — fonction de sécurité critique
   wrapHandler('openStats', 'stats')
   wrapHandler('openBadges', 'niveaux')
   wrapHandler('showGuides', 'conseils')
