@@ -41,13 +41,17 @@ export async function initSentry() {
         }),
       ],
 
-      // Filter out common non-errors
+      // Filter out common non-errors and known third-party library issues
       ignoreErrors: [
         'ResizeObserver loop limit exceeded',
         'Non-Error exception captured',
         'Non-Error promise rejection captured',
         /^Network Error$/,
         /^Loading chunk \d+ failed/,
+        // MapLibre GL uses new Function() for style expression compilation — harmless
+        /new Function violates Content Security Policy/,
+        // Firebase Messaging not supported on all browsers — non-critical
+        'messaging/unsupported-browser',
       ],
 
       // Before sending error

@@ -74,14 +74,23 @@ export function initializeFirebase() {
     db = getFirestore(app);
     storage = getStorage(app);
 
-    // Initialize messaging only in supported browsers
+    // Initialize messaging only in fully supported browsers
+    // Requires: serviceWorker + PushManager + Notification + indexedDB
     // Wrapped in its own try/catch so a messaging failure doesn't break auth/db
     try {
-      if ('serviceWorker' in navigator && 'PushManager' in window) {
+      if (
+        'serviceWorker' in navigator &&
+        'PushManager' in window &&
+        'Notification' in window &&
+        'indexedDB' in window
+      ) {
         messaging = getMessaging(app);
       }
-    } catch (_e) {
-      // Messaging is optional — auth and db still work without it
+    } catch (e) {
+      // messaging/unsupported-browser is expected on some browsers — silently ignore
+      if (!e?.code?.includes('messaging/unsupported-browser')) {
+        console.warn('Firebase Messaging init failed:', e?.message);
+      }
     }
 
     return true;
