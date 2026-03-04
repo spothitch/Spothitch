@@ -1901,25 +1901,6 @@ window.closeComingSoonRadar = () => setState({ showComingSoonRadar: false })
 window.openComingSoonIdentity = () => setState({ showComingSoonIdentity: true })
 window.closeComingSoonIdentity = () => setState({ showComingSoonIdentity: false })
 
-// Travel groups handlers
-window.openTravelGroups = () => setState({ activeTab: 'travel-groups' })
-window.openCreateTravelGroup = () => setState({ showCreateTravelGroup: true })
-window.closeCreateTravelGroup = () => setState({ showCreateTravelGroup: false })
-// openTravelGroupDetail — canonical in travelGroups.js
-// closeTravelGroupDetail — canonical in travelGroups.js
-window.createTravelGroupAction = async (...args) => {
-  const { createTravelGroup } = await import('./services/travelGroups.js')
-  return createTravelGroup(...args)
-}
-window.joinTravelGroupAction = async (...args) => {
-  const { joinTravelGroup } = await import('./services/travelGroups.js')
-  return joinTravelGroup(...args)
-}
-window.leaveTravelGroupAction = async (...args) => {
-  const { leaveTravelGroup } = await import('./services/travelGroups.js')
-  return leaveTravelGroup(...args)
-}
-
 // Nearby friends handlers — lazy-loaded
 window.toggleNearbyFriends = async (...args) => {
   const { toggleNearbyFriends } = await import('./services/nearbyFriends.js')

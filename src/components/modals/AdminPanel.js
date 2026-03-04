@@ -570,9 +570,6 @@ function renderToolsTab(state) {
         <button onclick="openNearbyFriends(); closeAdminPanel();" class="admin-btn">
           ${icon('map-pin', 'w-5 h-5 text-emerald-400')} ${t('nearbyFriends') || 'Amis Proches'}
         </button>
-        <button onclick="openCreateTravelGroup(); closeAdminPanel();" class="admin-btn">
-          ${icon('car', 'w-5 h-5 text-purple-400')} ${t('travelGroups') || 'Groupes Voyage'}
-        </button>
         <button onclick="changeTab('social'); closeAdminPanel();" class="admin-btn">
           ${icon('messages-square', 'w-5 h-5 text-amber-400')} ${t('chat') || 'Chat'}
         </button>

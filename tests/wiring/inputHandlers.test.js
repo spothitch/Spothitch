@@ -18,7 +18,6 @@ import { renderAuth } from '../../src/components/modals/Auth.js'
 import { renderAddSpot } from '../../src/components/modals/AddSpot.js'
 import { renderWelcome } from '../../src/components/modals/Welcome.js'
 import { renderFiltersModal } from '../../src/components/modals/Filters.js'
-import { renderCreateTravelGroupModal } from '../../src/components/modals/CreateTravelGroup.js'
 
 const mockState = {
   user: { uid: 'test-user', displayName: 'TestUser', email: 'test@test.com' },
@@ -67,7 +66,6 @@ const mockState = {
   isOnline: true,
   tutorialStep: 0,
   tutorialCompleted: false,
-  travelGroups: [],
   seasonPoints: 100,
   totalPoints: 500,
   checkinHistory: [],
@@ -209,12 +207,6 @@ describe('Input Handlers: critical inputs have event handlers', () => {
     expect(html.includes('applyFilters') || html.includes('resetFilters')).toBe(true)
   })
 
-  it('CreateTravelGroup modal: has group-name input', () => {
-    const html = renderCreateTravelGroupModal(mockState)
-    expect(html).toBeTruthy()
-
-    expect(html).toContain('group-name')
-  })
 })
 
 describe('Input Handlers: no orphaned inputs (inputs without any handler)', () => {
@@ -268,7 +260,6 @@ describe('Input Handlers: no orphaned inputs (inputs without any handler)', () =
     { name: 'Auth', html: renderAuth(mockState) },
     { name: 'AddSpot', html: renderAddSpot(mockState) },
     { name: 'Welcome', html: renderWelcome({ ...mockState, showWelcome: true }) },
-    { name: 'CreateTravelGroup', html: renderCreateTravelGroupModal(mockState) },
   ]
 
   let filtersHtml

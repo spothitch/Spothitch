@@ -103,11 +103,12 @@
 
 ## Social
 
-- [x] Système d'amis (ajout, demandes, liste)
-- [x] Messages privés 1-on-1 avec tracking non-lus
+- [x] Système d'amis Firebase (envoi/accepter/refuser demandes, recherche utilisateurs, temps réel)
+- [x] Messages privés 1-on-1 Firebase Firestore (temps réel, non-lus, partage spot/position)
 - [x] Chat par zone / salons
 - [x] Réactions emoji sur messages (10+ emojis)
-- [x] Groupes de voyage (création/rejoindre)
+- [x] Groupes de voyage (création/rejoindre) — localStorage
+- [x] Conversations de groupe Firebase (créer avec plusieurs amis, messages temps réel, quitter, ajouter membre)
 - [x] Amis à proximité (avec contrôles vie privée)
 - [x] Profils utilisateurs (stats, badges, titres)
 - [x] ~~Personnalisation profil (cadres, titres, avatars)~~ (bouton palette supprimé, emoji avatar conservé)

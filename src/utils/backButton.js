@@ -199,8 +199,8 @@ function handleBack() {
     return true
   }
 
-  if (state.activeGroupChat || state.showZoneChat) {
-    setState({ activeGroupChat: null, showZoneChat: false })
+  if (state.showZoneChat) {
+    setState({ showZoneChat: false })
     return true
   }
 

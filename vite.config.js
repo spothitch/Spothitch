@@ -193,7 +193,6 @@ export default defineConfig({
             './src/services/dailyReward.js',
           ],
           'social': [
-            './src/services/travelGroups.js',
             './src/services/nearbyFriends.js',
             './src/services/profileCustomization.js',
           ],

@@ -112,10 +112,6 @@ const MAIN_JS_HANDLERS = [
   // Coming soon feature modals
   'openComingSoonRadar', 'closeComingSoonRadar',
   'openComingSoonIdentity', 'closeComingSoonIdentity',
-  // Travel groups
-  'openTravelGroups', 'openCreateTravelGroup', 'closeCreateTravelGroup',
-  'openTravelGroupDetail', 'closeTravelGroupDetail',
-  'createTravelGroupAction', 'joinTravelGroupAction', 'leaveTravelGroupAction',
   // Nearby friends
   'toggleNearbyFriends', 'openNearbyFriends', 'closeNearbyFriends',
   // Profile customization
@@ -181,7 +177,7 @@ const MAIN_JS_HANDLERS = [
   // Feed (defined in Feed.js)
   'setFeedFilter', 'toggleFeedVisibility',
   // Conversations (defined in Conversations.js)
-  'openGroupChat', 'closeGroupChat', 'openZoneChat', 'closeZoneChat',
+  'openZoneChat', 'closeZoneChat',
   // Group Conversations Firebase (defined in Conversations.js)
   'openGroupConversation', 'closeGroupConversation',
   'openCreateGroupConversation', 'closeCreateGroupConversation',
@@ -213,8 +209,6 @@ const MAIN_JS_HANDLERS = [
   // Welcome (defined in Welcome.js)
   // IdentityVerification (defined in IdentityVerification.js)
   'startVerificationStep',
-  // CreateTravelGroup (defined in CreateTravelGroup.js)
-  'submitCreateTravelGroup',
   // FriendProfile (defined in FriendProfile.js / friendsList)
   'removeFriend', 'shareProfile',
   // AddSpot (all defined in AddSpot.js)
@@ -225,8 +219,6 @@ const MAIN_JS_HANDLERS = [
   'saveSpotAsDraft', 'openSpotDraft', 'deleteSpotDraft',
   // Map (defined in Map.js)
   'searchMapSuggestions',
-  // TravelGroups (defined in travelGroups.js)
-  'openEditTravelGroup', 'sendGroupChatMessage', 'updateGroupStatus',
   // AdminPanel (defined in AdminPanel.js)
   'adminAddPoints', 'adminAddSkillPoints', 'adminAddThumbs',
   'adminLevelUp', 'adminMaxStats', 'openAccessibilityHelp',
@@ -395,7 +387,6 @@ const MAIN_JS_HANDLERS = [
   // TravelGroups extras (defined in travelGroups.js)
   'createGroup', 'acceptGroupInvitation', 'declineGroupInvitation',
   'addItineraryStop', 'removeItineraryStop',
-  'joinTravelGroup', 'leaveTravelGroup', 'createTravelGroup',
   // Private Messages (defined in privateMessages.js)
   // Nearby Friends extras (defined in nearbyFriends.js)
   'setNotificationRadius', 'toggleNearbyFriendsList',
@@ -530,9 +521,7 @@ const mockState = {
   showNearbyFriends: false,
   showReport: false,
   showAccessibilityHelp: false,
-  showTravelGroupDetail: false,
   showTeamChallenges: false,
-  showCreateTravelGroup: false,
   showFriendProfile: false,
   showAdminPanel: false,
   showMyData: false,
@@ -573,8 +562,6 @@ const mockState = {
   gpsEnabled: true,
   isOnline: true,
   selectedFriendProfileId: 'friend1',
-  selectedTravelGroupId: null,
-  travelGroups: [],
   seasonPoints: 100,
   totalPoints: 500,
   checkinHistory: [],
@@ -615,14 +602,12 @@ import { renderCheckinModal } from '../../src/components/modals/CheckinModal.js'
 import { renderAgeVerification } from '../../src/components/modals/AgeVerification.js'
 import { renderIdentityVerification } from '../../src/components/modals/IdentityVerification.js'
 import { renderTitlesModal } from '../../src/components/modals/TitlesModal.js'
-import { renderCreateTravelGroupModal } from '../../src/components/modals/CreateTravelGroup.js'
 import { renderFriendProfileModal } from '../../src/components/modals/FriendProfile.js'
 import { renderAdminPanel } from '../../src/components/modals/AdminPanel.js'
 import { renderMyDataModal } from '../../src/components/modals/MyData.js'
 import { renderCompanionModal } from '../../src/components/modals/Companion.js'
 
 // Services with render
-import { renderTravelGroupDetail } from '../../src/services/travelGroups.js'
 import { renderNearbyFriendsList } from '../../src/services/nearbyFriends.js'
 import { renderCustomizationModal } from '../../src/services/profileCustomization.js'
 import { renderAccessibilityHelp } from '../../src/services/screenReader.js'
@@ -701,7 +686,6 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
   testHandlers('AgeVerification modal', renderAgeVerification)
   testHandlers('IdentityVerification modal', () => renderIdentityVerification())
   testHandlers('TitlesModal', renderTitlesModal)
-  testHandlers('CreateTravelGroup modal', renderCreateTravelGroupModal)
   testHandlers('FriendProfile modal', renderFriendProfileModal, {
     showFriendProfile: true,
     selectedFriendProfileId: 'friend1',
@@ -728,15 +712,6 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
   testHandlers('MyData modal', () => renderMyDataModal())
 
   // --- Service renders ---
-  testHandlers('TravelGroupDetail', renderTravelGroupDetail, {
-    showTravelGroupDetail: true,
-    selectedTravelGroupId: 'group1',
-    currentTravelGroup: {
-      id: 'group1', name: 'Test Group', creator: 'test-user',
-      members: ['test-user'], itinerary: [], chat: [],
-      status: 'planning', maxMembers: 6, description: 'A trip',
-    },
-  })
   testHandlers('NearbyFriendsList', renderNearbyFriendsList)
   testHandlers('CustomizationModal', renderCustomizationModal)
   testHandlers('AccessibilityHelp', renderAccessibilityHelp)
@@ -755,7 +730,6 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
       () => renderProfile(mockState),
       () => renderProfile({ ...mockState, profileSubTab: 'progression' }),
       () => renderProfile({ ...mockState, profileSubTab: 'reglages' }),
-      () => renderCreateTravelGroupModal(mockState),
       () => renderFiltersModal(),
       () => renderMap(mockState),
     ]

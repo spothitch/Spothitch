@@ -27,7 +27,6 @@ import { renderCheckinModal } from '../../src/components/modals/CheckinModal.js'
 import { renderAgeVerification } from '../../src/components/modals/AgeVerification.js'
 import { renderIdentityVerification } from '../../src/components/modals/IdentityVerification.js'
 import { renderTitlesModal } from '../../src/components/modals/TitlesModal.js'
-import { renderCreateTravelGroupModal } from '../../src/components/modals/CreateTravelGroup.js'
 import { renderFriendProfileModal } from '../../src/components/modals/FriendProfile.js'
 import { renderAdminPanel } from '../../src/components/modals/AdminPanel.js'
 import { renderMyDataModal } from '../../src/components/modals/MyData.js'
@@ -46,7 +45,6 @@ import { renderFeedbackPanel } from '../../src/components/modals/FeedbackPanel.j
 import { renderLanding } from '../../src/components/Landing.js'
 
 // Service modals
-import { renderTravelGroupDetail } from '../../src/services/travelGroups.js'
 import { renderNearbyFriendsList } from '../../src/services/nearbyFriends.js'
 import { renderCustomizationModal } from '../../src/services/profileCustomization.js'
 import { renderAccessibilityHelp } from '../../src/services/screenReader.js'
@@ -240,13 +238,6 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
     expect(html.toLowerCase()).toContain('titr')
   })
 
-  test('showCreateTravelGroup flag renders CreateTravelGroup modal', () => {
-    const state = { ...mockState, showCreateTravelGroup: true }
-    const html = renderCreateTravelGroupModal(state)
-    expect(html).toBeTruthy()
-    expect(html.length).toBeGreaterThan(100)
-  })
-
   test('showFriendProfile flag renders FriendProfile modal', () => {
     const state = {
       ...mockState,
@@ -269,26 +260,6 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
   test('showMyData flag renders MyData modal', () => {
     setState({ showMyData: true, ...mockState })
     const html = renderMyDataModal()
-    expect(html).toBeTruthy()
-    expect(html.length).toBeGreaterThan(100)
-  })
-
-  test('showTravelGroupDetail flag renders TravelGroupDetail', () => {
-    const state = {
-      ...mockState,
-      showTravelGroupDetail: true,
-      selectedTravelGroupId: 'group1',
-      currentTravelGroup: {
-        id: 'group1',
-        name: 'Test Group',
-        creator: 'test-user',
-        members: ['test-user'],
-        itinerary: [],
-        chat: [],
-        status: 'planning',
-      },
-    }
-    const html = renderTravelGroupDetail(state)
     expect(html).toBeTruthy()
     expect(html.length).toBeGreaterThan(100)
   })
@@ -462,7 +433,6 @@ describe('Modal Flags: close buttons present in HTML', () => {
       { name: 'Quiz', html: renderQuiz() },
       { name: 'Leaderboard', html: renderLeaderboardModal() },
       { name: 'Titles', html: renderTitlesModal({ ...mockState, showTitles: true }) },
-      { name: 'CreateTravelGroup', html: renderCreateTravelGroupModal({ ...mockState, showCreateTravelGroup: true }) },
       { name: 'FriendProfile', html: renderFriendProfileModal({ ...mockState, showFriendProfile: true, selectedFriendProfileId: 'friend1' }) },
       { name: 'AdminPanel', html: renderAdminPanel({ ...mockState, showAdminPanel: true }) },
       { name: 'MyData', html: renderMyDataModal() },

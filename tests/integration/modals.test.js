@@ -19,7 +19,6 @@ import { renderTutorial } from '../../src/components/modals/Tutorial.js'
 import { renderAgeVerification } from '../../src/components/modals/AgeVerification.js'
 import { renderIdentityVerification } from '../../src/components/modals/IdentityVerification.js'
 import { renderTitlesModal } from '../../src/components/modals/TitlesModal.js'
-import { renderCreateTravelGroupModal } from '../../src/components/modals/CreateTravelGroup.js'
 import { renderFriendProfileModal } from '../../src/components/modals/FriendProfile.js'
 import { renderAdminPanel } from '../../src/components/modals/AdminPanel.js'
 import { renderCheckinModal } from '../../src/components/modals/CheckinModal.js'
@@ -31,7 +30,6 @@ import { renderShopModal, renderMyRewardsModal } from '../../src/components/moda
 import { renderQuiz } from '../../src/components/modals/Quiz.js'
 import { renderLeaderboardModal } from '../../src/components/modals/Leaderboard.js'
 import { renderMyDataModal } from '../../src/components/modals/MyData.js'
-import { renderTravelGroupDetail } from '../../src/services/travelGroups.js'
 import { renderNearbyFriendsList } from '../../src/services/nearbyFriends.js'
 import { renderCustomizationModal } from '../../src/services/profileCustomization.js'
 import { renderAccessibilityHelp } from '../../src/services/screenReader.js'
@@ -82,7 +80,6 @@ const baseState = {
     { id: 'friend2', name: 'Bob', avatar: '🧑', level: 7, badges: [] },
   ],
   emergencyContacts: [{ name: 'Mom', phone: '+33600000000' }],
-  travelGroups: [],
   seasonPoints: 100,
   totalPoints: 500,
   userLocation: { lat: 48.8566, lng: 2.3522 },
@@ -554,30 +551,6 @@ describe('Integration: TitlesModal', () => {
 // ===============================================================
 // 16. CreateTravelGroup Modal
 // ===============================================================
-describe('Integration: CreateTravelGroup Modal', () => {
-  it('renders with form', () => {
-    const html = renderCreateTravelGroupModal({ ...baseState, showCreateTravelGroup: true })
-    expect(html).toBeTruthy()
-    expect(html).toContain('create-group-title')
-  })
-
-  it('has group name input', () => {
-    const html = renderCreateTravelGroupModal(baseState)
-    expect(html).toContain('group-name')
-  })
-
-  it('has submit button', () => {
-    const html = renderCreateTravelGroupModal(baseState)
-    expect(html).toContain('submitCreateTravelGroup')
-  })
-
-  it('has close button', () => {
-    const html = renderCreateTravelGroupModal(baseState)
-    expect(html).toContain('closeCreateTravelGroup')
-  })
-})
-
-// ===============================================================
 // 17. FriendProfile Modal
 // ===============================================================
 describe('Integration: FriendProfile Modal', () => {
@@ -847,9 +820,9 @@ describe('Integration: State flag toggles', () => {
     'showSOS', 'showAuth', 'showAddSpot', 'showFilters', 'showStats',
     'showBadges', 'showChallenges', 'showShop', 'showMyRewards', 'showQuiz',
     'showLeaderboard', 'showTitles', 'showTeamChallenges',
-    'showCreateTravelGroup', 'showFriendProfile', 'showAdminPanel',
+    'showFriendProfile', 'showAdminPanel',
     'showMyData', 'showDonation', 'showNearbyFriends', 'showAccessibilityHelp',
-    'showProfileCustomization', 'showReport', 'showTravelGroupDetail',
+    'showProfileCustomization', 'showReport',
     'showAgeVerification', 'showIdentityVerification',
   ]
 

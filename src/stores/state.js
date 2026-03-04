@@ -32,7 +32,6 @@ const initialState = {
   feedFilter: 'all',
   eventFilter: 'all',
   showCompanionSearch: false,
-  activeGroupChat: null,
   showZoneChat: false,
   // Group Conversations (Firebase)
   groupConversations: [],
@@ -229,11 +228,6 @@ const initialState = {
   currentTeam: null,
   showJoinTeam: false,
   showTeamSettings: false,
-  showCreateTravelGroup: false,
-  showTravelGroupDetail: false,
-  selectedTravelGroupId: null,
-  currentTravelGroup: null,
-  editingTravelGroup: null,
   showNearbyFriends: false,
   showProfileCustomization: false,
   showTripHistory: false,
@@ -320,7 +314,6 @@ const initialState = {
   selfiePhoto: null,
   idCardPhoto: null,
   selfieWithIdPhoto: null,
-  travelGroups: [],
   selectedEvent: null,
   eventsLastUpdate: null,
   authMode: 'login',
@@ -445,7 +438,6 @@ function persistState() {
     messages: (state.messages || []).slice(-100),
     privateMessages: state.privateMessages || {},
     friends: state.friends || [],
-    travelGroups: state.travelGroups || [],
     proximityAlerts: state.proximityAlerts,
   };
   Storage.set('state', stateToPersist);

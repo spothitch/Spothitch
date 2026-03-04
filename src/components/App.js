@@ -64,10 +64,7 @@ const _lazyLoaders = {
   renderBlockModal: () => import('../services/userBlocking.js'),
   renderBlockedUsersList: () => import('../services/userBlocking.js'),
   renderAccessibilityHelp: () => import('../services/screenReader.js'),
-  renderTravelGroupDetail: () => import('../services/travelGroups.js'),
-  renderTravelGroupsList: () => import('../services/travelGroups.js'),
   renderTeamDashboard: () => import('../services/teamChallenges.js'),
-  renderCreateTravelGroupModal: () => import('./modals/CreateTravelGroup.js'),
   renderSOSTrackingWidget: () => import('../services/sosTracking.js'),
   renderProximityAlert: () => import('../services/proximityNotify.js'),
   renderAdminPanel: () => import('./modals/AdminPanel.js'),
@@ -273,7 +270,6 @@ export function renderApp(state) {
       </div>
     ` : ''}
     ${state.showAccessibilityHelp ? lazyRender('renderAccessibilityHelp', state) : ''}
-    ${state.showTravelGroupDetail ? lazyRender('renderTravelGroupDetail', state) : ''}
     ${state.showTeamChallenges ? `
       <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeTeamChallenges()">
         <div class="min-h-screen pb-20">
@@ -287,7 +283,6 @@ export function renderApp(state) {
         </div>
       </div>
     ` : ''}
-    ${state.showCreateTravelGroup ? lazyRender('renderCreateTravelGroupModal', state) : ''}
 
     <!-- Create Team Modal -->
     ${state.showCreateTeam ? `
@@ -563,8 +558,6 @@ function renderActiveView(state) {
       return lazyRender('renderProfile', state);
     case 'spots':
       return lazyRender('renderSpots', state);
-    case 'travel-groups':
-      return lazyRender('renderTravelGroupsList', state);
     default:
       return '' // Map handled by panel-map
   }

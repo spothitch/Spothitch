@@ -23,11 +23,6 @@ export function renderConversations(state) {
     return renderFirebaseGroupChat(state, state.activeGroupConversation)
   }
 
-  // If travel group chat is open (localStorage groups)
-  if (state.activeGroupChat) {
-    return renderGroupChat(state, state.activeGroupChat)
-  }
-
   // Show create group conversation modal overlay
   if (state.showCreateGroupConversation) {
     return renderCreateGroupConversationForm(state)
@@ -38,12 +33,7 @@ export function renderConversations(state) {
 
 function renderConversationList(state) {
   const dmConversations = getConversationsList()
-  const travelGroups = state.travelGroups || []
   const fbGroups = state.groupConversations || []
-  const userId = state.user?.uid || 'local-user'
-  const myTravelGroups = travelGroups.filter(g =>
-    Array.isArray(g.members) ? g.members.includes(userId) || g.members.some(m => m.id === userId) : false
-  )
 
   // Build unified list
   const allConversations = []
@@ -76,24 +66,6 @@ function renderConversationList(state) {
       online: false,
       isGroup: true,
       memberCount: Array.isArray(group.members) ? group.members.length : 0,
-    })
-  })
-
-  // Travel groups (localStorage)
-  myTravelGroups.forEach(group => {
-    const lastChat = group.chat?.[group.chat.length - 1]
-    allConversations.push({
-      type: 'group',
-      id: group.id,
-      name: group.name,
-      avatar: group.icon || '🚗',
-      lastMessage: lastChat?.text || t('noMessagesYet'),
-      lastMessageTime: lastChat?.createdAt || group.createdAt,
-      unreadCount: 0,
-      online: false,
-      isGroup: true,
-      memberCount: Array.isArray(group.members) ? group.members.length : 0,
-      status: group.status,
     })
   })
 
@@ -133,13 +105,13 @@ function renderConversationList(state) {
       ${allConversations.length > 0 ? `
         ${allConversations.map(conv => `
           <button
-            onclick="${conv.type === 'fbgroup' ? `openGroupConversation('${conv.id}')` : conv.type === 'group' ? `openGroupChat('${conv.id}')` : `openConversation('${conv.id}')`}"
+            onclick="${conv.type === 'fbgroup' ? `openGroupConversation('${conv.id}')` : `openConversation('${conv.id}')`}"
             class="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5"
           >
             <div class="relative shrink-0">
               <span class="text-3xl">${conv.avatar}</span>
               ${conv.isGroup ? `
-                <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${conv.type === 'fbgroup' ? 'bg-emerald-500/80' : 'bg-purple-500/80'} text-white text-[10px] flex items-center justify-center">${conv.memberCount}</span>
+                <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500/80 text-white text-[10px] flex items-center justify-center">${conv.memberCount}</span>
               ` : conv.online ? `
                 <span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-dark-primary bg-emerald-500"></span>
               ` : ''}
@@ -148,7 +120,7 @@ function renderConversationList(state) {
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-1.5">
                   <span class="font-medium text-sm truncate">${escapeHTML(conv.name)}</span>
-                  ${conv.type === 'fbgroup' ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400">${t('group')}</span>` : conv.type === 'group' ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">${t('group')}</span>` : ''}
+                  ${conv.isGroup ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400">${t('group')}</span>` : ''}
                 </div>
                 <time class="text-xs text-slate-400 shrink-0 ml-2">${formatRelativeTime(conv.lastMessageTime)}</time>
               </div>
@@ -163,28 +135,17 @@ function renderConversationList(state) {
         `).join('')}
       ` : ''}
 
-      <!-- Create group buttons -->
-      <div class="px-4 py-3 flex gap-2">
+      <!-- Create group button -->
+      <div class="px-4 py-3">
         <button
           onclick="openCreateGroupConversation()"
-          class="card p-3 flex-1 text-left border-dashed border-2 border-emerald-500/30 hover:border-emerald-500/60 transition-colors"
+          class="card p-3 w-full text-left border-dashed border-2 border-emerald-500/30 hover:border-emerald-500/60 transition-colors"
         >
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
-              ${icon('users', 'w-4 h-4 text-emerald-400')}
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              ${icon('users', 'w-5 h-5 text-emerald-400')}
             </div>
-            <div class="text-xs text-slate-300">${t('newGroupConversation')}</div>
-          </div>
-        </button>
-        <button
-          onclick="openCreateTravelGroup()"
-          class="card p-3 flex-1 text-left border-dashed border-2 border-white/15 hover:border-primary-500/40 transition-colors"
-        >
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-              ${icon('map-pin', 'w-4 h-4 text-slate-400')}
-            </div>
-            <div class="text-xs text-slate-400">${t('createTravelGroup')}</div>
+            <div class="text-sm text-slate-300">${t('newGroupConversation')}</div>
           </div>
         </button>
       </div>
@@ -296,91 +257,6 @@ function renderDMMessage(msg, state) {
           </div>
         ` : ''}
         ${content}
-        <time class="text-xs text-slate-400 mt-1 block ${isSent ? 'text-right' : ''}">
-          ${formatTime(msg.createdAt)}
-        </time>
-      </div>
-    </div>
-  `
-}
-
-// --- Group chat view ---
-function renderGroupChat(state, groupId) {
-  const groups = state.travelGroups || []
-  const group = groups.find(g => g.id === groupId)
-  if (!group) return ''
-
-  const messages = group.chat || []
-  const memberCount = Array.isArray(group.members) ? group.members.length : 0
-
-  return `
-    <!-- Header -->
-    <div class="p-3 bg-dark-secondary/50 flex items-center gap-3">
-      <button onclick="closeGroupChat()" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white" aria-label="${t('back')}">
-        ${icon('arrow-left', 'w-5 h-5')}
-      </button>
-      <span class="text-2xl">${group.icon || '🚗'}</span>
-      <div class="flex-1 min-w-0 cursor-pointer" role="button" tabindex="0" onclick="openTravelGroupDetail('${groupId}')">
-        <div class="font-medium text-sm truncate">${escapeHTML(group.name)}</div>
-        <div class="text-xs text-slate-400">${memberCount} ${t('members')}</div>
-      </div>
-    </div>
-
-    <!-- Trip info collapsible -->
-    ${group.departure || group.destination ? `
-      <div class="px-4 py-2 bg-white/5 border-b border-white/5">
-        <div class="flex items-center gap-2 text-xs text-slate-400">
-          ${icon('map-pin', 'w-3 h-3 text-primary-400')}
-          <span>${escapeHTML(group.departure?.city || '?')} → ${escapeHTML(group.destination?.city || '?')}</span>
-          ${group.startDate ? `<span class="ml-auto">${icon('calendar', 'w-3 h-3')} ${group.startDate}</span>` : ''}
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Messages -->
-    <div class="flex-1 overflow-y-auto p-4 space-y-3" id="group-chat-messages" role="log" aria-live="polite">
-      ${messages.length > 0
-    ? messages.slice(-50).map(msg => renderGroupMessage(msg, state)).join('')
-    : `
-          <div class="text-center py-12">
-            <span class="text-4xl mb-4 block">🚗</span>
-            <p class="text-slate-400 text-sm">${t('startConversation')}</p>
-          </div>
-        `}
-    </div>
-
-    <!-- Input -->
-    <div class="p-3 glass-dark">
-      <form class="flex gap-2" onsubmit="event.preventDefault(); sendGroupChatMessage('${groupId}');">
-        <input
-          type="text"
-          class="input-field flex-1"
-          placeholder="${t('typeMessage')}..."
-          id="group-chat-input"
-          autocomplete="off"
-          aria-label="${t('typeMessage')}"
-        />
-        <button type="submit" class="btn-primary px-4" aria-label="${t('send')}">
-          ${icon('send', 'w-5 h-5')}
-        </button>
-      </form>
-    </div>
-  `
-}
-
-function renderGroupMessage(msg, state) {
-  const isSent = msg.userId === (state.user?.uid || 'local-user')
-
-  return `
-    <div class="flex ${isSent ? 'justify-end' : 'justify-start'}">
-      <div class="max-w-[80%] ${isSent ? 'bg-primary-500/20' : 'bg-white/5'} rounded-2xl px-4 py-2 ${isSent ? 'rounded-br-md' : 'rounded-bl-md'}">
-        ${!isSent ? `
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-sm">${msg.userAvatar || '🤙'}</span>
-            <span class="text-xs font-medium text-primary-400">${escapeHTML(msg.userName || '')}</span>
-          </div>
-        ` : ''}
-        <p class="text-sm text-white">${escapeHTML(msg.text || '')}</p>
         <time class="text-xs text-slate-400 mt-1 block ${isSent ? 'text-right' : ''}">
           ${formatTime(msg.createdAt)}
         </time>
@@ -567,14 +443,6 @@ function renderCreateGroupConversationForm(state) {
 }
 
 // Global handlers
-window.openGroupChat = (groupId) => {
-  window.setState?.({ activeGroupChat: groupId, socialSubTab: 'conversations' })
-}
-
-window.closeGroupChat = () => {
-  window.setState?.({ activeGroupChat: null })
-}
-
 window.openZoneChat = () => {
   window.setState?.({ showZoneChat: true })
 }
