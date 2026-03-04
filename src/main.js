@@ -76,6 +76,8 @@ import { resetFilters as resetFiltersUtil } from './components/modals/Filters.js
 // redeemReward registered globally by Shop.js itself (canonical)
 import './components/modals/Leaderboard.js'; // Register global handlers
 import './components/modals/FeatureSlides.js'; // Feature Slides (openFeatureSlides, closeFeatureSlides, etc.)
+import './components/modals/FeatureIntroModal.js'; // Feature Intro glassmorphism (showFeatureIntro, closeFeatureIntro, etc.)
+import { isFeatureSeen } from './services/featureIntro.js';
 import { registerCheckinHandlers } from './components/modals/CheckinModal.js'; // Checkin modal handlers
 import { startNavigation } from './services/navigation.js'; // stopNavigation/openExternalNavigation registered by navigation.js itself
 import './services/gasStations.js'; // Gas stations (registers window.toggleGasStations)
@@ -2734,6 +2736,50 @@ if (!window.syncTripFieldsAndCalculate) {
 // loadSavedTrip — canonical in Travel.js
 // deleteSavedTrip — canonical in Travel.js
 // removeSpotFromTrip — canonical in Travel.js
+
+// ==================== FEATURE INTRO FIRST-CLICK WRAPPERS ====================
+// Show glassmorphism intro on the first use of a feature (then never again)
+// Must be set up AFTER all handlers are defined
+
+;(function setupFeatureIntroWrappers() {
+  // Helper: wrap a window.* handler to show intro on first use
+  const wrapHandler = (name, introId) => {
+    const orig = window[name]
+    window[name] = (...args) => {
+      if (!isFeatureSeen(introId)) {
+        window.showFeatureIntro?.(introId)
+        return
+      }
+      orig?.(...args)
+    }
+  }
+
+  // Tab-based features — wrap changeTab for specific tabs
+  const _origChangeTab = window.changeTab
+  window.changeTab = (tab) => {
+    const TAB_INTROS = { spots: 'carte', profile: 'profil', social: 'amis', chat: 'chat', voyage: 'carnet' }
+    const introId = TAB_INTROS[tab]
+    if (introId && !isFeatureSeen(introId)) {
+      window.showFeatureIntro?.(introId)
+      return
+    }
+    _origChangeTab?.(tab)
+  }
+
+  // Modal-based available features
+  wrapHandler('openAddSpot', 'add-spot')
+  wrapHandler('openSOS', 'sos')
+  wrapHandler('openStats', 'stats')
+  wrapHandler('openBadges', 'niveaux')
+  wrapHandler('showGuides', 'conseils')
+
+  // Wrap handlers defined in other modules (after their static imports run)
+  setTimeout(() => {
+    if (window.openLeaderboard) wrapHandler('openLeaderboard', 'classements')
+    if (window.openDonation) wrapHandler('openDonation', 'dons')
+    if (window.toggleGasStations) wrapHandler('toggleGasStations', 'stations')
+  }, 0)
+})()
 
 // ==================== START APP ====================
 

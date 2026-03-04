@@ -1427,10 +1427,10 @@ function renderFeatureDetailJournal() {
 function renderFeatureDetailCompanion() {
   return `
     <div class="mb-5">
-      <button onclick="openFeatureSlides('guardian-mode')"
+      <button onclick="showFeatureIntro('gardien')"
         class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
         style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        ${escapeHTML(t('guardianDemoTryBtn') || 'Voir les slides Mode Gardien')}
+        ${escapeHTML(t('guardianDemoTryBtn') || 'Voir le Mode Gardien')}
       </button>
       <div class="space-y-2.5 px-1">
         <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Tes proches (gardiens) voient ta position en direct sur la carte SpotHitch</span></div>
@@ -2148,7 +2148,18 @@ window.submitPastTrip = () => {
 
 // ==================== ROADMAP HANDLERS ====================
 
+// Mapping from Roadmap feature IDs to FeatureIntroModal IDs
+const ROADMAP_TO_INTRO_ID = {
+  'leagues': 'classements', 'hostels': 'auberges', 'events': 'evenements',
+  'journal': 'carnet', 'guardian-mode': 'gardien',
+}
+
 window.openRoadmapFeature = (featureId) => {
+  const introId = ROADMAP_TO_INTRO_ID[featureId]
+  if (introId) {
+    window.showFeatureIntro?.(introId)
+    return
+  }
   window.setState?.({ roadmapFeatureId: featureId, roadmapCommentInput: null })
 }
 

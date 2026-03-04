@@ -442,6 +442,12 @@ const MAIN_JS_HANDLERS = [
   'acceptGuideNudge',
   'submitGuideTip',
   'selectGuideTipCategory',
+  // Feature Intro Modal (session 2026-03-04)
+  'showFeatureIntro',
+  'closeFeatureIntro',
+  'featureIntroCTA',
+  'featureIntroBetaCTA',
+  'toggleIntroReaction',
 ]
 
 MAIN_JS_HANDLERS.forEach(h => KNOWN_HANDLERS.add(h))

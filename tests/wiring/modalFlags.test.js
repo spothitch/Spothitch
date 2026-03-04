@@ -41,6 +41,7 @@ import { renderLocationPermission } from '../../src/components/modals/LocationPe
 import { renderLanguageSelector } from '../../src/components/modals/LanguageSelector.js'
 import { renderFeedbackPanel } from '../../src/components/modals/FeedbackPanel.js'
 import { renderGuideNudge } from '../../src/components/modals/GuideNudge.js'
+import '../../src/components/modals/FeatureIntroModal.js' // registers window.showFeatureIntro (DOM-based)
 
 // Landing
 import { renderLanding } from '../../src/components/Landing.js'
@@ -428,6 +429,31 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
     expect(html.length).toBeGreaterThan(100)
     expect(html).toContain('closeGuideNudge')
     expect(html).toContain('acceptGuideNudge')
+  })
+
+  test('showFeatureIntro creates DOM overlay and closes cleanly', () => {
+    // FeatureIntroModal is DOM-based — test via window handlers
+    expect(typeof window.showFeatureIntro).toBe('function')
+    expect(typeof window.closeFeatureIntro).toBe('function')
+
+    // Show the modal
+    window.showFeatureIntro('carte')
+    const overlay = document.getElementById('feature-intro-overlay')
+    expect(overlay).toBeTruthy()
+    expect(overlay.innerHTML.length).toBeGreaterThan(100)
+    expect(overlay.innerHTML).toContain('featureIntroCTA')
+
+    // Close the modal
+    window.closeFeatureIntro()
+    expect(document.getElementById('feature-intro-overlay')).toBeNull()
+  })
+
+  test('showFeatureIntro renders beta features with beta CTA', () => {
+    window.showFeatureIntro('compagnon')
+    const overlay = document.getElementById('feature-intro-overlay')
+    expect(overlay).toBeTruthy()
+    expect(overlay.innerHTML).toContain('featureIntroBetaCTA')
+    window.closeFeatureIntro()
   })
 })
 

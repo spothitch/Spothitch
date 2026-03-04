@@ -11,6 +11,19 @@ import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 // ==================== FEATURE DEFINITIONS ====================
 // IDs are stable — never change after deploy (stored in localStorage/Firebase)
 
+// Mapping from FeedbackPanel feature IDs to FeatureIntroModal IDs (for glassmorphism cards)
+const FEEDBACK_TO_INTRO_ID = {
+  'search-city': 'carte', 'filters': 'carte', 'create-spot': 'add-spot',
+  'route': 'itineraire', 'gas-stations': 'stations', 'spot-detail': 'carte',
+  'offline-map': 'hors-ligne', 'trip-planner': 'carnet', 'badges': 'niveaux',
+  'guides': 'guides', 'challenges': 'defis', 'quiz': 'quiz', 'journal': 'carnet',
+  'hostels': 'auberges', 'leagues': 'classements', 'friends': 'amis',
+  'private-messages': 'amis', 'feed': 'activite-amis', 'companion-route': 'compagnon',
+  'events': 'evenements', 'my-profile': 'profil', 'identity-verify': 'score-confiance',
+  'settings': 'profil', 'sos': 'sos', 'companion-safety': 'gardien',
+  'guardian-mode': 'gardien',
+}
+
 const FEATURES = {
   carte: [
     { id: 'search-city', emoji: '🔍', nameKey: 'fbFeatSearchCity', descKey: 'fbDescSearchCity', longDescKey: 'fbLongSearchCity', status: 'available' },
@@ -104,10 +117,15 @@ function renderFeatureItem(feat, reviewed) {
     ? 'border: 2px solid #22c55e; background: rgba(34,197,94,0.15); color: #22c55e'
     : 'border: 2px solid rgba(255,255,255,0.1)'
 
+  const introId = FEEDBACK_TO_INTRO_ID[feat.id]
+  const clickHandler = introId
+    ? `showFeatureIntro('${escapeJSString(introId)}')`
+    : `openFeedbackDetail('${escapeJSString(feat.id)}')`
+
   return `
     <div class="flex items-center gap-2.5 px-4 py-2.5 cursor-pointer transition-colors relative"
       style="border-bottom: 1px solid rgba(255,255,255,0.03)"
-      onclick="openFeedbackDetail('${escapeJSString(feat.id)}')" role="button" tabindex="0">
+      onclick="${clickHandler}" role="button" tabindex="0">
       <div class="text-xl w-9 h-9 flex items-center justify-center rounded-[10px] shrink-0" style="background: rgba(255,255,255,0.04)">${feat.emoji}</div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5 text-[13px] font-semibold">${escapeHTML(t(feat.nameKey) || feat.id)} ${statusTag}</div>
