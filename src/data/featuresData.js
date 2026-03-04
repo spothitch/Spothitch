@@ -183,7 +183,7 @@ export const FEATURES_DATA = [
     color: '#fbbf24',
     badge: 'Disponible',
     content: [
-      { type: 'highlight', title: '💛 Pourquoi donner ?', desc: 'SpotHitch est gratuit et le restera. Pas de pub, pas de paywall. Juste des autostoppeurs qui s\'entraident. Un don garde ça vivant.' },
+      { type: 'highlight', title: '💛 Pourquoi donner ?', desc: 'SpotHitch est libre et sans pub. Pas de paywall. Juste des autostoppeurs qui s\'entraident. Un don garde ça vivant.' },
       { type: 'sub', text: 'Au nom de tous ceux qui voyagent sans moyen de donner.' },
     ],
     tags: [],

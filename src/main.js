@@ -2757,7 +2757,7 @@ if (!window.syncTripFieldsAndCalculate) {
   // Tab-based features — wrap changeTab for specific tabs
   const _origChangeTab = window.changeTab
   window.changeTab = (tab) => {
-    const TAB_INTROS = { spots: 'carte', profile: 'profil', social: 'amis', chat: 'chat', voyage: 'carnet' }
+    const TAB_INTROS = { map: 'carte', profile: 'profil', social: 'amis', chat: 'chat' }
     const introId = TAB_INTROS[tab]
     if (introId && !isFeatureSeen(introId)) {
       window.showFeatureIntro?.(introId)
