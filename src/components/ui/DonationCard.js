@@ -100,30 +100,6 @@ function renderFullDonation() {
           </button>
         </div>
 
-        <!-- External links -->
-        <div class="flex justify-center gap-4 mb-4">
-          <a
-            href="https://ko-fi.com/spothitch"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-1 py-1"
-            aria-label="${t('donationSupportOnKofi')}"
-          >
-            ${icon('coffee', 'w-5 h-5')}
-            Ko-fi
-          </a>
-          <span class="text-slate-600">|</span>
-          <a
-            href="https://www.buymeacoffee.com/spothitch"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1 py-1"
-            aria-label="Buy Me a Coffee"
-          >
-            ${icon('coffee', 'w-5 h-5')}
-            Buy Me a Coffee
-          </a>
-        </div>
 
       </div>
     </div>
@@ -241,41 +217,17 @@ export function renderDonationModal(state) {
             </div>
           `}
 
-          <!-- Payment Methods -->
-          <div class="space-y-3">
-            <a
-              href="https://ko-fi.com/spothitch"
-              target="_blank"
-              rel="noopener noreferrer"
-              onclick="handleDonationClick('kofi')"
-              class="w-full py-4 px-6 rounded-xl bg-[#FF5E5B] text-white font-medium flex items-center justify-center gap-3 hover:bg-[#e5524f] transition-colors block text-center"
-            >
-              ${icon('coffee', 'w-6 h-6')}
-              Ko-fi
-            </a>
-
-            <a
-              href="https://www.buymeacoffee.com/spothitch"
-              target="_blank"
-              rel="noopener noreferrer"
-              onclick="handleDonationClick('bmc')"
-              class="w-full py-4 px-6 rounded-xl bg-[#FFDD00] text-black font-medium flex items-center justify-center gap-3 hover:bg-[#E5C700] transition-colors block text-center"
-            >
-              ${icon('coffee', 'w-6 h-6')}
-              Buy Me a Coffee
-            </a>
-
-            <a
-              href="https://www.paypal.com/donate?business=support@spothitch.com&currency_code=EUR"
-              target="_blank"
-              rel="noopener noreferrer"
-              onclick="handleDonationClick('paypal')"
-              class="w-full py-4 px-6 rounded-xl bg-[#0070ba] text-white font-medium flex items-center justify-center gap-3 hover:bg-[#005ea6] transition-colors block text-center"
-            >
-              ${icon('paypal', 'w-6 h-6')}
-              PayPal
-            </a>
-          </div>
+          <!-- Payment Method -->
+          <a
+            href="https://www.paypal.com/donate?business=support@spothitch.com&currency_code=EUR"
+            target="_blank"
+            rel="noopener noreferrer"
+            onclick="handleDonationClick('paypal')"
+            class="w-full py-4 px-6 rounded-xl bg-[#0070ba] text-white font-medium flex items-center justify-center gap-3 hover:bg-[#005ea6] transition-colors block text-center"
+          >
+            ${icon('paypal', 'w-6 h-6')}
+            PayPal
+          </a>
 
           <!-- Info notice -->
           <div class="mt-6 text-center">
