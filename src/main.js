@@ -2789,7 +2789,8 @@ if (!window.syncTripFieldsAndCalculate) {
   // Wrap handlers defined in other modules (after their static imports run)
   setTimeout(() => {
     if (window.openLeaderboard) wrapHandler('openLeaderboard', 'classements')
-    if (window.openDonation) wrapHandler('openDonation', 'dons')
+    // NOTE: openDonation est défini dans DonationCard.js (lazy-load) — le wrapper
+    // n'est jamais installé à temps → retiré, la modale de dons se suffit à elle-même
     // NOTE: toggleGasStations est un bouton rapide de la carte → jamais intercepté
   }, 0)
 })()
