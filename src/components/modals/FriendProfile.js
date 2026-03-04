@@ -12,9 +12,10 @@ import { escapeHTML } from '../../utils/sanitize.js'
 export function renderFriendProfileModal(state) {
   const friendId = state.selectedFriendProfileId
   const friends = state.friends || []
-  const friend = friends.find(f => f.id === friendId)
+  const isFriend = friends.some(f => f.id === friendId)
+  const friend = friends.find(f => f.id === friendId) || state.guestProfile
 
-  if (!friend) return ''
+  if (!friend || friend.id !== friendId) return ''
 
   const verLevel = friend.verificationLevel || 0
   const trustScore = friend.trustScore || Math.min(verLevel * 2, 10)
@@ -119,8 +120,12 @@ export function renderFriendProfileModal(state) {
             ` : ''}
           </div>
 
+          <!-- Reviews section -->
+          ${renderProfileReviews(state, friend.id)}
+
           <!-- Actions -->
           <div class="space-y-2">
+            ${isFriend ? `
             <button
               onclick="closeFriendProfile(); openFriendChat('${friend.id}')"
               class="btn-primary w-full"
@@ -128,14 +133,24 @@ export function renderFriendProfileModal(state) {
               ${icon('message-circle', 'w-5 h-5 mr-2')}
               ${t('sendMessage')}
             </button>
+            ` : `
+            <button
+              onclick="sendFriendRequest('${friend.id}')"
+              class="btn-primary w-full"
+            >
+              ${icon('user-plus', 'w-5 h-5 mr-2')}
+              ${t('addFriend') || 'Ajouter comme ami'}
+            </button>
+            `}
             <div class="flex gap-2">
               <button
-                onclick="shareProfile('${friend.id}')"
+                onclick="shareProfile('${friend.id}', '${escapeHTML(friend.name)}', '${friend.avatar || '🤙'}')"
                 class="flex-1 py-2 rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 transition-colors text-sm flex items-center justify-center gap-1"
               >
                 ${icon('share', 'w-4 h-4')}
                 ${t('share')}
               </button>
+              ${isFriend ? `
               <button
                 onclick="removeFriend('${friend.id}'); closeFriendProfile()"
                 class="flex-1 py-2 rounded-xl border border-danger-500/30 text-danger-400 hover:bg-danger-500/10 transition-colors text-sm flex items-center justify-center gap-1"
@@ -143,6 +158,7 @@ export function renderFriendProfileModal(state) {
                 ${icon('user-minus', 'w-4 h-4')}
                 ${t('removeFriend')}
               </button>
+              ` : ''}
             </div>
             <div class="flex gap-2 pt-1">
               <button
@@ -236,15 +252,99 @@ window.closeFriendProfile = () => {
   window.setState?.({ showFriendProfile: false, selectedFriendProfileId: null })
 }
 
-window.shareProfile = (friendId) => {
-  const url = `${window.location.origin}?profile=${friendId}`
-  if (navigator.share) {
-    navigator.share({ title: 'SpotHitch', url }).catch(() => {})
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(() => {
-      window.showToast?.(t('linkCopied'), 'success')
-    }).catch(() => {})
-  }
+export default { renderFriendProfileModal }
+
+/**
+ * Render profile reviews section (avis reçus + formulaire)
+ */
+function renderProfileReviews(state, targetUid) {
+  const reviews = state.profileReviews
+  const isWriting = state.showWriteReview && state.reviewTargetUid === targetUid
+  const currentUid = state.currentUser?.uid
+
+  const canReview = currentUid && currentUid !== targetUid
+
+  // Average rating
+  const avg = reviews?.length > 0
+    ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1)
+    : null
+
+  return `
+    <div class="space-y-2">
+      <div class="flex items-center justify-between">
+        <div class="text-xs text-slate-400 font-medium flex items-center gap-1">
+          ${icon('star', 'w-3 h-3 text-amber-400')}
+          ${t('profileReviews') || 'Avis'}
+          ${avg ? `<span class="text-amber-400 font-semibold">${avg}/5</span>` : ''}
+          ${Array.isArray(reviews) ? `<span class="text-slate-600">(${reviews.length})</span>` : ''}
+        </div>
+        ${canReview && !isWriting ? `
+        <button
+          onclick="openWriteReview('${targetUid}')"
+          class="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1"
+          type="button"
+        >
+          ${icon('edit-3', 'w-3 h-3')}
+          ${t('leaveReview') || 'Laisser un avis'}
+        </button>
+        ` : ''}
+      </div>
+
+      ${isWriting ? renderWriteReviewForm(targetUid) : ''}
+
+      ${!Array.isArray(reviews) ? `
+        <div class="text-xs text-slate-500 text-center py-2">${t('loading') || 'Chargement...'}</div>
+      ` : reviews.length === 0 ? `
+        <div class="text-xs text-slate-500 text-center py-2">${t('noReviewsYet') || 'Pas encore d\'avis'}</div>
+      ` : `
+        <div class="space-y-2 max-h-32 overflow-y-auto">
+          ${reviews.slice(0, 5).map(r => `
+            <div class="bg-white/5 rounded-xl p-2.5 text-xs">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-base">${r.reviewerAvatar || '🤙'}</span>
+                <span class="font-medium text-slate-300">${escapeHTML(r.reviewerName || 'Hitchhiker')}</span>
+                <span class="text-amber-400 ml-auto">${'⭐'.repeat(r.rating || 1)}</span>
+              </div>
+              ${r.comment ? `<p class="text-slate-400 leading-relaxed">${escapeHTML(r.comment)}</p>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `}
+    </div>
+  `
 }
 
-export default { renderFriendProfileModal }
+function renderWriteReviewForm(targetUid) {
+  return `
+    <div class="bg-white/5 rounded-xl p-3 space-y-2">
+      <div class="flex items-center gap-1 justify-center" id="star-rating-${targetUid}">
+        ${[1,2,3,4,5].map(n => `
+          <button
+            type="button"
+            onclick="document.querySelectorAll('#star-rating-${targetUid} button').forEach((b,i)=>{b.textContent=i<${n}?'⭐':'☆'}); document.getElementById('review-rating-${targetUid}').value=${n}"
+            class="text-2xl transition-transform hover:scale-110"
+          >${n <= 3 ? '⭐' : '☆'}</button>
+        `).join('')}
+      </div>
+      <input type="hidden" id="review-rating-${targetUid}" value="3">
+      <textarea
+        id="review-comment-${targetUid}"
+        class="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs resize-none h-16 focus:border-primary-500/50 focus:outline-none text-slate-300"
+        placeholder="${t('reviewPlaceholder') || 'Ton expérience avec cet autostoppeur...'}"
+        maxlength="500"
+      ></textarea>
+      <div class="flex gap-2">
+        <button
+          type="button"
+          onclick="submitProfileReview('${targetUid}', document.getElementById('review-rating-${targetUid}').value, document.getElementById('review-comment-${targetUid}').value)"
+          class="flex-1 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-600 transition-colors"
+        >${t('submit') || 'Envoyer'}</button>
+        <button
+          type="button"
+          onclick="cancelWriteReview()"
+          class="px-3 py-1.5 rounded-lg bg-white/5 text-slate-400 text-xs hover:bg-white/10 transition-colors"
+        >${t('cancel') || 'Annuler'}</button>
+      </div>
+    </div>
+  `
+}

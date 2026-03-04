@@ -86,6 +86,15 @@ export function handleDeepLink() {
     });
   }
 
+  // Handle user profile link (?u=uid)
+  const userUid = params.get('u');
+  if (userUid) {
+    setTimeout(() => {
+      setState({ activeTab: 'social' });
+      window.showFriendProfile?.(userUid);
+    }, 300);
+  }
+
   // Handle search query
   const search = params.get('search') || params.get('q');
   if (search) {

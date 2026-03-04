@@ -301,11 +301,74 @@ function escapeHTML(str) {
   return div.innerHTML
 }
 
+/**
+ * Show share modal for a user profile
+ * @param {string} uid - User UID
+ * @param {string} username - Username to display
+ * @param {string} avatar - Emoji avatar
+ */
+export function shareProfileModal(uid, username, avatar) {
+  const existing = document.getElementById('share-card-modal')
+  if (existing) existing.remove()
+
+  const profileUrl = `${APP_URL}/?u=${uid}`
+  const displayName = username ? `@${username}` : 'Profil SpotHitch'
+  const whatsappText = encodeURIComponent(
+    `${avatar || '🤙'} ${t('shareProfileText') || 'Rejoins-moi sur SpotHitch, la communauté des autostoppeurs !'}\n\n${profileUrl}`
+  )
+
+  const modal = document.createElement('div')
+  modal.id = 'share-card-modal'
+  modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;`
+  modal.innerHTML = `
+    <div style="background:#1a2332;max-width:440px;width:100%;border-radius:20px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="color:white;font-size:1.25rem;font-weight:700;margin:0;">
+          ${t('shareProfile') || 'Partager mon profil'}
+        </h3>
+        <button onclick="window.closeShareModal()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.25rem;">✕</button>
+      </div>
+      <div style="background:linear-gradient(135deg,#1e2a3a,#0f1520);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;border:1px solid rgba(245,158,11,0.3);">
+        <div style="font-size:3rem;margin-bottom:8px;">${avatar || '🤙'}</div>
+        <div style="color:white;font-weight:700;font-size:1.1rem;">${escapeHTML(displayName)}</div>
+        <div style="color:#64748b;font-size:0.75rem;margin-top:6px;word-break:break-all;">${profileUrl}</div>
+      </div>
+      <div style="display:grid;gap:12px;margin-bottom:12px;">
+        <a href="https://wa.me/?text=${whatsappText}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:14px;background:#25d366;border-radius:12px;text-decoration:none;color:white;font-weight:600;">
+          <span style="font-size:24px;">📱</span><span>${t('shareCardWhatsApp') || 'Partager sur WhatsApp'}</span>
+        </a>
+        <button onclick="window.copyProfileLink('${escapeHTML(uid)}')" style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);border-radius:12px;color:#60a5fa;font-weight:600;cursor:pointer;width:100%;">
+          <span style="font-size:24px;">🔗</span><span>${t('copyProfileLink') || 'Copier le lien du profil'}</span>
+        </button>
+      </div>
+      <button onclick="window.closeShareModal()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-weight:600;cursor:pointer;">
+        ${t('close') || 'Fermer'}
+      </button>
+    </div>
+  `
+  modal.onclick = (e) => { if (e.target === modal) closeShareModal() }
+  document.body.appendChild(modal)
+}
+
+/**
+ * Copy profile link to clipboard
+ */
+export async function copyProfileLink(uid) {
+  const url = `${APP_URL}/?u=${uid}`
+  try {
+    await copyToClipboard(url)
+    showToast(t('shareCardLinkCopied') || 'Lien copié !', 'success')
+  } catch {
+    showToast(t('shareCardCopyError') || 'Erreur lors de la copie', 'error')
+  }
+}
+
 // Global handlers
 if (typeof window !== 'undefined') {
   window.closeShareModal = closeShareModal
   window.copySpotLink = copySpotLink
   window.shareOnWhatsApp = shareOnWhatsApp
+  window.copyProfileLink = copyProfileLink
 }
 
 export default {
@@ -314,4 +377,6 @@ export default {
   closeShareModal,
   copySpotLink,
   shareOnWhatsApp,
+  shareProfileModal,
+  copyProfileLink,
 }

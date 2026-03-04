@@ -1233,15 +1233,100 @@ window.removeFriend = async (friendId) => {
 }
 
 window.showFriendProfile = async (friendId) => {
-  window.setState?.({ showFriendProfile: true, selectedFriendProfileId: friendId, friendProfileSocialLinks: null })
-  // Fetch social links from Firestore in the background
+  window.setState?.({
+    showFriendProfile: true,
+    selectedFriendProfileId: friendId,
+    friendProfileSocialLinks: null,
+    profileReviews: null,
+    guestProfile: null,
+  })
   try {
     const { getUserProfile } = await import('../../services/firebase.js')
     const result = await getUserProfile(friendId)
-    if (result.success && result.profile?.socialLinks) {
-      window.setState?.({ friendProfileSocialLinks: result.profile.socialLinks })
+    if (result.success && result.profile) {
+      const p = result.profile
+      if (result.profile?.socialLinks) {
+        window.setState?.({ friendProfileSocialLinks: result.profile.socialLinks })
+      }
+      // Build guestProfile for non-friends
+      const state = window.getState?.() || {}
+      const isFriend = (state.friends || []).some(f => f.id === friendId)
+      if (!isFriend) {
+        window.setState?.({ guestProfile: {
+          id: friendId,
+          name: p.username || p.displayName || 'Hitchhiker',
+          avatar: p.avatar || '🤙',
+          level: p.level || 1,
+          points: p.points || 0,
+          spotsCreated: p.spotsCreated || 0,
+          checkins: p.checkins || 0,
+          badges: p.badges || [],
+          verificationLevel: p.verificationLevel || 0,
+          trustScore: p.reviewCount > 0 ? Math.round((p.reviewRatingTotal || 0) / p.reviewCount * 2) : 0,
+          reviewCount: p.reviewCount || 0,
+          countriesVisited: (p.countriesVisited || []).length || p.countriesCount || 0,
+        }})
+      }
     }
-  } catch { /* offline or not found — no social links shown */ }
+  } catch { /* offline or not found */ }
+  // Load reviews async
+  try {
+    const { loadProfileReviews } = await import('../../services/userReviews.js')
+    const reviews = await loadProfileReviews(friendId)
+    window.setState?.({ profileReviews: reviews })
+  } catch { window.setState?.({ profileReviews: [] }) }
+}
+
+window.openWriteReview = (targetUid) => {
+  window.setState?.({ showWriteReview: true, reviewTargetUid: targetUid })
+}
+
+window.cancelWriteReview = () => {
+  window.setState?.({ showWriteReview: false, reviewTargetUid: null })
+}
+
+window.submitProfileReview = async (targetUid, rating, comment) => {
+  if (!targetUid || !rating) return
+  try {
+    const { submitProfileReview } = await import('../../services/userReviews.js')
+    const result = await submitProfileReview(targetUid, parseInt(rating), comment)
+    if (result.success) {
+      window.showToast?.(t('reviewSubmitted') || 'Avis envoyé !', 'success')
+      window.setState?.({ showWriteReview: false, reviewTargetUid: null })
+      // Reload reviews
+      const { loadProfileReviews } = await import('../../services/userReviews.js')
+      const reviews = await loadProfileReviews(targetUid)
+      window.setState?.({ profileReviews: reviews })
+    } else {
+      window.showToast?.(t('reviewError') || 'Erreur lors de l\'envoi', 'error')
+    }
+  } catch (e) {
+    console.error('submitProfileReview error:', e)
+    window.showToast?.(t('reviewError') || 'Erreur lors de l\'envoi', 'error')
+  }
+}
+
+window.shareMyProfile = () => {
+  const state = window.getState?.() || {}
+  import('../../services/shareCard.js').then(m => {
+    m.shareProfileModal(state.user?.uid || '', state.username || '', state.avatar || '🤙')
+  })
+}
+
+window.shareProfile = (uid, name, avatar) => {
+  import('../../services/shareCard.js').then(m => {
+    m.shareProfileModal(uid, name, avatar)
+  })
+}
+
+window.loadMyProfileReviews = async () => {
+  const state = window.getState?.() || {}
+  if (!state.user?.uid) return
+  try {
+    const { loadProfileReviews } = await import('../../services/userReviews.js')
+    const reviews = await loadProfileReviews(state.user.uid)
+    window.setState?.({ myProfileReviews: reviews })
+  } catch { window.setState?.({ myProfileReviews: [] }) }
 }
 
 export default { renderSocial }

@@ -209,8 +209,10 @@ const MAIN_JS_HANDLERS = [
   // Welcome (defined in Welcome.js)
   // IdentityVerification (defined in IdentityVerification.js)
   'startVerificationStep',
-  // FriendProfile (defined in FriendProfile.js / friendsList)
-  'removeFriend', 'shareProfile',
+  // FriendProfile (defined in FriendProfile.js / Social.js)
+  'removeFriend', 'shareProfile', 'shareMyProfile', 'copyProfileLink',
+  // User Reviews (defined in Social.js)
+  'openWriteReview', 'cancelWriteReview', 'submitProfileReview', 'loadMyProfileReviews',
   // AddSpot (all defined in AddSpot.js)
   'handlePhotoSelect', 'setSpotRating', 'onSpotTypeChange',
   'triggerPhotoUpload', 'addSpotNextStep', 'addSpotPrevStep',
