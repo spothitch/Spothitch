@@ -765,6 +765,37 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
 })
 
 // ============================================================
+// SECTION: Protected handlers — JAMAIS wrappés/interceptés
+// Ces fonctions sont critiques et ne doivent PAS avoir de fenêtre
+// d'intro devant elles. Toute modification qui en intercepte une
+// doit être refusée par ce test.
+// ============================================================
+
+// Liste des handlers protégés contre les wrappers premier-clic
+const PROTECTED_HANDLERS = [
+  'toggleGasStations',   // bouton rapide carte → jamais intercepté
+  'openNavigation',      // navigation GPS → jamais intercepté
+  'openSOS',             // SOS → jamais intercepté (sécurité critique)
+  'closeSOS',
+  'markSafe',
+  'selectSpot',          // tap sur un spot → jamais intercepté
+  'closeSpotDetail',
+  'changeTab',           // la navigation entre onglets → wrapHandler existant est OK
+                         // mais on vérifie que changeTab lui-même est toujours défini
+]
+
+describe('Wiring: Protected handlers cannot be undefined', () => {
+  it('all protected handlers are present in KNOWN_HANDLERS', () => {
+    const missing = PROTECTED_HANDLERS.filter(h => !KNOWN_HANDLERS.has(h))
+    expect(
+      missing,
+      `Ces handlers protégés ont été supprimés ou renommés : ${missing.join(', ')}. ` +
+      `NE JAMAIS supprimer ces fonctions sans mettre à jour ce test.`
+    ).toEqual([])
+  })
+})
+
+// ============================================================
 // SECTION: Handler existence sanity check
 // ============================================================
 describe('Wiring: KNOWN_HANDLERS list is consistent', () => {

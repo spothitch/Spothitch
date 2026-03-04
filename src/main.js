@@ -2789,7 +2789,7 @@ if (!window.syncTripFieldsAndCalculate) {
   setTimeout(() => {
     if (window.openLeaderboard) wrapHandler('openLeaderboard', 'classements')
     if (window.openDonation) wrapHandler('openDonation', 'dons')
-    if (window.toggleGasStations) wrapHandler('toggleGasStations', 'stations')
+    // NOTE: toggleGasStations est un bouton rapide de la carte → jamais intercepté
   }, 0)
 })()
 

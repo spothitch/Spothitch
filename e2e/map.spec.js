@@ -111,4 +111,36 @@ test.describe('Map View', () => {
     const addAriaLabel = await addBtn.getAttribute('aria-label')
     expect(addAriaLabel).toBeTruthy()
   })
+
+  // =========================================================
+  // PROTECTED FEATURE: Bouton stations essence
+  // Ce test vérifie que le bouton ⛽ fonctionne directement,
+  // SANS fenêtre d'intro devant lui. Si ce test échoue c'est
+  // qu'un wrapper a intercepté toggleGasStations — INTERDIT.
+  // =========================================================
+  test('gas station toggle works directly without intro modal', async ({ page }) => {
+    // Le bouton ⛽ doit être visible
+    const gasBtn = page.locator('#gas-toggle-btn')
+    await expect(gasBtn).toBeVisible({ timeout: 8000 })
+
+    // Cliquer le bouton
+    await gasBtn.click()
+    await page.waitForTimeout(800)
+
+    // Vérifier qu'aucune fenêtre d'intro (FeatureIntroModal) n'est apparue
+    const introModal = page.locator('.feature-intro-overlay, [id*="feature-intro"]')
+    const introCount = await introModal.count()
+    expect(
+      introCount,
+      'Le bouton stations essence a ouvert une fenêtre d\'intro au lieu de fonctionner directement. ' +
+      'toggleGasStations ne doit JAMAIS être wrappé par setupFeatureIntroWrappers().'
+    ).toBe(0)
+
+    // Cliquer à nouveau pour désactiver
+    await gasBtn.click()
+    await page.waitForTimeout(400)
+
+    // La carte doit toujours être visible (pas de crash)
+    await expect(page.locator('#home-map')).toBeVisible()
+  })
 })
