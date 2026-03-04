@@ -700,3 +700,20 @@ Chaque erreur suit ce format :
   - **Convention projet** : SpotHitch utilise `'1'` (pas `'true'`) pour les drapeaux boolean localStorage
 - **Fichiers** : `src/components/modals/BetaBanner.js`
 - **Statut** : CORRIGÉ (connaissance acquise)
+
+---
+
+### ERR-055 — Wrappers premier-clic cassent tous les boutons pour les utilisateurs existants
+
+- **Date** : 2026-03-04
+- **Gravité** : CRITIQUE
+- **Description** : Après deploy des fenêtres glassmorphism "premier clic", tous les boutons de la carte (Guides, +, SOS, Stations) et les onglets (Social, Profil, Chat) montraient une fenêtre d'intro à la place de faire leur action. L'app semblait cassée pour les utilisateurs existants.
+- **Cause racine** : Les wrappers `setupFeatureIntroWrappers()` interceptaient `window.openAddSpot`, `window.showGuides`, `window.changeTab`, etc. et affichaient l'intro si `spothitch_feature_seen` était vide. Les utilisateurs existants n'avaient pas cette clé (elle était nouvelle). Résultat : TOUTES les actions interceptées étaient bloquées.
+- **Correction** : Détecter les utilisateurs existants au démarrage (`points > 0 || username` dans `spothitch_v4_state`) et pré-remplir `spothitch_feature_seen` avec toutes les features marquées comme vues.
+- **Leçon** :
+  - **Toujours tester la MIGRATION** quand on introduit une nouvelle clé localStorage : que se passe-t-il pour les utilisateurs existants qui n'ont PAS cette clé ?
+  - **AVANT de wrapper des handlers existants**, prendre un screenshot de TOUS les boutons/actions concernés et vérifier qu'ils marchent encore après
+  - **Tester les 3 profils** : nouveau (localStorage vide), existant (state avec points), connecté Firebase
+  - **NE JAMAIS intercepter des actions fondamentales** (navigation, boutons principaux) sans une stratégie de migration pour les utilisateurs existants
+- **Fichiers** : `src/main.js` (setupFeatureIntroWrappers)
+- **Statut** : CORRIGÉ — détection utilisateur existant + pré-remplissage feature_seen

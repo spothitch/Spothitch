@@ -28,6 +28,19 @@
 > - Vérifier au minimum : 1) contenu visible 2) texte lisible 3) boutons cliquables 4) pas de zone vide inexpliquée
 > - Si le fond est sombre → vérifier que le texte n'est PAS invisible (même couleur que le fond)
 
+> **RÈGLE #2c — SCREENSHOT AVANT ET APRÈS — ZÉRO RÉGRESSION** (RÈGLE ABSOLUE) :
+> - **AVANT toute modification** → screenshot des écrans/fonctions TOUCHÉS par le changement
+> - **APRÈS la modification** → screenshot des MÊMES écrans pour comparer
+> - **Comparer visuellement AVANT vs APRÈS** : tout ce qui existait avant doit encore fonctionner après
+> - **Tester les 3 profils utilisateurs** pour CHAQUE changement :
+>   1. Nouvel utilisateur (localStorage vide) — vérifier que le nouveau comportement marche
+>   2. Utilisateur existant (state avec points/username) — vérifier qu'AUCUNE régression
+>   3. Utilisateur connecté Firebase — vérifier que les actions authentifiées marchent
+> - **Si un changement touche des wrappers/intercepteurs** (window.*, handlers, middlewares) → tester TOUS les boutons/actions interceptées, pas juste le cas nominal
+> - **Si un changement introduit une nouvelle clé localStorage** → tester la migration pour les utilisateurs existants qui n'ont PAS cette clé
+> - NE JAMAIS push sans avoir vérifié que les fonctions existantes marchent toujours — une feature cassée est pire qu'une feature manquante
+> - Cette règle a été ajoutée après que les wrappers "premier clic" aient cassé tous les boutons de la carte pour les utilisateurs existants (2026-03-04)
+
 > **RÈGLE #3 — PARLER SIMPLE** :
 > - L'utilisateur ne code PAS. Tout expliquer simplement.
 > - Pas de jargon sans explication ("push" = envoyer le code sur le site)
