@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, 'feature/**']
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   lint:
@@ -307,6 +307,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, test, wiring, lint]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    # Note: feature/* branches run tests only, no deploy
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6

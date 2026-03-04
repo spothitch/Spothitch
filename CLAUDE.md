@@ -2,12 +2,29 @@
 
 > **RÈGLE #0 — AUCUNE PERMISSION** : NE JAMAIS demander la permission pour exécuter des commandes bash, lire des fichiers, ou faire des opérations techniques. AGIR directement. La seule exception = les décisions PRODUIT (ce qu'on construit, pas comment on le construit).
 
-> **RÈGLE #1 — DEPLOY AUTO** : Après CHAQUE modification de code, AUTOMATIQUEMENT et SANS DEMANDER :
-> 1. `npx vitest run tests/wiring/` pour vérifier les tests
-> 2. `npm run build` pour vérifier la compilation
-> 3. Si échecs → corriger jusqu'à ce que TOUT passe, NE JAMAIS laisser un truc cassé
-> 4. `git add` (FICHIERS SPÉCIFIQUES UNIQUEMENT — JAMAIS `git add -A` ou `git add .`) + `git commit` + `git push origin main` → TOUJOURS, AUTOMATIQUEMENT
-> 5. NE JAMAIS demander "tu veux que je push ?" — la réponse est TOUJOURS oui
+> **RÈGLE #1 — BRANCHES ET DEPLOY** :
+>
+> **Structure des branches (OBLIGATOIRE) :**
+> - `feature/xxx` → UNE branche par fonctionnalité. Créer depuis `dev`. Tests CI uniquement, pas de deploy.
+> - `dev` → rassemble les features terminées. Deploy auto sur URL preview Cloudflare.
+> - `main` → version alpha stable pour les testeurs sur spothitch.com. JAMAIS toucher sans ordre explicite d'Antoine.
+>
+> **Workflow obligatoire pour chaque feature :**
+> 1. `git checkout dev && git pull origin dev` → partir de dev à jour
+> 2. `git checkout -b feature/nom-feature` → créer la branche feature
+> 3. Développer + commits réguliers sur `feature/nom-feature`
+> 4. `npx vitest run tests/wiring/` + `npm run build` → tout doit passer
+> 5. `git checkout dev && git merge feature/nom-feature && git push origin dev` → merger dans dev
+> 6. `git branch -d feature/nom-feature` → supprimer la branche feature locale
+>
+> **Merger dev → main (UNIQUEMENT sur ordre d'Antoine) :**
+> `git checkout main && git merge dev && git push origin main && git checkout dev`
+>
+> **Règles push :**
+> - Push sur `feature/xxx` → automatique après chaque modification
+> - Push sur `dev` → automatique après merge d'une feature
+> - Push sur `main` → JAMAIS sans ordre explicite d'Antoine
+> - `git add` FICHIERS SPÉCIFIQUES UNIQUEMENT — JAMAIS `git add -A` ou `git add .`
 > 6. Regrouper les modifications liées en un seul push quand c'est possible
 > 7. Avant `git add` → TOUJOURS `git diff --stat` pour vérifier qu'il n'y a PAS de fichiers inattendus (suppressions, fichiers générés, fichiers de données)
 
