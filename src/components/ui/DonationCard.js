@@ -29,9 +29,6 @@ export function renderDonationCard(options = {}) {
  * Full donation card with explanation
  */
 function renderFullDonation() {
-  const state = window.getState?.() || {};
-  const isSupporter = state.badges?.includes('supporter') || state.isSupporter;
-
   return `
     <div class="donation-card card p-6 bg-gradient-to-br from-rose-500/10 via-amber-500/10 to-orange-500/10 border-rose-500/30">
       <div class="text-center">
@@ -50,21 +47,6 @@ function renderFullDonation() {
         <p class="text-slate-400 text-sm mb-6 leading-relaxed">
           ${t('donationDesc')}
         </p>
-
-        ${isSupporter ? `
-          <!-- Supporter badge display -->
-          <div class="mb-6 p-4 rounded-xl bg-gradient-to-r from-rose-500/20 to-amber-500/20 border border-rose-500/30">
-            <div class="flex items-center justify-center gap-3">
-              <span class="text-3xl">
-                ${icon('medal', 'w-5 h-5 text-amber-400')}
-              </span>
-              <div class="text-left">
-                <div class="font-bold text-amber-400">${t('donationThanksSupporter')}</div>
-                <div class="text-xs text-slate-400">${t('donationSupporterHero')}</div>
-              </div>
-            </div>
-          </div>
-        ` : ''}
 
         <!-- Donation amounts grid -->
         <div class="grid grid-cols-2 gap-3 mb-6">
@@ -143,15 +125,6 @@ function renderFullDonation() {
           </a>
         </div>
 
-        <!-- Supporter badge info -->
-        ${!isSupporter ? `
-          <div class="pt-4 border-t border-white/10">
-            <p class="text-xs text-slate-400 flex items-center justify-center gap-2">
-              ${icon('star', 'w-5 h-5 text-amber-400')}
-              ${t('donationBadgeInfo')}
-            </p>
-          </div>
-        ` : ''}
       </div>
     </div>
   `;
@@ -305,14 +278,10 @@ export function renderDonationModal(state) {
           </div>
 
           <!-- Info notice -->
-          <div class="mt-6 text-center space-y-2">
+          <div class="mt-6 text-center">
             <p class="text-xs text-slate-400 flex items-center justify-center gap-2">
               ${icon('lock', 'w-5 h-5')}
               ${t('donationSecurePayment')}
-            </p>
-            <p class="text-xs text-amber-400/80 flex items-center justify-center gap-2">
-              ${icon('star', 'w-5 h-5')}
-              ${t('donationBadgeReward')}
             </p>
           </div>
         </div>
@@ -360,21 +329,9 @@ export function renderThankYouModal(state) {
             ${t('donationThankYouDesc')}
           </p>
 
-          <!-- Badge earned -->
-          <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-amber-500/30 to-orange-500/30 border border-amber-500/50">
-            ${icon('medal', 'w-7 h-7 text-amber-400')}
-            <div class="text-left">
-              <div class="text-xs text-amber-400/80">${t('donationBadgeUnlocked')}</div>
-              <div class="font-bold text-amber-400">Supporter</div>
-            </div>
-          </div>
         </div>
 
         <div class="p-6">
-          <p class="text-slate-400 text-sm mb-6">
-            ${t('donationThankYouBadgeDesc')}
-          </p>
-
           <button
             onclick="closeDonationThankYou()"
             class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-white font-medium hover:from-rose-600 hover:to-amber-600 transition-colors"
@@ -398,37 +355,11 @@ window.closeDonation = () => {
 };
 
 window.handleDonationClick = (_platform) => {
-  const state = window.getState?.() || {};
-  let amount = state.donationAmount;
-
-  // Get custom amount if applicable
-  if (amount === 'custom') {
-    const input = document.getElementById('custom-amount');
-    amount = parseInt(input?.value) || 5;
-  }
-
-  // Award supporter badge
-  const currentBadges = state.badges || [];
-  if (!currentBadges.includes('supporter')) {
-    window.setState?.({
-      badges: [...currentBadges, 'supporter'],
-      isSupporter: true,
-    });
-  }
-
-  // Award points based on amount
-  const points = Math.min(amount * 5, 250); // Cap at 250 points
-  window.addPoints?.(points, 'donation');
-
-  // Close donation modal and show thank you
+  // Fermer la modale et afficher le remerciement
   window.setState?.({
     showDonation: false,
     showDonationThankYou: true,
   });
-
-  // Show toast
-  window.showToast?.(t('donationThankYou') || 'Thank you for your support!', 'success');
-
 };
 
 window.closeDonationThankYou = () => {
