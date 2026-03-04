@@ -1546,6 +1546,7 @@ export default {
   noAmbassadorsAvailable: 'No ambassadors available',
   noUsersFound: 'No users found',
   searchResults: 'Results',
+  selected: 'selected',
   // Group conversations
   newGroupConversation: 'New group',
   createGroupConversation: 'Create a group',

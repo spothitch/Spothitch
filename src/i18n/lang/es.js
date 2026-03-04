@@ -1550,6 +1550,7 @@ export default {
   noAmbassadorsAvailable: 'No hay embajadores disponibles',
   noUsersFound: 'No se encontraron usuarios',
   searchResults: 'Resultados',
+  selected: 'seleccionados',
   // Group conversations
   newGroupConversation: 'Nuevo grupo',
   createGroupConversation: 'Crear un grupo',

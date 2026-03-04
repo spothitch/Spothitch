@@ -1550,6 +1550,7 @@ export default {
   noAmbassadorsAvailable: 'Keine Botschafter verfügbar',
   noUsersFound: 'Keine Benutzer gefunden',
   searchResults: 'Ergebnisse',
+  selected: 'ausgewählt',
   // Group conversations
   newGroupConversation: 'Neue Gruppe',
   createGroupConversation: 'Gruppe erstellen',
