@@ -2807,7 +2807,7 @@ export default {
   onboardingCompanionDesc: 'Le mode Compagnon veille sur toi pendant tout ton trajet.',
   onboardingGPSRealtime: 'GPS temps réel partagé',
   onboardingCheckins: 'Check-in réguliers',
-  onboardingSOSAlerts: 'Bouton SOS + alertes WhatsApp/SMS',
+  onboardingSOSAlerts: 'Bouton SOS + alertes SMS',
   onboardingFamilyTrack: 'Tes proches suivent ton trajet en direct.',
   onboardingJoinCommunity: 'Rejoins la communauté',
   onboardingFeedAdded: 'a ajouté un spot à',
@@ -3493,7 +3493,7 @@ export default {
   companionComingSoon: 'Bientôt disponible',
   companionFuturePush: 'Ton gardien reçoit des notifications push automatiques',
   companionFutureLive: 'Ton gardien voit ta position en temps réel sur la carte SpotHitch',
-  companionFutureSMS: 'Alertes SMS/WhatsApp automatiques vers ton gardien',
+  companionFutureSMS: 'Alertes SMS automatiques vers ton gardien',
   // Companion Mode — nouvelles fonctionnalites (#22-31)
   guardianTitle: 'Gardien principal',
   trustedContacts: 'Contacts de confiance',

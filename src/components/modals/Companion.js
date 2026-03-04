@@ -128,7 +128,7 @@ function renderConsentScreen() {
               </li>
               <li class="flex items-start gap-2">
                 ${icon('message-circle', 'w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0')}
-                <span>${t('companionFutureSMS') || 'Automatic SMS/WhatsApp alerts to your guardian'}</span>
+                <span>${t('companionFutureSMS') || 'Automatic SMS alerts to your guardian'}</span>
               </li>
             </ul>
           </div>

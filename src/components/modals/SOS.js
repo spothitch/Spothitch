@@ -1,10 +1,9 @@
 /**
  * SOS Modal Component
  * Emergency mode for sharing location with extended safety features:
- * - SMS/WhatsApp channel preference
+ * - SMS alert to emergency contacts
  * - Offline mode with cached position
  * - Auto-call with country detection
- * - 5-second countdown before alert
  * - Silent alarm mode
  * - Fake call UI
  * - Audio/video recording evidence
@@ -152,9 +151,9 @@ function renderSOSMain(state) {
         <!-- Content -->
         <div class="p-6 space-y-5">
 
-          <!-- Main SOS Button with Countdown -->
+          <!-- Main SOS Button -->
           <button
-            onclick="sosStartCountdown()"
+            onclick="shareSOSLocation()"
             class="btn btn-danger w-full text-lg py-4 ${state.sosActive ? 'animate-pulse-glow' : ''}"
             id="sos-share-btn"
             type="button"
@@ -164,20 +163,6 @@ function renderSOSMain(state) {
             ${icon(state.sosActive ? 'circle-stop' : 'radio-tower', 'w-5 h-5')}
             ${state.sosActive ? t('stopSharing') : t('shareLocation')}
           </button>
-
-          <!-- Countdown UI (hidden by default, shown via JS) -->
-          <div id="sos-countdown-ui" class="hidden card p-5 text-center bg-danger-500/10 border-danger-500/30" role="alert" aria-live="assertive">
-            <div class="text-5xl font-black text-danger-400 mb-2" id="sos-countdown-num">5</div>
-            <p class="text-sm text-slate-300 mb-4">${t('sosCountdownDesc') || 'Alerte en cours d\'envoi...'}</p>
-            <button
-              onclick="sosCancelCountdown()"
-              class="btn btn-ghost border border-slate-500/30 text-slate-400 w-full"
-              type="button"
-            >
-              ${icon('x', 'w-4 h-4')}
-              ${t('sosCountdownCancel') || 'Annuler'}
-            </button>
-          </div>
 
           ${state.sosActive ? `
             <div class="card p-4 bg-danger-500/10 border-danger-500/30" role="alert" aria-live="assertive" id="sos-status">
@@ -813,63 +798,6 @@ window.sosSetPrimaryContact = (index) => {
     localStorage.setItem('spothitch_sos_primary', String(index))
   }
   window.setState?.({})
-}
-
-// ── Countdown ────────────────────────────────────────────────────────────────
-let _sosCountdownTimer = null
-
-window.sosStartCountdown = async () => {
-  const { getState, actions } = await import('../../stores/state.js')
-  const { showSuccess } = await import('../../services/notifications.js')
-  const state = getState()
-
-  // If SOS already active, stop sharing immediately
-  if (state.sosActive) {
-    actions.toggleSOS()
-    showSuccess(t('positionShareStopped') || 'Partage de position arrêté')
-    return
-  }
-
-  const ui = document.getElementById('sos-countdown-ui')
-  const numEl = document.getElementById('sos-countdown-num')
-  const shareBtn = document.getElementById('sos-share-btn')
-
-  if (!ui || !numEl) {
-    // Fallback: immediate share
-    window.shareSOSLocation()
-    return
-  }
-
-  ui.classList.remove('hidden')
-  if (shareBtn) shareBtn.setAttribute('disabled', 'true')
-
-  let count = 5
-  numEl.textContent = count
-
-  _sosCountdownTimer = setInterval(() => {
-    count--
-    numEl.textContent = count
-    if (count <= 0) {
-      clearInterval(_sosCountdownTimer)
-      _sosCountdownTimer = null
-      ui.classList.add('hidden')
-      if (shareBtn) shareBtn.removeAttribute('disabled')
-      // Actually trigger location share
-      window.shareSOSLocation()
-    }
-  }, 1000)
-}
-
-window.sosCancelCountdown = () => {
-  if (_sosCountdownTimer) {
-    clearInterval(_sosCountdownTimer)
-    _sosCountdownTimer = null
-  }
-  const ui = document.getElementById('sos-countdown-ui')
-  const shareBtn = document.getElementById('sos-share-btn')
-  if (ui) ui.classList.add('hidden')
-  if (shareBtn) shareBtn.removeAttribute('disabled')
-  window.showToast?.(t('sosCountdownCancelled') || 'Alerte annulée', 'info')
 }
 
 // ── Fake Call ─────────────────────────────────────────────────────────────────
