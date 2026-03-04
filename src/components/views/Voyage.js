@@ -175,8 +175,10 @@ function renderMapFirstView(state) {
 
   return `
     <div class="relative" style="height:100dvh;margin:-0;padding:0">
-      <!-- MAP (fills entire space) -->
-      <div id="trip-map" class="absolute inset-0 z-0"></div>
+      <!-- MAP (fills entire space) — wrapper handles absolute positioning so MapLibre can't override it -->
+      <div style="position:absolute;inset:0;z-index:0;overflow:hidden">
+        <div id="trip-map" style="width:100%;height:100%"></div>
+      </div>
 
       <!-- COLLAPSED FORM BAR (top) — matches mockup top-bar -->
       <div class="absolute top-0 left-0 right-0 z-30" style="padding:env(safe-area-inset-top,0) 0 0 0">
@@ -234,6 +236,7 @@ function renderMapFirstView(state) {
       <!-- BOTTOM SHEET (above nav bar) -->
       <div
         id="trip-bottom-sheet"
+        data-sheet-state="${sheetState}"
         class="trip-bottom-sheet absolute left-0 right-0 z-40 bg-dark-primary/95 backdrop-blur-xl border-t border-white/10 rounded-t-2xl shadow-2xl"
         style="bottom:76px;height:${sheetHeight};max-height:calc(85vh - 76px)"
       >
@@ -270,7 +273,7 @@ function renderMapFirstView(state) {
         <div style="${sheetState === 'collapsed' ? 'display:none' : ''}">
           <div data-trip-scroll class="trip-sheet-scroll overflow-y-auto px-4 pb-6" style="max-height:calc(${sheetHeight} - 80px)">
             <!-- Filter chips -->
-            <div class="flex gap-2 overflow-x-auto scrollbar-none pb-3">
+            <div class="flex gap-2 overflow-x-auto scrollbar-none pb-3 pr-4">
               ${renderFilterChip('all', `${t('tripFilterAll') || 'Tous'} (${counts.all})`, !routeFilter || routeFilter === 'all', false)}
               ${renderFilterChip('rating4', `⭐ 4+ (${counts.rating4})`, routeFilter === 'rating4', counts.rating4 === 0)}
               ${renderFilterChip('wait20', `⏱ <20min (${counts.wait20})`, routeFilter === 'wait20', counts.wait20 === 0)}
@@ -1351,6 +1354,7 @@ function _applySheetState(sheet, state) {
   const heights = { collapsed: '80px', half: 'calc(50vh - 38px)', full: 'calc(85vh - 76px)' }
   sheet.style.height = heights[state] || '80px'
   _currentSheetState = state
+  sheet.dataset.sheetState = state
   // Show/hide scrollable content using data attributes (avoid querySelector CSS class issues)
   const scrollArea = sheet.querySelector('[data-trip-scroll]')
   const actionsArea = sheet.querySelector('[data-trip-actions]')
@@ -1387,7 +1391,8 @@ window.tripSheetTouchEnd = () => {
 window.tripSheetCycleState = () => {
   const sheet = document.getElementById('trip-bottom-sheet')
   if (!sheet) return
-  const current = _currentSheetState
+  // Read from data attribute to stay in sync after re-renders
+  const current = sheet.dataset.sheetState || _currentSheetState || 'collapsed'
   const next = current === 'collapsed' ? 'half' : current === 'half' ? 'full' : 'collapsed'
   _applySheetState(sheet, next)
 }

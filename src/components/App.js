@@ -1184,17 +1184,23 @@ function initTripMap(state) {
     const results = state.tripResults
     const from = results.fromCoords // [lat, lng]
     const to = results.toCoords     // [lat, lng]
-    if (!from || !to) return
+    // Fallback center: France if coords missing
+    const center = from ? [from[1], from[0]] : [2.3522, 46.2276]
+    const zoom = from ? 7 : 5
 
     const map = new maplibregl.Map({
       container,
       style: 'https://tiles.openfreemap.org/styles/liberty',
-      center: [from[1], from[0]], // [lng, lat]
-      zoom: 7,
+      center,
+      zoom,
       attributionControl: true,
     })
     tripMapInstance = map
     window._tripMapInstance = map
+
+    // Force resize after MapLibre sets position:relative on container
+    setTimeout(() => { map.resize() }, 100)
+    setTimeout(() => { map.resize() }, 500)
 
     map.on('load', () => {
       try {
