@@ -717,3 +717,25 @@ Chaque erreur suit ce format :
   - **NE JAMAIS intercepter des actions fondamentales** (navigation, boutons principaux) sans une stratégie de migration pour les utilisateurs existants
 - **Fichiers** : `src/main.js` (setupFeatureIntroWrappers)
 - **Statut** : CORRIGÉ — détection utilisateur existant + pré-remplissage feature_seen
+
+### ERR-056 — MapLibre GL écrase la hauteur du conteneur Tailwind (carte noire en mode itinéraire)
+
+- **Date** : 2026-03-04
+- **Gravité** : MAJEUR
+- **Description** : La carte du mode itinéraire s'affichait entièrement noire. `#trip-map` avait `height: 0px` malgré la classe Tailwind `absolute inset-0`.
+- **Cause racine** : MapLibre GL ajoute `.maplibregl-map { position: relative }` sur le conteneur via CSS injection, écrasant la classe Tailwind `absolute` (qui devenait `position: relative` donc `height: auto` = 0px car pas de contenu).
+- **Correction** : Wrapper div gère le positionnement absolu avec `style="position:absolute;inset:0"`, et `#trip-map` reçoit `width:100%;height:100%` inline (les styles inline battent les classes CSS externes). + 2x `map.resize()` après init pour forcer le recalcul.
+- **Leçon** : **Ne JAMAIS utiliser Tailwind pour positionner un conteneur MapLibre** — MapLibre injecte ses propres CSS qui écrasent les classes. Toujours utiliser des `style` inline pour le conteneur MapLibre, et ajouter `map.resize()` après l'initialisation.
+- **Fichiers** : `src/components/views/Voyage.js`, `src/components/App.js`
+- **Statut** : CORRIGÉ
+
+### ERR-057 — Bottom sheet cycling désynchronisé après re-render
+
+- **Date** : 2026-03-04
+- **Gravité** : MINEUR
+- **Description** : `tripSheetCycleState()` cyclait depuis le mauvais état après un re-render du composant. La bottom sheet affichait 'half' mais cyclait depuis 'collapsed'.
+- **Cause racine** : `_currentSheetState` est une variable module JS, réinitialisée à 'collapsed' à chaque re-render du composant Voyage. Le DOM gardait sa hauteur correcte mais la variable ne correspondait plus.
+- **Correction** : `_applySheetState()` écrit aussi `sheet.dataset.sheetState = state`. `tripSheetCycleState()` lit `sheet.dataset.sheetState` en priorité sur la variable module.
+- **Leçon** : **Pour les états UI persistants entre re-renders**, stocker l'état dans un attribut `data-*` sur l'élément DOM lui-même, pas seulement dans une variable module.
+- **Fichiers** : `src/components/views/Voyage.js`
+- **Statut** : CORRIGÉ
