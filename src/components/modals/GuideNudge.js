@@ -28,6 +28,7 @@ export function renderGuideNudge(state) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="guide-nudge-title"
+      tabindex="0"
     >
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true"></div>
       <div
@@ -65,7 +66,7 @@ export function renderGuideNudge(state) {
           <!-- Arrow indicator pointing toward Guides -->
           <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary-500/10 border border-primary-500/20">
             ${icon('book-open', 'w-4 h-4 text-primary-400')}
-            <span class="text-xs text-primary-300 font-medium">${escapeHTML(t('navGuides') || 'Guides')}</span>
+            <span class="text-xs text-primary-300 font-medium">Guides</span>
             ${icon('arrow-right', 'w-4 h-4 text-primary-400')}
             <span class="text-xs text-slate-400">${escapeHTML(t('guideNudgeBtn') || 'Partager mes conseils')}</span>
           </div>

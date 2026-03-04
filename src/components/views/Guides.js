@@ -295,8 +295,8 @@ function renderGuideTipForm(country) {
             <button
               type="button"
               onclick="selectGuideTipCategory('${cat.key}')"
-              class="guide-tip-cat px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              data-cat="${cat.key}"
+              class="px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+              data-guide-cat="${cat.key}"
             >
               ${cat.label}
             </button>
@@ -1161,8 +1161,8 @@ let _guideTipCategory = null
 window.selectGuideTipCategory = (cat) => {
   _guideTipCategory = cat
   // Update UI: deactivate all, activate selected
-  document.querySelectorAll('.guide-tip-cat').forEach(btn => {
-    const isSelected = btn.dataset.cat === cat
+  document.querySelectorAll('[data-guide-cat]').forEach(btn => {
+    const isSelected = btn.dataset.guideCat === cat
     btn.classList.toggle('bg-emerald-500', isSelected)
     btn.classList.toggle('text-white', isSelected)
     btn.classList.toggle('bg-white/5', !isSelected)
