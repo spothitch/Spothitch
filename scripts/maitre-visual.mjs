@@ -61,7 +61,7 @@ async function ensureBrowser() {
   }
 }
 
-async function runScenario(scenario) {
+async function tryRunScenario(scenario) {
   await ensureBrowser()
   let ctx
   try {
@@ -71,7 +71,6 @@ async function runScenario(scenario) {
       colorScheme: scenario.theme === 'light' ? 'light' : 'dark',
     })
   } catch (e) {
-    // Browser crashed — relance
     browser = await chromium.launch({ headless: true })
     ctx = await browser.newContext({
       viewport: { width: 390, height: 844 },
@@ -102,6 +101,15 @@ async function runScenario(scenario) {
       localStorage.setItem('spothitch_onboarding_done', skipOnboarding !== false ? '1' : '')
       // landing_seen doit toujours être set pour éviter la landing page par-dessus tout
       localStorage.setItem('spothitch_landing_seen', '1')
+      // Marquer toutes les features comme vues pour éviter que les wrappers "premier clic" bloquent les tests
+      const ts = Date.now()
+      localStorage.setItem('spothitch_feature_seen', JSON.stringify({
+        carte: ts, voyage: ts, social: ts, chat: ts, profil: ts, amis: ts,
+        carnet: ts, stats: ts, classements: ts, niveaux: ts, conseils: ts,
+        dons: ts, horsligne: ts, sos: ts, stations: ts, addspot: ts,
+        compagnon: ts, notifspot: ts, defis: ts, guides: ts, gardien: ts,
+        evenements: ts, auberges: ts, quiz: ts, radar: ts, itineraire: ts,
+      }))
       if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light')
     }, { theme: scenario.theme, skipOnboarding: scenario.skipOnboarding !== false, stateExtra: scenario.stateExtra || {} })
 
@@ -116,6 +124,16 @@ async function runScenario(scenario) {
     if (scenario.action) {
       await scenario.action(page)
       await page.waitForTimeout(scenario.actionWait || 400)
+    }
+
+    // Attente intelligente : attend qu'un élément précis soit dans le DOM (lazy-load)
+    if (scenario.waitFor) {
+      await page.waitForFunction(
+        (sel) => document.querySelector(sel) !== null,
+        scenario.waitFor.split(',')[0].trim(), // premier sélecteur seulement pour querySelectorAll simple
+        { timeout: 8000 }
+      ).catch(() => {})
+      await page.waitForTimeout(300) // stabilisation après lazy-render
     }
 
     // Vérifications attendues vs obtenues
@@ -163,11 +181,23 @@ async function runScenario(scenario) {
     const screenshotPath = join(SCREENSHOTS, scenario.id + '.png')
     await page.screenshot({ path: screenshotPath, fullPage: false })
 
-    logResult(scenario.id, allPassed, reasons.join(' | '))
+    return { passed: allPassed, reason: reasons.join(' | '), crash: false }
   } catch (e) {
-    logResult(scenario.id, false, `crash: ${e.message?.slice(0, 100)}`)
+    return { passed: false, reason: `crash: ${e.message?.slice(0, 100)}`, crash: true }
   } finally {
     await ctx.close().catch(() => {})
+  }
+}
+
+async function runScenario(scenario) {
+  const result = await tryRunScenario(scenario)
+  // Retry automatique si crash navigateur (une seule fois)
+  if (result.crash) {
+    browser = await chromium.launch({ headless: true })
+    const retry = await tryRunScenario(scenario)
+    logResult(scenario.id, retry.passed, retry.reason)
+  } else {
+    logResult(scenario.id, result.passed, result.reason)
   }
 }
 
@@ -289,6 +319,7 @@ const SCENARIOS = [
     stateExtra: { username: 'TestUser', isLoggedIn: true, showAddSpot: true, addSpotStep: 1 },
     waitAfterReload: 2500,
     setup: evaluate(() => localStorage.setItem('spothitch_test_mode', 'true')),
+    waitFor: '[role="dialog"], .fixed.inset-0',
     expect: [
       { visible: '[role="dialog"], .fixed.inset-0' },
       { inputExists: '#spot-photo, input[type="file"]' },
@@ -300,6 +331,7 @@ const SCENARIOS = [
     stateExtra: { username: 'TestUser', isLoggedIn: true, showAddSpot: true, addSpotStep: 1 },
     waitAfterReload: 2500,
     setup: evaluate(() => localStorage.setItem('spothitch_test_mode', 'true')),
+    waitFor: '[role="dialog"], .fixed.inset-0',
     expect: [{ visible: '[role="dialog"], .fixed.inset-0' }],
   },
   {
@@ -309,6 +341,7 @@ const SCENARIOS = [
     setup: evaluate(() => localStorage.setItem('spothitch_test_mode', 'true')),
     action: modal('openAddSpot'),
     actionWait: 2500,
+    waitFor: '.spot-type-btn',
     expect: [
       { count: 4, selector: '.spot-type-btn' },
     ],
@@ -394,6 +427,7 @@ const SCENARIOS = [
     theme: 'dark',
     setup: evaluate(() => localStorage.setItem('spothitch_sos_disclaimer_seen', '1')),
     action: modal('openSOS'),
+    waitFor: '#emergency-name',
     expect: [
       { visible: '#emergency-name' },
       { visible: '#emergency-phone' },
@@ -521,10 +555,12 @@ const SCENARIOS = [
   {
     id: 'social-amis-dark',
     theme: 'dark',
-    stateExtra: { activeTab: 'social' },
-    waitAfterReload: 2500,
+    action: tab('social'),
+    actionWait: 600,
+    waitFor: '#social-search',
     expect: [
-      { visible: '#social-search, [onclick*="setSocialSubTab"]' },
+      { visible: '#social-search' },
+      { visible: '[onclick*="setSocialTab"]' },
     ],
   },
   {
@@ -536,9 +572,10 @@ const SCENARIOS = [
   {
     id: 'social-recherche',
     theme: 'dark',
-    stateExtra: { activeTab: 'social', socialSubTab: 'messagerie' },
-    waitAfterReload: 2500,
-    expect: [{ visible: '#social-search, #friend-search' }],
+    action: tab('social'),
+    actionWait: 600,
+    waitFor: '#social-search',
+    expect: [{ visible: '#social-search' }],
   },
 
   // ══════════════════════════════════════════════════════
@@ -547,8 +584,9 @@ const SCENARIOS = [
   {
     id: 'chat-dark',
     theme: 'dark',
-    stateExtra: { activeTab: 'chat' },
-    waitAfterReload: 2500,
+    action: tab('chat'),
+    actionWait: 600,
+    waitFor: '#panel-chat',
     expect: [{ visible: '#panel-chat, #chat-messages, #chat-input' }],
   },
   {
