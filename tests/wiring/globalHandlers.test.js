@@ -448,6 +448,9 @@ const MAIN_JS_HANDLERS = [
   'featureIntroCTA',
   'featureIntroBetaCTA',
   'toggleIntroReaction',
+  // Unified voting (session 2026-03-05)
+  'selectIntroVote',
+  'submitIntroVote',
 ]
 
 MAIN_JS_HANDLERS.forEach(h => KNOWN_HANDLERS.add(h))

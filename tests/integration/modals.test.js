@@ -865,17 +865,15 @@ describe('Integration: FeedbackPanel', () => {
     setState({ showFeedbackPanel: true, feedbackActiveTab: 'securite', feedbackDetailFeature: null })
     const { renderFeedbackPanel } = require('../../src/components/modals/FeedbackPanel.js')
     const html = renderFeedbackPanel(getState())
-    expect(html).toContain('openFeedbackDetail')
-    expect(html).toContain('sos')
+    // Features are now opened via showFeatureIntro
+    expect(html).toContain('showFeatureIntro')
   })
 
-  it('renders detail view when feedbackDetailFeature is set', () => {
-    setState({ showFeedbackPanel: true, feedbackActiveTab: 'carte', feedbackDetailFeature: 'search-city' })
-    const { renderFeedbackPanel } = require('../../src/components/modals/FeedbackPanel.js')
-    const html = renderFeedbackPanel(getState())
-    expect(html).toContain('closeFeedbackDetail')
-    expect(html).toContain('toggleFeedbackReaction')
-    expect(html).toContain('submitFeedback')
+  it('has legacy detail handlers for backward compatibility', () => {
+    expect(typeof window.openFeedbackDetail).toBe('function')
+    expect(typeof window.closeFeedbackDetail).toBe('function')
+    expect(typeof window.toggleFeedbackReaction).toBe('function')
+    expect(typeof window.submitFeedback).toBe('function')
   })
 
   it('closes with closeFeedbackPanel', () => {

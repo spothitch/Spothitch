@@ -12,6 +12,8 @@ import { renderToggle } from '../../utils/toggle.js'
 import { getVipLevel } from '../../data/vip-levels.js'
 import { allBadges } from '../../data/badges.js'
 import { escapeHTML } from '../../utils/sanitize.js'
+import { FEATURES_DATA } from '../../data/featuresData.js'
+import { getVoteTotals } from '../../services/featureVotes.js'
 import './ProfileDemos.js' // Interactive demo overlays for Prochainement features
 
 // ==================== FIRESTORE PROFILE SYNC ====================
@@ -886,652 +888,72 @@ function renderMyCountriesList(state) {
   `
 }
 
-// ==================== TAB 2: ROADMAP ====================
+// ==================== TAB 2: ROADMAP (community voting) ====================
 
-const ROADMAP_FEATURES = [
-  { id: 'tech', icon: '🚀', title: { fr: 'Améliorations techniques', en: 'Technical Improvements', es: 'Mejoras técnicas', de: 'Technische Verbesserungen' }, desc: { fr: 'Google Maps, serveurs rapides', en: 'Google Maps, faster servers', es: 'Google Maps, servidores rápidos', de: 'Google Maps, schnellere Server' }, status: 'in_progress' },
-  { id: 'thumbs', icon: '👍', title: { fr: 'Pouces & Partenaires', en: 'Thumbs & Partners', es: 'Pulgares & Socios', de: 'Daumen & Partner' }, desc: { fr: 'Réductions Hostelworld, Patagonia...', en: 'Hostelworld, Patagonia discounts...', es: 'Descuentos Hostelworld, Patagonia...', de: 'Hostelworld, Patagonia Rabatte...' }, status: 'thinking' },
-  { id: 'leagues', icon: '🏆', title: { fr: 'Leagues & Classements', en: 'Leagues & Rankings', es: 'Ligas & Clasificaciones', de: 'Ligen & Ranglisten' }, desc: { fr: 'Compétition par pays, monde', en: 'Competition by country, worldwide', es: 'Competencia por país, mundial', de: 'Wettbewerb nach Land, weltweit' }, status: 'thinking' },
-  { id: 'cities', icon: '🏙️', title: { fr: 'Pages Villes', en: 'City Pages', es: 'Páginas de Ciudades', de: 'Stadtseiten' }, desc: { fr: 'Spots par direction, conseils', en: 'Spots by direction, tips', es: 'Spots por dirección, consejos', de: 'Spots nach Richtung, Tipps' }, status: 'thinking' },
-  { id: 'hostels', icon: '🏨', title: { fr: 'Auberges partenaires', en: 'Partner Hostels', es: 'Albergues asociados', de: 'Partnerherbergen' }, desc: { fr: 'Chill, Cheap, Party par ville', en: 'Chill, Cheap, Party by city', es: 'Chill, Barato, Fiesta por ciudad', de: 'Chill, Günstig, Party nach Stadt' }, status: 'thinking' },
-  { id: 'events', icon: '🎉', title: { fr: 'Événements', en: 'Events', es: 'Eventos', de: 'Veranstaltungen' }, desc: { fr: 'Meetups, rassemblements', en: 'Meetups, gatherings', es: 'Encuentros, reuniones', de: 'Meetups, Treffen' }, status: 'thinking' },
-  { id: 'groups', icon: '👥', title: { fr: 'Groupes & Courses', en: 'Groups & Races', es: 'Grupos & Carreras', de: 'Gruppen & Rennen' }, desc: { fr: 'Localisation amis, courses', en: 'Friends location, races', es: 'Ubicación amigos, carreras', de: 'Freunde-Standort, Rennen' }, status: 'thinking' },
-  { id: 'journal', icon: '📔', title: { fr: 'Carnet de Voyage', en: 'Travel Journal', es: 'Diario de Viaje', de: 'Reisetagebuch' }, desc: { fr: 'Enregistre et partage tes voyages', en: 'Record and share your trips', es: 'Registra y comparte tus viajes', de: 'Reisen aufzeichnen und teilen' }, status: 'thinking' },
-  { id: 'guardian-mode', icon: '👁️', title: { fr: 'Mode Gardien', en: 'Guardian Mode', es: 'Modo Guardián', de: 'Wächter-Modus' }, desc: { fr: 'Suivi en direct, check-ins, gardiens', en: 'Live tracking, check-ins, guardians', es: 'Seguimiento en vivo, check-ins, guardianes', de: 'Live-Tracking, Check-ins, Wächter' }, status: 'thinking' },
-]
+// Cached vote totals (loaded async from Firebase)
+let _roadmapTotalsCache = null
+let _roadmapTotalsLoading = false
 
-const ROADMAP_STATUS = {
-  in_progress: { fr: 'En cours', en: 'In progress', es: 'En curso', de: 'In Arbeit', cls: 'bg-amber-500/20 text-amber-500' },
-  thinking: { fr: 'En réflexion', en: 'Under review', es: 'En revisión', de: 'In Prüfung', cls: 'bg-blue-500/20 text-blue-400' },
-  shipped: { fr: 'Livré', en: 'Shipped', es: 'Entregado', de: 'Ausgeliefert', cls: 'bg-emerald-500/20 text-emerald-400' },
-}
-
-// Local fallback helpers (used when Firebase is unavailable)
-function getLocalVotes() {
-  try { return JSON.parse(localStorage.getItem('spothitch_roadmap_votes') || '{}') } catch { return {} }
-}
-function getLocalComments() {
-  try { return JSON.parse(localStorage.getItem('spothitch_roadmap_comments') || '[]') } catch { return [] }
-}
-
-// Get vote counts from state (loaded from Firebase) or fallback to local
-function getFeatureVoteCounts(featureId) {
-  const state = window.getState?.() || {}
-  const counts = state.roadmapVoteCounts || {}
-  if (counts[featureId]) return counts[featureId].up || 0
-  // Fallback: local vote
-  const myVote = getLocalVotes()[featureId]
-  return myVote === 'up' ? 1 : 0
-}
-
-function getMyVotes() {
-  const state = window.getState?.() || {}
-  if (state.roadmapMyVotes) return state.roadmapMyVotes
-  return getLocalVotes()
-}
-
-function getFeatureCommentCount(featureId) {
-  const state = window.getState?.() || {}
-  const counts = state.roadmapCommentCounts || {}
-  if (counts[featureId] !== undefined) return counts[featureId]
-  return getLocalComments().filter(c => c.featureId === featureId).length
-}
-
-function getLoadedComments(featureId) {
-  const state = window.getState?.() || {}
-  const loaded = state.roadmapLoadedComments || {}
-  if (loaded[featureId]) return loaded[featureId]
-  return getLocalComments().filter(c => c.featureId === featureId)
-}
-
-// Load all roadmap data from Firebase
-let _roadmapLoading = false
-async function loadRoadmapData() {
-  if (_roadmapLoading) return
-  _roadmapLoading = true
+async function ensureRoadmapTotals() {
+  if (_roadmapTotalsCache || _roadmapTotalsLoading) return
+  _roadmapTotalsLoading = true
   try {
-    const fb = await import('../../services/firebase.js')
-    const [votesResult, commentCountsResult] = await Promise.all([
-      fb.getRoadmapVotes(),
-      fb.getRoadmapCommentCounts(),
-    ])
-    const updates = {}
-    if (votesResult.success) {
-      updates.roadmapVoteCounts = votesResult.counts
-      updates.roadmapMyVotes = votesResult.myVotes
-    }
-    if (commentCountsResult.success) {
-      updates.roadmapCommentCounts = commentCountsResult.counts
-    }
-    if (Object.keys(updates).length) {
-      window.setState?.(updates)
-    }
-  } catch (e) {
-    console.warn('Roadmap: Firebase unavailable, using local data', e)
-  } finally {
-    _roadmapLoading = false
-  }
+    _roadmapTotalsCache = await getVoteTotals()
+  } catch { _roadmapTotalsCache = {} }
+  _roadmapTotalsLoading = false
+  window._forceRender?.()
 }
 
-// Load comments for a specific feature
-async function loadFeatureComments(featureId) {
-  try {
-    const fb = await import('../../services/firebase.js')
-    const result = await fb.getRoadmapComments(featureId)
-    if (result.success) {
-      const state = window.getState?.() || {}
-      const loaded = { ...(state.roadmapLoadedComments || {}), [featureId]: result.comments }
-      window.setState?.({ roadmapLoadedComments: loaded })
-    }
-  } catch (e) {
-    console.warn('Roadmap: could not load comments', e)
-  }
-}
 
-function lt(obj) {
-  if (!obj) return ''
-  const lang = (window.getState?.()?.lang) || 'en'
-  return obj[lang] || obj.en || obj.fr || ''
-}
+function renderRoadmapTab(_state) {
+  // Trigger async load of vote totals
+  ensureRoadmapTotals()
 
-function renderRoadmapIntroScreen() {
-  return `
-    <div class="flex flex-col items-center justify-center py-8 text-center">
-      <div class="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center text-3xl mx-auto mb-4">
-        ${icon('rocket', 'w-8 h-8 text-amber-400')}
-      </div>
-      <h2 class="text-xl font-bold text-amber-400 mb-4">
-        ${t('roadmapIntroTitle') || 'Feature Roadmap'}
-      </h2>
-      <div class="text-sm text-slate-300 text-left space-y-3 mb-6 max-w-sm mx-auto">
-        <p>${t('roadmapIntroText1') || 'This is the SpotHitch feature roadmap. See what we are building next!'}</p>
-        <p>${t('roadmapIntroText2') || 'Vote on the features you want most. The more votes, the higher the priority.'}</p>
-        <p>${t('roadmapIntroText3') || 'Leave comments to share your ideas and suggestions with the team.'}</p>
-      </div>
-      <button
-        onclick="acceptRoadmapIntro()"
-        class="w-full max-w-sm py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-dark-primary font-bold text-lg transition-colors"
-      >
-        ${t('roadmapIntroAccept') || 'Got it!'}
-      </button>
-    </div>
-  `
-}
+  const betaFeatures = FEATURES_DATA.filter(f => f.status === 'beta')
+  const totals = _roadmapTotalsCache || {}
 
-function renderRoadmapTab(state) {
-  // Trigger Firebase data load (non-blocking)
-  if (!state.roadmapVoteCounts) loadRoadmapData()
+  // Sort by essential votes descending
+  const sorted = [...betaFeatures].sort((a, b) => {
+    const aE = totals[a.id]?.essential || 0
+    const bE = totals[b.id]?.essential || 0
+    return bE - aE
+  })
 
-  // First-time intro screen (like SOS disclaimer pattern)
-  const introSeen = typeof localStorage !== 'undefined' && localStorage.getItem('spothitch_roadmap_intro_seen')
-  if (!introSeen) return renderRoadmapIntroScreen()
-
-  if (state.roadmapFeatureId) {
-    const feature = ROADMAP_FEATURES.find(f => f.id === state.roadmapFeatureId)
-    if (feature) return renderRoadmapDetail(state, feature)
-  }
-  return renderRoadmapList(state)
-}
-
-function renderRoadmapList(state) {
-  const tab = state.roadmapListTab || 'popular'
-  let features = [...ROADMAP_FEATURES]
-  if (tab === 'shipped') features = features.filter(f => f.status === 'shipped')
-  const myVotes = getMyVotes()
+  const featureCards = sorted.map((f, i) => {
+    const ft = totals[f.id] || { essential: 0, useful: 0, notUrgent: 0 }
+    const rank = i + 1
+    const rankLabel = rank <= 3 ? ['🥇','🥈','🥉'][rank - 1] : '<span class="text-xs text-slate-500 font-bold">#' + rank + '</span>'
+    return '<div class="card p-3">'
+      + '<div class="flex items-start gap-3">'
+      + '<div class="text-lg shrink-0 w-7 text-center">' + rankLabel + '</div>'
+      + '<div class="flex-1 min-w-0">'
+      + '<div class="flex items-center gap-2 mb-1">'
+      + '<span class="text-lg">' + f.emoji + '</span>'
+      + '<h3 class="font-semibold text-sm truncate">' + escapeHTML(f.title) + '</h3>'
+      + '</div>'
+      + '<div class="flex flex-wrap gap-1.5 mb-2">'
+      + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold" style="background:rgba(239,68,68,0.12);color:#ef4444">🔥 ' + ft.essential + '</span>'
+      + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold" style="background:rgba(245,158,11,0.12);color:#f59e0b">👍 ' + ft.useful + '</span>'
+      + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold" style="background:rgba(107,114,128,0.12);color:#6b7280">🤷 ' + ft.notUrgent + '</span>'
+      + '</div>'
+      + '<button onclick="showFeatureIntro(\'' + f.id + '\')"'
+      + ' class="text-[11px] px-3 py-1 rounded-lg font-semibold cursor-pointer transition-colors"'
+      + ' style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b">'
+      + escapeHTML(t('roadmapDetail') || 'Détail & voter')
+      + '</button>'
+      + '</div></div></div>'
+  }).join('')
 
   return `
     <div>
       <div class="flex items-center justify-between mb-2">
-        <h2 class="text-lg font-bold">${icon('rocket', 'w-5 h-5 text-amber-400 inline-block mr-1')} ${t('roadmapTitle') || 'Feature Requests'}</h2>
+        <h2 class="text-lg font-bold">${icon('rocket', 'w-5 h-5 text-amber-400 inline-block mr-1')} ${t('roadmapTitle') || 'Roadmap communautaire'}</h2>
       </div>
       <div class="card p-3 mb-4 border-amber-500/20 bg-amber-500/5">
-        <p class="text-slate-300 text-xs leading-relaxed">${t('roadmapIntro') || "Voici les prochaines mises à jour prévues pour SpotHitch. Ton avis nous aide à prioriser ! Vote et commente pour nous dire ce que tu veux en premier."}</p>
+        <p class="text-slate-300 text-xs leading-relaxed">${t('roadmapCommunityIntro') || "Vote pour les features que tu veux en premier ! Plus de votes 🔥 = plus de priorité."}</p>
       </div>
-
-      <div class="flex gap-2 mb-4">
-        <button onclick="setRoadmapListTab('popular')" class="${tab === 'popular' ? 'bg-amber-500 text-black font-bold' : 'bg-white/10 text-white'} px-3 py-1.5 rounded-full text-xs transition-colors">🔥 ${t('roadmapPopular') || 'Populaires'}</button>
-        <button onclick="setRoadmapListTab('recent')" class="${tab === 'recent' ? 'bg-amber-500 text-black font-bold' : 'bg-white/10 text-white'} px-3 py-1.5 rounded-full text-xs transition-colors">🆕 ${t('roadmapRecent') || 'Récents'}</button>
-        <button onclick="setRoadmapListTab('shipped')" class="${tab === 'shipped' ? 'bg-amber-500 text-black font-bold' : 'bg-white/10 text-white'} px-3 py-1.5 rounded-full text-xs transition-colors">✅ ${t('roadmapShipped') || 'Livrés'}</button>
-      </div>
-
       <div class="space-y-2.5">
-        ${features.length === 0 ? `<p class="text-center text-slate-500 py-8">${t('roadmapNoShipped') || 'Aucune feature livrée pour le moment'}</p>` : ''}
-        ${features.map(f => {
-          const votes = getFeatureVoteCounts(f.id)
-          const comments = getFeatureCommentCount(f.id)
-          const voted = myVotes[f.id] === 'up'
-          const status = ROADMAP_STATUS[f.status] || ROADMAP_STATUS.thinking
-          return `
-            <div class="flex items-center gap-3 card p-3 cursor-pointer active:scale-[0.98] transition-transform" role="button" tabindex="0" onclick="openRoadmapFeature('${f.id}')">
-              <button onclick="event.stopPropagation();roadmapVote('${f.id}')" class="flex flex-col items-center ${voted ? 'bg-amber-500 text-black' : 'bg-white/10 hover:bg-amber-500/20'} px-2.5 py-1.5 rounded-lg transition-colors shrink-0" aria-label="${t('roadmapUpvote') || 'Voter'}">
-                <span class="text-sm">▲</span>
-                <span class="font-bold text-sm">${votes}</span>
-              </button>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg">${f.icon}</span>
-                  <h3 class="font-semibold text-sm truncate">${lt(f.title)}</h3>
-                </div>
-                <p class="text-slate-400 text-xs truncate">${lt(f.desc)}</p>
-                <div class="flex gap-2 mt-1">
-                  <span class="text-[10px] ${status.cls} px-2 py-0.5 rounded">${lt(status)}</span>
-                  ${comments > 0 ? `<span class="text-slate-500 text-[10px]">💬 ${comments}</span>` : ''}
-                </div>
-              </div>
-              ${icon('chevron-right', 'w-4 h-4 text-slate-600 shrink-0')}
-            </div>
-          `
-        }).join('')}
-      </div>
-    </div>
-  `
-}
-
-// ── Feature detail renderers ──
-
-function renderFeatureDetailTech() {
-  return `
-    <div class="space-y-3 mb-5">
-      ${[
-        { icon: '🗺️', color: 'amber', title: t('featureTechMapsTitle'), desc: t('featureTechMapsDesc'), impact: t('featureTechMapsImpact') },
-        { icon: '⚡', color: 'blue', title: t('featureTechServersTitle'), desc: t('featureTechServersDesc'), impact: t('featureTechServersImpact') },
-        { icon: '📱', color: 'green', title: t('featureTechAppTitle'), desc: t('featureTechAppDesc'), impact: t('featureTechAppImpact') },
-        { icon: '🔄', color: 'purple', title: t('featureTechSyncTitle'), desc: t('featureTechSyncDesc'), impact: t('featureTechSyncImpact') },
-      ].map(item => `
-        <div class="card p-3">
-          <div class="flex items-start gap-3">
-            <div class="w-11 h-11 bg-${item.color}-500 rounded-xl flex items-center justify-center shrink-0">
-              <span class="text-xl">${item.icon}</span>
-            </div>
-            <div>
-              <h3 class="font-bold text-sm">${item.title}</h3>
-              <p class="text-slate-400 text-xs mt-0.5">${item.desc}</p>
-              <span class="text-${item.color}-400 text-[10px] mt-1 inline-block">🎯 ${item.impact}</span>
-            </div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `
-}
-
-function renderFeatureDetailThumbs() {
-  return `
-    <div class="mb-5">
-      <button onclick="showPointsDemo()"
-        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
-        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        🎮 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo interactive')}
-      </button>
-      <div class="space-y-2.5 px-1">
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Gagne des points en créant et validant des spots, en ajoutant des photos et des conseils (+5 à +100 pts par action)</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏅</span><span class="text-xs text-slate-300 leading-relaxed">Monte dans le classement de ton pays, d'Europe et mondial — compare-toi à tes amis</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🔔</span><span class="text-xs text-slate-300 leading-relaxed">Reçois une notification quand tu passes près d'un spot à valider — même sans faire de stop (+20 pts)</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🎁</span><span class="text-xs text-slate-300 leading-relaxed">Échange tes points contre des réductions : Hostelworld (-15%), Booking (-10%), Decathlon (-15%), Flixbus, Interrail...</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🌟</span><span class="text-xs text-slate-300 leading-relaxed">6 niveaux : Débutant → Explorateur → Aventurier → Voyageur → Expert → Légende</span></div>
-      </div>
-    </div>
-  `
-}
-
-function renderFeatureDetailLeagues() {
-  return `
-    <div class="mb-5">
-      <button onclick="showPointsDemo()"
-        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
-        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        🎮 ${escapeHTML(t('pointsDemoTryBtn') || 'Tester la démo interactive')}
-      </button>
-      <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-4 mb-3">
-        <div class="flex justify-between items-center">
-          <div><p class="text-white/70 text-xs">SAISON 3</p><p class="text-white font-bold">Spring 2026</p></div>
-          <div class="text-right"><p class="text-white/70 text-xs">TERMINE DANS</p><p class="text-white font-bold text-sm">12j 5h 32m</p></div>
-        </div>
-      </div>
-      <div class="grid grid-cols-4 gap-1.5 mb-3">
-        <div class="card p-2 text-center"><span class="text-xl">🌍</span><p class="text-slate-400 text-[10px] mt-0.5">Monde</p></div>
-        <div class="card p-2 text-center"><span class="text-xl">🇪🇺</span><p class="text-slate-400 text-[10px] mt-0.5">Europe</p></div>
-        <div class="card p-2 text-center border-amber-500/50 bg-amber-500/10"><span class="text-xl">🇫🇷</span><p class="text-amber-500 text-[10px] mt-0.5">France</p></div>
-        <div class="card p-2 text-center"><span class="text-xl">📍</span><p class="text-slate-400 text-[10px] mt-0.5">Région</p></div>
-      </div>
-      <div class="card p-3 mb-3">
-        <div class="flex items-center gap-3">
-          <div class="relative">
-            <div class="w-14 h-14 rounded-full border-3 border-amber-500 flex items-center justify-center"><span class="text-3xl">🥇</span></div>
-            <span class="absolute -bottom-1 -right-1 bg-amber-500 text-black text-[10px] px-1.5 py-0.5 rounded-full font-bold">GOLD</span>
-          </div>
-          <div class="flex-1">
-            <p class="font-bold">Marie_Backpack</p>
-            <p class="text-slate-400 text-xs">Rank #7 en France</p>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-amber-500 font-bold text-sm">2,450 pts</span>
-              <span class="text-emerald-500 text-xs">↑ +340</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card overflow-hidden mb-3">
-        <div class="bg-white/5 px-3 py-2 flex justify-between items-center"><span class="font-bold text-sm">🇫🇷 France</span><span class="text-slate-400 text-xs">247 joueurs</span></div>
-        <div class="p-2 space-y-1">
-          <div class="bg-amber-500/10 rounded-lg p-2 flex items-center gap-2"><span class="text-amber-500 font-bold w-6 text-xs">#1</span><div class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-[10px] font-bold">J</div><span class="flex-1 font-bold text-sm">JulieOnTheRoad</span><span class="text-amber-500 font-bold text-sm">3,210</span></div>
-          <div class="bg-white/5 rounded-lg p-2 flex items-center gap-2"><span class="text-slate-400 font-bold w-6 text-xs">#2</span><div class="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-[10px] font-bold">T</div><span class="flex-1 text-sm">TomHitchiker</span><span class="text-slate-400 text-sm">2,890</span></div>
-          <div class="bg-white/5 rounded-lg p-2 flex items-center gap-2"><span class="text-amber-700 font-bold w-6 text-xs">#3</span><div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-[10px] font-bold">S</div><span class="flex-1 text-sm">SophieRoad</span><span class="text-slate-400 text-sm">2,780</span></div>
-          <p class="text-center text-slate-600 text-xs py-0.5">• • •</p>
-          <div class="bg-blue-500/10 rounded-lg p-2 flex items-center gap-2 border border-blue-500/50"><span class="text-blue-400 font-bold w-6 text-xs">#7</span><div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-[10px] font-bold">M</div><span class="flex-1 font-bold text-sm">Toi</span><span class="text-amber-500 font-bold text-sm">2,450</span></div>
-        </div>
-      </div>
-      <div class="card p-3 border-amber-500/20 bg-amber-500/5">
-        <p class="font-bold text-sm">🏆 ${t('seasonRewards')}</p>
-        <div class="flex justify-between mt-1.5 text-xs">
-          <span class="text-amber-500">Top 1: 1000 👍</span><span class="text-slate-400">Top 10: 300 👍</span><span class="text-slate-500">Top 50: 100 👍</span>
-        </div>
-      </div>
-    </div>
-  `
-}
-
-function renderFeatureDetailCities() {
-  return `
-    <div class="mb-5">
-      <button onclick="showCityPageDemo()"
-        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
-        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        🎮 ${escapeHTML(t('cityDemoTryBtn') || 'Tester la démo interactive')}
-      </button>
-      <div class="space-y-2.5 px-1 mb-4">
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏙️</span><span class="text-xs text-slate-300 leading-relaxed">Chaque ville a sa propre page avec spots classés par direction, temps d'attente moyen et meilleure heure</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💬</span><span class="text-xs text-slate-300 leading-relaxed">Conseils et astuces partagés par les autostoppeurs locaux — les meilleurs spots, les endroits à éviter</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏨</span><span class="text-xs text-slate-300 leading-relaxed">Où dormir pas cher : auberges triées par ambiance (Chill, Budget, Party) avec prix en temps réel</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">⚖️</span><span class="text-xs text-slate-300 leading-relaxed">Lois locales sur l'auto-stop, numéros d'urgence et phrases utiles dans la langue du pays</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📊</span><span class="text-xs text-slate-300 leading-relaxed">Stats complètes : meilleure saison, types de spots, temps d'attente par moment de la journée</span></div>
-      </div>
-
-      <!-- City Demo: Design #2 -->
-      <div data-city-demo="roadmap" style="background: #0f1520; border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.06)">
-        <!-- City Hero -->
-        <div style="margin-bottom: 8px">
-          <h3 style="font-size: 1.2rem; color: #fff; margin: 0">🇫🇷 Paris</h3>
-          <div style="font-size: 0.7rem; color: #94a3b8">France · Île-de-France</div>
-        </div>
-
-        <!-- Dashboard stats -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 6px 0">
-          <div style="background: #1a2332; border-radius: 8px; padding: 8px; text-align: center"><div style="font-size: 1.1rem; font-weight: 800; color: #fbbf24">43</div><div style="font-size: 0.5rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em">Spots</div></div>
-          <div style="background: #1a2332; border-radius: 8px; padding: 8px; text-align: center"><div style="font-size: 1.1rem; font-weight: 800; color: #fbbf24">847</div><div style="font-size: 0.5rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em">Lifts</div></div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; margin-bottom: 4px">
-          <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.8rem; font-weight: 800; color: #22c55e">4.3</div><div style="font-size: 0.5rem; color: #64748b">Sécu</div></div>
-          <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.8rem; font-weight: 800; color: #f59e0b">3.8</div><div style="font-size: 0.5rem; color: #64748b">Trafic</div></div>
-          <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.8rem; font-weight: 800; color: #22c55e">4.1</div><div style="font-size: 0.5rem; color: #64748b">Accès</div></div>
-          <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.8rem; font-weight: 800; color: #22c55e">~25'</div><div style="font-size: 0.5rem; color: #64748b">Attente</div></div>
-        </div>
-
-        <!-- CTA -->
-        <div style="display: block; background: linear-gradient(135deg,#fbbf24,#d97706); color: #0f1520; font-weight: 700; text-align: center; padding: 10px; border-radius: 10px; margin: 10px 0; font-size: 0.8rem">📍 Ouvrir dans l'app</div>
-
-        <!-- Tabs -->
-        <div style="display: flex; gap: 4px; margin: 8px 0; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch">
-          <span class="cd-tab cd-tab-active" onclick="switchCityDemoTab(this, 'spots')" role="button" tabindex="0">📍 Spots</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'conseils')" role="button" tabindex="0">💬 Conseils</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'auberges')" role="button" tabindex="0">🏨 Dormir</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'events')" role="button" tabindex="0">🎪 Events</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'loi')" role="button" tabindex="0">⚖️ Loi</span>
-          <span class="cd-tab" onclick="switchCityDemoTab(this, 'pratique')" role="button" tabindex="0">🗣️ Pratique</span>
-        </div>
-
-        <!-- Panel: Spots (default visible) -->
-        <div data-cd-panel="spots" style="display: block">
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🧭</span> Directions</div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4; display: flex; justify-content: space-between; align-items: center"><div><strong>→ Lyon</strong><div style="font-size: 0.6rem; color: #64748b">5 spots · A6</div></div><div style="font-size: 0.75rem; font-weight: 700; color: #22c55e">~25'</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4; display: flex; justify-content: space-between; align-items: center"><div><strong>→ Bruxelles</strong><div style="font-size: 0.6rem; color: #64748b">4 spots · A1</div></div><div style="font-size: 0.75rem; font-weight: 700; color: #22c55e">~20'</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4; display: flex; justify-content: space-between; align-items: center"><div><strong>→ Nantes</strong><div style="font-size: 0.6rem; color: #64748b">3 spots · A11</div></div><div style="font-size: 0.75rem; font-weight: 700; color: #22c55e">~30'</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4; display: flex; justify-content: space-between; align-items: center"><div><strong>→ Bordeaux</strong><div style="font-size: 0.6rem; color: #64748b">3 spots · A10</div></div><div style="font-size: 0.75rem; font-weight: 700; color: #22c55e">~35'</div></div>
-          </div>
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">⏰</span> Quand partir</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px">
-              <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🌅</div><div style="font-size: 0.5rem; color: #64748b">Matin</div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">~18'</div></div>
-              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">☀️</div><div style="font-size: 0.5rem; color: #64748b">Aprèm</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">~28'</div></div>
-              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🌆</div><div style="font-size: 0.5rem; color: #64748b">Soir</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">~40'</div></div>
-              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🌙</div><div style="font-size: 0.5rem; color: #64748b">Nuit</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">~55'</div></div>
-            </div>
-          </div>
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">📊</span> Types de spots</div>
-            <div style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 6px 0"><div style="width:40%;background:#22c55e;height:100%"></div><div style="width:30%;background:#ef4444;height:100%"></div><div style="width:18%;background:#3b82f6;height:100%"></div><div style="width:12%;background:#94a3b8;height:100%"></div></div>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.6rem; color: #94a3b8"><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#22c55e"></span>Sortie 40%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#ef4444"></span>Station 30%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#3b82f6"></span>Route 18%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#94a3b8"></span>Autre 12%</span></div>
-          </div>
-        </div>
-
-        <!-- Panel: Conseils -->
-        <div data-cd-panel="conseils" style="display: none">
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">💬</span> Conseils (12)</div>
-            <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.72rem; line-height: 1.35; font-style: italic">"Aire de Fleury sur l'A6, direction Lyon. 15 min max."</div><div style="font-size: 0.58rem; color: #64748b; margin-top: 3px">👤 RoadSophie · ⭐ 12</div></div>
-            <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.72rem; line-height: 1.35; font-style: italic">"Porte Maillot, terre-plein avant le périph → A1. Panneau 'Lille' obligatoire."</div><div style="font-size: 0.58rem; color: #64748b; margin-top: 3px">👤 MarcoHitch · ⭐ 8</div></div>
-            <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.72rem; line-height: 1.35; font-style: italic">"Évitez Porte d'Orléans le vendredi soir. Samedi matin tôt = parfait."</div><div style="font-size: 0.58rem; color: #64748b; margin-top: 3px">👤 LunaVoyage · ⭐ 5</div></div>
-            <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.72rem; line-height: 1.35; font-style: italic">"Station Total de Rungis, accès RER. Les routiers vont vers le sud."</div><div style="font-size: 0.58rem; color: #64748b; margin-top: 3px">👤 TomPouce34 · ⭐ 3</div></div>
-          </div>
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">✋</span> Méthode la plus efficace</div>
-            <div style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 6px 0"><div style="width:58%;background:#fbbf24;height:100%"></div><div style="width:33%;background:#22c55e;height:100%"></div><div style="width:9%;background:#3b82f6;height:100%"></div></div>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.6rem; color: #94a3b8"><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#fbbf24"></span>Panneau 58%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#22c55e"></span>Pouce 33%</span><span><span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;background:#3b82f6"></span>Demander 9%</span></div>
-          </div>
-        </div>
-
-        <!-- Panel: Auberges -->
-        <div data-cd-panel="auberges" style="display: none">
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🏨</span> Où dormir pas cher</div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">💰</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">Le Village Hostel</div><div style="font-size: 0.6rem; color: #64748b">Montmartre · Vue Sacré-Cœur</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">19€</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">🎉</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">St Christopher's Inn</div><div style="font-size: 0.6rem; color: #64748b">Gare du Nord · Bar intégré</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">22€</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">🌍</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">Plug Inn Hostel</div><div style="font-size: 0.6rem; color: #64748b">Montmartre · Petit-déj inclus</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">24€</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">🤝</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">Les Piaules</div><div style="font-size: 0.6rem; color: #64748b">Belleville · Design</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">25€</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; display: flex; gap: 8px; align-items: center"><div style="font-size: 1.3rem">😴</div><div style="flex: 1"><div style="font-size: 0.75rem; font-weight: 600">Generator Paris</div><div style="font-size: 0.6rem; color: #64748b">Colonel Fabien · Rooftop</div></div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">28€</div></div>
-          </div>
-          <div style="background: #1a2332; border-left: 2px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 8px 10px; font-size: 0.68rem">💡 Prix = dortoir, basse saison. Haute saison (juin-sept) : +30-50%</div>
-        </div>
-
-        <!-- Panel: Events -->
-        <div data-cd-panel="events" style="display: none">
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🎪</span> Prochains événements</div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.75rem; font-weight: 600">🎶 Fête de la Musique</div><div style="font-size: 0.6rem; color: #fbbf24">21 juin 2026</div><div style="font-size: 0.6rem; color: #94a3b8; margin-top: 2px">Concerts gratuits — routards nombreux, lifts faciles le lendemain</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.75rem; font-weight: 600">🎆 14 Juillet</div><div style="font-size: 0.6rem; color: #fbbf24">14 juillet 2026</div><div style="font-size: 0.6rem; color: #94a3b8; margin-top: 2px">Feux d'artifice — éviter l'A6 le 15</div></div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px"><div style="font-size: 0.75rem; font-weight: 600">🎨 Nuit Blanche</div><div style="font-size: 0.6rem; color: #fbbf24">3 oct 2026</div><div style="font-size: 0.6rem; color: #94a3b8; margin-top: 2px">Art toute la nuit — transports gratuits</div></div>
-          </div>
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🌡️</span> Meilleure saison</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px">
-              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">❄️</div><div style="font-size: 0.5rem; color: #64748b">Hiver</div><div style="font-size: 0.7rem; font-weight: 700; color: #ef4444">2/5</div></div>
-              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🌸</div><div style="font-size: 0.5rem; color: #64748b">Print.</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">4/5</div></div>
-              <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">☀️</div><div style="font-size: 0.5rem; color: #64748b">Été</div><div style="font-size: 0.7rem; font-weight: 700; color: #22c55e">5/5</div></div>
-              <div style="background: #1a2332; border-radius: 6px; padding: 5px 3px; text-align: center"><div style="font-size: 0.9rem">🍂</div><div style="font-size: 0.5rem; color: #64748b">Auto.</div><div style="font-size: 0.7rem; font-weight: 700; color: #fbbf24">3/5</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Panel: Loi -->
-        <div data-cd-panel="loi" style="display: none">
-          <div style="text-align: center; margin: 10px 0"><span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3)">✅ Légal en France</span></div>
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">📜</span> Règles</div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4">🚫 <strong>Autoroute</strong> — interdit sur la voie, OK sur bretelles/aires</div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4">⚠️ <strong>Périph</strong> — interdit, mais portes de Paris OK</div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; font-size: 0.75rem; line-height: 1.4">✅ <strong>Nationales</strong> — aucune restriction</div>
-          </div>
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">📞</span> Urgences</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px">
-              <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.9rem">🚑</div><div style="font-size: 0.5rem; color: #64748b">15</div></div>
-              <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.9rem">🚔</div><div style="font-size: 0.5rem; color: #64748b">17</div></div>
-              <div style="background: #1a2332; border-radius: 8px; padding: 6px; text-align: center"><div style="font-size: 0.9rem">🚒</div><div style="font-size: 0.5rem; color: #64748b">18</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Panel: Pratique -->
-        <div data-cd-panel="pratique" style="display: none">
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🗣️</span> Phrases utiles</div>
-            <div style="background: #1a2332; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center"><div style="font-size: 0.72rem; font-weight: 600">Je vais à Lyon</div><div style="font-size: 0.65rem; color: #64748b">I'm going to Lyon</div></div>
-            <div style="background: #1a2332; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center"><div style="font-size: 0.72rem; font-weight: 600">Quelle direction ?</div><div style="font-size: 0.65rem; color: #64748b">Which way?</div></div>
-            <div style="background: #1a2332; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center"><div style="font-size: 0.72rem; font-weight: 600">Déposez-moi ici</div><div style="font-size: 0.65rem; color: #64748b">Drop me here</div></div>
-            <div style="background: #1a2332; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center"><div style="font-size: 0.72rem; font-weight: 600">Merci pour le lift !</div><div style="font-size: 0.65rem; color: #64748b">Thanks for the ride!</div></div>
-          </div>
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">💱</span> Monnaie & budget</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px">
-              <div style="background: #1a2332; border-radius: 8px; padding: 8px; text-align: center"><div style="font-size: 0.9rem; font-weight: 800; color: #fbbf24">€</div><div style="font-size: 0.5rem; color: #64748b">Euro</div></div>
-              <div style="background: #1a2332; border-radius: 8px; padding: 8px; text-align: center"><div style="font-size: 0.85rem; font-weight: 800; color: #fbbf24">~15€</div><div style="font-size: 0.5rem; color: #64748b">Budget/jour</div></div>
-            </div>
-            <div style="background: #1a2332; border-radius: 8px; padding: 8px 10px; font-size: 0.68rem; margin-top: 4px; line-height: 1.4">☕ Café : 1.50€ · 🥖 Baguette : 1.10€ · 🚇 Métro : 2.15€ · 🍕 Pizza : 8€</div>
-          </div>
-          <div style="margin-top: 10px"><div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 5px"><span style="font-size: 0.9rem">🌐</span> Villes proches</div>
-            <div style="display: flex; align-items: center; gap: 8px; background: #1a2332; border-radius: 8px; padding: 6px 10px; margin-bottom: 4px"><div style="font-size: 0.8rem; font-weight: 800; color: #fbbf24; min-width: 20px">→</div><div style="flex: 1"><div style="font-size: 0.72rem; font-weight: 600">Lyon</div><div style="font-size: 0.58rem; color: #64748b">465 km · 52 spots</div></div><div style="font-size: 0.72rem; font-weight: 700; color: #22c55e">~25'</div></div>
-            <div style="display: flex; align-items: center; gap: 8px; background: #1a2332; border-radius: 8px; padding: 6px 10px; margin-bottom: 4px"><div style="font-size: 0.8rem; font-weight: 800; color: #fbbf24; min-width: 20px">→</div><div style="flex: 1"><div style="font-size: 0.72rem; font-weight: 600">Bruxelles</div><div style="font-size: 0.58rem; color: #64748b">310 km · 18 spots</div></div><div style="font-size: 0.72rem; font-weight: 700; color: #22c55e">~20'</div></div>
-            <div style="display: flex; align-items: center; gap: 8px; background: #1a2332; border-radius: 8px; padding: 6px 10px; margin-bottom: 4px"><div style="font-size: 0.8rem; font-weight: 800; color: #fbbf24; min-width: 20px">→</div><div style="flex: 1"><div style="font-size: 0.72rem; font-weight: 600">Nantes</div><div style="font-size: 0.58rem; color: #64748b">385 km · 31 spots</div></div><div style="font-size: 0.72rem; font-weight: 700; color: #22c55e">~30'</div></div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  `
-}
-
-function renderFeatureDetailHostels() {
-  return `
-    <div class="mb-5">
-      <button onclick="showHostelsDemo()"
-        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
-        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        🎮 ${escapeHTML(t('hostelsDemoTryBtn') || 'Tester la démo interactive')}
-      </button>
-      <div class="space-y-2.5 px-1">
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏨</span><span class="text-xs text-slate-300 leading-relaxed">Auberges recommandées par la communauté dans chaque ville avec avis et photos</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💰</span><span class="text-xs text-slate-300 leading-relaxed">-15% sur les réservations en utilisant tes points SpotHitch (2 000 pts = code de réduction)</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏷️</span><span class="text-xs text-slate-300 leading-relaxed">Filtres par ambiance : Festif, Calme, Budget, Social, Éco — trouve l'auberge qui te correspond</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🎉</span><span class="text-xs text-slate-300 leading-relaxed">Organise des meetups, courses, festivals et ateliers pour la communauté (+40 pts par événement)</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Découvre les événements autour de toi et inscris-toi en un clic</span></div>
-      </div>
-    </div>
-  `
-}
-
-function renderFeatureDetailEvents() {
-  return `
-    <div class="mb-5">
-      <button onclick="showSocialDemo()"
-        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
-        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        🎮 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo interactive')}
-      </button>
-      <div class="space-y-2.5 px-1">
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🎉</span><span class="text-xs text-slate-300 leading-relaxed">Rejoins des événements : meetups mensuels, courses officielles, festivals, ateliers sécurité</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏁</span><span class="text-xs text-slate-300 leading-relaxed">Fais la course entre potes avec classement en direct ! Crée un trajet et invite tes amis</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Partage tes meilleurs spots en temps réel avec les participants de ta course</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">👥</span><span class="text-xs text-slate-300 leading-relaxed">Vois les autostoppeurs à moins de 5 km de toi en temps réel — active ta position pour 2h</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💬</span><span class="text-xs text-slate-300 leading-relaxed">Discute avec les autostoppeurs proches et trouve des compagnons de route pour tes trajets</span></div>
-      </div>
-    </div>
-  `
-}
-
-function renderFeatureDetailGroups() {
-  return `
-    <div class="mb-5">
-      <button onclick="showSocialDemo()"
-        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
-        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        🎮 ${escapeHTML(t('socialDemoTryBtn') || 'Tester la démo interactive')}
-      </button>
-      <div class="space-y-2.5 px-1">
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Vois les autostoppeurs à moins de 5 km de toi en temps réel — active ta position pour 2h</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🏁</span><span class="text-xs text-slate-300 leading-relaxed">Fais la course entre potes avec classement en direct ! Crée un trajet et invite tes amis</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Partage tes meilleurs spots en temps réel avec les participants de ta course</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🎉</span><span class="text-xs text-slate-300 leading-relaxed">Rejoins des événements : meetups mensuels, courses officielles, festivals, ateliers sécurité</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">💬</span><span class="text-xs text-slate-300 leading-relaxed">Discute avec les autostoppeurs proches et trouve des compagnons de route pour tes trajets</span></div>
-      </div>
-    </div>
-  `
-}
-
-function renderFeatureDetailJournal() {
-  return `
-    <div class="mb-5">
-      <button onclick="showJournalDemo()"
-        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
-        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        🎮 ${escapeHTML(t('journalDemoTryBtn') || 'Tester la démo interactive')}
-      </button>
-      <div class="space-y-2.5 px-1">
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📝</span><span class="text-xs text-slate-300 leading-relaxed">Chaque lift enregistré automatiquement : ville de départ, spot utilisé, temps d'attente, véhicule</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📊</span><span class="text-xs text-slate-300 leading-relaxed">Stats complètes de chaque voyage : km parcourus, nombre de lifts, temps total, pays traversés</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🗺️</span><span class="text-xs text-slate-300 leading-relaxed">Visualise ton parcours étape par étape sur une carte avec la timeline de chaque jour</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🌍</span><span class="text-xs text-slate-300 leading-relaxed">Partage tes itinéraires avec la communauté — tes spots, temps d'attente et conseils aident tout le monde</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">❤️</span><span class="text-xs text-slate-300 leading-relaxed">Explore les voyages des autres autostoppeurs pour trouver l'inspiration et planifier tes prochaines aventures</span></div>
-      </div>
-    </div>
-  `
-}
-
-function renderFeatureDetailCompanion() {
-  return `
-    <div class="mb-5">
-      <button onclick="showFeatureIntro('gardien')"
-        class="w-full py-4 rounded-2xl font-extrabold cursor-pointer mb-4"
-        style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f1520; border: none; box-shadow: 0 4px 20px rgba(251,191,36,0.4); font-size: 1rem">
-        ${escapeHTML(t('guardianDemoTryBtn') || 'Voir le Mode Gardien')}
-      </button>
-      <div class="space-y-2.5 px-1">
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">📍</span><span class="text-xs text-slate-300 leading-relaxed">Tes proches (gardiens) voient ta position en direct sur la carte SpotHitch</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">✅</span><span class="text-xs text-slate-300 leading-relaxed">Check-in régulier (30min, 1h ou 2h) — un bouton pour confirmer que tout va bien</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">⚠️</span><span class="text-xs text-slate-300 leading-relaxed">Si tu manques un check-in, alerte automatique à tes gardiens avec ta dernière position</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🆘</span><span class="text-xs text-slate-300 leading-relaxed">Bouton SOS : alerte immédiate à tous tes gardiens + appel urgences + enregistrement audio</span></div>
-        <div class="flex items-start gap-2.5"><span class="text-base shrink-0 mt-0.5">🛡️</span><span class="text-xs text-slate-300 leading-relaxed">Version améliorée du compagnon de route actuel avec position live et connexion directe au SOS</span></div>
-      </div>
-    </div>
-  `
-}
-
-const FEATURE_DETAIL_RENDERERS = {
-  tech: renderFeatureDetailTech,
-  thumbs: renderFeatureDetailThumbs,
-  leagues: renderFeatureDetailLeagues,
-  cities: renderFeatureDetailCities,
-  hostels: renderFeatureDetailHostels,
-  events: renderFeatureDetailEvents,
-  groups: renderFeatureDetailGroups,
-  journal: renderFeatureDetailJournal,
-  'guardian-mode': renderFeatureDetailCompanion,
-}
-
-function renderRoadmapDetail(state, feature) {
-  // Load comments for this feature from Firebase
-  const loaded = state.roadmapLoadedComments || {}
-  if (!loaded[feature.id]) loadFeatureComments(feature.id)
-
-  const myVotes = getMyVotes()
-  const myVote = myVotes[feature.id]
-  const comments = getLoadedComments(feature.id)
-  const commentCount = comments.length
-  const status = ROADMAP_STATUS[feature.status] || ROADMAP_STATUS.thinking
-  const detailRenderer = FEATURE_DETAIL_RENDERERS[feature.id]
-
-  const detailIntroSeen = typeof localStorage !== 'undefined' && localStorage.getItem('spothitch_roadmap_detail_seen')
-
-  return `
-    <div>
-      <button onclick="closeRoadmapFeature()" class="text-sm text-slate-400 hover:text-white mb-4 flex items-center gap-1">
-        ${icon('arrow-left', 'w-4 h-4')} ${t('back') || 'Retour'}
-      </button>
-
-      ${!detailIntroSeen ? `
-        <div class="card p-3 mb-4 border-primary-500/20 bg-primary-500/5 relative">
-          <p class="text-xs text-slate-300 pr-6">${t('roadmapDetailIntro') || 'Vote up or down, and leave a comment to share your thoughts. Your feedback shapes what we build next!'}</p>
-          <button onclick="dismissRoadmapDetailIntro()" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
-            ${icon('x', 'w-3 h-3')}
-          </button>
-        </div>
-      ` : ''}
-
-      <div class="mb-4">
-        <span class="text-[10px] ${status.cls} px-2 py-0.5 rounded font-bold uppercase">${lt(status)}</span>
-        <h2 class="text-xl font-bold mt-2">${feature.icon} ${lt(feature.title)}</h2>
-        <p class="text-slate-400 text-sm mt-1">${lt(feature.desc)}</p>
-      </div>
-
-      ${detailRenderer ? detailRenderer() : ''}
-
-      <div class="mb-4">
-        <p class="text-slate-400 text-sm mb-2">${t('roadmapWhatDoYouThink') || "Qu'en penses-tu ?"}</p>
-        <div class="flex gap-2">
-          <button onclick="roadmapVoteDetail('${feature.id}','up')" class="flex-1 py-2.5 rounded-xl font-bold text-sm border transition-colors ${myVote === 'up' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'}">
-            👍 ${t('roadmapApprove') || "J'approuve"}
-          </button>
-          <button onclick="roadmapVoteDetail('${feature.id}','down')" class="flex-1 py-2.5 rounded-xl font-bold text-sm border transition-colors ${myVote === 'down' ? 'bg-red-500 text-white border-red-500' : 'bg-red-500/10 text-red-400 border-red-500/30'}">
-            👎 ${t('roadmapDisapprove') || 'Pas convaincu'}
-          </button>
-        </div>
-        <button onclick="roadmapShowCommentInput('${feature.id}')" class="w-full bg-white/5 text-slate-400 py-2.5 rounded-xl mt-2 text-sm hover:bg-white/10 transition-colors">
-          💬 ${t('roadmapLeaveComment') || 'Laisser une remarque'}
-        </button>
-      </div>
-
-      ${state.roadmapCommentInput === feature.id ? `
-        <div class="card p-3 mb-4">
-          <textarea id="roadmap-comment-input" class="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm resize-none h-20 focus:border-amber-500/50 focus:outline-none" placeholder="${t('roadmapCommentPlaceholder') || 'Ton avis compte...'}" maxlength="500"></textarea>
-          <div class="flex gap-2 mt-2">
-            <button onclick="submitRoadmapComment('${feature.id}')" class="bg-amber-500 text-black px-4 py-1.5 rounded-lg text-sm font-bold">${t('send') || 'Envoyer'}</button>
-            <button onclick="roadmapHideCommentInput()" class="text-slate-400 text-sm">${t('cancel') || 'Annuler'}</button>
-          </div>
-        </div>
-      ` : ''}
-
-      <div>
-        <h3 class="font-bold text-sm flex items-center gap-2 mb-3">💬 ${t('roadmapComments') || 'Commentaires'} (${commentCount})</h3>
-        <div class="space-y-2">
-          ${comments.map(c => `
-            <div class="card p-3">
-              <div class="flex items-center gap-2 mb-1">
-                <div class="w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center text-[10px] font-bold">${(c.username || '?')[0].toUpperCase()}</div>
-                <span class="font-bold text-xs">${c.username || t('anonymous') || 'Anonyme'}</span>
-                <span class="text-slate-500 text-[10px]">${c.date || ''}</span>
-              </div>
-              <p class="text-slate-300 text-xs">${c.text}</p>
-            </div>
-          `).join('')}
-          ${comments.length === 0 ? `<p class="text-slate-500 text-xs text-center py-3">${t('roadmapNoComments') || 'Sois le premier à donner ton avis !'}</p>` : ''}
-        </div>
+        ${featureCards}
       </div>
     </div>
   `
@@ -2152,148 +1574,27 @@ window.submitPastTrip = () => {
 }
 
 // ==================== ROADMAP HANDLERS ====================
-
-// Mapping from Roadmap feature IDs to FeatureIntroModal IDs
-const ROADMAP_TO_INTRO_ID = {
-  'leagues': 'classements', 'hostels': 'auberges', 'events': 'evenements',
-  'journal': 'carnet', 'guardian-mode': 'gardien',
-}
+// All roadmap features now use showFeatureIntro from FeatureIntroModal
 
 window.openRoadmapFeature = (featureId) => {
-  const introId = ROADMAP_TO_INTRO_ID[featureId]
-  if (introId) {
-    window.showFeatureIntro?.(introId)
-    return
-  }
-  window.setState?.({ roadmapFeatureId: featureId, roadmapCommentInput: null })
+  window.showFeatureIntro?.(featureId)
 }
 
 window.closeRoadmapFeature = () => {
-  window.setState?.({ roadmapFeatureId: null, roadmapCommentInput: null })
+  window.setState?.({ roadmapFeatureId: null })
 }
 
-window.setRoadmapListTab = (tab) => {
-  window.setState?.({ roadmapListTab: tab })
-}
-
-window.roadmapVote = async (featureId) => {
-  const state = window.getState?.() || {}
-  if (!state.isLoggedIn) {
-    window.showToast?.(t('loginRequired') || 'Connecte-toi pour voter', 'warning')
-    return
-  }
-  const myVotes = { ...(state.roadmapMyVotes || getLocalVotes()) }
-  const counts = { ...(state.roadmapVoteCounts || {}) }
-
-  // Optimistic update
-  if (myVotes[featureId] === 'up') {
-    delete myVotes[featureId]
-    if (counts[featureId]) {
-      const prev = counts[featureId].up || 0
-      counts[featureId] = { ...counts[featureId], up: Math.max(0, prev - 1) }
-    }
-  } else {
-    myVotes[featureId] = 'up'
-    if (!counts[featureId]) counts[featureId] = { up: 0, down: 0 }
-    const prev = counts[featureId].up || 0
-    counts[featureId] = { ...counts[featureId], up: prev + 1 }
-  }
-  // Save locally as fallback
-  localStorage.setItem('spothitch_roadmap_votes', JSON.stringify(myVotes))
-  window.setState?.({ roadmapMyVotes: myVotes, roadmapVoteCounts: counts })
-
-  // Sync to Firebase
-  try {
-    const fb = await import('../../services/firebase.js')
-    await fb.setRoadmapVote(featureId, 'up')
-  } catch (e) { console.warn('Roadmap vote sync failed', e) }
-}
-
-window.roadmapVoteDetail = async (featureId, vote) => {
-  const state = window.getState?.() || {}
-  if (!state.isLoggedIn) {
-    window.showToast?.(t('loginRequired') || 'Connecte-toi pour voter', 'warning')
-    return
-  }
-  const myVotes = { ...(state.roadmapMyVotes || getLocalVotes()) }
-  const counts = { ...(state.roadmapVoteCounts || {}) }
-  if (!counts[featureId]) counts[featureId] = { up: 0, down: 0 }
-
-  // Optimistic update
-  const prevVote = myVotes[featureId]
-  if (prevVote === vote) {
-    delete myVotes[featureId]
-    const prev = counts[featureId][vote] || 0
-    counts[featureId] = { ...counts[featureId], [vote]: Math.max(0, prev - 1) }
-  } else {
-    if (prevVote) {
-      const pv = counts[featureId][prevVote] || 0
-      counts[featureId] = { ...counts[featureId], [prevVote]: Math.max(0, pv - 1) }
-    }
-    myVotes[featureId] = vote
-    counts[featureId] = { ...counts[featureId], [vote]: (counts[featureId][vote] || 0) + 1 }
-  }
-  localStorage.setItem('spothitch_roadmap_votes', JSON.stringify(myVotes))
-  window.setState?.({ roadmapMyVotes: myVotes, roadmapVoteCounts: counts })
-
-  // Sync to Firebase
-  try {
-    const fb = await import('../../services/firebase.js')
-    await fb.setRoadmapVote(featureId, vote)
-  } catch (e) { console.warn('Roadmap vote sync failed', e) }
-}
-
-window.roadmapShowCommentInput = (featureId) => {
-  const state = window.getState?.() || {}
-  if (!state.isLoggedIn) {
-    window.showToast?.(t('loginRequired') || 'Connecte-toi pour commenter', 'warning')
-    return
-  }
-  window.setState?.({ roadmapCommentInput: featureId })
-}
-
-window.roadmapHideCommentInput = () => {
-  window.setState?.({ roadmapCommentInput: null })
-}
-
-window.submitRoadmapComment = async (featureId) => {
-  const textarea = document.getElementById('roadmap-comment-input')
-  const text = textarea?.value?.trim()
-  if (!text) return
-  const state = window.getState?.() || {}
-
-  // Optimistic: add comment to local state immediately
-  const newComment = {
-    featureId,
-    text: text.slice(0, 500),
-    username: state.username || 'Anonyme',
-    date: new Date().toLocaleDateString(),
-  }
-  const loaded = { ...(state.roadmapLoadedComments || {}) }
-  loaded[featureId] = [newComment, ...(loaded[featureId] || [])]
-  const commentCounts = { ...(state.roadmapCommentCounts || {}) }
-  commentCounts[featureId] = (commentCounts[featureId] || 0) + 1
-
-  // Also save to localStorage as fallback
-  const localComments = getLocalComments()
-  localComments.push(newComment)
-  localStorage.setItem('spothitch_roadmap_comments', JSON.stringify(localComments))
-
-  window.setState?.({ roadmapCommentInput: null, roadmapLoadedComments: loaded, roadmapCommentCounts: commentCounts })
-  window.showToast?.(t('roadmapCommentSent') || 'Merci pour ton avis !', 'success')
-
-  // Sync to Firebase
-  try {
-    const fb = await import('../../services/firebase.js')
-    await fb.addRoadmapComment(featureId, text)
-  } catch (e) { console.warn('Roadmap comment sync failed', e) }
-}
+window.setRoadmapListTab = () => {}
+window.roadmapVote = () => { window.showToast?.('Utilise le bouton Détail pour voter', 'info') }
+window.roadmapVoteDetail = () => {}
+window.roadmapShowCommentInput = () => {}
+window.roadmapHideCommentInput = () => {}
+window.submitRoadmapComment = () => {}
 
 window.openProgressionStats = () => {
   window.setState?.({ showBadges: true })
 }
 
-// --- Roadmap intro screens ---
 window.acceptRoadmapIntro = () => {
   localStorage.setItem('spothitch_roadmap_intro_seen', '1')
   window._forceRender?.()

@@ -1,61 +1,28 @@
 /**
- * FeatureIntroModal — Glassmorphism intro card shown on first use of a feature
- * Also used by FeedbackPanel & Roadmap when user clicks a feature
+ * FeatureIntroModal — Feature detail card with 3-choice community voting
+ * Replaces the old glassmorphism 5-reaction system with:
+ *   🔥 Essentiel / 👍 Utile / 🤷 Pas urgent + comment + send
+ *
+ * All votes sync to Firebase via featureVotes.js service
  *
  * Usage:
  *   window.showFeatureIntro('carte')
  *   window.closeFeatureIntro()
- *
- * Design based on design-mockups/coming-soon-final.html
  */
 
 import { FEATURES_MAP } from '../../data/featuresData.js'
 import { markFeatureSeen } from '../../services/featureIntro.js'
+import { getUserVote, submitVote } from '../../services/featureVotes.js'
 import { escapeHTML } from '../../utils/sanitize.js'
 import { t } from '../../i18n/index.js'
 
-// ==================== REACTIONS ====================
+// ==================== VOTE CHOICES ====================
 
-const REACTIONS = [
-  { type: 'like', emoji: '👍', label: 'Utile', color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
-  { type: 'love', emoji: '❤️', label: 'J\'adore', color: '#ec4899', bg: 'rgba(236,72,153,0.12)' },
-  { type: 'idea', emoji: '💡', label: 'Idée', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-  { type: 'bug', emoji: '🐛', label: 'Bug', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-  { type: 'question', emoji: '❓', label: 'Question', color: '#6366f1', bg: 'rgba(99,102,241,0.12)' },
+const VOTE_CHOICES = [
+  { type: 'essential', emoji: '🔥', labelKey: 'voteEssential', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+  { type: 'useful', emoji: '👍', labelKey: 'voteUseful', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  { type: 'notUrgent', emoji: '🤷', labelKey: 'voteNotUrgent', color: '#6b7280', bg: 'rgba(107,114,128,0.12)' },
 ]
-
-const REACTIONS_KEY = 'spothitch_intro_reactions'
-
-function getReactions(featureId) {
-  try {
-    return JSON.parse(localStorage.getItem(REACTIONS_KEY) || '{}')[featureId] || []
-  } catch { return [] }
-}
-
-function saveReactions(featureId, reactions) {
-  try {
-    const all = JSON.parse(localStorage.getItem(REACTIONS_KEY) || '{}')
-    all[featureId] = reactions
-    localStorage.setItem(REACTIONS_KEY, JSON.stringify(all))
-  } catch { /* ignore */ }
-}
-
-async function syncReactionToFirebase(featureId, reactions) {
-  try {
-    const { getState } = await import('../../stores/state.js')
-    const state = getState()
-    if (!state.user?.uid) return
-    const { getFirestore, doc, setDoc } = await import('firebase/firestore')
-    const { getApp } = await import('firebase/app')
-    const db = getFirestore(getApp())
-    await setDoc(doc(db, 'introReactions', `${state.user.uid}_${featureId}`), {
-      featureId,
-      reactions,
-      userId: state.user.uid,
-      timestamp: new Date().toISOString(),
-    }, { merge: true })
-  } catch { /* Firebase not critical */ }
-}
 
 // ==================== CONTENT RENDERER ====================
 
@@ -92,7 +59,7 @@ function renderContent(content, color) {
       case 'highlights':
         return c.items.map(item => `
           <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 10px;margin-bottom:8px;text-align:left">
-            <p style="font-size:0.64rem;font-weight:700;color:#fff;margin-bottom:3px">${escapeHTML(item.title)}</p>
+            <p style="font-size:0.64rem;font-weight:700;color:#fff;margin-bottom:3px">${item.emoji ? item.emoji + ' ' : ''}${escapeHTML(item.title)}</p>
             <p style="font-size:0.6rem;color:#94a3b8;line-height:1.4">${escapeHTML(item.desc)}</p>
           </div>
         `).join('')
@@ -113,42 +80,49 @@ function renderContent(content, color) {
 
 function buildModalHTML(feature) {
   const { id, emoji, title, status, color, badge, content, tags, btnLabel } = feature
-  const selectedReactions = getReactions(id)
-  const badgeStyle = status === 'available'
-    ? 'color:#10b981;border-color:#10b981'
-    : `color:${color};border-color:${color}`
+  const existingVote = getUserVote(id)
+  const selectedVote = existingVote?.vote || null
 
-  const tagsHTML = tags.length > 0 ? `
+  const tagsHTML = tags && tags.length > 0 ? `
     <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:14px">
       ${tags.map(tag => `<span style="font-size:0.58rem;padding:3px 7px;border-radius:10px;background:rgba(255,255,255,0.08);color:#94a3b8;border:1px solid rgba(255,255,255,0.08)">${escapeHTML(tag)}</span>`).join('')}
     </div>
   ` : ''
 
-  const reactionsHTML = REACTIONS.map(r => {
-    const isSel = selectedReactions.includes(r.type)
+  const badgeStyle = status === 'available'
+    ? 'color:#10b981;border-color:#10b981'
+    : `color:${color};border-color:${color}`
+
+  // Vote buttons (3 choices — single select)
+  const voteBtnsHTML = VOTE_CHOICES.map(v => {
+    const isSel = selectedVote === v.type
     const style = isSel
-      ? `border:2px solid ${r.color};background:${r.bg};`
+      ? `border:2px solid ${v.color};background:${v.bg};`
       : 'border:2px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);'
     return `
       <button
-        class="intro-reaction-btn"
-        data-reaction="${r.type}"
+        class="intro-vote-btn"
+        data-vote="${v.type}"
         data-featureid="${id}"
         aria-pressed="${isSel}"
         style="flex:1;padding:8px 4px;border-radius:10px;cursor:pointer;text-align:center;transition:all 0.15s;color:#fff;${style}">
-        <span style="font-size:1.1rem;display:block">${r.emoji}</span>
-        <span style="font-size:0.55rem;display:block;margin-top:2px;color:#94a3b8">${escapeHTML(r.label)}</span>
+        <span style="font-size:1.1rem;display:block">${v.emoji}</span>
+        <span style="font-size:0.55rem;display:block;margin-top:2px;color:#94a3b8">${escapeHTML(t(v.labelKey) || v.type)}</span>
       </button>
     `
   }).join('')
 
-  const btnStyle = status === 'available'
-    ? `background:linear-gradient(135deg,${color},${color}cc)`
-    : `background:linear-gradient(135deg,${color},${color}cc)`
+  // Comment area (pre-filled if existing)
+  const commentValue = existingVote?.comment || ''
+  const commentDisplay = selectedVote ? 'block' : 'none'
 
-  const btnOnclick = status === 'available'
-    ? `featureIntroCTA('${id}')`
-    : `featureIntroBetaCTA('${id}')`
+  // CTA button for available features
+  const ctaHTML = status === 'available' && btnLabel ? `
+    <button onclick="featureIntroCTA('${id}')"
+      style="width:100%;padding:11px;border-radius:14px;font-size:0.78rem;font-weight:600;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,${color},${color}cc);margin-top:8px">
+      ${escapeHTML(btnLabel)}
+    </button>
+  ` : ''
 
   return `
     <div id="feature-intro-overlay"
@@ -156,7 +130,7 @@ function buildModalHTML(feature) {
       role="dialog" aria-modal="true" aria-labelledby="fi-title"
       onclick="if(event.target===this)closeFeatureIntro()">
 
-      <div style="position:relative;width:100%;max-width:320px;background:rgba(8,9,15,0.95);border-radius:28px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,0.07),0 24px 60px rgba(0,0,0,0.9)">
+      <div style="position:relative;width:100%;max-width:320px;max-height:90vh;overflow-y:auto;background:rgba(8,9,15,0.95);border-radius:28px;box-shadow:0 0 0 1px rgba(255,255,255,0.07),0 24px 60px rgba(0,0,0,0.9)">
 
         <!-- Glow background -->
         <div style="position:absolute;width:220px;height:220px;border-radius:50%;filter:blur(60px);opacity:0.25;top:0;left:50%;transform:translateX(-50%);pointer-events:none;background:${color}"></div>
@@ -189,17 +163,27 @@ function buildModalHTML(feature) {
           <!-- Divider -->
           <div style="height:1px;background:rgba(255,255,255,0.08);margin:10px 0 12px"></div>
 
-          <!-- Reactions row -->
-          <p style="font-size:0.6rem;color:#64748b;margin-bottom:8px;text-align:left">${escapeHTML(t('fbReactTitle') || 'Ton ressenti')}</p>
-          <div style="display:flex;gap:4px;margin-bottom:12px">
-            ${reactionsHTML}
+          <!-- Vote section -->
+          <p style="font-size:0.6rem;color:#64748b;margin-bottom:8px;text-align:left">${escapeHTML(t('voteTitle') || 'Cette feature pour toi :')}</p>
+          <div style="display:flex;gap:4px;margin-bottom:8px">
+            ${voteBtnsHTML}
           </div>
 
-          <!-- CTA Button -->
-          <button onclick="${btnOnclick}"
-            style="width:100%;padding:11px;border-radius:14px;font-size:0.78rem;font-weight:600;border:none;cursor:pointer;color:#fff;${btnStyle}">
-            ${escapeHTML(btnLabel)}
-          </button>
+          <!-- Comment (visible after selecting a vote) -->
+          <div id="intro-comment-area" style="display:${commentDisplay}">
+            <textarea id="intro-vote-comment" rows="2"
+              placeholder="${escapeHTML(t('voteCommentPlaceholder') || 'Un avis ? (optionnel)')}"
+              style="width:100%;padding:8px 10px;border-radius:10px;font-size:0.7rem;color:#fff;resize:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-family:inherit;margin-bottom:8px"
+              maxlength="300">${escapeHTML(commentValue)}</textarea>
+            <button onclick="submitIntroVote('${id}')"
+              id="intro-submit-btn"
+              style="width:100%;padding:10px;border-radius:14px;font-size:0.75rem;font-weight:600;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,#f59e0b,#d97706);transition:opacity 0.15s">
+              ${escapeHTML(t('voteSend') || 'Envoyer mon vote')}
+            </button>
+          </div>
+
+          <!-- CTA for available features -->
+          ${ctaHTML}
         </div>
       </div>
     </div>
@@ -252,31 +236,63 @@ window.featureIntroBetaCTA = (_featureId) => {
   }, 200)
 }
 
-// Toggle reaction on a feature card (updates DOM directly, no full re-render)
-window.toggleIntroReaction = (type, featureId) => {
-  const reactions = getReactions(featureId)
-  const idx = reactions.indexOf(type)
-  if (idx >= 0) {
-    reactions.splice(idx, 1)
-  } else {
-    reactions.push(type)
-  }
-  saveReactions(featureId, reactions)
-  syncReactionToFirebase(featureId, reactions)
-
-  // Update button styles directly
+// Select a vote choice (single select — updates DOM directly)
+window.selectIntroVote = (voteType, _featureId) => {
   const overlay = document.getElementById('feature-intro-overlay')
   if (!overlay) return
-  overlay.querySelectorAll('.intro-reaction-btn').forEach(btn => {
-    const bType = btn.dataset.reaction
-    const r = REACTIONS.find(rx => rx.type === bType)
-    if (!r) return
-    const isSel = reactions.includes(bType)
-    btn.style.border = isSel ? `2px solid ${r.color}` : '2px solid rgba(255,255,255,0.06)'
-    btn.style.background = isSel ? r.bg : 'rgba(255,255,255,0.02)'
+
+  // Update button styles
+  overlay.querySelectorAll('.intro-vote-btn').forEach(btn => {
+    const bType = btn.dataset.vote
+    const v = VOTE_CHOICES.find(vc => vc.type === bType)
+    if (!v) return
+    const isSel = bType === voteType
+    btn.style.border = isSel ? `2px solid ${v.color}` : '2px solid rgba(255,255,255,0.06)'
+    btn.style.background = isSel ? v.bg : 'rgba(255,255,255,0.02)'
     btn.setAttribute('aria-pressed', String(isSel))
   })
+
+  // Show comment area
+  const commentArea = overlay.querySelector('#intro-comment-area')
+  if (commentArea) commentArea.style.display = 'block'
+
+  // Store selected vote type in a data attribute
+  overlay.dataset.selectedVote = voteType
 }
+
+// Submit the vote + comment via featureVotes.js
+window.submitIntroVote = async (featureId) => {
+  const overlay = document.getElementById('feature-intro-overlay')
+  if (!overlay) return
+
+  const voteType = overlay.dataset.selectedVote
+  if (!voteType) return
+
+  const comment = overlay.querySelector('#intro-vote-comment')?.value || ''
+
+  // Submit to Firebase via featureVotes service
+  await submitVote(featureId, voteType, comment)
+
+  // Visual feedback
+  const btn = overlay.querySelector('#intro-submit-btn')
+  if (btn) {
+    btn.textContent = '✓ ' + (t('voteSent') || 'Merci !')
+    btn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)'
+  }
+
+  if (window.showToast) {
+    window.showToast(t('voteSent') || 'Merci pour ton vote !', 'success')
+  }
+
+  // Close after 1.2s
+  setTimeout(() => {
+    window.closeFeatureIntro()
+    if (window._forceRender) window._forceRender()
+  }, 1200)
+}
+
+// Legacy handler stub (for backwards compatibility with tests)
+window.toggleIntroReaction = () => {}
 
 // Keyboard close
 document.addEventListener('keydown', (e) => {
@@ -285,12 +301,12 @@ document.addEventListener('keydown', (e) => {
   }
 })
 
-// Delegate reaction clicks (buttons are created dynamically)
+// Delegate vote button clicks
 document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.intro-reaction-btn')
+  const btn = e.target.closest('.intro-vote-btn')
   if (!btn) return
-  const { reaction, featureid } = btn.dataset
-  if (reaction && featureid) {
-    window.toggleIntroReaction(reaction, featureid)
+  const { vote, featureid } = btn.dataset
+  if (vote && featureid) {
+    window.selectIntroVote(vote, featureid)
   }
 })

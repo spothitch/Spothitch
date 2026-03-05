@@ -448,11 +448,13 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
     expect(document.getElementById('feature-intro-overlay')).toBeNull()
   })
 
-  test('showFeatureIntro renders beta features with beta CTA', () => {
+  test('showFeatureIntro renders beta features with vote buttons', () => {
     window.showFeatureIntro('compagnon')
     const overlay = document.getElementById('feature-intro-overlay')
     expect(overlay).toBeTruthy()
-    expect(overlay.innerHTML).toContain('featureIntroBetaCTA')
+    // New voting system: 3-choice voting buttons
+    expect(overlay.innerHTML).toContain('intro-vote-btn')
+    expect(overlay.innerHTML).toContain('submitIntroVote')
     window.closeFeatureIntro()
   })
 })
