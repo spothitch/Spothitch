@@ -1,6 +1,6 @@
 {
-  "totalScore": 98,
-  "updatedAt": "2026-03-04T15:49:04.588Z",
+  "totalScore": 97,
+  "updatedAt": "2026-03-05T07:18:35.411Z",
   "checks": {
     "Handlers Wiring": {
       "score": 100,
@@ -28,8 +28,8 @@
       "warnings": 11
     },
     "Error Patterns": {
-      "score": 100,
-      "errors": 0,
+      "score": 90,
+      "errors": 7,
       "warnings": 0
     },
     "Duplicate Handlers": {
