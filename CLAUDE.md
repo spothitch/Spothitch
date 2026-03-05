@@ -110,6 +110,16 @@
 
 > **RÈGLE #8 — i18n** : TOUT en t('key'), 4 langues (FR/EN/ES/DE), jamais de texte hardcodé
 
+> **RÈGLE #16 — ZÉRO TIRET DANS LES TEXTES** (ABSOLUMENT OBLIGATOIRE) :
+> - JAMAIS de tiret ( - ou — ) comme ponctuation dans les textes visibles par l'utilisateur
+> - Les seuls tirets autorisés sont ceux dans les mots composés (auto-stop, hors-ligne, check-in, etc.)
+> - Remplacer par : un point (.), une virgule (,), deux-points (:), un point médian (·) ou reformuler la phrase
+> - Exemples interdits : "Carte des spots — trouve le meilleur endroit", "SOS SpotHitch - Position en temps réel"
+> - Exemples corrigés : "Carte des spots. Trouve le meilleur endroit", "SOS SpotHitch · Position en temps réel"
+> - S'applique aux 4 langues (FR/EN/ES/DE), aux textes i18n ET aux textes hardcodés
+> - Raison : les tirets en milieu de phrase sont un tic d'écriture IA, ça se voit et c'est inutile
+> - Cette règle s'applique aussi aux mockups, designs, et tout texte écrit pour l'app
+
 > **RÈGLE #8b — NOMMAGE COHÉRENT** :
 > - JAMAIS créer d'alias (`window.openX = window.showX`) — utiliser UN SEUL nom partout
 > - Quand une fonction `window.*` est créée, utiliser le MÊME nom dans : le code, les onclick HTML, les tests, le Wolf

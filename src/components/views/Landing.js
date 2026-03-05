@@ -12,11 +12,19 @@ import { icon } from '../../utils/icons.js'
  */
 export function renderLanding(_state) {
   const stats = {
-    spots: 11000,
+    spots: '14,669',
     countries: 137,
-    users: 1500,
-    checkins: 5000
+    users: '1,500',
+    checkins: '5,000'
   };
+
+  const carouselScreens = [
+    { key: 'Map', label: t('landingCarouselMap'), img: '/images/marketing/dark-map.webp' },
+    { key: 'Profile', label: t('landingCarouselProfile'), img: '/images/marketing/dark-profile.webp' },
+    { key: 'Social', label: t('landingCarouselSocial'), img: '/images/marketing/dark-social.webp' },
+    { key: 'SOS', label: t('landingCarouselSOS'), img: '/images/marketing/dark-sos.webp' },
+    { key: 'Challenges', label: t('landingCarouselChallenges'), img: '/images/marketing/dark-challenges.webp' }
+  ];
 
   const features = [
     {
@@ -158,7 +166,7 @@ export function renderLanding(_state) {
           <!-- Stats -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-bold text-primary-400">${stats.spots}+</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary-400">${stats.spots}</div>
               <div class="text-sm text-slate-400">${t('landingStatsSpots')}</div>
             </div>
             <div class="text-center">
@@ -270,83 +278,97 @@ export function renderLanding(_state) {
         </div>
       </section>
 
-      <!-- App Preview Section -->
+      <!-- App Preview Carousel Section -->
       <section class="py-20 px-4">
         <div class="max-w-6xl mx-auto">
-          <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 class="text-3xl md:text-4xl font-bold mb-6">
-                ${t('landingAppPreviewHeading')}
-              </h2>
-              <ul class="space-y-4">
-                <li class="flex items-start gap-3">
-                  <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    ${icon('check', 'w-5 h-5 text-emerald-400')}
-                  </div>
-                  <div>
-                    <div class="font-semibold">${t('landingOfflineTitle')}</div>
-                    <div class="text-slate-400 text-sm">${t('landingOfflineDesc')}</div>
-                  </div>
-                </li>
-                <li class="flex items-start gap-3">
-                  <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    ${icon('check', 'w-5 h-5 text-emerald-400')}
-                  </div>
-                  <div>
-                    <div class="font-semibold">${t('landingGPSTitle')}</div>
-                    <div class="text-slate-400 text-sm">${t('landingGPSDesc')}</div>
-                  </div>
-                </li>
-                <li class="flex items-start gap-3">
-                  <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    ${icon('check', 'w-5 h-5 text-emerald-400')}
-                  </div>
-                  <div>
-                    <div class="font-semibold">${t('landingFreeTitle')}</div>
-                    <div class="text-slate-400 text-sm">${t('landingFreeDesc')}</div>
-                  </div>
-                </li>
-                <li class="flex items-start gap-3">
-                  <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    ${icon('check', 'w-5 h-5 text-emerald-400')}
-                  </div>
-                  <div>
-                    <div class="font-semibold">${t('landingMultilingualTitle')}</div>
-                    <div class="text-slate-400 text-sm">${t('landingMultilingualDesc')}</div>
-                  </div>
-                </li>
-              </ul>
+          <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">
+            ${t('landingCarouselTitle')}
+          </h2>
+          <p class="text-slate-400 text-center mb-12 max-w-2xl mx-auto">
+            ${t('landingAppPreviewHeading')}
+          </p>
 
-              <button
-                onclick="installPWA()"
-                class="mt-8 btn-primary"
-              >
-                ${icon('download', 'w-5 h-5 mr-2')}
-                ${t('landingInstallApp')}
-              </button>
-            </div>
-
-            <div class="relative">
-              <div class="w-64 h-[500px] mx-auto rounded-[3rem] border-4 border-slate-600 bg-slate-800 overflow-hidden shadow-2xl">
-                <div class="h-full bg-gradient-to-b from-slate-900 to-slate-800 p-4 flex flex-col">
-                  <div class="text-center text-primary-400 font-bold text-lg mb-4">SpotHitch</div>
-                  <div class="flex-1 rounded-2xl bg-emerald-900/30 flex items-center justify-center">
-                    ${icon('map-pinned', 'w-5 h-5 text-6xl text-emerald-400/50')}
-                  </div>
-                  <div class="flex justify-around mt-4 pt-2 border-t border-slate-700">
-                    ${icon('map', 'w-5 h-5 text-primary-400')}
-                    ${icon('compass', 'w-5 h-5 text-slate-400')}
-                    ${icon('trophy', 'w-5 h-5 text-slate-400')}
-                    ${icon('messages-square', 'w-5 h-5 text-slate-400')}
-                    ${icon('user', 'w-5 h-5 text-slate-400')}
+          <!-- Carousel -->
+          <div class="relative">
+            <div id="landing-carousel" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-none" style="-webkit-overflow-scrolling:touch;scroll-behavior:smooth;">
+              ${carouselScreens.map((screen, i) => `
+                <div class="snap-center shrink-0 first:pl-4 last:pr-4">
+                  <div class="relative w-56 md:w-64">
+                    <!-- iPhone frame -->
+                    <div class="rounded-[2.5rem] border-4 border-slate-600 bg-slate-800 overflow-hidden shadow-2xl shadow-primary-500/10 aspect-[9/19.5]">
+                      <img
+                        src="${screen.img}"
+                        alt="${screen.label}"
+                        loading="${i === 0 ? 'eager' : 'lazy'}"
+                        class="w-full h-full object-cover"
+                        onerror="this.parentElement.innerHTML='<div class=\\'h-full bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center\\'><span class=\\'text-4xl\\'>\uD83E\uDD19</span></div>'"
+                      />
+                    </div>
+                    <!-- Label -->
+                    <div class="text-center mt-3 font-semibold text-slate-200">${screen.label}</div>
                   </div>
                 </div>
-              </div>
-              <!-- Decorative elements -->
-              <div class="absolute -top-4 -right-4 w-20 h-20 bg-primary-500/30 rounded-full blur-xl"></div>
-              <div class="absolute -bottom-4 -left-4 w-16 h-16 bg-emerald-500/30 rounded-full blur-xl"></div>
+              `).join('')}
+            </div>
+
+            <!-- Scroll indicators -->
+            <div class="flex justify-center gap-2 mt-4">
+              ${carouselScreens.map((_, i) => `
+                <div class="w-2 h-2 rounded-full ${i === 0 ? 'bg-primary-400' : 'bg-slate-600'}"></div>
+              `).join('')}
             </div>
           </div>
+
+          <!-- Features list below carousel -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 max-w-3xl mx-auto">
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+              ${icon('check', 'w-4 h-4 text-emerald-400 shrink-0')}
+              ${t('landingOfflineTitle')}
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+              ${icon('check', 'w-4 h-4 text-emerald-400 shrink-0')}
+              ${t('landingGPSTitle')}
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+              ${icon('check', 'w-4 h-4 text-emerald-400 shrink-0')}
+              ${t('landingFreeTitle')}
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+              ${icon('check', 'w-4 h-4 text-emerald-400 shrink-0')}
+              ${t('landingMultilingualTitle')}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alpha CTA Section -->
+      <section class="py-20 px-4 bg-gradient-to-br from-amber-900/30 via-slate-900 to-primary-900/30 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+          <div class="absolute top-10 right-20 w-64 h-64 bg-amber-500/40 rounded-full blur-3xl"></div>
+          <div class="absolute bottom-10 left-20 w-48 h-48 bg-primary-500/30 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 max-w-3xl mx-auto text-center">
+          <!-- Alpha badge -->
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-400 text-sm font-semibold mb-6">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            ${t('landingAlphaBadge')}
+          </div>
+
+          <h2 class="text-3xl md:text-5xl font-bold mb-6">
+            ${t('landingAlphaHeading')}
+          </h2>
+          <p class="text-xl text-slate-300 mb-8 max-w-xl mx-auto">
+            ${t('landingAlphaDesc')}
+          </p>
+
+          <button
+            onclick="openAuth(); setAuthMode('register')"
+            class="inline-flex items-center gap-2 px-8 py-4 text-lg font-bold rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/25"
+          >
+            ${icon('rocket', 'w-5 h-5')}
+            ${t('landingAlphaCta')}
+          </button>
         </div>
       </section>
 

@@ -358,7 +358,7 @@ export function renderApp(state) {
         { ic: 'map-pin', text: t('radarFeature1') || 'Voir les autostoppeurs proches de toi en temps réel' },
         { ic: 'message-circle', text: t('radarFeature2') || 'Les contacter pour faire route ensemble' },
         { ic: 'bell', text: t('radarFeature3') || "Recevoir une alerte quand quelqu'un est à moins de 5km" },
-        { ic: 'eye-off', text: t('radarFeature4') || "Visible uniquement si tu l'actives — vie privée respectée" },
+        { ic: 'eye-off', text: t('radarFeature4') || "Visible uniquement si tu l'actives. Vie privée respectée" },
       ],
     }) : ''}
 
@@ -372,9 +372,9 @@ export function renderApp(state) {
       title: t('identityVerification') || 'Vérification d\'identité',
       items: [
         { ic: 'shield-check', text: t('identityFeature1') || 'Un service externe spécialisé vérifie ton identité (selfie + pièce d\'identité)' },
-        { ic: 'lock', text: t('identityFeature2') || 'Ta pièce d\'identité n\'est jamais stockée sur SpotHitch — impossible de la partager, pour protéger ta vie privée' },
-        { ic: 'credit-card', text: t('identityFeature3') || 'Service payant (quelques euros) car traité par un prestataire certifié — sécurité totale garantie' },
-        { ic: 'badge-check', text: t('identityFeature4') || 'Badge "Vérifié" sur ton profil — plus de confiance pour voyager ensemble' },
+        { ic: 'lock', text: t('identityFeature2') || 'Ta pièce d\'identité n\'est jamais stockée sur SpotHitch. Impossible de la partager, pour protéger ta vie privée' },
+        { ic: 'credit-card', text: t('identityFeature3') || 'Service payant (quelques euros) car traité par un prestataire certifié. Sécurité totale garantie' },
+        { ic: 'badge-check', text: t('identityFeature4') || 'Badge "Vérifié" sur ton profil. Plus de confiance pour voyager ensemble' },
       ],
     }) : ''}
 
@@ -389,7 +389,7 @@ export function renderApp(state) {
       items: [
         { ic: 'bell', text: t('comingSoonProximityF1') || 'Notification quand tu passes près d\'un spot bien noté' },
         { ic: 'settings', text: t('comingSoonProximityF2') || 'Rayon personnalisable (500m à 5km)' },
-        { ic: 'battery-charging', text: t('comingSoonProximityF3') || 'Économie de batterie — GPS intelligent' },
+        { ic: 'battery-charging', text: t('comingSoonProximityF3') || 'Économie de batterie. GPS intelligent' },
         { ic: 'compass', text: t('comingSoonProximityF4') || 'Actif uniquement en mode voyage' },
       ],
     }) : ''}
@@ -1370,7 +1370,7 @@ function addAmenityMarkers(amenities) {
     const el = document.createElement('div')
     el.style.cssText = 'font-size:22px;text-align:center;line-height:1;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));transition:transform 0.15s'
     el.textContent = label
-    el.title = areaName ? `${stationName} — ${areaName}` : stationName
+    el.title = areaName ? `${stationName} · ${areaName}` : stationName
 
     const marker = new tripMaplibregl.Marker({ element: el })
       .setLngLat([poi.lng, poi.lat])

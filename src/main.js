@@ -8,7 +8,6 @@ import './styles/main.css';
 
 // State & Store
 import { getState, setState, subscribe, actions } from './stores/state.js';
-import { Storage } from './utils/storage.js';
 
 // Firebase — lazy-loaded to save 115KB gzip on initial load
 let _firebase = null
@@ -1148,7 +1147,7 @@ if (!window.shareSOSLocation) {
           const { latitude, longitude } = position.coords
           const url = `https://www.google.com/maps?q=${latitude},${longitude}`
           if (navigator.share) {
-            navigator.share({ title: 'SOS - SpotHitch', text: t('sosShareText') || 'Position urgence', url })
+            navigator.share({ title: 'SOS SpotHitch', text: t('sosShareText') || 'Position urgence', url })
           } else {
             navigator.clipboard?.writeText(url).catch(() => {})
             showToast(t('linkCopied') || 'Lien copié !', 'success')
@@ -1996,25 +1995,9 @@ window.validateImage = async (...args) => {
   return validateImage(...args)
 }
 
-// Landing page dismiss handler — show tutorial after landing + save cookie consent
+// Landing page dismiss handler — cookie consent is now handled by CookieBanner after carousel
 window.dismissLanding = () => {
   localStorage.setItem('spothitch_landing_seen', '1')
-
-  // Save cookie consent from onboarding slide 5 toggles
-  const analyticsChecked = document.getElementById('landing-cookie-analytics')?.checked || false
-  const bugsChecked = document.getElementById('landing-cookie-bugs')?.checked || false
-  const consent = {
-    preferences: {
-      necessary: true,
-      analytics: analyticsChecked,
-      marketing: false,
-      personalization: bugsChecked,
-    },
-    timestamp: Date.now(),
-    version: '1.0',
-  }
-  Storage.set('cookie_consent', consent)
-
   const { tutorialCompleted } = getState()
   setState({
     showLanding: false,
@@ -2079,7 +2062,7 @@ window.openHelpCenter = () => {
 };
 window.openChangelog = () => {
   setState({ showFAQ: true, faqSearchQuery: '' });
-  showToast(t('changelogToast') || 'SpotHitch v2.0 — Février 2026', 'info');
+  showToast(t('changelogToast') || 'SpotHitch v2.0 · Février 2026', 'info');
 };
 window.openRoadmap = () => {
   showToast(t('roadmap') || 'Roadmap SpotHitch 2026\n\n✅ Chat temps réel\n✅ Messages privés\n✅ Vérification identité\n🔄 Guerres de guildes\n🔄 Événements saisonniers\n🔄 Intégration natives (iOS/Android)', 'info');

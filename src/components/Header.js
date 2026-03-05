@@ -68,7 +68,7 @@ export function renderHeader(state) {
           <button
             onclick="openSOS()"
             class="flex items-center gap-1.5 px-3 py-2 rounded-full bg-danger-500 text-white font-bold text-xs shadow-lg shadow-danger-500/30 hover:bg-danger-600 hover:scale-105 transition-colors animate-pulse-subtle"
-            aria-label="Mode urgence SOS - Partager ma position"
+            aria-label="Mode urgence SOS. Partager ma position"
             title="Mode urgence SOS"
           >
             ${icon('triangle-alert', 'w-5 h-5')}

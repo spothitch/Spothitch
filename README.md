@@ -111,3 +111,4 @@ MIT — voir [LICENSE](LICENSE) pour les détails.
 ---
 
 Fait avec 🤙 par la communauté SpotHitch
+test

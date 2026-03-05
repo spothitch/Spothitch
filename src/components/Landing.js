@@ -1,13 +1,25 @@
 /**
- * Landing Page — 6-slide Onboarding Carousel
+ * Landing Page — 5-slide Alpha Onboarding Carousel
  * Shown once for first-time visitors, dismissed forever via localStorage.
- * Slides: Problème → Solution → Sécurité → Guides → Cookies → CTA
- * Geolocation is handled automatically by init() — not in onboarding.
+ * Slides: Bienvenue → Features → Ton rôle → Roadmap → CTA
  */
 
 import { t, languageConfig } from '../i18n/index.js'
-import { renderToggle } from '../utils/toggle.js'
 import { getState } from '../stores/state.js'
+
+function stepIndicator(active) {
+  return [0, 1, 2, 3, 4].map(i => {
+    const cls = i < active ? 'bg-primary-500/15 text-primary-300'
+      : i === active ? 'bg-primary-500 text-dark-primary'
+      : 'bg-white/[0.04] text-slate-600'
+    const dot = `<div class="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${cls}">${i + 1}</div>`
+    if (i < 4) {
+      const lineClass = i < active ? 'bg-primary-500/30' : 'bg-white/[0.06]'
+      return dot + `<div class="w-6 h-0.5 ${lineClass}"></div>`
+    }
+    return dot
+  }).join('')
+}
 
 export function renderLanding() {
   const currentLang = getState().lang || 'fr'
@@ -18,199 +30,171 @@ export function renderLanding() {
   return `
     <div id="landing-page" class="fixed inset-0 z-[100] bg-dark-primary overflow-hidden">
 
-      <!-- Language selector (floating top-right) -->
-      <div class="absolute top-4 right-4 z-20 flex gap-1.5">
-        ${langButtons}
+      <!-- Top bar: Language + Skip -->
+      <div class="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
+        <div class="flex gap-1.5">${langButtons}</div>
+        <button onclick="dismissLanding()" class="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-slate-500 text-[13px] font-medium">${t('alphaSlideSkip')}</button>
       </div>
 
       <!-- Carousel Track -->
-      <div id="landing-track" class="flex h-full transition-transform duration-300 ease-out" style="width:600%">
+      <div id="landing-track" class="flex h-full transition-transform duration-300 ease-out" style="width:500%">
 
-        <!-- Slide 1: Problème -->
-        <div class="w-[16.667%] h-full flex-shrink-0 flex flex-col items-center justify-center px-7 text-center relative" style="background:linear-gradient(180deg,#1a0a0a,#0f1520)">
-          <span class="text-5xl mb-5" aria-hidden="true">😰</span>
-          <h2 class="text-[26px] font-bold text-white leading-tight mb-6">
-            ${t('onboardingProblemTitle')}
+        <!-- Slide 1: Bienvenue -->
+        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:#192839">
+          <div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:rgba(245,158,11,0.05);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
+          <div class="flex items-center mb-7 relative z-10">${stepIndicator(0)}</div>
+          <div class="relative w-[170px] h-[170px] mb-6 z-10">
+            <div class="absolute -inset-1 rounded-full opacity-40 animate-spin" style="background:conic-gradient(from 0deg,#f59e0b,#d97706,#f59e0b);animation-duration:6s"></div>
+            <div class="absolute inset-0 rounded-full" style="background:#192839"></div>
+            <img src="/images/branding/logo-source.png" alt="SpotHitch" class="w-full h-full rounded-full object-cover relative z-[1]">
+          </div>
+          <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-primary-500/[0.08] border border-primary-500/[0.15] rounded-xl text-[11px] font-semibold text-primary-300 tracking-wide mb-4 relative z-10">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse"></span> ${t('alphaSlideAlphaTag')}
+          </div>
+          <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 max-w-md tracking-tight relative z-10">
+            ${t('alphaSlideWelcome')} <span class="text-primary-400">SpotHitch</span>
           </h2>
-          <div class="w-full max-w-sm flex flex-col gap-2.5">
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3 flex items-center gap-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-[13px] font-semibold bg-red-500/20 text-red-300">😵</span>
-              <span class="text-[17px] text-red-300">${t('onboardingProblemWrongSpot')}</span>
+          <p class="text-[15px] text-slate-400 leading-relaxed max-w-sm relative z-10">${t('alphaSlideWelcomeDesc')}</p>
+        </div>
+
+        <!-- Slide 2: L'app en un coup d'œil -->
+        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#101722,#0f1520)">
+          <div class="absolute rounded-full pointer-events-none" style="width:350px;height:350px;background:rgba(245,158,11,0.04);bottom:-80px;left:-80px;filter:blur(100px)"></div>
+          <div class="flex items-center mb-7 relative z-10">${stepIndicator(1)}</div>
+          <h2 class="text-[26px] font-extrabold text-white leading-tight mb-5 tracking-tight relative z-10">
+            ${t('alphaSlideOverview')} <span class="text-primary-400">${t('alphaSlideOverviewAccent')}</span>
+          </h2>
+
+          <div class="w-full max-w-[340px] p-5 bg-white/[0.03] border border-white/[0.06] rounded-2xl mb-3 relative z-10">
+            <div class="flex items-center gap-3 text-left">
+              <span class="text-[28px] shrink-0">📍</span>
+              <span class="text-[17px] font-bold text-slate-200">${t('alphaSlideFeatureMap')}</span>
             </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3 flex items-center gap-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-[13px] font-semibold bg-red-500/20 text-red-300">😱</span>
-              <span class="text-[17px] text-red-300">${t('onboardingProblemNoone')}</span>
+            <p class="text-[13px] text-slate-400 mt-1.5 leading-relaxed text-left">${t('alphaSlideFeatureMapDesc')}</p>
+          </div>
+
+          <div class="w-full max-w-[340px] p-5 bg-white/[0.03] border border-white/[0.06] rounded-2xl mb-3 relative z-10">
+            <div class="flex items-center gap-3 text-left">
+              <span class="text-[28px] shrink-0">📖</span>
+              <span class="text-[17px] font-bold text-slate-200">${t('alphaSlideFeatureGuides')}</span>
             </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3 flex items-center gap-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-[13px] font-semibold bg-red-500/20 text-red-300">🤷</span>
-              <span class="text-[17px] text-red-300">${t('onboardingProblemNoInfo')}</span>
+            <p class="text-[13px] text-slate-400 mt-1.5 leading-relaxed text-left">${t('alphaSlideFeatureGuidesDesc')}</p>
+          </div>
+
+          <div class="w-full max-w-[340px] p-5 bg-transparent border border-white/[0.06] border-dashed rounded-2xl opacity-50 relative z-10">
+            <div class="flex items-center gap-3 text-left">
+              <span class="text-[28px] shrink-0">✨</span>
+              <span class="text-[17px] font-bold text-slate-200">${t('alphaSlideFeatureMore')}</span>
             </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3 flex items-center gap-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-[13px] font-semibold bg-red-500/20 text-red-300">🌧️</span>
-              <span class="text-[17px] text-red-300">${t('onboardingProblemNoPlanB')}</span>
+            <p class="text-[13px] text-slate-400 mt-1.5 leading-relaxed text-left">${t('alphaSlideFeatureMoreDesc')}</p>
+          </div>
+        </div>
+
+        <!-- Slide 3: Ton rôle -->
+        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#121a28,#0f1520)">
+          <div class="absolute rounded-full pointer-events-none" style="width:300px;height:300px;background:rgba(245,158,11,0.05);top:30%;right:-60px;filter:blur(100px)"></div>
+          <div class="flex items-center mb-7 relative z-10">${stepIndicator(2)}</div>
+          <h2 class="text-[26px] font-extrabold text-white leading-tight mb-5 tracking-tight relative z-10">
+            ${t('alphaSlideRoleTitle')} <span class="text-primary-400">${t('alphaSlideRoleAccent')}</span>
+          </h2>
+
+          <div class="w-full max-w-[340px] relative z-10">
+            <div class="flex items-start gap-3 py-3.5 border-b border-white/[0.04] text-left">
+              <div class="w-6 h-6 rounded-md border-2 border-primary-500/25 shrink-0 mt-0.5"></div>
+              <div>
+                <div class="text-[15px] font-semibold text-slate-200">${t('alphaSlideRoleSpots')}</div>
+                <div class="text-[12px] text-slate-500 mt-1 leading-relaxed">${t('alphaSlideRoleSpotsDesc')}</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 py-3.5 border-b border-white/[0.04] text-left">
+              <div class="w-6 h-6 rounded-md border-2 border-primary-500/25 shrink-0 mt-0.5"></div>
+              <div>
+                <div class="text-[15px] font-semibold text-slate-200">${t('alphaSlideRoleTips')}</div>
+                <div class="text-[12px] text-slate-500 mt-1 leading-relaxed">${t('alphaSlideRoleTipsDesc')}</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 py-3.5 text-left">
+              <div class="w-6 h-6 rounded-md border-2 border-primary-500/25 shrink-0 mt-0.5"></div>
+              <div>
+                <div class="text-[15px] font-semibold text-slate-200">${t('alphaSlideRoleFeedback')}</div>
+                <div class="text-[12px] text-slate-500 mt-1 leading-relaxed">${t('alphaSlideRoleFeedbackDesc')}</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Slide 2: Solution -->
-        <div class="w-[16.667%] h-full flex-shrink-0 flex flex-col items-center justify-center px-7 text-center relative" style="background:linear-gradient(180deg,#0a1a10,#0f1520)">
-          <span class="text-5xl mb-4" aria-hidden="true">✨</span>
-          <h2 class="text-[26px] font-bold text-white leading-tight mb-5">
-            ${t('onboardingSolutionTitle')}
+        <!-- Slide 4: Roadmap -->
+        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#111825,#0f1520)">
+          <div class="absolute rounded-full pointer-events-none" style="width:350px;height:350px;background:rgba(245,158,11,0.04);bottom:-60px;left:-60px;filter:blur(100px)"></div>
+          <div class="flex items-center mb-7 relative z-10">${stepIndicator(3)}</div>
+          <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
+            ${t('alphaSlideRoadmapTitle')} <span class="text-primary-400">${t('alphaSlideRoadmapAccent')}</span>
           </h2>
-          <div class="w-full max-w-sm flex flex-col gap-2 mb-6">
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center gap-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-[13px] font-semibold bg-emerald-500/20 text-emerald-300">📍</span>
-              <span class="text-[17px] text-emerald-300">${t('onboardingSolutionBestSpot')}</span>
-            </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center gap-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-[13px] font-semibold bg-emerald-500/20 text-emerald-300">⏱️</span>
-              <span class="text-[17px] text-emerald-300">${t('onboardingSolutionAvgWait')}</span>
-            </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center gap-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-[13px] font-semibold bg-emerald-500/20 text-emerald-300">📸</span>
-              <span class="text-[17px] text-emerald-300">${t('onboardingSolutionPhotos')}</span>
-            </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center gap-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-[13px] font-semibold bg-emerald-500/20 text-emerald-300">🛡️</span>
-              <span class="text-[17px] text-emerald-300">${t('onboardingSolutionSafety')}</span>
-            </div>
-          </div>
-          <div class="flex gap-6 justify-center">
-            <div class="text-center"><div class="text-2xl font-bold text-primary-400">14.6k</div><div class="text-[13px] text-slate-500">spots</div></div>
-            <div class="text-center"><div class="text-2xl font-bold text-primary-400">137</div><div class="text-[13px] text-slate-500">${t('countries')}</div></div>
-            <div class="text-center"><div class="text-2xl font-bold text-primary-400">100%</div><div class="text-[13px] text-slate-500">${t('onboardingFree')}</div></div>
-          </div>
-        </div>
+          <p class="text-[15px] text-slate-400 mb-4 relative z-10">${t('alphaSlideRoadmapDesc')}</p>
 
-        <!-- Slide 3: Sécurité -->
-        <div class="w-[16.667%] h-full flex-shrink-0 flex flex-col items-center justify-center px-7 text-center relative" style="background:linear-gradient(180deg,#0a1a14,#0f1520)">
-          <div class="w-24 h-24 rounded-full bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center text-5xl mb-6">🛡️</div>
-          <h2 class="text-[26px] font-bold text-white leading-tight mb-5">
-            ${t('onboardingSecurityTitle')}
-          </h2>
-          <div class="w-full max-w-sm flex flex-col gap-2.5 text-left">
-            <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
-              <span class="text-lg">📍</span>
-              <span class="text-[17px] text-slate-200">${t('onboardingSecurityShare')}</span>
+          <div class="w-full max-w-[340px] relative z-10">
+            <div class="flex items-center gap-2.5 py-1.5">
+              <span class="text-[13px] w-[100px] shrink-0 text-slate-300">📍 ${t('map')}</span>
+              <div class="flex-1 h-[5px] rounded-full bg-white/[0.04] overflow-hidden"><div class="h-full w-full rounded-full" style="background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+              <span class="text-[10px] font-semibold w-[52px] text-right text-primary-300">${t('alphaSlideReady')}</span>
             </div>
-            <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
-              <span class="text-lg">🆘</span>
-              <span class="text-[17px] text-slate-200">${t('onboardingSecuritySOS')}</span>
+            <div class="flex items-center gap-2.5 py-1.5">
+              <span class="text-[13px] w-[100px] shrink-0 text-slate-300">📖 ${t('alphaSlideRoadmapGuides')}</span>
+              <div class="flex-1 h-[5px] rounded-full bg-white/[0.04] overflow-hidden"><div class="h-full w-full rounded-full" style="background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+              <span class="text-[10px] font-semibold w-[52px] text-right text-primary-300">${t('alphaSlideReady')}</span>
             </div>
-            <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
-              <span class="text-lg">✅</span>
-              <span class="text-[17px] text-slate-200">${t('onboardingSecurityCheckin')}</span>
+            <div class="flex items-center gap-2.5 py-1.5">
+              <span class="text-[13px] w-[100px] shrink-0 text-slate-300">👥 Social</span>
+              <div class="flex-1 h-[5px] rounded-full bg-white/[0.04] overflow-hidden"><div class="h-full w-full rounded-full" style="background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+              <span class="text-[10px] font-semibold w-[52px] text-right text-primary-300">${t('alphaSlideReady')}</span>
             </div>
-          </div>
-        </div>
 
-        <!-- Slide 4: Guides pays (passeport) -->
-        <div class="w-[16.667%] h-full flex-shrink-0 flex flex-col items-center justify-center px-7 text-center relative" style="background:#0f1520">
-          <span class="text-5xl mb-4" aria-hidden="true">🛂</span>
-          <h2 class="text-[26px] font-bold text-white leading-tight mb-2">
-            ${t('onboardingGuidesTitle')}
-          </h2>
-          <p class="text-[17px] text-slate-400 mb-5">${t('onboardingGuidesDesc')}</p>
-          <div class="w-full max-w-sm flex flex-col gap-2">
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center gap-3" style="border-left:3px solid #22c55e">
-              <span class="text-2xl">🇫🇷</span>
-              <div class="flex-1 text-left">
-                <div class="text-[17px] font-bold text-white">France</div>
-                <div class="text-[13px] text-slate-500">1891 spots • ${t('onboardingGuideHighways')}</div>
-              </div>
-              <span class="text-[13px] text-slate-500">${t('onboardingGuideStamped')}</span>
+            <div class="h-px bg-white/[0.04] my-1.5"></div>
+
+            <div class="flex items-center gap-2.5 py-1.5">
+              <span class="text-[13px] w-[100px] shrink-0 text-slate-600">🛡️ SOS</span>
+              <div class="flex-1 h-[5px] rounded-full bg-white/[0.04] overflow-hidden"><div class="h-full rounded-full bg-slate-700" style="width:40%"></div></div>
+              <span class="text-[10px] font-semibold w-[52px] text-right text-slate-600">${t('alphaSlideInProgress')}</span>
             </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center gap-3" style="border-left:3px solid #22c55e">
-              <span class="text-2xl">🇭🇷</span>
-              <div class="flex-1 text-left">
-                <div class="text-[17px] font-bold text-white">Croatie</div>
-                <div class="text-[13px] text-slate-500">124 spots • ${t('onboardingGuideCoastEasy')}</div>
-              </div>
-              <span class="text-[13px] text-slate-500">${t('onboardingGuideStamped')}</span>
+            <div class="flex items-center gap-2.5 py-1.5">
+              <span class="text-[13px] w-[100px] shrink-0 text-slate-600">🗺️ ${t('alphaSlideRoadmapRoute')}</span>
+              <div class="flex-1 h-[5px] rounded-full bg-white/[0.04] overflow-hidden"><div class="h-full rounded-full bg-slate-700" style="width:15%"></div></div>
+              <span class="text-[10px] font-semibold w-[52px] text-right text-slate-600">${t('alphaSlidePlanned')}</span>
             </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center gap-3 opacity-60" style="border-left:3px solid #64748b">
-              <span class="text-2xl">🇬🇪</span>
-              <div class="flex-1 text-left">
-                <div class="text-[17px] font-bold text-white">${t('onboardingGuideGeorgia')}</div>
-                <div class="text-[13px] text-slate-500">45 spots • ${t('onboardingGuideWelcoming')}</div>
-              </div>
-              <span class="text-[13px] text-slate-500">${t('onboardingGuideDiscover')}</span>
+            <div class="flex items-center gap-2.5 py-1.5">
+              <span class="text-[13px] w-[100px] shrink-0 text-slate-600">🏠 ${t('alphaSlideRoadmapHostels')}</span>
+              <div class="flex-1 h-[5px] rounded-full bg-white/[0.04] overflow-hidden"><div class="h-full rounded-full bg-slate-700" style="width:10%"></div></div>
+              <span class="text-[10px] font-semibold w-[52px] text-right text-slate-600">${t('alphaSlidePlanned')}</span>
             </div>
-            <div class="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center gap-3 opacity-60" style="border-left:3px solid #64748b">
-              <span class="text-2xl">🇳🇿</span>
-              <div class="flex-1 text-left">
-                <div class="text-[17px] font-bold text-white">${t('onboardingGuideNZ')}</div>
-                <div class="text-[13px] text-slate-500">67 spots • ${t('onboardingGuideDream')}</div>
-              </div>
-              <span class="text-[13px] text-slate-500">${t('onboardingGuideDiscover')}</span>
+            <div class="flex items-center gap-2.5 py-1.5">
+              <span class="text-[13px] w-[100px] shrink-0 text-slate-600">📅 ${t('alphaSlideRoadmapEvents')}</span>
+              <div class="flex-1 h-[5px] rounded-full bg-white/[0.04] overflow-hidden"><div class="h-full rounded-full bg-slate-700" style="width:5%"></div></div>
+              <span class="text-[10px] font-semibold w-[52px] text-right text-slate-600">${t('alphaSlidePlanned')}</span>
             </div>
           </div>
         </div>
 
-        <!-- Slide 5: Cookies (Aire de repos) -->
-        <div class="w-[16.667%] h-full flex-shrink-0 flex flex-col items-center justify-center px-7 text-center relative" style="background:#0f1520">
-          <span class="text-5xl mb-4" aria-hidden="true">⛽</span>
-          <h2 class="text-[26px] font-bold text-white leading-tight mb-2">
-            ${t('onboardingCookiesTitle')}
+        <!-- Slide 5: CTA -->
+        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#161e2e,#0f1520)">
+          <div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:rgba(245,158,11,0.07);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
+          <div class="flex items-center mb-7 relative z-10">${stepIndicator(4)}</div>
+          <span class="text-7xl mb-4 relative z-10">📍</span>
+          <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
+            ${t('alphaSlideCtaTitle')} <span class="text-primary-400">${t('alphaSlideCtaAccent')}</span>
           </h2>
-          <p class="text-[17px] text-primary-400 italic mb-5">"${t('onboardingCookiesQuote')}"</p>
-          <div class="w-full max-w-sm">
-            <!-- Necessary (always on) -->
-            <div class="flex items-center justify-between py-3 border-b border-white/5">
-              <div class="text-left">
-                <div class="text-[17px] text-slate-200">⛽ ${t('onboardingCookiesFuel')}</div>
-                <div class="text-[14px] text-slate-500">${t('onboardingCookiesFuelDesc')}</div>
-              </div>
-              ${renderToggle(true, "", t('required') || 'Required')}
-            </div>
-            <!-- Analytics (toggleable) -->
-            <div class="flex items-center justify-between py-3 border-b border-white/5">
-              <div class="text-left">
-                <div class="text-[17px] text-slate-200">☕ ${t('onboardingCookiesCoffee')}</div>
-                <div class="text-[14px] text-slate-500">${t('onboardingCookiesCoffeeDesc')}</div>
-              </div>
-              <input type="checkbox" id="landing-cookie-analytics" class="hidden" checked>
-              ${renderToggle(true, "toggleFormToggle('landing-cookie-analytics')", t('onboardingCookiesCoffee') || 'Analytics cookies')}
-            </div>
-            <!-- Bug tracking (toggleable) -->
-            <div class="flex items-center justify-between py-3">
-              <div class="text-left">
-                <div class="text-[17px] text-slate-200">🔧 ${t('onboardingCookiesMechanic')}</div>
-                <div class="text-[14px] text-slate-500">${t('onboardingCookiesMechanicDesc')}</div>
-              </div>
-              <input type="checkbox" id="landing-cookie-bugs" class="hidden" checked>
-              ${renderToggle(true, "toggleFormToggle('landing-cookie-bugs')", t('onboardingCookiesMechanic') || 'Bug tracking cookies')}
-            </div>
-          </div>
-          <p class="text-[14px] text-slate-600 mt-4">${t('onboardingCookiesNoPub')}</p>
-        </div>
-
-        <!-- Slide 6: CTA (Premier pas) -->
-        <div class="w-[16.667%] h-full flex-shrink-0 flex flex-col items-center justify-center px-7 text-center relative" style="background:linear-gradient(180deg,#0f1520,#1a0f0a)">
-          <div class="absolute -top-10 -right-16 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
-          <h2 class="text-[26px] font-bold text-white leading-tight mb-6 relative z-10">
-            ${t('onboardingCTATitle')}
-          </h2>
-          <div class="w-full max-w-sm relative z-10">
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
-              <span class="text-4xl block mb-2">📍</span>
-              <div class="text-[17px] font-bold text-white">${t('onboardingCTAAddSpot')}</div>
-              <div class="text-[14px] text-slate-400 mt-1">${t('onboardingCTAAddSpotDesc')}</div>
-            </div>
-            <p class="text-[14px] text-slate-600 my-2">${t('onboardingCTAOr')}</p>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
-              <span class="text-4xl block mb-2">🧭</span>
-              <div class="text-[17px] font-bold text-white">${t('onboardingCTARoute')}</div>
-              <div class="text-[14px] text-slate-400 mt-1">${t('onboardingCTARouteDesc')}</div>
-            </div>
-          </div>
+          <p class="text-[15px] text-slate-400 leading-relaxed max-w-sm mb-6 relative z-10">${t('alphaSlideCtaDesc')}</p>
           <button
             onclick="dismissLanding()"
-            class="w-full max-w-sm py-4 rounded-2xl text-dark-primary font-bold text-lg shadow-xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.02] transition-colors duration-300 mt-6 relative z-10"
-            style="background:linear-gradient(135deg,#f59e0b,#d97706)"
+            class="inline-flex items-center gap-2.5 px-9 py-4 text-[17px] font-bold rounded-xl text-dark-primary relative z-10"
+            style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 8px 30px rgba(245,158,11,0.25)"
           >
-            ${t('onboardingCTAGo')} →
+            🗺️ ${t('alphaSlideCtaMap')}
+          </button>
+          <button
+            onclick="dismissLanding()"
+            class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium bg-white/[0.04] border border-white/[0.08] text-slate-400 rounded-xl mt-3 relative z-10"
+          >
+            ${t('alphaSlideCtaExplore')}
           </button>
         </div>
 
@@ -224,7 +208,6 @@ export function renderLanding() {
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="2"></div>
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="3"></div>
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="4"></div>
-          <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="5"></div>
         </div>
         <button id="landing-next" onclick="landingNext()" class="text-primary-400 text-sm font-semibold">
           ${t('onboardingNext')} →
@@ -235,8 +218,8 @@ export function renderLanding() {
   `
 }
 
-const TOTAL_SLIDES = 6
-const SLIDE_WIDTH = 100 / TOTAL_SLIDES // 16.667%
+const TOTAL_SLIDES = 5
+const SLIDE_WIDTH = 100 / TOTAL_SLIDES // 20%
 
 export function initLandingCarousel() {
   let current = 0
@@ -253,17 +236,12 @@ export function initLandingCarousel() {
         ? 'landing-dot w-6 h-2 rounded-full bg-primary-400 transition-colors duration-200'
         : 'landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200'
     })
-    // Hide next button on last slide (CTA has its own button)
     if (nextBtn) nextBtn.style.display = current === TOTAL_SLIDES - 1 ? 'none' : ''
   }
 
-  // Dot clicks
   dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.i)))
-
-  // Next button
   window.landingNext = () => goTo(current + 1)
 
-  // Touch swipe
   let tx = 0
   track.addEventListener('touchstart', e => { tx = e.touches[0].clientX }, { passive: true })
   track.addEventListener('touchend', e => {

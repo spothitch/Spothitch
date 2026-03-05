@@ -203,7 +203,7 @@ function renderDeviceItem(device, isCurrent) {
       class="device-item flex items-center justify-between p-4 bg-dark-secondary rounded-xl ${isCurrent ? 'border-2 border-primary-500' : 'border border-white/5'}"
       role="listitem"
       data-device-id="${deviceId}"
-      aria-label="${deviceName} - ${deviceOS}"
+      aria-label="${deviceName} · ${deviceOS}"
     >
       <div class="flex items-center gap-4">
         <span class="text-3xl" aria-hidden="true">${deviceEmoji}</span>
@@ -217,7 +217,7 @@ function renderDeviceItem(device, isCurrent) {
             ` : ''}
           </div>
           <div class="text-sm text-slate-400">
-            ${deviceOS}${screenRes ? ` - ${screenRes}` : ''}
+            ${deviceOS}${screenRes ? ` · ${screenRes}` : ''}
           </div>
           <div class="text-xs text-slate-400 flex items-center gap-1 mt-1">
             ${icon('clock', 'w-5 h-5')}

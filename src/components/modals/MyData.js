@@ -447,7 +447,7 @@ export function requestAccountDeletion() {
         }, 2000);
       });
     } else if (input !== null) {
-      window.showToast?.((t('deleteCancelled') || 'Suppression annulée - texte incorrect'), 'warning');
+      window.showToast?.((t('deleteCancelled') || 'Suppression annulée. Texte incorrect'), 'warning');
     }
   }
 }
@@ -458,7 +458,7 @@ export function requestAccountDeletion() {
 export function openConsentSettings() {
   // Show a simple consent management modal
   setState({ showConsentSettings: true });
-  window.showToast?.((t('consentSettingsComingSoon') || 'Paramètres de consentement - fonctionnalité à venir'), 'info');
+  window.showToast?.((t('consentSettingsComingSoon') || 'Paramètres de consentement. Fonctionnalité à venir'), 'info');
 }
 
 // Global handlers

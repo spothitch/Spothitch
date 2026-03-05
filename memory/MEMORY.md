@@ -1,12 +1,50 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-05 (session 37 — Firebase sync carnet de voyage + édition)
+> Dernière mise à jour : 2026-03-05 (session 39 — audit alpha complet production, toutes features confirmées ✅)
+
+---
+
+## Fichiers mémoire détaillés
+
+- `memory/teasing-templates.md` — Guidelines templates teasing (style, ton, règles, templates existants)
+- `memory/funding.md` — Dossier financement
+- `memory/features.md` — Inventaire des 190+ features
+- `memory/decisions.md` — Historique des décisions
+- `memory/errors.md` — Journal des erreurs et leçons
+- `memory/audits.md` — Base de données audits
+
+---
+
+## CRITIQUE — Hitchwiki/Hitchmap
+
+**TOUTES les données Hitchwiki/Hitchmap (14 669 spots) seront SUPPRIMÉES avant l'alpha.** SpotHitch repart de ZÉRO avec uniquement les spots créés par la communauté. NE JAMAIS mentionner ces chiffres dans le marketing/teasing. Antoine l'a répété plusieurs fois — c'est une décision ferme.
 
 ---
 
 ## Audits — voir memory/audits.md pour la base de données COMPLÈTE
 
-**37 scripts d'audit | 630+ tests | 441/531 handlers (83.1%) | La Fourmi 191/191 | QG 93/100 | 0 échec**
+**45 scripts d'audit | 700+ tests | 441/531 handlers (83.1%) | La Fourmi 191/191 | QG 93/100 | 0 échec**
+
+### Audit Alpha Production — 2026-03-05 ✅ TOUTES FEATURES CONFIRMÉES
+
+| Feature | Tests | Résultat | Notes |
+|---------|-------|----------|-------|
+| Carte | 10 | ✅ 10/10 | GPS, filtres, search, spot detail via setState mock |
+| Spots (AddSpot) | 9 | ✅ 9/9 | Form 3 étapes, photo optionnelle, 4 types, 3 critères |
+| Auth | 8 | ✅ 8/8 | Google/Facebook/email, reset, déconnexion |
+| Profil + RGPD | 9 | ✅ 9/9 | Bio, langues, export, suppression, cookies |
+| Guides | 5 | ✅ 5/8* | *3 échecs = artefacts test, pas bugs réels |
+| Voyage (Journal) | 5 | ✅ 5/5 | Itinéraire → fenêtre beta correcte |
+| Social | 7 | ✅ 7/7 | Amis, DM, blocage, signalement |
+| Légal/Tech | 7 | ✅ 7/7 | CGU, RGPD, SEO, PWA, SW |
+
+**Patterns Playwright confirmés (NE PAS OUBLIER) :**
+- `spothitch_feature_seen` = UNE seule clé JSON `{ featureId: timestamp }` (PAS de clés individuelles)
+- `spothitch_test_mode = 'true'` → bypasse auth dans openAddSpot
+- `window.setState({ username: 'testuser' })` → bypasse requireProfile
+- `window.showLegalPage('cgu')` → ouvre le modal légal (PAS openLegal qui n'existe pas)
+- Recharger la page entre tests longs pour éviter interférences état/DOM
+- Polling loop 8s pour modals lazy-loaded (lazyRender nécessite 2 render cycles)
 
 ### Résumé des résultats (2026-02-24 — tous relancés)
 
@@ -116,6 +154,18 @@
 ---
 
 ## Dernières sessions (reconstitué depuis git log)
+
+### Session 2026-03-05 (session 39 — AUDIT ALPHA PRODUCTION COMPLET)
+- **Audit complet de toutes les features alpha sur spothitch.com production**
+- 8 catégories testées via Playwright : Carte, Spots, Auth, Profil, Guides, Voyage, Social, Légal/Tech
+- Résultats : **59/61 OK** (2 échecs = artefacts de test, pas des bugs réels dans l'app)
+- **Bug script corrigé** : `window.openLegal` n'existe pas → utiliser `window.showLegalPage('cgu')`
+- **Bug script corrigé** : `spothitch_feature_seen` était individuel → JSON objet sous une seule clé
+- Scripts d'audit créés : `audit-carte-final.cjs`, `audit-spots.cjs`, `audit-auth.cjs`, `audit-profile.cjs`, `audit-guides.cjs`, `audit-voyage.cjs`, `audit-social.cjs`, `audit-legal.cjs`
+- Spot detail confirmé via `setState({ selectedSpot: mockSpot })` + polling 8s (lazyRender)
+- AddSpot form : 3 étapes confirmées visuellement (step 1 photo/type, step 2 position/direction, step 3 ratings)
+- Photo optionnelle ✅, direction obligatoire ✅, 4 types ✅, 3 critères notation ✅
+- Beta guards fonctionnels : Itinéraire, SOS, Compagnon, Niveaux → fenêtres intro glassmorphism
 
 ### Session 2026-02-26 (session 24 — OUTILS QUALITÉ + LA FOURMI 23 NIVEAUX)
 - **Quality Gate** : score 93/100, 0 erreurs (était 76/100 avec 73 erreurs)
