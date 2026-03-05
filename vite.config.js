@@ -17,8 +17,16 @@ function versionPlugin() {
   }
 }
 
+// Sur Cloudflare Pages, CF_PAGES_BRANCH est injecté automatiquement.
+// VITE_SHOW_BETA=true uniquement sur la branche 'dev' (ou en local via .env.local).
+const showBeta = process.env.VITE_SHOW_BETA === 'true'
+  || process.env.CF_PAGES_BRANCH === 'dev'
+
 export default defineConfig({
   base: '/',
+  define: {
+    'import.meta.env.VITE_SHOW_BETA': JSON.stringify(showBeta ? 'true' : ''),
+  },
 
   plugins: [
     // Tailwind CSS v4
