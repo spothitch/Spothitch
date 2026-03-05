@@ -759,3 +759,16 @@ Chaque erreur suit ce format :
   - [quality-gate] Score 94/100 (seuil 85)
   - [tests] 1 test(s) en échec
 - **Statut** : À CORRIGER
+
+### ERR-059 — Wrappers premier clic bloquent les tests visuels du Maître
+
+- **Date** : 2026-03-05
+- **Gravité** : MAJEUR
+- **Description** : Les 7 scénarios Social/Chat en échec dans Le Maître V2 étaient causés par les wrappers `changeTab` (feature intro au premier clic) qui interceptaient la navigation. Aussi : `activeTab` dans le state persisté n'est jamais rechargé (non inclus dans `persistState`).
+- **Cause racine** :
+  1. Les wrappers "premier clic" (session 35) interceptent `changeTab('social')` si `spothitch_feature_seen` n'a pas l'id de la feature → le test de navigation vers Social/Chat ne fonctionnait pas
+  2. `persistState()` dans state.js ne sauvegarde pas `activeTab` → mettre `activeTab: 'social'` dans `stateExtra` est inutile, l'app recharge toujours avec `activeTab: 'map'`
+- **Correction** : Dans `runScenario` de maitre-visual.mjs : toujours mettre `spothitch_feature_seen` avec toutes les features marquées comme vues. Pour Social/Chat : utiliser `action: changeTab('social')` explicite au lieu de `stateExtra: { activeTab: 'social' }`.
+- **Leçon** : **Avant tout test automatisé qui navigue vers un onglet : s'assurer que `spothitch_feature_seen` contient l'id de la feature.** Les wrappers premier clic BLOQUENT silencieusement la navigation normale.
+- **Fichiers** : `scripts/maitre-visual.mjs`
+- **Statut** : CORRIGÉ
