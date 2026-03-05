@@ -2759,6 +2759,30 @@ if (!window.openFeedbackDetail) {
 if (!window.openFeedbackOnFeature) {
   window.openFeedbackOnFeature = (id) => setState({ showFeedbackPanel: true, feedbackFeatureId: id })
 }
+// Profile view handlers — lazy-loaded with Profile.js
+if (!window.openAddPastTrip) window.openAddPastTrip = () => setState({ showAddPastTrip: true })
+if (!window.openBlockedUsers) window.openBlockedUsers = () => setState({ showBlockedUsers: true })
+if (!window.openComingSoonProximity) window.openComingSoonProximity = () => setState({ showComingSoonProximity: true })
+if (!window.openReferences) window.openReferences = () => setState({ showReferences: true })
+if (!window.openMySpots) window.openMySpots = () => setState({ profileDetailView: 'spots' })
+if (!window.openMyValidations) window.openMyValidations = () => setState({ profileDetailView: 'validations' })
+if (!window.openMyCountries) window.openMyCountries = () => setState({ profileDetailView: 'countries' })
+if (!window.openProgressionStats) window.openProgressionStats = () => setState({ showBadges: true })
+if (!window.openRoadmapFeature) window.openRoadmapFeature = (id) => window.showFeatureIntro?.(id)
+// Social view handlers — lazy-loaded with Social.js
+if (!window.openFriendChat) window.openFriendChat = (id) => setState({ socialSubTab: 'messagerie', activeDMConversation: id })
+if (!window.openWriteReview) window.openWriteReview = (uid) => setState({ showWriteReview: true, reviewTargetUid: uid })
+// Map view handlers — lazy-loaded with Map.js
+if (!window.openCountryGuide) {
+  window.openCountryGuide = (code) => setState({ selectedCountryGuide: code, activeSubTab: 'guides', showGuidesOverlay: true })
+}
+// MyData modal handlers — lazy-loaded
+if (!window.openConsentSettings) window.openConsentSettings = () => setState({ showConsentSettings: true })
+// Voyage view handlers — lazy-loaded with Voyage.js
+if (!window.openTripDetail) window.openTripDetail = (i) => setState({ tripDetailIndex: i })
+if (!window.openEditTrip) window.openEditTrip = (i) => setState({ editTripIndex: i })
+if (!window.openAddTripNote) window.openAddTripNote = () => setState({ activeTab: 'challenges', voyageSubTab: 'journal' })
+if (!window.openTripPhotoUpload) window.openTripPhotoUpload = () => setState({ activeTab: 'challenges', voyageSubTab: 'journal' })
 
 // openLeaderboard/closeLeaderboard registered by Leaderboard.js (static import above)
 
