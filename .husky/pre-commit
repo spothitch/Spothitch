@@ -1,1 +1,17 @@
+#!/bin/bash
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" = "dev" ] || [ "$BRANCH" = "main" ] || [ "$BRANCH" = "staging" ]; then
+  echo ""
+  echo "❌ STOP — Commits directs interdits sur '$BRANCH' !"
+  echo ""
+  echo "   Crée une branche feature d'abord :"
+  echo "   git checkout -b feature/nom-de-ta-feature"
+  echo ""
+  echo "   (Pour un hotfix urgent : git checkout -b hotfix/description)"
+  echo ""
+  exit 1
+fi
+
 npx lint-staged
