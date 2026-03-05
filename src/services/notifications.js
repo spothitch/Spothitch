@@ -56,13 +56,14 @@ export async function initNotifications() {
     toastContainer.id = 'toast-container';
     toastContainer.style.cssText = `
       position: fixed;
-      bottom: 80px;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 9999;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      align-items: center;
+      gap: 6px;
       pointer-events: none;
       max-width: 340px;
       width: 90%;
@@ -101,19 +102,19 @@ async function saveNotificationToken(token) {
  * @param {number} duration - Duration in ms
  */
 export function showToast(message, type = 'info', duration = 4000) {
-  // Ensure toast container exists (may not if initNotifications hasn't run yet)
   if (!toastContainer) {
     toastContainer = document.createElement('div')
     toastContainer.id = 'toast-container'
     toastContainer.style.cssText = `
       position: fixed;
-      bottom: 80px;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 9999;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      align-items: center;
+      gap: 6px;
       pointer-events: none;
       max-width: 340px;
       width: 90%;
@@ -121,41 +122,64 @@ export function showToast(message, type = 'info', duration = 4000) {
     document.body.appendChild(toastContainer)
   }
 
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.style.pointerEvents = 'auto';
+  const configs = {
+    success: { icon: '✓', iconBg: '#22c55e', border: 'rgba(74,222,128,.4)',  text: '#bbf7d0' },
+    error:   { icon: '✕', iconBg: '#ef4444', border: 'rgba(248,113,113,.4)', text: '#fecaca' },
+    warning: { icon: '!', iconBg: '#f59e0b', border: 'rgba(251,191,36,.4)',  text: '#fef3c7' },
+    info:    { icon: '↓', iconBg: '#2563eb', border: 'rgba(147,197,253,.4)', text: '#bfdbfe' },
+  }
+  const cfg = configs[type] || configs.info
 
-  const icons = {
-    success: '✓',
-    error: '✕',
-    info: 'ℹ',
-    warning: '⚠',
-  };
+  const toast = document.createElement('div')
+  toast.className = `toast toast-${type}`
+  toast.style.cssText = `
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 13px 6px 7px;
+    border-radius: 20px;
+    border: 1px solid ${cfg.border};
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    pointer-events: auto;
+    animation: toastSlideDown 0.25s ease-out;
+    white-space: nowrap;
+    max-width: 100%;
+  `
 
   toast.innerHTML = `
-    <span style="font-size: 20px">${icons[type] || icons.info}</span>
-    <span>${escapeHTML(message)}</span>
-  `;
+    <span style="
+      background:${cfg.iconBg};
+      border-radius:50%;
+      width:18px; height:18px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:10px; font-weight:700; color:#fff; flex-shrink:0;
+    ">${cfg.icon}</span>
+    <span style="font-size:12px; font-weight:500; color:${cfg.text}; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(message)}</span>
+  `
 
-  toastContainer.appendChild(toast);
+  toastContainer.appendChild(toast)
 
-  // Remove after duration
-  setTimeout(() => {
-    toast.style.animation = 'fadeOut 0.3s ease-out';
-    setTimeout(() => toast.remove(), 300);
-  }, duration);
-
-  // Add fadeOut animation
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes fadeOut {
-      to { opacity: 0; transform: translateY(-20px); }
-    }
-  `;
   if (!document.querySelector('#toast-animations')) {
-    style.id = 'toast-animations';
-    document.head.appendChild(style);
+    const style = document.createElement('style')
+    style.id = 'toast-animations'
+    style.textContent = `
+      @keyframes toastSlideDown {
+        from { opacity:0; transform:translateY(-10px); }
+        to   { opacity:1; transform:translateY(0); }
+      }
+      @keyframes toastFadeUp {
+        to { opacity:0; transform:translateY(-8px); }
+      }
+    `
+    document.head.appendChild(style)
   }
+
+  setTimeout(() => {
+    toast.style.animation = 'toastFadeUp 0.25s ease-out forwards'
+    setTimeout(() => toast.remove(), 250)
+  }, duration)
 }
 
 /**

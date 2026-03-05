@@ -330,25 +330,9 @@
     @apply bg-amber-100 text-amber-700;
   }
 
-  /* Toast Notifications */
+  /* Toast Notifications — design pill glassmorphism top */
   .toast {
-    @apply px-6 py-4 rounded-xl text-white font-semibold;
-    @apply flex items-center gap-3 w-full;
-    @apply border border-white/20;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    animation: toastSlideIn 0.4s ease-out;
-  }
-
-  @keyframes toastSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    /* styles inline via JS — voir notifications.js showToast() */
   }
 
   /* Chat Bubbles */
