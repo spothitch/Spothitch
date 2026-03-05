@@ -89,7 +89,8 @@ function formatRelativeDate(isoStr) {
 // ==================== MAIN RENDER ====================
 
 export function renderVoyage(state) {
-  const subTab = state.voyageSubTab || 'voyage'
+  const showBeta = !!import.meta.env.VITE_SHOW_BETA
+  const subTab = state.voyageSubTab || (showBeta ? 'voyage' : 'journal')
   const activeTrip = getActiveTrip()
   const isMapFirst = subTab === 'voyage' && !activeTrip && state.tripResults && state.tripFormCollapsed
 
@@ -1167,6 +1168,10 @@ function getFavoritesSet() {
 // ==================== WINDOW HANDLERS ====================
 
 window.setVoyageSubTab = (tab) => {
+  if (!import.meta.env.VITE_SHOW_BETA && tab === 'voyage') {
+    window.showFeatureIntro?.('itineraire')
+    return
+  }
   window.setState?.({ voyageSubTab: tab })
 }
 

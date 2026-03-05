@@ -2931,6 +2931,27 @@ if (!window.syncTripFieldsAndCalculate) {
   window.showIdentityVerification = guard('score-confiance')
   window.startIdentityVerification = noop
   window.closeIdentityVerification = noop
+
+  // — FAQ (beta) —
+  window.openFAQ = guard('score-confiance')
+  window.closeFAQ = noop
+
+  // — GROUPES DE CONVERSATION (beta) —
+  window.openGroupConversation = guard('chat')
+  window.openCreateGroupConversation = guard('chat')
+  window.closeCreateGroupConversation = noop
+  window.createGroupConversation = noop
+  window.leaveGroupConversation = noop
+  window.addMemberToGroupConversation = noop
+  window.sendGroupConversationMessage = noop
+
+  // — PERSONNALISATION PROFIL (beta) —
+  window.openProfileCustomization = guard('niveaux')
+  window.closeProfileCustomization = noop
+
+  // — RÉFÉRENCES DE VOYAGE (beta) —
+  window.openReferences = guard('score-confiance')
+  window.closeReferences = noop
 })()
 
 // ==================== START APP ====================
