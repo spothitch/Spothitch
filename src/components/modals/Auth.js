@@ -567,22 +567,16 @@ window.handleGoogleSignIn = async () => {
       const user = result.user
       // Block page reloads for 15s after auth (SW update, version.json)
       window._authJustCompleted = Date.now()
-      const profileResult = await fb.createOrUpdateUserProfile(user).catch(() => ({ success: false }))
-      fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
       const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
 
-      // Check if user needs to complete profile (new user or no username)
-      const needsProfile = profileResult?.isNew || !profileResult?.hasUsername
-
+      // Set currentUser IMMEDIATELY so onAuthStateChanged guard fires correctly
+      // and doesn't trigger a second re-render while we wait for Firestore.
       setState({
-        showAuth: false,
-        authPendingAction: needsProfile ? getState().authPendingAction : null,
-        showAuthReason: null,
-        showCompleteProfile: needsProfile,
         currentUser: user,
         isLoggedIn: true,
         user,
-        username: profileResult?.profile?.username || user.displayName || 'Hitchhiker',
+        showAuth: false,
+        showAuthReason: null,
         isAdmin: ADMIN_EMAILS.includes(user.email?.toLowerCase()),
         userProfile: {
           uid: user.uid,
@@ -592,10 +586,20 @@ window.handleGoogleSignIn = async () => {
         },
       })
 
-      if (!needsProfile) {
+      // Now load Firestore profile (may take 1-3s on mobile — UI is already shown)
+      const profileResult = await fb.createOrUpdateUserProfile(user).catch(() => ({ success: false }))
+      fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
+
+      // Check if user needs to complete profile (new user or no username)
+      const needsProfile = profileResult?.isNew || !profileResult?.hasUsername
+
+      if (needsProfile) {
+        setState({ showCompleteProfile: true })
+      } else {
         const { showToast } = await import('../../services/notifications.js')
         showToast(t('googleLoginSuccess') || 'Connexion réussie !', 'success')
-
+        // Sync gamification in background
+        import('../../services/gamification.js').then(m => m.loadPointsFromFirestore?.(user.uid)).catch(() => {})
         // Execute pending action
         const { authPendingAction } = getState()
         if (authPendingAction === 'addSpot') setTimeout(() => window.openAddSpot?.(), 300)

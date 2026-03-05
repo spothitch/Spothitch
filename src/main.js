@@ -363,9 +363,12 @@ async function init() {
           // Handle auth state changes (fires immediately with current state, then on every change)
           fb.onAuthChange(async (user) => {
             if (user) {
-              // Skip if handleGoogleSignIn already set the same user (avoid duplicate re-render)
+              // Skip if handleGoogleSignIn/handleAuth already set the same user.
+              // Checking only UID (not showAuth) prevents the race condition where
+              // onAuthStateChanged fires before the signin handler finishes setState,
+              // which would erase showCompleteProfile and cause a double re-render.
               const current = getState()
-              if (current.currentUser?.uid === user.uid && !current.showAuth) {
+              if (current.currentUser?.uid === user.uid) {
                 // User already set by the sign-in handler — just ensure isLoggedIn is synced
                 if (!current.isLoggedIn) {
                   actions.setUser(user)
