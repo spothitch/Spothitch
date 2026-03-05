@@ -37,9 +37,8 @@ describe('Landing Component', () => {
       const state = {};
       const html = renderLanding(state);
 
-      expect(html).toContain('11000+');
+      expect(html).toContain('14,669');
       expect(html).toContain('137');
-      expect(html).toContain('Check-ins');
     });
 
     it('should contain features section', () => {
@@ -69,11 +68,13 @@ describe('Landing Component', () => {
       expect(html).toContain('France');
     });
 
-    it('should contain app preview section', () => {
+    it('should contain CTA section', () => {
       const state = {};
       const html = renderLanding(state);
 
-      expect(html).toContain('installPWA()');
+      // CTA section with auth buttons
+      expect(html).toContain('openAuth()');
+      expect(html).toContain('skipWelcome()');
     });
 
     it('should contain footer with navigation links', () => {
