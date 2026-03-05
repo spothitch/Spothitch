@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-02 (session 34 — Phase A+B spots complet)
+> Dernière mise à jour : 2026-03-05 (session 37 — Firebase sync carnet de voyage + édition)
 
 ---
 

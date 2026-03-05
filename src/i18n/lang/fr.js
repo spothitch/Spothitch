@@ -3147,6 +3147,8 @@ export default {
   signUpTitle: 'Crée ton compte',
   signInButton: 'Se connecter',
   signUpButton: 'S\'inscrire',
+  checkingUsername: 'Vérification du pseudo...',
+  creatingAccount: 'Création du compte...',
   orContinueWithEmail: 'ou par email',
   emailPlaceholder: 'Email',
   passwordPlaceholder: 'Mot de passe',

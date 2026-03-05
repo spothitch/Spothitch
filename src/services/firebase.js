@@ -691,15 +691,17 @@ export function validateUsername(username) {
  * @returns {Promise<boolean>}
  */
 export async function checkUsernameAvailability(username) {
-  if (!db) return false
+  if (!db) return { available: true, error: null } // optimistic if DB not ready
   try {
     const u = username.toLowerCase().trim()
     const docRef = doc(db, 'usernames', u)
     const snapshot = await getDoc(docRef)
-    return !snapshot.exists()
+    return { available: !snapshot.exists(), error: null }
   } catch (error) {
     console.error('Error checking username:', error)
-    return false
+    // If we can't check (permissions, network), assume available.
+    // reserveUsername will do the real atomic check on account creation.
+    return { available: true, error: error.code || 'check_failed' }
   }
 }
 

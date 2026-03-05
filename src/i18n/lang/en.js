@@ -3147,6 +3147,8 @@ export default {
   signUpTitle: 'Create your account',
   signInButton: 'Sign in',
   signUpButton: 'Sign up',
+  checkingUsername: 'Checking username...',
+  creatingAccount: 'Creating account...',
   orContinueWithEmail: 'or with email',
   emailPlaceholder: 'Email',
   passwordPlaceholder: 'Password',

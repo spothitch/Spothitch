@@ -461,21 +461,28 @@ window.handleAuth = async (event) => {
       }
 
       // Check username availability before creating account
-      fb.initializeFirebase()
-      const usernameAvailable = await fb.checkUsernameAvailability(pseudo)
+      // checkUsernameAvailability now returns {available, error} — never throws
+      if (submitBtn) submitBtn.innerHTML = `${iconFn('loader-circle', 'w-5 h-5 animate-spin')} ${t('checkingUsername') || 'Vérification...'}`
+      const { available: usernameAvailable } = await fb.checkUsernameAvailability(pseudo)
       if (!usernameAvailable) {
-        if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
+        if (errorDiv) { errorDiv.textContent = t('usernameTaken') || '@' + pseudo + ' est déjà utilisé'; errorDiv.classList.remove('hidden') }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = t('createAccount') || 'Créer mon compte' }
         return
       }
 
       // Store registration data temporarily for profile creation
       window._pendingRegistrationData = { username: pseudo, birthYear, gender: gender || null }
 
+      if (submitBtn) submitBtn.innerHTML = `${iconFn('loader-circle', 'w-5 h-5 animate-spin')} ${t('creatingAccount') || 'Création du compte...'}`
       result = await fb.signUp(email, password, displayName)
 
-      // Reserve username after account creation
+      // Reserve username after account creation (real atomic check here)
       if (result.success && result.user) {
-        await fb.reserveUsername(pseudo, result.user.uid).catch(() => {})
+        const reserved = await fb.reserveUsername(pseudo, result.user.uid)
+        if (!reserved.success && reserved.error === 'taken') {
+          // Rare race condition: someone else claimed between check and creation
+          result = { success: false, error: { code: 'username/taken' } }
+        }
       }
     } else {
       result = await fb.signIn(email, password)
@@ -656,7 +663,7 @@ window.checkUsernameField = (value) => {
       const { initializeFirebase } = await import('../../services/firebase.js')
       initializeFirebase()
 
-      const available = await checkUsernameAvailability(v)
+      const { available } = await checkUsernameAvailability(v)
       // Only update if the input hasn't changed
       const currentInput = document.getElementById('auth-pseudo') || document.getElementById('cp-pseudo')
       if (currentInput && currentInput.value.toLowerCase().trim() === v) {
@@ -722,10 +729,11 @@ window.submitCompleteProfile = async (event) => {
   try {
     fb.initializeFirebase()
 
-    // Check availability
-    const available = await fb.checkUsernameAvailability(pseudo)
+    // Check availability (returns {available, error})
+    const { available } = await fb.checkUsernameAvailability(pseudo)
     if (!available) {
       if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = `<span id="cp-submit-text">${t('letsGo')}</span>` }
       return
     }
 
@@ -906,7 +914,8 @@ function executePendingAction(actionName) {
   }, 300)
 }
 
-function getAuthErrorMessage(errorCode) {
+function getAuthErrorMessage(error) {
+  const code = typeof error === 'string' ? error : error?.code
   const messages = {
     'auth/email-already-in-use': t('emailInUse'),
     'auth/invalid-email': t('invalidEmail'),
@@ -916,8 +925,9 @@ function getAuthErrorMessage(errorCode) {
     'auth/invalid-credential': t('authErrorPassword'),
     'auth/too-many-requests': t('authErrorTooMany'),
     'auth/popup-closed-by-user': t('authErrorPopupClosed'),
+    'username/taken': t('usernameTaken') || 'Ce pseudo est déjà pris',
   }
-  return messages[errorCode] || t('authError')
+  return messages[code] || t('authError')
 }
 
 /**

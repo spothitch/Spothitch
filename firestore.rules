@@ -87,5 +87,21 @@ service cloud.firestore {
       allow update, delete: if request.auth != null
         && request.auth.uid == resource.data.userId;
     }
+
+    // Usernames index — public read for availability check (needed before auth)
+    // Only authenticated users can claim a username
+    match /usernames/{username} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+    }
+
+    // Trips subcollection (inside users/{uid}/trips/{tripId})
+    match /users/{userId}/trips/{tripId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
   }
 }
