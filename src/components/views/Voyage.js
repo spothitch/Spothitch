@@ -753,9 +753,73 @@ function renderAddPastTripForm() {
   `
 }
 
+function renderEditTripForm(tripIndex) {
+  const savedTrips = getSavedTrips()
+  const trip = savedTrips[tripIndex]
+  if (!trip) return `<div class="card p-8 text-center"><p class="text-slate-400">${t('notFound') || 'Voyage introuvable'}</p></div>`
+
+  const dateVal = trip.date || (trip.finishedAt ? trip.finishedAt.substring(0, 10) : '')
+  return `
+    <div class="card p-4">
+      <div class="flex items-center gap-3 mb-4">
+        <button onclick="closeEditTrip()" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:bg-white/10 transition-colors">
+          ${icon('arrow-left', 'w-4 h-4')}
+        </button>
+        <h3 class="text-sm font-bold">✏️ ${t('editTrip') || 'Modifier le voyage'}</h3>
+      </div>
+      <div class="space-y-3">
+        <div class="p-3 rounded-xl bg-white/5 space-y-2">
+          <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">${t('route') || 'ROUTE'}</div>
+          <div class="flex items-center gap-2">
+            <input id="edit-trip-from" type="text" value="${escapeJSString(trip.from || '')}"
+              placeholder="${t('tripDeparture') || 'Départ'}"
+              class="flex-1 bg-white/10 rounded-lg px-3 py-2 text-sm placeholder-slate-500 border border-white/10 focus:border-primary-500/50 outline-none" />
+            <span class="text-slate-500 text-lg">&rarr;</span>
+            <input id="edit-trip-to" type="text" value="${escapeJSString(trip.to || '')}"
+              placeholder="${t('tripArrival') || 'Arrivée'}"
+              class="flex-1 bg-white/10 rounded-lg px-3 py-2 text-sm placeholder-slate-500 border border-white/10 focus:border-primary-500/50 outline-none" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="p-3 rounded-xl bg-white/5">
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">${t('startDate') || 'Date'}</div>
+            <input id="edit-trip-date" type="date" value="${dateVal}"
+              class="w-full bg-transparent text-sm text-slate-300 outline-none" />
+          </div>
+          <div class="p-3 rounded-xl bg-white/5">
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">km</div>
+            <input id="edit-trip-km" type="number" min="0" value="${trip.distance || ''}"
+              class="w-full bg-transparent text-sm text-slate-300 outline-none" />
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5">
+          <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">${t('lifts') || 'Stops'}</div>
+          <input id="edit-trip-lifts" type="number" min="0" value="${trip.lifts || trip.spots?.length || ''}"
+            class="w-full bg-transparent text-sm text-slate-300 outline-none" />
+        </div>
+        <div class="p-3 rounded-xl bg-white/5">
+          <div class="text-[10px] text-emerald-400 uppercase tracking-wider font-bold mb-2">
+            ${t('journalNote') || 'Ma note de voyage'}
+          </div>
+          <textarea id="edit-trip-notes" rows="3"
+            placeholder="${t('journalNotePlaceholder') || 'Anecdote, conseil aux prochains...'}"
+            class="w-full bg-transparent text-sm text-slate-300 placeholder-slate-600 outline-none resize-none leading-relaxed">${escapeJSString(trip.notes || '')}</textarea>
+        </div>
+        <button onclick="submitEditTrip()" class="btn-primary w-full py-3">
+          ${t('saveChanges') || 'Enregistrer les modifications'}
+        </button>
+      </div>
+    </div>
+  `
+}
+
 function renderJournalTab(state) {
   const tripDetailIndex = state.tripDetailIndex
   if (tripDetailIndex !== null && tripDetailIndex !== undefined) {
+    // Show edit form if requested from detail view
+    if (state.editTripIndex !== null && state.editTripIndex !== undefined) {
+      return renderEditTripForm(state.editTripIndex)
+    }
     return renderTripDetail(state, tripDetailIndex)
   }
 
@@ -1054,6 +1118,11 @@ function renderTripDetail(state, tripIndex) {
         </div>
       </div>
 
+      <!-- Edit -->
+      <button onclick="openEditTrip(${tripIndex})" class="w-full py-3 rounded-xl bg-primary-500/10 text-primary-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary-500/20 transition-colors">
+        ✏️ ${t('editTrip') || 'Modifier ce voyage'}
+      </button>
+
       <!-- Delete -->
       <button onclick="deleteJournalTrip(${tripIndex});closeTripDetail()" class="w-full py-3 rounded-xl bg-danger-500/10 text-danger-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-danger-500/20 transition-colors">
         ${icon('trash', 'w-4 h-4')}
@@ -1204,13 +1273,63 @@ window.closeTripDetail = () => {
 window.deleteJournalTrip = (tripIndex) => {
   try {
     const savedTrips = getSavedTrips()
+    const trip = savedTrips[tripIndex]
     savedTrips.splice(tripIndex, 1)
     safeSetItem(SAVED_TRIPS_KEY, JSON.stringify(savedTrips))
     window.setState?.({ tripDetailIndex: null })
     window.showToast?.('Voyage supprimé', 'success')
+    // Sync delete to Firebase if user is logged in
+    const user = window.getState?.()?.currentUser
+    if (user?.uid && trip?.id) {
+      import('../../services/firebase.js').then(fb => fb.deleteTrip(user.uid, trip.id)).catch(() => {})
+    }
   } catch (e) {
     console.error('deleteJournalTrip error:', e)
   }
+}
+
+window.openEditTrip = (tripIndex) => {
+  window.setState?.({ editTripIndex: tripIndex })
+}
+
+window.closeEditTrip = () => {
+  window.setState?.({ editTripIndex: null })
+}
+
+window.submitEditTrip = () => {
+  const state = window.getState?.()
+  const tripIndex = state?.editTripIndex
+  if (tripIndex == null) return
+
+  const savedTrips = getSavedTrips()
+  const trip = savedTrips[tripIndex]
+  if (!trip) return
+
+  const from = document.getElementById('edit-trip-from')?.value?.trim() || trip.from || ''
+  const to = document.getElementById('edit-trip-to')?.value?.trim() || trip.to || ''
+  const date = document.getElementById('edit-trip-date')?.value || trip.date || ''
+  const km = parseInt(document.getElementById('edit-trip-km')?.value || '0', 10) || 0
+  const lifts = parseInt(document.getElementById('edit-trip-lifts')?.value || '0', 10) || 0
+  const notes = document.getElementById('edit-trip-notes')?.value?.trim() ?? trip.notes ?? ''
+
+  if (!from || !to) {
+    window.showToast?.(t('tripFromToRequired') || 'Départ et arrivée requis', 'error')
+    return
+  }
+
+  const updated = { ...trip, from, to, date, distance: km, lifts, notes, updatedAt: new Date().toISOString() }
+  savedTrips[tripIndex] = updated
+  safeSetItem(SAVED_TRIPS_KEY, JSON.stringify(savedTrips))
+
+  // Sync to Firebase if user is logged in
+  const user = window.getState?.()?.currentUser
+  if (user?.uid && updated.id) {
+    import('../../services/firebase.js').then(fb => fb.updateTrip(user.uid, updated.id, { from, to, date, distance: km, lifts, notes, updatedAt: updated.updatedAt })).catch(() => {})
+  }
+
+  window.setState?.({ editTripIndex: null })
+  window.showToast?.(t('tripUpdated') || 'Voyage mis à jour !', 'success')
+  window._forceRender?.()
 }
 
 window.openAddTripNote = (tripIndex) => {

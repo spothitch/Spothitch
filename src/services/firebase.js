@@ -29,6 +29,7 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
   getDocs,
   query,
   orderBy,
@@ -1355,6 +1356,65 @@ export async function getRoadmapCommentCounts() {
   } catch (error) {
     console.error('Error getting roadmap comment counts:', error)
     return { success: false, counts: {} }
+  }
+}
+
+// ==================== TRIPS CRUD ====================
+
+/**
+ * Save or overwrite a trip in Firestore for a given user.
+ */
+export async function saveTrip(uid, trip) {
+  try {
+    const tripRef = doc(db, 'users', uid, 'trips', trip.id)
+    await setDoc(tripRef, { ...trip, updatedAt: new Date().toISOString() })
+    return { success: true }
+  } catch (error) {
+    console.error('saveTrip error:', error)
+    return { success: false, error }
+  }
+}
+
+/**
+ * Get all trips for a user, ordered by savedAt desc.
+ */
+export async function getUserTrips(uid) {
+  try {
+    const tripsRef = collection(db, 'users', uid, 'trips')
+    const q = query(tripsRef, orderBy('savedAt', 'desc'))
+    const snapshot = await getDocs(q)
+    return { success: true, trips: snapshot.docs.map(d => d.data()) }
+  } catch (error) {
+    console.error('getUserTrips error:', error)
+    return { success: false, trips: [] }
+  }
+}
+
+/**
+ * Update specific fields of a trip.
+ */
+export async function updateTrip(uid, tripId, fields) {
+  try {
+    const tripRef = doc(db, 'users', uid, 'trips', tripId)
+    await updateDoc(tripRef, { ...fields, updatedAt: new Date().toISOString() })
+    return { success: true }
+  } catch (error) {
+    console.error('updateTrip error:', error)
+    return { success: false, error }
+  }
+}
+
+/**
+ * Delete a trip from Firestore.
+ */
+export async function deleteTrip(uid, tripId) {
+  try {
+    const tripRef = doc(db, 'users', uid, 'trips', tripId)
+    await deleteDoc(tripRef)
+    return { success: true }
+  } catch (error) {
+    console.error('deleteTrip error:', error)
+    return { success: false, error }
   }
 }
 

@@ -421,6 +421,27 @@ async function init() {
               fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
               // Sync points/badges from Firestore (multi-device sync)
               import('./services/gamification.js').then(m => m.loadPointsFromFirestore(user.uid)).catch(() => {})
+              // Sync trips from Firestore (merge with localStorage, Firebase wins)
+              import('./services/firebase.js').then(async fbModule => {
+                try {
+                  const TRIPS_KEY = 'spothitch_saved_trips'
+                  const localTrips = (() => { try { return JSON.parse(localStorage.getItem(TRIPS_KEY) || '[]') } catch { return [] } })()
+                  const { success, trips: remoteTrips } = await fbModule.getUserTrips(user.uid)
+                  if (!success) return
+                  // Build merged map: local trips + remote trips (remote wins on id collision)
+                  const merged = new Map()
+                  localTrips.forEach(t => t.id && merged.set(t.id, t))
+                  remoteTrips.forEach(t => t.id && merged.set(t.id, t))
+                  const mergedArr = [...merged.values()].sort((a, b) => (b.savedAt || '') > (a.savedAt || '') ? 1 : -1)
+                  localStorage.setItem(TRIPS_KEY, JSON.stringify(mergedArr))
+                  // Push local-only trips to Firebase (migration)
+                  const remoteIds = new Set(remoteTrips.map(t => t.id))
+                  const uid = user.uid
+                  const localOnly = localTrips.filter(t => t.id && !remoteIds.has(t.id))
+                  localOnly.forEach(t => fbModule.saveTrip(uid, t).catch(() => {}))
+                  window._forceRender?.()
+                } catch { /* non-bloquant */ }
+              }).catch(() => {})
             } else {
               actions.setUser(null)
               setState({ currentUser: null, userProfile: null, isAdmin: false })

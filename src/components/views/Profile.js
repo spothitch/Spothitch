@@ -2141,6 +2141,11 @@ window.submitPastTrip = () => {
     savedAt: new Date().toISOString(), finishedAt: new Date().toISOString(),
   })
   localStorage.setItem('spothitch_saved_trips', JSON.stringify(trips))
+  // Sync to Firebase if user is logged in
+  const user = window.getState?.()?.currentUser
+  if (user?.uid) {
+    import('../../services/firebase.js').then(fb => fb.saveTrip(user.uid, trips[trips.length - 1])).catch(() => {})
+  }
   window.setState?.({ showAddPastTrip: false })
   window.showToast?.(t('tripSaved') || 'Voyage enregistré !', 'success')
   window._forceRender?.()

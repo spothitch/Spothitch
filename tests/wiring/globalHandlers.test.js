@@ -161,6 +161,7 @@ const MAIN_JS_HANDLERS = [
   // Voyage view (defined in Voyage.js)
   'setVoyageSubTab', 'setJournalSubTab', 'startTrip', 'tripNextStop', 'finishTrip',
   'toggleTripPublic', 'openTripDetail', 'closeTripDetail', 'deleteJournalTrip',
+  'openEditTrip', 'closeEditTrip', 'submitEditTrip',
   'openAddTripNote', 'openTripPhotoUpload',
   // Voyage map-first handlers (defined in Voyage.js)
   'tripSheetTouchStart', 'tripSheetTouchMove', 'tripSheetTouchEnd', 'tripSheetCycleState',
