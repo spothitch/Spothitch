@@ -200,7 +200,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_spot_drafts', category: DataCategory.ACTIVITY, description: 'Spot drafts saved offline' },
 
   // === UX ===
-  { key: 'spothitch_landing_seen', category: DataCategory.SETTINGS, description: 'Landing page dismissed flag' },
+  { key: 'spothitch_landing_v2', category: DataCategory.SETTINGS, description: 'Alpha landing carousel dismissed flag' },
   { key: 'spothitch_sos_disclaimer_seen', category: DataCategory.SETTINGS, description: 'SOS disclaimer accepted flag' },
   { key: 'spothitch_roadmap_intro_seen', category: DataCategory.SETTINGS, description: 'Roadmap intro screen dismissed flag' },
   { key: 'spothitch_roadmap_detail_seen', category: DataCategory.SETTINGS, description: 'Roadmap detail intro dismissed flag' },

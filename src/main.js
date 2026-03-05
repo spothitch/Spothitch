@@ -267,7 +267,7 @@ async function init() {
 
   // Initialize splash screen only if user has already seen the landing carousel
   // (no need for 2 loading screens stacked on each other)
-  const landingSeen = localStorage.getItem('spothitch_landing_seen')
+  const landingSeen = localStorage.getItem('spothitch_landing_v2')
   if (landingSeen) {
     initSplashScreen();
   }
@@ -299,7 +299,7 @@ async function init() {
     // === CRITICAL PATH: render first, init services after ===
 
     // Show landing page for first-time visitors
-    if (!localStorage.getItem('spothitch_landing_seen')) {
+    if (!localStorage.getItem('spothitch_landing_v2')) {
       setState({ showLanding: true })
     }
 
@@ -1997,7 +1997,7 @@ window.validateImage = async (...args) => {
 
 // Landing page dismiss handler — cookie consent is now handled by CookieBanner after carousel
 window.dismissLanding = () => {
-  localStorage.setItem('spothitch_landing_seen', '1')
+  localStorage.setItem('spothitch_landing_v2', '1')
   const { tutorialCompleted } = getState()
   setState({
     showLanding: false,
@@ -2038,7 +2038,7 @@ window.changeLandingLanguage = async (langCode) => {
 window.landingNext = () => {}
 
 window.installPWAFromLanding = () => {
-  localStorage.setItem('spothitch_landing_seen', '1')
+  localStorage.setItem('spothitch_landing_v2', '1')
   setState({ showLanding: false })
   // Trigger PWA install prompt
   setTimeout(() => {
