@@ -772,3 +772,14 @@ Chaque erreur suit ce format :
 - **Leçon** : **Avant tout test automatisé qui navigue vers un onglet : s'assurer que `spothitch_feature_seen` contient l'id de la feature.** Les wrappers premier clic BLOQUENT silencieusement la navigation normale.
 - **Fichiers** : `scripts/maitre-visual.mjs`
 - **Statut** : CORRIGÉ
+
+### ERR-060 — Handlers lazy-loadés silencieux au 1er clic
+
+- **Date** : 2026-03-05
+- **Gravité** : MAJEUR
+- **Description** : Plusieurs boutons (Supprimer compte, Mes données, Valider spot, etc.) ne répondaient pas au premier clic. Aucun message d'erreur — silencieux total.
+- **Cause racine** : Les handlers `window.openX` définis uniquement dans des modules lazy-loadés (App.js `lazyRender`) n'existent pas encore au moment du 1er clic. `window.openDeleteAccount` → undefined → rien.
+- **Correction** : Ajouter un stub `if (!window.openX) window.openX = () => setState({ showX: true })` dans `main.js` pour chaque modal lazy. Le vrai handler du module override le stub après son 1er chargement.
+- **Leçon** : **Quand on crée un nouveau handler `window.openX` dans un module lazy, TOUJOURS ajouter le stub correspondant dans main.js immédiatement.** Quand on trouve ce bug quelque part, chercher TOUS les autres handlers lazy sans stub.
+- **Fichiers** : `src/main.js`, `src/components/modals/DeleteAccount.js`
+- **Statut** : CORRIGÉ — 8 stubs ajoutés (openAdminPanel, openMyData, openValidateSpot, openTestSpot, openSpotDraft, openFeedbackDetail, openFeedbackOnFeature, openDeleteAccount)

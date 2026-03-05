@@ -137,6 +137,14 @@
 >   2. Si un seul est `failure` → corriger et re-push avant de dire quoi que ce soit à l'utilisateur
 >   3. Vérifier le nombre de tests passed/failed dans chaque E2E job — 0 failed obligatoire
 
+> **RÈGLE #15 — PROPAGATION D'ERREUR AUTOMATIQUE** (ABSOLUMENT OBLIGATOIRE) :
+> - Dès qu'un bug est trouvé (par Antoine OU par moi), IMMÉDIATEMENT chercher si le même pattern existe ailleurs dans le code
+> - Ne JAMAIS corriger un bug de façon isolée sans faire ce scan — c'est la règle, pas une option
+> - Exemples : handler lazy sans stub → scanner tous les modals. Règle Firestore manquante → scanner toutes les collections. Clé i18n absente → vérifier les 4 langues. Race condition auth → vérifier tous les flux auth.
+> - Le scan se fait AVANT de push, dans la même branche/commit
+> - Si d'autres instances sont trouvées → les corriger dans le même commit, pas dans un commit séparé
+> - Cette règle a été ajoutée le 2026-03-05 après qu'Antoine ait dû signaler manuellement que le bug openDeleteAccount existait aussi pour 8 autres handlers
+
 > **RÈGLE #12 — JOURNAL DES ERREURS + APPRENTISSAGE CONTINU** (ABSOLUMENT OBLIGATOIRE) :
 > - Après CHAQUE bug trouvé → ajouter une entrée dans `memory/errors.md` avec : date, gravité, description, cause racine, correction, leçon apprise, fichiers, statut
 > - Après CHAQUE correction → mettre à jour l'entrée avec la solution et la leçon
