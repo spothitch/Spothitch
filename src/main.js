@@ -2745,7 +2745,20 @@ window.claimDailyReward = () => window.openDailyReward?.()
 window.triggerSOS = async () => window.openSOS?.()
 window.shareSOS = () => window.shareSOSLink?.()
 
-// openAdminPanel/closeAdminPanel — canonical in AdminPanel.js
+// Lazy modal stubs — canonical handlers defined in their respective modules,
+// these stubs ensure buttons always work before the module is first loaded.
+if (!window.openAdminPanel) window.openAdminPanel = () => setState({ showAdminPanel: true })
+if (!window.openMyData) window.openMyData = () => setState({ showMyData: true })
+// openConsentSettings — canonical in MyData.js, rendered inside that modal
+if (!window.openValidateSpot) window.openValidateSpot = (id) => setState({ showValidateSpot: true, validateSpotId: id })
+if (!window.openTestSpot) window.openTestSpot = (id) => setState({ showValidateSpot: true, validateSpotId: id })
+if (!window.openSpotDraft) window.openSpotDraft = (id) => setState({ showAddSpot: true, editDraftId: id })
+if (!window.openFeedbackDetail) {
+  window.openFeedbackDetail = (id) => setState({ showFeedbackPanel: true, feedbackDetailId: id })
+}
+if (!window.openFeedbackOnFeature) {
+  window.openFeedbackOnFeature = (id) => setState({ showFeedbackPanel: true, feedbackFeatureId: id })
+}
 
 // openLeaderboard/closeLeaderboard registered by Leaderboard.js (static import above)
 
