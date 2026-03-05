@@ -48,23 +48,29 @@ export async function initSentry() {
         'Non-Error promise rejection captured',
         /^Network Error$/,
         /^Loading chunk \d+ failed/,
-        // MapLibre GL uses new Function() for style expression compilation — harmless
-        /new Function violates Content Security Policy/,
-        // Firebase Messaging not supported on all browsers — non-critical
-        'messaging/unsupported-browser',
+        // MapLibre GL uses eval() for style expression compilation — harmless, can't be fixed in our code
+        /Content Security Policy/,
+        /unsafe-eval/,
+        // Firebase Messaging not supported on some browsers (old Android, Firefox) — non-critical
+        /messaging\/unsupported-browser/,
+        /unsupported-browser/,
       ],
 
       // Before sending error
-      beforeSend(event, _hint) {
+      beforeSend(event, hint) {
         // Don't send errors in development
         if (import.meta.env.DEV) {
           return null;
         }
 
+        // Secondary filter: drop CSP + Firebase Messaging errors even if ignoreErrors misses them
+        const msg = hint?.originalException?.message || event?.exception?.values?.[0]?.value || ''
+        if (msg.includes('Content Security Policy') || msg.includes('unsafe-eval')) return null
+        if (msg.includes('unsupported-browser')) return null
+
         // Add extra context
         event.tags = {
           ...event.tags,
-          lang: localStorage.getItem('spothitch_v4_state')?.lang || 'fr',
           theme: document.body.classList.contains('light-theme') ? 'light' : 'dark',
           online: navigator.onLine,
           pwa: window.matchMedia('(display-mode: standalone)').matches,
