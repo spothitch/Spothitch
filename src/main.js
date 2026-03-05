@@ -2836,33 +2836,101 @@ if (!window.syncTripFieldsAndCalculate) {
     }
   }
 
-  // Tab-based features — wrap changeTab pour Social et Chat uniquement
-  // NOTE: 'map' et 'profile' sont EXCLUS — onglets fondamentaux de navigation
+  // Tab-based features — wrap changeTab pour Social uniquement (alpha)
+  // NOTE: 'map', 'profile', 'chat' exclus — chat est beta, géré par setupBetaGuards
   const _origChangeTab = window.changeTab
   window.changeTab = (tab) => {
-    const TAB_INTROS = { social: 'amis', chat: 'chat' }
-    const introId = TAB_INTROS[tab]
-    if (introId && !isFeatureSeen(introId)) {
-      window.showFeatureIntro?.(introId)
+    if (tab === 'social' && !isFeatureSeen('amis')) {
+      window.showFeatureIntro?.('amis')
       return
     }
     _origChangeTab?.(tab)
   }
 
-  // Modal-based available features
+  // Alpha features uniquement — les features beta sont gérées par setupBetaGuards
   wrapHandler('openAddSpot', 'add-spot')
-  // NOTE: openSOS JAMAIS wrappé — fonction de sécurité critique
-  wrapHandler('openStats', 'stats')
-  wrapHandler('openBadges', 'niveaux')
   wrapHandler('showGuides', 'conseils')
+  // NOTE: openSOS, openBadges, openStats, openLeaderboard → beta → setupBetaGuards
+})()
 
-  // Wrap handlers defined in other modules (after their static imports run)
-  setTimeout(() => {
-    if (window.openLeaderboard) wrapHandler('openLeaderboard', 'classements')
-    // NOTE: openDonation est défini dans DonationCard.js (lazy-load) — le wrapper
-    // n'est jamais installé à temps → retiré, la modale de dons se suffit à elle-même
-    // NOTE: toggleGasStations est un bouton rapide de la carte → jamais intercepté
-  }, 0)
+// ==================== BETA GUARDS ====================
+// Sur staging/main (VITE_SHOW_BETA absent) : les features beta affichent
+// TOUJOURS la fenêtre glassmorphism au lieu de s'ouvrir.
+// Sur dev (VITE_SHOW_BETA=true) : les features beta s'ouvrent normalement.
+// RÈGLE ABSOLUE : ce bloc doit rester APRÈS setupFeatureIntroWrappers
+// pour override les wrappers first-click. Le handler real NE S'OUVRE JAMAIS
+// sur staging/main — la fenêtre intro le remplace complètement.
+
+;(function setupBetaGuards() {
+  if (import.meta.env.VITE_SHOW_BETA) return // dev : comportement normal
+
+  const guard = (featureId) => () => window.showFeatureIntro?.(featureId)
+  const noop = () => {}
+
+  // — GAMIFICATION (tout en beta) —
+  window.openBadges = guard('niveaux')
+  window.openStats = guard('stats')
+  window.openLeaderboard = guard('classements')
+  window.openChallenges = guard('defis')
+  window.openQuiz = guard('quiz')
+  window.openShop = guard('niveaux')
+  window.openDailyReward = guard('niveaux')
+  window.openTitles = guard('niveaux')
+  window.openMyRewards = guard('niveaux')
+  window.openTeamChallenges = guard('defis')
+  window.openCreateTeam = guard('defis')
+  window.openChallengesHub = guard('defis')
+  window.openProgressionStats = guard('niveaux')
+  window.claimDailyReward = noop
+  window.openBadgePopup = noop
+  window.closeBadges = noop
+  window.closeChallenges = noop
+  window.closeShop = noop
+  window.closeDailyReward = noop
+  window.closeTitles = noop
+  // openLeaderboard chargé après static import — override après 0ms
+  setTimeout(() => { window.openLeaderboard = guard('classements') }, 0)
+
+  // — SOS (beta) —
+  window.openSOS = guard('sos')
+  window.closeSOS = noop
+  window.shareSOSLocation = noop
+  window.markSafe = noop
+  window.triggerSOS = noop
+  window.shareSOSLink = noop
+  window.addEmergencyContact = guard('sos')
+  window.removeEmergencyContact = noop
+
+  // — COMPAGNON (beta) —
+  window.showCompanionModal = guard('compagnon')
+  window.openCompanion = guard('compagnon')
+  window.startCompanion = guard('compagnon')
+  window.stopCompanion = noop
+  window.closeCompanionModal = noop
+  window.closeCompanion = noop
+  window.companionCheckIn = guard('compagnon')
+  window.companionSendAlert = guard('compagnon')
+
+  // — CHAT PAR ZONE (beta) — intercept changeTab('chat')
+  const _origChangeTabBeta = window.changeTab
+  window.changeTab = (tab, ...args) => {
+    if (tab === 'chat') return window.showFeatureIntro?.('chat')
+    return _origChangeTabBeta?.(tab, ...args)
+  }
+
+  // — PLANIFICATEUR ITINÉRAIRE (beta) —
+  window.openTripPlanner = guard('itineraire')
+
+  // — RADAR / AMIS SUR CARTE (beta) —
+  window.toggleNearbyFriends = guard('radar')
+  window.openNearbyFriends = guard('radar')
+  window.closeNearbyFriends = noop
+
+  // — VÉRIFICATION IDENTITÉ (beta) —
+  window.openIdentityVerification = guard('score-confiance')
+  window.showIdentityVerification = guard('score-confiance')
+  window.startIdentityVerification = noop
+  window.closeIdentityVerification = noop
 })()
 
 // ==================== START APP ====================
