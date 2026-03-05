@@ -117,10 +117,6 @@ function formatTime(timestamp) {
 }
 
 // Global handlers
-window.setChatRoom = (room) => {
-  window.setState?.({ chatRoom: room });
-};
-
 window.handleChatKeypress = (e) => {
   if (e.key === 'Enter') {
     window.sendMessage();
