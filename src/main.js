@@ -1389,6 +1389,13 @@ window.requireProfile = (action) => {
 
 // Settings handlers — Settings is a sub-tab in Profile, not a standalone modal
 window.openSettings = () => setState({ activeTab: 'profile', profileSubTab: 'reglages' });
+
+// Delete account stub — real handler in DeleteAccount.js overrides after lazy-load
+window.openDeleteAccount = () => {
+  const state = getState()
+  if (!state.isLoggedIn) { showToast(t('mustBeConnected') || 'Vous devez être connecté', 'error'); return }
+  setState({ showDeleteAccount: true })
+}
 window.closeSettings = () => setState({ profileSubTab: 'profil' });
 window.setLanguage = async (lang) => {
   // Write lang directly to localStorage BEFORE anything else

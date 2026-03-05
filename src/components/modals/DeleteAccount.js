@@ -132,6 +132,7 @@ export function renderDeleteAccountModal(state) {
 }
 
 // Global handlers for delete account modal
+// STUB in main.js — canonical here (overrides after lazy-load)
 window.openDeleteAccount = () => {
   const state = window.getState?.() || {};
   if (!state.isLoggedIn) {
