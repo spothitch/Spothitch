@@ -151,9 +151,9 @@ export const FEATURES_DATA = [
     id: 'niveaux',
     emoji: '📈',
     title: 'Badges par expérience',
-    status: 'available',
+    status: 'beta',
     color: '#f59e0b',
-    badge: 'Disponible',
+    badge: 'Bêta',
     content: [
       { type: 'highlight', title: '🏅 Un badge = une expérience réelle', desc: 'Premier lift en France, traversée des Balkans, stop en Asie Centrale, 100 lifts en 1 an. Chaque badge raconte une vraie partie de ton voyage.' },
     ],
@@ -213,9 +213,9 @@ export const FEATURES_DATA = [
     id: 'sos',
     emoji: '🚨',
     title: 'L\'alerte qui peut sauver ta vie',
-    status: 'available',
+    status: 'beta',
     color: '#ef4444',
-    badge: 'Disponible',
+    badge: 'Bêta',
     content: [
       { type: 'sub', text: '3 pressions sur le bouton SOS. SMS + position GPS à tes contacts. Même sans internet. Même si tu ne peux pas parler.' },
     ],
