@@ -109,6 +109,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_SHOW_BETA: 'true'
       - name: Check bundle size
         run: |
           INDEX_SIZE=$(stat -c%s dist/assets/index-*.js 2>/dev/null || echo "0")
@@ -282,6 +284,7 @@ jobs:
       - name: Build with Firebase config
         run: npm run build
         env:
+          VITE_SHOW_BETA: 'true'
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
@@ -318,6 +321,7 @@ jobs:
       - name: Build with Firebase config
         run: npm run build
         env:
+          VITE_SHOW_BETA: 'true'
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
