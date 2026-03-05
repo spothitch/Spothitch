@@ -442,13 +442,40 @@ function renderCreateGroupConversationForm(state) {
   `
 }
 
+// Zone Chat Firebase real-time subscription
+let _zoneChatUnsub = null
+
+async function subscribeZoneChat(room) {
+  if (_zoneChatUnsub) {
+    _zoneChatUnsub()
+    _zoneChatUnsub = null
+  }
+  try {
+    const { subscribeToChatRoom } = await import('../../../services/firebase.js')
+    _zoneChatUnsub = subscribeToChatRoom(room, (messages) => {
+      window.setState?.({ messages })
+    })
+  } catch { /* Firebase not configured */ }
+}
+
 // Global handlers
 window.openZoneChat = () => {
+  const { chatRoom } = window.getState?.() || {}
   window.setState?.({ showZoneChat: true })
+  subscribeZoneChat(chatRoom || 'general')
 }
 
 window.closeZoneChat = () => {
+  if (_zoneChatUnsub) {
+    _zoneChatUnsub()
+    _zoneChatUnsub = null
+  }
   window.setState?.({ showZoneChat: false })
+}
+
+window.setChatRoom = (room) => {
+  window.setState?.({ chatRoom: room })
+  subscribeZoneChat(room)
 }
 
 window.openGroupConversation = (groupId) => {
