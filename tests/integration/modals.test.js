@@ -872,7 +872,6 @@ describe('Integration: FeedbackPanel', () => {
   it('has legacy detail handlers for backward compatibility', () => {
     expect(typeof window.openFeedbackDetail).toBe('function')
     expect(typeof window.closeFeedbackDetail).toBe('function')
-    expect(typeof window.toggleFeedbackReaction).toBe('function')
     expect(typeof window.submitFeedback).toBe('function')
   })
 

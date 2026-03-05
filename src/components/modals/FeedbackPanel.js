@@ -170,10 +170,7 @@ window.closeFeedbackDetail = () => {
   setState({ feedbackDetailFeature: null })
 }
 
-// Legacy stubs (kept for test compatibility)
-window.toggleFeedbackReaction = () => {}
+// Legacy redirect — old submitFeedback opens FeatureIntro
 window.submitFeedback = (featureId) => {
   window.showFeatureIntro?.(featureId)
 }
-window.selectFeatureOpinion = () => {}
-window.submitFeatureOpinion = () => {}

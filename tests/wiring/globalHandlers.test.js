@@ -330,9 +330,8 @@ const MAIN_JS_HANDLERS = [
   'closeLanguagePicker', 'langPickerFilter', 'selectLanguageFromPicker',
   'selectLanguageLevel', 'closeLanguageLevelPicker',
   // Roadmap handlers (defined in Profile.js)
-  'openRoadmapFeature', 'closeRoadmapFeature', 'setRoadmapListTab',
-  'roadmapVote', 'roadmapVoteDetail', 'roadmapShowCommentInput',
-  'roadmapHideCommentInput', 'submitRoadmapComment', 'openProgressionStats',
+  'openRoadmapFeature', 'closeRoadmapFeature',
+  'roadmapVote', 'openProgressionStats',
   'acceptRoadmapIntro', 'dismissRoadmapDetailIntro',
   // City Pages Demo (defined in Profile.js)
   'switchCityDemoTab', 'showCityPageDemo', 'closeCityPageDemo', 'startCityPageDemo',
@@ -421,7 +420,7 @@ const MAIN_JS_HANDLERS = [
   // Feedback Panel (session 2026-02-27)
   'openFeedbackPanel', 'closeFeedbackPanel',
   'setFeedbackTab', 'openFeedbackDetail', 'closeFeedbackDetail',
-  'toggleFeedbackReaction', 'submitFeedback',
+  'submitFeedback',
   // Coming Soon Proximity (session 2026-02-27)
   'openComingSoonProximity', 'closeComingSoonProximity',
   // Admin Dashboard (session 2026-02-28)
@@ -447,7 +446,6 @@ const MAIN_JS_HANDLERS = [
   'closeFeatureIntro',
   'featureIntroCTA',
   'featureIntroBetaCTA',
-  'toggleIntroReaction',
   // Unified voting (session 2026-03-05)
   'selectIntroVote',
   'submitIntroVote',

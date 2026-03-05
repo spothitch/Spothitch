@@ -1584,12 +1584,7 @@ window.closeRoadmapFeature = () => {
   window.setState?.({ roadmapFeatureId: null })
 }
 
-window.setRoadmapListTab = () => {}
-window.roadmapVote = () => { window.showToast?.('Utilise le bouton Détail pour voter', 'info') }
-window.roadmapVoteDetail = () => {}
-window.roadmapShowCommentInput = () => {}
-window.roadmapHideCommentInput = () => {}
-window.submitRoadmapComment = () => {}
+window.roadmapVote = () => { window.showToast?.(t('roadmapDetail'), 'info') }
 
 window.openProgressionStats = () => {
   window.setState?.({ showBadges: true })

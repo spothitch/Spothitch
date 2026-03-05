@@ -291,9 +291,6 @@ window.submitIntroVote = async (featureId) => {
   }, 1200)
 }
 
-// Legacy handler stub (for backwards compatibility with tests)
-window.toggleIntroReaction = () => {}
-
 // Keyboard close
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && document.getElementById('feature-intro-overlay')) {
