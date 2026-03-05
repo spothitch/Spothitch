@@ -491,21 +491,32 @@ function renderExpertTips(spot) {
  * 4. Emergency & plan B
  */
 function renderEmergencySection(spot) {
+  const lat = spot.coordinates?.lat
+  const lng = spot.coordinates?.lng
+  const hasCoords = lat && lng
+
+  const hospitalUrl = hasCoords
+    ? `https://www.google.com/maps/search/hospital/@${lat},${lng},14z`
+    : 'https://www.google.com/maps/search/hospital'
+  const transportUrl = hasCoords
+    ? `https://www.google.com/maps/search/bus+station+OR+train+station/@${lat},${lng},14z`
+    : 'https://www.google.com/maps/search/bus+station'
+
   const content = `
-    <div class="flex items-center gap-1.5" style="padding:10px;border-radius:14px;background:rgba(255,255,255,.03);margin-bottom:6px">
+    <a href="${hospitalUrl}" target="_blank" rel="noopener" class="flex items-center gap-1.5" style="display:flex;padding:10px;border-radius:14px;background:rgba(255,255,255,.03);margin-bottom:6px;text-decoration:none">
       <span>🏥</span>
-      <div>
+      <div style="flex:1">
         <div style="font-size:12px;font-weight:700">${t('nearestHospital') || 'Hôpital le plus proche'}</div>
-        <div style="font-size:10px;color:#475569">${spot._nearestHospital ? escapeHTML(spot._nearestHospital) : '—'}</div>
+        <div style="font-size:10px;color:#3b82f6">${t('searchOnMaps') || 'Rechercher sur Google Maps →'}</div>
       </div>
-    </div>
-    <div class="flex items-center gap-1.5" style="padding:10px;border-radius:14px;background:rgba(255,255,255,.03)">
+    </a>
+    <a href="${transportUrl}" target="_blank" rel="noopener" class="flex items-center gap-1.5" style="display:flex;padding:10px;border-radius:14px;background:rgba(255,255,255,.03);text-decoration:none">
       <span>🚌</span>
-      <div>
+      <div style="flex:1">
         <div style="font-size:12px;font-weight:700">${t('alternativeTransport') || 'Transport alternatif'}</div>
-        <div style="font-size:10px;color:#475569">${spot._alternativeTransport ? escapeHTML(spot._alternativeTransport) : '—'}</div>
+        <div style="font-size:10px;color:#3b82f6">${t('searchOnMaps') || 'Rechercher sur Google Maps →'}</div>
       </div>
-    </div>
+    </a>
   `
 
   return expandable(`🆘 ${t('emergencyPlanB') || 'Urgence & plan B'}`, content)

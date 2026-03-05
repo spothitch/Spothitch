@@ -4408,6 +4408,7 @@ export default {
   emergencyPlanB: 'Urgence & plan B',
   nearestHospital: 'Hôpital le plus proche',
   alternativeTransport: 'Transport alternatif',
+  searchOnMaps: 'Rechercher sur Google Maps →',
   ratingDetails: 'Détails notation',
   criteria: 'critères',
   average: 'en moyenne',

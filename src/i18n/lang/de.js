@@ -4463,6 +4463,7 @@ export default {
   emergencyPlanB: 'Notfall & Plan B',
   nearestHospital: 'Nächstes Krankenhaus',
   alternativeTransport: 'Alternativer Transport',
+  searchOnMaps: 'Auf Google Maps suchen →',
   ratingDetails: 'Bewertungsdetails',
   criteria: 'Kriterien',
   average: 'im Durchschnitt',
