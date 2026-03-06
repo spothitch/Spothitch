@@ -269,9 +269,9 @@ describe('Integration: AddSpot Modal', () => {
     expect(html).toContain('triggerPhotoUpload')
   })
 
-  it('has location section with map', () => {
+  it('has location section with map picker', () => {
     const html = renderAddSpot({ ...baseState, showAddSpot: true, addSpotStep: 1 })
-    expect(html).toContain('spot-mini-map')
+    expect(html).toContain('openFullscreenMapPicker')
     expect(html).toContain('useGPSForSpot')
   })
 

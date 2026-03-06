@@ -876,6 +876,7 @@ window.useGPSForSpot = () => {
       } catch { /* no-op */ }
 
       // Re-render to show position preview card
+      document.activeElement?.blur()
       const { setState } = await import('../../stores/state.js')
       setState({ addSpotStep: 1 })
     },
@@ -1044,6 +1045,7 @@ window.openFullscreenMapPicker = async () => {
       closeFullscreenMapPicker()
 
       // Re-render step 1 to show the position preview card
+      document.activeElement?.blur()
       const { setState } = await import('../../stores/state.js')
       setState({ addSpotStep: 1 })
     })

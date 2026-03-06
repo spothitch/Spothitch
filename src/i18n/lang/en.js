@@ -1902,6 +1902,7 @@ export default {
   positionChosen: 'Position chosen',
   confirmPosition: 'Confirm position',
   chooseOnMap: 'Choose on map',
+  modify: 'Edit',
   // Profile / GDPR
   notConnected: 'Not connected',
   profileSetupTitle: 'Set up your profile',

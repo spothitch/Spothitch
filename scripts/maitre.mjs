@@ -67,8 +67,9 @@ function run(cmd, options = {}) {
     const output = execSync(cmd, {
       cwd: ROOT,
       encoding: 'utf8',
-      stdio: options.silent ? 'pipe' : 'pipe',
+      stdio: 'pipe',
       timeout: options.timeout || 120000,
+      shell: '/bin/bash',
     })
     return { ok: true, output: output || '' }
   } catch (e) {
@@ -138,7 +139,7 @@ if (!NO_FIX) {
     if (filePath.includes('sentry') || filePath.includes('monitor') || filePath.includes('quality-gate')) continue
     const content = readSrc(filePath)
     // Supprimer les lignes console.log (pas console.error qui peut être légitime)
-    const cleaned = content.replace(/^\s*console\.log\([^)]*(?:\([^)]*\)[^)]*)*\).*$/gm, '')
+    const cleaned = content.split('\n').filter(line => !/^\s*console\.log\(/.test(line)).join('\n')
     if (cleaned !== content) {
       const removed = (content.match(/console\.log\(/g) || []).length
       writeFileSync(join(ROOT, filePath), cleaned, 'utf8')

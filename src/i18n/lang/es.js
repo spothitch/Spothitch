@@ -1900,6 +1900,7 @@ export default {
   positionChosen: 'Posición elegida',
   confirmPosition: 'Confirmar posición',
   chooseOnMap: 'Elegir en el mapa',
+  modify: 'Modificar',
   notConnected: 'No conectado',
   profileSetupTitle: 'Crea tu perfil',
   profileSetupDesc: 'Elige un nombre y avatar para contribuir',

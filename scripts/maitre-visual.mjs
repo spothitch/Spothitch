@@ -34,10 +34,18 @@ const MIME = {
 const server = createServer((req, res) => {
   let urlPath = req.url.split('?')[0]
   if (urlPath === '/' || !urlPath.includes('.')) urlPath = '/index.html'
-  const filePath = join(DIST, urlPath)
-  if (existsSync(filePath) && statSync(filePath).isFile()) {
-    res.writeHead(200, { 'Content-Type': MIME[extname(filePath)] || 'application/octet-stream' })
-    createReadStream(filePath).pipe(res)
+  // Sanitize path to prevent directory traversal
+  const safePath = urlPath.replace(/\.\./g, '').replace(/\/+/g, '/')
+  const filePath = join(DIST, safePath)
+  const resolved = resolve(filePath)
+  if (!resolved.startsWith(resolve(DIST))) {
+    res.writeHead(403)
+    res.end('Forbidden')
+    return
+  }
+  if (existsSync(resolved) && statSync(resolved).isFile()) {
+    res.writeHead(200, { 'Content-Type': MIME[extname(resolved)] || 'application/octet-stream' })
+    createReadStream(resolved).pipe(res)
   } else {
     res.writeHead(200, { 'Content-Type': 'text/html' })
     createReadStream(join(DIST, 'index.html')).pipe(res)
