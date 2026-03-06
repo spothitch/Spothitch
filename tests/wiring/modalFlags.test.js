@@ -441,7 +441,7 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
     const overlay = document.getElementById('feature-intro-overlay')
     expect(overlay).toBeTruthy()
     expect(overlay.innerHTML.length).toBeGreaterThan(100)
-    expect(overlay.innerHTML).toContain('featureIntroCTA')
+    expect(overlay.innerHTML).toContain('intro-vote-btn')
 
     // Close the modal
     window.closeFeatureIntro()

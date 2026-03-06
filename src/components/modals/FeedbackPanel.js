@@ -38,6 +38,9 @@ const VOTE_DISPLAY = {
   essential: { emoji: '🔥', color: '#ef4444' },
   useful: { emoji: '👍', color: '#f59e0b' },
   notUrgent: { emoji: '🤷', color: '#6b7280' },
+  love: { emoji: '❤️', color: '#ec4899' },
+  works: { emoji: '✅', color: '#22c55e' },
+  improve: { emoji: '🛠️', color: '#f59e0b' },
 }
 
 // ==================== RENDER HELPERS ====================

@@ -18,11 +18,22 @@ import { t } from '../../i18n/index.js'
 
 // ==================== VOTE CHOICES ====================
 
-const VOTE_CHOICES = [
+// Beta features: prioritize what to build
+const VOTE_CHOICES_BETA = [
   { type: 'essential', emoji: '🔥', labelKey: 'voteEssential', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
   { type: 'useful', emoji: '👍', labelKey: 'voteUseful', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
   { type: 'notUrgent', emoji: '🤷', labelKey: 'voteNotUrgent', color: '#6b7280', bg: 'rgba(107,114,128,0.12)' },
 ]
+
+// Available features: quality feedback
+const VOTE_CHOICES_AVAILABLE = [
+  { type: 'love', emoji: '❤️', labelKey: 'voteLove', color: '#ec4899', bg: 'rgba(236,72,153,0.12)' },
+  { type: 'works', emoji: '✅', labelKey: 'voteWorks', color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
+  { type: 'improve', emoji: '🛠️', labelKey: 'voteImprove', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+]
+
+// All vote types for lookup
+const ALL_VOTE_CHOICES = [...VOTE_CHOICES_BETA, ...VOTE_CHOICES_AVAILABLE]
 
 // ==================== CONTENT RENDERER ====================
 
@@ -79,7 +90,7 @@ function renderContent(content, color) {
 // ==================== MODAL HTML ====================
 
 function buildModalHTML(feature) {
-  const { id, emoji, name, title, status, color, badge, content, tags, btnLabel } = feature
+  const { id, emoji, name, title, status, color, badge, content, tags } = feature
   const existingVote = getUserVote(id)
   const selectedVote = existingVote?.vote || null
 
@@ -93,8 +104,9 @@ function buildModalHTML(feature) {
     ? 'color:#10b981;border-color:#10b981'
     : `color:${color};border-color:${color}`
 
-  // Vote buttons (3 choices — single select)
-  const voteBtnsHTML = VOTE_CHOICES.map(v => {
+  // Vote buttons — different for available vs beta
+  const voteChoices = status === 'available' ? VOTE_CHOICES_AVAILABLE : VOTE_CHOICES_BETA
+  const voteBtnsHTML = voteChoices.map(v => {
     const isSel = selectedVote === v.type
     const style = isSel
       ? `border:2px solid ${v.color};background:${v.bg};`
@@ -115,14 +127,6 @@ function buildModalHTML(feature) {
   // Comment area (pre-filled if existing)
   const commentValue = existingVote?.comment || ''
   const commentDisplay = 'block'
-
-  // CTA button for available features
-  const ctaHTML = status === 'available' && btnLabel ? `
-    <button onclick="featureIntroCTA('${id}')"
-      style="width:100%;padding:11px;border-radius:14px;font-size:0.78rem;font-weight:600;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,${color},${color}cc);margin-top:8px">
-      ${escapeHTML(btnLabel)}
-    </button>
-  ` : ''
 
   return `
     <div id="feature-intro-overlay"
@@ -167,7 +171,7 @@ function buildModalHTML(feature) {
           <div style="height:1px;background:rgba(255,255,255,0.08);margin:10px 0 12px"></div>
 
           <!-- Vote section -->
-          <p style="font-size:0.6rem;color:#64748b;margin-bottom:8px;text-align:left">${escapeHTML(t('voteTitle') || 'Cette feature pour toi :')}</p>
+          <p style="font-size:0.6rem;color:#64748b;margin-bottom:8px;text-align:left">${escapeHTML(status === 'available' ? (t('voteTitleAvailable') || 'Ton avis sur cette feature :') : (t('voteTitle') || 'Cette feature pour toi :'))}</p>
           <div style="display:flex;gap:4px;margin-bottom:8px">
             ${voteBtnsHTML}
           </div>
@@ -185,8 +189,6 @@ function buildModalHTML(feature) {
             </button>
           </div>
 
-          <!-- CTA for available features -->
-          ${ctaHTML}
         </div>
       </div>
     </div>
@@ -247,7 +249,7 @@ window.selectIntroVote = (voteType, _featureId) => {
   // Update button styles
   overlay.querySelectorAll('.intro-vote-btn').forEach(btn => {
     const bType = btn.dataset.vote
-    const v = VOTE_CHOICES.find(vc => vc.type === bType)
+    const v = ALL_VOTE_CHOICES.find(vc => vc.type === bType)
     if (!v) return
     const isSel = bType === voteType
     btn.style.border = isSel ? `2px solid ${v.color}` : '2px solid rgba(255,255,255,0.06)'
