@@ -589,8 +589,8 @@ test.describe('Profile Settings Flow', () => {
   test('should display user profile with actual username and stats', async ({ page }) => {
     // Username "TestUser" set in skipOnboarding
     await expect(page.locator('text=TestUser').first()).toBeVisible({ timeout: 10000 })
-    // Stats display (Spots, Score, Pouces)
-    await expect(page.locator('text=/Spots|Score|Pouces/i').first()).toBeVisible({ timeout: 5000 })
+    // Stats display (Spots, Score, Pouces) — use pattern with digit to avoid matching loading indicator
+    await expect(page.locator('text=/\\d+\\s*(Spots|Score|Pouces)/i').first()).toBeVisible({ timeout: 5000 })
   })
 
   test('should have language selector as radiogroup', async ({ page }) => {
