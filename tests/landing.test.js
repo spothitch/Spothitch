@@ -28,9 +28,8 @@ describe('Landing Component', () => {
       const state = {};
       const html = renderLanding(state);
 
-      expect(html).toContain('openAuth()');
-      expect(html).toContain('setAuthMode');
-      expect(html).toContain('skipWelcome()');
+      expect(html).toContain('landing-auth-section');
+      expect(html).toContain('landing-features');
     });
 
     it('should display statistics', () => {
@@ -68,13 +67,13 @@ describe('Landing Component', () => {
       expect(html).toContain('France');
     });
 
-    it('should contain CTA section', () => {
+    it('should contain auth section', () => {
       const state = {};
       const html = renderLanding(state);
 
-      // CTA section with auth buttons
-      expect(html).toContain('openAuth()');
-      expect(html).toContain('skipWelcome()');
+      // Auth section with Google + email buttons
+      expect(html).toContain('handleGoogleSignIn()');
+      expect(html).toContain('landing-auth-section');
     });
 
     it('should contain footer with navigation links', () => {
@@ -123,8 +122,8 @@ describe('Landing Component', () => {
       const state = {};
       const html = renderLanding(state);
 
-      expect(html).toContain('onclick="openAuth()');
-      expect(html).toContain('setAuthMode(\'register\')');
+      expect(html).toContain('handleGoogleSignIn()');
+      expect(html).toContain('openAuth()');
       expect(html).toContain('setAuthMode(\'login\')');
     });
 
