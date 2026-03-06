@@ -34,6 +34,17 @@ const ACTIONS = {
   'challenges': () => setState({ showChallenges: true }),
   'settings': () => setState({ showSettings: true }),
   'filters': () => setState({ showFilters: true }),
+  'share': async () => {
+    const params = getUrlParams()
+    const url = params.get('url') || ''
+    const text = params.get('text') || ''
+    const { extractCoordsFromShare } = await import('./mapsUrlParser.js')
+    const coords = extractCoordsFromShare(url, text)
+    if (coords) {
+      window._pendingShareCoords = coords
+      window.openAddSpot?.()
+    }
+  },
 };
 
 /**

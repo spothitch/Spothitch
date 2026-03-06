@@ -1896,6 +1896,7 @@ export default {
   photoError: 'Error al procesar la foto',
   spotAdded: '¡Spot añadido con éxito!',
   addSpotError: 'Error al añadir el spot',
+  sharePositionImported: 'Posición importada del mapa',
   notConnected: 'No conectado',
   profileSetupTitle: 'Crea tu perfil',
   profileSetupDesc: 'Elige un nombre y avatar para contribuir',
