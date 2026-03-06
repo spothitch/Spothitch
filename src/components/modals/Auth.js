@@ -505,6 +505,9 @@ window.handleAuth = async (event) => {
 
       showSuccess(authMode === 'register' ? (t('accountCreated') || 'Account created!') : (t('loginSuccess') || 'Login successful!'))
 
+      // Auto-dismiss landing if it was showing (connexion obligatoire)
+      const wasOnLanding = getState().showLanding
+
       // Execute pending action if any
       const { authPendingAction } = getState()
       setState({
@@ -519,7 +522,11 @@ window.handleAuth = async (event) => {
           displayName: user.displayName,
           photoURL: user.photoURL,
         },
+        ...(wasOnLanding ? { showLanding: false } : {}),
       })
+      if (wasOnLanding) {
+        try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
+      }
       if (authPendingAction) {
         executePendingAction(authPendingAction)
       }
@@ -569,6 +576,9 @@ window.handleGoogleSignIn = async () => {
       window._authJustCompleted = Date.now()
       const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
 
+      // Auto-dismiss landing if it was showing (connexion obligatoire)
+      const wasOnLanding = getState().showLanding
+
       // Set currentUser IMMEDIATELY so onAuthStateChanged guard fires correctly
       // and doesn't trigger a second re-render while we wait for Firestore.
       setState({
@@ -584,7 +594,13 @@ window.handleGoogleSignIn = async () => {
           displayName: user.displayName,
           photoURL: user.photoURL,
         },
+        ...(wasOnLanding ? { showLanding: false } : {}),
       })
+
+      // Persist landing dismissed flag
+      if (wasOnLanding) {
+        try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
+      }
 
       // Now load Firestore profile (may take 1-3s on mobile — UI is already shown)
       const profileResult = await fb.createOrUpdateUserProfile(user).catch(() => ({ success: false }))

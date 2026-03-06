@@ -4584,4 +4584,12 @@ export default {
   alphaSlideCtaDesc: 'El mapa está vacío. Cada punto que añades ayuda a un viajero a encontrar el lugar correcto.',
   alphaSlideCtaMap: 'Abrir el mapa',
   alphaSlideCtaExplore: 'Explorar primero',
+
+  // Landing auth required
+  landingAuthTitle: 'Inicia sesión para empezar',
+  landingAuthDesc: 'Tu cuenta guarda tus spots, votos y opiniones.',
+  landingAuthGoogle: 'Continuar con Google',
+  landingAuthEmail: 'Iniciar sesión por email',
+  landingScrollDown: 'Descubrir',
+  landingMustConnect: 'Inicia sesión para acceder a la app.',
 }

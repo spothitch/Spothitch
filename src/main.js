@@ -298,8 +298,8 @@ async function init() {
 
     // === CRITICAL PATH: render first, init services after ===
 
-    // Show landing page for first-time visitors
-    if (!localStorage.getItem('spothitch_landing_v2')) {
+    // Show landing page for first-time visitors (skip if already logged in)
+    if (!localStorage.getItem('spothitch_landing_v2') && !getState().isLoggedIn) {
       setState({ showLanding: true })
     }
 
@@ -388,6 +388,11 @@ async function init() {
                   displayName: user.displayName,
                   photoURL: user.photoURL,
                 },
+              }
+              // Auto-dismiss landing for logged-in users
+              if (getState().showLanding) {
+                updates.showLanding = false
+                try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
               }
               // Start Firebase subscriptions for friends + DMs + favorites
               try {
@@ -1378,6 +1383,15 @@ window.completeWelcome = () => {
   }
 }
 window.skipWelcome = () => {
+  // Guard: must be logged in to dismiss landing
+  if (!getState().isLoggedIn) {
+    const section = document.getElementById('landing-auth-section')
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' })
+      showToast(t('landingMustConnect'), 'error')
+      return
+    }
+  }
   setState({ showWelcome: false, pendingProfileAction: null })
 }
 window.closeWelcome = () => setState({ showWelcome: false, pendingProfileAction: null })
@@ -1944,17 +1958,47 @@ window.validateImage = async (...args) => {
 
 // Landing page dismiss handler — cookie consent is now handled by CookieBanner after carousel
 window.dismissLanding = () => {
+  // Guard: must be logged in to dismiss landing
+  if (!getState().isLoggedIn) {
+    const section = document.getElementById('landing-auth-section')
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' })
+      showToast(t('landingMustConnect'), 'error')
+      return
+    }
+  }
   localStorage.setItem('spothitch_landing_v2', '1')
   setState({ showLanding: false })
 }
 
-window.closeLanding = () => setState({ showLanding: false })
+window.closeLanding = () => {
+  // Guard: must be logged in
+  if (!getState().isLoggedIn) return
+  setState({ showLanding: false })
+}
 
 // Toggle a hidden checkbox (visual is handled by renderToggle's onclick)
 // Used by Landing cookies and Companion notification toggles
 window.toggleFormToggle = (checkboxId) => {
   const cb = document.getElementById(checkboxId)
   if (cb) cb.checked = !cb.checked
+}
+
+// Skip button in landing carousel → jump to slide 5 (auth)
+window.skipToLandingAuth = () => {
+  // Jump to slide 5 (index 4) using the carousel
+  const track = document.getElementById('landing-track')
+  const dots = document.querySelectorAll('.landing-dot')
+  const nextBtn = document.getElementById('landing-next')
+  if (track) {
+    track.style.transform = 'translateX(-80%)'
+    dots.forEach((d, j) => {
+      d.className = j === 4
+        ? 'landing-dot w-6 h-2 rounded-full bg-primary-400 transition-colors duration-200'
+        : 'landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200'
+    })
+    if (nextBtn) nextBtn.style.display = 'none'
+  }
 }
 
 // Change language from the onboarding carousel without page reload

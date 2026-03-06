@@ -4588,4 +4588,12 @@ export default {
   alphaSlideCtaDesc: 'La carte est vide. Chaque spot que tu ajoutes aide un voyageur à trouver le bon endroit.',
   alphaSlideCtaMap: 'Ouvrir la carte',
   alphaSlideCtaExplore: 'Explorer d\'abord',
+
+  // Landing auth required
+  landingAuthTitle: 'Connecte-toi pour commencer',
+  landingAuthDesc: 'Ton compte permet de sauvegarder tes spots, votes et avis.',
+  landingAuthGoogle: 'Continuer avec Google',
+  landingAuthEmail: 'Connexion par email',
+  landingScrollDown: 'Découvrir',
+  landingMustConnect: 'Connecte-toi pour accéder à l\'app.',
 }

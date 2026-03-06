@@ -148,18 +148,18 @@ export function renderLanding(_state) {
           <!-- CTA Buttons -->
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <button
-              onclick="openAuth(); setAuthMode('register')"
+              onclick="document.getElementById('landing-auth-section')?.scrollIntoView({behavior:'smooth'})"
               class="btn-primary text-lg px-8 py-4"
             >
               ${icon('rocket', 'w-5 h-5 mr-2')}
               ${t('landingCtaStart')}
             </button>
             <button
-              onclick="skipWelcome()"
+              onclick="document.getElementById('landing-features')?.scrollIntoView({behavior:'smooth'})"
               class="btn-ghost text-lg px-8 py-4"
             >
-              ${icon('map', 'w-5 h-5 mr-2')}
-              ${t('landingCtaExplore')}
+              ${icon('chevron-down', 'w-5 h-5 mr-2')}
+              ${t('landingScrollDown')} ↓
             </button>
           </div>
 
@@ -191,7 +191,7 @@ export function renderLanding(_state) {
       </section>
 
       <!-- Features Section -->
-      <section class="py-20 px-4 bg-slate-800/50">
+      <section id="landing-features" class="py-20 px-4 bg-slate-800/50">
         <div class="max-w-6xl mx-auto">
           <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">
             ${t('landingFeaturesHeading')}
@@ -363,7 +363,7 @@ export function renderLanding(_state) {
           </p>
 
           <button
-            onclick="openAuth(); setAuthMode('register')"
+            onclick="document.getElementById('landing-auth-section')?.scrollIntoView({behavior:'smooth'})"
             class="inline-flex items-center gap-2 px-8 py-4 text-lg font-bold rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/25"
           >
             ${icon('rocket', 'w-5 h-5')}
@@ -372,34 +372,39 @@ export function renderLanding(_state) {
         </div>
       </section>
 
-      <!-- Final CTA Section -->
-      <section class="py-20 px-4 bg-gradient-to-br from-primary-900/50 to-emerald-900/50">
-        <div class="max-w-3xl mx-auto text-center">
-          <h2 class="text-3xl md:text-4xl font-bold mb-6">
-            ${t('landingCtaHeading')}
+      <!-- Auth Section (connexion obligatoire) -->
+      <section id="landing-auth-section" class="py-20 px-4 bg-gradient-to-br from-primary-900/50 to-emerald-900/50">
+        <div class="max-w-md mx-auto text-center">
+          <div class="text-5xl mb-4" aria-hidden="true">🔐</div>
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">
+            ${t('landingAuthTitle')}
           </h2>
-          <p class="text-xl text-slate-300 mb-8">
-            ${t('landingCtaSubheading')}
+          <p class="text-lg text-slate-300 mb-8">
+            ${t('landingAuthDesc')}
           </p>
 
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onclick="openAuth(); setAuthMode('register')"
-              class="btn-primary text-lg px-8 py-4"
-            >
-              ${icon('user-plus', 'w-5 h-5 mr-2')}
-              ${t('landingCtaCreateAccount')}
-            </button>
-            <button
-              onclick="openAuth(); setAuthMode('login')"
-              class="btn-ghost text-lg px-8 py-4"
-            >
-              ${icon('log-in', 'w-5 h-5 mr-2')}
-              ${t('landingCtaLogin')}
-            </button>
-          </div>
+          <!-- Google Sign-In (principal) -->
+          <button
+            onclick="handleGoogleSignIn()"
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-white text-slate-900 font-semibold text-lg hover:bg-slate-100 transition-colors shadow-lg mb-4"
+            type="button"
+            id="landing-google-btn"
+          >
+            <svg class="w-6 h-6" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            ${t('landingAuthGoogle')}
+          </button>
 
-          <p class="mt-8 text-sm text-slate-400">
+          <!-- Email Sign-In (secondaire) -->
+          <button
+            onclick="openAuth(); setAuthMode('login')"
+            class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-medium hover:bg-white/15 transition-colors"
+            type="button"
+          >
+            ${icon('mail', 'w-5 h-5')}
+            ${t('landingAuthEmail')}
+          </button>
+
+          <p class="mt-6 text-sm text-slate-400">
             ${t('landingLegalNotice')}
             <a href="javascript:void(0)" onclick="showLegalPage('cgu')" class="text-primary-400 hover:underline">${t('termsOfService')}</a>
             ${t('and')}
@@ -423,22 +428,10 @@ export function renderLanding(_state) {
             </div>
 
             <div>
-              <h4 class="font-semibold mb-4">${t('landingFooterApp')}</h4>
-              <ul class="space-y-2 text-slate-400 text-sm">
-                <li><a href="javascript:void(0)" onclick="skipWelcome()" class="hover:text-white">${t('landingFooterSpotMap')}</a></li>
-                <li><a href="javascript:void(0)" onclick="changeTab('travel')" class="hover:text-white">${t('planner')}</a></li>
-                <li><a href="javascript:void(0)" onclick="changeTab('challenges')" class="hover:text-white">${t('landingFooterChallenges')}</a></li>
-                <li><a href="javascript:void(0)" onclick="changeTab('social')" class="hover:text-white">${t('landingFooterCommunity')}</a></li>
-              </ul>
-            </div>
-
-            <div>
               <h4 class="font-semibold mb-4">${t('landingFooterResources')}</h4>
               <ul class="space-y-2 text-slate-400 text-sm">
                 <li><a href="javascript:void(0)" onclick="openFAQ()" class="hover:text-white">FAQ</a></li>
-                <li><a href="javascript:void(0)" onclick="openHelpCenter()" class="hover:text-white">${t('landingFooterHelpCenter')}</a></li>
                 <li><a href="javascript:void(0)" onclick="openChangelog()" class="hover:text-white">Changelog</a></li>
-                <li><a href="javascript:void(0)" onclick="openRoadmap()" class="hover:text-white">${t('profileTabRoadmap') || 'Prochainement'}</a></li>
               </ul>
             </div>
 
