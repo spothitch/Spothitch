@@ -1898,6 +1898,7 @@ export default {
   photoError: 'Error processing the photo',
   spotAdded: 'Spot added successfully!',
   addSpotError: 'Error adding the spot',
+  sharePositionImported: 'Position imported from map',
   // Profile / GDPR
   notConnected: 'Not connected',
   profileSetupTitle: 'Set up your profile',

@@ -880,6 +880,13 @@ async function initSpotMap() {
   const mapDiv = document.getElementById('spot-mini-map')
   if (!mapDiv) return
 
+  // Ensure container is visible with real dimensions before init
+  if (mapDiv.offsetWidth === 0 || mapDiv.offsetHeight === 0) {
+    mapDiv.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    requestAnimationFrame(() => initSpotMap())
+    return
+  }
+
   // Destroy stale map if container was rebuilt by render()
   if (miniMap) {
     try { miniMap.remove() } catch { /* no-op */ }
@@ -893,10 +900,13 @@ async function initSpotMap() {
 
     const maplibregl = await import('maplibre-gl')
 
-    // Use existing position, or user's known location, or default to Paris
+    // Use pending share coords, existing position, user's location, or default to Paris
     let center = [2.35, 48.85]
     let zoom = 5
-    if (window.spotFormData?.lng && window.spotFormData?.lat) {
+    if (window._pendingShareCoords) {
+      center = [window._pendingShareCoords.lng, window._pendingShareCoords.lat]
+      zoom = 14
+    } else if (window.spotFormData?.lng && window.spotFormData?.lat) {
       center = [window.spotFormData.lng, window.spotFormData.lat]
       zoom = 13
     } else {
@@ -920,6 +930,42 @@ async function initSpotMap() {
     // Force map to recalculate size after CSS and DOM settle
     miniMap.once('load', () => { miniMap.resize() })
     setTimeout(() => { if (miniMap) miniMap.resize() }, 200)
+    setTimeout(() => { if (miniMap) miniMap.resize() }, 500)
+
+    // If share coords pending, place marker and fill form data
+    if (window._pendingShareCoords) {
+      const { lat, lng } = window._pendingShareCoords
+      window.spotFormData.lat = lat
+      window.spotFormData.lng = lng
+      window.spotFormData.positionSource = 'share'
+      miniMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
+        .setLngLat([lng, lat])
+        .addTo(miniMap)
+      const display = document.getElementById('location-display')
+      if (display) {
+        display.innerHTML = `${icon('circle-check', 'w-5 h-5 text-success-400')} ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      }
+      try {
+        const { reverseGeocode } = await import('../../services/osrm.js')
+        const location = await reverseGeocode(lat, lng)
+        if (location?.countryCode) {
+          window.spotFormData.country = location.countryCode
+          window.spotFormData.countryName = location.country
+        }
+        if (location?.city) {
+          const departureCityInput = document.getElementById('spot-departure-city')
+          if (departureCityInput && !departureCityInput.value) {
+            departureCityInput.value = location.city
+            window.spotFormData.departureCity = location.city
+            window.spotFormData.departureCityCoords = { lat, lng }
+          }
+        }
+        if (display && location?.city) {
+          display.innerHTML = `${icon('circle-check', 'w-5 h-5 text-success-400')} ${location.city} (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+        }
+      } catch { /* no-op */ }
+      window._pendingShareCoords = null
+    }
 
     if (window.spotFormData?.lat) {
       miniMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
@@ -1193,8 +1239,8 @@ export function initAddSpotAfterRender() {
   if (depInput && !dirInput && lastAutocompleteStep !== 1) {
     lastAutocompleteStep = 1
     initStep1Autocomplete()
-    // Auto-init map when step 1 appears (map is always visible)
-    initSpotMap()
+    // Auto-init map when step 1 appears — rAF ensures DOM is laid out with real dimensions
+    requestAnimationFrame(() => initSpotMap())
   } else if (dirInput && lastAutocompleteStep !== 2) {
     lastAutocompleteStep = 2
     initStep2Autocomplete()

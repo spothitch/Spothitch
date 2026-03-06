@@ -996,6 +996,9 @@ window.openAddSpot = () => {
   // Authenticated — also require profile (username)
   if (!window.requireProfile('addSpot')) return
   setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
+  if (window._pendingShareCoords) {
+    showToast(t('sharePositionImported') || 'Position imported from map', 'success')
+  }
 }
 window.openAddSpotPreview = () => setState({ showAddSpot: true, addSpotPreview: true });
 window.closeAddSpot = () => setState({ showAddSpot: false, addSpotPreview: false, addSpotStep: 1, addSpotType: null });
