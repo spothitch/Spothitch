@@ -601,6 +601,9 @@ function ensureMapControls(state) {
  * Post-render hook to initialize map and focus traps
  */
 export function afterRender(state) {
+  // ERR-SCROLL: toggle map-active class to block body scroll on map tab (NEVER REMOVE)
+  document.documentElement.classList.toggle('map-active', isMapTab(state))
+
   // Init landing carousel if visible (only once — check data attribute)
   if (state.showLanding) {
     const landingPage = document.getElementById('landing-page')

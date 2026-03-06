@@ -1131,7 +1131,17 @@ select.input-modern option {
   @apply text-[#1c1917] border-[#f5f2eb] hover:bg-[#fafaf8];
 }
 
-/* Home map — prevent vertical scroll on map tab */
+/* Home map — prevent vertical scroll on map tab (ERR-SCROLL: NEVER REMOVE) */
+/* Layer 1: block body/html scroll when map tab is active */
+html.map-active,
+html.map-active body {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 #home-map-container {
   touch-action: none;
   overflow: hidden;
