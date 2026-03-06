@@ -114,8 +114,15 @@ window.closeGuideNudge = async () => {
 }
 
 window.acceptGuideNudge = async () => {
-  const { setState } = await import('../../stores/state.js')
-  setState({ showGuideNudge: false, activeTab: 'profile', guideSection: 'start' })
+  const { getState, setState } = await import('../../stores/state.js')
+  const state = getState()
+  const countryCode = state.pendingGuideCountry?.code || null
+  setState({
+    showGuideNudge: false,
+    activeTab: 'profile',
+    guideSection: 'countries',
+    selectedCountryGuide: countryCode,
+  })
   // Navigate to guides view — use changeTab
   window.changeTab?.('profile')
   // Switch to guides subview if available

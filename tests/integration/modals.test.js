@@ -872,3 +872,34 @@ describe('Integration: FeedbackPanel', () => {
     expect(getState().feedbackDetailFeature).toBeNull()
   })
 })
+
+// ==================== Guide Contributions ====================
+describe('Integration: GuideContributions', () => {
+  beforeEach(() => resetState())
+
+  it('opens country detail and category form via state', () => {
+    setState({ selectedCountryGuide: 'FR', guideOpenCategory: 'safety' })
+    expect(getState().selectedCountryGuide).toBe('FR')
+    expect(getState().guideOpenCategory).toBe('safety')
+  })
+
+  it('opens custom category form via state', () => {
+    setState({ selectedCountryGuide: 'DE', guideCustomCategoryOpen: true })
+    expect(getState().guideCustomCategoryOpen).toBe(true)
+  })
+
+  it('closes category form', () => {
+    setState({ guideOpenCategory: 'safety' })
+    setState({ guideOpenCategory: null })
+    expect(getState().guideOpenCategory).toBeNull()
+  })
+
+  it('renders country detail with categories', async () => {
+    const { renderCountryDetail } = await import('../../src/components/views/Guides.js')
+    setState({ selectedCountryGuide: 'FR' })
+    const html = renderCountryDetail('FR')
+    expect(html).toContain('openGuideCategory') // category grid exists in onclick
+    expect(html).toContain('openGuideCategory')
+    expect(html).toContain('addCustomGuideCategory')
+  })
+})

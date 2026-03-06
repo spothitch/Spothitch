@@ -8,10 +8,12 @@ import { t } from '../../i18n/index.js'
 import { countryGuides, getGuideByCode, getUniversalPhrases } from '../../data/guides.js'
 import { icon } from '../../utils/icons.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
-import { renderCommunityTips } from '../../services/communityTips.js'
 import { renderTipVoteButtons, renderSuggestionForm } from '../../services/feedbackService.js'
+import { GUIDE_CATEGORIES, getUserGuideTips, submitGuideTip, deleteUserGuideTip } from '../../services/communityGuideService.js'
+import { getCurrentUser } from '../../services/firebase.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 
-// ==================== STATIC DATA: CULTURAL ETIQUETTE (#76) ====================
+/* eslint-disable no-unused-vars -- static data kept for future reference */
 const ETIQUETTE_DATA = {
   FR: {
     greeting: 'Poignée de main ferme. Entre amis, bises sur les joues (1 à 4 selon la région).',
@@ -202,6 +204,7 @@ const CURRENCY_DATA = {
   CA: { name: 'Dollar canadien', symbol: 'CAD', rateEUR: 0.68, rateUSD: 0.74, payment: ['card', 'mobile', 'cash'], budget: '35–65 €/jour' },
   AU: { name: 'Dollar australien', symbol: 'AUD', rateEUR: 0.59, rateUSD: 0.64, payment: ['card', 'mobile', 'cash'], budget: '40–70 €/jour' },
 }
+/* eslint-enable no-unused-vars */
 
 const GUIDE_SECTIONS = [
   { id: 'start', icon: 'compass', color: 'amber', labelKey: 'guideStart', fallback: 'Débuter' },
@@ -269,66 +272,22 @@ function renderPendingTipBanner(country) {
 }
 
 function renderGuideTipForm(country) {
-  const flag = country.flag || ''
-  const name = country.name || country.code
-  const categories = [
-    { key: 'safety', label: t('guideTipCategorySafety') || 'Sécurité' },
-    { key: 'transport', label: t('guideTipCategoryTransport') || 'Transports' },
-    { key: 'accommodation', label: t('guideTipCategoryAccommodation') || 'Hébergement' },
-    { key: 'food', label: t('guideTipCategoryFood') || 'Nourriture' },
-    { key: 'culture', label: t('guideTipCategoryCulture') || 'Culture' },
-    { key: 'other', label: t('guideTipCategoryOther') || 'Autre' },
-  ]
-
+  // Redirect to the new country detail view
+  const code = country.code || ''
   return `
     <div class="card p-4 space-y-3 border border-emerald-500/20">
       <div class="flex items-center gap-2">
         ${icon('book-open', 'w-5 h-5 text-emerald-400')}
-        <h3 class="font-bold text-sm">${flag} ${name} — ${t('guideNudgeBtn') || 'Partager mes conseils'}</h3>
+        <h3 class="font-bold text-sm">${country.flag || ''} ${escapeHTML(country.name || code)}</h3>
       </div>
-
-      <!-- Category -->
-      <div>
-        <label class="text-xs text-slate-400 block mb-2">${t('guideTipCategory') || 'Catégorie'}</label>
-        <div class="flex flex-wrap gap-2" id="guide-tip-categories">
-          ${categories.map(cat => `
-            <button
-              type="button"
-              onclick="selectGuideTipCategory('${cat.key}')"
-              class="px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              data-guide-cat="${cat.key}"
-            >
-              ${cat.label}
-            </button>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Text -->
-      <div>
-        <textarea
-          id="guide-tip-text"
-          class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-emerald-500/50"
-          rows="3"
-          placeholder="${t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...'}"
-          maxlength="500"
-        ></textarea>
-        <p class="text-xs text-slate-500 mt-1 text-right"><span id="guide-tip-char-count">0</span>/500</p>
-      </div>
-
-      <!-- Submit -->
+      <p class="text-sm text-slate-400">${t('guideNudgeText')?.replace('[pays]', escapeHTML(country.name || ''))?.replace('[country]', escapeHTML(country.name || '')) || 'Partage tes conseils pour ce pays !'}</p>
       <button
-        onclick="submitGuideTip()"
+        onclick="selectGuide('${escapeJSString(code)}')"
         class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
       >
-        ${icon('send', 'w-4 h-4')}
-        ${t('guideTipSubmit') || 'Envoyer mon conseil'}
+        ${icon('book-open', 'w-4 h-4')}
+        ${t('guideNudgeBtn') || 'Partager mes conseils'}
       </button>
-
-      <div id="guide-tip-success" class="hidden text-center py-2 text-emerald-400 text-sm font-medium">
-        ${icon('check-circle', 'w-4 h-4 inline mr-1')}
-        ${t('guideTipSubmitted') || 'Conseil envoyé, merci !'}
-      </div>
     </div>
   `
 }
@@ -396,20 +355,10 @@ function renderCountriesSection() {
         paddingLeft: 'pl-10',
       })}
 
-      <div class="flex flex-wrap gap-2 text-xs">
-        <span class="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
-          ${icon('smile', 'w-4 h-4')} ${t('veryEasy') || 'Très facile'}
-        </span>
-        <span class="flex items-center gap-1 px-2 py-1 rounded-full bg-primary-500/20 text-primary-400">
-          ${icon('meh', 'w-4 h-4')} ${t('easy') || 'Facile'}
-        </span>
-        <span class="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 text-amber-400">
-          ${icon('frown', 'w-4 h-4')} ${t('medium') || 'Moyen'}
-        </span>
-      </div>
-
       <div id="guides-list" class="grid grid-cols-2 gap-3">
-        ${sortedGuides.map(guide => `
+        ${sortedGuides.map(guide => {
+          const contribCount = getUserGuideTips(guide.code).length
+          return `
           <button
             onclick="selectGuide('${guide.code}')"
             class="card p-4 text-left hover:border-primary-500/50 transition-colors guide-card"
@@ -419,18 +368,15 @@ function renderCountriesSection() {
               <span class="text-3xl">${guide.flag}</span>
               <div>
                 <div class="font-bold">${guide.name}</div>
-                <div class="text-xs ${
-  guide.difficulty === 1 ? 'text-emerald-400' :
-    guide.difficulty === 2 ? 'text-primary-400' : 'text-amber-400'
-}">${guide.difficultyText}</div>
+                ${contribCount > 0
+                  ? `<div class="text-xs text-emerald-400">${contribCount}/8 ${icon('check', 'w-3 h-3 inline')}</div>`
+                  : `<div class="text-xs text-slate-500">${t('guideNoContribution') || 'Pas encore de contribution'}</div>`
+                }
               </div>
             </div>
-            <div class="flex items-center gap-2 text-xs text-slate-400">
-              ${icon('clock', 'w-4 h-4')}
-              <span>~${guide.avgWaitTime} min</span>
-            </div>
           </button>
-        `).join('')}
+          `
+        }).join('')}
       </div>
     </div>
   `
@@ -666,214 +612,15 @@ function renderLegalitySection() {
   `
 }
 
-// ==================== CULTURAL ETIQUETTE (#76) ====================
-function renderEtiquetteSection(code) {
-  const data = ETIQUETTE_DATA[code]
-
-  if (!data) {
-    return `
-      <div class="card p-4">
-        <h3 class="font-bold mb-2 flex items-center gap-2">
-          ${icon('users', 'w-5 h-5 text-pink-400')}
-          ${t('guideEtiquetteTitle') || 'Cultural etiquette'}
-        </h3>
-        <p class="text-sm text-slate-400">${t('guideEtiquetteGeneric') || 'Be respectful of local customs, always smile and thank your drivers.'}</p>
-      </div>
-    `
-  }
-
-  return `
-    <div class="card p-4">
-      <h3 class="font-bold mb-3 flex items-center gap-2">
-        ${icon('users', 'w-5 h-5 text-pink-400')}
-        ${t('guideEtiquetteTitle') || 'Cultural etiquette'}
-      </h3>
-      <div class="space-y-3">
-        <div class="p-3 rounded-xl bg-white/5">
-          <div class="flex items-center gap-2 mb-1">
-            ${icon('hand-shake', 'w-4 h-4 text-pink-400')}
-            <span class="text-xs font-semibold text-pink-300 uppercase tracking-wide">${t('guideEtiquetteGreeting') || 'Greetings'}</span>
-          </div>
-          <p class="text-sm text-slate-300">${data.greeting}</p>
-        </div>
-        <div class="p-3 rounded-xl bg-white/5">
-          <div class="flex items-center gap-2 mb-1">
-            ${icon('thumbs-up', 'w-4 h-4 text-pink-400')}
-            <span class="text-xs font-semibold text-pink-300 uppercase tracking-wide">${t('guideEtiquetteHitchhiking') || 'Local hitchhiking'}</span>
-          </div>
-          <p class="text-sm text-slate-300">${data.hitchhiking}</p>
-        </div>
-        <div class="p-3 rounded-xl bg-white/5">
-          <div class="flex items-center gap-2 mb-1">
-            ${icon('coins', 'w-4 h-4 text-pink-400')}
-            <span class="text-xs font-semibold text-pink-300 uppercase tracking-wide">${t('guideEtiquetteTipping') || 'Tipping'}</span>
-          </div>
-          <p class="text-sm text-slate-300">${data.tipping}</p>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-            <div class="flex items-center gap-1.5 mb-2">
-              ${icon('check-circle', 'w-4 h-4 text-emerald-400')}
-              <span class="text-xs font-semibold text-emerald-300 uppercase tracking-wide">${t('guideEtiquetteDos') || "Do's"}</span>
-            </div>
-            <ul class="space-y-1">
-              ${data.dos.map(d => `<li class="text-xs text-slate-300 flex items-start gap-1">${icon('check', 'w-3 h-3 text-emerald-400 mt-0.5 shrink-0')}<span>${d}</span></li>`).join('')}
-            </ul>
-          </div>
-          <div class="p-3 rounded-xl bg-danger-500/10 border border-danger-500/20">
-            <div class="flex items-center gap-1.5 mb-2">
-              ${icon('x-circle', 'w-4 h-4 text-danger-400')}
-              <span class="text-xs font-semibold text-danger-300 uppercase tracking-wide">${t('guideEtiquetteDonts') || "Don'ts"}</span>
-            </div>
-            <ul class="space-y-1">
-              ${data.donts.map(d => `<li class="text-xs text-slate-300 flex items-start gap-1">${icon('x', 'w-3 h-3 text-danger-400 mt-0.5 shrink-0')}<span>${d}</span></li>`).join('')}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  `
-}
-
-// ==================== VISA INFO (#77) ====================
-function renderVisaSection(code) {
-  const data = VISA_DATA[code]
-
-  if (!data) {
-    return `
-      <div class="card p-4">
-        <h3 class="font-bold mb-2 flex items-center gap-2">
-          ${icon('passport', 'w-5 h-5 text-indigo-400')}
-          ${t('guideVisaTitle') || 'Visa info'}
-        </h3>
-        <p class="text-sm text-slate-400">${t('guideVisaCheck') || "Check your embassy's website for the most up-to-date information."}</p>
-      </div>
-    `
-  }
-
-  const freeLabel = t('guideVisaFree') || 'Visa-free'
-  const yesLabel = t('guideVisaYes') || 'Yes'
-  const noLabel = t('guideVisaNo') || 'No'
-
-  const euBadge = data.eu === 'free'
-    ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs">${freeLabel}</span>`
-    : `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs">${data.eu}</span>`
-
-  const usBadge = data.us === 'free'
-    ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs">${freeLabel}</span>`
-    : `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs">${data.us}</span>`
-
-  const onArrivalBadge = data.onArrival
-    ? `<span class="px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-400 text-xs">${yesLabel}</span>`
-    : `<span class="px-2 py-0.5 rounded-full bg-white/10 text-slate-400 text-xs">${noLabel}</span>`
-
-  return `
-    <div class="card p-4">
-      <h3 class="font-bold mb-3 flex items-center gap-2">
-        ${icon('file-text', 'w-5 h-5 text-indigo-400')}
-        ${t('guideVisaTitle') || 'Visa info'}
-      </h3>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/5">
-          <span class="text-sm text-slate-300">${t('guideVisaEU') || 'EU citizens'}</span>
-          ${euBadge}
-        </div>
-        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/5">
-          <span class="text-sm text-slate-300">${t('guideVisaUS') || 'US citizens'}</span>
-          ${usBadge}
-        </div>
-        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/5">
-          <span class="text-sm text-slate-300">${t('guideVisaDuration') || 'Tourist stay duration'}</span>
-          <span class="text-sm font-medium text-slate-200">${data.duration}</span>
-        </div>
-        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/5">
-          <span class="text-sm text-slate-300">${t('guideVisaOnArrival') || 'Visa on arrival'}</span>
-          ${onArrivalBadge}
-        </div>
-      </div>
-      <p class="text-xs text-slate-500 mt-3 flex items-start gap-1.5">
-        ${icon('info', 'w-3.5 h-3.5 shrink-0 mt-0.5')}
-        ${t('guideVisaDisclaimer') || 'This info is indicative. Always check with your embassy.'}
-      </p>
-    </div>
-  `
-}
-
-// ==================== CURRENCY INFO (#78) ====================
-function renderCurrencySection(code) {
-  const data = CURRENCY_DATA[code]
-
-  if (!data) {
-    return `
-      <div class="card p-4">
-        <h3 class="font-bold mb-2 flex items-center gap-2">
-          ${icon('banknote', 'w-5 h-5 text-amber-400')}
-          ${t('guideCurrencyTitle') || 'Currency & budget'}
-        </h3>
-        <p class="text-sm text-slate-400">${t('guideCurrencyUnknown') || 'Consult your bank for current exchange rates.'}</p>
-      </div>
-    `
-  }
-
-  const paymentIcons = {
-    cash: { icon: 'banknote', label: t('guideCurrencyPaymentCash') || 'Cash', color: 'text-amber-400 bg-amber-500/20' },
-    card: { icon: 'credit-card', label: t('guideCurrencyPaymentCard') || 'Card', color: 'text-primary-400 bg-primary-500/20' },
-    mobile: { icon: 'smartphone', label: t('guideCurrencyPaymentMobile') || 'Mobile', color: 'text-emerald-400 bg-emerald-500/20' },
-  }
-
-  const rateStr = data.rateEUR === 1
-    ? `1 ${data.symbol} = 1.00 EUR / ${data.rateUSD.toFixed(2)} USD`
-    : `1 EUR ≈ ${(1 / data.rateEUR).toFixed(2)} ${data.symbol}`
-
-  return `
-    <div class="card p-4">
-      <h3 class="font-bold mb-3 flex items-center gap-2">
-        ${icon('banknote', 'w-5 h-5 text-amber-400')}
-        ${t('guideCurrencyTitle') || 'Currency & budget'}
-      </h3>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/5">
-          <span class="text-sm text-slate-300">${t('guideCurrencyName') || 'Local currency'}</span>
-          <span class="text-sm font-bold text-amber-300">${data.name} (${data.symbol})</span>
-        </div>
-        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/5">
-          <span class="text-sm text-slate-300">${t('guideCurrencyRate') || 'Indicative rate'}</span>
-          <span class="text-sm font-medium text-slate-200">${rateStr}</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-white/5">
-          <div class="text-sm text-slate-300 mb-2">${t('guideCurrencyPayment') || 'Common payments'}</div>
-          <div class="flex gap-2 flex-wrap">
-            ${data.payment.map(p => {
-    const pi = paymentIcons[p] || paymentIcons.cash
-    return `<span class="flex items-center gap-1 px-2 py-1 rounded-full text-xs ${pi.color}">${icon(pi.icon, 'w-3 h-3')}${pi.label}</span>`
-  }).join('')}
-          </div>
-        </div>
-        <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-          <span class="text-sm text-slate-300">${t('guideCurrencyBudget') || 'Daily backpacker budget'}</span>
-          <span class="text-sm font-bold text-amber-300">${data.budget}</span>
-        </div>
-      </div>
-      <p class="text-xs text-slate-500 mt-3 flex items-start gap-1.5">
-        ${icon('info', 'w-3.5 h-3.5 shrink-0 mt-0.5')}
-        ${t('guideCurrencyRateDisclaimer') || 'Approximate rates, check before you go.'}
-      </p>
-    </div>
-  `
-}
-
 // ==================== COUNTRY DETAIL ====================
 export function renderCountryDetail(guideOrCode) {
   const guide = typeof guideOrCode === 'string' ? getGuideByCode(guideOrCode) : guideOrCode
   if (!guide) return ''
 
-  const difficultyColors = {
-    1: 'text-emerald-400 bg-emerald-500/20',
-    2: 'text-primary-400 bg-primary-500/20',
-    3: 'text-amber-400 bg-amber-500/20',
-  }
-  const lang = window.getState?.()?.lang || 'fr'
-  const isEn = lang === 'en'
+  const state = window.getState?.() || {}
+  const openCategory = state.guideOpenCategory || null
+  const userTips = getUserGuideTips(guide.code)
+  const contribCount = userTips.length
 
   return `
     <div class="space-y-4">
@@ -885,262 +632,79 @@ export function renderCountryDetail(guideOrCode) {
         ${t('backToGuides') || 'Retour aux guides'}
       </button>
 
-      <div class="card p-6 text-center">
-        <span class="text-6xl mb-4 block">${guide.flag}</span>
-        <h2 class="text-2xl font-bold mb-2">${guide.name}</h2>
-        <div class="flex justify-center gap-3 flex-wrap">
-          <span class="px-3 py-1 rounded-full text-sm ${difficultyColors[guide.difficulty]}">${guide.difficultyText}</span>
-          <span class="px-3 py-1 rounded-full text-sm bg-white/10 text-slate-300">~${guide.avgWaitTime} ${t('minWait') || "min d'attente"}</span>
-        </div>
+      <!-- Header -->
+      <div class="card p-5 text-center">
+        <span class="text-5xl mb-3 block">${guide.flag}</span>
+        <h2 class="text-xl font-bold mb-1">${escapeHTML(guide.name)}</h2>
+        <p class="text-sm text-slate-400">
+          ${contribCount > 0
+            ? `${contribCount}/8 ${t('guideContribCount') || 'catégories contribuées'}`
+            : (t('guideNoContribution') || 'Aucune contribution. Sois le premier !')
+          }
+        </p>
       </div>
 
-      <!-- B4: Guide sub-tabs -->
-      ${(() => {
-        const guideTab = window.getState?.()?.guideDetailTab || 'info'
-        const tabs = [
-          { id: 'info', icon: 'info', label: t('guideTabInfo') || 'Info' },
-          { id: 'culture', icon: 'heart', label: t('guideTabCulture') || 'Culture' },
-          { id: 'pratique', icon: 'map-pin', label: t('guideTabPractical') || 'Pratique' },
-        ]
-        return `
-        <div class="flex bg-dark-secondary/50 rounded-xl overflow-hidden border border-white/5">
-          ${tabs.map(tab => `
+      <!-- Category grid -->
+      <div class="grid grid-cols-2 gap-3">
+        ${GUIDE_CATEGORIES.map(cat => {
+          const userTip = userTips.find(tip => tip.category === cat.id)
+          const isOpen = openCategory === cat.id
+          return `
             <button
-              onclick="setState({guideDetailTab:'${tab.id}'})"
-              class="flex-1 py-2.5 px-2 font-medium text-xs transition-colors flex items-center justify-center gap-1.5 ${
-                guideTab === tab.id
-                  ? 'bg-primary-500/20 text-primary-400 border-b-2 border-primary-500'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }"
+              onclick="openGuideCategory('${escapeJSString(guide.code)}', '${cat.id}')"
+              class="card p-3 text-left transition-all ${isOpen ? 'border-primary-500/50 bg-primary-500/10' : 'hover:border-white/20'}"
             >
-              ${icon(tab.icon, 'w-3.5 h-3.5')}
-              ${tab.label}
+              <div class="flex items-center gap-2 mb-1.5">
+                <div class="w-8 h-8 rounded-lg ${userTip ? 'bg-emerald-500/20' : 'bg-white/10'} flex items-center justify-center">
+                  ${icon(cat.icon, `w-4 h-4 ${userTip ? 'text-emerald-400' : 'text-slate-400'}`)}
+                </div>
+                <span class="text-xs font-medium leading-tight">${t(cat.labelKey) || cat.fallback}</span>
+              </div>
+              ${userTip ? `
+                <div class="flex items-center gap-0.5 mb-1">
+                  ${renderStarsStatic(userTip.rating)}
+                </div>
+                <p class="text-xs text-slate-400 line-clamp-2">${escapeHTML(userTip.text)}</p>
+              ` : `
+                <p class="text-xs text-slate-500">${t('guideYourRating') || 'Tap pour noter'}</p>
+              `}
             </button>
-          `).join('')}
+          `
+        }).join('')}
+      </div>
+
+      <!-- Add custom category button -->
+      <button
+        onclick="addCustomGuideCategory('${escapeJSString(guide.code)}')"
+        class="w-full card p-3 flex items-center justify-center gap-2 text-sm text-primary-400 hover:bg-primary-500/10 transition-colors"
+      >
+        ${icon('plus', 'w-4 h-4')}
+        ${t('guideAddCategory') || 'Ajouter une catégorie'}
+      </button>
+
+      <!-- Custom categories already contributed -->
+      ${userTips.filter(tip => tip.customCategory).map(tip => `
+        <div class="card p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm font-medium">${escapeHTML(tip.customCategoryName || tip.category)}</span>
+            <button onclick="deleteGuideContribution('${escapeJSString(tip.id)}')" class="text-xs text-danger-400 hover:text-danger-300">
+              ${icon('trash-2', 'w-3.5 h-3.5')}
+            </button>
+          </div>
+          <div class="flex items-center gap-0.5 mb-1">${renderStarsStatic(tip.rating)}</div>
+          <p class="text-xs text-slate-400">${escapeHTML(tip.text)}</p>
         </div>
-        `
-      })()}
+      `).join('')}
 
-      ${(() => {
-        const guideTab = window.getState?.()?.guideDetailTab || 'info'
-        if (guideTab === 'culture') return renderGuideCultureTab(guide, isEn)
-        if (guideTab === 'pratique') return renderGuidePratiqueTab(guide, isEn)
-        return renderGuideInfoTab(guide, isEn)
-      })()}
+      <!-- Inline form (if a category is open) -->
+      ${openCategory ? renderGuideCategoryForm(guide.code, openCategory, userTips) : ''}
 
-      <!-- Suggest a tip -->
-      ${renderSuggestionForm(`country_${guide.code}`)}
+      <!-- Custom category form -->
+      ${state.guideCustomCategoryOpen ? renderCustomCategoryForm(guide.code) : ''}
 
-      <!-- Community Tips -->
-      ${renderCommunityTips(guide.code)}
-
-      <!-- Bottom padding for scroll -->
+      <!-- Bottom padding -->
       <div class="h-8"></div>
     </div>
-  `
-}
-
-function renderGuideInfoTab(guide, isEn) {
-  return `
-      <!-- Legality -->
-      <div class="card p-4">
-        <h3 class="font-bold mb-2 flex items-center gap-2">
-          ${icon('scale', 'w-5 h-5 text-blue-400')}
-          ${t('legality') || 'Légalité'}
-        </h3>
-        <p class="text-slate-300 mb-3">${isEn && guide.legalityTextEn ? guide.legalityTextEn : guide.legalityText}</p>
-        ${guide.laws && guide.laws.length > 0 ? `
-          <ul class="space-y-1.5">
-            ${(isEn && guide.lawsEn ? guide.lawsEn : guide.laws).map(law => `
-              <li class="flex items-start gap-2 text-sm">
-                ${icon('info', 'w-4 h-4 text-blue-400 mt-0.5 shrink-0')}
-                <span class="text-slate-400">${law}</span>
-              </li>
-            `).join('')}
-          </ul>
-        ` : ''}
-      </div>
-
-      <!-- Strategies -->
-      ${guide.strategies && guide.strategies.length > 0 ? `
-        <div class="card p-4">
-          <h3 class="font-bold mb-3 flex items-center gap-2">
-            ${icon('target', 'w-5 h-5 text-primary-400')}
-            ${t('strategies') || 'Stratégies'}
-          </h3>
-          <ul class="space-y-2">
-            ${(isEn && guide.strategiesEn ? guide.strategiesEn : guide.strategies).map(s => `
-              <li class="flex items-start gap-2">
-                ${icon('zap', 'w-4 h-4 text-primary-400 mt-1 shrink-0')}
-                <span class="text-slate-300 text-sm">${s}</span>
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-      ` : ''}
-
-      <!-- Tips -->
-      <div class="card p-4">
-        <h3 class="font-bold mb-3 flex items-center gap-2">
-          ${icon('lightbulb', 'w-5 h-5 text-amber-400')}
-          ${t('tips') || 'Conseils'}
-        </h3>
-        <ul class="space-y-2">
-          ${(isEn && guide.tipsEn ? guide.tipsEn : guide.tips).map((tip, i) => `
-            <li class="flex items-start gap-2">
-              ${icon('check', 'w-4 h-4 text-emerald-400 mt-1 shrink-0')}
-              <div class="flex-1">
-                <span class="text-slate-300 text-sm">${tip}</span>
-                ${renderTipVoteButtons(`country_${guide.code}`, i)}
-              </div>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-
-      <!-- Best months -->
-      <div class="card p-4">
-        <h3 class="font-bold mb-3 flex items-center gap-2">
-          ${icon('calendar', 'w-5 h-5 text-purple-400')}
-          ${t('bestMonths') || 'Meilleurs mois'}
-        </h3>
-        <div class="flex flex-wrap gap-2">
-          ${['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'].map((month, i) => `
-            <span class="px-3 py-1 rounded-full text-sm ${
-  guide.bestMonths.includes(i + 1)
-    ? 'bg-emerald-500/20 text-emerald-400'
-    : 'bg-white/5 text-slate-400'
-}">${month}</span>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Best spots -->
-      ${guide.bestSpots && guide.bestSpots.length > 0 ? `
-        <div class="card p-4">
-          <h3 class="font-bold mb-3 flex items-center gap-2">
-            ${icon('map-pin', 'w-5 h-5 text-danger-400')}
-            ${t('bestSpots') || 'Meilleurs spots'}
-          </h3>
-          <div class="space-y-2">
-            ${guide.bestSpots.map(spot => `
-              <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5">
-                ${icon('thumbs-up', 'w-4 h-4 text-primary-400')}
-                <span class="text-slate-300 text-sm">${spot}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-  `
-}
-
-function renderGuideCultureTab(guide, isEn) {
-  return `
-      <!-- Phrases -->
-      <div class="card p-4">
-        <h3 class="font-bold mb-3 flex items-center gap-2">
-          ${icon('message-circle', 'w-5 h-5 text-purple-400')}
-          ${t('usefulPhrases') || 'Phrases utiles'}
-        </h3>
-        <div class="space-y-2">
-          ${getUniversalPhrases(guide.code).map(p => `
-            <div class="p-2.5 rounded-xl bg-white/5">
-              <div class="font-medium text-sm text-purple-300">"${p.local}"</div>
-              <div class="text-xs text-slate-400 mt-1">${isEn ? p.meaningEn : p.meaning}</div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Cultural Etiquette -->
-      ${renderEtiquetteSection(guide.code)}
-
-      <!-- Cultural notes -->
-      ${guide.culturalNotes ? `
-        <div class="card p-4">
-          <h3 class="font-bold mb-2 flex items-center gap-2">
-            ${icon('heart', 'w-5 h-5 text-pink-400')}
-            ${t('culturalNotes') || 'Notes culturelles'}
-          </h3>
-          <p class="text-slate-300 text-sm leading-relaxed">${isEn && guide.culturalNotesEn ? guide.culturalNotesEn : guide.culturalNotes}</p>
-        </div>
-      ` : ''}
-
-      <!-- Events -->
-      ${guide.events && guide.events.length > 0 ? `
-        <div class="card p-4">
-          <h3 class="font-bold mb-3 flex items-center gap-2">
-            ${icon('calendar', 'w-5 h-5 text-pink-400')}
-            ${t('eventsAndFestivals') || 'Événements & festivals'}
-          </h3>
-          <div class="space-y-2">
-            ${guide.events.map(event => {
-    const eventName = (isEn && event.nameEn) ? event.nameEn : event.name
-    const eventDate = (isEn && event.dateEn) ? event.dateEn : event.date
-    const eventDesc = (isEn && event.descriptionEn) ? event.descriptionEn : event.description
-    return `
-              <div class="p-2.5 rounded-xl bg-white/5">
-                <div class="flex items-center gap-2">
-                  <span class="font-medium text-sm">${eventName}</span>
-                  <span class="text-xs text-slate-400">${eventDate}</span>
-                </div>
-                <p class="text-xs text-slate-400 mt-0.5">${eventDesc}</p>
-              </div>
-            `
-  }).join('')}
-          </div>
-        </div>
-      ` : ''}
-  `
-}
-
-function renderGuidePratiqueTab(guide, _isEn) {
-  return `
-      <!-- Emergency numbers -->
-      <div class="card p-4 border-danger-500/30">
-        <h3 class="font-bold mb-3 flex items-center gap-2 text-danger-400">
-          ${icon('phone', 'w-5 h-5')}
-          ${t('emergencyNumbers') || "Numéros d'urgence"}
-        </h3>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="text-center p-3 rounded-xl bg-danger-500/10">
-            <div class="text-xs text-slate-400 mb-1">Police</div>
-            <div class="font-bold text-lg">${guide.emergencyNumbers.police}</div>
-          </div>
-          <div class="text-center p-3 rounded-xl bg-danger-500/10">
-            <div class="text-xs text-slate-400 mb-1">Ambulance</div>
-            <div class="font-bold text-lg">${guide.emergencyNumbers.ambulance}</div>
-          </div>
-          <div class="text-center p-3 rounded-xl bg-danger-500/10">
-            <div class="text-xs text-slate-400 mb-1">${t('fire') || 'Pompiers'}</div>
-            <div class="font-bold text-lg">${guide.emergencyNumbers.fire}</div>
-          </div>
-          <div class="text-center p-3 rounded-xl bg-emerald-500/10">
-            <div class="text-xs text-slate-400 mb-1">${t('worldwide') || 'Monde'}</div>
-            <div class="font-bold text-lg text-emerald-400">${guide.emergencyNumbers.universal}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Visa Info -->
-      ${renderVisaSection(guide.code)}
-
-      <!-- Currency Info -->
-      ${renderCurrencySection(guide.code)}
-
-      <!-- Recommendations -->
-      <div class="card p-4 bg-primary-500/10 border-primary-500/20">
-        <h3 class="font-bold mb-3 flex items-center gap-2">
-          ${icon('thumbs-up', 'w-5 h-5 text-primary-400')}
-          ${t('recommendations') || 'Recommandations'}
-        </h3>
-        <div class="space-y-2 text-sm text-slate-300">
-          <p>${t('guideRecommendation1') || 'Consultez les spots vérifiés par la communauté sur la carte avant de partir.'}</p>
-          <p>${t('guideRecommendation2') || 'Activez le mode compagnon pour partager votre trajet en temps réel.'}</p>
-          <p>${t('guideRecommendation3') || 'Après chaque trajet, validez les spots que vous avez utilisés pour aider les prochains voyageurs.'}</p>
-        </div>
-      </div>
   `
 }
 
@@ -1149,95 +713,278 @@ export function renderSafety() {
   return renderSafetySection()
 }
 
+// ==================== CONTRIBUTION FORM HELPERS ====================
+
+function renderStarsStatic(rating) {
+  return Array.from({ length: 5 }, (_, i) =>
+    `<span class="text-sm ${i < rating ? 'text-amber-400' : 'text-slate-600'}">★</span>`
+  ).join('')
+}
+
+function renderStarRating(currentRating, categoryId) {
+  return `
+    <div class="flex items-center gap-1" role="radiogroup" aria-label="${t('guideYourRating') || 'Ta note'}">
+      ${Array.from({ length: 5 }, (_, i) => {
+        const star = i + 1
+        const active = star <= currentRating
+        return `
+          <button
+            type="button"
+            onclick="setGuideRating('${escapeJSString(categoryId)}', ${star})"
+            class="text-2xl transition-transform hover:scale-125 ${active ? 'text-amber-400' : 'text-slate-600 hover:text-amber-300'}"
+            aria-label="${star}/5"
+          >★</button>
+        `
+      }).join('')}
+    </div>
+  `
+}
+
+function renderGuideCategoryForm(countryCode, categoryId, userTips) {
+  const cat = GUIDE_CATEGORIES.find(c => c.id === categoryId)
+  if (!cat) return ''
+  const existing = userTips.find(tip => tip.category === categoryId)
+  const rating = window._guideFormRating ?? existing?.rating ?? 0
+  const text = existing?.text ?? ''
+
+  return `
+    <div class="card p-4 space-y-3 border border-primary-500/30 bg-primary-500/5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          ${icon(cat.icon, 'w-5 h-5 text-primary-400')}
+          <h3 class="font-medium text-sm">${t(cat.labelKey) || cat.fallback}</h3>
+        </div>
+        <button onclick="openGuideCategory('${escapeJSString(countryCode)}', null)" class="text-slate-400 hover:text-white">
+          ${icon('x', 'w-4 h-4')}
+        </button>
+      </div>
+
+      <!-- Star rating -->
+      ${renderStarRating(rating, categoryId)}
+
+      <!-- Text -->
+      <div>
+        <textarea
+          id="guide-contrib-text"
+          class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-primary-500/50"
+          rows="3"
+          placeholder="${t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...'}"
+          maxlength="500"
+        >${escapeHTML(text)}</textarea>
+        <p class="text-xs text-slate-500 mt-1 text-right"><span id="guide-contrib-char-count">${text.length}</span>/500</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2">
+        <button
+          onclick="submitGuideContribution()"
+          class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+        >
+          ${icon('send', 'w-4 h-4')}
+          ${existing ? (t('guideUpdateContrib') || 'Mettre à jour') : (t('guideTipSubmit') || 'Envoyer')}
+        </button>
+        ${existing ? `
+          <button
+            onclick="deleteGuideContribution('${escapeJSString(existing.id)}')"
+            class="px-4 py-2.5 rounded-xl bg-danger-500/20 text-danger-400 hover:bg-danger-500/30 text-sm transition-colors"
+          >
+            ${icon('trash-2', 'w-4 h-4')}
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `
+}
+
+function renderCustomCategoryForm(_countryCode) {
+  const rating = window._guideFormRating ?? 0
+  return `
+    <div class="card p-4 space-y-3 border border-amber-500/30 bg-amber-500/5">
+      <div class="flex items-center justify-between">
+        <h3 class="font-medium text-sm flex items-center gap-2">
+          ${icon('plus', 'w-4 h-4 text-amber-400')}
+          ${t('guideAddCategory') || 'Ajouter une catégorie'}
+        </h3>
+        <button onclick="window.setState?.({guideCustomCategoryOpen:false})" class="text-slate-400 hover:text-white">
+          ${icon('x', 'w-4 h-4')}
+        </button>
+      </div>
+
+      <!-- Custom name -->
+      <input
+        type="text"
+        id="guide-custom-name"
+        class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
+        placeholder="${t('guideCustomCategoryName') || 'Nom de la catégorie...'}"
+        maxlength="50"
+      />
+
+      <!-- Star rating -->
+      ${renderStarRating(rating, 'custom')}
+
+      <!-- Text -->
+      <div>
+        <textarea
+          id="guide-custom-text"
+          class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-amber-500/50"
+          rows="3"
+          placeholder="${t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...'}"
+          maxlength="500"
+        ></textarea>
+        <p class="text-xs text-slate-500 mt-1 text-right"><span id="guide-custom-char-count">0</span>/500</p>
+      </div>
+
+      <!-- Submit -->
+      <button
+        onclick="submitCustomCategory()"
+        class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+      >
+        ${icon('send', 'w-4 h-4')}
+        ${t('guideTipSubmit') || 'Envoyer'}
+      </button>
+    </div>
+  `
+}
+
 // ==================== GLOBAL HANDLERS ====================
 window.setGuideSection = (section) => {
   window.setState?.({ guideSection: section })
 }
 // selectGuide and filterGuides are defined in Travel.js (authoritative source)
 
-// Track selected category for guide tip form
-let _guideTipCategory = null
+// Track form rating in memory (not state, to avoid re-render on each star click)
+window._guideFormRating = 0
 
-window.selectGuideTipCategory = (cat) => {
-  _guideTipCategory = cat
-  // Update UI: deactivate all, activate selected
-  document.querySelectorAll('[data-guide-cat]').forEach(btn => {
-    const isSelected = btn.dataset.guideCat === cat
-    btn.classList.toggle('bg-emerald-500', isSelected)
-    btn.classList.toggle('text-white', isSelected)
-    btn.classList.toggle('bg-white/5', !isSelected)
-    btn.classList.toggle('text-slate-400', !isSelected)
-  })
+window.openGuideCategory = (countryCode, categoryId) => {
+  window._guideFormRating = 0
+  // Load existing rating if available
+  if (categoryId) {
+    const tips = getUserGuideTips(countryCode)
+    const existing = tips.find(t => t.category === categoryId)
+    if (existing) window._guideFormRating = existing.rating
+  }
+  window.setState?.({ guideOpenCategory: categoryId, guideCustomCategoryOpen: false })
 }
 
-// Char counter for guide tip textarea
+window.setGuideRating = (categoryId, rating) => {
+  window._guideFormRating = rating
+  // Update stars visually without full re-render
+  const state = window.getState?.() || {}
+  window.setState?.({ selectedCountryGuide: state.selectedCountryGuide })
+}
+
+window.submitGuideContribution = async () => {
+  const { showError, showSuccess } = await import('../../services/notifications.js')
+  const user = getCurrentUser()
+  if (!user) {
+    showError(t('guideLoginRequired') || 'Connecte-toi pour contribuer')
+    window.openAuth?.()
+    return
+  }
+
+  const state = window.getState?.() || {}
+  const countryCode = state.selectedCountryGuide
+  const category = state.guideOpenCategory
+  if (!countryCode || !category) return
+
+  const rating = window._guideFormRating
+  if (!rating || rating < 1) {
+    showError(t('guideYourRating') || 'Choisis une note')
+    return
+  }
+
+  const text = document.getElementById('guide-contrib-text')?.value?.trim() || ''
+
+  const result = await submitGuideTip({ countryCode, category, rating, text })
+  if (result.success) {
+    showSuccess(t('guideContribSaved') || 'Contribution enregistrée !')
+    window._guideFormRating = 0
+    window.setState?.({ guideOpenCategory: null, pendingGuideCountry: null })
+  } else {
+    showError(t('guideLoginRequired') || 'Connecte-toi pour contribuer')
+  }
+}
+
+window.deleteGuideContribution = async (docId) => {
+  const { showSuccess } = await import('../../services/notifications.js')
+  const result = await deleteUserGuideTip(docId)
+  if (result.success) {
+    showSuccess(t('guideContribDeleted') || 'Contribution supprimée')
+    const state = window.getState?.() || {}
+    window.setState?.({ selectedCountryGuide: state.selectedCountryGuide, guideOpenCategory: null })
+  }
+}
+
+window.addCustomGuideCategory = (_countryCode) => {
+  const user = getCurrentUser()
+  if (!user) {
+    import('../../services/notifications.js').then(n => n.showError(t('guideLoginRequired') || 'Connecte-toi pour contribuer'))
+    window.openAuth?.()
+    return
+  }
+  window._guideFormRating = 0
+  window.setState?.({ guideCustomCategoryOpen: true, guideOpenCategory: null })
+}
+
+window.submitCustomCategory = async () => {
+  const { showError, showSuccess } = await import('../../services/notifications.js')
+  const user = getCurrentUser()
+  if (!user) {
+    showError(t('guideLoginRequired') || 'Connecte-toi pour contribuer')
+    return
+  }
+
+  const state = window.getState?.() || {}
+  const countryCode = state.selectedCountryGuide
+  if (!countryCode) return
+
+  const name = document.getElementById('guide-custom-name')?.value?.trim()
+  if (!name) {
+    showError(t('guideCustomCategoryName') || 'Donne un nom à ta catégorie')
+    return
+  }
+
+  const rating = window._guideFormRating
+  if (!rating || rating < 1) {
+    showError(t('guideYourRating') || 'Choisis une note')
+    return
+  }
+
+  const text = document.getElementById('guide-custom-text')?.value?.trim() || ''
+
+  const result = await submitGuideTip({
+    countryCode,
+    category: `custom_${name}`,
+    rating,
+    text,
+    customCategory: true,
+    customCategoryName: name,
+  })
+
+  if (result.success) {
+    showSuccess(t('guideContribSaved') || 'Contribution enregistrée !')
+    window._guideFormRating = 0
+    window.setState?.({ guideCustomCategoryOpen: false })
+  }
+}
+
+// Keep old handler names working (backward compat for tests)
+window.selectGuideTipCategory = (_cat) => {
+  // Legacy — no-op (replaced by openGuideCategory)
+}
+
+// Char counter for guide contribution textarea
 document.addEventListener('input', (e) => {
-  if (e.target.id === 'guide-tip-text') {
-    const count = document.getElementById('guide-tip-char-count')
+  if (e.target.id === 'guide-contrib-text') {
+    const count = document.getElementById('guide-contrib-char-count')
+    if (count) count.textContent = e.target.value.length
+  }
+  if (e.target.id === 'guide-custom-text') {
+    const count = document.getElementById('guide-custom-char-count')
     if (count) count.textContent = e.target.value.length
   }
 })
 
-window.submitGuideTip = async () => {
-  const { getState, setState } = await import('../../stores/state.js')
-  const { showError, showSuccess } = await import('../../services/notifications.js')
-  const state = getState()
-
-  const tipText = document.getElementById('guide-tip-text')?.value?.trim()
-  if (!tipText) {
-    showError(t('guideTipPlaceholder') || 'Écris un conseil avant d\'envoyer')
-    return
-  }
-  if (!_guideTipCategory) {
-    showError(t('guideTipCategory') || 'Choisis une catégorie')
-    return
-  }
-
-  const country = state.pendingGuideCountry
-  if (!country) return
-
-  try {
-    const { getApps } = await import('firebase/app')
-    const { getFirestore, doc, setDoc } = await import('firebase/firestore')
-    const { getAuth } = await import('firebase/auth')
-
-    const apps = getApps()
-    const app = apps.length > 0 ? apps[0] : null
-    if (!app) throw new Error('Firebase not initialized')
-
-    const db = getFirestore(app)
-    const auth = getAuth(app)
-    const uid = auth.currentUser?.uid || 'anonymous'
-    const timestamp = Date.now()
-    const tipId = `${uid}_${timestamp}`
-
-    await setDoc(
-      doc(db, 'guideTips', country.code, 'tips', tipId),
-      {
-        uid,
-        countryCode: country.code,
-        countryName: country.name,
-        category: _guideTipCategory,
-        text: tipText,
-        createdAt: new Date().toISOString(),
-        flag: country.flag,
-      }
-    )
-  } catch { /* offline or not authed — still clear the state */ }
-
-  // Show success and clear pending state
-  const successEl = document.getElementById('guide-tip-success')
-  if (successEl) {
-    successEl.classList.remove('hidden')
-    const form = document.getElementById('guide-tip-text')
-    if (form) form.disabled = true
-  }
-
-  showSuccess(t('guideTipSubmitted') || 'Conseil envoyé, merci !')
-  _guideTipCategory = null
-
-  // Clear the pending country from state (badge disappears)
-  setState({ pendingGuideCountry: null, showGuideNudge: false })
-}
+window.submitGuideTip = window.submitGuideContribution
 
 export default { renderGuides, renderCountryDetail, renderSafety }

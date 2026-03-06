@@ -80,6 +80,9 @@ const MAIN_JS_HANDLERS = [
   // Guides
   'showGuides', 'showCountryDetail', 'showSafetyPage',
   'setGuideSection', 'selectGuide', 'filterGuides',
+  // Guide contributions
+  'openGuideCategory', 'setGuideRating', 'submitGuideContribution',
+  'deleteGuideContribution', 'addCustomGuideCategory', 'submitCustomCategory',
   // Friends
   'showFriends', 'openFriendsChat', 'showAddFriend', 'closeAddFriend',
   'acceptFriendRequest', 'declineFriendRequest',
