@@ -101,9 +101,9 @@ test.describe('Profile - Settings', () => {
     await expect(page.locator('text=Notifications').first()).toBeVisible({ timeout: 5000 })
   })
 
-  test('should have tutorial button', async ({ page }) => {
-    const tutorialBtn = page.locator('text=/tutoriel/i')
-    await expect(tutorialBtn.first()).toBeVisible({ timeout: 5000 })
+  test('should have actions card', async ({ page }) => {
+    const actionsCard = page.locator('.card:has-text("Actions")')
+    await expect(actionsCard.first()).toBeVisible({ timeout: 5000 })
   })
 })
 

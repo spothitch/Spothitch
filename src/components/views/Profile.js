@@ -1253,16 +1253,6 @@ function renderActionsCard(state) {
   return `
     <div class="card p-4 space-y-2">
       <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">${t('actions') || 'Actions'}</h3>
-      <button
-        onclick="startTutorial()"
-        class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
-      >
-        <div class="flex items-center gap-3">
-          ${icon('info', 'w-4 h-4 text-primary-400')}
-          <span class="text-sm">${t('reviewTutorial') || 'Revoir le tutoriel'}</span>
-        </div>
-        ${icon('chevron-right', 'w-4 h-4 text-slate-500')}
-      </button>
       ${state.isLoggedIn ? `
         <button
           onclick="handleLogout()"

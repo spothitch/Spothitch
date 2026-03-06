@@ -34,16 +34,17 @@ test.describe('Journey: New User Onboarding', () => {
     expect(hasContent).toBeTruthy()
   })
 
-  test('should be able to skip tutorial and access app', async ({ page }) => {
+  test('should be able to dismiss welcome popup and access app', async ({ page }) => {
     await page.goto('/')
     await page.evaluate(() => localStorage.clear())
     await page.reload()
 
     await page.waitForTimeout(1500)
 
-    const skipBtn = page.locator('button:has-text("Passer")')
-    if (await skipBtn.first().isVisible({ timeout: 5000 }).catch(() => false)) {
-      await skipBtn.first().click()
+    // Dismiss alpha welcome popup if visible
+    const ctaBtn = page.locator('button:has-text("parti")')
+    if (await ctaBtn.first().isVisible({ timeout: 5000 }).catch(() => false)) {
+      await ctaBtn.first().click()
     }
 
     await dismissOverlays(page)
@@ -195,12 +196,12 @@ test.describe('Journey: Profile & Settings', () => {
     await expect(customizeBtn.first()).toBeVisible({ timeout: 5000 })
   })
 
-  test('should have tutorial replay option', async ({ page }) => {
-    // "Revoir le tutoriel" is in the Réglages sub-tab
+  test('should have logout option', async ({ page }) => {
+    // Verify profile actions card is visible
     await page.evaluate(() => window.setProfileSubTab?.('reglages'))
     await page.waitForTimeout(300)
-    const tutorial = page.locator('[onclick*="startTutorial"]').or(page.locator('text=Revoir le tutoriel'))
-    await expect(tutorial.first()).toBeVisible({ timeout: 8000 })
+    const actions = page.locator('.card:has-text("Actions")')
+    await expect(actions.first()).toBeVisible({ timeout: 8000 })
   })
 
   test('should have reset app option', async ({ page }) => {

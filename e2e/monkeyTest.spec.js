@@ -144,28 +144,17 @@ async function navigateToTab(page, tabName) {
   }
 }
 
-// Dismiss welcome/tutorial if shown
+// Dismiss welcome/alpha popup if shown
 async function dismissOnboarding(page) {
   try {
-    // Skip welcome
-    const skipWelcome = page.locator('text=Passer')
-    if (await skipWelcome.isVisible({ timeout: 2000 })) {
-      await skipWelcome.click()
+    // Dismiss alpha welcome popup
+    const ctaBtn = page.locator('button:has-text("parti")')
+    if (await ctaBtn.isVisible({ timeout: 2000 })) {
+      await ctaBtn.click()
       await page.waitForTimeout(300)
     }
   } catch {
-    // No welcome screen
-  }
-
-  try {
-    // Skip tutorial
-    const skipTutorial = page.locator('text=Passer')
-    if (await skipTutorial.isVisible({ timeout: 1000 })) {
-      await skipTutorial.click()
-      await page.waitForTimeout(300)
-    }
-  } catch {
-    // No tutorial
+    // No welcome popup
   }
 
   try {

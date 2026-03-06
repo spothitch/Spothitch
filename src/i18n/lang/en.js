@@ -1900,13 +1900,6 @@ export default {
   addSpotError: 'Error adding the spot',
   // Profile / GDPR
   notConnected: 'Not connected',
-  // Tutorial (3 screens)
-  tutSpotsTitle: 'Hitchhiking spots near you',
-  tutSpotsDesc: 'The map shows the best spots to hitchhike. Zoom in to see details, ratings and tips from other travelers.',
-  tutContributeTitle: 'Share your spots',
-  tutContributeDesc: 'Found a great spot? Tap the + button to add it with a photo and tips. Every spot helps the community!',
-  tutSafetyTitle: 'Stay safe',
-  tutSafetyDesc: 'Activate Companion Mode to share your location with a trusted contact. The SOS button is always at the top.',
   profileSetupTitle: 'Set up your profile',
   profileSetupDesc: 'Pick a name and avatar to contribute',
   maybeLater: 'Maybe later',
@@ -3238,7 +3231,6 @@ export default {
   termsOfUse: 'Terms of use',
   openSourceLicenses: 'Open source licenses',
   dataSource: 'Spot data: HitchWiki (ODbL). Map: OpenFreeMap.',
-  reviewTutorial: 'Review tutorial',
   roadmap: 'Roadmap',
   save: 'Save',
   search: 'Search',
@@ -4238,16 +4230,16 @@ export default {
   adminSentry24h: 'Last 24h',
   adminSentryIssueList: 'Recent errors',
 
-  // Beta Banner
-  betaBannerText: 'Beta version. Help us improve SpotHitch!',
-  betaPopupTitle: 'Welcome to SpotHitch!',
-  betaPopupBadge: 'BETA VERSION',
-  betaPopupExplain: 'You are among the first to test SpotHitch! The app is under active development and your feedback means the world to us.',
-  betaPopupHelp: 'If you find a bug or have an idea, we want to know!',
-  betaPopupFeedbackTitle: '"Feedback" button on the left side',
-  betaPopupFeedbackDesc: 'Tap the orange "Feedback" button on the left side of the screen to rate each feature and tell us what you think.',
-  betaPopupBugs: 'Report bugs',
-  betaPopupIdeas: 'Suggest ideas',
+  // Alpha Banner
+  betaBannerText: 'Alpha version. Help us improve SpotHitch!',
+  betaPopupTitle: 'Welcome to SpotHitch',
+  betaPopupBadge: 'ALPHA VERSION',
+  betaPopupExplain: 'You are one of the very first testers. The app is still young and has quite a few bugs. That\'s normal, we\'re building it together.',
+  betaPopupFeedbackTitle: 'Your feedback matters',
+  betaPopupFeedbackDesc: 'Every bug you report helps us improve the app.',
+  betaPopupFeedbackHint: '"Feedback" button on the left side',
+  betaPopupBugs: 'Report a bug',
+  betaPopupIdeas: 'Suggest an idea',
   betaPopupLike: 'Tell us what you like',
   betaPopupCTA: 'Let\'s go, I\'m testing!',
 

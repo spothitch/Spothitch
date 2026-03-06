@@ -1,94 +1,51 @@
 /**
- * E2E Tests - Tutorial
- * Tests for interactive tutorial flow
+ * E2E Tests - Alpha Welcome Popup (replaces tutorial)
+ * Tests for the alpha welcome popup flow
  */
 
 import { test, expect } from '@playwright/test'
 import { skipOnboarding, dismissOverlays } from './helpers.js'
 
-test.describe('Tutorial', () => {
-  test('should show welcome or splash for new users', async ({ page }) => {
+test.describe('Alpha Welcome Popup', () => {
+  test('should show alpha popup for new users', async ({ page }) => {
     await page.goto('/')
     await page.evaluate(() => localStorage.clear())
     await page.reload({ waitUntil: 'networkidle' })
-
-    // Wait for splash + lazy-loaded landing page to render
     await page.waitForTimeout(2000)
+    await dismissOverlays(page)
 
-    // Verify app has actual content (not empty from lazy loading)
-    const hasContent = await page.evaluate(() => {
-      const app = document.getElementById('app')
-      return app && app.innerHTML.length > 50
+    // Check if alpha popup or banner is visible
+    const popup = page.locator('[role="dialog"]')
+    const banner = page.locator('#beta-banner')
+    const hasPopupOrBanner = await popup.first().isVisible({ timeout: 5000 }).catch(() => false)
+      || await banner.first().isVisible({ timeout: 3000 }).catch(() => false)
+    expect(hasPopupOrBanner).toBeTruthy()
+  })
+
+  test('should dismiss popup on CTA click', async ({ page }) => {
+    await page.goto('/')
+    await page.evaluate(() => {
+      localStorage.clear()
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
-    expect(hasContent).toBeTruthy()
-  })
-
-  test('should have skip button in tutorial', async ({ page }) => {
-    await page.goto('/')
-    await page.evaluate(() => localStorage.clear())
-    await page.reload()
+    await page.reload({ waitUntil: 'networkidle' })
     await page.waitForTimeout(1500)
-    await dismissOverlays(page)
 
-    const skipBtn = page.locator('text=Passer, button:has-text("Passer")')
-    // Skip button may or may not appear depending on flow state
-    if (await skipBtn.first().isVisible({ timeout: 5000 }).catch(() => false)) {
-      await expect(skipBtn.first()).toBeVisible()
+    const cta = page.locator('button:has-text("parti")')
+    if (await cta.first().isVisible({ timeout: 5000 }).catch(() => false)) {
+      await cta.first().click()
+      await page.waitForTimeout(500)
+      // Popup should be gone
+      const popup = page.locator('[role="dialog"]')
+      await expect(popup).not.toBeVisible({ timeout: 3000 })
     }
   })
 
-  test('should skip tutorial when skip is clicked', async ({ page }) => {
-    await page.goto('/')
-    await page.evaluate(() => localStorage.clear())
-    await page.reload()
-    await page.waitForTimeout(1500)
-    await dismissOverlays(page)
-
-    const skipBtn = page.locator('text=Passer, button:has-text("Passer")')
-    if (await skipBtn.first().isVisible({ timeout: 3000 }).catch(() => false)) {
-      await skipBtn.first().click()
-      await page.waitForTimeout(300)
-    }
-  })
-
-  test('should progress through tutorial steps', async ({ page }) => {
-    await page.goto('/')
-    await page.evaluate(() => localStorage.clear())
-    await page.reload()
-    await page.waitForTimeout(1500)
-    await dismissOverlays(page)
-
-    const nextBtn = page.locator('button:has-text("Suivant")')
-    if (await nextBtn.first().isVisible({ timeout: 3000 }).catch(() => false)) {
-      await nextBtn.first().click()
-      await page.waitForTimeout(300)
-    }
-  })
-
-  test('should start tutorial from profile', async ({ page }) => {
+  test('should show banner after popup dismissed', async ({ page }) => {
     await skipOnboarding(page)
-    await page.click('[data-tab="profile"]')
-    await page.waitForTimeout(300)
-
-    const tutorialBtn = page.locator('text=/tutoriel/i, button:has-text("tutoriel")')
-    if (await tutorialBtn.first().isVisible({ timeout: 3000 }).catch(() => false)) {
-      await tutorialBtn.first().click()
-      await page.waitForTimeout(300)
-    }
-  })
-})
-
-test.describe('Tutorial Completion', () => {
-  test('should be able to complete or skip tutorial', async ({ page }) => {
-    await page.goto('/')
-    await page.evaluate(() => localStorage.clear())
-    await page.reload()
-    await page.waitForTimeout(1500)
-    await dismissOverlays(page)
-
-    const skipBtn = page.locator('text=Passer, button:has-text("Passer")')
-    if (await skipBtn.first().isVisible({ timeout: 3000 }).catch(() => false)) {
-      await skipBtn.first().click()
-    }
+    const banner = page.locator('#beta-banner')
+    await expect(banner).toBeVisible({ timeout: 5000 })
+    const bannerText = await banner.textContent()
+    expect(bannerText.toLowerCase()).toContain('alpha')
   })
 })

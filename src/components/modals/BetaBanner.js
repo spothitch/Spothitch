@@ -1,7 +1,7 @@
 /**
- * Beta Banner + Welcome Popup
- * - Small persistent banner at top: "Version bêta"
- * - First-visit popup explaining the beta + where to give feedback
+ * Alpha Banner + Welcome Popup
+ * - Small persistent banner at top: "Version alpha"
+ * - First-visit popup explaining the alpha + where to give feedback
  * - localStorage key: spothitch_beta_seen (popup shown once only)
  */
 
@@ -14,7 +14,7 @@ function hasSeen() {
 }
 
 /**
- * Render the beta banner (small top banner) + popup if first visit
+ * Render the alpha banner (small top banner) + popup if first visit
  */
 export function renderBetaBanner() {
   const showPopup = !hasSeen()
@@ -23,79 +23,71 @@ export function renderBetaBanner() {
     <div id="beta-banner"
       class="fixed top-0 left-0 right-0 z-40 text-center py-1 text-xs font-bold"
       style="background: linear-gradient(90deg, #f59e0b, #fb923c); color: #000">
-      ${t('betaBannerText') || 'Version bêta — aide-nous à améliorer SpotHitch !'}
+      ${t('betaBannerText') || 'Version alpha. Aide-nous \u00e0 am\u00e9liorer SpotHitch !'}
     </div>`
 
   if (!showPopup) return banner
 
   const popup = `
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div id="alpha-welcome-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4"
       onclick="closeBetaPopup()" role="dialog" aria-modal="true" tabindex="0">
       <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true"></div>
-      <div id="beta-popup-card" class="relative bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-amber-500/30"
+      <div id="beta-popup-card" class="relative rounded-2xl max-w-sm w-full p-6 shadow-2xl"
+        style="background: #0f172a; border: 2px solid #f59e0b; box-shadow: 0 0 30px rgba(245,158,11,0.25), 0 0 60px rgba(245,158,11,0.1)"
         onclick="event.stopPropagation()">
 
         <!-- Header -->
         <div class="text-center mb-5">
-          <div class="text-5xl mb-3">🚀</div>
-          <h2 class="beta-popup-title text-xl font-bold text-white mb-1">
-            ${t('betaPopupTitle') || 'Bienvenue sur SpotHitch !'}
+          <div class="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center"
+            style="background: linear-gradient(180deg, #fbbf24, #f59e0b)">
+            <span class="text-2xl font-black text-black">A</span>
+          </div>
+          <h2 class="text-xl font-bold text-white mb-2">
+            ${t('betaPopupTitle') || 'Bienvenue sur SpotHitch'}
           </h2>
-          <div class="inline-block px-3 py-1 rounded-full text-xs font-bold mt-1"
+          <div class="inline-block px-3 py-1 rounded-full text-xs font-bold"
             style="background: linear-gradient(90deg, #f59e0b, #fb923c); color: #000">
-            ${t('betaPopupBadge') || 'VERSION BÊTA'}
+            ${t('betaPopupBadge') || 'VERSION ALPHA'}
           </div>
         </div>
 
         <!-- Explanation -->
-        <div class="space-y-3 mb-5">
-          <p class="beta-popup-text text-sm text-slate-200 leading-relaxed">
-            ${t('betaPopupExplain') || 'Tu fais partie des premiers à tester SpotHitch ! L\'app est en cours de développement et ton avis compte énormément pour nous.'}
-          </p>
-          <p class="beta-popup-text text-sm text-slate-300 leading-relaxed">
-            ${t('betaPopupHelp') || 'Si tu trouves un bug ou si tu as une idée, on veut le savoir !'}
+        <div class="mb-5">
+          <p class="text-sm text-slate-200 leading-relaxed">
+            ${t('betaPopupExplain') || 'Tu fais partie des tout premiers testeurs. L\'app est encore jeune et contient pas mal de bugs. C\'est normal, on construit ensemble.'}
           </p>
         </div>
 
-        <!-- Feedback button location -->
-        <div class="card p-3 mb-5 border border-amber-500/30 bg-amber-500/10">
-          <div class="flex items-start gap-3">
-            <div class="flex-shrink-0 mt-0.5">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                style="background: linear-gradient(180deg, #fbbf24, #f59e0b)">
-                <span class="text-black text-sm font-bold">💬</span>
-              </div>
+        <!-- Feedback card -->
+        <div class="p-4 mb-5 rounded-xl" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25)">
+          <p class="text-sm font-bold text-amber-400 mb-2">
+            ${t('betaPopupFeedbackTitle') || 'Ton avis compte'}
+          </p>
+          <p class="text-xs text-slate-300 mb-3">
+            ${t('betaPopupFeedbackDesc') || 'Chaque bug que tu signales nous aide \u00e0 am\u00e9liorer l\'app.'}
+          </p>
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+              <span class="text-xs text-slate-300">${t('betaPopupBugs') || 'Signaler un bug'}</span>
             </div>
-            <div>
-              <p class="text-sm font-bold text-amber-500 mb-1">
-                ${t('betaPopupFeedbackTitle') || 'Bouton "Avis" sur le côté gauche'}
-              </p>
-              <p class="beta-popup-text text-xs text-slate-300">
-                ${t('betaPopupFeedbackDesc') || 'Clique sur le bouton orange "Avis" à gauche de l\'écran pour noter chaque fonctionnalité et nous dire ce que tu en penses.'}
-              </p>
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+              <span class="text-xs text-slate-300">${t('betaPopupIdeas') || 'Proposer une id\u00e9e'}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+              <span class="text-xs text-slate-300">${t('betaPopupLike') || 'Dire ce que tu aimes'}</span>
             </div>
           </div>
-        </div>
-
-        <!-- What to look for -->
-        <div class="grid grid-cols-3 gap-2 mb-5 text-center">
-          <div class="card p-2">
-            <div class="text-lg mb-1">🐛</div>
-            <div class="beta-popup-text text-[10px] text-slate-300">${t('betaPopupBugs') || 'Signale les bugs'}</div>
-          </div>
-          <div class="card p-2">
-            <div class="text-lg mb-1">💡</div>
-            <div class="beta-popup-text text-[10px] text-slate-300">${t('betaPopupIdeas') || 'Propose des idées'}</div>
-          </div>
-          <div class="card p-2">
-            <div class="text-lg mb-1">👍</div>
-            <div class="beta-popup-text text-[10px] text-slate-300">${t('betaPopupLike') || 'Dis ce que tu aimes'}</div>
-          </div>
+          <p class="text-[11px] text-slate-400 mt-3">
+            ${t('betaPopupFeedbackHint') || 'Bouton "Avis" sur le c\u00f4t\u00e9 gauche'}
+          </p>
         </div>
 
         <!-- CTA -->
         <button onclick="closeBetaPopup()"
-          class="w-full py-3 rounded-xl font-bold text-black text-sm"
+          class="w-full py-3 rounded-xl font-bold text-black text-sm cursor-pointer"
           style="background: linear-gradient(90deg, #f59e0b, #fb923c)">
           ${t('betaPopupCTA') || 'C\'est parti, je teste !'}
         </button>
@@ -109,11 +101,8 @@ export function renderBetaBanner() {
 
 window.closeBetaPopup = () => {
   localStorage.setItem(BETA_SEEN_KEY, '1')
-  // Remove popup from DOM
-  const popup = document.querySelector('[role="dialog"][aria-modal="true"]')
-  if (popup && popup.closest('.fixed.inset-0.z-50')) {
-    popup.closest('.fixed.inset-0.z-50').remove()
-  }
+  const overlay = document.getElementById('alpha-welcome-overlay')
+  if (overlay) overlay.remove()
 }
 
 export default { renderBetaBanner }

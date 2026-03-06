@@ -1900,13 +1900,6 @@ export default {
   addSpotError: "Erreur lors de l'ajout du spot",
   // Profile / GDPR
   notConnected: 'Non connecté',
-  // Tutorial (3 screens)
-  tutSpotsTitle: 'Les spots autour de toi',
-  tutSpotsDesc: 'La carte affiché les meilleurs spots pour faire du stop. Zoome pour voir les détails, notes et conseils des autres voyageurs.',
-  tutContributeTitle: 'Partage tes spots',
-  tutContributeDesc: 'Tu connais un bon spot ? Appuie sur le bouton + pour l\'ajouter avec une photo et des conseils. Chaque spot aide la communauté !',
-  tutSafetyTitle: 'Voyage en sécurité',
-  tutSafetyDesc: 'Active le Mode Compagnon pour partager ta position avec un contact de confiance. Le bouton SOS est toujours en haut.',
   profileSetupTitle: 'Crée ton profil',
   profileSetupDesc: 'Choisis un pseudo et un avatar pour contribuer',
   maybeLater: 'Plus tard',
@@ -3238,7 +3231,6 @@ export default {
   termsOfUse: 'Conditions d\'utilisation',
   openSourceLicenses: 'Licences open source',
   dataSource: 'Données spots : HitchWiki (ODbL). Carte : OpenFreeMap.',
-  reviewTutorial: 'Revoir le tutoriel',
   roadmap: 'Feuille de route',
   save: 'Sauvegarder',
   search: 'Rechercher',
@@ -4238,17 +4230,17 @@ export default {
   adminSentry24h: 'Dernières 24h',
   adminSentryIssueList: 'Erreurs récentes',
 
-  // Beta Banner
-  betaBannerText: 'Version bêta. Aide-nous à améliorer SpotHitch !',
-  betaPopupTitle: 'Bienvenue sur SpotHitch !',
-  betaPopupBadge: 'VERSION BÊTA',
-  betaPopupExplain: 'Tu fais partie des premiers à tester SpotHitch ! L\'app est en cours de développement et ton avis compte énormément pour nous.',
-  betaPopupHelp: 'Si tu trouves un bug ou si tu as une idée, on veut le savoir !',
-  betaPopupFeedbackTitle: 'Bouton "Avis" sur le côté gauche',
-  betaPopupFeedbackDesc: 'Clique sur le bouton orange "Avis" à gauche de l\'écran pour noter chaque fonctionnalité et nous dire ce que tu en penses.',
-  betaPopupBugs: 'Signale les bugs',
-  betaPopupIdeas: 'Propose des idées',
-  betaPopupLike: 'Dis ce que tu aimes',
+  // Alpha Banner
+  betaBannerText: 'Version alpha. Aide-nous \u00e0 am\u00e9liorer SpotHitch !',
+  betaPopupTitle: 'Bienvenue sur SpotHitch',
+  betaPopupBadge: 'VERSION ALPHA',
+  betaPopupExplain: 'Tu fais partie des tout premiers testeurs. L\'app est encore jeune et contient pas mal de bugs. C\'est normal, on construit ensemble.',
+  betaPopupFeedbackTitle: 'Ton avis compte',
+  betaPopupFeedbackDesc: 'Chaque bug que tu signales nous aide \u00e0 am\u00e9liorer l\'app.',
+  betaPopupFeedbackHint: 'Bouton "Avis" sur le c\u00f4t\u00e9 gauche',
+  betaPopupBugs: 'Signaler un bug',
+  betaPopupIdeas: 'Proposer une id\u00e9e',
+  betaPopupLike: 'Dire ce que tu aimes',
   betaPopupCTA: 'C\'est parti, je teste !',
 
   // Offline Manager
