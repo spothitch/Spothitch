@@ -691,7 +691,8 @@ function initHomeMap(state) {
     const maplibregl = maplibreModule.default || maplibreModule
     const {
       addCountryBubbleLayers, updateCountryBubbleData,
-      createBubblePopup, setBubbleLayersVisibility, setSpotLayersVisibility,
+      createBubblePopup, handleClusterClick, setBubbleLayersVisibility,
+      setSpotLayersVisibility, createLoadingIndicatorHTML,
     } = await import('../services/countryBubbles.js')
 
     const hasGps = !!state.userLocation
@@ -980,22 +981,22 @@ function initHomeMap(state) {
       populateSplitView(spots)
     }
 
-    // Loading indicator helpers (works for both Map.js and Home.js)
-    const showSpotsLoading = () => {
-      for (const prefix of ['map', 'home']) {
-        const el = document.getElementById(`${prefix}-spots-loading`)
-        const ct = document.getElementById(`${prefix}-spots-count`)
-        if (el) { el.classList.remove('hidden'); el.classList.add('inline-flex') }
-        if (ct) ct.classList.add('hidden')
+    // Loading indicator (#17 notification sticky) — inject into the map div
+    const injectLoadingIndicator = () => {
+      if (document.getElementById('map-loading-indicator')) return
+      const target = document.getElementById('home-map') || document.getElementById('map')
+      if (target) {
+        target.insertAdjacentHTML('beforeend', createLoadingIndicatorHTML())
       }
     }
+    injectLoadingIndicator()
+    const showSpotsLoading = () => {
+      const el = document.getElementById('map-loading-indicator')
+      if (el) el.style.display = 'flex'
+    }
     const hideSpotsLoading = () => {
-      for (const prefix of ['map', 'home']) {
-        const el = document.getElementById(`${prefix}-spots-loading`)
-        const ct = document.getElementById(`${prefix}-spots-count`)
-        if (el) { el.classList.add('hidden'); el.classList.remove('inline-flex') }
-        if (ct) ct.classList.remove('hidden')
-      }
+      const el = document.getElementById('map-loading-indicator')
+      if (el) el.style.display = 'none'
     }
 
     // Load spots for visible area
@@ -1069,13 +1070,19 @@ function initHomeMap(state) {
       // Initial bubble data
       refreshBubbles()
 
-      // Click on country bubble → popup (use generic click + queryRenderedFeatures)
-      map.on('click', (e) => {
-        if (map.getZoom() >= 7) return // bubbles hidden at zoom >= 7
-        const features = map.queryRenderedFeatures(e.point, { layers: ['country-bubble-circles'] })
-        if (!features?.length) return
+      // Click on cluster bubble → zoom in to expand
+      map.on('click', 'country-bubble-clusters', (e) => {
+        if (!e.features?.length) return
+        handleClusterClick(map, e.features[0])
+      })
+      map.on('mouseenter', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = 'pointer' })
+      map.on('mouseleave', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = '' })
+
+      // Click on individual country bubble → popup
+      map.on('click', 'country-bubble-circles', (e) => {
+        if (!e.features?.length) return
         if (activePopup) { activePopup.remove(); activePopup = null }
-        activePopup = createBubblePopup(maplibregl, features[0], e.lngLat)
+        activePopup = createBubblePopup(maplibregl, e.features[0], e.lngLat)
         activePopup.addTo(map)
       })
       map.on('mouseenter', 'country-bubble-circles', () => { map.getCanvas().style.cursor = 'pointer' })
