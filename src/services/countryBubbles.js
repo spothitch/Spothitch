@@ -1,7 +1,8 @@
 /**
  * Country Bubbles Service
  * Displays orange bubbles per country on the map when zoomed out (zoom < 7)
- * Each bubble shows the flag + spot count, with download/display actions
+ * Each bubble shows the flag + spot count, with download action
+ * Uses MapLibre clustering to avoid visual overlap when zoomed out
  */
 
 import { t } from '../i18n/index.js'
@@ -47,19 +48,91 @@ export function buildCountryBubblesGeoJSON(
 }
 
 /**
- * Add country bubble layers to the map
+ * Add country bubble layers to the map with clustering
+ * Clustering merges nearby bubbles at low zoom to avoid visual overlap
  */
 export function addCountryBubbleLayers(map) {
   map.addSource('country-bubbles', {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] },
+    cluster: true,
+    clusterMaxZoom: 4,
+    clusterRadius: 55,
+    clusterProperties: {
+      totalSpots: ['+', ['get', 'spotCount']],
+    },
   })
 
-  // Orange circles — radius proportional to spot count
+  // ============ CLUSTER LAYERS (merged bubbles) ============
+
+  // Cluster circles — amber, size based on total spots
+  map.addLayer({
+    id: 'country-bubble-clusters',
+    type: 'circle',
+    source: 'country-bubbles',
+    filter: ['has', 'point_count'],
+    paint: {
+      'circle-color': 'rgba(245, 158, 11, 0.6)',
+      'circle-radius': [
+        'interpolate', ['linear'], ['get', 'totalSpots'],
+        10, 22,
+        100, 28,
+        500, 36,
+        2000, 44,
+        5000, 52,
+      ],
+      'circle-stroke-color': 'rgba(245, 158, 11, 0.8)',
+      'circle-stroke-width': 2,
+      'circle-opacity': [
+        'interpolate', ['linear'], ['zoom'],
+        6, 1,
+        7, 0,
+      ],
+      'circle-stroke-opacity': [
+        'interpolate', ['linear'], ['zoom'],
+        6, 1,
+        7, 0,
+      ],
+    },
+  })
+
+  // Cluster labels — show total spots + country count
+  map.addLayer({
+    id: 'country-bubble-cluster-labels',
+    type: 'symbol',
+    source: 'country-bubbles',
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': [
+        'concat',
+        ['number-format', ['get', 'totalSpots'], { 'min-fraction-digits': 0, 'max-fraction-digits': 0 }],
+        '\n',
+        ['number-format', ['get', 'point_count'], { 'min-fraction-digits': 0, 'max-fraction-digits': 0 }],
+        ' ',
+      ],
+      'text-size': 11,
+      'text-font': ['Noto Sans Bold'],
+      'text-allow-overlap': true,
+      'text-line-height': 1.3,
+    },
+    paint: {
+      'text-color': '#ffffff',
+      'text-opacity': [
+        'interpolate', ['linear'], ['zoom'],
+        6, 1,
+        7, 0,
+      ],
+    },
+  })
+
+  // ============ INDIVIDUAL BUBBLE LAYERS (unclustered) ============
+
+  // Individual circles — color by download state
   map.addLayer({
     id: 'country-bubble-circles',
     type: 'circle',
     source: 'country-bubbles',
+    filter: ['!', ['has', 'point_count']],
     paint: {
       'circle-color': [
         'case',
@@ -94,11 +167,12 @@ export function addCountryBubbleLayers(map) {
     },
   })
 
-  // Labels: flag + count
+  // Individual labels: spot count
   map.addLayer({
     id: 'country-bubble-labels',
     type: 'symbol',
     source: 'country-bubbles',
+    filter: ['!', ['has', 'point_count']],
     layout: {
       'text-field': ['get', 'label'],
       'text-size': 12,
@@ -115,12 +189,12 @@ export function addCountryBubbleLayers(map) {
     },
   })
 
-  // Downloaded badge (checkmark)
+  // Downloaded badge (checkmark) — individual bubbles only
   map.addLayer({
     id: 'country-bubble-badges',
     type: 'circle',
     source: 'country-bubbles',
-    filter: ['==', ['get', 'isDownloaded'], 1],
+    filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'isDownloaded'], 1]],
     paint: {
       'circle-color': '#22c55e',
       'circle-radius': 8,
@@ -153,6 +227,7 @@ export function updateCountryBubbleData(map, indexData, countryCenters, loadedCo
 
 /**
  * Create a MapLibre popup for a country bubble
+ * Only shows download button (spots load automatically when zooming)
  * Download button shows a thick glow ring animation during progress
  */
 export function createBubblePopup(maplibregl, feature, lngLat) {
@@ -165,7 +240,7 @@ export function createBubblePopup(maplibregl, feature, lngLat) {
       </div>`
     : `<button onclick="downloadCountryFromBubble('${code}', '${escapeJSString(name)}')"
         id="bubble-download-${code}"
-        class="w-full px-3 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
+        class="w-full px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 text-sm font-medium hover:bg-amber-500/30 transition-colors flex items-center justify-center gap-2">
         ${icon('download', 'w-4 h-4')}
         ${t('downloadOffline') || 'Télécharger'}
       </button>`
@@ -189,14 +264,7 @@ export function createBubblePopup(maplibregl, feature, lngLat) {
           <div class="text-xs text-slate-400 mt-0.5">${spotCount} ${t('spotsInCountry') || 'spots'}</div>
         </div>
       </div>
-      <div class="flex flex-col gap-2">
-        <button onclick="loadCountryOnMap('${code}')"
-          class="w-full px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 text-sm font-medium hover:bg-amber-500/30 transition-colors flex items-center justify-center gap-2">
-          ${icon('eye', 'w-4 h-4')}
-          ${t('displayCountry') || 'Afficher'}
-        </button>
-        ${downloadBtn}
-      </div>
+      ${downloadBtn}
     </div>
   `
 
@@ -206,11 +274,30 @@ export function createBubblePopup(maplibregl, feature, lngLat) {
 }
 
 /**
- * Set visibility of bubble layers
+ * Handle click on a cluster bubble — zoom in to expand
+ */
+export function handleClusterClick(map, feature) {
+  const clusterId = feature.properties.cluster_id
+  const source = map.getSource('country-bubbles')
+  if (!source) return
+  source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+    if (err) return
+    map.easeTo({
+      center: feature.geometry.coordinates,
+      zoom: Math.min(zoom, 6),
+    })
+  })
+}
+
+/**
+ * Set visibility of bubble layers (including cluster layers)
  */
 export function setBubbleLayersVisibility(map, visible) {
   const v = visible ? 'visible' : 'none'
-  const layers = ['country-bubble-circles', 'country-bubble-labels', 'country-bubble-badges']
+  const layers = [
+    'country-bubble-clusters', 'country-bubble-cluster-labels',
+    'country-bubble-circles', 'country-bubble-labels', 'country-bubble-badges',
+  ]
   layers.forEach(id => {
     if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', v)
   })
@@ -225,6 +312,20 @@ export function setSpotLayersVisibility(map, visible) {
   layers.forEach(id => {
     if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', v)
   })
+}
+
+/**
+ * Create loading indicator HTML for the map
+ */
+export function createLoadingIndicatorHTML() {
+  return `<div id="map-loading-indicator" class="map-loading-indicator" style="display:none">
+    <div class="mli-spinner"></div>
+    <div class="mli-info">
+      <div class="mli-title">${t('loadingSpots') || 'Chargement des spots...'}</div>
+      <div class="mli-detail" id="map-loading-detail"></div>
+      <div class="mli-bar"><div class="mli-bar-fill"></div></div>
+    </div>
+  </div>`
 }
 
 // --- Helpers ---
