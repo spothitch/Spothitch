@@ -333,6 +333,9 @@ async function init() {
     // === NON-CRITICAL: defer everything else after first paint ===
     requestAnimationFrame(() => setTimeout(async () => {
       try {
+        // Draggable feedback button
+        try { initDraggableFeedbackBtn() } catch (e) { /* optional */ }
+
         // Screen reader support
         try { initScreenReaderSupport() } catch (e) { /* optional */ }
 
@@ -1410,70 +1413,14 @@ window.setLanguage = async (lang) => {
   window.location.href = window.location.href.split('#')[0]
 };
 
-// Tutorial handlers
-window.startTutorial = () => {
-  setState({ showTutorial: true, tutorialStep: 0 });
-  // Go to map tab for tutorial
-  actions.changeTab('map');
-  // Position spotlight after render
-  import('./components/modals/Tutorial.js').then(({ executeStepAction }) => {
-    executeStepAction(0);
-  });
-};
-window.nextTutorial = () => {
-  const { tutorialStep } = getState();
-  const newStep = (tutorialStep || 0) + 1;
-
-  // Import tutorial to check step count and execute action
-  import('./components/modals/Tutorial.js').then(({ tutorialSteps, executeStepAction }) => {
-    if (newStep >= tutorialSteps.length) {
-      window.finishTutorial();
-    } else {
-      setState({ tutorialStep: newStep });
-      executeStepAction(newStep);
-    }
-  });
-};
-window.prevTutorial = () => {
-  const { tutorialStep } = getState();
-  const newStep = Math.max(0, (tutorialStep || 0) - 1);
-  setState({ tutorialStep: newStep });
-  import('./components/modals/Tutorial.js').then(({ executeStepAction }) => {
-    executeStepAction(newStep);
-  });
-};
-window.skipTutorial = () => {
-  // Clean up tutorial targets
-  import('./components/modals/Tutorial.js').then(({ cleanupTutorialTargets }) => {
-    cleanupTutorialTargets();
-  });
-  setState({ showTutorial: false, tutorialStep: 0 });
-  actions.changeTab('map');
-};
-window.closeTutorial = () => setState({ showTutorial: false, tutorialStep: 0 })
-window.finishTutorial = async () => {
-  const state = getState()
-  const tutorialCompleted = state.tutorialCompleted
-
-  // Clean up tutorial targets
-  import('./components/modals/Tutorial.js').then(({ cleanupTutorialTargets }) => {
-    cleanupTutorialTargets()
-  })
-
-  setState({ showTutorial: false, tutorialStep: 0, tutorialCompleted: true })
-  actions.changeTab('map')
-
-  // Award rewards if first time completing
-  if (!tutorialCompleted) {
-    const { addPoints, addSeasonPoints } = await import('./services/gamification.js')
-    addPoints(100, 'tutorial_complete')
-    addSeasonPoints(20)
-    // Trigger confetti
-    if (window.launchConfetti) {
-      window.launchConfetti()
-    }
-  }
-};
+// Tutorial handlers — retired (replaced by Alpha Welcome Popup)
+// Stubs kept so onclick references don't throw
+window.startTutorial = () => {}
+window.nextTutorial = () => {}
+window.prevTutorial = () => {}
+window.skipTutorial = () => {}
+window.closeTutorial = () => {}
+window.finishTutorial = () => {}
 
 // Chat handlers — canonical: Conversations.js (with Firebase subscription)
 if (!window.setChatRoom) {
@@ -1998,12 +1945,7 @@ window.validateImage = async (...args) => {
 // Landing page dismiss handler — cookie consent is now handled by CookieBanner after carousel
 window.dismissLanding = () => {
   localStorage.setItem('spothitch_landing_v2', '1')
-  const { tutorialCompleted } = getState()
-  setState({
-    showLanding: false,
-    showTutorial: !tutorialCompleted,
-    tutorialStep: 0,
-  })
+  setState({ showLanding: false })
 }
 
 window.closeLanding = () => setState({ showLanding: false })
@@ -2075,6 +2017,95 @@ window.openBugReport = () => {
 // Feedback Panel
 window.openFeedbackPanel = () => setState({ showFeedbackPanel: true })
 window.closeFeedbackPanel = () => setState({ showFeedbackPanel: false, feedbackDetailFeature: null })
+
+// Draggable Feedback Side Button
+function initDraggableFeedbackBtn() {
+  const STORAGE_KEY = 'spothitch_fb_btn_y'
+  const btn = document.createElement('button')
+  btn.id = 'fb-side-btn'
+  btn.setAttribute('aria-label', t('fbSideTab') || 'Avis')
+  btn.innerHTML = `<span class="fb-pulse"></span><span class="fb-label">💬 ${escapeHTML(t('fbSideTab') || 'Avis')}</span>`
+
+  // Styles
+  Object.assign(btn.style, {
+    position: 'fixed', left: '0', zIndex: '30',
+    padding: '8px 10px', border: 'none', cursor: 'grab',
+    background: 'linear-gradient(180deg, #fbbf24, #f59e0b)',
+    color: '#fff', borderRadius: '0 12px 12px 0',
+    boxShadow: '2px 0 15px rgba(245,158,11,0.3)',
+    writingMode: 'vertical-rl', letterSpacing: '1px',
+    touchAction: 'none', userSelect: 'none',
+    transition: 'opacity 0.2s',
+  })
+
+  // Restore saved Y position or default to 45%
+  const savedY = localStorage.getItem(STORAGE_KEY)
+  const initialTop = savedY ? parseInt(savedY, 10) : Math.round(window.innerHeight * 0.45)
+  btn.style.top = initialTop + 'px'
+
+  // Pulse dot style
+  const style = document.createElement('style')
+  style.textContent = `
+    #fb-side-btn .fb-pulse { position:absolute;top:6px;right:4px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.8);animation:fbPulse 2s infinite }
+    #fb-side-btn .fb-label { font-size:11px;font-weight:700;letter-spacing:1.5px }
+    @keyframes fbPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  `
+  document.head.appendChild(style)
+  document.body.appendChild(btn)
+
+  // Drag state
+  let isDragging = false
+  let startY = 0
+  let startTop = 0
+  let hasMoved = false
+
+  function onStart(e) {
+    isDragging = true
+    hasMoved = false
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY
+    startY = clientY
+    startTop = parseInt(btn.style.top, 10) || initialTop
+    btn.style.cursor = 'grabbing'
+    btn.style.transition = 'none'
+    e.preventDefault()
+  }
+
+  function onMove(e) {
+    if (!isDragging) return
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY
+    const delta = clientY - startY
+    if (Math.abs(delta) > 4) hasMoved = true
+    const newTop = Math.max(60, Math.min(window.innerHeight - 80, startTop + delta))
+    btn.style.top = newTop + 'px'
+  }
+
+  function onEnd() {
+    if (!isDragging) return
+    isDragging = false
+    btn.style.cursor = 'grab'
+    btn.style.transition = 'opacity 0.2s'
+    // Save position
+    localStorage.setItem(STORAGE_KEY, parseInt(btn.style.top, 10))
+    // If not dragged, open panel
+    if (!hasMoved) window.openFeedbackPanel()
+  }
+
+  btn.addEventListener('touchstart', onStart, { passive: false })
+  btn.addEventListener('mousedown', onStart)
+  document.addEventListener('touchmove', onMove, { passive: false })
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('touchend', onEnd)
+  document.addEventListener('mouseup', onEnd)
+
+  // Visibility: hide during SOS, landing, feedback panel open
+  subscribe((state) => {
+    const hidden = state.showSOS || state.showLanding || state.showFeedbackPanel
+    btn.style.display = hidden ? 'none' : ''
+  })
+  // Initial visibility check
+  const s = getState()
+  btn.style.display = (s.showSOS || s.showLanding || s.showFeedbackPanel) ? 'none' : ''
+}
 window.openContactForm = () => {
   setState({ showContactForm: true });
 };
