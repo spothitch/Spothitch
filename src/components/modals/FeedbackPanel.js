@@ -64,7 +64,7 @@ function renderFeatureItem(feat) {
       onclick="showFeatureIntro('${escapeJSString(feat.id)}')" role="button" tabindex="0">
       <div class="text-xl w-9 h-9 flex items-center justify-center rounded-[10px] shrink-0" style="background:rgba(255,255,255,0.04)">${feat.emoji}</div>
       <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-1.5 text-[13px] font-semibold">${escapeHTML(feat.title)} ${statusTag}</div>
+        <div class="flex items-center gap-1.5 text-[13px] font-semibold">${escapeHTML(feat.name || feat.title)} ${statusTag}</div>
         <div class="flex items-center gap-1.5 mt-0.5">${voteTag}</div>
       </div>
       ${!hasVoted ? '<div class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-soft shrink-0" style="margin-right:4px"></div>' : ''}

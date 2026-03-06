@@ -79,7 +79,7 @@ function renderContent(content, color) {
 // ==================== MODAL HTML ====================
 
 function buildModalHTML(feature) {
-  const { id, emoji, title, status, color, badge, content, tags, btnLabel } = feature
+  const { id, emoji, name, title, status, color, badge, content, tags, btnLabel } = feature
   const existingVote = getUserVote(id)
   const selectedVote = existingVote?.vote || null
 
@@ -114,7 +114,7 @@ function buildModalHTML(feature) {
 
   // Comment area (pre-filled if existing)
   const commentValue = existingVote?.comment || ''
-  const commentDisplay = selectedVote ? 'block' : 'none'
+  const commentDisplay = 'block'
 
   // CTA button for available features
   const ctaHTML = status === 'available' && btnLabel ? `
@@ -151,8 +151,11 @@ function buildModalHTML(feature) {
           <!-- Badge -->
           <span style="display:inline-block;font-size:0.58rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;margin-bottom:8px;border:1px solid;${badgeStyle}">${escapeHTML(badge)}</span>
 
-          <!-- Title -->
-          <h2 id="fi-title" style="color:#fff;font-size:0.88rem;font-weight:700;line-height:1.3;margin-bottom:7px">${escapeHTML(title)}</h2>
+          <!-- Name (function name) -->
+          <h2 id="fi-title" style="color:#fff;font-size:1rem;font-weight:800;line-height:1.3;margin-bottom:4px">${escapeHTML(name || title)}</h2>
+
+          <!-- Subtitle (tagline) -->
+          ${name && title !== name ? `<p style="font-size:0.72rem;color:#94a3b8;line-height:1.4;margin-bottom:7px">${escapeHTML(title)}</p>` : ''}
 
           <!-- Dynamic content -->
           ${renderContent(content, color)}
