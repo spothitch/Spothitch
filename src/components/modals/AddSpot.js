@@ -479,21 +479,50 @@ function renderOfflineDraftButton() {
 }
 
 function renderPositionBlock() {
+  const hasPosition = window.spotFormData?.lat && window.spotFormData?.lng
+  const lat = window.spotFormData?.lat
+  const lng = window.spotFormData?.lng
+  const city = window.spotFormData?.departureCity || ''
+
   return `
     <div>
       <span class="text-sm text-slate-400 block mb-2" id="location-label">${t('position') || 'Position'} <span aria-label="obligatoire">*</span></span>
-      <button type="button" onclick="useGPSForSpot()" class="btn btn-ghost w-full mb-2" aria-describedby="location-display">
+
+      <!-- GPS button -->
+      <button type="button" onclick="useGPSForSpot()" class="btn btn-ghost w-full mb-3" aria-describedby="location-display">
         ${icon('crosshair', 'w-5 h-5')} ${t('useMyPosition') || 'Ma position GPS'}
       </button>
-      <div id="location-display" class="text-sm text-slate-400 mb-2 text-center" aria-live="polite" role="status">${
-        window.spotFormData?.lat && window.spotFormData?.lng
-          ? `<span class="text-green-400">${icon('check', 'w-4 h-4 inline')} ${window.spotFormData.departureCity || 'Position'} (${window.spotFormData.lat.toFixed(4)}, ${window.spotFormData.lng.toFixed(4)})</span>`
-          : ''
-      }</div>
-      <div id="spot-map-container" class="mt-2">
-        <p class="text-xs text-center text-amber-400/80 mb-2 font-medium">👇 ${t('tapToPlaceSpot') || 'Touche la carte pour placer ton spot'}</p>
-        <div id="spot-mini-map" class="spot-map-picker"></div>
-      </div>
+
+      ${hasPosition ? `
+        <!-- Position chosen: preview card -->
+        <div class="spot-position-preview" onclick="openFullscreenMapPicker()" role="button" tabindex="0"
+          onkeydown="if(event.key==='Enter')openFullscreenMapPicker()">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+              ${icon('map-pin', 'w-5 h-5 text-amber-400')}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">${city || t('positionChosen') || 'Position choisie'}</p>
+              <p class="text-xs text-slate-400">${lat.toFixed(5)}, ${lng.toFixed(5)}</p>
+            </div>
+            <div class="flex-shrink-0 text-xs text-amber-400 font-medium flex items-center gap-1">
+              ${icon('pencil', 'w-3.5 h-3.5')} ${t('modify') || 'Modifier'}
+            </div>
+          </div>
+        </div>
+      ` : `
+        <!-- No position yet: big CTA to open map -->
+        <button type="button" onclick="openFullscreenMapPicker()"
+          class="spot-position-cta">
+          <div class="flex flex-col items-center gap-2 py-2">
+            ${icon('map', 'w-8 h-8 text-amber-400')}
+            <span class="text-sm font-medium">${t('chooseOnMap') || 'Choisir sur la carte'}</span>
+            <span class="text-xs text-slate-500">${t('tapToPlaceSpot') || 'Touche la carte pour placer ton spot'}</span>
+          </div>
+        </button>
+      `}
+
+      <div id="location-display" class="text-sm text-slate-400 mt-2 text-center sr-only" aria-live="polite" role="status"></div>
     </div>
   `
 }
@@ -817,17 +846,6 @@ window.useGPSForSpot = () => {
       window.spotFormData.lng = position.coords.longitude
       window.spotFormData.positionSource = 'gps'
 
-      // Center mini map on GPS position and place marker
-      if (miniMap) {
-        miniMap.flyTo({ center: [position.coords.longitude, position.coords.latitude], zoom: 15 })
-        import('maplibre-gl').then(maplibregl => {
-          if (miniMapMarker) miniMapMarker.remove()
-          miniMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
-            .setLngLat([position.coords.longitude, position.coords.latitude])
-            .addTo(miniMap)
-        }).catch(() => {})
-      }
-
       try {
         const { reverseGeocode } = await import('../../services/osrm.js')
         const location = await reverseGeocode(position.coords.latitude, position.coords.longitude)
@@ -855,14 +873,11 @@ window.useGPSForSpot = () => {
             `
           }
         }
-      } catch {
-        if (display) {
-          display.innerHTML = `
-            ${icon('circle-check', 'w-5 h-5 text-success-400')}
-            ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}
-          `
-        }
-      }
+      } catch { /* no-op */ }
+
+      // Re-render to show position preview card
+      const { setState } = await import('../../stores/state.js')
+      setState({ addSpotStep: 1 })
     },
     (error) => {
       if (display) display.textContent = t('positionError') || "Impossible d'obtenir la position"
@@ -872,43 +887,59 @@ window.useGPSForSpot = () => {
   )
 }
 
-// Map picker — always visible in step 1
-let miniMap = null
-let miniMapMarker = null
 
-async function initSpotMap() {
-  const mapDiv = document.getElementById('spot-mini-map')
-  if (!mapDiv) return
+// Fullscreen map picker for AddSpot
+let fullscreenMap = null
+let fullscreenMapMarker = null
 
-  // Ensure container is visible with real dimensions before init
-  if (mapDiv.offsetWidth === 0 || mapDiv.offsetHeight === 0) {
-    mapDiv.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    requestAnimationFrame(() => initSpotMap())
-    return
-  }
+// Open fullscreen map picker overlay
+window.openFullscreenMapPicker = async () => {
+  // Create overlay
+  const overlay = document.createElement('div')
+  overlay.id = 'fullscreen-map-picker'
+  overlay.className = 'fixed inset-0 z-[60] bg-dark-primary flex flex-col'
+  overlay.innerHTML = `
+    <div class="flex items-center justify-between px-4 py-3 bg-dark-primary/90 backdrop-blur-sm border-b border-white/10">
+      <button type="button" id="fmp-cancel" class="text-sm text-slate-400 hover:text-white transition-colors px-3 py-1.5">
+        ${icon('arrow-left', 'w-4 h-4 inline mr-1')} ${t('cancel') || 'Annuler'}
+      </button>
+      <span class="text-sm font-medium text-slate-300">${t('chooseOnMap') || 'Choisir sur la carte'}</span>
+      <div class="w-20"></div>
+    </div>
+    <div id="fmp-map" class="flex-1 relative"></div>
+    <div id="fmp-info" class="px-4 py-2 bg-dark-primary/90 backdrop-blur-sm border-t border-white/10 text-center text-xs text-amber-400/80 font-medium">
+      ${t('tapToPlaceSpot') || 'Touche la carte pour placer ton spot'}
+    </div>
+    <div class="px-4 py-3 bg-dark-primary/90 backdrop-blur-sm border-t border-white/10">
+      <button type="button" id="fmp-confirm" class="btn btn-primary w-full text-base" disabled>
+        ${icon('check', 'w-5 h-5')} ${t('confirmPosition') || 'Confirmer la position'}
+      </button>
+    </div>
+  `
+  document.body.appendChild(overlay)
 
-  // Destroy stale map if container was rebuilt by render()
-  if (miniMap) {
-    try { miniMap.remove() } catch { /* no-op */ }
-    miniMap = null
-    miniMapMarker = null
-  }
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden'
+
+  let pickedLat = window.spotFormData?.lat || null
+  let pickedLng = window.spotFormData?.lng || null
+  let pickedCity = ''
 
   try {
-    // Load MapLibre CSS (required since it's lazy-loaded — must await to ensure styles applied before map renders)
     await import('maplibre-gl/dist/maplibre-gl.css')
-
     const maplibregl = await import('maplibre-gl')
 
-    // Use pending share coords, existing position, user's location, or default to Paris
+    // Center on existing position, user location, or default
     let center = [2.35, 48.85]
     let zoom = 5
     if (window._pendingShareCoords) {
       center = [window._pendingShareCoords.lng, window._pendingShareCoords.lat]
       zoom = 14
-    } else if (window.spotFormData?.lng && window.spotFormData?.lat) {
-      center = [window.spotFormData.lng, window.spotFormData.lat]
-      zoom = 13
+      pickedLat = window._pendingShareCoords.lat
+      pickedLng = window._pendingShareCoords.lng
+    } else if (pickedLat && pickedLng) {
+      center = [pickedLng, pickedLat]
+      zoom = 14
     } else {
       try {
         const { getState } = await import('../../stores/state.js')
@@ -920,108 +951,127 @@ async function initSpotMap() {
       } catch { /* no-op */ }
     }
 
-    miniMap = new maplibregl.default.Map({
-      container: mapDiv,
+    fullscreenMap = new maplibregl.default.Map({
+      container: document.getElementById('fmp-map'),
       style: 'https://tiles.openfreemap.org/styles/liberty',
       center,
       zoom,
     })
 
-    // Force map to recalculate size after CSS and DOM settle
-    miniMap.once('load', () => { miniMap.resize() })
-    setTimeout(() => { if (miniMap) miniMap.resize() }, 200)
-    setTimeout(() => { if (miniMap) miniMap.resize() }, 500)
+    const confirmBtn = document.getElementById('fmp-confirm')
+    const infoBar = document.getElementById('fmp-info')
 
-    // If share coords pending, place marker and fill form data
-    if (window._pendingShareCoords) {
-      const { lat, lng } = window._pendingShareCoords
-      window.spotFormData.lat = lat
-      window.spotFormData.lng = lng
-      window.spotFormData.positionSource = 'share'
-      miniMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
-        .setLngLat([lng, lat])
-        .addTo(miniMap)
-      const display = document.getElementById('location-display')
-      if (display) {
-        display.innerHTML = `${icon('circle-check', 'w-5 h-5 text-success-400')} ${lat.toFixed(4)}, ${lng.toFixed(4)}`
-      }
+    // Place existing marker if editing
+    if (pickedLat && pickedLng) {
+      fullscreenMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
+        .setLngLat([pickedLng, pickedLat])
+        .addTo(fullscreenMap)
+      confirmBtn.disabled = false
+      // Reverse geocode existing position
       try {
         const { reverseGeocode } = await import('../../services/osrm.js')
-        const location = await reverseGeocode(lat, lng)
-        if (location?.countryCode) {
-          window.spotFormData.country = location.countryCode
-          window.spotFormData.countryName = location.country
-        }
-        if (location?.city) {
-          const departureCityInput = document.getElementById('spot-departure-city')
-          if (departureCityInput && !departureCityInput.value) {
-            departureCityInput.value = location.city
-            window.spotFormData.departureCity = location.city
-            window.spotFormData.departureCityCoords = { lat, lng }
-          }
-        }
-        if (display && location?.city) {
-          display.innerHTML = `${icon('circle-check', 'w-5 h-5 text-success-400')} ${location.city} (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+        const location = await reverseGeocode(pickedLat, pickedLng)
+        pickedCity = location?.city || ''
+        if (infoBar) {
+          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedCity || ''} ${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
         }
       } catch { /* no-op */ }
+    }
+
+    // Handle share coords
+    if (window._pendingShareCoords) {
       window._pendingShareCoords = null
     }
 
-    if (window.spotFormData?.lat) {
-      miniMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
-        .setLngLat([window.spotFormData.lng, window.spotFormData.lat])
-        .addTo(miniMap)
-    }
+    fullscreenMap.on('click', async (e) => {
+      pickedLat = e.lngLat.lat
+      pickedLng = e.lngLat.lng
 
-    miniMap.on('click', async (e) => {
-      const { lng, lat } = e.lngLat
-      window.spotFormData.lat = lat
-      window.spotFormData.lng = lng
-      window.spotFormData.positionSource = 'map'
-
-      const maplibre = await import('maplibre-gl')
-      if (miniMapMarker) miniMapMarker.remove()
-      miniMapMarker = new maplibre.default.Marker({ color: '#f59e0b' })
-        .setLngLat([lng, lat])
-        .addTo(miniMap)
-
-      const display = document.getElementById('location-display')
-      if (display) {
-        display.innerHTML = `${icon('circle-check', 'w-5 h-5 text-success-400')} ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      // Move or create marker
+      if (fullscreenMapMarker) {
+        fullscreenMapMarker.setLngLat([pickedLng, pickedLat])
+      } else {
+        fullscreenMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
+          .setLngLat([pickedLng, pickedLat])
+          .addTo(fullscreenMap)
       }
 
+      confirmBtn.disabled = false
+
+      // Update info bar with loading
+      if (infoBar) {
+        infoBar.innerHTML = `<span class="text-amber-400">${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
+      }
+
+      // Reverse geocode
       try {
         const { reverseGeocode } = await import('../../services/osrm.js')
-        const location = await reverseGeocode(lat, lng)
+        const location = await reverseGeocode(pickedLat, pickedLng)
+        pickedCity = location?.city || ''
         if (location?.countryCode) {
           window.spotFormData.country = location.countryCode
           window.spotFormData.countryName = location.country
         }
-        if (location?.city) {
-          const departureCityInput = document.getElementById('spot-departure-city')
-          if (departureCityInput && !departureCityInput.value) {
-            departureCityInput.value = location.city
-            window.spotFormData.departureCity = location.city
-            window.spotFormData.departureCityCoords = { lat, lng }
-          }
+        if (infoBar) {
+          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedCity ? pickedCity + ' \u00b7 ' : ''}${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
         }
-        if (display && location?.city) {
-          display.innerHTML = `${icon('circle-check', 'w-5 h-5 text-success-400')} ${location.city} (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+      } catch {
+        if (infoBar) {
+          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
         }
-      } catch { /* no-op */ }
+      }
     })
+
+    // Confirm button
+    confirmBtn.addEventListener('click', async () => {
+      if (pickedLat == null || pickedLng == null) return
+
+      window.spotFormData.lat = pickedLat
+      window.spotFormData.lng = pickedLng
+      window.spotFormData.positionSource = 'map'
+      if (pickedCity) {
+        const departureCityInput = document.getElementById('spot-departure-city')
+        if (departureCityInput && !departureCityInput.value) {
+          departureCityInput.value = pickedCity
+          window.spotFormData.departureCity = pickedCity
+          window.spotFormData.departureCityCoords = { lat: pickedLat, lng: pickedLng }
+        }
+        if (!window.spotFormData.departureCity) {
+          window.spotFormData.departureCity = pickedCity
+        }
+      }
+
+      closeFullscreenMapPicker()
+
+      // Re-render step 1 to show the position preview card
+      const { setState } = await import('../../stores/state.js')
+      setState({ addSpotStep: 1 })
+    })
+
+    // Cancel button
+    document.getElementById('fmp-cancel').addEventListener('click', closeFullscreenMapPicker)
+
   } catch (error) {
-    console.error('Map init failed:', error)
+    console.error('Fullscreen map init failed:', error)
+    closeFullscreenMapPicker()
   }
 }
 
-// Kept for backward compat (wiring tests) — map is now always visible
-window.toggleSpotMapPicker = async () => {
-  if (!miniMap) await initSpotMap()
+function closeFullscreenMapPicker() {
+  if (fullscreenMap) {
+    try { fullscreenMap.remove() } catch { /* no-op */ }
+    fullscreenMap = null
+    fullscreenMapMarker = null
+  }
+  const overlay = document.getElementById('fullscreen-map-picker')
+  if (overlay) overlay.remove()
+  document.body.style.overflow = ''
 }
 
-// spotMapPickLocation — handled by map click listener in toggleSpotMapPicker
+// Legacy stubs for backward compat (wiring tests)
+window.toggleSpotMapPicker = async () => {}
 window.spotMapPickLocation = () => {}
+
 
 // Auto-detect spot type based on GPS position
 window.autoDetectStation = async () => {
@@ -1239,18 +1289,18 @@ export function initAddSpotAfterRender() {
   if (depInput && !dirInput && lastAutocompleteStep !== 1) {
     lastAutocompleteStep = 1
     initStep1Autocomplete()
-    // Auto-init map when step 1 appears — rAF ensures DOM is laid out with real dimensions
-    requestAnimationFrame(() => initSpotMap())
+    // If share coords pending, auto-open fullscreen map picker
+    if (window._pendingShareCoords) {
+      requestAnimationFrame(() => window.openFullscreenMapPicker?.())
+    }
   } else if (dirInput && lastAutocompleteStep !== 2) {
     lastAutocompleteStep = 2
     initStep2Autocomplete()
-    // Cleanup map when leaving step 1
-    if (miniMap) { try { miniMap.remove() } catch { /* map already detached */ } miniMap = null; miniMapMarker = null }
   } else if (!depInput && !dirInput && lastAutocompleteStep !== 0) {
     lastAutocompleteStep = 0
     cleanupAutocompletes()
-    // Cleanup map when modal closes
-    if (miniMap) { try { miniMap.remove() } catch { /* map already detached */ } miniMap = null; miniMapMarker = null }
+    // Cleanup fullscreen map if modal closes
+    closeFullscreenMapPicker()
   }
 }
 

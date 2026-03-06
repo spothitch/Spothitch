@@ -1899,6 +1899,9 @@ export default {
   spotAdded: 'Spot ajouté avec succès !',
   addSpotError: "Erreur lors de l'ajout du spot",
   sharePositionImported: 'Position importée depuis la carte',
+  positionChosen: 'Position choisie',
+  confirmPosition: 'Confirmer la position',
+  chooseOnMap: 'Choisir sur la carte',
   // Profile / GDPR
   notConnected: 'Non connecté',
   profileSetupTitle: 'Crée ton profil',
