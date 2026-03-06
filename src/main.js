@@ -76,7 +76,7 @@ import { resetFilters as resetFiltersUtil } from './components/modals/Filters.js
 import './components/modals/Leaderboard.js'; // Register global handlers
 import './components/modals/FeatureSlides.js'; // Feature Slides (openFeatureSlides, closeFeatureSlides, etc.)
 import './components/modals/FeatureIntroModal.js'; // Feature Intro glassmorphism (showFeatureIntro, closeFeatureIntro, etc.)
-import { isFeatureSeen } from './services/featureIntro.js';
+// featureIntro.js used by FeatureIntroModal (imported above)
 import { registerCheckinHandlers } from './components/modals/CheckinModal.js'; // Checkin modal handlers
 import { startNavigation } from './services/navigation.js'; // stopNavigation/openExternalNavigation registered by navigation.js itself
 import './services/gasStations.js'; // Gas stations (registers window.toggleGasStations)
@@ -2838,33 +2838,10 @@ if (!window.syncTripFieldsAndCalculate) {
     }
   } catch { /* ignore */ }
 
-  // Helper: wrap a window.* handler to show intro on first use
-  const wrapHandler = (name, introId) => {
-    const orig = window[name]
-    window[name] = (...args) => {
-      if (!isFeatureSeen(introId)) {
-        window.showFeatureIntro?.(introId)
-        return
-      }
-      orig?.(...args)
-    }
-  }
-
-  // Tab-based features — wrap changeTab pour Social uniquement (alpha)
-  // NOTE: 'map', 'profile', 'chat' exclus — chat est beta, géré par setupBetaGuards
-  const _origChangeTab = window.changeTab
-  window.changeTab = (tab) => {
-    if (tab === 'social' && !isFeatureSeen('amis')) {
-      window.showFeatureIntro?.('amis')
-      return
-    }
-    _origChangeTab?.(tab)
-  }
-
-  // Alpha features uniquement — les features beta sont gérées par setupBetaGuards
-  wrapHandler('openAddSpot', 'add-spot')
-  wrapHandler('showGuides', 'conseils')
-  // NOTE: openSOS, openBadges, openStats, openLeaderboard → beta → setupBetaGuards
+  // Available features (add-spot, guides, social) are NOT wrapped
+  // They open directly — users vote from the Feedback panel
+  // Beta features are wrapped by setupBetaGuards below
+  // Beta features are wrapped by setupBetaGuards below
 })()
 
 // ==================== BETA GUARDS ====================

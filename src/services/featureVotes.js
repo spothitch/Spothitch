@@ -101,19 +101,22 @@ export async function submitVote(featureId, vote, comment = '') {
       timestamp: new Date().toISOString(),
     }, { merge: true })
 
-    // Update counters
-    const voteFieldMap = { essential: 'essential', useful: 'useful', notUrgent: 'notUrgent' }
-    const updates = { [voteFieldMap[vote]]: increment(1) }
+    // Update counters (beta + available vote types)
+    const voteFieldMap = { essential: 'essential', useful: 'useful', notUrgent: 'notUrgent', love: 'love', works: 'works', improve: 'improve' }
+    const field = voteFieldMap[vote]
+    if (!field) return
+
+    const updates = { [field]: increment(1) }
 
     // If changing vote, decrement old one
-    if (prevVote && prevVote.vote !== vote) {
+    if (prevVote && prevVote.vote !== vote && voteFieldMap[prevVote.vote]) {
       updates[voteFieldMap[prevVote.vote]] = increment(-1)
     }
 
     // Check if doc exists first
     const totalsSnap = await getDoc(totalsRef)
     if (!totalsSnap.exists()) {
-      const init = { essential: 0, useful: 0, notUrgent: 0 }
+      const init = { essential: 0, useful: 0, notUrgent: 0, love: 0, works: 0, improve: 0 }
       init[vote] = 1
       await setDoc(totalsRef, init)
     } else {
