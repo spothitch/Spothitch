@@ -331,7 +331,7 @@ const MAIN_JS_HANDLERS = [
   'selectLanguageLevel', 'closeLanguageLevelPicker',
   // Roadmap handlers (defined in Profile.js)
   'openRoadmapFeature', 'closeRoadmapFeature',
-  'roadmapVote', 'openProgressionStats',
+  'roadmapVote', 'openProgressionStats', 'toggleRoadmapComments',
   'acceptRoadmapIntro', 'dismissRoadmapDetailIntro',
   // City Pages Demo (defined in Profile.js)
   'switchCityDemoTab', 'showCityPageDemo', 'closeCityPageDemo', 'startCityPageDemo',

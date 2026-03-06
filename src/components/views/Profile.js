@@ -13,7 +13,7 @@ import { getVipLevel } from '../../data/vip-levels.js'
 import { allBadges } from '../../data/badges.js'
 import { escapeHTML } from '../../utils/sanitize.js'
 import { FEATURES_DATA } from '../../data/featuresData.js'
-import { getVoteTotals } from '../../services/featureVotes.js'
+import { getVoteTotals, getFeatureComments } from '../../services/featureVotes.js'
 import './ProfileDemos.js' // Interactive demo overlays for Prochainement features
 
 // ==================== FIRESTORE PROFILE SYNC ====================
@@ -904,6 +904,55 @@ async function ensureRoadmapTotals() {
   window._forceRender?.()
 }
 
+// Cached comments per feature (loaded on demand)
+const _commentsCache = {}
+const _commentsLoading = new Set()
+
+async function ensureComments(featureId) {
+  if (_commentsCache[featureId] || _commentsLoading.has(featureId)) return
+  _commentsLoading.add(featureId)
+  try {
+    _commentsCache[featureId] = await getFeatureComments(featureId)
+  } catch { _commentsCache[featureId] = [] }
+  _commentsLoading.delete(featureId)
+  window._forceRender?.()
+}
+
+// Toggle expanded comments for a feature
+const _expandedFeatures = new Set()
+
+window.toggleRoadmapComments = (featureId) => {
+  if (_expandedFeatures.has(featureId)) {
+    _expandedFeatures.delete(featureId)
+  } else {
+    _expandedFeatures.add(featureId)
+    ensureComments(featureId)
+  }
+  window._forceRender?.()
+}
+
+
+function renderCommentsSection(featureId) {
+  if (!_expandedFeatures.has(featureId)) return ''
+  const comments = _commentsCache[featureId]
+  if (!comments) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">Chargement...</div></div>'
+  if (comments.length === 0) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">' + escapeHTML(t('roadmapNoComments') || 'Aucun avis pour le moment. Sois le premier !') + '</div></div>'
+
+  const VOTE_EMOJI = { essential: '🔥', useful: '👍', notUrgent: '🤷' }
+  return '<div class="mt-2 space-y-1.5">'
+    + comments.map(c =>
+      '<div class="flex items-start gap-2 px-1 py-1.5" style="border-top:1px solid rgba(255,255,255,0.04)">'
+      + '<span class="text-sm shrink-0">' + escapeHTML(c.avatar) + '</span>'
+      + '<div class="flex-1 min-w-0">'
+      + '<div class="flex items-center gap-1.5">'
+      + '<span class="text-[11px] font-semibold text-slate-300">' + escapeHTML(c.userName) + '</span>'
+      + '<span class="text-[10px]">' + (VOTE_EMOJI[c.vote] || '') + '</span>'
+      + '</div>'
+      + '<p class="text-[11px] text-slate-400 leading-relaxed mt-0.5">' + escapeHTML(c.comment) + '</p>'
+      + '</div></div>'
+    ).join('')
+    + '</div>'
+}
 
 function renderRoadmapTab(_state) {
   // Trigger async load of vote totals
@@ -936,11 +985,19 @@ function renderRoadmapTab(_state) {
       + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold" style="background:rgba(245,158,11,0.12);color:#f59e0b">👍 ' + ft.useful + '</span>'
       + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold" style="background:rgba(107,114,128,0.12);color:#6b7280">🤷 ' + ft.notUrgent + '</span>'
       + '</div>'
+      + '<div class="flex items-center gap-2">'
       + '<button onclick="showFeatureIntro(\'' + f.id + '\')"'
       + ' class="text-[11px] px-3 py-1 rounded-lg font-semibold cursor-pointer transition-colors"'
       + ' style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b">'
       + escapeHTML(t('roadmapDetail') || 'Détail & voter')
       + '</button>'
+      + '<button onclick="toggleRoadmapComments(\'' + f.id + '\')"'
+      + ' class="text-[11px] px-3 py-1 rounded-lg font-semibold cursor-pointer transition-colors"'
+      + ' style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#94a3b8">'
+      + '💬 ' + escapeHTML(t('roadmapComments') || 'Avis')
+      + '</button>'
+      + '</div>'
+      + renderCommentsSection(f.id)
       + '</div></div></div>'
   }).join('')
 
