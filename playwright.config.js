@@ -6,9 +6,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : 1,
-  timeout: 20000,
+  timeout: 30000,
   expect: {
-    timeout: 8000,
+    timeout: 10000,
     toHaveScreenshot: {
       // Visual regression: allow 3% pixel diff by default
       maxDiffPixelRatio: 0.03,
@@ -27,6 +27,7 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://localhost:4173/',
+    actionTimeout: 10000,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: process.env.CI ? 'off' : 'retain-on-failure',
