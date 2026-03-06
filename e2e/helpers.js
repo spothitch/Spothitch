@@ -34,13 +34,11 @@ export async function dismissOverlays(page) {
 }
 
 /**
- * Skip onboarding and tutorial for returning user experience
+ * Skip onboarding for returning user experience
  */
 export async function skipOnboarding(page, opts = {}) {
   const stateData = {
     showWelcome: false,
-    showTutorial: false,
-    tutorialStep: 0,
     username: 'TestUser',
     avatar: '🤙',
     activeTab: opts.tab || 'map',

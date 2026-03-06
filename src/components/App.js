@@ -41,7 +41,6 @@ const _lazyLoaders = {
   renderSOS: () => import('./modals/SOS.js'),
   renderAuth: () => import('./modals/Auth.js'),
   renderCompleteProfile: () => import('./modals/Auth.js'),
-  renderTutorial: () => import('./modals/Tutorial.js'),
   renderFiltersModal: () => import('./modals/Filters.js'),
   renderStatsModal: () => import('./modals/Stats.js'),
   renderBadgesModal: () => import('./modals/Badges.js'),
@@ -178,7 +177,7 @@ export function renderApp(state) {
     ${state.showSOS ? lazyRender('renderSOS', state) : ''}
     ${state.showAuth ? lazyRender('renderAuth', state) : ''}
     ${state.showCompleteProfile ? lazyRender('renderCompleteProfile', state) : ''}
-    ${state.showTutorial ? lazyRender('renderTutorial', state) : ''}
+    ${''}<!-- Tutorial retired -->
     ${state.showFilters ? lazyRender('renderFiltersModal') : ''}
     ${state.showStats ? lazyRender('renderStatsModal') : ''}
     ${state.showBadges ? lazyRender('renderBadgesModal') : ''}
@@ -464,14 +463,14 @@ export function renderApp(state) {
     <!-- Profile Setup (triggered when user wants to contribute) -->
     ${state.showWelcome ? lazyRender('renderWelcome', state) : ''}
 
-    <!-- Cookie Banner (RGPD) - hidden during tutorial, landing, and map-first Voyage view -->
-    ${!state.showTutorial && !state.showLanding && !isVoyageMapFirst ? renderCookieBanner() : ''}
+    <!-- Cookie Banner (RGPD) - hidden during landing and map-first Voyage view -->
+    ${!state.showLanding && !isVoyageMapFirst ? renderCookieBanner() : ''}
 
-    <!-- Beta Banner + popup (hidden during landing/tutorial) -->
-    ${!state.showLanding && !state.showTutorial ? renderBetaBanner() : ''}
+    <!-- Alpha Banner + popup (hidden during landing) -->
+    ${!state.showLanding ? renderBetaBanner() : ''}
 
-    <!-- Feedback Side Tab (hidden during SOS, landing, tutorial, full-screen modals) -->
-    ${!state.showSOS && !state.showLanding && !state.showTutorial && !state.showFeedbackPanel ? `
+    <!-- Feedback Side Tab (hidden during SOS, landing, full-screen modals) -->
+    ${!state.showSOS && !state.showLanding && !state.showFeedbackPanel ? `
       <button onclick="openFeedbackPanel()"
         class="fixed left-0 top-[45%] -translate-y-1/2 z-30 text-white px-2 py-3.5 rounded-r-xl writing-vertical-rl transition-all cursor-pointer border-none"
         style="background: linear-gradient(180deg, #fbbf24, #f59e0b); box-shadow: 2px 0 15px rgba(245,158,11,0.3); letter-spacing: 1px"

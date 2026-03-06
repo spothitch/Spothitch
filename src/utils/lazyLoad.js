@@ -58,8 +58,6 @@ async function importModal(modalName) {
     case 'SOS':
       return import('../components/modals/SOS.js');
 
-    case 'Tutorial':
-      return import('../components/modals/Tutorial.js');
 
     case 'Welcome':
       return import('../components/modals/Welcome.js');

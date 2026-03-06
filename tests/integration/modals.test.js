@@ -507,23 +507,12 @@ describe('Integration: Welcome Modal', () => {
 })
 
 // ===============================================================
-// 14. Tutorial Modal
+// 14. Tutorial Modal (retired)
 // ===============================================================
-describe('Integration: Tutorial Modal', () => {
-  it('renders at step 0', () => {
-    const html = renderTutorial({ ...baseState, showTutorial: true, tutorialStep: 0 })
-    expect(html).toBeTruthy()
-  })
-
-  it('has navigation buttons', () => {
-    const html = renderTutorial({ ...baseState, showTutorial: true, tutorialStep: 1 })
-    const hasNav = html.includes('nextTutorial') || html.includes('prevTutorial') || html.includes('skipTutorial')
-    expect(hasNav).toBe(true)
-  })
-
-  it('has skip button', () => {
-    const html = renderTutorial({ ...baseState, showTutorial: true, tutorialStep: 0 })
-    expect(html).toContain('skipTutorial')
+describe('Integration: Tutorial Modal (retired)', () => {
+  it('returns empty string', () => {
+    const html = renderTutorial()
+    expect(html).toBe('')
   })
 })
 

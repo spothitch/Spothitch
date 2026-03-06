@@ -145,11 +145,9 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
     expect(html.toLowerCase()).toContain('welcome')
   })
 
-  test('showTutorial flag renders Tutorial modal', () => {
-    const state = { ...mockState, showTutorial: true, tutorialStep: 0 }
-    const html = renderTutorial(state)
-    expect(html).toBeTruthy()
-    expect(html.length).toBeGreaterThan(100)
+  test('showTutorial flag renders empty (retired)', () => {
+    const html = renderTutorial()
+    expect(html).toBe('')
   })
 
   test('showFilters flag renders Filters modal', () => {
