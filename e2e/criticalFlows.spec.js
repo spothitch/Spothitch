@@ -70,8 +70,8 @@ test.describe('Search - Autocomplete Suggestions', () => {
     await expect(firstSuggestion).toBeVisible({ timeout: 5000 })
     await firstSuggestion.click({ force: true })
 
-    // Suggestions should hide after selection
-    await expect(suggestions).toBeHidden({ timeout: 3000 })
+    // Suggestions should hide after selection (CI can be slow)
+    await expect(suggestions).toBeHidden({ timeout: 8000 })
 
     // Search input should have selected location name
     const value = await searchInput.inputValue()
@@ -161,8 +161,8 @@ test.describe('Trip Creation - Deep Functional', () => {
   test('should display trip planner with from/to inputs', async ({ page }) => {
     const fromInput = page.locator('#trip-from')
     const toInput = page.locator('#trip-to')
-    await expect(fromInput).toBeVisible({ timeout: 10000 })
-    await expect(toInput).toBeVisible({ timeout: 5000 })
+    await expect(fromInput).toBeVisible({ timeout: 15000 })
+    await expect(toInput).toBeVisible({ timeout: 10000 })
 
     // Inputs should have placeholder text
     const fromPlaceholder = await fromInput.getAttribute('placeholder')

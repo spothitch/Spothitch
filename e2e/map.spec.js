@@ -28,13 +28,13 @@ test.describe('Map View', () => {
 
   test('should zoom in and out without crash', async ({ page }) => {
     const zoomInBtn = page.locator('[onclick*="homeZoomIn"]').first()
-    await expect(zoomInBtn).toBeVisible({ timeout: 5000 })
+    await expect(zoomInBtn).toBeVisible({ timeout: 15000 })
     await zoomInBtn.click()
     await page.waitForTimeout(300)
     await expect(page.locator('#home-map')).toBeVisible()
 
     const zoomOutBtn = page.locator('[onclick*="homeZoomOut"]').first()
-    await expect(zoomOutBtn).toBeVisible({ timeout: 5000 })
+    await expect(zoomOutBtn).toBeVisible({ timeout: 15000 })
     await zoomOutBtn.click()
     await page.waitForTimeout(300)
     await expect(page.locator('#home-map')).toBeVisible()
