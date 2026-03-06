@@ -145,7 +145,7 @@ async function skipOnboarding(page) {
       timestamp: Date.now(), version: '1.0',
     }))
     localStorage.setItem('spothitch_age_verified', 'true')
-    localStorage.setItem('spothitch_landing_seen', '1')
+    localStorage.setItem('spothitch_landing_v2', '1')
   })
 }
 
@@ -843,7 +843,7 @@ async function level8_UserJourneys(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
     await retPage.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 })
     await retPage.waitForTimeout(LONG_WAIT)
@@ -1270,7 +1270,7 @@ async function level11_i18n(page, browser) {
           timestamp: Date.now(), version: '1.0',
         }))
         localStorage.setItem('spothitch_age_verified', 'true')
-        localStorage.setItem('spothitch_landing_seen', '1')
+        localStorage.setItem('spothitch_landing_v2', '1')
       }, lang)
       await langPage.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 })
       await langPage.waitForTimeout(LONG_WAIT * 2)
@@ -1692,7 +1692,7 @@ async function level14_DataPersistence(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     // First load
@@ -2491,7 +2491,7 @@ async function level19_AuthenticatedFlows(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     await authPage.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 })
@@ -2854,7 +2854,7 @@ async function level21_Theme(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
     await waitForApp(darkPage)
     await screenshot(darkPage, 'L21_dark_mode')
@@ -3501,7 +3501,7 @@ async function level24_Offline(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
     await offlinePage.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 })
     await offlinePage.waitForTimeout(LONG_WAIT)
@@ -3622,7 +3622,7 @@ async function level25_APIResilience(page, browser) {
           timestamp: Date.now(), version: '1.0',
         }))
         localStorage.setItem('spothitch_age_verified', 'true')
-        localStorage.setItem('spothitch_landing_seen', '1')
+        localStorage.setItem('spothitch_landing_v2', '1')
       })
 
       // Block the specific API
@@ -3712,7 +3712,7 @@ async function level26_Safari(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     let jsErrors = 0
@@ -3833,7 +3833,7 @@ async function level27_Firefox(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     let jsErrors = 0
@@ -3949,7 +3949,7 @@ async function level28_SlowNetwork(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     let jsErrors = 0
@@ -4060,7 +4060,7 @@ async function level29_LocalStorageFull(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     let jsErrors = 0
@@ -4184,7 +4184,7 @@ async function level30_MemoryStability(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     await memPage.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 })
@@ -4321,7 +4321,7 @@ async function level31_AxeCore(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     await axePage.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 })
@@ -4579,7 +4579,7 @@ async function level33_SEOCityPages(page, browser) {
         timestamp: Date.now(), version: '1.0',
       }))
       localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
     })
 
     await cityPage.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 })

@@ -266,7 +266,7 @@ async function run() {
   // Skip onboarding/welcome/landing and set French locale
   await context.addInitScript(() => {
     localStorage.setItem('spothitch_onboarding_complete', 'true')
-    localStorage.setItem('spothitch_landing_seen', '1')
+    localStorage.setItem('spothitch_landing_v2', '1')
     localStorage.setItem(
       'spothitch_cookie_consent',
       JSON.stringify({ essential: true, analytics: true })

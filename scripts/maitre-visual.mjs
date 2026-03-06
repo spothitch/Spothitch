@@ -100,7 +100,7 @@ async function tryRunScenario(scenario) {
       localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
       localStorage.setItem('spothitch_onboarding_done', skipOnboarding !== false ? '1' : '')
       // landing_seen doit toujours être set pour éviter la landing page par-dessus tout
-      localStorage.setItem('spothitch_landing_seen', '1')
+      localStorage.setItem('spothitch_landing_v2', '1')
       // Marquer toutes les features comme vues pour éviter que les wrappers "premier clic" bloquent les tests
       const ts = Date.now()
       localStorage.setItem('spothitch_feature_seen', JSON.stringify({

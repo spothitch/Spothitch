@@ -65,7 +65,7 @@ export async function skipOnboarding(page, opts = {}) {
       version: '1.0'
     }))
     localStorage.setItem('spothitch_age_verified', 'true')
-    localStorage.setItem('spothitch_landing_seen', '1')
+    localStorage.setItem('spothitch_landing_v2', '1')
     localStorage.setItem('spothitch_beta_seen', '1')
     // Mark all feature intros as seen so intro modals never appear in E2E tests
     const featureSeen = {}

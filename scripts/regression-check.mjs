@@ -56,7 +56,7 @@ const LOCALSTORAGE_INIT = {
   spothitch_onboarding_done: '1',
   spothitch_beta_seen: '1',
   spothitch_cookies_accepted: '1',
-  spothitch_landing_seen: '1',
+  spothitch_landing_v2: '1',
   spothitch_language: 'fr',
 }
 

@@ -71,7 +71,7 @@ const SCREENS = [
 
   // Skip all popups + set light theme
   await page.addInitScript(() => {
-    localStorage.setItem('spothitch_landing_seen', '1')
+    localStorage.setItem('spothitch_landing_v2', '1')
     localStorage.setItem('spothitch_onboarding_complete', '1')
     localStorage.setItem('spothitch_beta_seen', '1')
     localStorage.setItem('spothitch_cookie_consent', JSON.stringify({ essential: true, analytics: false, marketing: false }))
