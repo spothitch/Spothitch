@@ -95,7 +95,7 @@ export function renderHome(state) {
       <div class="absolute bottom-32 left-4 z-20">
         <button
           onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
-          class="flex items-center gap-2 px-3 py-2 rounded-xl ${hasGuide ? 'bg-emerald-500/90 text-white hover:bg-emerald-600' : 'bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-400 hover:text-white hover:border-emerald-500/50'} transition-colors text-sm shadow-lg"
+          class="flex items-center gap-2 px-4 py-3 rounded-xl min-h-[44px] ${hasGuide ? 'bg-emerald-500/90 text-white hover:bg-emerald-600' : 'bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 hover:text-white hover:border-emerald-500/50'} transition-colors text-sm shadow-lg"
           aria-label="${t('countryGuides') || 'Guides pays'}"
         >
           ${hasGuide ? `<span class="text-lg">${currentGuide?.flag || ''}</span>` : icon('book-open', 'w-5 h-5')}

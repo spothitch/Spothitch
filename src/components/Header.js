@@ -67,7 +67,7 @@ export function renderHeader(state) {
           <!-- SOS Button - Always visible, prominent -->
           <button
             onclick="openSOS()"
-            class="flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-danger-500 text-white font-bold text-xs shadow-lg shadow-danger-500/30 hover:bg-danger-600 hover:scale-105 transition-colors animate-pulse-subtle min-h-[44px]"
+            class="flex items-center gap-1.5 px-4 py-3 rounded-full bg-danger-600 text-white font-bold text-xs shadow-lg shadow-danger-600/30 hover:bg-danger-700 hover:scale-105 transition-colors animate-pulse-subtle min-h-[44px]"
             aria-label="Mode urgence SOS. Partager ma position"
             title="Mode urgence SOS"
           >

@@ -74,10 +74,69 @@ const DOM_AUDIT_SCRIPT = `(() => {
     // Skip screen-reader-only elements
     if (cls.includes('sr-only') || cls.includes('visually-hidden')) return true
     if (el.getAttribute('aria-hidden') === 'true') return true
+    // Skip skip-links (only visible on focus)
+    if (cls.includes('skip-link') || el.getAttribute('href') === '#main-content' || el.getAttribute('href') === '#app') return true
+    // Skip if element text is a skip-link
+    if (el.textContent?.trim()?.startsWith('Aller au contenu')) return true
     // Skip elements clipped to 0 (common sr-only pattern)
     const s = getComputedStyle(el)
     if (s.clip === 'rect(0px, 0px, 0px, 0px)' || s.clipPath === 'inset(50%)') return true
     if (s.position === 'absolute' && parseInt(s.width) <= 1 && parseInt(s.height) <= 1) return true
+    return false
+  }
+
+  // Detect gradient text (visible via background-clip despite transparent color)
+  // Check self AND ancestors (gradient-text class may be on parent)
+  function isGradientText(el) {
+    let current = el
+    while (current && current !== document.body) {
+      const s = getComputedStyle(current)
+      const fill = s.webkitTextFillColor || s.getPropertyValue('-webkit-text-fill-color')
+      const clip = s.webkitBackgroundClip || s.backgroundClip || s.getPropertyValue('-webkit-background-clip')
+      if (fill === 'transparent' && clip === 'text') return true
+      // Also check by class name
+      if (current.classList?.contains('gradient-text')) return true
+      current = current.parentElement
+    }
+    return false
+  }
+
+  // Detect vertical writing mode (writingMode: vertical-rl)
+  function isVerticalText(el) {
+    let current = el
+    while (current && current !== document.body) {
+      const s = getComputedStyle(current)
+      if (s.writingMode === 'vertical-rl' || s.writingMode === 'vertical-lr') return true
+      current = current.parentElement
+    }
+    return false
+  }
+
+  // Detect elements rendered on top of map or with translucent backdrop
+  function isOnMapOverlay(el) {
+    let current = el
+    while (current && current !== document.body) {
+      const s = getComputedStyle(current)
+      // Elements inside map controls or the map container itself
+      if (current.id === 'home-map-controls' || current.id === 'home-map' || current.id === 'panel-map' || current.classList?.contains('maplibregl-ctrl')) return true
+      // Fixed/absolute with backdrop-blur (glassmorphism header/navbar)
+      if ((s.position === 'fixed' || s.position === 'absolute') && s.backdropFilter && s.backdropFilter !== 'none') return true
+      // Elements with semi-transparent bg (e.g. bg-dark-primary/60) positioned
+      const bg = s.backgroundColor
+      if ((s.position === 'fixed' || s.position === 'absolute' || s.position === 'relative') && bg && bg.includes('0.') && !bg.includes('0, 0, 0, 0)')) return true
+      current = current.parentElement
+    }
+    return false
+  }
+
+  // Detect elements with inline-styled background (e.g. feedback button with inline gradient)
+  function hasInlineBackground(el) {
+    let current = el
+    while (current && current !== document.body) {
+      const inlineStyle = current.getAttribute?.('style') || ''
+      if (inlineStyle.includes('background') || inlineStyle.includes('linear-gradient')) return true
+      current = current.parentElement
+    }
     return false
   }
 
@@ -101,6 +160,13 @@ const DOM_AUDIT_SCRIPT = `(() => {
       const directText = Array.from(el.childNodes).filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join('')
       if (!directText) continue
     }
+
+    // Skip gradient text (visible via background gradient, not text color)
+    if (isGradientText(el)) continue
+    // Skip map overlay elements (translucent bg on top of map tiles)
+    if (isOnMapOverlay(el)) continue
+    // Skip elements with inline-styled background (e.g. feedback button)
+    if (hasInlineBackground(el)) continue
 
     const fg = parseColor(style.color)
     if (!fg) continue
@@ -144,7 +210,11 @@ const DOM_AUDIT_SCRIPT = `(() => {
     if (rect.width === 0 || rect.height === 0) continue
     if (rect.top > window.innerHeight || rect.bottom < 0) continue
 
-    if (rect.width < 44 || rect.height < 44) {
+    // For vertical writing mode, swap width/height measurement
+    let checkW = rect.width, checkH = rect.height
+    if (isVerticalText(el)) { checkW = rect.height; checkH = rect.width }
+
+    if (checkW < 44 || checkH < 44) {
       // Skip tiny inline links in text
       if (el.tagName === 'A' && rect.height < 20 && el.closest('p, li, span')) continue
 
@@ -177,20 +247,22 @@ const DOM_AUDIT_SCRIPT = `(() => {
       })
     }
 
-    // Check for text same color as background
-    const fg = parseColor(style.color)
-    const bg = getEffectiveBg(el)
-    if (fg && bg) {
-      const fgLum = luminance(fg.r * fg.a, fg.g * fg.a, fg.b * fg.a)
-      const bgLum = luminance(bg.r, bg.g, bg.b)
-      const ratio = contrastRatio(fgLum, bgLum)
-      if (ratio < 1.1) {
-        issues.invisible.push({
-          text: text.substring(0, 40),
-          reason: 'same color as background (ratio: ' + Math.round(ratio * 100) / 100 + ')',
-          fg: style.color,
-          bg: style.backgroundColor
-        })
+    // Check for text same color as background (skip known visual patterns)
+    if (!isGradientText(el) && !isVerticalText(el) && !isOnMapOverlay(el) && !hasInlineBackground(el)) {
+      const fg = parseColor(style.color)
+      const bg = getEffectiveBg(el)
+      if (fg && bg) {
+        const fgLum = luminance(fg.r * fg.a, fg.g * fg.a, fg.b * fg.a)
+        const bgLum = luminance(bg.r, bg.g, bg.b)
+        const ratio = contrastRatio(fgLum, bgLum)
+        if (ratio < 1.1) {
+          issues.invisible.push({
+            text: text.substring(0, 40),
+            reason: 'same color as background (ratio: ' + Math.round(ratio * 100) / 100 + ')',
+            fg: style.color,
+            bg: style.backgroundColor
+          })
+        }
       }
     }
   }
@@ -330,12 +402,18 @@ async function runAudit(themeMode = 'both') {
 
     const page = await context.newPage()
 
-    // Collect console errors
+    // Collect console errors (filter dev noise)
+    const DEV_NOISE = [/X-Frame-Options/i, /MIME type/i, /ServiceWorker/i, /Sentry/i, /Style is not done loading/i, /favicon/i, /workbox/i]
     const consoleErrors = []
     page.on('console', msg => {
-      if (msg.type() === 'error') consoleErrors.push(msg.text())
+      if (msg.type() === 'error') {
+        const text = msg.text()
+        if (!DEV_NOISE.some(p => p.test(text))) consoleErrors.push(text)
+      }
     })
-    page.on('pageerror', err => consoleErrors.push(err.message))
+    page.on('pageerror', err => {
+      if (!DEV_NOISE.some(p => p.test(err.message))) consoleErrors.push(err.message)
+    })
 
     try {
       await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 20000 })

@@ -573,11 +573,11 @@ function ensureMapControls(state) {
     ctrl.id = 'home-map-controls'
     ctrl.style.cssText = 'position:absolute;right:1rem;z-index:20;display:flex;flex-direction:column;gap:0.5rem'
     ctrl.innerHTML = `
-      <button onclick="homeZoomIn()" class="w-10 h-10 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center hover:bg-dark-primary/80 transition-colors text-lg font-bold shadow-lg" aria-label="Zoom in">+</button>
-      <button onclick="homeZoomOut()" class="w-10 h-10 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center hover:bg-dark-primary/80 transition-colors text-lg font-bold shadow-lg" aria-label="Zoom out">\u2212</button>
-      <button onclick="homeCenterOnUser()" class="w-10 h-10 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-primary-400 flex items-center justify-center hover:bg-dark-primary/80 transition-colors shadow-lg" aria-label="My location">${icon('locate', 'w-5 h-5')}</button>
-      <button id="gas-toggle-btn" onclick="toggleGasStations()" class="w-10 h-10 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Gas stations"><span class="text-lg">\u26FD</span></button>
-      <button id="legend-toggle-btn" onclick="toggleMapLegend()" class="w-10 h-10 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Legend">${icon('info', 'w-5 h-5')}</button>
+      <button onclick="homeZoomIn()" class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center hover:bg-dark-primary/80 transition-colors text-lg font-bold shadow-lg" aria-label="Zoom in">+</button>
+      <button onclick="homeZoomOut()" class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center hover:bg-dark-primary/80 transition-colors text-lg font-bold shadow-lg" aria-label="Zoom out">\u2212</button>
+      <button onclick="homeCenterOnUser()" class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-primary-400 flex items-center justify-center hover:bg-dark-primary/80 transition-colors shadow-lg" aria-label="My location">${icon('locate', 'w-5 h-5')}</button>
+      <button id="gas-toggle-btn" onclick="toggleGasStations()" class="w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Gas stations"><span class="text-lg">\u26FD</span></button>
+      <button id="legend-toggle-btn" onclick="toggleMapLegend()" class="w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Legend">${icon('info', 'w-5 h-5')}</button>
     `
     map.appendChild(ctrl)
   }
@@ -590,9 +590,9 @@ function ensureMapControls(state) {
   const gasBtn = document.getElementById('gas-toggle-btn')
   if (gasBtn) {
     if (state.showGasStationsOnMap) {
-      gasBtn.className = 'w-10 h-10 rounded-xl bg-red-500/80 text-white backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg'
+      gasBtn.className = 'w-11 h-11 rounded-xl bg-red-500/80 text-white backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg'
     } else {
-      gasBtn.className = 'w-10 h-10 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg'
+      gasBtn.className = 'w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg'
     }
   }
 }
