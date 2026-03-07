@@ -24,7 +24,7 @@ export function renderHeader(state) {
           ${state.isAdmin ? `
           <button
             onclick="openAdminPanel()"
-            class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 hover:scale-105 transition-colors flex items-center justify-center"
+            class="w-11 h-11 rounded-full bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 hover:scale-105 transition-colors flex items-center justify-center"
             aria-label="${t('adminPanel') || 'Panneau Admin'}"
             title="${t('adminPanel') || 'Panneau Admin'}"
           >
@@ -57,7 +57,7 @@ export function renderHeader(state) {
           })() : `
           <button
             onclick="showCompanionModal()"
-            class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 hover:scale-105 transition-colors flex items-center justify-center"
+            class="w-11 h-11 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 hover:scale-105 transition-colors flex items-center justify-center"
             aria-label="${t('companionMode') || 'Mode Compagnon'}"
             title="${t('companionMode') || 'Mode Compagnon'}"
           >
@@ -67,7 +67,7 @@ export function renderHeader(state) {
           <!-- SOS Button - Always visible, prominent -->
           <button
             onclick="openSOS()"
-            class="flex items-center gap-1.5 px-3 py-2 rounded-full bg-danger-500 text-white font-bold text-xs shadow-lg shadow-danger-500/30 hover:bg-danger-600 hover:scale-105 transition-colors animate-pulse-subtle"
+            class="flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-danger-500 text-white font-bold text-xs shadow-lg shadow-danger-500/30 hover:bg-danger-600 hover:scale-105 transition-colors animate-pulse-subtle min-h-[44px]"
             aria-label="Mode urgence SOS. Partager ma position"
             title="Mode urgence SOS"
           >

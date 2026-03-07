@@ -2075,16 +2075,18 @@ function initDraggableFeedbackBtn() {
   btn.setAttribute('aria-label', t('fbSideTab') || 'Avis')
   btn.innerHTML = `<span class="fb-pulse"></span><span class="fb-label">💬 ${escapeHTML(t('fbSideTab') || 'Avis')}</span>`
 
-  // Styles
+  // Styles — amber on dark, darker amber on light for visibility
+  const isLight = document.documentElement.classList.contains('light-theme')
   Object.assign(btn.style, {
     position: 'fixed', left: '0', zIndex: '30',
-    padding: '8px 10px', border: 'none', cursor: 'grab',
-    background: 'linear-gradient(180deg, #fbbf24, #f59e0b)',
+    padding: '10px 12px', border: 'none', cursor: 'grab',
+    background: isLight ? 'linear-gradient(180deg, #d97706, #b45309)' : 'linear-gradient(180deg, #fbbf24, #f59e0b)',
     color: '#fff', borderRadius: '0 12px 12px 0',
-    boxShadow: '2px 0 15px rgba(245,158,11,0.3)',
+    boxShadow: isLight ? '2px 0 15px rgba(180,83,9,0.4)' : '2px 0 15px rgba(245,158,11,0.3)',
     writingMode: 'vertical-rl', letterSpacing: '1px',
     touchAction: 'none', userSelect: 'none',
     transition: 'opacity 0.2s',
+    minWidth: '44px',
   })
 
   // Restore saved Y position or default to 45%
@@ -2146,10 +2148,14 @@ function initDraggableFeedbackBtn() {
   document.addEventListener('touchend', onEnd)
   document.addEventListener('mouseup', onEnd)
 
-  // Visibility: hide during SOS, landing, feedback panel open
+  // Visibility + theme: hide during SOS, landing, feedback panel open
   subscribe((state) => {
     const hidden = state.showSOS || state.showLanding || state.showFeedbackPanel
     btn.style.display = hidden ? 'none' : ''
+    // Update colors on theme change
+    const light = document.documentElement.classList.contains('light-theme')
+    btn.style.background = light ? 'linear-gradient(180deg, #d97706, #b45309)' : 'linear-gradient(180deg, #fbbf24, #f59e0b)'
+    btn.style.boxShadow = light ? '2px 0 15px rgba(180,83,9,0.4)' : '2px 0 15px rgba(245,158,11,0.3)'
   })
   // Initial visibility check
   const s = getState()

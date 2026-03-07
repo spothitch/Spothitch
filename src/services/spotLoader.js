@@ -93,10 +93,18 @@ export async function loadCountrySpots(countryCode) {
 
   // 3. Network fetch → slow, saves to IDB
   try {
+    const fetchStart = Date.now()
     const response = await fetch(`${BASE}data/spots/${code.toLowerCase()}.json`)
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
     const data = await response.json()
+    const fetchDuration = Date.now() - fetchStart
+
+    // Detect slow connection (>5s for a country file)
+    if (fetchDuration > 5000) {
+      import('./offline.js').then(({ checkSlowConnection }) => checkSlowConnection()).catch(() => {})
+    }
+
     const spots = convertToAppFormat(data.spots, code)
 
     loadedCountries.set(code, spots)

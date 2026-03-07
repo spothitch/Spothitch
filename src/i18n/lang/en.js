@@ -2118,7 +2118,9 @@ export default {
 
   // Network
   connectionRestored: 'Connection restored',
-  offlineModeActivated: 'Offline mode activated',
+  offlineModeActivated: 'No connection. Saved spots remain accessible.',
+  offlineActionBlocked: 'This action requires an internet connection',
+  slowConnection: 'Slow connection. Loading may take longer.',
   syncingActions: 'Syncing...',
   syncComplete: 'Sync complete!',
   syncFailed: 'Unsynced actions',

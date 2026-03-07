@@ -1470,8 +1470,13 @@ html.map-active body {
 
 /* Offline Mode Indicator */
 .offline-indicator {
-  @apply fixed top-0 left-0 right-0 bg-warning-500 text-white text-center py-2 text-sm font-medium z-[9999];
+  @apply fixed top-0 left-0 right-0 bg-slate-800 text-white text-center py-2.5 text-sm font-medium z-[9999];
+  border-bottom: 2px solid #ef4444;
   animation: slideDown 0.3s ease-out;
+}
+.light-theme .offline-indicator {
+  @apply bg-slate-100 text-slate-800;
+  border-bottom-color: #ef4444;
 }
 
 .offline-indicator.hidden {

@@ -75,6 +75,7 @@ function execHandler(handlerStr) {
 // Reads the handler ID from data-tid, looks up the registered handler,
 // and executes it after a 30ms delay (so CSS animation plays first).
 window._toggleExec = (el) => {
+  if (!el || !el.classList) return
   el.classList.toggle('toggle-on')
   const on = el.classList.contains('toggle-on')
   el.setAttribute('aria-checked', on)

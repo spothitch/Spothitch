@@ -9,6 +9,7 @@ import { escapeHTML } from '../../utils/sanitize.js'
 
 // ==================== GENERIC TAB SWITCH ====================
 function _switchDemoTab(btn, tabName) {
+  if (!btn || !btn.closest) return
   const container = btn.closest('[data-demo]')
   if (!container) return
   container.querySelectorAll('.cd-tab').forEach(t => t.classList.remove('cd-tab-active'))

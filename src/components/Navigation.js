@@ -30,10 +30,10 @@ export function renderNavigation(state) {
           <li role="presentation" class="flex-1">
             <button
               onclick="changeTab('${tab.id}')"
-              class="nav-btn relative w-full flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl transition-colors duration-300 ${
+              class="nav-btn relative w-full flex flex-col items-center gap-1 px-2 py-3 rounded-xl transition-colors duration-300 min-h-[48px] ${
   state.activeTab === tab.id
     ? 'text-primary-400'
-    : 'text-slate-400 hover:text-white'
+    : 'text-slate-300 hover:text-white'
 }"
               role="tab"
               id="tab-${tab.id}"
@@ -47,7 +47,7 @@ export function renderNavigation(state) {
                 ${icon(tab.icon, 'w-5 h-5')}
                 ${tab.badge ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-slate-900"></span>' : ''}
               </div>
-              <span class="text-[11px] font-medium leading-tight">${tab.label}</span>
+              <span class="text-xs font-medium leading-tight">${tab.label}</span>
               ${state.activeTab === tab.id ? '<span class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-primary-400"></span>' : ''}
             </button>
           </li>
