@@ -38,7 +38,7 @@ export function renderSpotDetail(state) {
       <div
         class="relative modal-panel sm:rounded-3xl
           w-full max-w-lg max-h-[90vh] overflow-hidden slide-up"
-        style="border-radius:28px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)"
+        style="border-radius:28px;border:1px solid #1e293b;background:#0f1520"
         onclick="event.stopPropagation()"
       >
         <!-- ========== PHOTO — arrondie avec padding ========== -->
@@ -46,13 +46,13 @@ export function renderSpotDetail(state) {
           <div class="relative cursor-pointer" style="aspect-ratio:2/1" onclick="openPhotoFullscreen(0)" role="button" tabindex="0">
             ${renderPhotoSection(spot)}
             <!-- Gradient overlay -->
-            <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(15,21,32,.9) 5%,transparent 50%);border-radius:20px"></div>
+            <div class="absolute inset-0" style="background:linear-gradient(to top,#0f1520 5%,transparent 50%);border-radius:20px"></div>
 
             <!-- Close button -->
             <button
               onclick="event.stopPropagation();closeSpotDetail()"
               class="absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
-              style="background:rgba(0,0,0,.5)"
+              style="background:#1e293b"
               aria-label="${t('closeSpotDetails') || 'Fermer les détails du spot'}"
               type="button"
             >✕</button>
@@ -69,7 +69,7 @@ export function renderSpotDetail(state) {
                     ? `📍 ${escapeHTML(spot.direction)}`
                     : `📍 ${t('spotLocation') || 'Spot'} #${spot.id}`}
               </h2>
-              <div style="font-size:10px;color:rgba(255,255,255,.5)">
+              <div style="font-size:10px;color:#94a3b8">
                 ${renderSubtitle(spot)}
               </div>
             </div>
@@ -77,7 +77,7 @@ export function renderSpotDetail(state) {
             <!-- Score circle — emerald gradient, bottom-right -->
             ${spot.globalRating ? `
               <div class="absolute flex items-center justify-center text-white"
-                style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);font-size:18px;font-weight:900;border:3px solid rgba(15,21,32,.8);bottom:10px;right:12px;z-index:1">
+                style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);font-size:18px;font-weight:900;border:3px solid #0f1520;bottom:10px;right:12px;z-index:1">
                 ${spot.globalRating.toFixed?.(1) || spot.globalRating}
               </div>
             ` : ''}
@@ -85,7 +85,7 @@ export function renderSpotDetail(state) {
             <!-- Photo count -->
             ${photoCount > 0 ? `
               <div class="absolute flex items-center gap-1 text-white"
-                style="bottom:10px;right:${spot.globalRating ? '70px' : '12px'};background:rgba(0,0,0,.6);backdrop-filter:blur(6px);padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600">
+                style="bottom:10px;right:${spot.globalRating ? '70px' : '12px'};background:#1e293b;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600">
                 📷 ${photoCount} ${photoCount > 1 ? 'photos' : 'photo'}
               </div>
             ` : ''}
@@ -129,15 +129,15 @@ export function renderSpotDetail(state) {
 
           <!-- ========== DATE CARDS — 2 columns ========== -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-            <div style="padding:10px;border-radius:18px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.1)">
-              <div style="font-size:9px;color:#475569;margin-bottom:2px">✅ ${t('lastValidation') || 'Dernière validation'}</div>
-              <div style="font-size:12px;font-weight:700;color:#10b981">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}</div>
-              ${spot.lastValidatedBy ? `<div style="font-size:10px;color:#475569">par @${escapeHTML(spot.lastValidatedBy)}</div>` : ''}
+            <div style="padding:10px;border-radius:18px;background:#0d2818;border:1px solid #166534">
+              <div style="font-size:10px;color:#86efac;margin-bottom:2px">✅ ${t('lastValidation') || 'Dernière validation'}</div>
+              <div style="font-size:13px;font-weight:700;color:#34d399">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}</div>
+              ${spot.lastValidatedBy ? `<div style="font-size:10px;color:#6ee7b7">par @${escapeHTML(spot.lastValidatedBy)}</div>` : ''}
             </div>
-            <div style="padding:10px;border-radius:18px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.1)">
-              <div style="font-size:9px;color:#475569;margin-bottom:2px">🤙 ${t('lastTest') || 'Dernier test'}</div>
-              <div style="font-size:12px;font-weight:700;color:#f59e0b">${spot.lastTested ? formatRelativeDate(spot.lastTested) : '—'}</div>
-              ${spot.lastTestedBy ? `<div style="font-size:10px;color:#475569">@${escapeHTML(spot.lastTestedBy)}${spot.lastTestRating ? ' • ' + '★'.repeat(spot.lastTestRating) : ''}</div>` : ''}
+            <div style="padding:10px;border-radius:18px;background:#1c1507;border:1px solid #854d0e">
+              <div style="font-size:10px;color:#fcd34d;margin-bottom:2px">🤙 ${t('lastTest') || 'Dernier test'}</div>
+              <div style="font-size:13px;font-weight:700;color:#fbbf24">${spot.lastTested ? formatRelativeDate(spot.lastTested) : '—'}</div>
+              ${spot.lastTestedBy ? `<div style="font-size:10px;color:#fcd34d">@${escapeHTML(spot.lastTestedBy)}${spot.lastTestRating ? ' • ' + '★'.repeat(spot.lastTestRating) : ''}</div>` : ''}
             </div>
           </div>
 
@@ -146,21 +146,25 @@ export function renderSpotDetail(state) {
 
           <!-- ========== 4 METRICS ========== -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:12px" role="group" aria-label="${t('spotStats') || 'Statistiques du spot'}">
-            <div style="padding:10px 4px;border-radius:18px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
-              <div style="font-size:10px;color:#475569">⏱️</div>
-              <div style="font-size:12px;font-weight:800;color:#f59e0b">${spot.avgWaitTime ? spot.avgWaitTime + ' min' : '—'}</div>
+            <div style="padding:10px 4px;border-radius:18px;text-align:center;background:#1a1a0a;border:1px solid #854d0e">
+              <div style="font-size:14px;margin-bottom:2px">⏱️</div>
+              <div style="font-size:13px;font-weight:800;color:#fbbf24">${spot.avgWaitTime ? spot.avgWaitTime + ' min' : '—'}</div>
+              <div style="font-size:8px;color:#fcd34d;margin-top:1px">${t('waitTime') || 'Attente'}</div>
             </div>
-            <div style="padding:10px 4px;border-radius:18px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
-              <div style="font-size:10px;color:#475569">🛡️</div>
-              <div style="font-size:12px;font-weight:800;color:#10b981">${spot.safetyRating ? spot.safetyRating + '/5' : '—'}</div>
+            <div style="padding:10px 4px;border-radius:18px;text-align:center;background:#0d2818;border:1px solid #166534">
+              <div style="font-size:14px;margin-bottom:2px">🛡️</div>
+              <div style="font-size:13px;font-weight:800;color:#34d399">${spot.safetyRating ? spot.safetyRating + '/5' : '—'}</div>
+              <div style="font-size:8px;color:#6ee7b7;margin-top:1px">${t('safety') || 'Sécurité'}</div>
             </div>
-            <div style="padding:10px 4px;border-radius:18px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
-              <div style="font-size:10px;color:#475569">🎯</div>
-              <div style="font-size:12px;font-weight:800;color:#10b981">${spot.successRate ? spot.successRate + '%' : '—'}</div>
+            <div style="padding:10px 4px;border-radius:18px;text-align:center;background:#0d2818;border:1px solid #166534">
+              <div style="font-size:14px;margin-bottom:2px">🎯</div>
+              <div style="font-size:13px;font-weight:800;color:#34d399">${spot.successRate ? spot.successRate + '%' : '—'}</div>
+              <div style="font-size:8px;color:#6ee7b7;margin-top:1px">${t('successRate') || 'Réussite'}</div>
             </div>
-            <div style="padding:10px 4px;border-radius:18px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
-              <div style="font-size:10px;color:#475569">✅</div>
-              <div style="font-size:12px;font-weight:800;color:#3b82f6">${validationCount}</div>
+            <div style="padding:10px 4px;border-radius:18px;text-align:center;background:#0c1a2e;border:1px solid #1e40af">
+              <div style="font-size:14px;margin-bottom:2px">✅</div>
+              <div style="font-size:13px;font-weight:800;color:#60a5fa">${validationCount}</div>
+              <div style="font-size:8px;color:#93c5fd;margin-top:1px">${t('validations') || 'Validés'}</div>
             </div>
           </div>
 
@@ -195,19 +199,19 @@ export function renderSpotDetail(state) {
             <button
               onclick="toggleFavorite('${escapeJSString(String(spot.id))}')"
               class="flex items-center justify-center gap-1 text-white cursor-pointer"
-              style="padding:10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05)"
+              style="padding:10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #334155;background:#1e293b"
               type="button"
             >🔖 ${t('save') || 'Sauver'}</button>
             <button
               onclick="openShareCard()"
               class="flex items-center justify-center gap-1 text-white cursor-pointer"
-              style="padding:10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05)"
+              style="padding:10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #334155;background:#1e293b"
               type="button"
             >📤 ${t('share') || 'Partager'}</button>
             <button
               onclick="openReport('SPOT', '${escapeJSString(String(spot.id))}')"
               class="flex items-center justify-center gap-1 text-white cursor-pointer"
-              style="padding:10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05)"
+              style="padding:10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #334155;background:#1e293b"
               type="button"
             >🚩 ${t('report') || 'Signaler'}</button>
           </div>
@@ -300,18 +304,17 @@ function renderStrip(spot) {
   else { season = t('seasonWinter') || 'Hiver'; seasonEmoji = '❄️' }
 
   const legalBadge = legality === 'legal'
-    ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:600;background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2)">⚖️ ${t('legalInCountry') || 'Légal'}</span>`
+    ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#0d2818;color:#6ee7b7;border:1px solid #166534">⚖️ ${t('legalInCountry') || 'Légal'}</span>`
     : legality === 'illegal'
-      ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:600;background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.2)">⚖️ ${t('legalProhibited') || 'Interdit'}</span>`
+      ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#2a0a0a;color:#fca5a5;border:1px solid #991b1b">⚖️ ${t('legalProhibited') || 'Interdit'}</span>`
       : legality
-        ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:600;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2)">⚖️ ${t('legalRestricted') || 'Restreint'}</span>`
+        ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#1c1507;color:#fbbf24;border:1px solid #854d0e">⚖️ ${t('legalRestricted') || 'Restreint'}</span>`
         : ''
 
   return `
-    <div class="flex items-center justify-between" style="padding:8px 12px;background:rgba(255,255,255,.02);border-radius:20px;margin-bottom:12px">
-      <div class="flex items-center gap-1.5"><span>⛅ —</span></div>
+    <div class="flex items-center justify-between" style="padding:8px 12px;background:#141c2b;border:1px solid #1e293b;border-radius:20px;margin-bottom:12px">
       ${legalBadge}
-      <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:600;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2)">${seasonEmoji} ${season}</span>
+      <span style="display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#1c1507;color:#fbbf24;border:1px solid #854d0e">${seasonEmoji} ${season}</span>
     </div>
   `
 }
@@ -333,9 +336,9 @@ function renderTagsSection(spot) {
   if (tags.length === 0) return ''
 
   const colorMap = {
-    g: 'background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2)',
-    a: 'background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2)',
-    b: 'background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.2)',
+    g: 'background:#0d2818;color:#6ee7b7;border:1px solid #166534',
+    a: 'background:#1c1507;color:#fbbf24;border:1px solid #854d0e',
+    b: 'background:#0c1a2e;color:#93c5fd;border:1px solid #1e40af',
   }
 
   return `
@@ -356,7 +359,7 @@ function renderDestinationsSection(spot) {
 
   // Only show section if multiple destinations or if we want the "add" button
   const destList = dests.length > 1 ? dests.map(d => `
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:4px">
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:#141c2b;border:1px solid #1e293b;margin-bottom:4px">
       <span style="font-size:14px">📍</span>
       <div style="flex:1;min-width:0">
         <div style="font-size:12px;font-weight:600;color:#e2e8f0">${escapeHTML(d.city)}</div>
@@ -377,7 +380,7 @@ function renderDestinationsSection(spot) {
       <button
         type="button"
         onclick="addDestinationToExistingSpot(${spotIdStr})"
-        style="width:100%;padding:8px;border-radius:14px;font-size:11px;font-weight:600;color:#38bdf8;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.15);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"
+        style="width:100%;padding:8px;border-radius:14px;font-size:11px;font-weight:600;color:#7dd3fc;background:#0c1a2e;border:1px solid #1e40af;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"
       >➕ ${t('addYourDestination') || 'Ajouter ta destination'}</button>
     </div>
   `
@@ -391,7 +394,7 @@ function expandable(title, content, isLast = false) {
   return `
     <div style="margin-bottom:${isLast ? '12px' : '8px'}">
       <details>
-        <summary class="cursor-pointer flex items-center justify-between" style="padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;font-size:13px;font-weight:600;list-style:none">
+        <summary class="cursor-pointer flex items-center justify-between" style="padding:10px 14px;background:#141c2b;border:1px solid #1e293b;border-radius:18px;font-size:13px;font-weight:600;list-style:none">
           <span>${title}</span>
           <span style="font-size:10px;color:#64748b;transition:.2s">▼</span>
         </summary>
@@ -421,10 +424,10 @@ function renderRatingDetails(spot) {
 
   const content = bars.map(b => `
     <div class="flex items-center justify-between" style="margin-bottom:8px">
-      <span style="font-size:10px;color:#475569">${b.emoji} ${escapeHTML(b.label)}</span>
+      <span style="font-size:10px;color:#94a3b8">${b.emoji} ${escapeHTML(b.label)}</span>
       <span style="font-size:10px;font-weight:700;color:${b.color}">${b.val}/5</span>
     </div>
-    <div style="height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-bottom:8px">
+    <div style="height:6px;border-radius:6px;background:#1e293b;margin-bottom:8px">
       <div style="height:100%;border-radius:6px;width:${(b.val / 5) * 100}%;background:${b.color}"></div>
     </div>
   `).join('')
@@ -485,9 +488,9 @@ function renderBestTimeSlots(spot) {
   const bestStats = slots[0][1]
 
   const content = `
-    <div style="padding:10px;border-radius:14px;background:rgba(16,185,129,.05)">
+    <div style="padding:10px;border-radius:14px;background:#0d2818">
       <div style="font-size:12px;font-weight:700;color:#10b981">✨ ${escapeHTML(bestLabel)}</div>
-      ${bestStats.avgWait != null ? `<div style="font-size:10px;color:#475569;margin-top:4px">${bestStats.avgWait} min ${t('average') || 'en moyenne'} • ${bestStats.count} ${t('reviews') || 'avis'}</div>` : `<div style="font-size:10px;color:#475569;margin-top:4px">${bestStats.count} ${t('reviews') || 'avis'}</div>`}
+      ${bestStats.avgWait != null ? `<div style="font-size:10px;color:#94a3b8;margin-top:4px">${bestStats.avgWait} min ${t('average') || 'en moyenne'} • ${bestStats.count} ${t('reviews') || 'avis'}</div>` : `<div style="font-size:10px;color:#94a3b8;margin-top:4px">${bestStats.count} ${t('reviews') || 'avis'}</div>`}
     </div>
   `
 
@@ -506,8 +509,8 @@ function renderExpertTips(spot) {
     if (!spot.description) return ''
 
     const content = `
-      <div style="padding:10px;border-radius:14px;background:rgba(245,158,11,.05)">
-        <div style="font-size:10px;color:#475569">
+      <div style="padding:10px;border-radius:14px;background:#1c1507">
+        <div style="font-size:10px;color:#94a3b8">
           <strong style="color:#f59e0b">@${escapeHTML(spot.creator || 'HitchWiki')} :</strong>
           ${escapeHTML(spot.description)}
         </div>
@@ -518,8 +521,8 @@ function renderExpertTips(spot) {
   }
 
   const content = tips.slice(0, 5).map(tip => `
-    <div style="padding:10px;border-radius:14px;background:rgba(245,158,11,.05);margin-bottom:6px">
-      <div style="font-size:10px;color:#475569">
+    <div style="padding:10px;border-radius:14px;background:#1c1507;margin-bottom:6px">
+      <div style="font-size:10px;color:#94a3b8">
         <strong style="color:#f59e0b">@${escapeHTML(tip.userName || '')} :</strong>
         ${escapeHTML(tip.text || '')}
       </div>
@@ -545,14 +548,14 @@ function renderEmergencySection(spot) {
     : 'https://www.google.com/maps/search/bus+station'
 
   const content = `
-    <a href="${hospitalUrl}" target="_blank" rel="noopener" class="flex items-center gap-1.5" style="display:flex;padding:10px;border-radius:14px;background:rgba(255,255,255,.03);margin-bottom:6px;text-decoration:none">
+    <a href="${hospitalUrl}" target="_blank" rel="noopener" class="flex items-center gap-1.5" style="display:flex;padding:10px;border-radius:14px;background:#141c2b;margin-bottom:6px;text-decoration:none">
       <span>🏥</span>
       <div style="flex:1">
         <div style="font-size:12px;font-weight:700">${t('nearestHospital') || 'Hôpital le plus proche'}</div>
         <div style="font-size:10px;color:#3b82f6">${t('searchOnMaps') || 'Rechercher sur Google Maps →'}</div>
       </div>
     </a>
-    <a href="${transportUrl}" target="_blank" rel="noopener" class="flex items-center gap-1.5" style="display:flex;padding:10px;border-radius:14px;background:rgba(255,255,255,.03);text-decoration:none">
+    <a href="${transportUrl}" target="_blank" rel="noopener" class="flex items-center gap-1.5" style="display:flex;padding:10px;border-radius:14px;background:#141c2b;text-decoration:none">
       <span>🚌</span>
       <div style="flex:1">
         <div style="font-size:12px;font-weight:700">${t('alternativeTransport') || 'Transport alternatif'}</div>
@@ -604,14 +607,14 @@ function renderNearbyAlternatives(spot, state) {
     const isBetter = (s.globalRating || 0) > (spot.globalRating || 0)
 
     return `
-      <div class="flex items-center gap-2.5 cursor-pointer" style="padding:10px;border-radius:14px;background:rgba(255,255,255,.03)"
+      <div class="flex items-center gap-2.5 cursor-pointer" style="padding:10px;border-radius:14px;background:#141c2b"
         onclick="selectSpot(${sId})" role="button" tabindex="0">
         <div style="width:28px;height:28px;border-radius:50%;background:${sFreshness.hexColor};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff">${s.globalRating ? s.globalRating.toFixed(1) : '?'}</div>
         <div class="flex-1 min-w-0">
           <div style="font-size:12px;font-weight:700">${s.spotType === 'gas_station' ? '⛽ ' : ''}${escapeHTML(s.from || s.direction || t('spotLocation') || 'Spot')}</div>
-          <div style="font-size:10px;color:#475569">${s._distKm.toFixed(1)} km${s.validationCount ? ' • ' + (s.validationCount + (s.testCount || 0)) + ' valid.' : ''}</div>
+          <div style="font-size:10px;color:#94a3b8">${s._distKm.toFixed(1)} km${s.validationCount ? ' • ' + (s.validationCount + (s.testCount || 0)) + ' valid.' : ''}</div>
         </div>
-        ${isBetter ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:600;background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2);margin-left:auto">${t('better') || 'Mieux!'}</span>` : ''}
+        ${isBetter ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:600;background:#0d2818;color:#6ee7b7;border:1px solid #166534;margin-left:auto">${t('better') || 'Mieux!'}</span>` : ''}
       </div>
     `
   }).join('')
@@ -631,14 +634,14 @@ function renderCommunityReviews(spot) {
   if (displayReviews.length === 0) return ''
 
   const content = displayReviews.map(review => `
-    <div style="padding:10px;border-radius:14px;background:rgba(255,255,255,.03);margin-bottom:6px">
+    <div style="padding:10px;border-radius:14px;background:#141c2b;margin-bottom:6px">
       <div class="flex items-center gap-1.5" style="margin-bottom:4px">
         <span>${review.avatar || '🤙'}</span>
         <span style="font-size:12px;font-weight:700;color:#f59e0b">@${escapeHTML(review.userName || t('traveler') || 'Voyageur')}</span>
         ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
-        <span style="font-size:10px;color:#475569;margin-left:auto">${review.waitTime ? '★'.repeat(Math.min(review.rating || 5, 5)) + ' • ' + review.waitTime + ' min' : ''}${review.travelMode ? ' • ' + review.travelMode : ''}</span>
+        <span style="font-size:10px;color:#94a3b8;margin-left:auto">${review.waitTime ? '★'.repeat(Math.min(review.rating || 5, 5)) + ' • ' + review.waitTime + ' min' : ''}${review.travelMode ? ' • ' + review.travelMode : ''}</span>
       </div>
-      <div style="font-size:10px;color:#475569">${escapeHTML(review.text || '')}</div>
+      <div style="font-size:10px;color:#94a3b8">${escapeHTML(review.text || '')}</div>
     </div>
   `).join('')
 

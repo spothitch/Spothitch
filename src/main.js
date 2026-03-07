@@ -998,6 +998,8 @@ window.openAddSpot = () => {
   setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
   if (window._pendingShareCoords) {
     showToast(t('sharePositionImported') || 'Position imported from map', 'success')
+  } else if (window._pendingShareText) {
+    showToast(t('sharePickLocation') || 'Pick the spot location on the map', 'info')
   }
 }
 window.openAddSpotPreview = () => setState({ showAddSpot: true, addSpotPreview: true });

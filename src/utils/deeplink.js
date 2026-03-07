@@ -38,12 +38,26 @@ const ACTIONS = {
     const params = getUrlParams()
     const url = params.get('url') || ''
     const text = params.get('text') || ''
-    const { extractCoordsFromShare } = await import('./mapsUrlParser.js')
-    const coords = extractCoordsFromShare(url, text)
+    const title = params.get('title') || ''
+    const { extractCoordsFromShare, resolveShortMapUrl } = await import('./mapsUrlParser.js')
+    let coords = extractCoordsFromShare(url, text)
+    // Try resolving shortened Google Maps URLs (maps.app.goo.gl)
+    if (!coords) {
+      const shortUrl = (url || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
+        || (text || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
+      if (shortUrl) {
+        coords = await resolveShortMapUrl(shortUrl)
+      }
+    }
     if (coords) {
       window._pendingShareCoords = coords
-      window.openAddSpot?.()
     }
+    // Store shared text for place name fallback
+    if (title || text) {
+      window._pendingShareText = title || text.split('\n')[0] || ''
+    }
+    // Always open AddSpot — user can pick location manually if coords not found
+    window.openAddSpot?.()
   },
 };
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractCoordsFromShare } from '../../src/utils/mapsUrlParser.js'
+import { extractCoordsFromShare, resolveShortMapUrl } from '../../src/utils/mapsUrlParser.js'
 
 describe('extractCoordsFromShare', () => {
   it('parses Google Maps ?q=lat,lng', () => {
@@ -60,5 +60,12 @@ describe('extractCoordsFromShare', () => {
   it('handles ll= parameter', () => {
     const result = extractCoordsFromShare('https://maps.google.com/?ll=48.8566,2.3522&z=15', '')
     expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+})
+
+describe('resolveShortMapUrl', () => {
+  it('returns null when fetch fails (CORS)', async () => {
+    const result = await resolveShortMapUrl('https://maps.app.goo.gl/abc123')
+    expect(result).toBeNull()
   })
 })

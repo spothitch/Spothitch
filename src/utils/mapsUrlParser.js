@@ -86,6 +86,26 @@ function parseMapUrl(url) {
 }
 
 /**
+ * Try to resolve a shortened Google Maps URL (maps.app.goo.gl/xxx)
+ * by following the redirect to get the full URL with coordinates.
+ * Falls back gracefully if CORS blocks the request.
+ * @param {string} shortUrl
+ * @returns {Promise<{ lat: number, lng: number } | null>}
+ */
+export async function resolveShortMapUrl(shortUrl) {
+  try {
+    const res = await fetch(shortUrl, { redirect: 'follow', signal: AbortSignal.timeout(5000) })
+    // The final URL after redirect should contain coordinates
+    if (res.url && res.url !== shortUrl) {
+      return parseMapUrl(res.url)
+    }
+  } catch {
+    // CORS or network error — expected, fail silently
+  }
+  return null
+}
+
+/**
  * Validate coordinates are within valid ranges
  */
 function isValidCoord(lat, lng) {
