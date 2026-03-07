@@ -4614,4 +4614,17 @@ export default {
   landingAuthEmail: 'Iniciar sesión por email',
   landingScrollDown: 'Descubrir',
   landingMustConnect: 'Inicia sesión para acceder a la app.',
+
+  // Multi-destinations
+  addDestination: 'Añadir un destino',
+  removeDestination: 'Eliminar este destino',
+  destinations: 'Destinos',
+  destinationAdded: '¡Destino añadido!',
+  maxDestinations: 'Máximo 5 destinos',
+  otherDestinations: 'Otros destinos',
+  addYourDestination: 'Añade tu destino',
+  destinationAlreadyExists: 'Este destino ya existe',
+  moreDestinations: 'otros destinos',
+  destinationCityPlaceholder: 'Ciudad de destino',
+  addedBy: 'Añadido por',
 }

@@ -39,7 +39,8 @@ import {
   serverTimestamp,
   writeBatch,
   setDoc,
-  getDoc
+  getDoc,
+  arrayUnion
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -443,6 +444,37 @@ export async function updateSpot(spotId, updates) {
     return { success: true };
   } catch (error) {
     console.error('Error updating spot:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Add a destination to an existing spot
+ * Uses arrayUnion to atomically append to the destinations array
+ */
+export async function addDestinationToSpot(spotId, destination) {
+  try {
+    const user = getCurrentUser();
+    if (!user) return { success: false, error: 'auth_required' };
+
+    const entry = {
+      city: destination.city,
+      coords: destination.coords || null,
+      method: destination.method || null,
+      waitTime: destination.waitTime || null,
+      addedBy: user.uid,
+      addedByName: user.displayName || 'Anonyme',
+      addedAt: new Date().toISOString(),
+    };
+
+    const spotRef = doc(db, 'spots', spotId);
+    await updateDoc(spotRef, {
+      destinations: arrayUnion(entry),
+      updatedAt: serverTimestamp()
+    });
+    return { success: true, entry };
+  } catch (error) {
+    console.error('Error adding destination:', error);
     return { success: false, error };
   }
 }

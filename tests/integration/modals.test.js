@@ -313,6 +313,43 @@ describe('Integration: SpotDetail Modal', () => {
     expect(html).toContain('quickValidateSpot')
     expect(html).toContain('openTestSpot')
   })
+
+  it('shows add destination button', () => {
+    const html = renderSpotDetail(stateWithSpot)
+    expect(html).toContain('addDestinationToExistingSpot')
+  })
+
+  it('shows multiple destinations when spot has destinations array', () => {
+    const multiDestSpot = {
+      ...mockSpot,
+      destinations: [
+        { city: 'Lyon', coords: null },
+        { city: 'Marseille', coords: null },
+      ],
+    }
+    const html = renderSpotDetail({ ...baseState, selectedSpot: multiDestSpot })
+    expect(html).toContain('Lyon')
+    expect(html).toContain('Marseille')
+    expect(html).toContain('(+1)')
+  })
+})
+
+describe('Integration: AddSpot Multi-Destinations', () => {
+  it('shows add destination button in step 2', () => {
+    window.spotFormData = { photos: [], lat: 48, lng: 2, ratings: {}, tags: {}, extraDestinations: [] }
+    const html = renderAddSpot({ ...baseState, showAddSpot: true, addSpotStep: 2 })
+    expect(html).toContain('addSpotDestination')
+  })
+
+  it('shows extra destination chips when present', () => {
+    window.spotFormData = {
+      photos: [], lat: 48, lng: 2, ratings: {}, tags: {},
+      extraDestinations: [{ city: 'Marseille', coords: null }],
+    }
+    const html = renderAddSpot({ ...baseState, showAddSpot: true, addSpotStep: 2 })
+    expect(html).toContain('Marseille')
+    expect(html).toContain('removeSpotDestination')
+  })
 })
 
 // ===============================================================

@@ -10,6 +10,7 @@ import { getStatusBadge, getSpotVerification } from '../services/verification.js
 import { renderFreshnessIndicator, getTimeAgo } from '../utils/dateHelpers.js';
 import { renderFreshnessBadge as renderReliabilityBadge, getSpotFreshness } from '../services/spotFreshness.js';
 import { icon } from '../utils/icons.js'
+import { getDestinationsDisplay } from '../utils/spotDestinations.js'
 
 export function renderSpotCard(spot, variant = 'default') {
   if (variant === 'compact') {
@@ -29,7 +30,7 @@ function renderDefaultCard(spot) {
 
   // Sanitize user-provided data
   const safeFrom = escapeHTML(spot.from || '');
-  const safeTo = escapeHTML(spot.to || '');
+  const safeTo = escapeHTML(getDestinationsDisplay(spot) || spot.to || '');
   const safeDescription = escapeHTML(spot.description || '');
   const safePhotoUrl = encodeURI(spot.photoUrl || '');
 
@@ -136,7 +137,7 @@ function renderCompactCard(spot) {
 
   // Sanitize user-provided data
   const safeFrom = escapeHTML(spot.from || '');
-  const safeTo = escapeHTML(spot.to || '');
+  const safeTo = escapeHTML(getDestinationsDisplay(spot) || spot.to || '');
   const safePhotoUrl = encodeURI(spot.photoUrl || '');
 
   return `

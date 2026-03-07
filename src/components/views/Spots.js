@@ -163,14 +163,22 @@ function renderSpotsMapLoading() {
 function filterSpots(state) {
   let spots = [...state.spots];
 
-  // Search filter
+  // Search filter (includes locationName + all destinations)
   if (state.searchQuery) {
     const query = state.searchQuery.toLowerCase();
-    spots = spots.filter(s =>
-      s.from.toLowerCase().includes(query) ||
-      s.to.toLowerCase().includes(query) ||
-      s.description?.toLowerCase().includes(query)
-    );
+    spots = spots.filter(s => {
+      if ((s.from || '').toLowerCase().includes(query)) return true
+      if ((s.to || '').toLowerCase().includes(query)) return true
+      if ((s.description || '').toLowerCase().includes(query)) return true
+      if ((s.locationName || '').toLowerCase().includes(query)) return true
+      if ((s.departureCity || '').toLowerCase().includes(query)) return true
+      if (s.destinations) {
+        for (const d of s.destinations) {
+          if ((d.city || '').toLowerCase().includes(query)) return true
+        }
+      }
+      return false
+    });
   }
 
   // Type filter

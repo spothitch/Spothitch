@@ -4672,4 +4672,17 @@ export default {
   landingAuthEmail: 'Anmeldung per E-Mail',
   landingScrollDown: 'Entdecken',
   landingMustConnect: 'Melde dich an, um auf die App zuzugreifen.',
+
+  // Multi-destinations
+  addDestination: 'Ziel hinzufügen',
+  removeDestination: 'Dieses Ziel entfernen',
+  destinations: 'Ziele',
+  destinationAdded: 'Ziel hinzugefügt!',
+  maxDestinations: 'Maximal 5 Ziele',
+  otherDestinations: 'Weitere Ziele',
+  addYourDestination: 'Füge dein Ziel hinzu',
+  destinationAlreadyExists: 'Dieses Ziel existiert bereits',
+  moreDestinations: 'weitere Ziele',
+  destinationCityPlaceholder: 'Zielstadt',
+  addedBy: 'Hinzugefügt von',
 }

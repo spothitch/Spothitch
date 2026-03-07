@@ -222,6 +222,9 @@ const MAIN_JS_HANDLERS = [
   'useGPSForSpot', 'toggleSpotMapPicker', 'spotMapPickLocation', 'openFullscreenMapPicker',
   'autoDetectStation', 'autoDetectRoad',
   'saveSpotAsDraft', 'openSpotDraft', 'deleteSpotDraft',
+  'addSpotDestination', 'removeSpotDestination',
+  // SpotDetail destinations (defined in SpotDetail.js)
+  'addDestinationToExistingSpot',
   // Map (defined in Map.js)
   'searchMapSuggestions',
   // AdminPanel (defined in AdminPanel.js)

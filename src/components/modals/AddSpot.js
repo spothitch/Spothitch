@@ -11,6 +11,7 @@
 
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
+import { escapeHTML } from '../../utils/sanitize.js'
 
 // Wait time slider steps (minutes)
 const WAIT_STEPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 45, 60, 90, 120, 180]
@@ -244,6 +245,39 @@ function renderStep2(state) {
           aria-required="true"
         />
         <p class="text-xs text-slate-500 mt-1">${t('selectFromList') || 'Sélectionne dans la liste'}</p>
+      </div>
+
+      <!-- Extra destinations (multi-destination) -->
+      <div class="mb-4">
+        ${(window.spotFormData?.extraDestinations || []).map((d, i) => `
+          <div class="flex items-center gap-2 mb-2">
+            <span class="flex-1 px-3 py-1.5 rounded-lg bg-primary-500/10 text-primary-300 text-sm border border-primary-500/20">
+              ${icon('map-pin', 'w-3.5 h-3.5 inline mr-1')} ${escapeHTML(d.city)}
+            </span>
+            <button type="button" onclick="removeSpotDestination(${i})"
+              class="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 hover:bg-red-500/20"
+              aria-label="${t('removeDestination') || 'Supprimer'}">
+              ${icon('x', 'w-4 h-4')}
+            </button>
+          </div>
+        `).join('')}
+        ${(window.spotFormData?.extraDestinations || []).length < 4 ? `
+          <div class="relative" id="extra-dest-wrapper" style="display:none">
+            <input
+              type="text"
+              id="spot-extra-dest"
+              class="input-modern text-sm"
+              placeholder="${t('destinationCityPlaceholder') || 'Ville de destination'}"
+            />
+          </div>
+          <button type="button" onclick="addSpotDestination()"
+            class="w-full py-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-slate-400 hover:text-primary-400 transition-colors flex items-center justify-center gap-2 mt-1"
+            id="add-dest-btn">
+            ${icon('plus', 'w-3.5 h-3.5')} ${t('addDestination') || 'Ajouter une destination'}
+          </button>
+        ` : `
+          <p class="text-xs text-slate-500 text-center">${t('maxDestinations') || 'Maximum 5 destinations'}</p>
+        `}
       </div>
 
       <!-- Wait Time Slider -->
@@ -604,6 +638,7 @@ window.spotFormData = window.spotFormData || {
   timeOfDay: null,    // 'morning' | 'afternoon' | 'evening' | 'night'
   waitTime: null,     // minutes (number)
   season: null,       // auto-detected
+  extraDestinations: [], // additional destinations [{city, coords}]
 }
 
 // Star rating descriptions map
@@ -740,6 +775,62 @@ window.setRideResult = async (result) => {
   window.spotFormData.rideResult = result
   const { setState } = await import('../../stores/state.js')
   setState({ addSpotRideResult: result })
+}
+
+// Multi-destination handlers
+window.addSpotDestination = async () => {
+  if (!window.spotFormData.extraDestinations) window.spotFormData.extraDestinations = []
+  if (window.spotFormData.extraDestinations.length >= 4) {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('maxDestinations'))
+    return
+  }
+  const wrapper = document.getElementById('extra-dest-wrapper')
+  const btn = document.getElementById('add-dest-btn')
+  if (wrapper && btn) {
+    wrapper.style.display = 'block'
+    btn.style.display = 'none'
+    const input = document.getElementById('spot-extra-dest')
+    if (input) {
+      input.focus()
+      // Init autocomplete for extra destination
+      import('../../utils/autocomplete.js').then(({ initAutocomplete }) => {
+        import('../../services/osrm.js').then(({ searchPhoton }) => {
+          initAutocomplete({
+            inputId: 'spot-extra-dest',
+            searchFn: (q) => searchPhoton(q, {}),
+            debounceMs: 100,
+            forceSelection: true,
+            onSelect: async (item) => {
+              const city = item.name
+              const coords = { lat: item.lat, lng: item.lng }
+              // Check for duplicates
+              const mainDest = window.spotFormData.directionCity || ''
+              const extras = window.spotFormData.extraDestinations || []
+              const allCities = [mainDest, ...extras.map(d => d.city)].map(c => c.toLowerCase())
+              if (allCities.includes(city.toLowerCase())) {
+                const { showError } = await import('../../services/notifications.js')
+                showError(t('destinationAlreadyExists'))
+                return
+              }
+              window.spotFormData.extraDestinations.push({ city, coords })
+              // Re-render step 2
+              const { setState } = await import('../../stores/state.js')
+              setState({ addSpotStep: 2 })
+            },
+            onClear: () => {},
+          })
+        })
+      })
+    }
+  }
+}
+
+window.removeSpotDestination = async (index) => {
+  if (!window.spotFormData.extraDestinations) return
+  window.spotFormData.extraDestinations.splice(index, 1)
+  const { setState } = await import('../../stores/state.js')
+  setState({ addSpotStep: 2 })
 }
 
 // Toggle amenity chip — DOM-only, no re-render
@@ -1406,6 +1497,28 @@ window.handleAddSpot = async (event) => {
     }
     const photoUrl = uploadedUrls[0] || ''
 
+    // Build destinations array (primary + extras)
+    const destinations = [{
+      city: to,
+      coords: window.spotFormData.directionCityCoords || null,
+      addedBy: null, // will be set by Firebase addSpot
+      addedByName: null,
+      addedAt: new Date().toISOString(),
+      method: window.spotFormData.method || null,
+      waitTime: window.spotFormData.waitTime || null,
+    }]
+    for (const extra of (window.spotFormData.extraDestinations || [])) {
+      destinations.push({
+        city: extra.city,
+        coords: extra.coords || null,
+        addedBy: null,
+        addedByName: null,
+        addedAt: new Date().toISOString(),
+        method: null,
+        waitTime: null,
+      })
+    }
+
     // Build complete spot data — ALL fields structured
     const spotData = {
       // Structured fields (unique data!)
@@ -1457,6 +1570,7 @@ window.handleAddSpot = async (event) => {
       stationName: window.spotFormData.stationName || '',
       dataSource: 'community',
       createdAt: new Date().toISOString(),
+      destinations,
     }
 
     const result = await addSpot(spotData)
@@ -1495,6 +1609,7 @@ window.handleAddSpot = async (event) => {
         locationName: null, roadNumber: null, positionSource: null,
         method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
         rideResult: null, stationName: '',
+        extraDestinations: [],
       }
 
       // Show contextual tip for first spot created

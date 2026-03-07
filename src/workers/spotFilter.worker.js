@@ -62,15 +62,25 @@ function filterSpots(spots, filters) {
     result = result.filter(s => s.verified || s.validations > 0)
   }
 
-  // Search query filter
+  // Search query filter (includes locationName + all destinations)
   if (filters.query) {
     const q = filters.query.toLowerCase()
-    result = result.filter(s =>
-      (s.name || '').toLowerCase().includes(q) ||
-      (s.city || '').toLowerCase().includes(q) ||
-      (s.description || '').toLowerCase().includes(q) ||
-      (s.country || '').toLowerCase().includes(q)
-    )
+    result = result.filter(s => {
+      if ((s.name || '').toLowerCase().includes(q)) return true
+      if ((s.city || '').toLowerCase().includes(q)) return true
+      if ((s.description || '').toLowerCase().includes(q)) return true
+      if ((s.country || '').toLowerCase().includes(q)) return true
+      if ((s.from || '').toLowerCase().includes(q)) return true
+      if ((s.to || '').toLowerCase().includes(q)) return true
+      if ((s.locationName || '').toLowerCase().includes(q)) return true
+      if ((s.departureCity || '').toLowerCase().includes(q)) return true
+      if (s.destinations) {
+        for (const d of s.destinations) {
+          if ((d.city || '').toLowerCase().includes(q)) return true
+        }
+      }
+      return false
+    })
   }
 
   // Bounding box filter (for map viewport)

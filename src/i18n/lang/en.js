@@ -4617,4 +4617,17 @@ export default {
   landingAuthEmail: 'Sign in with email',
   landingScrollDown: 'Discover',
   landingMustConnect: 'Sign in to access the app.',
+
+  // Multi-destinations
+  addDestination: 'Add a destination',
+  removeDestination: 'Remove this destination',
+  destinations: 'Destinations',
+  destinationAdded: 'Destination added!',
+  maxDestinations: 'Maximum 5 destinations',
+  otherDestinations: 'Other destinations',
+  addYourDestination: 'Add your destination',
+  destinationAlreadyExists: 'This destination already exists',
+  moreDestinations: 'other destinations',
+  destinationCityPlaceholder: 'Destination city',
+  addedBy: 'Added by',
 }

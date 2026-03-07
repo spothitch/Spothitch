@@ -10,6 +10,7 @@ import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { getSpotFreshness } from '../../services/spotFreshness.js'
 import { renderTranslateButton } from '../../services/autoTranslate.js'
 import { renderMiniTrustBadge } from '../../services/trustScore.js'
+import { getDestinationsDisplay } from '../../utils/spotDestinations.js'
 
 export function renderSpotDetail(state) {
   const spot = state.selectedSpot
@@ -62,8 +63,8 @@ export function renderSpotDetail(state) {
             <!-- Title + subtitle overlay bottom-left -->
             <div class="absolute bottom-2.5 left-3" style="right:80px">
               <h2 id="spotdetail-title" class="font-extrabold leading-tight" style="font-size:17px">
-                ${spot.from && spot.to
-                  ? `${escapeHTML(spot.from)} → ${escapeHTML(spot.to)}`
+                ${spot.from && (spot.to || (spot.destinations && spot.destinations.length))
+                  ? `${escapeHTML(spot.from)} → ${escapeHTML(getDestinationsDisplay(spot))}`
                   : spot.direction
                     ? `📍 ${escapeHTML(spot.direction)}`
                     : `📍 ${t('spotLocation') || 'Spot'} #${spot.id}`}
@@ -165,6 +166,9 @@ export function renderSpotDetail(state) {
 
           <!-- ========== TAGS ========== -->
           ${renderTagsSection(spot)}
+
+          <!-- ========== DESTINATIONS ========== -->
+          ${renderDestinationsSection(spot)}
 
           <!-- ========== 6 EXPANDABLE SECTIONS ========== -->
 
@@ -337,6 +341,44 @@ function renderTagsSection(spot) {
   return `
     <div class="flex flex-wrap gap-1.5" style="margin-bottom:12px">
       ${tags.map(tag => `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;${colorMap[tag.color]}">${tag.emoji} ${escapeHTML(tag.label)}</span>`).join('')}
+    </div>
+  `
+}
+
+/**
+ * Destinations section — shows all destinations with add button
+ */
+function renderDestinationsSection(spot) {
+  const dests = spot.destinations || []
+  if (dests.length <= 1 && !spot.id) return ''
+
+  const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
+
+  // Only show section if multiple destinations or if we want the "add" button
+  const destList = dests.length > 1 ? dests.map(d => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:4px">
+      <span style="font-size:14px">📍</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:#e2e8f0">${escapeHTML(d.city)}</div>
+        ${d.addedByName ? `<div style="font-size:10px;color:#64748b">${t('addedBy') || 'Ajouté par'} ${escapeHTML(d.addedByName)}</div>` : ''}
+      </div>
+      ${d.waitTime ? `<span style="font-size:10px;color:#94a3b8">~${d.waitTime} min</span>` : ''}
+    </div>
+  `).join('') : ''
+
+  return `
+    <div style="margin-bottom:12px">
+      ${dests.length > 1 ? `
+        <div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">
+          ${t('destinations') || 'Destinations'} (${dests.length})
+        </div>
+        ${destList}
+      ` : ''}
+      <button
+        type="button"
+        onclick="addDestinationToExistingSpot(${spotIdStr})"
+        style="width:100%;padding:8px;border-radius:14px;font-size:11px;font-weight:600;color:#38bdf8;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.15);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"
+      >➕ ${t('addYourDestination') || 'Ajouter ta destination'}</button>
     </div>
   `
 }
@@ -644,6 +686,84 @@ function formatRelativeDate(dateStr) {
     const years = Math.floor(diffDays / 365)
     return `${years} ${years === 1 ? (t('yearAgo') || 'an') : (t('yearsAgo') || 'ans')}`
   } catch { return '' }
+}
+
+// Handler: add a destination to an existing spot
+window.addDestinationToExistingSpot = async (spotId) => {
+  const { getCurrentUser } = await import('../../services/firebase.js')
+  const user = getCurrentUser()
+  if (!user) {
+    const { setState } = await import('../../stores/state.js')
+    setState({ showAuth: true })
+    return
+  }
+
+  const { getState, setState } = await import('../../stores/state.js')
+  const spot = getState().selectedSpot
+  if (!spot) return
+
+  // Check max destinations
+  const currentDests = spot.destinations || []
+  if (currentDests.length >= 5) {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('maxDestinations'))
+    return
+  }
+
+  // Show inline input
+  const btn = document.querySelector('[onclick*="addDestinationToExistingSpot"]')
+  if (!btn) return
+
+  const wrapper = document.createElement('div')
+  wrapper.id = 'add-dest-inline'
+  wrapper.style.cssText = 'margin-top:6px'
+  wrapper.innerHTML = `
+    <input type="text" id="spot-detail-dest-input"
+      class="input-modern text-sm" style="font-size:13px;padding:8px 12px"
+      placeholder="${t('destinationCityPlaceholder') || 'Ville de destination'}" />
+  `
+  btn.style.display = 'none'
+  btn.parentNode.insertBefore(wrapper, btn.nextSibling)
+
+  const input = document.getElementById('spot-detail-dest-input')
+  if (input) {
+    input.focus()
+    const { initAutocomplete } = await import('../../utils/autocomplete.js')
+    const { searchPhoton } = await import('../../services/osrm.js')
+    initAutocomplete({
+      inputId: 'spot-detail-dest-input',
+      searchFn: (q) => searchPhoton(q, {}),
+      debounceMs: 100,
+      forceSelection: true,
+      onSelect: async (item) => {
+        const { hasDestination } = await import('../../utils/spotDestinations.js')
+        if (hasDestination(spot, item.name)) {
+          const { showError } = await import('../../services/notifications.js')
+          showError(t('destinationAlreadyExists'))
+          return
+        }
+
+        const { addDestinationToSpot } = await import('../../services/firebase.js')
+        const result = await addDestinationToSpot(spotId, {
+          city: item.name,
+          coords: { lat: item.lat, lng: item.lng },
+        })
+
+        if (result.success) {
+          const { showSuccess } = await import('../../services/notifications.js')
+          showSuccess(t('destinationAdded'))
+          // Update local spot data
+          if (!spot.destinations) spot.destinations = []
+          spot.destinations.push(result.entry)
+          spot.to = spot.destinations[0]?.city || spot.to
+          setState({ selectedSpot: { ...spot } })
+        } else if (result.error === 'auth_required') {
+          setState({ showAuth: true })
+        }
+      },
+      onClear: () => {},
+    })
+  }
 }
 
 export default { renderSpotDetail }

@@ -14,6 +14,7 @@
 import { haversineKm } from '../utils/geo.js'
 import { getByIndex, putAll, cacheGet, cacheSet } from '../utils/idb.js'
 import { countryGuides } from '../data/guides.js'
+import { normalizeSpotDestinations } from '../utils/spotDestinations.js'
 
 // Build legality lookup by country code (once)
 const legalityByCountry = {}
@@ -224,7 +225,7 @@ function convertToAppFormat(rawSpots, countryCode) {
       const bestComment = s.comments?.[0]?.text || ''
       const legal = legalityByCountry[countryCode]
 
-      return {
+      const spot = {
         id,
         from: '',
         to: '',
@@ -269,6 +270,8 @@ function convertToAppFormat(rawSpots, countryCode) {
         _hitchwikiRating: s.rating,
         _hitchwikiReviews: s.reviews || 0,
       }
+
+      return normalizeSpotDestinations(spot)
     })
 }
 
