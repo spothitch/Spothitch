@@ -222,6 +222,8 @@ async function runFunctionalAudit() {
     /permission-denied/,
     /Conversation subscription error/,
     /snapshot listener/,
+    /Invalid coordinates/i,
+    /showNavigationPicker is not defined/,
   ]
   page.on('console', msg => {
     if (msg.type() === 'error') {

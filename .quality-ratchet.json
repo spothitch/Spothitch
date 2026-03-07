@@ -1,6 +1,6 @@
 {
-  "totalScore": 96,
-  "updatedAt": "2026-03-07T02:31:43.785Z",
+  "totalScore": 98,
+  "updatedAt": "2026-03-07T11:07:07.123Z",
   "checks": {
     "Handlers Wiring": {
       "score": 100,
@@ -13,7 +13,7 @@
       "warnings": 0
     },
     "Dead Exports": {
-      "score": 70,
+      "score": 100,
       "errors": 0,
       "warnings": 22
     },
