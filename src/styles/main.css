@@ -200,7 +200,7 @@
   }
 
   .light-theme .modal-panel {
-    @apply bg-white/95 backdrop-blur-2xl border-light-border shadow-2xl shadow-stone-400/20;
+    @apply bg-white/95 backdrop-blur-2xl border-light-border shadow-2xl shadow-stone-400/20 text-stone-800;
   }
 
   /* Buttons */
@@ -1163,6 +1163,12 @@ html.map-active body {
 .light-theme .spot-position-preview {
   @apply bg-green-50 border-green-300;
 }
+.light-theme .spot-position-preview p {
+  @apply text-stone-800;
+}
+.light-theme .spot-position-preview .text-slate-400 {
+  @apply text-stone-500;
+}
 
 /* CTA button to open fullscreen map */
 .spot-position-cta {
@@ -1174,6 +1180,12 @@ html.map-active body {
 }
 .light-theme .spot-position-cta {
   @apply bg-amber-50 border-amber-300;
+}
+.light-theme .spot-position-cta span {
+  @apply text-stone-800;
+}
+.light-theme .spot-position-cta .text-slate-500 {
+  @apply text-stone-500;
 }
 
 /* Fullscreen map picker overlay */

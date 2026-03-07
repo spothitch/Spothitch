@@ -783,3 +783,16 @@ Chaque erreur suit ce format :
 - **Leçon** : **Quand on crée un nouveau handler `window.openX` dans un module lazy, TOUJOURS ajouter le stub correspondant dans main.js immédiatement.** Quand on trouve ce bug quelque part, chercher TOUS les autres handlers lazy sans stub.
 - **Fichiers** : `src/main.js`, `src/components/modals/DeleteAccount.js`
 - **Statut** : CORRIGÉ — 8 stubs ajoutés (openAdminPanel, openMyData, openValidateSpot, openTestSpot, openSpotDraft, openFeedbackDetail, openFeedbackOnFeature, openDeleteAccount)
+
+### ERR-065 — Scroll vertical sur l'onglet carte (3ème récurrence)
+- **Date** : 2026-03-06
+- **Gravité** : MAJEUR
+- **Description** : La page scrolle verticalement quand l'utilisateur est sur l'onglet carte. Bug signalé 3 fois par Antoine.
+- **Cause racine** : `overflow:hidden` était appliqué uniquement sur `#home-map-container`, mais le scroll se propageait au `body` qui n'avait aucune restriction `overflow-y`. Les fix précédents ciblaient le conteneur, pas la racine du document.
+- **Correction** : Ajout d'une classe `html.map-active` avec `overflow:hidden !important` + `position:fixed !important` sur html et body. Toggle automatique dans `afterRender()` via `isMapTab()`. Ajout de 8 tests wiring (mapScrollLock.test.js) qui vérifient la présence du CSS et du JS. Le CI cassera si quelqu'un retire le scroll lock.
+- **Leçon** :
+  - **Pour bloquer le scroll d'une page, cibler html+body, JAMAIS uniquement le conteneur enfant** — le scroll se propage toujours au parent
+  - **Quand un bug revient 3 fois, ajouter un TEST AUTOMATISÉ qui vérifie le code source** — pas juste corriger, empêcher la régression
+  - **`position:fixed` + `overflow:hidden` sur html = seul moyen fiable de bloquer le scroll sur tous les navigateurs** (y compris iOS Safari)
+- **Fichiers** : `src/styles/main.css`, `src/components/App.js`, `tests/wiring/mapScrollLock.test.js`
+- **Statut** : CORRIGÉ + protégé par 8 tests CI
