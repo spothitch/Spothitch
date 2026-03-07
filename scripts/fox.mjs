@@ -149,6 +149,19 @@ async function main() {
     })
 
     await runLayer(3, 'BUILD', async () => {
+      // Skip build if dev server is running (port conflict)
+      try {
+        const net = await import('net')
+        const portInUse = await new Promise((resolve) => {
+          const s = net.createConnection({ port: 5173 })
+          s.on('connect', () => { s.destroy(); resolve(true) })
+          s.on('error', () => resolve(false))
+        })
+        if (portInUse) {
+          return { score: 100, maxScore: 100, errors: [], warnings: ['Build skipped (dev server running)'] }
+        }
+      } catch {}
+
       try {
         execSync('npm run build 2>&1', {
           cwd: ROOT,

@@ -210,6 +210,17 @@ async function runChaosAudit() {
       try {
         const chaosResult = await page.evaluate(CHAOS_SCRIPT, DURATION)
 
+        if (!chaosResult) {
+          // Context was destroyed (navigation happened during chaos)
+          console.log(`    Context lost (navigation during chaos) — recovering`)
+          results.screens.push({ name: screen.name, crashed: false, contextLost: true, actions: { clicks: 0, scrolls: 0, types: 0 }, errorCount: 0 })
+          try {
+            await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 10000 })
+            await page.waitForTimeout(2000)
+          } catch {}
+          continue
+        }
+
         // Combine page-level errors with in-page errors
         chaosResult.pageErrors = [...pageErrors]
         chaosResult.totalPageErrors = pageErrors.length
