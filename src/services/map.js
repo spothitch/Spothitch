@@ -327,12 +327,14 @@ export async function initMap(containerId = 'map') {
       // Load dynamic spots
       loadDynamicSpots(mainMap)
 
-      // Reload spots on map move
+      // Reload spots on map move — fast debounce (200ms)
       let moveTimeout = null
-      mainMap.on('moveend', () => {
+      const triggerSpotLoad = () => {
         clearTimeout(moveTimeout)
-        moveTimeout = setTimeout(() => loadDynamicSpots(mainMap), 500)
-      })
+        moveTimeout = setTimeout(() => loadDynamicSpots(mainMap), 200)
+      }
+      mainMap.on('moveend', triggerSpotLoad)
+      mainMap.on('zoomend', triggerSpotLoad)
     })
 
     // User location marker
@@ -552,7 +554,14 @@ async function loadDynamicSpots(map) {
       west: mapBounds.getWest(),
     }
 
+    // Show loading indicator
+    showMapLoadingIndicator(true)
+
     const spots = await loadSpotsInBounds(bounds)
+
+    // Hide loading indicator
+    showMapLoadingIndicator(false)
+
     if (!spots || spots.length === 0) return
 
     const newSpots = spots.filter(s => !loadedSpotIds.has(s.id))
@@ -573,7 +582,34 @@ async function loadDynamicSpots(map) {
       countEl.textContent = loadedSpotIds.size
     }
   } catch (error) {
+    showMapLoadingIndicator(false)
     // silently fail — spots will load on next move
+  }
+}
+
+/**
+ * Show/hide a subtle loading indicator on the map
+ */
+function showMapLoadingIndicator(show) {
+  let indicator = document.getElementById('map-loading-indicator')
+  if (show) {
+    if (!indicator) {
+      indicator = document.createElement('div')
+      indicator.id = 'map-loading-indicator'
+      indicator.setAttribute('aria-live', 'polite')
+      indicator.style.cssText = 'position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:20;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;pointer-events:none;transition:opacity .3s;'
+      const isDark = document.documentElement.classList.contains('dark')
+      indicator.style.background = isDark ? 'rgba(15,21,32,0.9)' : 'rgba(255,255,255,0.9)'
+      indicator.style.color = isDark ? '#94a3b8' : '#64748b'
+      indicator.style.border = isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)'
+      indicator.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite;margin-right:6px">⟳</span>Chargement...'
+      const mapEl = document.getElementById('map')
+      if (mapEl) mapEl.appendChild(indicator)
+    }
+    indicator.style.opacity = '1'
+  } else if (indicator) {
+    indicator.style.opacity = '0'
+    setTimeout(() => indicator?.remove(), 300)
   }
 }
 

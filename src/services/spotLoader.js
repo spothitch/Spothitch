@@ -284,12 +284,13 @@ export async function loadSpotsInBounds(bounds) {
   if (!index) return []
 
   // Determine which countries might be visible
+  // Buffer of 5° to preload nearby countries before user pans there
   const countryCenters = getCountryCenters()
   const expandedBounds = {
-    north: bounds.north + 2,
-    south: bounds.south - 2,
-    east: bounds.east + 2,
-    west: bounds.west - 2,
+    north: bounds.north + 5,
+    south: bounds.south - 5,
+    east: bounds.east + 5,
+    west: bounds.west - 5,
   }
 
   const visibleCountries = Object.entries(countryCenters)
