@@ -164,9 +164,9 @@ export async function performAutoSync() {
 
     const duration = Date.now() - startTime
 
-    // Show subtle notification
+    // Silent sync — no toast, just log (was annoying users on every app open)
     if (syncedData.countries.length > 0) {
-      showToast(`📥 ${t('autoOfflineSyncUpdated') || 'Données hors-ligne mises à jour'} (${syncedData.countries.length} ${t('autoOfflineSyncCountries') || 'pays'})`, 'success')
+      console.log(`[AutoOfflineSync] Updated ${syncedData.countries.length} countries in ${duration}ms`)
     }
 
     return { success: true, synced: syncedData, duration }
