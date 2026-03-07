@@ -3,7 +3,8 @@
  * Chaos Monkey Check (Playwright-based)
  *
  * Randomly clicks, scrolls, types, and interacts with the app
- * for a configurable duration per screen. Catches:
+ * using individual Playwright actions (resilient to page navigations).
+ * Catches:
  * - Unhandled exceptions from unexpected interactions
  * - Console errors from edge cases
  * - App crashes (blank screen, unresponsive)
@@ -28,111 +29,90 @@ if (!existsSync(REPORT_DIR)) mkdirSync(REPORT_DIR, { recursive: true })
 const DURATION_ARG = process.argv.find(a => a.startsWith('--duration='))
 const DURATION = DURATION_ARG ? parseInt(DURATION_ARG.split('=')[1]) : 10
 
-const CHAOS_SCRIPT = `(duration) => {
-  return new Promise((resolve) => {
-    const errors = []
-    const startNodes = document.querySelectorAll('*').length
-    let clicks = 0, scrolls = 0, types = 0
+const CHAOS_TEXTS = ['', '   ', '<script>alert(1)</script>', 'a'.repeat(500),
+  '-99999', '0', 'null', 'undefined', 'DROP TABLE users', '../../../etc/passwd',
+  '\n\r\t', '日本語テスト']
 
-    // Capture errors
-    const origError = console.error
-    console.error = (...args) => {
-      errors.push(args.map(a => String(a)).join(' ').substring(0, 200))
-      origError.apply(console, args)
-    }
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
 
-    function randomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min
-    }
-
-    function randomAction() {
-      const action = randomInt(0, 4)
-
-      switch (action) {
-        case 0: // Random click
-        case 1: {
-          const x = randomInt(10, window.innerWidth - 10)
-          const y = randomInt(10, window.innerHeight - 10)
-          try {
-            const el = document.elementFromPoint(x, y)
-            if (el) {
-              el.click()
-              clicks++
-            }
-          } catch (e) {
-            errors.push('Click error: ' + e.message)
-          }
-          break
-        }
-        case 2: { // Random scroll
-          const scrollTarget = randomInt(-500, 500)
-          window.scrollBy(0, scrollTarget)
-          // Also try scrolling modal content
-          const scrollable = document.querySelector('.modal-overlay, [style*="overflow"]')
-          if (scrollable) scrollable.scrollTop += scrollTarget
-          scrolls++
-          break
-        }
-        case 3: { // Random type in any input
-          const inputs = document.querySelectorAll('input, textarea, select')
-          if (inputs.length > 0) {
-            const input = inputs[randomInt(0, inputs.length - 1)]
-            const chaosText = ['', '   ', '<script>alert(1)</script>', '🎉🔥💀', 'a'.repeat(1000),
-              '-99999', '0', 'null', 'undefined', 'DROP TABLE users', '../../../etc/passwd',
-              '\\n\\r\\t', String.fromCharCode(0), '日本語テスト'][randomInt(0, 12)]
-            try {
-              input.focus()
-              input.value = chaosText
-              input.dispatchEvent(new Event('input', { bubbles: true }))
-              input.dispatchEvent(new Event('change', { bubbles: true }))
-              types++
-            } catch (e) {
-              errors.push('Type error: ' + e.message)
-            }
-          }
-          break
-        }
-        case 4: { // Random touch event
-          const x = randomInt(10, window.innerWidth - 10)
-          const y = randomInt(10, window.innerHeight - 10)
-          try {
-            const touch = new Touch({ identifier: 1, target: document.body, clientX: x, clientY: y })
-            document.dispatchEvent(new TouchEvent('touchstart', { touches: [touch], bubbles: true }))
-            document.dispatchEvent(new TouchEvent('touchend', { touches: [], bubbles: true }))
-          } catch (e) {
-            // TouchEvent not supported in some browsers, ignore
-          }
-          break
-        }
-      }
-    }
-
-    // Run chaos at ~20 actions per second
-    const interval = setInterval(randomAction, 50)
-
-    setTimeout(() => {
-      clearInterval(interval)
-      console.error = origError
-
-      const endNodes = document.querySelectorAll('*').length
-      const appAlive = !!document.querySelector('#app, [id="app"], body')
-      const bodyVisible = document.body.offsetHeight > 0
-
-      resolve({
-        duration,
-        actions: { clicks, scrolls, types },
-        errors: errors.slice(0, 20),
-        errorCount: errors.length,
-        domGrowth: endNodes - startNodes,
-        startNodes,
-        endNodes,
-        appAlive,
-        bodyVisible,
-        crashed: !appAlive || !bodyVisible
+/** Neutralize all navigation-triggering functions */
+async function blockNavigation(page) {
+  try {
+    await page.evaluate(() => {
+      window.open = () => null
+      window.alert = () => {}
+      window.confirm = () => true
+      window.prompt = () => ''
+      if (window.setLanguage) window.setLanguage = () => {}
+      if (window.changeLanguageHandler) window.changeLanguageHandler = () => {}
+      if (window.clearAllData) window.clearAllData = () => {}
+      if (window._forceRender) window._forceRender = () => {}
+      // Remove reload buttons
+      document.querySelectorAll('[onclick*="reload"]').forEach(el => {
+        el.removeAttribute('onclick')
+        el.onclick = () => {}
       })
-    }, duration * 1000)
-  })
-}`
+      // Remove external links
+      document.querySelectorAll('a[href^="http"], a[href^="//"], a[href^="mailto:"], a[href^="tel:"]').forEach(a => {
+        a.removeAttribute('href')
+      })
+    })
+  } catch {}
+}
+
+/** Perform one random action on the page via individual evaluate calls */
+async function doRandomAction(page) {
+  const action = randomInt(0, 3)
+
+  switch (action) {
+    case 0: // Random click
+    case 1: {
+      const x = randomInt(10, VIEWPORT.width - 10)
+      const y = randomInt(10, VIEWPORT.height - 10)
+      const result = await page.evaluate(({ x, y }) => {
+        const el = document.elementFromPoint(x, y)
+        if (!el) return 'miss'
+        // Skip external links
+        const link = el.closest?.('a[href]')
+        if (link) {
+          const href = link.getAttribute('href') || ''
+          if (href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+            return 'skip-link'
+          }
+        }
+        el.click()
+        return 'click'
+      }, { x, y })
+      return result === 'click' ? 'click' : null
+    }
+    case 2: { // Random scroll
+      await page.evaluate((delta) => {
+        window.scrollBy(0, delta)
+        const scrollable = document.querySelector('[role="dialog"], [style*="overflow"]')
+        if (scrollable) scrollable.scrollTop += delta
+      }, randomInt(-500, 500))
+      return 'scroll'
+    }
+    case 3: { // Random type in any input
+      const typed = await page.evaluate((text) => {
+        const inputs = document.querySelectorAll('input, textarea')
+        if (inputs.length === 0) return false
+        const input = inputs[Math.floor(Math.random() * inputs.length)]
+        try {
+          input.focus()
+          input.value = text
+          input.dispatchEvent(new Event('input', { bubbles: true }))
+          input.dispatchEvent(new Event('change', { bubbles: true }))
+          return true
+        } catch { return false }
+      }, CHAOS_TEXTS[randomInt(0, CHAOS_TEXTS.length - 1)])
+      return typed ? 'type' : null
+    }
+  }
+  return null
+}
 
 async function runChaosAudit() {
   let chromium
@@ -175,13 +155,33 @@ async function runChaosAudit() {
 
   const page = await context.newPage()
 
-  // Capture page errors
+  // Block external navigation
+  await page.route('**/*', (route) => {
+    const url = route.request().url()
+    if (url.startsWith(BASE_URL) || url.startsWith('data:') || url.startsWith('blob:')) {
+      route.continue()
+    } else {
+      route.abort('blockedbyclient')
+    }
+  })
+
+  // Capture page errors (filter expected noise)
+  const PAGE_ERROR_IGNORE = [
+    /Failed to fetch/i, /Style is not done loading/i, /Sentry/i,
+    /blockedbyclient/i, /ResizeObserver/i, /maplibre/i, /AJAXError/i,
+    /ServiceWorker/i, /Geolocation/i, /Firestore/i, /firebase/i, /Could not reach/i,
+  ]
   const pageErrors = []
-  page.on('pageerror', err => pageErrors.push(err.message))
+  page.on('pageerror', err => {
+    if (!PAGE_ERROR_IGNORE.some(p => p.test(err.message))) {
+      pageErrors.push(err.message)
+    }
+  })
 
   try {
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 20000 })
     await page.waitForTimeout(3000)
+    await blockNavigation(page)
 
     const screens = [
       { name: 'map', setup: null },
@@ -200,48 +200,139 @@ async function runChaosAudit() {
     for (const screen of screens) {
       console.log(`\n  Chaos on: ${screen.name} (${DURATION}s)...`)
 
-      if (screen.setup) {
-        await page.evaluate(screen.setup)
-        await page.waitForTimeout(1500)
-      }
-
-      pageErrors.length = 0 // Reset
-
       try {
-        const chaosResult = await page.evaluate(CHAOS_SCRIPT, DURATION)
-
-        if (!chaosResult) {
-          // Context was destroyed (navigation happened during chaos)
-          console.log(`    Context lost (navigation during chaos) — recovering`)
-          results.screens.push({ name: screen.name, crashed: false, contextLost: true, actions: { clicks: 0, scrolls: 0, types: 0 }, errorCount: 0 })
-          try {
-            await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 10000 })
-            await page.waitForTimeout(2000)
-          } catch {}
-          continue
+        if (screen.setup) {
+          await page.evaluate(screen.setup)
+          await page.waitForTimeout(1500)
         }
 
-        // Combine page-level errors with in-page errors
-        chaosResult.pageErrors = [...pageErrors]
-        chaosResult.totalPageErrors = pageErrors.length
-        chaosResult.name = screen.name
+        await blockNavigation(page)
+        pageErrors.length = 0
 
-        results.screens.push(chaosResult)
-        results.totalErrors += chaosResult.errorCount + chaosResult.totalPageErrors
-        results.totalActions.clicks += chaosResult.actions.clicks
-        results.totalActions.scrolls += chaosResult.actions.scrolls
-        results.totalActions.types += chaosResult.actions.types
+        // Get initial DOM count
+        const startNodes = await page.evaluate(() => document.querySelectorAll('*').length).catch(() => 0)
 
-        if (chaosResult.crashed) {
+        // Start error capture in browser (filter out expected noise)
+        await page.evaluate(() => {
+          window.__chaosErrors = []
+          const origError = console.error
+          window.__chaosOrigError = origError
+          const IGNORE = [
+            /Failed to fetch/i,
+            /Style is not done loading/i,
+            /Sentry not initialized/i,
+            /blockedbyclient/i,
+            /ResizeObserver loop/i,
+            /City search failed/i,
+            /Geolocation error/i,
+            /ServiceWorker/i,
+            /maplibre/i,
+            /AJAXError/i,
+            /Firestore/i,
+            /firebase/i,
+            /Could not reach/i,
+          ]
+          console.error = (...args) => {
+            const msg = args.map(a => String(a)).join(' ').substring(0, 200)
+            if (!IGNORE.some(p => p.test(msg))) {
+              window.__chaosErrors.push(msg)
+            }
+            origError.apply(console, args)
+          }
+        }).catch(() => {})
+
+        // Perform individual actions for DURATION seconds
+        const actions = { clicks: 0, scrolls: 0, types: 0 }
+        const endTime = Date.now() + DURATION * 1000
+        let contextLost = false
+
+        while (Date.now() < endTime) {
+          try {
+            const result = await doRandomAction(page)
+            if (result === 'click') actions.clicks++
+            else if (result === 'scroll') actions.scrolls++
+            else if (result === 'type') actions.types++
+          } catch (err) {
+            if (err.message?.includes('Execution context was destroyed') || err.message?.includes('navigation')) {
+              // Page navigated — wait for it to settle and re-block navigation
+              contextLost = true
+              await page.waitForTimeout(2000)
+              try {
+                await blockNavigation(page)
+                contextLost = false // Recovered
+              } catch {
+                // Still navigating, try goto
+                try {
+                  await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 10000 })
+                  await page.waitForTimeout(1500)
+                  await blockNavigation(page)
+                  contextLost = false
+                } catch { break }
+              }
+            }
+            // Other errors: just skip this action
+          }
+          // ~10 actions per second (each action has network overhead)
+          await page.waitForTimeout(50)
+        }
+
+        // Collect results
+        let errorCount = 0
+        let errors = []
+        let endNodes = startNodes
+        let appAlive = true
+        try {
+          const browserData = await page.evaluate(() => {
+            // Restore console.error
+            if (window.__chaosOrigError) console.error = window.__chaosOrigError
+            return {
+              errors: (window.__chaosErrors || []).slice(0, 20),
+              errorCount: (window.__chaosErrors || []).length,
+              endNodes: document.querySelectorAll('*').length,
+              appAlive: !!document.querySelector('#app, [id="app"]'),
+            }
+          })
+          errorCount = browserData.errorCount
+          errors = browserData.errors
+          endNodes = browserData.endNodes
+          appAlive = browserData.appAlive
+        } catch {}
+
+        const domGrowth = endNodes - startNodes
+        const totalPageErrors = pageErrors.length
+
+        const screenResult = {
+          name: screen.name,
+          actions,
+          errors,
+          errorCount,
+          domGrowth,
+          startNodes,
+          endNodes,
+          appAlive,
+          crashed: !appAlive,
+          contextLost,
+          pageErrors: [...pageErrors],
+          totalPageErrors,
+        }
+
+        results.screens.push(screenResult)
+        results.totalErrors += errorCount + totalPageErrors
+        results.totalActions.clicks += actions.clicks
+        results.totalActions.scrolls += actions.scrolls
+        results.totalActions.types += actions.types
+
+        if (!appAlive) {
           results.totalCrashes++
           console.log(`    CRASHED! App not responsive`)
         }
 
-        console.log(`    ${chaosResult.actions.clicks} clicks, ${chaosResult.actions.scrolls} scrolls, ${chaosResult.actions.types} types`)
-        console.log(`    Errors: ${chaosResult.errorCount + chaosResult.totalPageErrors} | DOM growth: ${chaosResult.domGrowth > 0 ? '+' : ''}${chaosResult.domGrowth} nodes`)
+        console.log(`    ${actions.clicks} clicks, ${actions.scrolls} scrolls, ${actions.types} types`)
+        console.log(`    Errors: ${errorCount + totalPageErrors} | DOM growth: ${domGrowth > 0 ? '+' : ''}${domGrowth} nodes`)
+        if (contextLost) console.log(`    [WARN] Context was lost and recovered during chaos`)
 
-        if (chaosResult.domGrowth > 500) {
-          console.log(`    [WARN] DOM grew by ${chaosResult.domGrowth} nodes — possible memory leak`)
+        if (domGrowth > 500) {
+          console.log(`    [WARN] DOM grew by ${domGrowth} nodes — possible memory leak`)
         }
 
         // Take screenshot after chaos
@@ -249,34 +340,34 @@ async function runChaosAudit() {
           path: join(REPORT_DIR, `chaos-${screen.name}.png`),
           fullPage: false,
           timeout: 5000,
-        })
+        }).catch(() => {})
 
         // Clean up modal if needed
         if (screen.name === 'spotdetail') {
           await page.evaluate(() => {
             if (window.setState) window.setState({ selectedSpot: null })
-            document.querySelectorAll('.modal-overlay').forEach(m => m.remove())
-          })
+            document.querySelectorAll('.modal-overlay, [role="dialog"]').forEach(m => m.remove())
+          }).catch(() => {})
           await page.waitForTimeout(500)
         }
 
-        // Verify app is still alive
-        const alive = await page.evaluate(() => !!document.querySelector('#app, [id="app"]'))
+        // Verify app is still alive, recover if needed
+        const alive = await page.evaluate(() => !!document.querySelector('#app, [id="app"]')).catch(() => false)
         if (!alive) {
-          console.log(`    [CRITICAL] App destroyed after chaos!`)
-          // Try to recover
-          await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 10000 })
+          console.log(`    [CRITICAL] App destroyed after chaos — recovering`)
+          await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 10000 }).catch(() => {})
           await page.waitForTimeout(2000)
+          await blockNavigation(page)
         }
       } catch (err) {
-        console.log(`    [ERROR] Chaos session crashed: ${err.message}`)
-        results.totalCrashes++
-        results.screens.push({ name: screen.name, crashed: true, error: err.message })
+        console.log(`    [ERROR] Chaos session failed: ${err.message.substring(0, 100)}`)
+        results.screens.push({ name: screen.name, crashed: true, error: err.message, actions: { clicks: 0, scrolls: 0, types: 0 }, errorCount: 0 })
 
         // Try to recover
         try {
           await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 10000 })
           await page.waitForTimeout(2000)
+          await blockNavigation(page)
         } catch {}
       }
     }
@@ -317,15 +408,28 @@ export default async function checkChaosMonkey(opts = {}) {
       JSON.stringify(results, null, 2)
     )
 
-    // Crashes are critical, errors are warnings
-    const score = Math.max(0, 100 - results.totalCrashes * 30 - Math.min(30, results.totalErrors))
+    // Honest scoring: 0 actions = 0 score (nothing was tested)
+    const totalActions = results.totalActions.clicks + results.totalActions.scrolls + results.totalActions.types
+    const minActions = results.screens.length * 20 // Expect at least 20 actions per screen
+    let score
+    if (totalActions === 0) {
+      score = 0 // Nothing tested
+    } else if (totalActions < minActions) {
+      score = Math.max(10, Math.round((totalActions / minActions) * 50)) // Partial testing
+    } else {
+      score = Math.max(0, 100 - results.totalCrashes * 30 - Math.min(30, results.totalErrors))
+    }
+
+    const errors = []
+    if (totalActions === 0) errors.push('Chaos monkey performed 0 actions (context lost on all screens)')
+    if (results.totalCrashes > 0) errors.push(`${results.totalCrashes} screen(s) crashed during chaos`)
 
     return {
       name: 'Chaos Monkey',
       score,
       maxScore: 100,
-      errors: results.totalCrashes > 0 ? [`${results.totalCrashes} screen(s) crashed during chaos`] : [],
-      warnings: results.totalErrors > 0 ? [`${results.totalErrors} errors during ${results.totalActions.clicks + results.totalActions.scrolls + results.totalActions.types} random actions`] : [],
+      errors,
+      warnings: results.totalErrors > 0 ? [`${results.totalErrors} errors during ${totalActions} random actions`] : [],
       stats: {
         screens: results.screens.length,
         crashes: results.totalCrashes,

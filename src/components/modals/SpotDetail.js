@@ -11,6 +11,7 @@ import { getSpotFreshness } from '../../services/spotFreshness.js'
 import { renderTranslateButton } from '../../services/autoTranslate.js'
 import { renderMiniTrustBadge } from '../../services/trustScore.js'
 import { getDestinationsDisplay } from '../../utils/spotDestinations.js'
+import '../../utils/navigation.js' // Registers window.showNavigationPicker
 
 export function renderSpotDetail(state) {
   const spot = state.selectedSpot

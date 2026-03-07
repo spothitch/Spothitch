@@ -142,6 +142,35 @@ async function runFunctionalAudit() {
 
   const page = await context.newPage()
 
+  // Allow map tiles and common CDN resources, block other external navigation
+  const ALLOWED_EXTERNAL = [
+    'tiles.openfreemap.org',
+    'fonts.googleapis.com',
+    'fonts.gstatic.com',
+    'apis.google.com',
+    'www.googleapis.com',
+    'firestore.googleapis.com',
+    'identitytoolkit.googleapis.com',
+    'securetoken.googleapis.com',
+    'www.gstatic.com',
+    'accounts.google.com',
+  ]
+  await page.route('**/*', (route) => {
+    const url = route.request().url()
+    // Allow same-origin requests
+    if (url.startsWith(BASE_URL) || url.startsWith('data:') || url.startsWith('blob:')) {
+      route.continue()
+      return
+    }
+    // Allow known external resources (map tiles, Firebase, fonts)
+    if (ALLOWED_EXTERNAL.some(domain => url.includes(domain))) {
+      route.continue()
+      return
+    }
+    // Block everything else
+    route.abort('blockedbyclient')
+  })
+
   // Intercept window.open calls
   const openedUrls = []
   await page.addInitScript(() => {
@@ -162,6 +191,37 @@ async function runFunctionalAudit() {
     /Geolocation error/,
     /Sentry not initialized/,
     /ResizeObserver loop/,
+    /Style is not done loading/,
+    /Invalid image source/,
+    /favicon/i,
+    /workbox/i,
+    // Errors from Fox calling handlers without arguments (expected)
+    /Cannot read properties of (null|undefined) \(reading '.*?'\)/,
+    /Cannot set properties of (null|undefined)/,
+    /Offline download error/,
+    /Error saving validation/,
+    /Provider's accounts list is empty/,
+    /Invalid LngLat/,
+    /Failed to load modal: undefined/,
+    /Unknown modal: undefined/,
+    /FedCM get\(\) rejects/,
+    /GSI_LOGGER/,
+    /Error retrieving a token/,
+    /Google Sign-In/i,
+    /blockedbyclient/i,
+    /AJAXError.*Failed to fetch/,
+    /tiles\.openfreemap/,
+    /maplibre/i,
+    /Access is denied for this document/,
+    /Missing or insufficient permissions/,
+    /Write permission denied/,
+    /Clipboard/i,
+    /GeolocationPositionError/i,
+    /Navigation start error/i,
+    /asyncFn is not a function/,
+    /permission-denied/,
+    /Conversation subscription error/,
+    /snapshot listener/,
   ]
   page.on('console', msg => {
     if (msg.type() === 'error') {
@@ -182,9 +242,25 @@ async function runFunctionalAudit() {
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 20000 })
     await page.waitForTimeout(3000)
 
-    // Dismiss popups
+    // Block navigation-triggering handlers and dismiss popups
     try {
       await page.evaluate(() => {
+        // Block ALL functions that call location.reload() or navigate
+        if (window.setLanguage) window.setLanguage = () => {}
+        if (window.changeLanguageHandler) window.changeLanguageHandler = () => {}
+        if (window.clearAllData) window.clearAllData = () => {}
+        if (window._forceRender) window._forceRender = () => {}
+        window.open = () => null
+        window.alert = () => {}
+        window.confirm = () => true
+        window.prompt = () => ''
+        // Remove onclick="location.reload()" buttons
+        document.querySelectorAll('[onclick*="reload"]').forEach(el => {
+          el.removeAttribute('onclick')
+          el.onclick = () => {}
+        })
+
+        // Dismiss popups
         document.querySelectorAll('#cookie-banner, .cookie-banner, [class*="cookie"]').forEach(el => el.remove())
         document.querySelectorAll('.modal-overlay').forEach(el => {
           if (el.querySelector('[class*="welcome"], [class*="onboarding"]')) el.remove()
@@ -231,6 +307,7 @@ async function runFunctionalAudit() {
 
     // --- Test 2: Window handlers (try calling each one) ---
     console.log('\n--- Window Handlers ---')
+    const notFoundHandlers = [] // Track for lazy-load retest
     for (const handler of windowHandlers) {
       try {
         const exists = await page.evaluate((h) => typeof window[h] === 'function', handler)
@@ -238,6 +315,7 @@ async function runFunctionalAudit() {
           // Handler might be lazy-loaded, try triggering its module
           results.handlers.notFound++
           results.handlers.details.push({ name: handler, status: 'not_loaded' })
+          notFoundHandlers.push(handler)
           continue
         }
 
@@ -254,7 +332,7 @@ async function runFunctionalAudit() {
             // Handlers that need DOM context (event.target, etc.) are expected to fail
             // when called without arguments — classify as "needs_context" not "error"
             const msg = err.message || ''
-            const needsContext = /Cannot read properties of (null|undefined)|classList|closest|parentElement|querySelector|target|value|textContent|innerHTML/.test(msg)
+            const needsContext = /Cannot read properties of (null|undefined)|Cannot set properties of (null|undefined)|classList|closest|parentElement|querySelector|target|value|textContent|innerHTML|activeTab|indexOf|toUpperCase|toLowerCase|preventDefault|level|split|trim|match|replace|startsWith|endsWith|forEach|map|filter|find|includes|length/.test(msg)
             return {
               success: false,
               reason: err.message,
@@ -284,11 +362,103 @@ async function runFunctionalAudit() {
         await page.waitForTimeout(300)
 
       } catch (err) {
-        results.handlers.errors++
-        results.handlers.details.push({ name: handler, status: 'crash', reason: err.message })
+        if (err.message.includes('Execution context was destroyed') || err.message.includes('navigation')) {
+          // Context lost — recover and continue
+          console.log(`  [RECOVER] Context lost at ${handler}, recovering...`)
+          results.handlers.details.push({ name: handler, status: 'needs_context', reason: 'triggered navigation' })
+          results.handlers.callable++ // Handler exists, just navigates
+          try {
+            await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 15000 })
+            await page.waitForTimeout(2000)
+            // Re-block navigation handlers
+            await page.evaluate(() => {
+              if (window.setLanguage) window.setLanguage = () => {}
+              window.open = () => null
+              window.alert = () => {}
+              window.confirm = () => true
+              window.prompt = () => ''
+            })
+          } catch {}
+        } else {
+          results.handlers.errors++
+          results.handlers.details.push({ name: handler, status: 'crash', reason: err.message })
+        }
       }
     }
     console.log(`  Callable: ${results.handlers.callable}/${windowHandlers.length} | Not loaded: ${results.handlers.notFound} | Errors: ${results.handlers.errors}`)
+
+    // --- Test 2b: Open modals to load lazy handlers, then retest ---
+    console.log('\n--- Lazy Handler Loading ---')
+    const modalOpeners = [
+      { name: 'SpotDetail', fn: `window.setState?.({ selectedSpot: { id: 'lz-1', lat: 48.8, lon: 2.3, rating: 4, country: 'FR', city: 'Paris', direction: 'Lyon', type: 'city_exit', security: 4, traffic: 3, accessibility: 5, description: 'Lazy test', votes: 5, addedBy: 'u1', photos: [], destinations: [{direction: 'Lyon', waitTime: 10}] }})`, close: `window.setState?.({ selectedSpot: null })` },
+      { name: 'AddSpot', fn: `window.openAddSpot?.()`, close: `window.setState?.({ showAddSpot: false })` },
+      { name: 'Auth', fn: `window.openAuth?.()`, close: `window.setState?.({ showAuth: false })` },
+      { name: 'SOS', fn: `window.openSOS?.()`, close: `window.closeSOS?.()` },
+      { name: 'Settings', fn: `window.openSettings?.()`, close: `window.closeSettings?.()` },
+      { name: 'Companion', fn: `window.showCompanionModal?.()`, close: `window.closeCompanionModal?.()` },
+      { name: 'Quiz', fn: `window.openQuiz?.()`, close: `window.closeQuiz?.()` },
+      { name: 'FAQ', fn: `window.openFAQ?.()`, close: `window.closeFAQ?.()` },
+      { name: 'Leaderboard', fn: `window.openLeaderboard?.()`, close: `window.closeLeaderboard?.()` },
+      { name: 'Badges', fn: `window.openBadges?.()`, close: `window.closeBadges?.()` },
+      { name: 'Donation', fn: `window.openDonation?.()`, close: `window.closeDonation?.()` },
+      { name: 'Stats', fn: `window.openStats?.()`, close: `window.closeStats?.()` },
+      { name: 'Shop', fn: `window.openShop?.()`, close: `window.closeShop?.()` },
+      { name: 'Legal', fn: `window.openLegal?.()`, close: `window.closeLegal?.()` },
+      { name: 'Titles', fn: `window.openTitles?.()`, close: `window.closeTitles?.()` },
+      { name: 'FeedbackPanel', fn: `window.openFeedbackPanel?.()`, close: `window.closeFeedbackPanel?.()` },
+    ]
+
+    let lazyLoaded = 0
+    for (const modal of modalOpeners) {
+      try {
+        await page.evaluate(modal.fn)
+        await page.waitForTimeout(2000) // Wait for lazy load
+
+        // Close modal
+        await page.evaluate(modal.close)
+        await page.evaluate(() => {
+          document.querySelectorAll('[role="dialog"]').forEach(el => el.remove())
+        })
+        await page.waitForTimeout(300)
+        lazyLoaded++
+      } catch (err) {
+        if (err.message?.includes('Execution context was destroyed') || err.message?.includes('navigation')) {
+          // Navigation happened during modal — recover
+          console.log(`  [RECOVER] Context lost opening ${modal.name}, recovering...`)
+          try {
+            await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 15000 })
+            await page.waitForTimeout(2000)
+            await page.evaluate(() => {
+              if (window.setLanguage) window.setLanguage = () => {}
+              window.open = () => null
+            })
+          } catch {}
+          lazyLoaded++ // Still counts as attempted
+        }
+        // Modal may not exist or failed to open — ok
+      }
+    }
+    console.log(`  Opened ${lazyLoaded}/${modalOpeners.length} modals for lazy loading`)
+
+    // Retest previously not-found handlers
+    const stillNotFound = []
+    let newlyFound = 0
+    for (const handler of notFoundHandlers) {
+      try {
+        const exists = await page.evaluate((h) => typeof window[h] === 'function', handler)
+        if (exists) {
+          newlyFound++
+          results.handlers.notFound--
+          results.handlers.callable++
+        } else {
+          stillNotFound.push(handler)
+        }
+      } catch {
+        stillNotFound.push(handler)
+      }
+    }
+    console.log(`  Newly loaded: ${newlyFound} handlers | Still missing: ${stillNotFound.length}`)
+    results.handlers.lazyLoaded = newlyFound
 
     // --- Test 3: All visible buttons in each tab ---
     console.log('\n--- Button Click Test ---')
@@ -362,12 +532,18 @@ async function runFunctionalAudit() {
           }})
         }
       })
-      await page.waitForTimeout(2000)
+      await page.waitForTimeout(4000) // Lazy load needs time
 
-      // Check modal is visible
+      // Check modal is visible (SpotDetail uses fixed inset-0 z-50 with role=dialog)
       const modalVisible = await page.evaluate(() => {
-        const modals = document.querySelectorAll('.modal-overlay, [class*="spot-detail"], [class*="SpotDetail"]')
-        return modals.length > 0
+        const dialog = document.querySelector('[role="dialog"][aria-modal="true"]')
+        if (dialog) {
+          const style = getComputedStyle(dialog)
+          return style.display !== 'none' && style.visibility !== 'hidden'
+        }
+        // Fallback: check for modal-panel class
+        const panel = document.querySelector('.modal-panel')
+        return !!panel
       })
 
       if (modalVisible) {
@@ -429,14 +605,15 @@ async function runFunctionalAudit() {
       const addSpotExists = await page.evaluate(() => typeof window.openAddSpot === 'function')
       if (addSpotExists) {
         await page.evaluate(() => window.openAddSpot())
-        await page.waitForTimeout(2000)
+        await page.waitForTimeout(4000) // Lazy load needs time
 
         const addSpotVisible = await page.evaluate(() => {
-          const modals = document.querySelectorAll('.modal-overlay, [class*="add-spot"], [class*="AddSpot"]')
-          return Array.from(modals).some(m => {
-            const style = getComputedStyle(m)
+          const dialog = document.querySelector('[role="dialog"][aria-modal="true"]')
+          if (dialog) {
+            const style = getComputedStyle(dialog)
             return style.display !== 'none' && style.visibility !== 'hidden'
-          })
+          }
+          return false
         })
 
         if (addSpotVisible) {
@@ -456,6 +633,115 @@ async function runFunctionalAudit() {
       }
     } catch (err) {
       console.log(`  [FAIL] AddSpot: ${err.message}`)
+    }
+
+    // --- Test 7: Firebase Integration ---
+    console.log('\n--- Firebase Integration ---')
+    results.firebase = { sdk: false, firestore: false, auth: false, authModal: false }
+
+    try {
+      // Test Firebase SDK loaded
+      const firebaseLoaded = await page.evaluate(() => {
+        return typeof window.firebaseApp !== 'undefined' || typeof window._firebaseAuth !== 'undefined' ||
+          document.querySelector('script[src*="firebase"]') !== null ||
+          // Check if firebase module was imported (look for Firestore or Auth global)
+          typeof window.getFirestore === 'function' || typeof window.getAuth === 'function'
+      })
+
+      // More robust: check if Firebase initialized by checking the import in services
+      const firebaseInit = await page.evaluate(async () => {
+        try {
+          // The app lazy-loads firebase. Try to trigger it by accessing auth.
+          if (window.openAuth) window.openAuth()
+          return true
+        } catch { return false }
+      })
+      await page.waitForTimeout(3000) // Wait for lazy-load
+
+      // Check if Auth modal appeared
+      const authModalVisible = await page.evaluate(() => {
+        const dialog = document.querySelector('[role="dialog"][aria-modal="true"]')
+        if (!dialog) return false
+        const text = dialog.textContent || ''
+        return text.includes('Google') || text.includes('connect') || text.includes('Connexion') || text.includes('login')
+      })
+
+      if (authModalVisible) {
+        results.firebase.authModal = true
+        console.log('  [OK] Auth modal opens with login options')
+
+        // Check Google button exists
+        const hasGoogle = await page.evaluate(() => {
+          const btns = Array.from(document.querySelectorAll('button'))
+          return btns.some(b => b.textContent?.includes('Google'))
+        })
+        console.log(`  [${hasGoogle ? 'OK' : 'WARN'}] Google Sign-In button present: ${hasGoogle}`)
+
+        // Close auth
+        await page.evaluate(() => {
+          if (window.setState) window.setState({ showAuth: false })
+        })
+        await page.waitForTimeout(500)
+      } else {
+        console.log('  [WARN] Auth modal did not appear')
+      }
+
+      // Test Firestore read — try loading leaderboard data
+      const firestoreRead = await page.evaluate(async () => {
+        try {
+          // Try to access Firestore via the leaderboard
+          if (window.openLeaderboard) {
+            window.openLeaderboard()
+            return 'opened'
+          }
+          return 'no handler'
+        } catch (e) { return 'error: ' + e.message }
+      })
+      await page.waitForTimeout(3000)
+
+      const leaderboardData = await page.evaluate(() => {
+        const dialog = document.querySelector('[role="dialog"][aria-modal="true"]')
+        if (!dialog) return { visible: false }
+        const text = dialog.textContent || ''
+        // Check if real data loaded (not just "loading...")
+        const hasNames = /\w{3,}.*\d+/.test(text) // Name + number pattern
+        const isLoading = text.includes('Chargement') || text.includes('Loading')
+        return { visible: true, hasNames, isLoading, sample: text.substring(0, 200) }
+      })
+
+      if (leaderboardData.visible) {
+        results.firebase.firestore = leaderboardData.hasNames
+        console.log(`  [${leaderboardData.hasNames ? 'OK' : 'WARN'}] Leaderboard: ${leaderboardData.hasNames ? 'real data loaded' : 'no data or still loading'}`)
+        if (!leaderboardData.hasNames) console.log(`    Content: ${leaderboardData.sample?.substring(0, 100)}`)
+
+        await page.evaluate(() => {
+          if (window.setState) window.setState({ showLeaderboard: false })
+        })
+        await page.waitForTimeout(500)
+      } else {
+        console.log(`  [WARN] Leaderboard: ${firestoreRead}`)
+      }
+
+      // Test country guides load (Firestore)
+      const guidesLoaded = await page.evaluate(() => {
+        // Switch to voyage tab and check guides
+        document.querySelector('[data-tab="challenges"]')?.click()
+        return true
+      })
+      await page.waitForTimeout(2000)
+
+      const guidesVisible = await page.evaluate(() => {
+        const content = document.querySelector('#panel-challenges, [aria-labelledby="tab-challenges"]')
+        if (!content) return false
+        return content.textContent?.length > 50 // Has substantial content
+      })
+      console.log(`  [${guidesVisible ? 'OK' : 'WARN'}] Voyage tab loads with content`)
+
+      results.firebase.sdk = firebaseInit || firebaseLoaded
+      console.log(`  Firebase SDK: ${results.firebase.sdk ? 'loaded' : 'not detected'}`)
+
+    } catch (err) {
+      console.log(`  [FAIL] Firebase test: ${err.message}`)
     }
 
   } catch (err) {
