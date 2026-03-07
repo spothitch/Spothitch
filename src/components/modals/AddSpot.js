@@ -815,6 +815,7 @@ window.addSpotDestination = async () => {
               }
               window.spotFormData.extraDestinations.push({ city, coords })
               // Re-render step 2
+              document.activeElement?.blur()
               const { setState } = await import('../../stores/state.js')
               setState({ addSpotStep: 2 })
             },
@@ -829,6 +830,7 @@ window.addSpotDestination = async () => {
 window.removeSpotDestination = async (index) => {
   if (!window.spotFormData.extraDestinations) return
   window.spotFormData.extraDestinations.splice(index, 1)
+  document.activeElement?.blur()
   const { setState } = await import('../../stores/state.js')
   setState({ addSpotStep: 2 })
 }
