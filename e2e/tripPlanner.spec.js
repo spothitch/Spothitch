@@ -13,8 +13,14 @@ test.describe('Trip Planner Deep', () => {
   })
 
   test('trip from/to inputs are visible', async ({ page }) => {
-    const fromInput = page.locator('input[placeholder*="Départ"], input[placeholder*="From"], input[id*="trip-from"], input[id*="from"]')
-    const toInput = page.locator('input[placeholder*="Destination"], input[placeholder*="To"], input[id*="trip-to"], input[id*="to"]')
+    // Navigate to planner sub-tab if needed
+    const plannerTab = page.locator('button:has-text("Planifier"), button:has-text("Planner"), [data-subtab="planner"]')
+    if (await plannerTab.count() > 0 && await plannerTab.first().isVisible({ timeout: 2000 }).catch(() => false)) {
+      await plannerTab.first().click()
+      await page.waitForTimeout(1500)
+    }
+    const fromInput = page.locator('#trip-from')
+    const toInput = page.locator('#trip-to')
     const hasFrom = await fromInput.count() > 0
     const hasTo = await toInput.count() > 0
     expect(hasFrom || hasTo).toBe(true)
