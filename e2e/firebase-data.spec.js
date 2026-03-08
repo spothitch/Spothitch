@@ -257,11 +257,16 @@ test.describe('Firebase Data', () => {
         const docRef = doc(db, 'users', testUid, 'favorites', 'offline-test')
         setDoc(docRef, { spotId: 'offline-test', addedAt: new Date().toISOString() })
         await enableNetwork(db)
-        await new Promise(r => setTimeout(r, 3000))
-        const snap = await getDoc(docRef)
-        const exists = snap.exists()
-        if (exists) await deleteDoc(docRef)
-        return { synced: exists }
+        // Wait longer in CI — network re-sync can be slow
+        for (let i = 0; i < 10; i++) {
+          await new Promise(r => setTimeout(r, 1000))
+          const snap = await getDoc(docRef)
+          if (snap.exists()) {
+            await deleteDoc(docRef)
+            return { synced: true }
+          }
+        }
+        return { synced: false }
       } catch (err) { return { error: err.message } }
     }, aliceUid)
 
