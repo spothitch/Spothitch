@@ -9,16 +9,12 @@ import { skipOnboarding, navigateToTab } from './helpers.js'
 test.describe('Trip Planner Deep', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page, { tab: 'travel' })
-    await page.waitForTimeout(1500)
+    // Force voyage sub-tab (default is 'journal' when VITE_SHOW_BETA is unset)
+    await page.evaluate(() => window.setState?.({ voyageSubTab: 'voyage' }))
+    await page.waitForTimeout(2000)
   })
 
   test('trip from/to inputs are visible', async ({ page }) => {
-    // Navigate to planner sub-tab if needed
-    const plannerTab = page.locator('button:has-text("Planifier"), button:has-text("Planner"), [data-subtab="planner"]')
-    if (await plannerTab.count() > 0 && await plannerTab.first().isVisible({ timeout: 2000 }).catch(() => false)) {
-      await plannerTab.first().click()
-      await page.waitForTimeout(1500)
-    }
     const fromInput = page.locator('#trip-from')
     const toInput = page.locator('#trip-to')
     const hasFrom = await fromInput.count() > 0
