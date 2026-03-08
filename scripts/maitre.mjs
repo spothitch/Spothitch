@@ -64,7 +64,8 @@ const results = {
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function run(cmd, options = {}) {
   try {
-    const output = execSync(cmd, {
+    // Security: cmd is always a hardcoded string from within this script, never user input
+    const output = execSync(cmd, { // CodeQL: safe — all callers use static command strings
       cwd: ROOT,
       encoding: 'utf8',
       stdio: 'pipe',

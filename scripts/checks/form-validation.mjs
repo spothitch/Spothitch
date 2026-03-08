@@ -238,7 +238,7 @@ async function testProfile(page, t) {
   if (await handlerExists(page, 'updateUsername') || await handlerExists(page, 'setUsername')) {
     const handler = await handlerExists(page, 'updateUsername') ? 'updateUsername' : 'setUsername'
     const specialName = '<script>alert(1)</script>'
-    const result = await callHandler(page, `window.${handler}('${specialName.replace(/'/g, "\\'")}')`, 300)
+    const result = await callHandler(page, `window.${handler}(${JSON.stringify(specialName)})`, 300)
     if (result.ok) t.pass('Special chars in username handled')
     else t.pass('Username update requires auth')
   } else {

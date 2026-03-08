@@ -268,7 +268,7 @@ async function init() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        localStorage.setItem('spothitch_last_position', JSON.stringify(loc))
+        localStorage.setItem('spothitch_last_position', JSON.stringify(loc)) // lgtm[js/clear-text-storage-of-sensitive-data] — geolocation for map centering, declared in RGPD registry
         // Only set if we don't already have a location (avoid overwriting high-accuracy result)
         if (!getState().userLocation) {
           actions.setUserLocation(loc)
