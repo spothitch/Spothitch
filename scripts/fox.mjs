@@ -27,6 +27,7 @@
  * Layer 23:   PWA & Deep Links (manifest, SW, URL params)
  * Layer 24:   Performance & Resources (load time, memory, DOM)
  * Layer 25:   SEO & Meta (title, og tags, robots, sitemap)
+ * Layer 26:   Firebase Integration (auth, Firestore CRUD, security)
  *
  * Usage:
  *   node scripts/ultimate-check.mjs              # Run all layers
@@ -341,6 +342,12 @@ async function main() {
     // --- Layer 25: SEO & Meta ---
     await runLayer(25, 'SEO & META', async () => {
       const { default: check } = await import('./checks/seo-meta.mjs')
+      return check()
+    })
+
+    // --- Layer 26: Firebase Integration ---
+    await runLayer(26, 'FIREBASE INTEGRATION', async () => {
+      const { default: check } = await import('./checks/firebase-integration.mjs')
       return check()
     })
   }

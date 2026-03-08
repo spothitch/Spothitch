@@ -277,8 +277,50 @@ jobs:
           name: e2e-stress-report
           path: playwright-report/
 
+  e2e-firebase:
+    name: E2E Firebase (auth, Firestore, social, security)
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - name: Run Firebase E2E tests
+        run: npx playwright test --project=chromium e2e/firebase-auth.spec.js e2e/firebase-spots.spec.js e2e/firebase-social.spec.js e2e/firebase-gamification.spec.js e2e/firebase-security.spec.js e2e/firebase-realtime.spec.js e2e/firebase-data.spec.js
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+      - name: Cleanup test data
+        if: always()
+        run: |
+          npx vite preview --port 4173 &
+          sleep 3
+          node scripts/firebase-test-cleanup.mjs
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          APP_URL: http://localhost:4173
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-firebase-report
+          path: playwright-report/
+
   fox:
-    name: Fox 25-Layer Quality Check
+    name: Fox 26-Layer Quality Check
     runs-on: ubuntu-latest
     needs: build
     timeout-minutes: 25
@@ -308,11 +350,12 @@ jobs:
         env:
           APP_URL: http://localhost:5173
           VITE_SHOW_BETA: 'true'
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
 
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, fox]
+    needs: [build, test, wiring, lint, quality-gate, fox, e2e-firebase]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
@@ -352,7 +395,7 @@ jobs:
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, fox]
+    needs: [build, test, wiring, lint, fox, e2e-firebase]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     # Note: feature/* branches run tests only, no deploy
     steps:
@@ -394,7 +437,7 @@ jobs:
   deploy-staging:
     name: Deploy to Cloudflare Pages (staging → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, fox]
+    needs: [build, test, wiring, lint, fox, e2e-firebase]
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
