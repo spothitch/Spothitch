@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * Firebase Test Account Setup (one-shot)
+ * Firebase Test Account Setup
  *
  * Creates 5 test accounts in Firebase Auth via Playwright browser.
  * Also creates their Firestore profiles and reserves usernames.
+ * Works with both dev server and production build (uses window.__fb).
  *
  * Usage:
  *   E2E_TEST_PASSWORD=xxx node scripts/firebase-test-setup.mjs
  *
- * Requires: dev server running on localhost:5173 or localhost:4173
+ * In CI, runs automatically before Firebase E2E tests.
  */
 
 import { chromium } from 'playwright'
@@ -34,63 +35,109 @@ async function setupAccounts() {
   console.log(`Base URL: ${BASE_URL}`)
 
   const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+  })
+  const page = await context.newPage()
+
+  // Skip onboarding
+  await page.addInitScript(() => {
+    localStorage.setItem('spothitch_v4_state', JSON.stringify({
+      showWelcome: false, username: 'Setup', avatar: '🤙',
+      activeTab: 'map', theme: 'dark', lang: 'en',
+      points: 0, level: 1, badges: [], rewards: [],
+      savedTrips: [], emergencyContacts: [],
+    }))
+    localStorage.setItem('spothitch_v4_cookie_consent', JSON.stringify({
+      preferences: { necessary: true, analytics: false, marketing: false, personalization: false },
+      timestamp: Date.now(), version: '1.0',
+    }))
+    localStorage.setItem('spothitch_age_verified', 'true')
+    localStorage.setItem('spothitch_landing_v2', '1')
+    localStorage.setItem('spothitch_beta_seen', '1')
+    const featureSeen = {}
+    ;['carte','stations','add-spot','profil','amis','chat','carnet','stats','classements','niveaux','conseils','dons','hors-ligne','sos','compagnon','notif-spot','activite-amis','defis','score-confiance','avis-profils','itineraire','radar','quiz','guides','gardien','evenements','auberges'].forEach(id => { featureSeen[id] = Date.now() })
+    localStorage.setItem('spothitch_feature_seen', JSON.stringify(featureSeen))
+  })
+
+  await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' })
+  await Promise.race([
+    page.waitForSelector('#app.loaded', { timeout: 15000 }).catch(() => null),
+    page.waitForSelector('nav[role="navigation"]', { timeout: 15000 }).catch(() => null),
+  ])
+  await page.evaluate(() => {
+    const app = document.getElementById('app')
+    if (app && !app.classList.contains('loaded')) app.classList.add('loaded')
+    const splash = document.getElementById('splash-screen')
+    if (splash) splash.remove()
+  })
+
+  // Trigger Firebase module loading
+  await page.evaluate(() => window.openAuth?.('email'))
+  await page.waitForTimeout(3000)
+  await page.evaluate(() => window.closeAuth?.())
+  await page.waitForTimeout(500)
+
+  // Wait for window.__fb
+  await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
+  console.log('Firebase loaded via window.__fb')
+
+  let allSuccess = true
 
   for (const account of ACCOUNTS) {
     console.log(`\nSetting up ${account.email}...`)
 
-    const context = await browser.newContext()
-    const page = await context.newPage()
+    // Add delay between accounts to avoid rate limiting
+    await page.waitForTimeout(2000)
 
-    // Skip onboarding
-    await page.addInitScript(() => {
-      localStorage.setItem('spothitch_v4_state', JSON.stringify({
-        showWelcome: false, username: 'Setup', avatar: '🤙',
-        activeTab: 'map', theme: 'dark', lang: 'en',
-        points: 0, level: 1, badges: [], rewards: [],
-        savedTrips: [], emergencyContacts: [],
-      }))
-      localStorage.setItem('spothitch_v4_cookie_consent', JSON.stringify({
-        preferences: { necessary: true, analytics: false, marketing: false, personalization: false },
-        timestamp: Date.now(), version: '1.0',
-      }))
-      localStorage.setItem('spothitch_age_verified', 'true')
-      localStorage.setItem('spothitch_landing_v2', '1')
-      localStorage.setItem('spothitch_beta_seen', '1')
-    })
-
-    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' })
-    await page.waitForTimeout(3000)
-
-    // Force remove splash
-    await page.evaluate(() => {
-      const app = document.getElementById('app')
-      if (app && !app.classList.contains('loaded')) app.classList.add('loaded')
-      const splash = document.getElementById('splash-screen')
-      if (splash) splash.remove()
-    })
-
-    // Try to create the account via Firebase SDK in the browser
     const result = await page.evaluate(async ({ email, password, displayName, username }) => {
       try {
-        const fb = await import('/src/services/firebase.js')
+        const fb = window.__fb
         fb.initializeFirebase()
 
         // Try to sign up
         const signUpResult = await fb.signUp(email, password, displayName)
 
         if (signUpResult.success) {
+          const uid = signUpResult.user.uid
+          // Create Firestore profile
+          try {
+            await fb.setDoc(fb.doc(fb.getDb(), 'users', uid), {
+              email, displayName, username,
+              points: 0, level: 1, badges: [], rewards: [],
+              createdAt: fb.serverTimestamp(),
+            })
+          } catch (e) { /* profile might already exist */ }
           // Reserve username
-          await fb.reserveUsername(username, signUpResult.user.uid)
-          // Create profile
-          await fb.createOrUpdateUserProfile(signUpResult.user)
-          return { success: true, uid: signUpResult.user.uid, action: 'created' }
+          try {
+            await fb.setDoc(fb.doc(fb.getDb(), 'usernames', username), {
+              uid, reserved: true,
+            })
+          } catch (e) { /* username might already be reserved */ }
+          // Sign out so next account can be created
+          try { await fb.getAuth().signOut() } catch {}
+          return { success: true, uid, action: 'created' }
         }
 
         if (signUpResult.error === 'auth/email-already-in-use') {
-          // Account exists, try to sign in
+          // Account exists, try to sign in to verify password
           const signInResult = await fb.signIn(email, password)
           if (signInResult.success) {
-            return { success: true, uid: signInResult.user.uid, action: 'exists' }
+            const uid = signInResult.user.uid
+            // Ensure profile exists
+            try {
+              const { getDoc, doc, getDb, setDoc, serverTimestamp } = fb
+              const snap = await getDoc(doc(getDb(), 'users', uid))
+              if (!snap.exists()) {
+                await setDoc(doc(getDb(), 'users', uid), {
+                  email, displayName, username,
+                  points: 0, level: 1, badges: [], rewards: [],
+                  createdAt: serverTimestamp(),
+                })
+              }
+            } catch {}
+            try { await fb.getAuth().signOut() } catch {}
+            return { success: true, uid, action: 'exists' }
           }
           return { success: false, error: signInResult.error, action: 'login-failed' }
         }
@@ -102,16 +149,22 @@ async function setupAccounts() {
     }, { email: account.email, password: TEST_PASSWORD, displayName: account.displayName, username: account.username })
 
     if (result.success) {
-      console.log(`  ${result.action === 'created' ? 'Created' : 'Already exists'}: ${account.email} (uid: ${result.uid})`)
+      console.log(`  ${result.action === 'created' ? '✅ Created' : '✅ Already exists'}: ${account.email} (uid: ${result.uid})`)
     } else {
-      console.error(`  FAILED: ${account.email} — ${result.error} (${result.action})`)
+      console.error(`  ❌ FAILED: ${account.email} — ${result.error} (${result.action})`)
+      allSuccess = false
     }
-
-    await context.close()
   }
 
+  await context.close()
   await browser.close()
-  console.log('\nSetup complete!')
+
+  if (allSuccess) {
+    console.log('\n✅ All accounts ready!')
+  } else {
+    console.error('\n⚠️ Some accounts failed — tests may not work')
+    process.exit(1)
+  }
 }
 
 setupAccounts().catch(err => {
