@@ -12,9 +12,9 @@ const BASE_PATH = import.meta.env.BASE_URL || '/';
 const ROUTES = {
   map: { tab: 'map' },
   spots: { tab: 'spots' },
-  travel: { tab: 'travel' },
-  planner: { tab: 'travel', subTab: 'planner' },
-  guides: { tab: 'travel', subTab: 'guides' },
+  travel: { tab: 'challenges' },
+  planner: { tab: 'challenges', subTab: 'planner' },
+  guides: { tab: 'challenges', subTab: 'guides' },
   challenges: { tab: 'challenges' },
   social: { tab: 'social' },
   chat: { tab: 'social', subTab: 'general' },
