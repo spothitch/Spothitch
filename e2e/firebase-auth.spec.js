@@ -156,9 +156,9 @@ test.describe('Firebase Auth', () => {
     // Check Firestore profile
     const profile = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, getDoc } = await import('firebase/firestore')
-        const db = getFirestore()
-        const snap = await getDoc(doc(db, 'users', testUid))
+        const fb = window.__fb
+        const db = fb.getDb()
+        const snap = await fb.getDoc(fb.doc(db, 'users', testUid))
         return snap.exists() ? snap.data() : null
       } catch {
         return null
@@ -175,8 +175,8 @@ test.describe('Firebase Auth', () => {
     // Force token refresh via Firebase SDK
     const refreshed = await page.evaluate(async () => {
       try {
-        const { getAuth } = await import('firebase/auth')
-        const auth = getAuth()
+        const fb = window.__fb
+        const auth = fb.getAuth()
         if (auth.currentUser) {
           await auth.currentUser.getIdToken(true)
           return true

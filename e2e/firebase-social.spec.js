@@ -35,8 +35,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ from, to }) => {
       try {
-        const { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, getDocs, query, where, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const ref = await addDoc(collection(db, 'friendRequests'), {
           from, to, status: 'pending', createdAt: serverTimestamp(),
@@ -72,8 +72,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ from, to }) => {
       try {
-        const { getFirestore, collection, addDoc, updateDoc, getDoc, doc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, updateDoc, getDoc, doc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Send request
         const ref = await addDoc(collection(db, 'friendRequests'), {
@@ -110,8 +110,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ alice, bob }) => {
       try {
-        const { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, getDocs, query, where, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Create conversation
         const convRef = await addDoc(collection(db, 'conversations'), {
@@ -159,8 +159,8 @@ test.describe('Firebase Social', () => {
     // Alice creates a DM with Bob
     await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
     const convId = await page.evaluate(async ({ alice, bob }) => {
-      const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-      const db = getFirestore()
+      const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+      const db = getDb()
       const ref = await addDoc(collection(db, 'conversations'), {
         participants: [alice, bob], type: 'dm',
         createdAt: serverTimestamp(), lastMessage: 'Private message',
@@ -178,8 +178,8 @@ test.describe('Firebase Social', () => {
 
     const readResult = await page.evaluate(async (cid) => {
       try {
-        const { getFirestore, doc, getDoc, collection, getDocs } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, getDoc, collection, getDocs } = window.__fb
+        const db = getDb()
 
         // Try to read conversation doc
         const convSnap = await getDoc(doc(db, 'conversations', cid))
@@ -200,8 +200,8 @@ test.describe('Firebase Social', () => {
     await firebaseLogout(page)
     await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
     await page.evaluate(async (cid) => {
-      const { getFirestore, collection, getDocs, deleteDoc, doc } = await import('firebase/firestore')
-      const db = getFirestore()
+      const { getDb, collection, getDocs, deleteDoc, doc } = window.__fb
+      const db = getDb()
       const msgsSnap = await getDocs(collection(db, 'conversations', cid, 'messages'))
       for (const m of msgsSnap.docs) await deleteDoc(m.ref)
       await deleteDoc(doc(db, 'conversations', cid))
@@ -214,8 +214,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async (uid) => {
       try {
-        const { getFirestore, collection, addDoc, deleteDoc, getDoc, doc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, deleteDoc, getDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const ref = await addDoc(collection(db, 'groups'), {
           name: 'E2E Test Group',
@@ -253,8 +253,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ alice, bob }) => {
       try {
-        const { getFirestore, collection, addDoc, updateDoc, getDoc, doc, deleteDoc, arrayUnion, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, updateDoc, getDoc, doc, deleteDoc, arrayUnion, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const ref = await addDoc(collection(db, 'groups'), {
           name: 'Members Test', createdBy: alice,
@@ -284,8 +284,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async (uid) => {
       try {
-        const { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Create group
         const groupRef = await addDoc(collection(db, 'groups'), {
@@ -329,8 +329,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ alice, bob }) => {
       try {
-        const { getFirestore, collection, addDoc, updateDoc, getDoc, doc, deleteDoc, arrayUnion, arrayRemove, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, updateDoc, getDoc, doc, deleteDoc, arrayUnion, arrayRemove, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const ref = await addDoc(collection(db, 'groups'), {
           name: 'Leave Test', createdBy: alice,
@@ -367,8 +367,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ from, to }) => {
       try {
-        const { getFirestore, collection, addDoc, updateDoc, getDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, updateDoc, getDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const ref = await addDoc(collection(db, 'friendRequests'), {
           from, to, status: 'pending', createdAt: serverTimestamp(),
@@ -401,8 +401,8 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ alice, bob }) => {
       try {
-        const { getFirestore, collection, addDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, deleteDoc, getDocs, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Create a share in the conversation
         const convRef = await addDoc(collection(db, 'conversations'), {
@@ -414,7 +414,6 @@ test.describe('Firebase Social', () => {
           type: 'spot_share', spotData: { lat: 48.85, lng: 2.35, name: 'Paris spot' },
         })
 
-        const { getDocs } = await import('firebase/firestore')
         const msgsSnap = await getDocs(collection(db, 'conversations', convRef.id, 'messages'))
         const shareMsg = msgsSnap.docs.find(d => d.data().type === 'spot_share')
 

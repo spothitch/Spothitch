@@ -26,8 +26,8 @@ test.describe('Firebase Data', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, setDoc, getDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, getDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const tipId = `tip-e2e-${Date.now()}`
         await setDoc(doc(db, 'guideTips', tipId), {
@@ -56,8 +56,8 @@ test.describe('Firebase Data', () => {
 
     const result = await page.evaluate(async () => {
       try {
-        const { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, increment } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, getDoc, updateDoc, deleteDoc, increment } = window.__fb
+        const db = getDb()
 
         const voteKey = `guide-vote-e2e-${Date.now()}`
         await setDoc(doc(db, 'guideVotes', voteKey), { count: 0 })
@@ -83,8 +83,8 @@ test.describe('Firebase Data', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, setDoc, getDoc, deleteDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
+        const db = getDb()
 
         const voteId = `feature-e2e_${testUid}`
         await setDoc(doc(db, 'featureVotes', voteId), {
@@ -121,8 +121,8 @@ test.describe('Firebase Data', () => {
 
     const result = await page.evaluate(async ({ testUid, username }) => {
       try {
-        const { getFirestore, doc, setDoc, getDoc, deleteDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
+        const db = getDb()
 
         // Reserve
         await setDoc(doc(db, 'usernames', username), { uid: testUid })
@@ -156,8 +156,8 @@ test.describe('Firebase Data', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, collection, addDoc, getDoc, updateDoc, deleteDoc, doc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, getDoc, updateDoc, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Create trip
         const ref = await addDoc(collection(db, 'users', testUid, 'trips'), {
@@ -217,8 +217,8 @@ test.describe('Firebase Data', () => {
     // Simulate data export by reading all user collections
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, getDoc, collection, getDocs } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, getDoc, collection, getDocs } = window.__fb
+        const db = getDb()
 
         const exported = {}
 
@@ -253,8 +253,8 @@ test.describe('Firebase Data', () => {
 
     // Create some test data
     await page.evaluate(async (testUid) => {
-      const { getFirestore, doc, setDoc, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-      const db = getFirestore()
+      const { getDb, doc, setDoc, collection, addDoc, serverTimestamp } = window.__fb
+      const db = getDb()
 
       await setDoc(doc(db, 'users', testUid, 'favorites', 'rgpd-test'), {
         spotId: 'rgpd-test', addedAt: serverTimestamp(),
@@ -267,8 +267,8 @@ test.describe('Firebase Data', () => {
     // Delete the test data (simulate RGPD deletion)
     const deleteResult = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, deleteDoc, collection, getDocs } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, deleteDoc, collection, getDocs } = window.__fb
+        const db = getDb()
 
         // Delete favorites
         const favs = await getDocs(collection(db, 'users', testUid, 'favorites'))
@@ -298,8 +298,8 @@ test.describe('Firebase Data', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, collection, addDoc, getDoc, deleteDoc, doc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, getDoc, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const ref = await addDoc(collection(db, 'hostels'), {
           name: 'E2E Test Hostel',
@@ -329,8 +329,8 @@ test.describe('Firebase Data', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, setDoc, getDoc, deleteDoc, enableNetwork, disableNetwork, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, getDoc, deleteDoc, enableNetwork, disableNetwork, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Go offline
         await disableNetwork(db)
@@ -366,8 +366,8 @@ test.describe('Firebase Data', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, writeBatch, getDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, writeBatch, getDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const batch = writeBatch(db)
         const ids = ['batch-1', 'batch-2', 'batch-3']

@@ -24,8 +24,9 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, getDoc } = await import('firebase/firestore')
-        const snap = await getDoc(doc(getFirestore(), 'users', testUid))
+        const { getDb, doc, getDoc } = window.__fb
+        const db = getDb()
+        const snap = await getDoc(doc(db, 'users', testUid))
         return { canRead: snap.exists() }
       } catch (err) {
         return { canRead: false, error: err.code }
@@ -41,8 +42,9 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, updateDoc } = await import('firebase/firestore')
-        await updateDoc(doc(getFirestore(), 'users', testUid), {
+        const { getDb, doc, updateDoc } = window.__fb
+        const db = getDb()
+        await updateDoc(doc(db, 'users', testUid), {
           bio: 'E2E test bio update',
         })
         return { canUpdate: true }
@@ -55,8 +57,9 @@ test.describe('Firebase Security Rules', () => {
 
     // Cleanup
     await page.evaluate(async (testUid) => {
-      const { getFirestore, doc, updateDoc } = await import('firebase/firestore')
-      await updateDoc(doc(getFirestore(), 'users', testUid), { bio: '' })
+      const { getDb, doc, updateDoc } = window.__fb
+      const db = getDb()
+      await updateDoc(doc(db, 'users', testUid), { bio: '' })
     }, uid)
   })
 
@@ -69,8 +72,9 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async (targetUid) => {
       try {
-        const { getFirestore, doc, updateDoc } = await import('firebase/firestore')
-        await updateDoc(doc(getFirestore(), 'users', targetUid), {
+        const { getDb, doc, updateDoc } = window.__fb
+        const db = getDb()
+        await updateDoc(doc(db, 'users', targetUid), {
           bio: 'Hacked by Bob',
         })
         return { blocked: false }
@@ -91,8 +95,9 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async (targetUid) => {
       try {
-        const { getFirestore, doc, deleteDoc } = await import('firebase/firestore')
-        await deleteDoc(doc(getFirestore(), 'users', targetUid))
+        const { getDb, doc, deleteDoc } = window.__fb
+        const db = getDb()
+        await deleteDoc(doc(db, 'users', targetUid))
         return { blocked: false }
       } catch (err) {
         return { blocked: true, error: err.code }
@@ -109,8 +114,8 @@ test.describe('Firebase Security Rules', () => {
     // Try to create a spot with a different createdBy
     const result = await page.evaluate(async (uid) => {
       try {
-        const { getFirestore, collection, addDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const ref = await addDoc(collection(db, 'spots'), {
           lat: 48.0, lng: 2.0, direction: 'north', type: 'city_exit',
@@ -142,8 +147,8 @@ test.describe('Firebase Security Rules', () => {
     // Bob tries to send a message pretending to be Alice
     const result = await page.evaluate(async ({ alice, bob }) => {
       try {
-        const { getFirestore, collection, addDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, deleteDoc, getDocs, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Create a conversation first (valid)
         const convRef = await addDoc(collection(db, 'conversations'), {
@@ -158,7 +163,6 @@ test.describe('Firebase Security Rules', () => {
 
         // Cleanup
         await deleteDoc(msgRef)
-        const { getDocs } = await import('firebase/firestore')
         const msgsSnap = await getDocs(collection(db, 'conversations', convRef.id, 'messages'))
         for (const m of msgsSnap.docs) await deleteDoc(m.ref)
         await deleteDoc(convRef)
@@ -181,8 +185,8 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async ({ testUid, payload }) => {
       try {
-        const { getFirestore, doc, updateDoc, getDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, updateDoc, getDoc } = window.__fb
+        const db = getDb()
 
         await updateDoc(doc(db, 'users', testUid), { bio: payload })
         const snap = await getDoc(doc(db, 'users', testUid))
@@ -208,11 +212,10 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async () => {
       try {
-        const fb = await import('/src/services/firebase.js')
-        fb.initializeFirebase()
+        window.__fb.initializeFirebase()
 
-        const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const ref = await addDoc(collection(db, 'spots'), {
           lat: 0, lng: 0, direction: 'test', type: 'test',
@@ -221,7 +224,6 @@ test.describe('Firebase Security Rules', () => {
         })
 
         // If it succeeds, cleanup
-        const { deleteDoc } = await import('firebase/firestore')
         await deleteDoc(ref)
         return { blocked: false }
       } catch (err) {
@@ -238,8 +240,8 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async (uid) => {
       try {
-        const { getFirestore, doc, setDoc, getDoc, deleteDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
+        const db = getDb()
 
         const testUsername = 'e2e-unique-test-' + Date.now()
 
@@ -267,8 +269,8 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, setDoc, getDoc, deleteDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
+        const db = getDb()
 
         const voteId = `test-feature_${testUid}`
         await setDoc(doc(db, 'featureVotes', voteId), {
@@ -300,8 +302,9 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async (targetUid) => {
       try {
-        const { getFirestore, doc, getDoc } = await import('firebase/firestore')
-        const snap = await getDoc(doc(getFirestore(), 'users', targetUid))
+        const { getDb, doc, getDoc } = window.__fb
+        const db = getDb()
+        const snap = await getDoc(doc(db, 'users', targetUid))
         const data = snap.data()
         // Should not contain sensitive auth tokens
         return {
@@ -326,8 +329,8 @@ test.describe('Firebase Security Rules', () => {
 
     const result = await page.evaluate(async ({ testUid, payload }) => {
       try {
-        const { getFirestore, doc, updateDoc, getDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, updateDoc, getDoc } = window.__fb
+        const db = getDb()
 
         await updateDoc(doc(db, 'users', testUid), { bio: payload })
         const snap = await getDoc(doc(db, 'users', testUid))

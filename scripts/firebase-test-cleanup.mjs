@@ -69,9 +69,17 @@ async function cleanup() {
       if (splash) splash.remove()
     })
 
+    // Trigger Firebase module loading by opening auth modal
+    await page.evaluate(() => window.openAuth?.('email'))
+    await page.waitForTimeout(2000)
+    // Close it
+    await page.evaluate(() => window.closeAuth?.())
+    await page.waitForTimeout(500)
+
     const result = await page.evaluate(async ({ email, password }) => {
       try {
-        const fb = await import('/src/services/firebase.js')
+        const fb = window.__fb
+        if (!fb) return { success: false, error: 'window.__fb not available (Firebase not loaded)' }
         fb.initializeFirebase()
 
         // Sign in
@@ -81,8 +89,8 @@ async function cleanup() {
         }
 
         const uid = loginResult.user.uid
-        const { getFirestore, collection, query, where, getDocs, deleteDoc, doc, updateDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, query, where, getDocs, deleteDoc, doc, updateDoc } = fb
+        const db = getDb()
 
         let deleted = 0
 
@@ -175,8 +183,7 @@ async function cleanup() {
         } catch {}
 
         // Sign out
-        const { getAuth, signOut } = await import('firebase/auth')
-        await signOut(getAuth())
+        await fb.logOut()
 
         return { success: true, deleted, uid }
       } catch (err) {

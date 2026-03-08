@@ -67,10 +67,17 @@ export default async function firebaseIntegrationCheck() {
       if (splash) splash.remove()
     })
 
+    // Trigger Firebase module loading (opens auth modal which imports firebase.js)
+    await page.evaluate(() => window.openAuth?.('email'))
+    await page.waitForTimeout(2000)
+    await page.evaluate(() => window.closeAuth?.())
+    await page.waitForTimeout(500)
+
     // CHECK 1: Firebase SDK initializes (20 points)
     const fbInit = await page.evaluate(async () => {
       try {
-        const fb = await import('/src/services/firebase.js')
+        const fb = window.__fb
+        if (!fb) return { ok: false, error: 'window.__fb not available' }
         fb.initializeFirebase()
         return { ok: true }
       } catch (err) {
@@ -87,7 +94,8 @@ export default async function firebaseIntegrationCheck() {
     // CHECK 2: Login with test account (25 points)
     const loginResult = await page.evaluate(async ({ email, password }) => {
       try {
-        const fb = await import('/src/services/firebase.js')
+        const fb = window.__fb
+        if (!fb) return { success: false, error: 'window.__fb not available' }
         fb.initializeFirebase()
         const result = await fb.signIn(email, password)
         return { success: result.success, uid: result.user?.uid, error: result.error }
@@ -106,8 +114,8 @@ export default async function firebaseIntegrationCheck() {
     if (loginResult.success) {
       const profileResult = await page.evaluate(async (uid) => {
         try {
-          const { getFirestore, doc, getDoc } = await import('firebase/firestore')
-          const snap = await getDoc(doc(getFirestore(), 'users', uid))
+          const { getDb, doc, getDoc } = window.__fb
+          const snap = await getDoc(doc(getDb(), 'users', uid))
           return { exists: snap.exists() }
         } catch (err) {
           return { error: err.message }
@@ -128,8 +136,8 @@ export default async function firebaseIntegrationCheck() {
     if (loginResult.success) {
       const crudResult = await page.evaluate(async (uid) => {
         try {
-          const { getFirestore, collection, addDoc, deleteDoc, doc, serverTimestamp } = await import('firebase/firestore')
-          const db = getFirestore()
+          const { getDb, collection, addDoc, deleteDoc, doc, serverTimestamp } = window.__fb
+          const db = getDb()
 
           const ref = await addDoc(collection(db, 'spots'), {
             lat: 0.001, lng: 0.001, direction: 'fox-test', type: 'other',
@@ -155,8 +163,7 @@ export default async function firebaseIntegrationCheck() {
     if (loginResult.success) {
       const logoutResult = await page.evaluate(async () => {
         try {
-          const { getAuth, signOut } = await import('firebase/auth')
-          await signOut(getAuth())
+          await window.__fb.logOut()
           return { ok: true }
         } catch (err) {
           return { ok: false, error: err.message }

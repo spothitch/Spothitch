@@ -26,8 +26,8 @@ test.describe('Firebase Gamification', () => {
     // Write points via Firestore
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, updateDoc, getDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, updateDoc, getDoc } = window.__fb
+        const db = getDb()
 
         await updateDoc(doc(db, 'users', testUid), { points: 42 })
         const snap = await getDoc(doc(db, 'users', testUid))
@@ -45,8 +45,8 @@ test.describe('Firebase Gamification', () => {
 
     const result = await page.evaluate(async () => {
       try {
-        const { getFirestore, collection, getDocs, query, orderBy, limit } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, getDocs, query, orderBy, limit } = window.__fb
+        const db = getDb()
 
         const q = query(collection(db, 'users'), orderBy('points', 'desc'), limit(10))
         const snap = await getDocs(q)
@@ -70,8 +70,8 @@ test.describe('Firebase Gamification', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, updateDoc, getDoc, arrayUnion } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, updateDoc, getDoc, arrayUnion, arrayRemove } = window.__fb
+        const db = getDb()
 
         // Add a badge
         await updateDoc(doc(db, 'users', testUid), {
@@ -83,7 +83,6 @@ test.describe('Firebase Gamification', () => {
         const hasBadge = badges.includes('e2e_test_badge')
 
         // Cleanup: remove test badge
-        const { arrayRemove } = await import('firebase/firestore')
         await updateDoc(doc(db, 'users', testUid), {
           badges: arrayRemove('e2e_test_badge'),
         })
@@ -103,8 +102,8 @@ test.describe('Firebase Gamification', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, updateDoc, getDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, updateDoc, getDoc } = window.__fb
+        const db = getDb()
 
         await updateDoc(doc(db, 'users', testUid), {
           points: 100,
@@ -145,8 +144,8 @@ test.describe('Firebase Gamification', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, updateDoc, getDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, updateDoc, getDoc } = window.__fb
+        const db = getDb()
 
         // Set high points
         await updateDoc(doc(db, 'users', testUid), { points: 500 })
@@ -167,8 +166,8 @@ test.describe('Firebase Gamification', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, updateDoc, getDoc, increment } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, updateDoc, getDoc, increment } = window.__fb
+        const db = getDb()
 
         // Reset points
         await updateDoc(doc(db, 'users', testUid), { points: 0 })
@@ -197,8 +196,8 @@ test.describe('Firebase Gamification', () => {
 
     const result = await page.evaluate(async () => {
       try {
-        const { getFirestore, collection, getDocs, query, orderBy, limit } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, getDocs, query, orderBy, limit } = window.__fb
+        const db = getDb()
 
         const q = query(collection(db, 'users'), orderBy('seasonPoints', 'desc'), limit(5))
         const snap = await getDocs(q)

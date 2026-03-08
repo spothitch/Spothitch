@@ -194,12 +194,8 @@ export async function cleanupTestData(page, uid) {
 
   await page.evaluate(async (testUid) => {
     try {
-      const fb = await import('/src/services/firebase.js')
-      fb.initializeFirebase()
-
-      const { getFirestore, collection, query, where, getDocs, deleteDoc, doc } =
-        await import('firebase/firestore')
-      const db = getFirestore()
+      const { getDb, collection, query, where, getDocs, deleteDoc, doc } = window.__fb
+      const db = getDb()
 
       // Delete test spots created by this user
       const spotsQuery = query(collection(db, 'spots'), where('createdBy', '==', testUid))
@@ -264,8 +260,8 @@ export async function setupAuthenticatedPage(page, email, password) {
 export async function firestoreDocExists(page, collectionPath, docId) {
   return page.evaluate(async ({ path, id }) => {
     try {
-      const { getFirestore, doc, getDoc } = await import('firebase/firestore')
-      const db = getFirestore()
+      const { getDb, doc, getDoc } = window.__fb
+      const db = getDb()
       const snap = await getDoc(doc(db, path, id))
       return snap.exists()
     } catch {
@@ -285,8 +281,8 @@ export async function firestoreDocExists(page, collectionPath, docId) {
 export async function firestoreGetDoc(page, collectionPath, docId) {
   return page.evaluate(async ({ path, id }) => {
     try {
-      const { getFirestore, doc, getDoc } = await import('firebase/firestore')
-      const db = getFirestore()
+      const { getDb, doc, getDoc } = window.__fb
+      const db = getDb()
       const snap = await getDoc(doc(db, path, id))
       return snap.exists() ? snap.data() : null
     } catch {

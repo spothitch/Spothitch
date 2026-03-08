@@ -34,8 +34,8 @@ test.describe('Firebase Realtime', () => {
     try {
       // Alice creates a conversation and Bob listens
       const convId = await page.evaluate(async ({ alice, bob }) => {
-        const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+        const db = getDb()
         const ref = await addDoc(collection(db, 'conversations'), {
           participants: [alice, bob], type: 'dm',
           createdAt: serverTimestamp(), lastMessage: '',
@@ -45,8 +45,8 @@ test.describe('Firebase Realtime', () => {
 
       // Bob sets up onSnapshot listener
       await bobPage.evaluate(async (cid) => {
-        const { getFirestore, collection, onSnapshot } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, onSnapshot } = window.__fb
+        const db = getDb()
         window.__realtimeMessages = []
         window.__unsub = onSnapshot(collection(db, 'conversations', cid, 'messages'), (snap) => {
           snap.docChanges().forEach(change => {
@@ -59,8 +59,8 @@ test.describe('Firebase Realtime', () => {
 
       // Alice sends a message
       await page.evaluate(async ({ cid, alice }) => {
-        const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+        const db = getDb()
         await addDoc(collection(db, 'conversations', cid, 'messages'), {
           text: 'Real-time hello!', senderId: alice, createdAt: serverTimestamp(),
         })
@@ -76,8 +76,8 @@ test.describe('Firebase Realtime', () => {
       // Cleanup
       await bobPage.evaluate(() => window.__unsub?.())
       await page.evaluate(async (cid) => {
-        const { getFirestore, collection, getDocs, deleteDoc, doc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, getDocs, deleteDoc, doc } = window.__fb
+        const db = getDb()
         const msgs = await getDocs(collection(db, 'conversations', cid, 'messages'))
         for (const m of msgs.docs) await deleteDoc(m.ref)
         await deleteDoc(doc(db, 'conversations', cid))
@@ -99,8 +99,8 @@ test.describe('Firebase Realtime', () => {
     try {
       // Page2 listens for favorites changes
       await page2.evaluate(async (testUid) => {
-        const { getFirestore, collection, onSnapshot } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, onSnapshot } = window.__fb
+        const db = getDb()
         window.__favChanges = []
         window.__unsubFav = onSnapshot(collection(db, 'users', testUid, 'favorites'), (snap) => {
           snap.docChanges().forEach(change => {
@@ -111,8 +111,8 @@ test.describe('Firebase Realtime', () => {
 
       // Page1 adds a favorite
       await page.evaluate(async (testUid) => {
-        const { getFirestore, doc, setDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, serverTimestamp } = window.__fb
+        const db = getDb()
         await setDoc(doc(db, 'users', testUid, 'favorites', 'rt-test-fav'), {
           spotId: 'rt-test-fav', lat: 48.85, lng: 2.35, addedAt: serverTimestamp(),
         })
@@ -130,8 +130,8 @@ test.describe('Firebase Realtime', () => {
       // Cleanup
       await page2.evaluate(() => window.__unsubFav?.())
       await page.evaluate(async (testUid) => {
-        const { getFirestore, doc, deleteDoc } = await import('firebase/firestore')
-        await deleteDoc(doc(getFirestore(), 'users', testUid, 'favorites', 'rt-test-fav'))
+        const { getDb, doc, deleteDoc } = window.__fb
+        await deleteDoc(doc(getDb(), 'users', testUid, 'favorites', 'rt-test-fav'))
       }, uid)
     } finally {
       await ctx2.close()
@@ -144,8 +144,8 @@ test.describe('Firebase Realtime', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, updateDoc, getDoc, increment } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, updateDoc, getDoc, increment } = window.__fb
+        const db = getDb()
 
         // Reset
         await updateDoc(doc(db, 'users', testUid), { points: 0 })
@@ -178,8 +178,8 @@ test.describe('Firebase Realtime', () => {
     try {
       // Bob listens for incoming friend requests
       await bobPage.evaluate(async (testUid) => {
-        const { getFirestore, collection, query, where, onSnapshot } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, query, where, onSnapshot } = window.__fb
+        const db = getDb()
         window.__friendRequests = []
         window.__unsubFr = onSnapshot(
           query(collection(db, 'friendRequests'), where('to', '==', testUid)),
@@ -195,8 +195,8 @@ test.describe('Firebase Realtime', () => {
 
       // Alice sends friend request
       const reqId = await page.evaluate(async ({ from, to }) => {
-        const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-        const ref = await addDoc(collection(getFirestore(), 'friendRequests'), {
+        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+        const ref = await addDoc(collection(getDb(), 'friendRequests'), {
           from, to, status: 'pending', createdAt: serverTimestamp(),
         })
         return ref.id
@@ -215,8 +215,8 @@ test.describe('Firebase Realtime', () => {
       // Cleanup
       await bobPage.evaluate(() => window.__unsubFr?.())
       await page.evaluate(async (rid) => {
-        const { getFirestore, doc, deleteDoc } = await import('firebase/firestore')
-        await deleteDoc(doc(getFirestore(), 'friendRequests', rid))
+        const { getDb, doc, deleteDoc } = window.__fb
+        await deleteDoc(doc(getDb(), 'friendRequests', rid))
       }, reqId)
     } finally {
       await bobCtx.close()
@@ -235,8 +235,8 @@ test.describe('Firebase Realtime', () => {
     try {
       // Create conversation
       const convId = await page.evaluate(async ({ a, b }) => {
-        const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-        const ref = await addDoc(collection(getFirestore(), 'conversations'), {
+        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+        const ref = await addDoc(collection(getDb(), 'conversations'), {
           participants: [a, b], type: 'dm', createdAt: serverTimestamp(),
         })
         return ref.id
@@ -244,9 +244,9 @@ test.describe('Firebase Realtime', () => {
 
       // Diana listens
       await dianaPage.evaluate(async (cid) => {
-        const { getFirestore, collection, onSnapshot } = await import('firebase/firestore')
+        const { getDb, collection, onSnapshot } = window.__fb
         window.__orderedMsgs = []
-        window.__unsubOrd = onSnapshot(collection(getFirestore(), 'conversations', cid, 'messages'), (snap) => {
+        window.__unsubOrd = onSnapshot(collection(getDb(), 'conversations', cid, 'messages'), (snap) => {
           snap.docChanges().forEach(change => {
             if (change.type === 'added') window.__orderedMsgs.push(change.doc.data().text)
           })
@@ -256,8 +256,8 @@ test.describe('Firebase Realtime', () => {
       // Charlie sends 3 messages sequentially
       for (let i = 1; i <= 3; i++) {
         await page.evaluate(async ({ cid, uid, i }) => {
-          const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-          await addDoc(collection(getFirestore(), 'conversations', cid, 'messages'), {
+          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+          await addDoc(collection(getDb(), 'conversations', cid, 'messages'), {
             text: `Message ${i}`, senderId: uid, createdAt: serverTimestamp(),
           })
         }, { cid: convId, uid: charlieUid, i })
@@ -276,8 +276,8 @@ test.describe('Firebase Realtime', () => {
       // Cleanup
       await dianaPage.evaluate(() => window.__unsubOrd?.())
       await page.evaluate(async (cid) => {
-        const { getFirestore, collection, getDocs, deleteDoc, doc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, getDocs, deleteDoc, doc } = window.__fb
+        const db = getDb()
         const msgs = await getDocs(collection(db, 'conversations', cid, 'messages'))
         for (const m of msgs.docs) await deleteDoc(m.ref)
         await deleteDoc(doc(db, 'conversations', cid))

@@ -32,9 +32,8 @@ test.describe('Firebase Spots', () => {
     // Create a test spot via the app's submit handler
     const spotId = await page.evaluate(async () => {
       try {
-        const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-        const { getAuth } = await import('firebase/auth')
-        const db = getFirestore()
+        const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
+        const db = getDb()
         const auth = getAuth()
         const uid = auth.currentUser?.uid
         if (!uid) return null
@@ -68,9 +67,8 @@ test.describe('Firebase Spots', () => {
 
     // Create and then delete a spot
     const spotId = await page.evaluate(async () => {
-      const { getFirestore, collection, addDoc, deleteDoc, doc, serverTimestamp } = await import('firebase/firestore')
-      const { getAuth } = await import('firebase/auth')
-      const db = getFirestore()
+      const { getDb, getAuth, collection, addDoc, deleteDoc, doc, serverTimestamp } = window.__fb
+      const db = getDb()
       const uid = getAuth().currentUser?.uid
       if (!uid) return null
 
@@ -92,9 +90,8 @@ test.describe('Firebase Spots', () => {
 
     // Alice creates a spot
     const spotId = await page.evaluate(async () => {
-      const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-      const { getAuth } = await import('firebase/auth')
-      const db = getFirestore()
+      const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
+      const db = getDb()
       const uid = getAuth().currentUser?.uid
       if (!uid) return null
 
@@ -114,8 +111,8 @@ test.describe('Firebase Spots', () => {
     // Bob tries to delete Alice's spot
     const deleteResult = await page.evaluate(async (sid) => {
       try {
-        const { getFirestore, doc, deleteDoc } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, deleteDoc } = window.__fb
+        const db = getDb()
         await deleteDoc(doc(db, 'spots', sid))
         return { success: true }
       } catch (err) {
@@ -130,8 +127,8 @@ test.describe('Firebase Spots', () => {
     await firebaseLogout(page)
     await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
     await page.evaluate(async (sid) => {
-      const { getFirestore, doc, deleteDoc } = await import('firebase/firestore')
-      await deleteDoc(doc(getFirestore(), 'spots', sid))
+      const { getDb, doc, deleteDoc } = window.__fb
+      await deleteDoc(doc(getDb(), 'spots', sid))
     }, spotId)
   })
 
@@ -143,8 +140,8 @@ test.describe('Firebase Spots', () => {
     // Add a favorite
     const favResult = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, doc, setDoc, deleteDoc, getDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, doc, setDoc, deleteDoc, getDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         const favId = 'test-fav-spot-123'
         const favRef = doc(db, 'users', testUid, 'favorites', favId)
@@ -180,8 +177,8 @@ test.describe('Firebase Spots', () => {
 
     const reviewResult = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, getDocs, query, where, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Add a review
         const ref = await addDoc(collection(db, 'reviews'), {
@@ -216,9 +213,8 @@ test.describe('Firebase Spots', () => {
     // Spot with valid ratings should work
     const validResult = await page.evaluate(async () => {
       try {
-        const { getFirestore, collection, addDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const { getAuth } = await import('firebase/auth')
-        const db = getFirestore()
+        const { getDb, getAuth, collection, addDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
         const uid = getAuth().currentUser?.uid
 
         const ref = await addDoc(collection(db, 'spots'), {
@@ -243,8 +239,8 @@ test.describe('Firebase Spots', () => {
 
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const db = getFirestore()
+        const { getDb, collection, addDoc, getDocs, query, where, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
 
         // Create 3 spots
         const ids = []
@@ -264,7 +260,7 @@ test.describe('Firebase Spots', () => {
 
         // Cleanup
         for (const id of ids) {
-          await deleteDoc((await import('firebase/firestore')).doc(db, 'spots', id))
+          await deleteDoc(doc(db, 'spots', id))
         }
 
         return { created: ids.length, found: count }
@@ -282,9 +278,8 @@ test.describe('Firebase Spots', () => {
 
     const result = await page.evaluate(async () => {
       try {
-        const { getFirestore, collection, addDoc, updateDoc, getDoc, doc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
-        const { getAuth } = await import('firebase/auth')
-        const db = getFirestore()
+        const { getDb, getAuth, collection, addDoc, updateDoc, getDoc, doc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
         const uid = getAuth().currentUser?.uid
 
         const ref = await addDoc(collection(db, 'spots'), {
@@ -311,9 +306,8 @@ test.describe('Firebase Spots', () => {
     await setupAuthenticatedPage(page, TEST_ACCOUNTS.alice.email)
 
     const spotId = await page.evaluate(async () => {
-      const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
-      const { getAuth } = await import('firebase/auth')
-      const db = getFirestore()
+      const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
+      const db = getDb()
       const ref = await addDoc(collection(db, 'spots'), {
         lat: 52.0, lng: 5.0, direction: 'north', type: 'other',
         description: 'Alice only', createdBy: getAuth().currentUser.uid, createdAt: serverTimestamp(),
@@ -326,8 +320,8 @@ test.describe('Firebase Spots', () => {
 
     const updateResult = await page.evaluate(async (sid) => {
       try {
-        const { getFirestore, doc, updateDoc } = await import('firebase/firestore')
-        await updateDoc(doc(getFirestore(), 'spots', sid), { description: 'Hacked by Bob' })
+        const { getDb, doc, updateDoc } = window.__fb
+        await updateDoc(doc(getDb(), 'spots', sid), { description: 'Hacked by Bob' })
         return { success: true }
       } catch (err) {
         return { success: false, code: err.code }
@@ -340,8 +334,8 @@ test.describe('Firebase Spots', () => {
     await firebaseLogout(page)
     await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
     await page.evaluate(async (sid) => {
-      const { getFirestore, doc, deleteDoc } = await import('firebase/firestore')
-      await deleteDoc(doc(getFirestore(), 'spots', sid))
+      const { getDb, doc, deleteDoc } = window.__fb
+      await deleteDoc(doc(getDb(), 'spots', sid))
     }, spotId)
   })
 })

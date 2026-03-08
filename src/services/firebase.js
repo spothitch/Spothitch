@@ -40,7 +40,11 @@ import {
   writeBatch,
   setDoc,
   getDoc,
-  arrayUnion
+  arrayUnion,
+  arrayRemove,
+  increment,
+  enableNetwork,
+  disableNetwork
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -1454,3 +1458,25 @@ export async function deleteTrip(uid, tripId) {
 
 // Export instances for advanced usage
 export { app, auth, db, storage, messaging };
+
+// E2E test bridge — exposes Firebase primitives for Playwright tests.
+// In production builds, dynamic import('firebase/firestore') fails because
+// bare module specifiers are bundled. This bridge makes Firestore/Auth
+// functions accessible via window.__fb after initializeFirebase() is called.
+if (typeof window !== 'undefined') {
+  window.__fb = {
+    getDb: () => db,
+    getAuth: () => auth,
+    initializeFirebase,
+    // Firestore functions
+    collection, doc, addDoc, updateDoc, deleteDoc, getDocs, getDoc,
+    query, where, orderBy, limit, onSnapshot, serverTimestamp,
+    setDoc, writeBatch, arrayUnion, arrayRemove, increment,
+    enableNetwork, disableNetwork,
+    // Auth functions
+    signIn, signUp, logOut,
+    signInWithGoogle, signInWithFacebook,
+    createOrUpdateUserProfile, hydrateLocalProfileFromFirestore,
+    reserveUsername, validateUsername, checkUsernameAvailability,
+  }
+}
