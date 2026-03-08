@@ -180,7 +180,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium e2e/navigation.spec.js e2e/admin.spec.js e2e/social.spec.js e2e/profile.spec.js e2e/tutorial.spec.js e2e/gamification.spec.js
+      - run: npx playwright test --project=chromium e2e/navigation.spec.js e2e/admin.spec.js e2e/social.spec.js e2e/socialDeep.spec.js e2e/profile.spec.js e2e/profileDeep.spec.js e2e/tutorial.spec.js e2e/gamification.spec.js e2e/gamificationDeep.spec.js
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -210,7 +210,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium e2e/criticalFlows.spec.js e2e/accessibility.spec.js e2e/pwa.spec.js
+      - run: npx playwright test --project=chromium e2e/criticalFlows.spec.js e2e/accessibility.spec.js e2e/pwa.spec.js e2e/deeplinks.spec.js e2e/keyboard.spec.js e2e/browserEvents.spec.js
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -240,7 +240,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium e2e/comprehensiveE2E.spec.js
+      - run: npx playwright test --project=chromium e2e/comprehensiveE2E.spec.js e2e/spotDetail.spec.js e2e/addSpotWizard.spec.js e2e/guides.spec.js e2e/tripPlanner.spec.js
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -270,7 +270,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium e2e/monkeyTest.spec.js e2e/userJourneys.spec.js e2e/map.spec.js
+      - run: npx playwright test --project=chromium e2e/monkeyTest.spec.js e2e/userJourneys.spec.js e2e/map.spec.js e2e/mapDeep.spec.js e2e/sosCompanion.spec.js
       - uses: actions/upload-artifact@v7
         if: always()
         with:
