@@ -1478,5 +1478,9 @@ if (typeof window !== 'undefined') {
     signInWithGoogle, signInWithFacebook,
     createOrUpdateUserProfile, hydrateLocalProfileFromFirestore,
     reserveUsername, validateUsername, checkUsernameAvailability,
+    // Storage functions
+    getStorage: () => storage,
+    ref, uploadString, getDownloadURL,
+    uploadImage, uploadPhotoToFirebase,
   }
 }

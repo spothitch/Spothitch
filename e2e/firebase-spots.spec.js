@@ -273,6 +273,45 @@ test.describe('Firebase Spots', () => {
     expect(result.created).toBe(true)
   })
 
+  test('upload spot photo to Firebase Storage', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, deleteDoc, serverTimestamp,
+                getStorage, ref, uploadString, getDownloadURL } = window.__fb
+        const db = getDb()
+
+        // Create a temp spot
+        const spotRef = await addDoc(collection(db, 'spots'), {
+          lat: 48.89, lng: 2.39, creatorId: testUid, createdAt: serverTimestamp(),
+        })
+
+        // Create a tiny 1x1 red pixel PNG as base64
+        const base64Img = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
+
+        const storage = getStorage()
+        const path = `spots/${spotRef.id}/${testUid}_${Date.now()}.png`
+        const storageRef = ref(storage, path)
+        const snapshot = await uploadString(storageRef, base64Img, 'data_url')
+        const downloadURL = await getDownloadURL(snapshot.ref)
+
+        // Cleanup spot (storage file left as orphan — no delete API from client for security)
+        await deleteDoc(spotRef)
+
+        return {
+          uploaded: !!downloadURL,
+          urlValid: downloadURL.includes('firebasestorage.googleapis.com') || downloadURL.includes('storage.googleapis.com'),
+          path,
+        }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.error).toBeFalsy()
+    expect(result.uploaded).toBe(true)
+    expect(result.urlValid).toBe(true)
+  })
+
   test('Bob cannot delete Alice spot (security rules)', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
