@@ -249,20 +249,40 @@ function updateAppBadge(count) {
  * Initialize the application
  */
 async function init() {
+  // Restore last known position from localStorage (instant, no GPS wait)
+  const savedPos = localStorage.getItem('spothitch_last_position')
+  if (savedPos) {
+    try {
+      const loc = JSON.parse(savedPos)
+      if (loc.lat && loc.lng) actions.setUserLocation(loc)
+    } catch { /* corrupted data — ignore */ }
+  }
+
+  // GPS ready promise — resolved when fresh GPS arrives or after 3s timeout
+  let resolveGpsReady
+  const gpsReadyPromise = new Promise((r) => { resolveGpsReady = r })
+  const gpsTimeout = setTimeout(resolveGpsReady, 3000)
+
   // Request geolocation early (during loading screen) so the map is ready at user's position
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        localStorage.setItem('spothitch_last_position', JSON.stringify(loc))
         // Only set if we don't already have a location (avoid overwriting high-accuracy result)
         if (!getState().userLocation) {
           actions.setUserLocation(loc)
           loadNearbySpots(loc)
         }
+        clearTimeout(gpsTimeout)
+        resolveGpsReady()
       },
-      () => { /* User declined or error — no problem */ },
+      () => { clearTimeout(gpsTimeout); resolveGpsReady() },
       { timeout: 5000, enableHighAccuracy: false }
     )
+  } else {
+    clearTimeout(gpsTimeout)
+    resolveGpsReady()
   }
 
   // Initialize splash screen only if user has already seen the landing carousel
@@ -542,7 +562,10 @@ async function init() {
       console.warn('Error handlers skipped:', e.message);
     }
 
-    // Hide loader
+    // Hide loader — wait for GPS if returning user (max 3s), instant for new users
+    if (savedPos) {
+      await gpsReadyPromise
+    }
     hideLoader();
 
     // Register service worker
