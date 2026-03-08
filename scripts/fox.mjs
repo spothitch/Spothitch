@@ -1,17 +1,32 @@
 #!/usr/bin/env node
 /**
- * FOX — The 10-Layer Quality System
+ * FOX — The 25-Layer Quality System
  *
  * Runs ALL quality checks in sequence:
  *
- * Layer 1-3: Static analysis (from quality-gate.mjs)
- * Layer 4:   Visual Invariants (contrast, touch, visibility)
- * Layer 5:   Functional Flows (every button, modal, handler)
- * Layer 6:   Share Target (Google Maps URL parsing)
- * Layer 7:   Chaos Monkey (random clicking)
- * Layer 8:   Network Resilience (offline, 3G, cut, API errors)
- * Layer 9:   State Integrity (data corruption detection)
- * Layer 10:  CI verification (GitHub Actions status)
+ * Layer 1-3:  Static analysis (from quality-gate.mjs)
+ * Layer 4:    Visual Invariants (contrast, touch, visibility)
+ * Layer 5:    Functional Flows (every button, modal, handler)
+ * Layer 6:    Share Target (Google Maps URL parsing)
+ * Layer 7:    Chaos Monkey (random clicking)
+ * Layer 8:    Network Resilience (offline, 3G, cut, API errors)
+ * Layer 9:    State Integrity (data corruption detection)
+ * Layer 10:   CI verification (GitHub Actions status)
+ * Layer 11:   Deep Functional (every button does what it should)
+ * Layer 12:   User Journeys (5 complete end-to-end flows)
+ * Layer 13:   DOM Verification (visible content, not just state)
+ * Layer 14:   Persistence & Reload (state survives refresh)
+ * Layer 15:   i18n Completeness (cross-lang keys, orphans, dashes)
+ * Layer 16:   Form Validation (invalid inputs, error messages)
+ * Layer 17:   Navigation & History (Escape, stacking, z-index)
+ * Layer 18:   Responsive (4 viewports, touch targets)
+ * Layer 19:   Data Extremes (empty states, long data, emojis)
+ * Layer 20:   Security Injection (XSS, SQL, template injection)
+ * Layer 21:   Idempotence (double-clicks, race conditions)
+ * Layer 22:   Scroll & Focus (h-scroll, focus trap, keyboard)
+ * Layer 23:   PWA & Deep Links (manifest, SW, URL params)
+ * Layer 24:   Performance & Resources (load time, memory, DOM)
+ * Layer 25:   SEO & Meta (title, og tags, robots, sitemap)
  *
  * Usage:
  *   node scripts/ultimate-check.mjs              # Run all layers
@@ -24,6 +39,7 @@
 import { execSync } from 'child_process'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { readFileSync, writeFileSync, mkdirSync } from 'fs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -71,7 +87,7 @@ async function runLayer(num, name, fn) {
 async function main() {
   console.log(`\n${'═'.repeat(60)}`)
   console.log('  FOX — SpotHitch Quality System')
-  console.log(`  Mode: ${QUICK ? 'QUICK (Layers 4-6)' : LAYER ? `Layer ${LAYER} only` : 'FULL (All 10 layers)'}`)
+  console.log(`  Mode: ${QUICK ? 'QUICK (Layers 4-6)' : LAYER ? `Layer ${LAYER} only` : 'FULL (All 25 layers)'}`)
   console.log(`${'═'.repeat(60)}`)
 
   // --- Layers 1-3: Static analysis (existing quality gate checks) ---
@@ -237,6 +253,96 @@ async function main() {
         return { score: 50, maxScore: 100, errors: [], warnings: ['Could not check CI status'] }
       }
     })
+
+    // --- Layer 11: Deep Functional ---
+    await runLayer(11, 'DEEP FUNCTIONAL', async () => {
+      const { default: check } = await import('./checks/deep-functional.mjs')
+      return check()
+    })
+
+    // --- Layer 12: User Journeys ---
+    await runLayer(12, 'USER JOURNEYS', async () => {
+      const { default: check } = await import('./checks/user-journeys.mjs')
+      return check()
+    })
+
+    // --- Layer 13: DOM Verification ---
+    await runLayer(13, 'DOM VERIFICATION', async () => {
+      const { default: check } = await import('./checks/dom-verification.mjs')
+      return check()
+    })
+
+    // --- Layer 14: Persistence & Reload ---
+    await runLayer(14, 'PERSISTENCE & RELOAD', async () => {
+      const { default: check } = await import('./checks/persistence-reload.mjs')
+      return check()
+    })
+
+    // --- Layer 15: i18n Completeness ---
+    await runLayer(15, 'I18N COMPLETENESS', async () => {
+      const { default: check } = await import('./checks/i18n-completeness.mjs')
+      return check()
+    })
+
+    // --- Layer 16: Form Validation ---
+    await runLayer(16, 'FORM VALIDATION', async () => {
+      const { default: check } = await import('./checks/form-validation.mjs')
+      return check()
+    })
+
+    // --- Layer 17: Navigation & History ---
+    await runLayer(17, 'NAVIGATION & HISTORY', async () => {
+      const { default: check } = await import('./checks/navigation-history.mjs')
+      return check()
+    })
+
+    // --- Layer 18: Responsive ---
+    await runLayer(18, 'RESPONSIVE', async () => {
+      const { default: check } = await import('./checks/responsive.mjs')
+      return check()
+    })
+
+    // --- Layer 19: Data Extremes ---
+    await runLayer(19, 'DATA EXTREMES', async () => {
+      const { default: check } = await import('./checks/data-extremes.mjs')
+      return check()
+    })
+
+    // --- Layer 20: Security Injection ---
+    await runLayer(20, 'SECURITY INJECTION', async () => {
+      const { default: check } = await import('./checks/security-injection.mjs')
+      return check()
+    })
+
+    // --- Layer 21: Idempotence ---
+    await runLayer(21, 'IDEMPOTENCE', async () => {
+      const { default: check } = await import('./checks/idempotence.mjs')
+      return check()
+    })
+
+    // --- Layer 22: Scroll & Focus ---
+    await runLayer(22, 'SCROLL & FOCUS', async () => {
+      const { default: check } = await import('./checks/scroll-focus.mjs')
+      return check()
+    })
+
+    // --- Layer 23: PWA & Deep Links ---
+    await runLayer(23, 'PWA & DEEP LINKS', async () => {
+      const { default: check } = await import('./checks/pwa-deeplinks.mjs')
+      return check()
+    })
+
+    // --- Layer 24: Performance & Resources ---
+    await runLayer(24, 'PERFORMANCE & RESOURCES', async () => {
+      const { default: check } = await import('./checks/performance-resources.mjs')
+      return check()
+    })
+
+    // --- Layer 25: SEO & Meta ---
+    await runLayer(25, 'SEO & META', async () => {
+      const { default: check } = await import('./checks/seo-meta.mjs')
+      return check()
+    })
   }
 
   // --- Final Report ---
@@ -265,7 +371,30 @@ async function main() {
   console.log(`  ${finalScore >= 80 ? '✅ READY TO SHIP' : finalScore >= 60 ? '⚠️ NEEDS ATTENTION' : '❌ DO NOT SHIP'}`)
   console.log(`${'═'.repeat(60)}`)
 
-  process.exit(finalScore >= 70 ? 0 : 1)
+  // --- Write history ---
+  const historyPath = join(ROOT, 'memory', 'fox-history.json')
+  try {
+    mkdirSync(join(ROOT, 'memory'), { recursive: true })
+    let history = []
+    try {
+      history = JSON.parse(readFileSync(historyPath, 'utf-8'))
+    } catch {}
+    history.push({
+      date: new Date().toISOString(),
+      mode: QUICK ? 'quick' : LAYER ? `layer-${LAYER}` : 'full',
+      score: finalScore,
+      duration: parseFloat(duration),
+      layers: layerResults.map(r => ({ layer: r.layer, name: r.name, score: r.score, max: r.maxScore })),
+    })
+    // Keep last 100 entries
+    if (history.length > 100) history = history.slice(-100)
+    writeFileSync(historyPath, JSON.stringify(history, null, 2) + '\n')
+    console.log(`  📊 History saved to memory/fox-history.json (${history.length} entries)`)
+  } catch (err) {
+    console.log(`  ⚠️ Could not save history: ${err.message}`)
+  }
+
+  process.exit(finalScore >= 80 ? 0 : 1)
 }
 
 main().catch(err => {

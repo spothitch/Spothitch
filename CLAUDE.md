@@ -120,6 +120,14 @@
 > - Raison : les tirets en milieu de phrase sont un tic d'écriture IA, ça se voit et c'est inutile
 > - Cette règle s'applique aussi aux mockups, designs, et tout texte écrit pour l'app
 
+> **RÈGLE #17 — FOX EN DÉBUT DE SESSION** (OBLIGATOIRE) :
+> - Au DÉBUT de chaque session, lancer `node scripts/fox.mjs --quick` et vérifier le résultat
+> - Si le score est < 80 → corriger les layers rouges AVANT de travailler sur la demande d'Antoine
+> - Le Fox quick prend ~30s et vérifie les layers 4-6 (visual, functional, share target)
+> - Ne JAMAIS commencer à coder une feature si le Fox quick est rouge
+> - L'historique des scores est sauvé automatiquement dans `memory/fox-history.json`
+> - Objectif : jamais de session qui commence sur une base instable
+
 > **RÈGLE #8b — NOMMAGE COHÉRENT** :
 > - JAMAIS créer d'alias (`window.openX = window.showX`) — utiliser UN SEUL nom partout
 > - Quand une fonction `window.*` est créée, utiliser le MÊME nom dans : le code, les onclick HTML, les tests, le Wolf

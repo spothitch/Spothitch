@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Pre-push hook: run Fox quick check before pushing
+# Blocks push if score < 80
+
+echo ""
+echo "🦊 Fox quick check before push..."
+echo ""
+
+# Check if dev server is running on port 5173
+if ! curl -s http://localhost:5173 > /dev/null 2>&1; then
+  echo "⚠️  No dev server on :5173 — starting preview server..."
+  npx vite preview --port 5173 &
+  SERVER_PID=$!
+  sleep 3
+  STARTED_SERVER=true
+else
+  STARTED_SERVER=false
+fi
+
+node scripts/fox.mjs --quick
+FOX_EXIT=$?
+
+# Clean up server if we started it
+if [ "$STARTED_SERVER" = true ] && [ -n "$SERVER_PID" ]; then
+  kill $SERVER_PID 2>/dev/null
+fi
+
+if [ $FOX_EXIT -ne 0 ]; then
+  echo ""
+  echo "❌ Fox quick check failed (score < 80). Push blocked."
+  echo "   Fix the issues and try again."
+  echo ""
+  exit 1
+fi
+
+echo ""
+echo "✅ Fox quick check passed. Pushing..."
+echo ""

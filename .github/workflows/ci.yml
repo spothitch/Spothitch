@@ -269,10 +269,42 @@ jobs:
           name: e2e-stress-report
           path: playwright-report/
 
+  fox:
+    name: Fox 25-Layer Quality Check
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - name: Start server and run Fox
+        run: |
+          npx vite preview --port 5173 &
+          sleep 3
+          node scripts/fox.mjs
+        env:
+          APP_URL: http://localhost:5173
+          VITE_SHOW_BETA: 'true'
+
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate]
+    needs: [build, test, wiring, lint, quality-gate, fox]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
@@ -303,11 +335,16 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name spothitch --branch main --commit-message "${{ steps.sanitize.outputs.msg }}"
+      - name: Post-deploy health check
+        run: |
+          echo "Waiting 30s for deploy propagation..."
+          sleep 30
+          node scripts/monitor.mjs
 
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint]
+    needs: [build, test, wiring, lint, fox]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     # Note: feature/* branches run tests only, no deploy
     steps:
@@ -340,11 +377,16 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name spothitch --branch dev --commit-message "${{ steps.sanitize.outputs.msg }}"
+      - name: Post-deploy health check
+        run: |
+          echo "Waiting 30s for deploy propagation..."
+          sleep 30
+          node scripts/monitor.mjs
 
   deploy-staging:
     name: Deploy to Cloudflare Pages (staging → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint]
+    needs: [build, test, wiring, lint, fox]
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
