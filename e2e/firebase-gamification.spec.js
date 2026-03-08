@@ -2,177 +2,142 @@
  * Firebase Gamification E2E Tests
  *
  * Tests points sync, leaderboard, badges, and season with real Firestore.
+ * Uses shared session (Alice logged in).
  */
 import { test, expect } from '@playwright/test'
 import { skipOnboarding } from './helpers.js'
 import {
   TEST_ACCOUNTS,
   firebaseLogin,
-  firebaseLogout,
   getCurrentUid,
-  setupAuthenticatedPage,
   firestoreGetDoc,
+  initFirebasePage,
 } from './firebase-helpers.js'
 
-test.beforeEach(async () => {
-  if (!process.env.E2E_TEST_PASSWORD) test.skip(true, 'E2E_TEST_PASSWORD not set')
-})
-
 test.describe('Firebase Gamification', () => {
-  test('points sync to Firestore on login', async ({ page }) => {
-    await setupAuthenticatedPage(page, TEST_ACCOUNTS.alice.email)
-    const uid = await getCurrentUid(page)
+  test.describe.configure({ mode: 'serial' })
 
-    // Write points via Firestore
+  let context, page, aliceUid
+
+  test.beforeAll(async ({ browser }) => {
+    if (!process.env.E2E_TEST_PASSWORD) return
+    ;({ context, page, uid: aliceUid } = await initFirebasePage(browser, TEST_ACCOUNTS.alice.email))
+  })
+
+  test.afterAll(async () => {
+    // Reset points
+    if (aliceUid && page) {
+      await page.evaluate(async (uid) => {
+        try {
+          const { getDb, doc, updateDoc } = window.__fb
+          await updateDoc(doc(getDb(), 'users', uid), { points: 0, seasonPoints: 0, badges: [], level: 1 })
+        } catch {}
+      }, aliceUid)
+    }
+    await context?.close()
+  })
+
+  test('points sync to Firestore on login', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
     const result = await page.evaluate(async (testUid) => {
       try {
         const { getDb, doc, updateDoc, getDoc } = window.__fb
         const db = getDb()
-
         await updateDoc(doc(db, 'users', testUid), { points: 42 })
         const snap = await getDoc(doc(db, 'users', testUid))
         return { points: snap.data()?.points }
-      } catch (err) {
-        return { error: err.message }
-      }
-    }, uid)
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
 
     expect(result.points).toBe(42)
   })
 
-  test('leaderboard reads multiple users sorted by points', async ({ page }) => {
-    await setupAuthenticatedPage(page, TEST_ACCOUNTS.alice.email)
+  test('leaderboard reads multiple users sorted by points', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     const result = await page.evaluate(async () => {
       try {
         const { getDb, collection, getDocs, query, orderBy, limit } = window.__fb
-        const db = getDb()
-
-        const q = query(collection(db, 'users'), orderBy('points', 'desc'), limit(10))
+        const q = query(collection(getDb(), 'users'), orderBy('points', 'desc'), limit(10))
         const snap = await getDocs(q)
-        const users = snap.docs.map(d => ({
-          email: d.data().email,
-          points: d.data().points || 0,
-        }))
-
-        return { count: users.length, users }
-      } catch (err) {
-        return { error: err.message }
-      }
+        return { count: snap.size }
+      } catch (err) { return { error: err.message } }
     })
 
     expect(result.count).toBeGreaterThan(0)
   })
 
-  test('badge write and read from Firestore', async ({ page }) => {
-    await setupAuthenticatedPage(page, TEST_ACCOUNTS.bob.email)
-    const uid = await getCurrentUid(page)
+  test('badge write and read from Firestore', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     const result = await page.evaluate(async (testUid) => {
       try {
         const { getDb, doc, updateDoc, getDoc, arrayUnion, arrayRemove } = window.__fb
         const db = getDb()
-
-        // Add a badge
-        await updateDoc(doc(db, 'users', testUid), {
-          badges: arrayUnion('e2e_test_badge'),
-        })
-
+        await updateDoc(doc(db, 'users', testUid), { badges: arrayUnion('e2e_test_badge') })
         const snap = await getDoc(doc(db, 'users', testUid))
-        const badges = snap.data()?.badges || []
-        const hasBadge = badges.includes('e2e_test_badge')
-
-        // Cleanup: remove test badge
-        await updateDoc(doc(db, 'users', testUid), {
-          badges: arrayRemove('e2e_test_badge'),
-        })
-
+        const hasBadge = (snap.data()?.badges || []).includes('e2e_test_badge')
+        await updateDoc(doc(db, 'users', testUid), { badges: arrayRemove('e2e_test_badge') })
         return { hasBadge }
-      } catch (err) {
-        return { error: err.message }
-      }
-    }, uid)
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
 
     expect(result.hasBadge).toBe(true)
   })
 
-  test('season points update separately from total', async ({ page }) => {
-    await setupAuthenticatedPage(page, TEST_ACCOUNTS.charlie.email)
-    const uid = await getCurrentUid(page)
+  test('season points update separately from total', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     const result = await page.evaluate(async (testUid) => {
       try {
         const { getDb, doc, updateDoc, getDoc } = window.__fb
         const db = getDb()
-
-        await updateDoc(doc(db, 'users', testUid), {
-          points: 100,
-          seasonPoints: 25,
-        })
-
+        await updateDoc(doc(db, 'users', testUid), { points: 100, seasonPoints: 25 })
         const snap = await getDoc(doc(db, 'users', testUid))
         const data = snap.data()
-
         return { points: data?.points, seasonPoints: data?.seasonPoints }
-      } catch (err) {
-        return { error: err.message }
-      }
-    }, uid)
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
 
     expect(result.points).toBe(100)
     expect(result.seasonPoints).toBe(25)
   })
 
-  test('merge localStorage points with Firestore on login', async ({ page }) => {
-    // Set points in localStorage before login
-    await skipOnboarding(page, { points: 50, level: 3 })
+  test('merge localStorage points with Firestore on login', async ({ page: freshPage }) => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
-    // Login (should trigger merge/sync)
-    await firebaseLogin(page, TEST_ACCOUNTS.diana.email)
-    const uid = await getCurrentUid(page)
-
-    // Check that user profile exists in Firestore
-    const profile = await firestoreGetDoc(page, 'users', uid)
+    await skipOnboarding(freshPage, { points: 50, level: 3 })
+    await firebaseLogin(freshPage, TEST_ACCOUNTS.diana.email)
+    const uid = await getCurrentUid(freshPage)
+    const profile = await firestoreGetDoc(freshPage, 'users', uid)
     expect(profile).toBeTruthy()
-    // Points should exist (either merged or Firestore value)
     expect(typeof profile.points).toBe('number')
   })
 
-  test('level is derived from points', async ({ page }) => {
-    await setupAuthenticatedPage(page, TEST_ACCOUNTS.alice.email)
-    const uid = await getCurrentUid(page)
+  test('level is derived from points', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     const result = await page.evaluate(async (testUid) => {
       try {
         const { getDb, doc, updateDoc, getDoc } = window.__fb
-        const db = getDb()
-
-        // Set high points
-        await updateDoc(doc(db, 'users', testUid), { points: 500 })
-
-        const snap = await getDoc(doc(db, 'users', testUid))
+        await updateDoc(doc(getDb(), 'users', testUid), { points: 500 })
+        const snap = await getDoc(doc(getDb(), 'users', testUid))
         return { points: snap.data()?.points }
-      } catch (err) {
-        return { error: err.message }
-      }
-    }, uid)
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
 
     expect(result.points).toBe(500)
   })
 
-  test('concurrent point updates do not corrupt data', async ({ page }) => {
-    await setupAuthenticatedPage(page, TEST_ACCOUNTS.bob.email)
-    const uid = await getCurrentUid(page)
+  test('concurrent point updates do not corrupt data', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     const result = await page.evaluate(async (testUid) => {
       try {
         const { getDb, doc, updateDoc, getDoc, increment } = window.__fb
         const db = getDb()
-
-        // Reset points
         await updateDoc(doc(db, 'users', testUid), { points: 0 })
-
-        // 5 concurrent increments of 10
         await Promise.all([
           updateDoc(doc(db, 'users', testUid), { points: increment(10) }),
           updateDoc(doc(db, 'users', testUid), { points: increment(10) }),
@@ -180,35 +145,28 @@ test.describe('Firebase Gamification', () => {
           updateDoc(doc(db, 'users', testUid), { points: increment(10) }),
           updateDoc(doc(db, 'users', testUid), { points: increment(10) }),
         ])
-
         const snap = await getDoc(doc(db, 'users', testUid))
         return { points: snap.data()?.points }
-      } catch (err) {
-        return { error: err.message }
-      }
-    }, uid)
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
 
     expect(result.points).toBe(50)
   })
 
-  test('leaderboard with seasonPoints ordering', async ({ page }) => {
-    await setupAuthenticatedPage(page, TEST_ACCOUNTS.alice.email)
+  test('leaderboard with seasonPoints ordering', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     const result = await page.evaluate(async () => {
       try {
         const { getDb, collection, getDocs, query, orderBy, limit } = window.__fb
-        const db = getDb()
-
-        const q = query(collection(db, 'users'), orderBy('seasonPoints', 'desc'), limit(5))
+        const q = query(collection(getDb(), 'users'), orderBy('seasonPoints', 'desc'), limit(5))
         const snap = await getDocs(q)
         return { count: snap.size }
-      } catch (err) {
-        // seasonPoints field might not exist on all users yet
+      } catch {
         return { count: 0, note: 'seasonPoints not indexed yet' }
       }
     })
 
-    // At minimum, the query should not crash
     expect(result).toBeTruthy()
   })
 })

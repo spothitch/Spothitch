@@ -183,6 +183,81 @@ export async function getCurrentUid(page) {
 }
 
 /**
+ * Look up a user's UID by their email address via Firestore query.
+ * Avoids needing to login as another user just to get their UID.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {string} email
+ * @returns {string|null}
+ */
+export async function getUidByEmail(page, email) {
+  return page.evaluate(async (e) => {
+    try {
+      const { getDb, collection, query, where, getDocs } = window.__fb
+      const db = getDb()
+      const q = query(collection(db, 'users'), where('email', '==', e))
+      const snap = await getDocs(q)
+      return snap.docs[0]?.id || null
+    } catch {
+      return null
+    }
+  }, email)
+}
+
+/**
+ * Create a browser context with onboarding skipped and Firebase loaded.
+ * Used in beforeAll() for shared session patterns.
+ *
+ * @param {import('@playwright/test').Browser} browser
+ * @param {string} email
+ * @param {string} [password]
+ * @returns {{ context: BrowserContext, page: Page, uid: string }}
+ */
+export async function initFirebasePage(browser, email, password) {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+  })
+  const page = await context.newPage()
+
+  await page.addInitScript(() => {
+    localStorage.setItem('spothitch_v4_state', JSON.stringify({
+      showWelcome: false, username: 'E2ETest', avatar: '🤙',
+      activeTab: 'map', theme: 'dark', lang: 'en',
+      points: 0, level: 1, badges: [], rewards: [],
+      savedTrips: [], emergencyContacts: [],
+    }))
+    localStorage.setItem('spothitch_v4_cookie_consent', JSON.stringify({
+      preferences: { necessary: true, analytics: false, marketing: false, personalization: false },
+      timestamp: Date.now(), version: '1.0',
+    }))
+    localStorage.setItem('spothitch_age_verified', 'true')
+    localStorage.setItem('spothitch_landing_v2', '1')
+    localStorage.setItem('spothitch_beta_seen', '1')
+    const featureSeen = {}
+    ;['carte','stations','add-spot','profil','amis','chat','carnet','stats','classements','niveaux','conseils','dons','hors-ligne','sos','compagnon','notif-spot','activite-amis','defis','score-confiance','avis-profils','itineraire','radar','quiz','guides','gardien','evenements','auberges'].forEach(id => { featureSeen[id] = Date.now() })
+    localStorage.setItem('spothitch_feature_seen', JSON.stringify(featureSeen))
+  })
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  await Promise.race([
+    page.waitForSelector('#app.loaded', { timeout: 10000 }).catch(() => null),
+    page.waitForSelector('nav[role="navigation"]', { timeout: 10000 }).catch(() => null),
+  ])
+  await page.evaluate(() => {
+    const app = document.getElementById('app')
+    if (app && !app.classList.contains('loaded')) app.classList.add('loaded')
+    const splash = document.getElementById('splash-screen')
+    if (splash) splash.remove()
+  })
+
+  // Login
+  await firebaseLogin(page, email, password)
+  const uid = await getCurrentUid(page)
+
+  return { context, page, uid }
+}
+
+/**
  * Clean up test data created during a test.
  * Deletes spots, conversations, reviews etc. created by the test user.
  *
