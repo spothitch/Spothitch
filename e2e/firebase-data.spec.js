@@ -381,6 +381,7 @@ test.describe('Firebase Data', () => {
       } catch (err) { return { error: err.message } }
     }, aliceUid)
 
+    expect(result.error).toBeFalsy()
     expect(result.created).toBe(true)
   })
 

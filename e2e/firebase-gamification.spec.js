@@ -39,6 +39,7 @@ test.describe('Firebase Gamification', () => {
 
   test('points sync to Firestore on login', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+    test.skip(!aliceUid, 'Login failed in beforeAll')
 
     const result = await page.evaluate(async (testUid) => {
       try {
@@ -50,6 +51,7 @@ test.describe('Firebase Gamification', () => {
       } catch (err) { return { error: err.message } }
     }, aliceUid)
 
+    expect(result.error).toBeFalsy()
     expect(result.points).toBe(42)
   })
 
