@@ -236,7 +236,7 @@ test.describe('Firebase Social', () => {
         })
         const msgsSnap = await getDocs(collection(db, 'groupConversations', groupRef.id, 'messages'))
         const firstMsg = msgsSnap.docs[0]?.data()?.text
-        for (const m of msgsSnap.docs) await deleteDoc(m.ref)
+        // Note: group messages cannot be deleted (security rules), just delete the group
         await deleteDoc(doc(db, 'groupConversations', groupRef.id))
         return { count: msgsSnap.size, text: firstMsg }
       } catch (err) { return { error: err.message } }
