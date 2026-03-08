@@ -8,7 +8,7 @@ import { skipOnboarding, navigateToTab } from './helpers.js'
 
 test.describe('Trip Planner Deep', () => {
   test.beforeEach(async ({ page }) => {
-    await skipOnboarding(page, { tab: 'travel' })
+    await skipOnboarding(page, { tab: 'challenges' })
     // Force voyage sub-tab (default is 'journal' when VITE_SHOW_BETA is unset)
     await page.evaluate(() => window.setState?.({ voyageSubTab: 'voyage' }))
     await page.waitForTimeout(2000)
