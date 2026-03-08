@@ -128,6 +128,16 @@
 > - L'historique des scores est sauvé automatiquement dans `memory/fox-history.json`
 > - Objectif : jamais de session qui commence sur une base instable
 
+> **RÈGLE #18 — COUVERTURE E2E TOTALE** (ABSOLUMENT OBLIGATOIRE) :
+> - **Carte de couverture** : `memory/e2e-coverage-map.md` contient l'inventaire COMPLET des ~200+ flux testables. La consulter AVANT et APRÈS chaque modification.
+> - **AVANT de modifier du code** : identifier tous les flux impactés dans la carte de couverture. Vérifier qu'ils ont un test E2E.
+> - **APRÈS chaque modification** : vérifier que les tests E2E des flux impactés passent encore. Si un flux change, chercher les RÉPERCUSSIONS (autres flux qui dépendent du même code) et les tester aussi.
+> - **Scan régulier** : à chaque session, scanner le code pour trouver de nouveaux flux non testés (nouveaux handlers `window.*`, nouvelles modals, nouveaux événements, nouveaux formulaires). Comparer avec la carte de couverture et ajouter les manquants.
+> - **Si un nouveau handler `window.*` est créé** → ajouter un test E2E dans la même session, pas "plus tard"
+> - **Si un test E2E échoue après une modification** → c'est un bug. Le corriger AVANT de push.
+> - **Commande de vérification** : `grep -c "test(" e2e/*.spec.js` pour compter les tests par fichier
+> - **Objectif** : 0 flux utilisateur sans test E2E. Chaque bouton, chaque formulaire, chaque geste, chaque raccourci.
+
 > **RÈGLE #8b — NOMMAGE COHÉRENT** :
 > - JAMAIS créer d'alias (`window.openX = window.showX`) — utiliser UN SEUL nom partout
 > - Quand une fonction `window.*` est créée, utiliser le MÊME nom dans : le code, les onclick HTML, les tests, le Wolf
