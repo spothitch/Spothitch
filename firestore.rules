@@ -10,63 +10,98 @@ service cloud.firestore {
         && request.resource.data.lat is number
         && request.resource.data.lng is number;
       allow update, delete: if request.auth != null
-        && request.auth.uid == resource.data.userId;
+        && request.auth.uid == resource.data.creatorId;
+
+      // Spot reviews subcollection
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth != null
+          && request.auth.uid == resource.data.userId;
+      }
+
+      // Spot validations subcollection
+      match /validations/{validationId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth != null
+          && request.auth.uid == resource.data.userId;
+      }
+
+      // Spot comments subcollection
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth != null
+          && request.auth.uid == resource.data.userId;
+      }
     }
 
     // Users collection - profiles + friends + friendRequests
     match /users/{userId} {
-      // Tout utilisateur connecté peut lire les profils (recherche d'amis)
       allow read: if request.auth != null;
-
-      // Chaque utilisateur gère son propre profil
       allow create, update: if request.auth != null
         && request.auth.uid == userId;
       allow delete: if false;
 
       // Friends subcollection
-      // L'utilisateur lit/supprime ses propres amis
-      // N'importe quel utilisateur connecté peut créer un lien (via acceptFriendRequest batch)
       match /friends/{friendId} {
         allow read, delete: if request.auth != null && request.auth.uid == userId;
         allow create, update: if request.auth != null;
       }
 
       // FriendRequests subcollection
-      // L'utilisateur lit/supprime ses propres demandes
-      // N'importe quel utilisateur connecté peut envoyer une demande
       match /friendRequests/{requestId} {
         allow read, delete: if request.auth != null && request.auth.uid == userId;
         allow create: if request.auth != null;
+        allow update: if request.auth != null;
+      }
+
+      // Favorites subcollection
+      match /favorites/{favId} {
+        allow read, write: if request.auth != null
+          && request.auth.uid == userId;
+      }
+
+      // Trips subcollection
+      match /trips/{tripId} {
+        allow read, write: if request.auth != null
+          && request.auth.uid == userId;
+      }
+
+      // FCM tokens subcollection
+      match /fcmTokens/{tokenId} {
+        allow read, write: if request.auth != null
+          && request.auth.uid == userId;
       }
     }
 
     // Direct Messages
-    // convId = [uid1, uid2].sort().join('_dm_')
     match /directMessages/{convId} {
-      // Les participants peuvent lire la conversation
       allow read: if request.auth != null
         && request.auth.uid in resource.data.participants;
-      // N'importe quel utilisateur connecté peut créer/mettre à jour (envoi de message)
       allow create, update: if request.auth != null;
+      allow delete: if request.auth != null
+        && request.auth.uid in resource.data.participants;
 
-      // Messages subcollection
       match /messages/{messageId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null
           && request.resource.data.senderId == request.auth.uid;
-        allow update, delete: if false;
+        allow update, delete: if request.auth != null
+          && request.auth.uid == resource.data.senderId;
       }
     }
 
     // Group Conversations
-    // convId généré par Firebase (addDoc)
     match /groupConversations/{groupId} {
       allow read: if request.auth != null
         && request.auth.uid in resource.data.members;
       allow create: if request.auth != null;
       allow update: if request.auth != null
         && request.auth.uid in resource.data.members;
-      allow delete: if false;
+      allow delete: if request.auth != null
+        && request.auth.uid == resource.data.creator;
 
       match /messages/{messageId} {
         allow read: if request.auth != null;
@@ -76,20 +111,7 @@ service cloud.firestore {
       }
     }
 
-    // Reviews collection
-    match /reviews/{reviewId} {
-      allow read: if true;
-      allow create: if request.auth != null
-        && request.resource.data.keys().hasAll(['spotId', 'rating', 'createdAt'])
-        && request.resource.data.rating is number
-        && request.resource.data.rating >= 1
-        && request.resource.data.rating <= 5;
-      allow update, delete: if request.auth != null
-        && request.auth.uid == resource.data.userId;
-    }
-
-    // Usernames index — public read for availability check (needed before auth)
-    // Only authenticated users can claim a username
+    // Usernames index
     match /usernames/{username} {
       allow read: if true;
       allow create: if request.auth != null
@@ -98,28 +120,87 @@ service cloud.firestore {
         && resource.data.uid == request.auth.uid;
     }
 
-    // Trips subcollection (inside users/{uid}/trips/{tripId})
-    match /users/{userId}/trips/{tripId} {
-      allow read, write: if request.auth != null
-        && request.auth.uid == userId;
-    }
-
-    // Feature Votes — aggregate counters per feature
-    // Anyone can read (public roadmap), authenticated users can update via increment
+    // Feature Votes — aggregate counters
     match /featureVotes/{featureId} {
       allow read: if true;
-      allow create, update: if request.auth != null;
+      allow create, update, delete: if request.auth != null;
     }
 
-    // Feature User Votes — individual votes ({userId}_{featureId})
-    // User can read/write their own votes
+    // Feature User Votes — individual votes
     match /featureUserVotes/{voteId} {
       allow read: if true;
       allow create: if request.auth != null
         && request.resource.data.userId == request.auth.uid;
-      allow update: if request.auth != null
+      allow update, delete: if request.auth != null
         && resource.data.userId == request.auth.uid;
-      allow delete: if false;
+    }
+
+    // Guide Tips — community travel tips
+    match /guideTips/{tipId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+    }
+
+    // Guide Votes — aggregated guide ratings
+    match /guideVotes/{voteKey} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    // Hostel Recommendations
+    match /hostel_recs/{recId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null;
+    }
+
+    // User Reviews
+    match /userReviews/{targetUid}/reviews/{reviewerUid} {
+      allow read: if true;
+      allow create, update: if request.auth != null
+        && request.auth.uid == reviewerUid;
+      allow delete: if request.auth != null
+        && (request.auth.uid == reviewerUid || request.auth.uid == targetUid);
+    }
+
+    // Reports
+    match /reports/{reportId} {
+      allow read: if false;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // Roadmap votes
+    match /roadmap_votes/{voteId} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    // Roadmap comments
+    match /roadmap_comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+    }
+
+    // Chat rooms (legacy)
+    match /chat/{room}/messages/{messageId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // Identity verifications
+    match /id_verifications/{verificationId} {
+      allow read: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
     }
   }
 }

@@ -117,7 +117,7 @@ test.describe('Firebase Security Rules', () => {
         const { getDb, collection, addDoc, deleteDoc, serverTimestamp } = window.__fb
         const ref = await addDoc(collection(getDb(), 'spots'), {
           lat: 48.0, lng: 2.0, direction: 'north', type: 'city_exit',
-          description: 'Spoofed spot', createdBy: 'fake-uid-not-me', createdAt: serverTimestamp(),
+          description: 'Spoofed spot', creatorId: 'fake-uid-not-me', createdAt: serverTimestamp(),
         })
         await deleteDoc(ref)
         return { allowed: true }
@@ -134,15 +134,15 @@ test.describe('Firebase Security Rules', () => {
       try {
         const { getDb, collection, addDoc, deleteDoc, getDocs, serverTimestamp } = window.__fb
         const db = getDb()
-        const convRef = await addDoc(collection(db, 'conversations'), {
+        const convRef = await addDoc(collection(db, 'directMessages'), {
           participants: [alice, bob], type: 'dm', createdAt: serverTimestamp(),
         })
         // Bob is logged in but this is called by Alice — try spoofed senderId
-        const msgRef = await addDoc(collection(db, 'conversations', convRef.id, 'messages'), {
+        const msgRef = await addDoc(collection(db, 'directMessages', convRef.id, 'messages'), {
           text: 'Spoofed message', senderId: bob, createdAt: serverTimestamp(),
         })
         await deleteDoc(msgRef)
-        const msgsSnap = await getDocs(collection(db, 'conversations', convRef.id, 'messages'))
+        const msgsSnap = await getDocs(collection(db, 'directMessages', convRef.id, 'messages'))
         for (const m of msgsSnap.docs) await deleteDoc(m.ref)
         await deleteDoc(convRef)
         return { spoofAllowed: true }

@@ -230,13 +230,13 @@ test.describe('Firebase Data', () => {
       try {
         const { getDb, collection, addDoc, getDoc, deleteDoc, doc, serverTimestamp } = window.__fb
         const db = getDb()
-        const ref = await addDoc(collection(db, 'hostels'), {
+        const ref = await addDoc(collection(db, 'hostel_recs'), {
           name: 'E2E Test Hostel', city: 'Paris',
           lat: 48.85, lng: 2.35, addedBy: testUid, createdAt: serverTimestamp(),
         })
-        const snap = await getDoc(doc(db, 'hostels', ref.id))
+        const snap = await getDoc(doc(db, 'hostel_recs', ref.id))
         const data = snap.data()
-        await deleteDoc(doc(db, 'hostels', ref.id))
+        await deleteDoc(doc(db, 'hostel_recs', ref.id))
         return { created: snap.exists(), name: data?.name }
       } catch (err) { return { error: err.message } }
     }, aliceUid)

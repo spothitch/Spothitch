@@ -210,6 +210,10 @@ export async function openSecondBrowser(browser, email, password) {
  */
 export async function getCurrentUid(page) {
   return page.evaluate(() => {
+    // Check Firebase Auth first (most reliable)
+    const auth = window.__fb?.getAuth?.()
+    if (auth?.currentUser?.uid) return auth.currentUser.uid
+    // Fallback to localStorage
     const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
     return state.currentUser?.uid || state.userProfile?.uid || null
   })
@@ -348,38 +352,28 @@ export async function cleanupTestData(page, uid) {
       const db = getDb()
 
       // Delete test spots created by this user
-      const spotsQuery = query(collection(db, 'spots'), where('createdBy', '==', testUid))
+      const spotsQuery = query(collection(db, 'spots'), where('creatorId', '==', testUid))
       const spotsSnap = await getDocs(spotsQuery)
       for (const d of spotsSnap.docs) {
         await deleteDoc(d.ref)
       }
 
-      // Delete test reviews
-      const reviewsQuery = query(collection(db, 'reviews'), where('userId', '==', testUid))
-      const reviewsSnap = await getDocs(reviewsQuery)
-      for (const d of reviewsSnap.docs) {
-        await deleteDoc(d.ref)
-      }
-
-      // Delete test conversations where user is a participant
-      const convsQuery = query(collection(db, 'conversations'), where('participants', 'array-contains', testUid))
+      // Delete test DM conversations where user is a participant
+      const convsQuery = query(collection(db, 'directMessages'), where('participants', 'array-contains', testUid))
       const convsSnap = await getDocs(convsQuery)
       for (const d of convsSnap.docs) {
-        // Delete messages subcollection first
-        const msgsSnap = await getDocs(collection(db, 'conversations', d.id, 'messages'))
-        for (const m of msgsSnap.docs) {
-          await deleteDoc(m.ref)
-        }
-        await deleteDoc(d.ref)
+        try {
+          const msgsSnap = await getDocs(collection(db, 'directMessages', d.id, 'messages'))
+          for (const m of msgsSnap.docs) await deleteDoc(m.ref)
+          await deleteDoc(d.ref)
+        } catch {}
       }
 
-      // Delete friend requests
-      const reqsSent = query(collection(db, 'friendRequests'), where('from', '==', testUid))
-      const reqsRecv = query(collection(db, 'friendRequests'), where('to', '==', testUid))
-      for (const q of [reqsSent, reqsRecv]) {
-        const snap = await getDocs(q)
-        for (const d of snap.docs) await deleteDoc(d.ref)
-      }
+      // Delete friend requests from own subcollection
+      try {
+        const reqsSnap = await getDocs(collection(db, 'users', testUid, 'friendRequests'))
+        for (const d of reqsSnap.docs) await deleteDoc(d.ref)
+      } catch {}
     } catch (err) {
       console.warn('cleanupTestData error:', err.message)
     }

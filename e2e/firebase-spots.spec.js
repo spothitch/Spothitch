@@ -43,7 +43,7 @@ test.describe('Firebase Spots', () => {
         if (!uid) return null
         const spotRef = await addDoc(collection(db, 'spots'), {
           lat: 48.8566, lng: 2.3522, direction: 'north', type: 'city_exit',
-          description: 'E2E test spot', createdBy: uid, createdAt: serverTimestamp(),
+          description: 'E2E test spot', creatorId: uid, createdAt: serverTimestamp(),
           rating: { safety: 4, traffic: 3, accessibility: 4 },
         })
         return spotRef.id
@@ -70,7 +70,7 @@ test.describe('Firebase Spots', () => {
       if (!uid) return null
       const ref = await addDoc(collection(db, 'spots'), {
         lat: 50.0, lng: 4.0, direction: 'south', type: 'highway',
-        description: 'E2E delete test', createdBy: uid, createdAt: serverTimestamp(),
+        description: 'E2E delete test', creatorId: uid, createdAt: serverTimestamp(),
       })
       await deleteDoc(doc(db, 'spots', ref.id))
       return ref.id
@@ -108,17 +108,23 @@ test.describe('Firebase Spots', () => {
 
     const reviewResult = await page.evaluate(async (testUid) => {
       try {
-        const { getDb, collection, addDoc, getDocs, query, where, deleteDoc, serverTimestamp } = window.__fb
+        const { getDb, collection, addDoc, getDocs, deleteDoc, serverTimestamp } = window.__fb
         const db = getDb()
-        const ref = await addDoc(collection(db, 'reviews'), {
-          spotId: 'test-spot-review', userId: testUid,
+        // Create a temp spot first
+        const spotRef = await addDoc(collection(db, 'spots'), {
+          lat: 48.86, lng: 2.36, creatorId: testUid, createdAt: serverTimestamp(),
+        })
+        // Add a review as subcollection of the spot
+        const ref = await addDoc(collection(db, 'spots', spotRef.id, 'reviews'), {
+          userId: testUid, userName: 'Alice Test',
           safety: 5, traffic: 4, accessibility: 3,
           comment: 'Great spot for E2E testing', createdAt: serverTimestamp(),
         })
-        const q = query(collection(db, 'reviews'), where('userId', '==', testUid))
-        const snap = await getDocs(q)
+        const snap = await getDocs(collection(db, 'spots', spotRef.id, 'reviews'))
         const found = snap.docs.some(d => d.id === ref.id)
-        await deleteDoc(ref)
+        // Cleanup
+        for (const d of snap.docs) await deleteDoc(d.ref)
+        await deleteDoc(spotRef)
         return { created: true, found }
       } catch (err) { return { error: err.message } }
     }, aliceUid)
@@ -137,7 +143,7 @@ test.describe('Firebase Spots', () => {
         const uid = getAuth().currentUser?.uid
         const ref = await addDoc(collection(db, 'spots'), {
           lat: 49.0, lng: 2.0, direction: 'west', type: 'city_exit',
-          description: 'Valid ratings test', createdBy: uid, createdAt: serverTimestamp(),
+          description: 'Valid ratings test', creatorId: uid, createdAt: serverTimestamp(),
           rating: { safety: 1, traffic: 5, accessibility: 3 },
         })
         await deleteDoc(ref)
@@ -160,11 +166,11 @@ test.describe('Firebase Spots', () => {
           const ref = await addDoc(collection(db, 'spots'), {
             lat: 48.0 + i * 0.1, lng: 2.0 + i * 0.1,
             direction: 'north', type: 'city_exit',
-            description: `Multi spot ${i}`, createdBy: testUid, createdAt: serverTimestamp(),
+            description: `Multi spot ${i}`, creatorId: testUid, createdAt: serverTimestamp(),
           })
           ids.push(ref.id)
         }
-        const q = query(collection(db, 'spots'), where('createdBy', '==', testUid))
+        const q = query(collection(db, 'spots'), where('creatorId', '==', testUid))
         const snap = await getDocs(q)
         const count = snap.size
         for (const id of ids) await deleteDoc(doc(db, 'spots', id))
@@ -186,7 +192,7 @@ test.describe('Firebase Spots', () => {
         const uid = getAuth().currentUser?.uid
         const ref = await addDoc(collection(db, 'spots'), {
           lat: 50.5, lng: 3.5, direction: 'south', type: 'highway',
-          description: 'Before update', createdBy: uid, createdAt: serverTimestamp(),
+          description: 'Before update', creatorId: uid, createdAt: serverTimestamp(),
         })
         await updateDoc(doc(db, 'spots', ref.id), { description: 'After update' })
         const snap = await getDoc(doc(db, 'spots', ref.id))
@@ -207,7 +213,7 @@ test.describe('Firebase Spots', () => {
       const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
       const ref = await addDoc(collection(getDb(), 'spots'), {
         lat: 51.0, lng: 3.0, direction: 'east', type: 'other',
-        description: 'Alice private spot', createdBy: getAuth().currentUser.uid,
+        description: 'Alice private spot', creatorId: getAuth().currentUser.uid,
         createdAt: serverTimestamp(),
       })
       return ref.id
