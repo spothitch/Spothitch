@@ -71,10 +71,13 @@ async function cleanup() {
 
     // Trigger Firebase module loading by opening auth modal
     await page.evaluate(() => window.openAuth?.('email'))
-    await page.waitForTimeout(2000)
+    await page.waitForTimeout(3000)
     // Close it
     await page.evaluate(() => window.closeAuth?.())
     await page.waitForTimeout(500)
+
+    // Wait for window.__fb to be available
+    await page.waitForFunction(() => !!window.__fb, { timeout: 10000 }).catch(() => {})
 
     const result = await page.evaluate(async ({ email, password }) => {
       try {
