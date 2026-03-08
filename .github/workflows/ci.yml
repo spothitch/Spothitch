@@ -301,19 +301,10 @@ jobs:
           name: dist
           path: dist/
       - name: Run Firebase E2E tests
-        run: npx playwright test --project=chromium --workers=1 e2e/firebase-auth.spec.js e2e/firebase-spots.spec.js e2e/firebase-social.spec.js e2e/firebase-gamification.spec.js e2e/firebase-security.spec.js e2e/firebase-realtime.spec.js e2e/firebase-data.spec.js
+        run: npx playwright test --project=chromium --workers=1 --retries=0 e2e/firebase-auth.spec.js e2e/firebase-spots.spec.js e2e/firebase-social.spec.js e2e/firebase-gamification.spec.js e2e/firebase-security.spec.js e2e/firebase-realtime.spec.js e2e/firebase-data.spec.js
         env:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-      - name: Cleanup test data
-        if: always()
-        continue-on-error: true
-        run: |
-          npx vite preview --port 4174 &
-          sleep 5
-          node scripts/firebase-test-cleanup.mjs
-        env:
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-          APP_URL: http://localhost:4174
+      # Cleanup removed — each test cleans its own data to minimize Firebase login count
       - uses: actions/upload-artifact@v7
         if: always()
         with:

@@ -172,19 +172,32 @@ export async function openSecondBrowser(browser, email, password) {
   // Wait for window.__fb
   await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
 
-  // Login programmatically (more reliable than UI in CI)
+  // Login programmatically with retry for rate limiting
   const pw = password || getTestPassword()
-  await page.evaluate(async ({ e, p }) => {
-    const fb = window.__fb
-    fb.initializeFirebase()
-    const result = await fb.signIn(e, p)
-    if (result.success) {
-      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-      state.currentUser = { uid: result.user.uid, email: e }
-      state.userProfile = { uid: result.user.uid, email: e }
-      localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
-    }
-  }, { e: email, p: pw })
+  const delays = [0, 5000, 15000, 30000]
+
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    if (delays[attempt] > 0) await page.waitForTimeout(delays[attempt])
+
+    const result = await page.evaluate(async ({ e, p }) => {
+      try {
+        const fb = window.__fb
+        fb.initializeFirebase()
+        const res = await fb.signIn(e, p)
+        if (!res.success) return { success: false, error: res.error }
+        const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+        state.currentUser = { uid: res.user.uid, email: e }
+        state.userProfile = { uid: res.user.uid, email: e }
+        localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+        return { success: true }
+      } catch (err) {
+        return { success: false, error: err.message }
+      }
+    }, { e: email, p: pw })
+
+    if (result.success) break
+    if (!result.error?.includes('too-many-requests')) break
+  }
 
   return { context, page }
 }
@@ -279,26 +292,38 @@ export async function initFirebasePage(browser, email, password) {
   // Wait for window.__fb to be available
   await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
 
-  // Login programmatically (bypasses UI, more reliable in CI)
+  // Login programmatically with retry for rate limiting
   const pw = password || getTestPassword()
-  const loginResult = await page.evaluate(async ({ e, p }) => {
-    try {
-      const fb = window.__fb
-      fb.initializeFirebase()
-      const result = await fb.signIn(e, p)
-      if (!result.success) return { success: false, error: result.error }
+  let loginResult
+  const maxRetries = 4
+  const delays = [0, 5000, 15000, 30000]
 
-      // Update localStorage state so the app recognizes the login
-      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-      state.currentUser = { uid: result.user.uid, email: e }
-      state.userProfile = { uid: result.user.uid, email: e }
-      localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
-
-      return { success: true, uid: result.user.uid }
-    } catch (err) {
-      return { success: false, error: err.message }
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    if (delays[attempt] > 0) {
+      await page.waitForTimeout(delays[attempt])
     }
-  }, { e: email, p: pw })
+
+    loginResult = await page.evaluate(async ({ e, p }) => {
+      try {
+        const fb = window.__fb
+        fb.initializeFirebase()
+        const result = await fb.signIn(e, p)
+        if (!result.success) return { success: false, error: result.error }
+
+        const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+        state.currentUser = { uid: result.user.uid, email: e }
+        state.userProfile = { uid: result.user.uid, email: e }
+        localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+
+        return { success: true, uid: result.user.uid }
+      } catch (err) {
+        return { success: false, error: err.message }
+      }
+    }, { e: email, p: pw })
+
+    if (loginResult.success) break
+    if (!loginResult.error?.includes('too-many-requests')) break
+  }
 
   if (!loginResult.success) {
     throw new Error(`initFirebasePage login failed: ${loginResult.error}`)
@@ -373,20 +398,31 @@ export async function cleanupTestData(page, uid) {
  */
 export async function programmaticLogin(page, email, password) {
   const pw = password || getTestPassword()
-  const result = await page.evaluate(async ({ e, p }) => {
-    try {
-      const fb = window.__fb
-      const res = await fb.signIn(e, p)
-      if (!res.success) return { success: false, error: res.error }
-      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-      state.currentUser = { uid: res.user.uid, email: e }
-      state.userProfile = { uid: res.user.uid, email: e }
-      localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
-      return { success: true, uid: res.user.uid }
-    } catch (err) {
-      return { success: false, error: err.message }
-    }
-  }, { e: email, p: pw })
+  let result
+  const delays = [0, 5000, 15000, 30000]
+
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    if (delays[attempt] > 0) await page.waitForTimeout(delays[attempt])
+
+    result = await page.evaluate(async ({ e, p }) => {
+      try {
+        const fb = window.__fb
+        const res = await fb.signIn(e, p)
+        if (!res.success) return { success: false, error: res.error }
+        const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+        state.currentUser = { uid: res.user.uid, email: e }
+        state.userProfile = { uid: res.user.uid, email: e }
+        localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+        return { success: true, uid: res.user.uid }
+      } catch (err) {
+        return { success: false, error: err.message }
+      }
+    }, { e: email, p: pw })
+
+    if (result.success) break
+    if (!result.error?.includes('too-many-requests')) break
+  }
+
   if (!result.success) throw new Error(`programmaticLogin failed: ${result.error}`)
   await page.waitForTimeout(300)
   return result.uid
