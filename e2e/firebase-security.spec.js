@@ -8,8 +8,8 @@ import { test, expect } from '@playwright/test'
 import { skipOnboarding } from './helpers.js'
 import {
   TEST_ACCOUNTS,
-  firebaseLogin,
-  firebaseLogout,
+  programmaticLogin,
+  programmaticLogout,
   getCurrentUid,
   getUidByEmail,
   initFirebasePage,
@@ -71,8 +71,8 @@ test.describe('Firebase Security Rules', () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     // Switch to Bob
-    await firebaseLogout(page)
-    await firebaseLogin(page, TEST_ACCOUNTS.bob.email)
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.bob.email)
 
     const result = await page.evaluate(async (targetUid) => {
       try {
@@ -84,16 +84,16 @@ test.describe('Firebase Security Rules', () => {
     expect(result.blocked).toBe(true)
 
     // Switch back to Alice
-    await firebaseLogout(page)
-    await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
   })
 
   test('user cannot delete another user profile', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     // Switch to Charlie briefly
-    await firebaseLogout(page)
-    await firebaseLogin(page, TEST_ACCOUNTS.charlie.email)
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.charlie.email)
 
     const result = await page.evaluate(async (targetUid) => {
       try {
@@ -105,8 +105,8 @@ test.describe('Firebase Security Rules', () => {
     expect(result.blocked).toBe(true)
 
     // Switch back to Alice
-    await firebaseLogout(page)
-    await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
   })
 
   test('spot createdBy must match authenticated user', async () => {

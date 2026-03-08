@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test'
 import { skipOnboarding } from './helpers.js'
 import {
   TEST_ACCOUNTS,
-  firebaseLogin,
+  programmaticLogin,
   getCurrentUid,
   firestoreGetDoc,
   initFirebasePage,
@@ -108,8 +108,15 @@ test.describe('Firebase Gamification', () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     await skipOnboarding(freshPage, { points: 50, level: 3 })
-    await firebaseLogin(freshPage, TEST_ACCOUNTS.diana.email)
-    const uid = await getCurrentUid(freshPage)
+
+    // Load Firebase module on fresh page
+    await freshPage.evaluate(() => window.openAuth?.('email'))
+    await freshPage.waitForTimeout(3000)
+    await freshPage.evaluate(() => window.closeAuth?.())
+    await freshPage.waitForTimeout(500)
+    await freshPage.waitForFunction(() => !!window.__fb, { timeout: 15000 })
+
+    const uid = await programmaticLogin(freshPage, TEST_ACCOUNTS.diana.email)
     const profile = await firestoreGetDoc(freshPage, 'users', uid)
     expect(profile).toBeTruthy()
     expect(typeof profile.points).toBe('number')

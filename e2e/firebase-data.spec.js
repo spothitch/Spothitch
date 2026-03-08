@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test'
 import { skipOnboarding } from './helpers.js'
 import {
   TEST_ACCOUNTS,
-  firebaseLogin,
+  programmaticLogin,
   getCurrentUid,
   firestoreGetDoc,
   initFirebasePage,
@@ -159,7 +159,14 @@ test.describe('Firebase Data', () => {
       state.points = 75
       localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
     })
-    await firebaseLogin(freshPage, TEST_ACCOUNTS.diana.email)
+    // Load Firebase module on fresh page
+    await freshPage.evaluate(() => window.openAuth?.('email'))
+    await freshPage.waitForTimeout(3000)
+    await freshPage.evaluate(() => window.closeAuth?.())
+    await freshPage.waitForTimeout(500)
+    await freshPage.waitForFunction(() => !!window.__fb, { timeout: 15000 })
+
+    await programmaticLogin(freshPage, TEST_ACCOUNTS.diana.email)
     const uid = await getCurrentUid(freshPage)
     const profile = await firestoreGetDoc(freshPage, 'users', uid)
     expect(profile).toBeTruthy()

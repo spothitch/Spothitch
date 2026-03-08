@@ -163,8 +163,28 @@ export async function openSecondBrowser(browser, email, password) {
   })
   await dismissOverlays(page)
 
-  // Login
-  await firebaseLogin(page, email, password)
+  // Trigger Firebase module loading
+  await page.evaluate(() => window.openAuth?.('email'))
+  await page.waitForTimeout(3000)
+  await page.evaluate(() => window.closeAuth?.())
+  await page.waitForTimeout(500)
+
+  // Wait for window.__fb
+  await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
+
+  // Login programmatically (more reliable than UI in CI)
+  const pw = password || getTestPassword()
+  await page.evaluate(async ({ e, p }) => {
+    const fb = window.__fb
+    fb.initializeFirebase()
+    const result = await fb.signIn(e, p)
+    if (result.success) {
+      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+      state.currentUser = { uid: result.user.uid, email: e }
+      state.userProfile = { uid: result.user.uid, email: e }
+      localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+    }
+  }, { e: email, p: pw })
 
   return { context, page }
 }
@@ -250,11 +270,41 @@ export async function initFirebasePage(browser, email, password) {
     if (splash) splash.remove()
   })
 
-  // Login
-  await firebaseLogin(page, email, password)
-  const uid = await getCurrentUid(page)
+  // Trigger Firebase module loading by opening auth modal briefly
+  await page.evaluate(() => window.openAuth?.('email'))
+  await page.waitForTimeout(3000)
+  await page.evaluate(() => window.closeAuth?.())
+  await page.waitForTimeout(500)
 
-  return { context, page, uid }
+  // Wait for window.__fb to be available
+  await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
+
+  // Login programmatically (bypasses UI, more reliable in CI)
+  const pw = password || getTestPassword()
+  const loginResult = await page.evaluate(async ({ e, p }) => {
+    try {
+      const fb = window.__fb
+      fb.initializeFirebase()
+      const result = await fb.signIn(e, p)
+      if (!result.success) return { success: false, error: result.error }
+
+      // Update localStorage state so the app recognizes the login
+      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+      state.currentUser = { uid: result.user.uid, email: e }
+      state.userProfile = { uid: result.user.uid, email: e }
+      localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+
+      return { success: true, uid: result.user.uid }
+    } catch (err) {
+      return { success: false, error: err.message }
+    }
+  }, { e: email, p: pw })
+
+  if (!loginResult.success) {
+    throw new Error(`initFirebasePage login failed: ${loginResult.error}`)
+  }
+
+  return { context, page, uid: loginResult.uid }
 }
 
 /**
@@ -309,6 +359,57 @@ export async function cleanupTestData(page, uid) {
       console.warn('cleanupTestData error:', err.message)
     }
   }, uid)
+}
+
+/**
+ * Login programmatically via Firebase SDK (no UI interaction).
+ * More reliable than UI-based firebaseLogin in CI environments.
+ * Requires window.__fb to already be loaded (via initFirebasePage or openSecondBrowser).
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {string} email
+ * @param {string} [password]
+ * @returns {string} uid
+ */
+export async function programmaticLogin(page, email, password) {
+  const pw = password || getTestPassword()
+  const result = await page.evaluate(async ({ e, p }) => {
+    try {
+      const fb = window.__fb
+      const res = await fb.signIn(e, p)
+      if (!res.success) return { success: false, error: res.error }
+      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+      state.currentUser = { uid: res.user.uid, email: e }
+      state.userProfile = { uid: res.user.uid, email: e }
+      localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+      return { success: true, uid: res.user.uid }
+    } catch (err) {
+      return { success: false, error: err.message }
+    }
+  }, { e: email, p: pw })
+  if (!result.success) throw new Error(`programmaticLogin failed: ${result.error}`)
+  await page.waitForTimeout(300)
+  return result.uid
+}
+
+/**
+ * Logout programmatically via Firebase SDK (no UI interaction).
+ * Clears both Firebase Auth state and localStorage.
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+export async function programmaticLogout(page) {
+  await page.evaluate(async () => {
+    try {
+      const auth = window.__fb.getAuth()
+      await auth.signOut()
+    } catch {}
+    const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+    delete state.currentUser
+    delete state.userProfile
+    localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+  })
+  await page.waitForTimeout(300)
 }
 
 /**

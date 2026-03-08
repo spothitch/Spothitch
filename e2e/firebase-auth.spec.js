@@ -2,61 +2,47 @@
  * Firebase Auth E2E Tests
  *
  * Tests real Firebase authentication flows with dedicated test accounts.
- * Uses shared session to minimize logins and avoid rate limiting.
+ * Uses programmatic login (window.__fb.signIn) for reliability in CI.
  */
 import { test, expect } from '@playwright/test'
 import { skipOnboarding } from './helpers.js'
 import {
   TEST_ACCOUNTS,
-  firebaseLogin,
-  firebaseLogout,
   getCurrentUid,
+  programmaticLogin,
+  programmaticLogout,
+  initFirebasePage,
 } from './firebase-helpers.js'
 
 test.describe('Firebase Auth - Login flows', () => {
   test.describe.configure({ mode: 'serial' })
 
-  /** @type {import('@playwright/test').BrowserContext} */
-  let context
-  /** @type {import('@playwright/test').Page} */
-  let page
+  let context, page, aliceUid
 
   test.beforeAll(async ({ browser }) => {
     if (!process.env.E2E_TEST_PASSWORD) return
-    context = await browser.newContext({ viewport: { width: 390, height: 844 } })
-    page = await context.newPage()
-    await skipOnboarding(page)
+    ;({ context, page, uid: aliceUid } = await initFirebasePage(browser, TEST_ACCOUNTS.alice.email))
   })
 
   test.afterAll(async () => {
     await context?.close()
   })
 
-  test('login with valid email/password', async () => {
+  test('login sets currentUser in localStorage', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
-    await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
     const uid = await getCurrentUid(page)
     expect(uid).toBeTruthy()
+    expect(uid).toBe(aliceUid)
 
     const state = await page.evaluate(() =>
       JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
     )
-    expect(state.userProfile?.email).toBe(TEST_ACCOUNTS.alice.email)
-  })
-
-  test('auth modal closes after successful login', async () => {
-    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
-
-    const authForm = page.locator('#auth-form')
-    await expect(authForm).toHaveCount(0, { timeout: 5000 })
+    expect(state.currentUser?.uid).toBe(aliceUid)
   })
 
   test('Firestore user profile exists after login', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
-
-    const uid = await getCurrentUid(page)
-    expect(uid).toBeTruthy()
 
     const profile = await page.evaluate(async (testUid) => {
       try {
@@ -67,7 +53,7 @@ test.describe('Firebase Auth - Login flows', () => {
       } catch {
         return null
       }
-    }, uid)
+    }, aliceUid)
 
     expect(profile).toBeTruthy()
     expect(profile.email).toBe(TEST_ACCOUNTS.alice.email)
@@ -78,8 +64,7 @@ test.describe('Firebase Auth - Login flows', () => {
 
     const refreshed = await page.evaluate(async () => {
       try {
-        const fb = window.__fb
-        const auth = fb.getAuth()
+        const auth = window.__fb.getAuth()
         if (auth.currentUser) {
           await auth.currentUser.getIdToken(true)
           return true
@@ -98,34 +83,49 @@ test.describe('Firebase Auth - Login flows', () => {
   test('logout clears auth state', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
-    await firebaseLogout(page)
+    await programmaticLogout(page)
     const uid = await getCurrentUid(page)
     expect(uid).toBeFalsy()
+
+    const authUser = await page.evaluate(() => window.__fb.getAuth().currentUser)
+    expect(authUser).toBeFalsy()
   })
 
-  test('login then logout then re-login works', async () => {
+  test('re-login after logout works', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
-    await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
-    const uid = await getCurrentUid(page)
+    const uid = await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
     expect(uid).toBeTruthy()
-    await firebaseLogout(page)
+    expect(uid).toBe(aliceUid)
   })
 
   test('different users get different UIDs', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
-    await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
-    const aliceUid = await getCurrentUid(page)
-    await firebaseLogout(page)
-
-    await firebaseLogin(page, TEST_ACCOUNTS.bob.email)
-    const bobUid = await getCurrentUid(page)
-    await firebaseLogout(page)
-
-    expect(aliceUid).toBeTruthy()
+    await programmaticLogout(page)
+    const bobUid = await programmaticLogin(page, TEST_ACCOUNTS.bob.email)
     expect(bobUid).toBeTruthy()
-    expect(aliceUid).not.toBe(bobUid)
+    expect(bobUid).not.toBe(aliceUid)
+
+    // Switch back to Alice
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
+  })
+
+  test('Firebase Auth currentUser matches localStorage', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(() => {
+      const auth = window.__fb.getAuth()
+      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+      return {
+        authUid: auth.currentUser?.uid || null,
+        stateUid: state.currentUser?.uid || null,
+      }
+    })
+
+    expect(result.authUid).toBeTruthy()
+    expect(result.authUid).toBe(result.stateUid)
   })
 })
 

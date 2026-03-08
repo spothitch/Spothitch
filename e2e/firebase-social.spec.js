@@ -7,8 +7,8 @@
 import { test, expect } from '@playwright/test'
 import {
   TEST_ACCOUNTS,
-  firebaseLogin,
-  firebaseLogout,
+  programmaticLogin,
+  programmaticLogout,
   getCurrentUid,
   cleanupTestData,
   getUidByEmail,
@@ -138,8 +138,8 @@ test.describe('Firebase Social', () => {
     }, { alice: aliceUid, bob: bobUid })
 
     // Switch to Charlie
-    await firebaseLogout(page)
-    await firebaseLogin(page, TEST_ACCOUNTS.charlie.email)
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.charlie.email)
 
     const readResult = await page.evaluate(async (cid) => {
       try {
@@ -153,8 +153,8 @@ test.describe('Firebase Social', () => {
     expect(readResult.blocked === true || readResult.msgCount === 0).toBeTruthy()
 
     // Switch back to Alice and cleanup
-    await firebaseLogout(page)
-    await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
     await page.evaluate(async (cid) => {
       const { getDb, collection, getDocs, deleteDoc, doc } = window.__fb
       const msgsSnap = await getDocs(collection(getDb(), 'conversations', cid, 'messages'))

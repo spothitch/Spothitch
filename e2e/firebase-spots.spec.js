@@ -7,8 +7,8 @@
 import { test, expect } from '@playwright/test'
 import {
   TEST_ACCOUNTS,
-  firebaseLogin,
-  firebaseLogout,
+  programmaticLogin,
+  programmaticLogout,
   getCurrentUid,
   cleanupTestData,
   firestoreDocExists,
@@ -215,8 +215,8 @@ test.describe('Firebase Spots', () => {
     expect(spotId).toBeTruthy()
 
     // Switch to Bob
-    await firebaseLogout(page)
-    await firebaseLogin(page, TEST_ACCOUNTS.bob.email)
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.bob.email)
 
     const deleteResult = await page.evaluate(async (sid) => {
       try {
@@ -228,8 +228,8 @@ test.describe('Firebase Spots', () => {
     expect(deleteResult.success).toBe(false)
 
     // Switch back to Alice and cleanup
-    await firebaseLogout(page)
-    await firebaseLogin(page, TEST_ACCOUNTS.alice.email)
+    await programmaticLogout(page)
+    await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
     await page.evaluate(async (sid) => {
       await window.__fb.deleteDoc(window.__fb.doc(window.__fb.getDb(), 'spots', sid))
     }, spotId)
