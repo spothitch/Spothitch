@@ -54,24 +54,24 @@ test.describe('Firebase Social', () => {
   test('accept friend request updates status', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
-    const result = await page.evaluate(async ({ from, to }) => {
+    // Create a request in Alice's OWN subcollection (she can read/write/delete her own)
+    const result = await page.evaluate(async ({ from, aliceUid }) => {
       try {
-        const { getDb, collection, addDoc, doc, updateDoc, getDoc, deleteDoc, serverTimestamp } = window.__fb
+        const { getDb, collection, addDoc, getDoc, updateDoc, deleteDoc, serverTimestamp } = window.__fb
         const db = getDb()
-        // Create request in Bob's subcollection, then switch to Bob to update
-        const ref = await addDoc(collection(db, 'users', to, 'friendRequests'), {
-          from, to, status: 'pending', createdAt: serverTimestamp(),
+        const ref = await addDoc(collection(db, 'users', aliceUid, 'friendRequests'), {
+          from, to: aliceUid, status: 'pending', createdAt: serverTimestamp(),
         })
-        // Alice can't update Bob's friendRequests (security), so test the data structure
-        // In real app, Bob would accept. Here we just verify write/read works
+        // Alice can read and update her own friendRequests
+        await updateDoc(ref, { status: 'accepted' })
         const snap = await getDoc(ref)
         const status = snap.data()?.status
         await deleteDoc(ref)
-        return { created: status === 'pending' }
+        return { accepted: status === 'accepted' }
       } catch (err) { return { error: err.message } }
-    }, { from: aliceUid, to: bobUid })
+    }, { from: bobUid, aliceUid })
 
-    expect(result.created).toBe(true)
+    expect(result.accepted).toBe(true)
   })
 
   test('reject friend request updates status', async () => {
