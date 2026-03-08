@@ -269,6 +269,54 @@ test.describe('Firebase Social', () => {
     expect(result.memberCount).toBe(1)
   })
 
+  test('friends list bidirectional write', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async ({ alice, bob }) => {
+      try {
+        const { getDb, doc, setDoc, getDoc, deleteDoc, writeBatch, serverTimestamp } = window.__fb
+        const db = getDb()
+        const batch = writeBatch(db)
+        batch.set(doc(db, 'users', alice, 'friends', bob), {
+          name: 'Bob Test', addedAt: serverTimestamp(),
+        })
+        batch.set(doc(db, 'users', bob, 'friends', alice), {
+          name: 'Alice Test', addedAt: serverTimestamp(),
+        })
+        await batch.commit()
+        const aliceSnap = await getDoc(doc(db, 'users', alice, 'friends', bob))
+        const hasFriend = aliceSnap.exists()
+        await deleteDoc(doc(db, 'users', alice, 'friends', bob))
+        return { hasFriend, name: aliceSnap.data()?.name }
+      } catch (err) { return { error: err.message } }
+    }, { alice: aliceUid, bob: bobUid })
+
+    expect(result.hasFriend).toBe(true)
+    expect(result.name).toBe('Bob Test')
+  })
+
+  test('user review write and read', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async ({ alice, bob }) => {
+      try {
+        const { getDb, doc, setDoc, getDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
+        await setDoc(doc(db, 'userReviews', bob, 'reviews', alice), {
+          rating: 5, comment: 'Great hitchhiker!', reviewerUid: alice, createdAt: serverTimestamp(),
+        })
+        const snap = await getDoc(doc(db, 'userReviews', bob, 'reviews', alice))
+        const data = snap.data()
+        await deleteDoc(doc(db, 'userReviews', bob, 'reviews', alice))
+        return { exists: snap.exists(), rating: data?.rating, comment: data?.comment }
+      } catch (err) { return { error: err.message } }
+    }, { alice: aliceUid, bob: bobUid })
+
+    expect(result.exists).toBe(true)
+    expect(result.rating).toBe(5)
+    expect(result.comment).toBe('Great hitchhiker!')
+  })
+
   test('share spot location creates share record', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 

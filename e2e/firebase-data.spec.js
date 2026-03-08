@@ -298,4 +298,222 @@ test.describe('Firebase Data', () => {
     expect(result.allExist).toBe(true)
     expect(result.count).toBe(3)
   })
+
+  test('chat room message write', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, getDocs, serverTimestamp } = window.__fb
+        const db = getDb()
+        const room = `e2e-room-${Date.now()}`
+        await addDoc(collection(db, 'chat', room, 'messages'), {
+          userId: testUid, text: 'Hello chat room!', timestamp: serverTimestamp(),
+        })
+        const snap = await getDocs(collection(db, 'chat', room, 'messages'))
+        const text = snap.docs[0]?.data()?.text
+        // chat messages cannot be deleted (allow delete: if false)
+        return { count: snap.size, text }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.count).toBe(1)
+    expect(result.text).toBe('Hello chat room!')
+  })
+
+  test('roadmap vote CRUD', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
+        const db = getDb()
+        const voteId = `roadmap-e2e-${testUid}`
+        await setDoc(doc(db, 'roadmap_votes', voteId), {
+          userId: testUid, featureId: 'e2e-feature', vote: 'essential',
+        })
+        const snap = await getDoc(doc(db, 'roadmap_votes', voteId))
+        const vote = snap.data()?.vote
+        await deleteDoc(doc(db, 'roadmap_votes', voteId))
+        return { exists: snap.exists(), vote }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.exists).toBe(true)
+    expect(result.vote).toBe('essential')
+  })
+
+  test('roadmap comment write and read', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, getDoc, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const ref = await addDoc(collection(db, 'roadmap_comments'), {
+          featureId: 'e2e-feature', userId: testUid,
+          text: 'E2E roadmap comment', timestamp: serverTimestamp(),
+        })
+        const snap = await getDoc(doc(db, 'roadmap_comments', ref.id))
+        const text = snap.data()?.text
+        await deleteDoc(doc(db, 'roadmap_comments', ref.id))
+        return { exists: snap.exists(), text }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.exists).toBe(true)
+    expect(result.text).toBe('E2E roadmap comment')
+  })
+
+  test('feedback submission', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const ref = await addDoc(collection(db, 'feedback'), {
+          userId: testUid, topic: 'e2e-test', message: 'E2E feedback message',
+          timestamp: serverTimestamp(),
+        })
+        // feedback is write-then-read (admin reads), verify addDoc succeeded
+        return { created: !!ref.id }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.created).toBe(true)
+  })
+
+  test('guide report submission', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const ref = await addDoc(collection(db, 'guide_reports'), {
+          guideId: 'e2e-guide', reportedBy: testUid,
+          reason: 'E2E test report', timestamp: serverTimestamp(),
+        })
+        // guide_reports are write-only (allow read: if false)
+        return { created: !!ref.id }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.created).toBe(true)
+  })
+
+  test('feature user vote (individual)', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
+        const db = getDb()
+        const voteId = `${testUid}_e2e-feature`
+        await setDoc(doc(db, 'featureUserVotes', voteId), {
+          userId: testUid, featureId: 'e2e-feature', vote: 'useful',
+          comment: 'Would be great!',
+        })
+        const snap = await getDoc(doc(db, 'featureUserVotes', voteId))
+        const data = snap.data()
+        await deleteDoc(doc(db, 'featureUserVotes', voteId))
+        return { exists: snap.exists(), vote: data?.vote, comment: data?.comment }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.exists).toBe(true)
+    expect(result.vote).toBe('useful')
+  })
+
+  test('feature opinion write', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, getDoc, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const ref = await addDoc(collection(db, 'featureOpinions'), {
+          userId: testUid, featureId: 'e2e-feature',
+          opinion: 'Love this idea!', timestamp: serverTimestamp(),
+        })
+        const snap = await getDoc(doc(db, 'featureOpinions', ref.id))
+        const opinion = snap.data()?.opinion
+        await deleteDoc(doc(db, 'featureOpinions', ref.id))
+        return { exists: snap.exists(), opinion }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.exists).toBe(true)
+    expect(result.opinion).toBe('Love this idea!')
+  })
+
+  test('identity verification submission', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, getDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const ref = await addDoc(collection(db, 'id_verifications'), {
+          userId: testUid, status: 'pending',
+          selfieUrl: 'https://example.com/selfie.jpg',
+          idUrl: 'https://example.com/id.jpg',
+          timestamp: serverTimestamp(),
+        })
+        const snap = await getDoc(doc(db, 'id_verifications', ref.id))
+        const status = snap.data()?.status
+        // id_verifications cannot be deleted (allow delete: if false)
+        return { exists: snap.exists(), status }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.exists).toBe(true)
+    expect(result.status).toBe('pending')
+  })
+
+  test('FCM token save and delete', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, doc, setDoc, getDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const tokenHash = `e2e-token-${Date.now()}`
+        await setDoc(doc(db, 'users', testUid, 'fcmTokens', tokenHash), {
+          token: 'fake-fcm-token-e2e', createdAt: serverTimestamp(),
+        })
+        const snap = await getDoc(doc(db, 'users', testUid, 'fcmTokens', tokenHash))
+        const exists = snap.exists()
+        await deleteDoc(doc(db, 'users', testUid, 'fcmTokens', tokenHash))
+        const snapAfter = await getDoc(doc(db, 'users', testUid, 'fcmTokens', tokenHash))
+        return { saved: exists, deleted: !snapAfter.exists() }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.saved).toBe(true)
+    expect(result.deleted).toBe(true)
+  })
+
+  test('per-user guide vote write', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, doc, setDoc, getDoc, deleteDoc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const voteKey = `guide-safety_france`
+        await setDoc(doc(db, 'users', testUid, 'guideVotes', voteKey), {
+          direction: 'up', votedAt: serverTimestamp(),
+        })
+        const snap = await getDoc(doc(db, 'users', testUid, 'guideVotes', voteKey))
+        const direction = snap.data()?.direction
+        await deleteDoc(doc(db, 'users', testUid, 'guideVotes', voteKey))
+        return { exists: snap.exists(), direction }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.exists).toBe(true)
+    expect(result.direction).toBe('up')
+  })
 })

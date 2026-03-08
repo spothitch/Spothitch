@@ -205,6 +205,74 @@ test.describe('Firebase Spots', () => {
     expect(result.updated).toBe(true)
   })
 
+  test('spot validation (check-in) writes to subcollection', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const spotRef = await addDoc(collection(db, 'spots'), {
+          lat: 48.87, lng: 2.37, creatorId: testUid, createdAt: serverTimestamp(),
+        })
+        const valRef = await addDoc(collection(db, 'spots', spotRef.id, 'validations'), {
+          userId: testUid, timestamp: serverTimestamp(), validationCount: 1,
+        })
+        const snap = await getDocs(collection(db, 'spots', spotRef.id, 'validations'))
+        const count = snap.size
+        for (const d of snap.docs) await deleteDoc(d.ref)
+        await deleteDoc(doc(db, 'spots', spotRef.id))
+        return { count, hasValidation: count >= 1 }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.hasValidation).toBe(true)
+  })
+
+  test('spot comment writes to subcollection', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const spotRef = await addDoc(collection(db, 'spots'), {
+          lat: 48.88, lng: 2.38, creatorId: testUid, createdAt: serverTimestamp(),
+        })
+        await addDoc(collection(db, 'spots', spotRef.id, 'comments'), {
+          userId: testUid, text: 'E2E comment test', spotId: spotRef.id, createdAt: serverTimestamp(),
+        })
+        const snap = await getDocs(collection(db, 'spots', spotRef.id, 'comments'))
+        const text = snap.docs[0]?.data()?.text
+        for (const d of snap.docs) await deleteDoc(d.ref)
+        await deleteDoc(doc(db, 'spots', spotRef.id))
+        return { count: snap.size, text }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.count).toBe(1)
+    expect(result.text).toBe('E2E comment test')
+  })
+
+  test('report spot creates report document', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    const result = await page.evaluate(async (testUid) => {
+      try {
+        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+        const db = getDb()
+        const ref = await addDoc(collection(db, 'reports'), {
+          type: 'spot', spotId: 'e2e-fake-spot', userId: testUid,
+          reason: 'E2E test report', details: 'Testing report flow', createdAt: serverTimestamp(),
+        })
+        // reports are write-only (allow read: if false), so just verify addDoc succeeded
+        return { created: !!ref.id }
+      } catch (err) { return { error: err.message } }
+    }, aliceUid)
+
+    expect(result.created).toBe(true)
+  })
+
   test('Bob cannot delete Alice spot (security rules)', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
