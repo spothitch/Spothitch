@@ -37,21 +37,18 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ from, to }) => {
       try {
-        const { getDb, collection, addDoc, getDocs, deleteDoc, serverTimestamp } = window.__fb
+        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
         const db = getDb()
         // Write to recipient's friendRequests subcollection
         const ref = await addDoc(collection(db, 'users', to, 'friendRequests'), {
           from, to, status: 'pending', createdAt: serverTimestamp(),
         })
-        const snap = await getDocs(collection(db, 'users', to, 'friendRequests'))
-        const found = snap.docs.some(d => d.data().from === from)
-        await deleteDoc(ref)
-        return { sent: true, found }
+        // addDoc succeeded = write worked. Alice can't read/delete Bob's subcollection (security rules)
+        return { sent: !!ref.id }
       } catch (err) { return { error: err.message } }
     }, { from: aliceUid, to: bobUid })
 
     expect(result.sent).toBe(true)
-    expect(result.found).toBe(true)
   })
 
   test('accept friend request updates status', async () => {

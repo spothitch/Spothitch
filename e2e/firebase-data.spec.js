@@ -104,22 +104,30 @@ test.describe('Firebase Data', () => {
 
     const testUsername = `e2e-unique-${Date.now()}`
 
+    // Ensure auth is still valid
+    const authCheck = await page.evaluate(() => !!window.__fb.getAuth().currentUser?.uid)
+    expect(authCheck).toBe(true)
+
     const result = await page.evaluate(async ({ testUid, username }) => {
       try {
-        const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
-        const db = getDb()
-        await setDoc(doc(db, 'usernames', username), { uid: testUid })
-        const snap = await getDoc(doc(db, 'usernames', username))
+        const fb = window.__fb
+        const db = fb.getDb()
+        const authUid = fb.getAuth().currentUser?.uid
+        if (!authUid) return { error: 'auth lost' }
+        // Use auth uid directly (not testUid) to match Firestore rules
+        await fb.setDoc(fb.doc(db, 'usernames', username), { uid: authUid })
+        const snap = await fb.getDoc(fb.doc(db, 'usernames', username))
         const reserved = snap.exists()
         let overwriteBlocked = false
         try {
-          await setDoc(doc(db, 'usernames', username), { uid: 'different-uid' })
+          await fb.setDoc(fb.doc(db, 'usernames', username), { uid: 'different-uid' })
         } catch { overwriteBlocked = true }
-        await deleteDoc(doc(db, 'usernames', username))
+        await fb.deleteDoc(fb.doc(db, 'usernames', username))
         return { reserved, overwriteBlocked }
-      } catch (err) { return { error: err.message } }
+      } catch (err) { return { error: err.message, code: err.code } }
     }, { testUid: aliceUid, username: testUsername })
 
+    if (result.error) console.log('Username test error:', result.error, result.code)
     expect(result.reserved).toBe(true)
   })
 
