@@ -1,68 +1,68 @@
 #!/usr/bin/env sh
 
-# Pre-push hook: smart quality check before pushing
-# - feature/* branches: wiring tests only (~30s)
-# - dev/main branches: Fox quick check (~8-10 min)
-# Blocks push if checks fail
+# Pre-push hook: wiring tests before every push (~9s)
+# - main branch: Fox quick check (~8-10 min) for production safety
+# - All other branches: wiring tests only
+# - Full Fox available anytime via: node scripts/fox.mjs --quick
 # NOTE: husky runs hooks with sh (dash), not bash — use POSIX syntax only
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Feature/hotfix branches: lightweight check only (wiring tests)
+# main branch: Fox quick check (production safety net)
 case "$BRANCH" in
-  feature/*|hotfix/*)
+  main)
     echo ""
-    echo "⚡ Quick check for $BRANCH (wiring tests only)..."
+    echo "🦊 Fox quick check before push to main..."
     echo ""
 
-    npx vitest run tests/wiring/ --reporter=dot 2>&1 | tail -5
-    WIRING_EXIT=$?
+    # Check if dev server is running on port 5173
+    if ! curl -s http://localhost:5173 > /dev/null 2>&1; then
+      echo "⚠️  No dev server on :5173 — starting preview server..."
+      npx vite preview --port 5173 &
+      SERVER_PID=$!
+      sleep 3
+      STARTED_SERVER=true
+    else
+      STARTED_SERVER=false
+    fi
 
-    if [ $WIRING_EXIT -ne 0 ]; then
+    node scripts/fox.mjs --quick
+    FOX_EXIT=$?
+
+    # Clean up server if we started it
+    if [ "$STARTED_SERVER" = true ] && [ -n "$SERVER_PID" ]; then
+      kill $SERVER_PID 2>/dev/null
+    fi
+
+    if [ $FOX_EXIT -ne 0 ]; then
       echo ""
-      echo "❌ Wiring tests failed. Push blocked."
+      echo "❌ Fox quick check failed (score < 80). Push blocked."
+      echo "   Fix the issues and try again."
+      echo ""
       exit 1
     fi
 
     echo ""
-    echo "✅ Quick check passed. Pushing..."
+    echo "✅ Fox quick check passed. Pushing to main..."
     echo ""
     exit 0
     ;;
 esac
 
-# dev/main branches: full Fox quick check
+# All other branches (feature/*, hotfix/*, dev): wiring tests only (~9s)
 echo ""
-echo "🦊 Fox quick check before push..."
+echo "⚡ Quick check for $BRANCH (wiring tests)..."
 echo ""
 
-# Check if dev server is running on port 5173
-if ! curl -s http://localhost:5173 > /dev/null 2>&1; then
-  echo "⚠️  No dev server on :5173 — starting preview server..."
-  npx vite preview --port 5173 &
-  SERVER_PID=$!
-  sleep 3
-  STARTED_SERVER=true
-else
-  STARTED_SERVER=false
-fi
+npx vitest run tests/wiring/ --reporter=dot 2>&1 | tail -5
+WIRING_EXIT=$?
 
-node scripts/fox.mjs --quick
-FOX_EXIT=$?
-
-# Clean up server if we started it
-if [ "$STARTED_SERVER" = true ] && [ -n "$SERVER_PID" ]; then
-  kill $SERVER_PID 2>/dev/null
-fi
-
-if [ $FOX_EXIT -ne 0 ]; then
+if [ $WIRING_EXIT -ne 0 ]; then
   echo ""
-  echo "❌ Fox quick check failed (score < 80). Push blocked."
-  echo "   Fix the issues and try again."
-  echo ""
+  echo "❌ Wiring tests failed. Push blocked."
   exit 1
 fi
 
 echo ""
-echo "✅ Fox quick check passed. Pushing..."
+echo "✅ Quick check passed. Pushing..."
 echo ""
