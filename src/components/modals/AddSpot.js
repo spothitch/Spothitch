@@ -25,70 +25,153 @@ function detectSeason() {
 }
 
 /**
- * Render interactive star rating for a criterion
+ * Render segmented bar rating for a criterion (v3 design)
  */
-function renderStarInput(criterion, label) {
+function renderBarRating(criterion, label) {
+  const currentValue = window.spotFormData?.ratings?.[criterion] || 0
   return `
-    <div class="mb-3">
-      <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1">${label} <span class="text-amber-400">*</span></label>
-      <div class="flex items-center gap-1" role="radiogroup" aria-label="${label}">
-        ${[1, 2, 3, 4, 5].map(star => `
+    <div style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px">${label} <span style="color:#f59e0b">*</span></span>
+        <span style="font-size:12px;color:#f59e0b" id="spot-rating-value-${criterion}">${currentValue ? currentValue + '/5' : ''}</span>
+      </div>
+      <div style="display:flex;gap:4px" role="radiogroup" aria-label="${label}">
+        ${[1, 2, 3, 4, 5].map(val => `
           <button
             type="button"
-            onclick="setSpotRating('${criterion}', ${star})"
-            class="spot-star-btn text-2xl text-slate-400 hover:text-yellow-400 transition-colors"
+            onclick="setSpotRating('${criterion}', ${val})"
+            class="spot-star-btn"
             data-criterion="${criterion}"
-            data-star="${star}"
-            aria-label="${star}/5"
-          >
-            ${icon('star', 'w-5 h-5')}
-          </button>
+            data-star="${val}"
+            aria-label="${val}/5"
+            style="flex:1;height:4px;border-radius:2px;background:${val <= currentValue ? '#f59e0b' : '#1a1f2e'};border:none;cursor:pointer;padding:0"
+          ></button>
         `).join('')}
-        <span class="ml-2 text-sm text-white font-medium" id="spot-rating-value-${criterion}"></span>
       </div>
-      <p class="text-xs text-slate-400 mt-1 min-h-[1.25rem]" id="spot-rating-desc-${criterion}" aria-live="polite"></p>
+      <p style="font-size:11px;color:#64748b;margin-top:4px;min-height:1.25rem" id="spot-rating-desc-${criterion}" aria-live="polite"></p>
     </div>
   `
 }
 
 /**
- * Render step progress indicator
+ * Render v3 amber stepper (3 circles connected by lines)
  */
 function renderStepProgress(currentStep) {
-  const steps = [1, 2, 3]
-  const labels = [
-    t('stepPhotoType') || 'Photo & Type',
-    t('stepExperience') || 'Experience',
-    t('stepDetails') || 'Details',
+  const stepTitles = [
+    t('stepWhereIsSpot') || 'Où est le spot ?',
+    t('stepExperience') || 'Ton expérience',
+    t('stepDetails') || 'Derniers détails',
   ]
   return `
-    <div class="flex items-center justify-center gap-1 mb-4">
-      ${steps.map((step, i) => {
-        const dotClass = step < currentStep ? 'completed' : step === currentStep ? 'current' : 'pending'
-        const lineClass = step <= currentStep ? 'completed' : 'pending'
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+      ${[1, 2, 3].map((step, i) => {
+        const isActive = step === currentStep
+        const isDone = step < currentStep
+        const circleStyle = isActive
+          ? 'background:#f59e0b;color:#0f1520;font-weight:700'
+          : isDone
+            ? 'background:rgba(245,158,11,0.27);color:#f59e0b'
+            : 'background:#1a1f2e;color:#475569'
+        const lineStyle = isDone
+          ? 'background:#f59e0b'
+          : step === currentStep
+            ? 'background:linear-gradient(90deg,#f59e0b,#334155)'
+            : 'background:#1a1f2e'
         return `
-          ${i > 0 ? `<div class="step-line ${lineClass}"></div>` : ''}
-          <div class="step-dot ${dotClass}" title="${labels[i]}"></div>
+          ${i > 0 ? `<div style="flex:1;height:1px;${lineStyle}"></div>` : ''}
+          <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;${circleStyle};flex-shrink:0" title="${stepTitles[i]}">${step}</div>
         `
       }).join('')}
     </div>
-    <p class="text-center text-xs text-slate-400 mb-4">${labels[currentStep - 1]}</p>
+    <div style="font-size:22px;font-weight:300;color:#e2e8f0;margin-bottom:28px">${stepTitles[currentStep - 1]}</div>
   `
 }
 
 /**
- * Render Step 1: Photo + Type + Position + Departure City
+ * Render Step 1: Type + City + Position + Photo (v3 underline design)
  */
 function renderStep1(state) {
   const spotType = state.addSpotType || ''
   return `
     <div class="step-transition">
-      <!-- Photo (recommended, up to 3) -->
-      <div>
-        <label for="spot-photo" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${t('photoLabel') || 'Photo du spot'}
-          <span class="text-xs normal-case text-slate-500 ml-1">(${t('recommended') || 'recommandé'})</span>
-        </label>
+      <!-- Spot Type — 2x2 grid -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('spotTypeLabel')} <span style="color:#f59e0b">*</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button type="button" onclick="selectSpotType('city_exit')"
+            class="spot-type-btn ${spotType === 'city_exit' ? 'active' : ''}"
+            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === 'city_exit' ? '#f59e0b' : '#1a1f2e'};background:${spotType === 'city_exit' ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === 'city_exit' ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('spotTypeCityExit')}
+          </button>
+          <button type="button" onclick="selectSpotType('gas_station')"
+            class="spot-type-btn ${spotType === 'gas_station' ? 'active' : ''}"
+            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === 'gas_station' ? '#f59e0b' : '#1a1f2e'};background:${spotType === 'gas_station' ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === 'gas_station' ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('spotTypeGasStation')}
+          </button>
+          <button type="button" onclick="selectSpotType('highway')"
+            class="spot-type-btn ${spotType === 'highway' ? 'active' : ''}"
+            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === 'highway' ? '#f59e0b' : '#1a1f2e'};background:${spotType === 'highway' ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === 'highway' ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('spotTypeHighway')}
+          </button>
+          <button type="button" onclick="selectSpotType('custom')"
+            class="spot-type-btn ${spotType === 'custom' ? 'active' : ''}"
+            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === 'custom' ? '#f59e0b' : '#1a1f2e'};background:${spotType === 'custom' ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === 'custom' ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('spotTypeCustom')}
+          </button>
+        </div>
+        <button type="button" onclick="autoDetectRoad()" style="width:100%;margin-top:8px;padding:8px 0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.1);font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+          ${icon('crosshair', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
+        </button>
+      </div>
+
+      <!-- Station Name (gas_station only) -->
+      ${spotType === 'gas_station' ? `
+        <div style="margin-bottom:24px">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('stationNameLabel')} <span style="color:#f59e0b">*</span></div>
+          <input
+            type="text"
+            id="spot-station-name"
+            name="stationName"
+            style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none"
+            placeholder="${t('stationNamePlaceholder')}"
+            maxlength="100"
+            value="${window.spotFormData?.stationName || ''}"
+            oninput="window.spotFormData.stationName = this.value"
+          />
+        </div>
+      ` : ''}
+
+      <!-- Departure City — underline input -->
+      <div style="margin-bottom:24px" class="relative">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('departureCity') || 'Ville'} <span style="color:#f59e0b">*</span></div>
+        <input
+          type="text"
+          id="spot-departure-city"
+          name="departureCity"
+          style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none"
+          placeholder="${t('departureCity') || 'Ville de départ'}"
+          required
+          aria-required="true"
+        />
+      </div>
+
+      <!-- GPS Position — map placeholder -->
+      ${renderPositionBlock()}
+
+      <!-- Position summary (if set) -->
+      ${window.spotFormData?.lat && window.spotFormData?.departureCity ? `
+        <div style="padding:10px 0;border-bottom:1px solid #1a1f2e;margin-bottom:20px">
+          <span style="font-size:14px;color:#e2e8f0">${escapeHTML(spotType === 'city_exit' ? (t('leavingCity') || 'Sortir de') + ' ' + window.spotFormData.departureCity : window.spotFormData.departureCity)}</span>
+          <span style="color:#334155"> · </span>
+          <span style="font-size:13px;color:#64748b">${t('position') || 'Position'}: ${window.spotFormData.locationName || window.spotFormData.departureCity}</span>
+        </div>
+      ` : ''}
+
+      <!-- Photo — dashed underline zone -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">
+          ${t('photoLabel') || 'Photo'} <span style="font-size:10px;color:#334155;text-transform:none;letter-spacing:0">(${t('recommended') || 'recommandé'})</span>
+        </div>
         <input
           type="file"
           id="spot-photo"
@@ -101,26 +184,23 @@ function renderStep1(state) {
         ${(window.spotFormData?.photos?.length || 0) < 3 ? `
         <div
           id="photo-upload"
-          class="photo-upload"
           onclick="triggerPhotoUpload()"
           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();triggerPhotoUpload();}"
           role="button"
           tabindex="0"
           aria-label="${t('clickToAddPhoto') || 'Cliquez pour ajouter une photo'}"
+          style="border-bottom:1px dashed #334155;padding:14px 0;text-align:center;color:#475569;font-size:12px;cursor:pointer"
         >
-          <div>
-            ${icon('camera', 'w-10 h-10 text-slate-400 mb-2')}
-            <p class="text-slate-400">${t('takePhoto')}</p>
-            <p class="text-slate-400 text-sm" id="photo-help">${t('chooseFromGallery')}</p>
-          </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" style="vertical-align:middle;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          ${t('addPhoto') || 'Ajouter une photo'}
         </div>
         ` : ''}
-        <div id="photo-preview" class="flex gap-2 mt-2 flex-wrap">
+        <div id="photo-preview" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
           ${(window.spotFormData?.photos || []).map((p, i) => `
-            <div class="relative w-24 h-24 rounded-lg overflow-hidden border border-white/10">
-              <img src="${p}" alt="Photo ${i + 1}" class="w-full h-full object-cover" />
+            <div style="position:relative;width:96px;height:96px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)">
+              <img src="${p}" alt="Photo ${i + 1}" style="width:100%;height:100%;object-fit:cover" />
               <button type="button" onclick="removeSpotPhoto(${i})"
-                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center text-red-400 hover:text-red-300"
+                style="position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;color:#f87171;border:none;cursor:pointer"
                 aria-label="${t('close') || 'Supprimer'}">
                 ${icon('x', 'w-4 h-4')}
               </button>
@@ -129,92 +209,26 @@ function renderStep1(state) {
         </div>
       </div>
 
-      <!-- Spot Type -->
-      <div>
-        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-3">${t('spotTypeLabel')} <span class="text-amber-400">*</span></label>
-        <div class="spot-type-grid">
-          <button type="button" onclick="selectSpotType('city_exit')"
-            class="spot-type-btn ${spotType === 'city_exit' ? 'active' : ''}">
-            ${icon('building-2', 'w-5 h-5')}
-            <span class="text-xs font-medium">${t('spotTypeCityExit')}</span>
-          </button>
-          <button type="button" onclick="selectSpotType('gas_station')"
-            class="spot-type-btn ${spotType === 'gas_station' ? 'active' : ''}">
-            ${icon('fuel', 'w-5 h-5')}
-            <span class="text-xs font-medium">${t('spotTypeGasStation')}</span>
-          </button>
-          <button type="button" onclick="selectSpotType('highway')"
-            class="spot-type-btn ${spotType === 'highway' ? 'active' : ''}">
-            ${icon('route', 'w-5 h-5')}
-            <span class="text-xs font-medium">${t('spotTypeHighway')}</span>
-          </button>
-          <button type="button" onclick="selectSpotType('custom')"
-            class="spot-type-btn ${spotType === 'custom' ? 'active' : ''}">
-            ${icon('map-pin', 'w-5 h-5')}
-            <span class="text-xs font-medium">${t('spotTypeCustom')}</span>
-          </button>
-        </div>
-        <button type="button" onclick="autoDetectRoad()" class="w-full mt-2 py-2 px-3 bg-transparent border-b border-white/10 text-xs text-slate-500 hover:text-amber-400 transition-colors flex items-center justify-center gap-2">
-          ${icon('crosshair', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
-        </button>
+      <!-- Info tip -->
+      <div style="font-size:11px;color:#334155;margin-bottom:20px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        ${t('googleMapsShareTip') || 'Tu peux aussi partager un spot depuis Google Maps vers SpotHitch'}
       </div>
 
-      <!-- Station Name (gas_station only) -->
-      ${spotType === 'gas_station' ? `
-        <div>
-          <label for="spot-station-name" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-            ${icon('fuel', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-            ${t('stationNameLabel')} <span class="text-amber-400">*</span>
-          </label>
-          <input
-            type="text"
-            id="spot-station-name"
-            name="stationName"
-            class="input-modern"
-            placeholder="${t('stationNamePlaceholder')}"
-            maxlength="100"
-            value="${window.spotFormData?.stationName || ''}"
-            oninput="window.spotFormData.stationName = this.value"
-          />
-        </div>
-      ` : ''}
-
-      <!-- GPS Position -->
-      ${renderPositionBlock()}
-
-      <!-- Departure City (autocomplete forced) -->
-      <div class="relative">
-        <label for="spot-departure-city" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('navigation', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('departureCity') || 'Ville de départ'} <span class="text-amber-400">*</span>
-        </label>
-        <input
-          type="text"
-          id="spot-departure-city"
-          name="departureCity"
-          class="input-modern"
-          placeholder="${t('departureCity') || 'Ville de départ'}"
-          required
-          aria-required="true"
-        />
-        <p class="text-xs text-slate-500 mt-1">${t('selectFromList') || 'Sélectionne dans la liste'}</p>
-      </div>
-
-      <!-- Continue button -->
+      <!-- SUIVANT button — outlined amber, no radius -->
       <button
         type="button"
         onclick="addSpotNextStep()"
-        class="btn btn-primary w-full text-lg"
+        style="width:100%;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase"
       >
-        ${t('continue') || 'Continuer'}
-        ${icon('arrow-right', 'w-5 h-5')}
+        ${t('next') || 'SUIVANT'}
       </button>
     </div>
   `
 }
 
 /**
- * Render Step 2: Destination + Experience
+ * Render Step 2: Direction + Experience (v3 underline tab design)
  */
 function renderStep2(state) {
   const waitIdx = state.addSpotWaitTime != null
@@ -226,36 +240,43 @@ function renderStep2(state) {
   const timeOfDay = state.addSpotTimeOfDay || window.spotFormData?.timeOfDay || ''
   const rideResult = window.spotFormData?.rideResult || ''
 
+  // Helper for underline tab bar
+  const tabBar = (items, currentVal, onclickFn) => `
+    <div style="display:flex;gap:0;border-bottom:1px solid #334155">
+      ${items.map(item => `
+        <div onclick="${onclickFn}('${item.value}')"
+          style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${
+            currentVal === item.value
+              ? `color:${item.color || '#f59e0b'};border-bottom:2px solid ${item.color || '#f59e0b'};margin-bottom:-1px`
+              : 'color:#64748b'
+          }">${item.label}</div>
+      `).join('')}
+    </div>`
+
   return `
     <div class="step-transition">
-      <!-- Direction City (autocomplete forced) -->
-      <div class="relative mb-4">
-        <label for="spot-direction-city" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('compass', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('destinationCity') || 'Direction'} <span class="text-amber-400">*</span>
-        </label>
+      <!-- Direction — underline input -->
+      <div style="margin-bottom:24px" class="relative">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('destinationCity') || 'Direction'} <span style="color:#f59e0b">*</span></div>
         <input
           type="text"
           id="spot-direction-city"
           name="directionCity"
-          class="input-modern"
+          style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none"
           placeholder="${t('destinationCity') || 'Direction'}"
           value="${escapeHTML(window.spotFormData?.directionCity || '')}"
           required
           aria-required="true"
         />
-        <p class="text-xs text-slate-500 mt-1">${t('selectFromList') || 'Sélectionne dans la liste'}</p>
       </div>
 
-      <!-- Extra destinations (multi-destination) -->
-      <div class="mb-4">
+      <!-- Extra destinations -->
+      <div style="margin-bottom:24px">
         ${(window.spotFormData?.extraDestinations || []).map((d, i) => `
-          <div class="flex items-center gap-2 mb-2">
-            <span class="flex-1 px-3 py-1.5 rounded-lg bg-primary-500/10 text-primary-300 text-sm border border-primary-500/20">
-              ${icon('map-pin', 'w-3.5 h-3.5 inline mr-1')} ${escapeHTML(d.city)}
-            </span>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="flex:1;padding:6px 12px;font-size:13px;color:#f59e0b;border-bottom:1px solid #f59e0b">${icon('map-pin', 'w-3.5 h-3.5 inline mr-1')} ${escapeHTML(d.city)}</span>
             <button type="button" onclick="removeSpotDestination(${i})"
-              class="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 hover:bg-red-500/20"
+              style="width:28px;height:28px;border-radius:50%;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;color:#f87171;border:none;cursor:pointer"
               aria-label="${t('removeDestination') || 'Supprimer'}">
               ${icon('x', 'w-4 h-4')}
             </button>
@@ -266,142 +287,90 @@ function renderStep2(state) {
             <input
               type="text"
               id="spot-extra-dest"
-              class="input-modern text-sm"
+              style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none"
               placeholder="${t('destinationCityPlaceholder') || 'Ville de destination'}"
             />
           </div>
           <button type="button" onclick="addSpotDestination()"
-            class="w-full py-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-slate-400 hover:text-primary-400 transition-colors flex items-center justify-center gap-2 mt-1"
+            style="width:100%;padding:8px 0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.05);font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"
             id="add-dest-btn">
             ${icon('plus', 'w-3.5 h-3.5')} ${t('addDestination') || 'Ajouter une destination'}
           </button>
         ` : `
-          <p class="text-xs text-slate-500 text-center">${t('maxDestinations') || 'Maximum 5 destinations'}</p>
+          <div style="font-size:11px;color:#475569;text-align:center">${t('maxDestinations') || 'Maximum 5 destinations'}</div>
         `}
       </div>
 
-      <!-- Wait Time Slider -->
-      <div class="mb-4">
-        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('clock', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('waitTimeLabel') || "Temps d'attente"} <span class="text-amber-400">*</span>
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="${WAIT_STEPS.length - 1}"
-          value="${waitIdx >= 0 ? waitIdx : 4}"
-          class="wait-slider w-full"
-          oninput="setWaitTime(this.value)"
-          aria-label="${t('waitTimeSliderDesc') || 'Combien de temps as-tu attendu ?'}"
-        />
-        <div class="wait-slider-labels">
-          <span>1 min</span>
-          <span>15</span>
-          <span>45</span>
-          <span>2h</span>
-          <span>3h+</span>
-        </div>
-        <div class="text-center text-lg font-bold text-primary-400 mt-2" id="wait-time-display">
-          ${currentWait ? (currentWait >= 180 ? '3h+' : currentWait + ' min') : '10 min'}
+      <!-- Wait Time — range slider + amber value -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('waitTimeLabel') || "Attente"} <span style="color:#f59e0b">*</span></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input
+            type="range"
+            min="0"
+            max="${WAIT_STEPS.length - 1}"
+            value="${waitIdx >= 0 ? waitIdx : 4}"
+            style="flex:1;accent-color:#f59e0b"
+            oninput="setWaitTime(this.value)"
+            aria-label="${t('waitTimeSliderDesc') || 'Combien de temps as-tu attendu ?'}"
+          />
+          <span style="font-size:16px;font-weight:300;color:#f59e0b;min-width:60px;text-align:right" id="wait-time-display">
+            ${currentWait ? (currentWait >= 180 ? '3h+' : currentWait + ' min') : '10 min'}
+          </span>
         </div>
       </div>
 
-      <!-- Method (3 radio buttons) -->
-      <div class="mb-4">
-        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('hand', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('practicalTips') || 'Méthode'} <span class="text-amber-400">*</span>
-        </label>
-        <div class="radio-group">
-          <button type="button" onclick="setMethod('sign')"
-            class="radio-btn ${method === 'sign' ? 'active' : ''}">
-            ${icon('file-text', 'w-4 h-4 mr-1')} ${t('methodSign') || 'Panneau'}
-          </button>
-          <button type="button" onclick="setMethod('thumb')"
-            class="radio-btn ${method === 'thumb' ? 'active' : ''}">
-            ${icon('hand', 'w-4 h-4 mr-1')} ${t('methodThumb') || 'Pouce'}
-          </button>
-          <button type="button" onclick="setMethod('asking')"
-            class="radio-btn ${method === 'asking' ? 'active' : ''}">
-            ${icon('message-circle', 'w-4 h-4 mr-1')} ${t('methodAsking') || 'En demandant'}
-          </button>
+      <!-- Method — underline tab bar -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('practicalTips') || 'Méthode'} <span style="color:#f59e0b">*</span></div>
+        ${tabBar([
+          { value: 'sign', label: t('methodSign') || 'Panneau' },
+          { value: 'thumb', label: t('methodThumb') || 'Pouce' },
+          { value: 'asking', label: t('methodAsking') || 'En demandant' },
+        ], method, 'setMethod')}
+      </div>
+
+      <!-- Group — underline tab bar -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('groupSizeLabel') || 'Groupe'} <span style="color:#f59e0b">*</span></div>
+        ${tabBar([
+          { value: 'solo', label: t('groupSolo') || 'Solo' },
+          { value: 'duo', label: t('groupDuo') || 'Duo' },
+          { value: 'group', label: t('groupTrioPlus') || 'Groupe 3+' },
+        ], groupSize, 'setGroupSize')}
+      </div>
+
+      <!-- Moment — underline tab bar -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('timeOfDayLabel') || 'Moment'} <span style="color:#f59e0b">*</span></div>
+        ${tabBar([
+          { value: 'morning', label: t('timeMorning') || 'Matin' },
+          { value: 'afternoon', label: t('timeAfternoon') || 'Après-midi' },
+          { value: 'evening', label: t('timeEvening') || 'Soir' },
+          { value: 'night', label: t('timeNight') || 'Nuit' },
+        ], timeOfDay, 'setTimeOfDay')}
+      </div>
+
+      <!-- Lift obtenu — underline tab bar (Oui = green, Abandonné = grey) -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('gotARide') || 'Lift obtenu'} <span style="color:#f59e0b">*</span></div>
+        <div style="display:flex;gap:0;border-bottom:1px solid #334155">
+          <div onclick="setRideResult('yes')"
+            style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'yes' ? 'color:#22c55e;border-bottom:2px solid #22c55e;margin-bottom:-1px' : 'color:#64748b'}">${t('yes') || 'Oui'}</div>
+          <div onclick="setRideResult('gaveUp')"
+            style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'gaveUp' ? 'color:#64748b;border-bottom:2px solid #64748b;margin-bottom:-1px' : 'color:#64748b'}">${t('gaveUp') || 'Abandonné'}</div>
         </div>
       </div>
 
-      <!-- Group Size (3 radio buttons) -->
-      <div class="mb-4">
-        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('users', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('groupSizeLabel') || 'Combien étiez-vous ?'} <span class="text-amber-400">*</span>
-        </label>
-        <div class="radio-group">
-          <button type="button" onclick="setGroupSize('solo')"
-            class="radio-btn ${groupSize === 'solo' ? 'active' : ''}">
-            ${t('groupSolo') || 'Solo'}
-          </button>
-          <button type="button" onclick="setGroupSize('duo')"
-            class="radio-btn ${groupSize === 'duo' ? 'active' : ''}">
-            ${t('groupDuo') || 'Duo'}
-          </button>
-          <button type="button" onclick="setGroupSize('group')"
-            class="radio-btn ${groupSize === 'group' ? 'active' : ''}">
-            ${t('groupTrioPlus') || 'Groupe 3+'}
-          </button>
-        </div>
-      </div>
-
-      <!-- Time of Day (4 radio buttons) -->
-      <div class="mb-4">
-        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('sun', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('timeOfDayLabel') || 'Moment de la journée'} <span class="text-amber-400">*</span>
-        </label>
-        <div class="radio-group">
-          <button type="button" onclick="setTimeOfDay('morning')"
-            class="radio-btn ${timeOfDay === 'morning' ? 'active' : ''}">
-            ${t('timeMorning') || 'Matin'}
-          </button>
-          <button type="button" onclick="setTimeOfDay('afternoon')"
-            class="radio-btn ${timeOfDay === 'afternoon' ? 'active' : ''}">
-            ${t('timeAfternoon') || 'Après-midi'}
-          </button>
-          <button type="button" onclick="setTimeOfDay('evening')"
-            class="radio-btn ${timeOfDay === 'evening' ? 'active' : ''}">
-            ${t('timeEvening') || 'Soir'}
-          </button>
-          <button type="button" onclick="setTimeOfDay('night')"
-            class="radio-btn ${timeOfDay === 'night' ? 'active' : ''}">
-            ${t('timeNight') || 'Nuit'}
-          </button>
-        </div>
-      </div>
-
-      <!-- Got a ride? -->
-      <div class="mb-4">
-        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('thumbs-up', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('gotARide') || 'Tu as eu un lift ?'} <span class="text-amber-400">*</span>
-        </label>
-        <div class="radio-group">
-          <button type="button" onclick="setRideResult('yes')"
-            class="radio-btn ${rideResult === 'yes' ? 'active' : ''}">
-            ${t('yes') || 'Oui'}
-          </button>
-          <button type="button" onclick="setRideResult('gaveUp')"
-            class="radio-btn ${rideResult === 'gaveUp' ? 'active' : ''}">
-            ${t('gaveUp') || 'Abandonné'}
-          </button>
-        </div>
-      </div>
-
-      <!-- Navigation buttons -->
-      <div class="flex gap-3">
-        <button type="button" onclick="addSpotPrevStep()" class="btn btn-ghost flex-1">
-          ${icon('arrow-left', 'w-5 h-5')} ${t('back') || 'Retour'}
+      <!-- RETOUR + SUIVANT buttons -->
+      <div style="display:flex;gap:12px;margin-top:24px">
+        <button type="button" onclick="addSpotPrevStep()"
+          style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;text-transform:uppercase">
+          ${t('back') || 'RETOUR'}
         </button>
-        <button type="button" onclick="addSpotNextStep()" class="btn btn-primary flex-1">
-          ${t('continue') || 'Continuer'} ${icon('arrow-right', 'w-5 h-5')}
+        <button type="button" onclick="addSpotNextStep()"
+          style="flex:2;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;text-transform:uppercase">
+          ${t('next') || 'SUIVANT'}
         </button>
       </div>
     </div>
@@ -409,87 +378,83 @@ function renderStep2(state) {
 }
 
 /**
- * Render Step 3: Details (ratings + amenities + description) + Submit
+ * Render Step 3: Ratings (bar segments) + Amenities (underline tabs) + Description + Submit (v3)
  */
 function renderStep3(state) {
   const isPreview = state.addSpotPreview === true
   const tags = window.spotFormData.tags || {}
   return `
     <div class="step-transition">
-      <!-- Ratings -->
-      <div class="mb-5">
-        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-3">
-          ${icon('star', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('detailedRatings')} <span class="text-amber-400">*</span>
-        </label>
-        ${renderStarInput('safety', t('safetyRating'))}
-        ${renderStarInput('traffic', t('traffic'))}
-        ${renderStarInput('accessibility', t('accessibility'))}
-      </div>
+      <!-- Ratings — segmented bars -->
+      ${renderBarRating('safety', t('safetyRating') || 'Sécurité')}
+      ${renderBarRating('traffic', t('traffic') || 'Trafic')}
+      ${renderBarRating('accessibility', t('accessibility') || 'Accessibilité')}
 
-      <!-- Amenities -->
-      <div class="mb-5">
-        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('map-pin', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('amenitiesLabel') || 'Équipements à proximité'}
-        </label>
-        <div class="flex flex-wrap gap-2">
+      <!-- Amenities — underline tab style -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">${t('amenitiesLabel') || 'Commodités'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:0">
           <button type="button" onclick="toggleAmenity('shelter')"
-            class="amenity-chip ${tags.shelter ? 'active' : ''}">
-            ${icon('umbrella', 'w-4 h-4 mr-1')} ${t('amenityShelter') || 'Abri pluie'}
+            class="amenity-chip"
+            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.shelter ? '2px solid #f59e0b' : 'none'};color:${tags.shelter ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('amenityShelter') || 'Abri'}
           </button>
           <button type="button" onclick="toggleAmenity('waterFood')"
-            class="amenity-chip ${tags.waterFood ? 'active' : ''}">
-            ${icon('droplets', 'w-4 h-4 mr-1')} ${t('amenityWaterFood') || 'Eau/nourriture'}
+            class="amenity-chip"
+            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.waterFood ? '2px solid #f59e0b' : 'none'};color:${tags.waterFood ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('amenityWater') || 'Eau'}
           </button>
           <button type="button" onclick="toggleAmenity('toilets')"
-            class="amenity-chip ${tags.toilets ? 'active' : ''}">
-            ${icon('bath', 'w-4 h-4 mr-1')} ${t('amenityToilets') || 'Toilettes'}
+            class="amenity-chip"
+            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.toilets ? '2px solid #f59e0b' : 'none'};color:${tags.toilets ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('amenityToilets') || 'Toilettes'}
           </button>
           <button type="button" onclick="toggleAmenity('food')"
-            class="amenity-chip ${tags.food ? 'active' : ''}">
-            ${icon('utensils', 'w-4 h-4 mr-1')} ${t('amenityFood') || 'Nourriture'}
+            class="amenity-chip"
+            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.food ? '2px solid #f59e0b' : 'none'};color:${tags.food ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('amenityFood') || 'Nourriture'}
           </button>
           <button type="button" onclick="toggleAmenity('stoppingSpace')"
-            class="amenity-chip ${tags.stoppingSpace ? 'active' : ''}">
-            ${icon('square-parking', 'w-4 h-4 mr-1')} ${t('stoppingSpaceTag') || "Place pour s'arrêter"}
+            class="amenity-chip"
+            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.stoppingSpace ? '2px solid #f59e0b' : 'none'};color:${tags.stoppingSpace ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('stoppingSpaceTag') || 'Parking'}
           </button>
         </div>
       </div>
 
-      <!-- Description -->
-      <div class="mb-5">
-        <label for="spot-description" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
-          ${icon('file-text', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-          ${t('description')}
-          <span class="text-xs normal-case text-slate-500 ml-1">(${t('recommended') || 'recommandé'})</span>
-        </label>
+      <!-- Description — underline textarea -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">
+          ${t('description')} <span style="font-size:10px;color:#334155;text-transform:none;letter-spacing:0">(${t('recommended') || 'recommandé'})</span>
+        </div>
         <textarea
           id="spot-description"
           name="description"
-          class="input-modern min-h-[100px] resize-none"
-          placeholder="${t('spotDescPlaceholder') || 'Décris le spot, comment y accéder, conseils...'}"
+          style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;resize:none;min-height:60px;font-family:inherit"
+          placeholder="${t('spotDescPlaceholder') || 'Quelques mots sur ce spot...'}"
           maxlength="500"
           aria-describedby="desc-counter"
         ></textarea>
-        <div class="text-right text-xs text-slate-400 mt-1" id="desc-counter" aria-live="polite">
+        <div style="text-align:right;font-size:11px;color:#475569;margin-top:4px" id="desc-counter" aria-live="polite">
           <span id="desc-count">0</span>/500 <span class="sr-only">caractères</span>
         </div>
       </div>
 
-      <!-- Navigation + Submit -->
-      <div class="flex gap-3">
-        <button type="button" onclick="addSpotPrevStep()" class="btn btn-ghost flex-1">
-          ${icon('arrow-left', 'w-5 h-5')} ${t('back') || 'Retour'}
+      <!-- RETOUR + PUBLIER buttons -->
+      <div style="display:flex;gap:12px;margin-top:24px">
+        <button type="button" onclick="addSpotPrevStep()"
+          style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;text-transform:uppercase">
+          ${t('back') || 'RETOUR'}
         </button>
         ${isPreview ? `
         <button type="button" onclick="closeAddSpot()"
-          class="btn flex-1 text-lg bg-amber-500/20 text-amber-400 border border-amber-500/30" id="submit-spot-btn">
-          ${icon('eye', 'w-5 h-5')} ${t('previewModeClose')}
+          style="flex:2;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;text-transform:uppercase" id="submit-spot-btn">
+          ${t('previewModeClose') || 'FERMER'}
         </button>
         ` : `
-        <button type="submit" class="btn btn-primary flex-1 text-base whitespace-nowrap" id="submit-spot-btn">
-          ${icon('share', 'w-5 h-5')} ${t('shareThisSpot') || t('create')}
+        <button type="submit"
+          style="flex:2;background:#f59e0b;border:none;color:#0f1520;border-radius:0;padding:14px;font-size:14px;font-weight:600;cursor:pointer;text-transform:uppercase" id="submit-spot-btn">
+          ${t('publish') || 'PUBLIER'}
         </button>
         `}
       </div>
@@ -516,50 +481,38 @@ function renderPositionBlock() {
   const hasPosition = window.spotFormData?.lat && window.spotFormData?.lng
   const lat = window.spotFormData?.lat
   const lng = window.spotFormData?.lng
-  const city = window.spotFormData?.departureCity || ''
 
   return `
-    <div>
-      <span class="text-xs text-slate-500 uppercase tracking-wider block mb-2" id="location-label">
-        ${icon('map-pin', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
-        ${t('position') || 'Position'} <span class="text-amber-400">*</span>
-      </span>
-
-      <!-- GPS button -->
-      <button type="button" onclick="useGPSForSpot()" class="btn btn-ghost w-full mb-3" aria-describedby="location-display">
-        ${icon('crosshair', 'w-5 h-5')} ${t('useMyPosition') || 'Ma position GPS'}
-      </button>
+    <div style="margin-bottom:24px">
+      <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px" id="location-label">${t('position') || 'Position sur la carte'} <span style="color:#f59e0b">*</span></div>
 
       ${hasPosition ? `
-        <!-- Position chosen: preview card -->
-        <div class="spot-position-preview" onclick="openFullscreenMapPicker()" role="button" tabindex="0"
-          onkeydown="if(event.key==='Enter')openFullscreenMapPicker()">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-              ${icon('map-pin', 'w-5 h-5 text-amber-400')}
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-white truncate">${city || t('positionChosen') || 'Position choisie'}</p>
-              <p class="text-xs text-slate-400">${lat.toFixed(5)}, ${lng.toFixed(5)}</p>
-            </div>
-            <div class="flex-shrink-0 text-xs text-amber-400 font-medium flex items-center gap-1">
-              ${icon('pencil', 'w-3.5 h-3.5')} ${t('modify') || 'Modifier'}
-            </div>
+        <!-- Position chosen — compact preview -->
+        <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
+          onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
+          style="background:#111827;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;color:#e2e8f0">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
+            <div style="font-size:11px;color:#f59e0b">${t('modify') || 'Modifier'}</div>
           </div>
         </div>
       ` : `
-        <!-- No position yet: big CTA to open map -->
-        <button type="button" onclick="openFullscreenMapPicker()"
-          class="spot-position-cta">
-          <div class="flex flex-col items-center gap-2 py-2">
-            ${icon('map', 'w-8 h-8 text-amber-400')}
-            <span class="text-sm font-medium">${t('chooseOnMap') || 'Choisir sur la carte'}</span>
-            <span class="text-xs text-slate-500">${t('tapToPlaceSpot') || 'Touche la carte pour placer ton spot'}</span>
-          </div>
+        <!-- No position — map placeholder + GPS button -->
+        <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
+          onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
+          style="background:#111827;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#475569;font-size:12px;gap:6px;cursor:pointer">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${t('tapToPlaceSpot') || 'Toucher pour placer le spot'}
+        </div>
+        <button type="button" onclick="useGPSForSpot()"
+          style="width:100%;margin-top:8px;padding:10px 0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"
+          aria-describedby="location-display">
+          ${icon('crosshair', 'w-4 h-4')} ${t('useMyPosition') || 'Ma position GPS'}
         </button>
       `}
 
-      <div id="location-display" class="text-sm text-slate-400 mt-2 text-center sr-only" aria-live="polite" role="status"></div>
+      <div id="location-display" class="sr-only" aria-live="polite" role="status"></div>
     </div>
   `
 }
@@ -575,22 +528,22 @@ export function renderAddSpot(_state) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="addspot-modal-title"
-     tabindex="0">
+      tabindex="0">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true"></div>
 
       <!-- Modal -->
       <div
-        class="relative modal-panel sm:rounded-3xl
-          w-full max-w-lg max-h-[90vh] overflow-hidden slide-up"
+        class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl"
+        style="background:#0f1520;border:1px solid #1e293b"
         onclick="event.stopPropagation()"
       >
-        <!-- Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <h2 id="addspot-modal-title" class="text-xl font-bold">${t('addSpot')}${isPreview ? ` <span class="text-sm font-normal text-amber-400 ml-2">${t('previewMode')}</span>` : ''}</h2>
+        <!-- Header — minimal -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1a1f2e">
+          <h2 id="addspot-modal-title" style="font-size:16px;font-weight:600;color:#e2e8f0">${t('addSpot')}${isPreview ? ` <span style="font-size:12px;font-weight:400;color:#f59e0b;margin-left:8px">${t('previewMode')}</span>` : ''}</h2>
           <button
             onclick="closeAddSpot()"
-            class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
+            style="width:32px;height:32px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:#64748b"
             aria-label="${t('close') || 'Fermer'}"
             type="button"
           >
@@ -599,10 +552,10 @@ export function renderAddSpot(_state) {
         </div>
 
         <!-- Form -->
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-8rem)]">
+        <div style="padding:24px 20px;overflow-y:auto;max-height:calc(90vh - 70px)">
           ${renderStepProgress(currentStep)}
 
-          <form id="add-spot-form" onsubmit="handleAddSpot(event)" class="space-y-5" aria-label="${t('addSpotForm') || "Formulaire d'ajout de spot"}">
+          <form id="add-spot-form" onsubmit="handleAddSpot(event)" aria-label="${t('addSpotForm') || "Formulaire d'ajout de spot"}">
             ${currentStep === 1 ? renderStep1(_state) : ''}
             ${currentStep === 2 ? renderStep2(_state) : ''}
             ${currentStep === 3 ? renderStep3(_state) : ''}
@@ -693,18 +646,11 @@ window.setSpotRating = (criterion, value) => {
   window.spotFormData.ratings = window.spotFormData.ratings || {}
   window.spotFormData.ratings[criterion] = value
 
+  // Update bar segments (v3 design)
   const buttons = document.querySelectorAll(`button[data-criterion="${criterion}"]`)
   buttons.forEach((btn) => {
     const star = parseInt(btn.dataset.star, 10)
-    const svg = btn.querySelector('svg')
-    if (svg) {
-      svg.setAttribute('fill', star <= value ? 'currentColor' : 'none')
-    }
-    if (star <= value) {
-      btn.className = 'spot-star-btn text-2xl text-yellow-400 hover:text-yellow-300 transition-colors'
-    } else {
-      btn.className = 'spot-star-btn text-2xl text-slate-400 hover:text-yellow-400 transition-colors'
-    }
+    btn.style.background = star <= value ? '#f59e0b' : '#1a1f2e'
   })
 
   const valueEl = document.getElementById(`spot-rating-value-${criterion}`)

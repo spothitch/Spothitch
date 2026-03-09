@@ -1342,6 +1342,42 @@ html.map-active body {
   }
 }
 
+/* ===== V3 DESIGN — Underline inputs, rating bars, accordion ===== */
+
+/* Underline input focus state */
+input[style*="border-bottom"]:focus,
+textarea[style*="border-bottom"]:focus {
+  border-bottom-color: #f59e0b !important;
+}
+
+/* Accordion (details/summary) styling */
+details summary::-webkit-details-marker { display: none; }
+details summary::marker { display: none; content: ''; }
+details[open] summary svg { transform: rotate(180deg); }
+details summary svg { transition: transform 0.2s ease; }
+
+/* Rating bar segments — clickable area */
+.spot-star-btn[style*="height:4px"] {
+  min-height: 16px;
+  position: relative;
+}
+.spot-star-btn[style*="height:4px"]::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+}
+
+/* Light theme overrides for v3 underline design */
+.light-theme input[style*="border-bottom"] {
+  color: #1c1917 !important;
+}
+.light-theme input[style*="border-bottom"]::placeholder {
+  color: #78716c !important;
+}
+
 /* ===== KEYFRAMES ===== */
 @keyframes fadeIn {
   from { opacity: 0; }
