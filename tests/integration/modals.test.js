@@ -47,6 +47,9 @@ const mockSpot = {
   country: 'FR',
   coordinates: { lat: 48.8566, lng: 2.3522 },
   globalRating: 4.5,
+  safetyRating: 4,
+  trafficRating: 5,
+  accessRating: 3,
   totalRatings: 10,
   totalReviews: 10,
   avgWaitTime: 15,
@@ -298,9 +301,11 @@ describe('Integration: SpotDetail Modal', () => {
     expect(html).toContain('Lyon')
   })
 
-  it('shows rating', () => {
+  it('shows ratings', () => {
     const html = renderSpotDetail(stateWithSpot)
-    expect(html).toContain('4.5')
+    expect(html).toContain('4')
+    expect(html).toContain('5')
+    expect(html).toContain('3')
   })
 
   it('has close button', () => {
