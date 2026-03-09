@@ -23,7 +23,7 @@ export function renderFriendProfileModal(state) {
   const tier = getTierForScore(trustScore)
 
   // Mutual friends (friends who are also friends with this friend)
-  const mutualCount = friend.mutualFriends?.length || Math.floor(Math.random() * 3)
+  const mutualCount = friend.mutualFriends?.length || 0
 
   // Last active
   const lastActive = friend.lastActive || friend.addedAt

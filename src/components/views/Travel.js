@@ -7,7 +7,7 @@ import { t } from '../../i18n/index.js'
 import { countryGuides, getGuideByCode } from '../../data/guides.js'
 import { renderCommunityTips } from '../../services/communityTips.js'
 import { renderHostelSection } from '../../services/hostelRecommendations.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { haversineKm } from '../../utils/geo.js'
 import { renderToggle } from '../../utils/toggle.js'
 import { icon } from '../../utils/icons.js'
@@ -866,7 +866,7 @@ function renderSuggestions(field, names) {
         const safeField = escapeHTML(field)
         return `
         <button
-          onmousedown="event.preventDefault(); tripSelectSuggestion('${safeField}', '${safeName.replace(/'/g, '&#39;')}')"
+          onmousedown="event.preventDefault(); tripSelectSuggestion('${escapeJSString(field)}', '${escapeJSString(name)}')"
           class="w-full px-3 py-2.5 text-left text-white hover:bg-white/10 border-b border-white/5 last:border-0 transition-colors"
           data-trip-${safeField}-suggestion="${i}"
         >

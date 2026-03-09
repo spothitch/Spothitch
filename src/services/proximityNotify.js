@@ -195,7 +195,7 @@ window.quickValidateSpot = async (spotId) => {
   // Persist to Firebase (non-blocking)
   try {
     const { quickValidateSpot: fbQuickValidate } = await import('./firebase.js')
-    fbQuickValidate(spotId).catch(() => {})
+    fbQuickValidate(spotId).catch(err => console.error('Validation sync failed:', err))
   } catch { /* offline or Firebase not loaded */ }
 }
 

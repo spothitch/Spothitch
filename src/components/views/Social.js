@@ -1069,7 +1069,10 @@ window.sendMessage = async (room) => {
   try {
     const { sendChatMessage } = await import('../../services/firebase.js')
     await sendChatMessage(room, text)
-  } catch { /* Firebase not configured */ }
+  } catch (err) {
+    console.error('Chat send failed:', err)
+    window.showToast?.(t('messageSendFailed') || 'Message non envoyé. Vérifie ta connexion.', 'error')
+  }
 
   setTimeout(() => {
     const chatEl = document.getElementById('chat-messages')
@@ -1215,8 +1218,9 @@ window.sendFriendRequest = async (targetUserId) => {
     setState({ friendSearchResults: null })
     const input = document.getElementById('friend-search')
     if (input) input.value = ''
-  } catch {
-    window.showToast?.(t('errorOccurred') || 'Error', 'error')
+  } catch (err) {
+    console.error('Friend request failed:', err)
+    window.showToast?.(t('errorNetwork') || 'Erreur réseau. Réessaie.', 'error')
   }
 }
 

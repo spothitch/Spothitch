@@ -409,12 +409,18 @@ export async function getSpots() {
 /**
  * Add a new spot
  */
+const SPOT_ALLOWED_FIELDS = ['lat', 'lng', 'type', 'direction', 'directionLat', 'directionLng', 'safety', 'traffic', 'accessibility', 'description', 'photos', 'photoURL', 'country', 'city', 'departureCity', 'departureCityCoords', 'waitTime', 'rideResult', 'tips', 'name', 'positionSource']
+
 export async function addSpot(spotData) {
   try {
     const user = getCurrentUser();
+    const safeData = {}
+    for (const key of SPOT_ALLOWED_FIELDS) {
+      if (spotData[key] !== undefined) safeData[key] = spotData[key]
+    }
     const spotsRef = collection(db, 'spots');
     const docRef = await addDoc(spotsRef, {
-      ...spotData,
+      ...safeData,
       creatorId: user?.uid || 'anonymous',
       creator: user?.displayName || 'Anonyme',
       createdAt: serverTimestamp(),
@@ -489,9 +495,14 @@ export async function addDestinationToSpot(spotId, destination) {
 export async function addReview(spotId, reviewData) {
   try {
     const user = getCurrentUser();
+    const REVIEW_ALLOWED_FIELDS = ['text', 'rating', 'comment', 'safety', 'traffic', 'accessibility', 'waitTime', 'photos']
+    const safeReviewData = {}
+    for (const key of REVIEW_ALLOWED_FIELDS) {
+      if (reviewData[key] !== undefined) safeReviewData[key] = reviewData[key]
+    }
     const reviewsRef = collection(db, 'spots', spotId, 'reviews');
     await addDoc(reviewsRef, {
-      ...reviewData,
+      ...safeReviewData,
       userId: user?.uid || 'anonymous',
       userName: user?.displayName || 'Anonyme',
       createdAt: serverTimestamp()
@@ -539,9 +550,10 @@ export function subscribeToChatRoom(room, callback) {
 export async function sendChatMessage(room, text) {
   try {
     const user = getCurrentUser();
+    const safeText = (text || '').slice(0, 2000)
     const messagesRef = collection(db, 'chat', room, 'messages');
     await addDoc(messagesRef, {
-      text,
+      text: safeText,
       userId: user?.uid || 'anonymous',
       userName: user?.displayName || 'Anonyme',
       userAvatar: '🤙',
@@ -1127,11 +1139,17 @@ export async function getUserProfile(userId) {
  * @param {string} userId - User ID
  * @param {Object} updates - Profile updates
  */
+const PROFILE_ALLOWED_FIELDS = ['username', 'displayName', 'bio', 'avatar', 'photoURL', 'languages', 'socialLinks', 'photos', 'country', 'title', 'equippedBadge', 'equippedFrame', 'equippedTitle', 'points', 'seasonPoints', 'level', 'badges', 'league', 'isVIP', 'theme', 'lang', 'lastSeen']
+
 export async function updateUserProfile(userId, updates) {
   try {
+    const safeUpdates = {}
+    for (const key of PROFILE_ALLOWED_FIELDS) {
+      if (updates[key] !== undefined) safeUpdates[key] = updates[key]
+    }
     const userDocRef = doc(db, 'users', userId);
     await updateDoc(userDocRef, {
-      ...updates,
+      ...safeUpdates,
       updatedAt: serverTimestamp(),
     });
     return { success: true };

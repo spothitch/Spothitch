@@ -837,6 +837,8 @@ window.handleForgotPassword = async () => {
     }
   } catch (error) {
     console.error('Password reset error:', error)
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('errorNetwork') || 'Erreur réseau. Réessaie.')
   }
 }
 
@@ -906,6 +908,8 @@ window.loginAsAdmin = async () => {
     }
   } catch (error) {
     console.error('Admin login error:', error)
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('authError') || 'Erreur de connexion')
   }
 }
 
@@ -945,6 +949,8 @@ function getAuthErrorMessage(error) {
     'auth/invalid-credential': t('authErrorPassword'),
     'auth/too-many-requests': t('authErrorTooMany'),
     'auth/popup-closed-by-user': t('authErrorPopupClosed'),
+    'auth/network-request-failed': t('errorNetwork') || 'Pas de connexion. Vérifie ton réseau.',
+    'auth/internal-error': t('errorNetwork') || 'Erreur réseau. Réessaie.',
     'username/taken': t('usernameTaken') || 'Ce pseudo est déjà pris',
   }
   return messages[code] || t('authError')

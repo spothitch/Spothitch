@@ -64,7 +64,7 @@ import { initHoverPrefetch, prefetchNextTab } from './utils/prefetch.js';
 import { trackTabChange } from './utils/analytics.js';
 import { cleanupDrafts } from './utils/formPersistence.js';
 import { initWasm } from './utils/wasmGeo.js';
-import { escapeHTML } from './utils/sanitize.js';
+import { escapeHTML, escapeJSString } from './utils/sanitize.js';
 import { runAllCleanup } from './utils/cleanup.js';
 import { initDeepLinkListener } from './utils/deeplink.js';
 import { initBackButton, goBack } from './utils/backButton.js';
@@ -435,7 +435,7 @@ async function init() {
                 updates.showAuth = false
                 updates.authPendingAction = null
                 updates.showAuthReason = null
-                fb.createOrUpdateUserProfile(user).catch(() => {})
+                fb.createOrUpdateUserProfile(user).catch(err => console.error('Profile sync failed:', err))
                 showToast(t('googleLoginSuccess') || 'Google login successful!', 'success')
                 // Execute pending action
                 const pendingAction = sessionStorage.getItem('spothitch_auth_pending_action')
@@ -1129,21 +1129,32 @@ window.submitReview = async (spotId) => {
         return
       }
     }
-    const fb1 = await getFirebase()
-    await fb1.saveCommentToFirebase({ spotId, text: comment, rating })
-    const { recordReview } = await import('./services/gamification.js')
-    recordReview()
-    showToast(t('reviewPublished') || 'Avis publié !', 'success')
-    setState({ showRating: false })
+    try {
+      const fb1 = await getFirebase()
+      await fb1.saveCommentToFirebase({ spotId, text: comment, rating })
+      const { recordReview } = await import('./services/gamification.js')
+      recordReview()
+      showToast(t('reviewPublished') || 'Avis publié !', 'success')
+      setState({ showRating: false })
+    } catch (err) {
+      console.error('Review submit failed:', err)
+      showToast(t('errorNetwork') || 'Erreur réseau. Réessaie.', 'error')
+    }
   }
 };
 window.setRating = (rating) => setState({ currentRating: rating });
 window.reportSpotAction = async (spotId) => {
   const reason = prompt(t('reportReason') || 'Raison du signalement ?');
   if (reason) {
-    const fb2 = await getFirebase()
-    await fb2.reportSpot(spotId, reason);
-    showToast(t('reportSent') || 'Signalement envoyé', 'success');
+    try {
+      const fb2 = await getFirebase()
+      const result = await fb2.reportSpot(spotId, reason);
+      if (result?.success === false) throw new Error(result.error || 'Report failed')
+      showToast(t('reportSent') || 'Signalement envoyé', 'success');
+    } catch (err) {
+      console.error('Report failed:', err)
+      showToast(t('errorNetwork') || 'Erreur réseau. Réessaie.', 'error');
+    }
   }
 };
 
@@ -1637,7 +1648,7 @@ window.searchTripCity = (query) => {
       container.innerHTML = `
         <div class="bg-white/5 rounded-xl shadow-xl border border-white/10 overflow-hidden">
           ${results.map(r => `
-            <button onclick="addTripStepFromSearch('${escapeHTML(r.name).replace(/'/g, '&#39;')}', ${Number(r.lat)}, ${Number(r.lng)}, '${escapeHTML(r.fullName).replace(/'/g, '&#39;')}')"
+            <button onclick="addTripStepFromSearch('${escapeJSString(r.name)}', ${Number(r.lat)}, ${Number(r.lng)}, '${escapeJSString(r.fullName)}')"
                     class="w-full px-4 py-3 text-left text-white hover:bg-white/10 border-b border-white/10 last:border-0">
               <div class="font-medium">${escapeHTML(r.name)}</div>
               <div class="text-xs text-slate-400 truncate">${escapeHTML(r.fullName)}</div>
@@ -2690,14 +2701,14 @@ window.homeSearchDestination = (query) => {
               return `
               <div class="border-b border-white/5 last:border-0">
                 <button
-                  onclick="homeSelectPlace(${Number(r.lat)}, ${Number(r.lng)}, '${shortName.replace(/'/g, '&#39;')}')"
+                  onclick="homeSelectPlace(${Number(r.lat)}, ${Number(r.lng)}, '${escapeJSString(shortName)}')"
                   class="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors"
                   data-home-suggestion="${i}"
                 >
                   <div class="font-medium text-sm truncate">${shortName}</div>
                 </button>
                 <button
-                  onclick="openCityPanel('${slug}', '${cityName.replace(/'/g, '&#39;')}', ${Number(r.lat)}, ${Number(r.lng)}, '${cc}', '${countryName.replace(/'/g, '&#39;')}')"
+                  onclick="openCityPanel('${slug}', '${escapeJSString(cityName)}', ${Number(r.lat)}, ${Number(r.lng)}, '${cc}', '${escapeJSString(countryName)}')"
                   class="w-full px-4 py-2 text-left text-primary-400 hover:bg-primary-500/10 transition-colors text-xs font-medium border-t border-white/5"
                 >
                   📍 ${t('hitchhikingFrom') || 'Hitchhiking from'} ${cityName}
@@ -2957,8 +2968,7 @@ if (!window.syncTripFieldsAndCalculate) {
   window.closeShop = noop
   window.closeDailyReward = noop
   window.closeTitles = noop
-  // openLeaderboard chargé après static import — override après 0ms
-  setTimeout(() => { window.openLeaderboard = guard('classements') }, 0)
+  // openLeaderboard est aussi override via guard ci-dessus (ligne 2948)
 
   // — SOS (beta) —
   window.openSOS = guard('sos')

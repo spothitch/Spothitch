@@ -1067,7 +1067,7 @@ window.openFullscreenMapPicker = async () => {
         const location = await reverseGeocode(pickedLat, pickedLng)
         pickedCity = location?.city || ''
         if (infoBar) {
-          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedCity || ''} ${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
+          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${escapeHTML(pickedCity || '')} ${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
         }
       } catch { /* no-op */ }
     }
@@ -1107,7 +1107,7 @@ window.openFullscreenMapPicker = async () => {
           window.spotFormData.countryName = location.country
         }
         if (infoBar) {
-          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedCity ? pickedCity + ' \u00b7 ' : ''}${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
+          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedCity ? escapeHTML(pickedCity) + ' \u00b7 ' : ''}${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
         }
       } catch {
         if (infoBar) {
