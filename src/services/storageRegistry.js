@@ -118,6 +118,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_preferred_nav_app', category: DataCategory.SETTINGS, description: 'Preferred navigation app' },
   { key: 'spothitch_show_service_areas', category: DataCategory.SETTINGS, description: 'Show service areas toggle' },
   { key: 'spothitch_travel_mode', category: DataCategory.SETTINGS, description: 'Travel mode enabled' },
+  { key: 'spothitch_theme_override', category: DataCategory.SETTINGS, description: 'Temporary theme override surviving reload' },
   { key: 'spothitch_language', category: DataCategory.SETTINGS, description: 'Active UI language code' },
   { key: 'spothitch_language_pref', category: DataCategory.SETTINGS, description: 'Language preference' },
   { key: 'spothitch_last_country', category: DataCategory.SETTINGS, description: 'Last detected country' },
