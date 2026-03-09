@@ -65,7 +65,7 @@ function renderStepProgress(currentStep) {
     <div class="flex items-center justify-center gap-1 mb-4">
       ${steps.map((step, i) => {
         const dotClass = step < currentStep ? 'completed' : step === currentStep ? 'current' : 'pending'
-        const lineClass = step < currentStep ? 'completed' : 'pending'
+        const lineClass = step <= currentStep ? 'completed' : 'pending'
         return `
           ${i > 0 ? `<div class="step-line ${lineClass}"></div>` : ''}
           <div class="step-dot ${dotClass}" title="${labels[i]}"></div>
@@ -219,9 +219,10 @@ function renderStep2(state) {
     ? WAIT_STEPS.indexOf(state.addSpotWaitTime)
     : -1
   const currentWait = waitIdx >= 0 ? WAIT_STEPS[waitIdx] : null
-  const method = state.addSpotMethod || ''
-  const groupSize = state.addSpotGroupSize || ''
-  const timeOfDay = state.addSpotTimeOfDay || ''
+  const method = state.addSpotMethod || window.spotFormData?.method || ''
+  const groupSize = state.addSpotGroupSize || window.spotFormData?.groupSize || ''
+  const timeOfDay = state.addSpotTimeOfDay || window.spotFormData?.timeOfDay || ''
+  const rideResult = window.spotFormData?.rideResult || ''
 
   return `
     <div class="step-transition">
@@ -241,6 +242,7 @@ function renderStep2(state) {
           name="directionCity"
           class="input-modern"
           placeholder="${t('destinationCity') || 'Direction'}"
+          value="${escapeHTML(window.spotFormData?.directionCity || '')}"
           required
           aria-required="true"
         />
@@ -385,15 +387,11 @@ function renderStep2(state) {
         </label>
         <div class="radio-group">
           <button type="button" onclick="setRideResult('yes')"
-            class="radio-btn ${state.addSpotRideResult === 'yes' ? 'active' : ''}">
+            class="radio-btn ${rideResult === 'yes' ? 'active' : ''}">
             ✅ ${t('yes') || 'Oui'}
           </button>
-          <button type="button" onclick="setRideResult('no')"
-            class="radio-btn ${state.addSpotRideResult === 'no' ? 'active' : ''}">
-            ❌ ${t('no') || 'Non'}
-          </button>
           <button type="button" onclick="setRideResult('gaveUp')"
-            class="radio-btn ${state.addSpotRideResult === 'gaveUp' ? 'active' : ''}">
+            class="radio-btn ${rideResult === 'gaveUp' ? 'active' : ''}">
             🏳️ ${t('gaveUp') || 'Abandonné'}
           </button>
         </div>
@@ -463,7 +461,7 @@ function renderStep3(state) {
 
       <!-- Description -->
       <div class="mb-5">
-        <label for="spot-description" class="text-sm text-slate-400 block mb-2">${t('description')} <span class="text-red-400">*</span></label>
+        <label for="spot-description" class="text-sm text-slate-400 block mb-2">${t('description')} <span class="text-xs text-slate-500">(${t('optional') || 'optionnel'})</span></label>
         <textarea
           id="spot-description"
           name="description"
@@ -771,10 +769,13 @@ window.setTimeOfDay = (time) => {
   })
 }
 
-window.setRideResult = async (result) => {
+// Ride result — DOM-only, no re-render (prevents data loss)
+window.setRideResult = (result) => {
   window.spotFormData.rideResult = result
-  const { setState } = await import('../../stores/state.js')
-  setState({ addSpotRideResult: result })
+  document.querySelectorAll('[onclick*="setRideResult"]').forEach(btn => {
+    const btnResult = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
+    btn.classList.toggle('active', btnResult === result)
+  })
 }
 
 // Multi-destination handlers
@@ -827,12 +828,20 @@ window.addSpotDestination = async () => {
   }
 }
 
-window.removeSpotDestination = async (index) => {
+window.removeSpotDestination = (index) => {
   if (!window.spotFormData.extraDestinations) return
   window.spotFormData.extraDestinations.splice(index, 1)
-  document.activeElement?.blur()
-  const { setState } = await import('../../stores/state.js')
-  setState({ addSpotStep: 2 })
+  // Remove the destination chip from DOM directly (no re-render)
+  const chips = document.querySelectorAll('[onclick*="removeSpotDestination"]')
+  const chip = chips[index]
+  if (chip) {
+    const row = chip.closest('.flex.items-center')
+    if (row) row.remove()
+    // Re-index remaining remove buttons
+    document.querySelectorAll('[onclick*="removeSpotDestination"]').forEach((btn, i) => {
+      btn.setAttribute('onclick', `removeSpotDestination(${i})`)
+    })
+  }
 }
 
 // Toggle amenity chip — DOM-only, no re-render
@@ -1444,10 +1453,7 @@ window.handleAddSpot = async (event) => {
     showError(t('rideResultRequired'))
     return
   }
-  if (!description) {
-    showError(t('descriptionRequired'))
-    return
-  }
+  // Description is optional — skip validation
 
   // Ratings validation — all 3 criteria required
   const ratingsCheck = window.spotFormData.ratings || {}
