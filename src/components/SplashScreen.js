@@ -5,24 +5,48 @@
 
 import { icon } from '../utils/icons.js'
 
-// Hardcoded messages — splash shows BEFORE i18n is loaded, so t() would return raw keys
-const splashMessages = [
-  'On cherche une voiture...',
-  'Pouce en l\'air !',
-  'Direction : l\'aventure',
-  'Attachez vos ceintures... ou pas',
-  'Chargement du karma routier...',
-  'Négociation avec un camionneur...',
-  'Vérification des panneaux...',
-  'Calcul de la bonne humeur...',
-  'Synchronisation des pouces...',
-  'Recherche de l\'aire de repos parfaite...',
-  'Préparation du sourire gagnant...',
-  'Activation du mode aventurier...',
-  'Connexion à l\'univers routier...',
-  'Téléchargement de bonnes vibes...',
-  'Mise à jour du karma voyageur...',
-]
+// Multi-language messages — splash shows BEFORE i18n is loaded, so t() is unavailable
+const splashMessagesByLang = {
+  fr: [
+    'On cherche une voiture...',
+    'Pouce en l\'air !',
+    'Direction : l\'aventure',
+    'Chargement du karma routier...',
+    'Synchronisation des pouces...',
+  ],
+  en: [
+    'Looking for a ride...',
+    'Thumbs up!',
+    'Destination: adventure',
+    'Loading road karma...',
+    'Syncing thumbs...',
+  ],
+  es: [
+    'Buscando un coche...',
+    'Pulgar arriba!',
+    'Destino: aventura',
+    'Cargando karma viajero...',
+    'Sincronizando pulgares...',
+  ],
+  de: [
+    'Suche nach einer Mitfahrt...',
+    'Daumen hoch!',
+    'Ziel: Abenteuer',
+    'Lade Straßenkarma...',
+    'Daumen synchronisieren...',
+  ],
+}
+
+function getSplashLang() {
+  try {
+    const saved = localStorage.getItem('spothitch_language')
+    if (saved && splashMessagesByLang[saved]) return saved
+  } catch { /* no-op */ }
+  const nav = (navigator.language || 'en').slice(0, 2)
+  return splashMessagesByLang[nav] ? nav : 'en'
+}
+
+const splashMessages = splashMessagesByLang[getSplashLang()]
 
 /**
  * Get a random loading message

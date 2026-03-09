@@ -192,7 +192,6 @@ export default defineConfig({
         manualChunks: {
           'vendor-maplibre': ['maplibre-gl'],
           'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
-          'vendor-sentry': ['@sentry/browser'],
           'vendor-utils': ['dompurify'],
           'gamification': [
             './src/services/gamification.js',

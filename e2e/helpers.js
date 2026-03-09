@@ -101,11 +101,19 @@ export async function skipOnboarding(page, opts = {}) {
  */
 export async function navigateToTab(page, tabId) {
   const tab = page.locator(`[data-tab="${tabId}"]`)
-  await tab.click({ force: true, timeout: 5000 })
+  // Wait for tab button to exist in DOM first
+  await tab.waitFor({ state: 'attached', timeout: 5000 }).catch(() => {})
+  // Use evaluate for maximum reliability (bypasses visibility checks)
+  await page.evaluate((id) => {
+    const btn = document.querySelector(`[data-tab="${id}"]`)
+    if (btn) btn.click()
+  }, tabId)
+  await page.waitForTimeout(500)
   try {
     await expect(tab).toHaveAttribute('aria-selected', 'true', { timeout: 3000 })
   } catch {
-    await tab.click({ force: true, timeout: 3000 })
+    // Retry with force click
+    await tab.click({ force: true, timeout: 3000 }).catch(() => {})
   }
   // Wait for lazy-loaded view content to appear (import() + re-render cycle)
   await page.waitForTimeout(2000)

@@ -696,7 +696,14 @@ export const actions = {
 // Initialize state on load
 loadPersistedState();
 
-// Apply theme on load
+// Apply theme on load (check immediate override first, then persisted state)
+try {
+  const themeOverride = localStorage.getItem('spothitch_theme_override')
+  if (themeOverride && (themeOverride === 'light' || themeOverride === 'dark')) {
+    state = { ...state, theme: themeOverride }
+    localStorage.removeItem('spothitch_theme_override')
+  }
+} catch { /* no-op */ }
 if (state.theme === 'light') {
   document.body.classList.add('light-theme');
 }

@@ -16,15 +16,15 @@ import { join, extname } from 'path'
 const ROOT = join(import.meta.dirname, '..', '..')
 const DIST_ASSETS = join(ROOT, 'dist', 'assets')
 
-// Thresholds adjusted for app with MapLibre (~1MB) + Firebase (~500KB) vendors
+// Thresholds adjusted for app with MapLibre (~1MB) + Firebase (~530KB) + 4 lang files (~735KB)
 const THRESHOLDS = {
   mainJsWarn: 1100 * 1024,    // MapLibre vendor is ~1MB — expected
   mainJsError: 1500 * 1024,
-  chunkWarn: 500 * 1024,      // Firebase vendor is ~476KB — expected
+  chunkWarn: 550 * 1024,      // Firebase vendor is ~530KB — expected
   chunkError: 800 * 1024,
-  totalJsWarn: 4000 * 1024,   // Many lazy-loaded chunks
+  totalJsWarn: 4200 * 1024,   // MapLibre+Firebase+4 langs = 2.2MB, rest is app code
   totalJsError: 6000 * 1024,
-  totalCssWarn: 300 * 1024,   // Tailwind + MapLibre CSS
+  totalCssWarn: 320 * 1024,   // Tailwind custom (241KB) + MapLibre (70KB)
   totalCssError: 500 * 1024,
 }
 

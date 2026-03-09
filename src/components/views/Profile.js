@@ -935,7 +935,7 @@ window.toggleRoadmapComments = (featureId) => {
 function renderCommentsSection(featureId) {
   if (!_expandedFeatures.has(featureId)) return ''
   const comments = _commentsCache[featureId]
-  if (!comments) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">Chargement...</div></div>'
+  if (!comments) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">' + escapeHTML(t('loading') || 'Loading...') + '</div></div>'
   if (comments.length === 0) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">' + escapeHTML(t('roadmapNoComments') || 'Aucun avis pour le moment. Sois le premier !') + '</div></div>'
 
   const VOTE_EMOJI = { essential: '🔥', useful: '👍', notUrgent: '🤷' }
@@ -1554,14 +1554,12 @@ window.removeProfilePhoto = (idx) => {
   window._forceRender?.()
 }
 
-// --- References handlers (#58) ---
+// --- References handlers (#58) --- feature not yet implemented
 window.openReferences = () => {
-  window.setState?.({ showReferences: true })
+  window.showToast?.('Fonctionnalité à venir', 'info')
 }
 
-window.closeReferences = () => {
-  window.setState?.({ showReferences: false })
-}
+window.closeReferences = () => { /* not yet implemented */ }
 
 // --- Privacy controls handler (#62) ---
 window.togglePrivacy = (key) => {

@@ -134,8 +134,17 @@ async function setupPage(chromium) {
   await page.evaluate(() => {
     if (window.setLanguage) window.setLanguage = () => {}
     if (window.clearAllData) window.clearAllData = () => {}
+    // Dismiss all first-visit overlays
     document.querySelectorAll('#cookie-banner, .cookie-banner').forEach(el => el.remove())
+    // Skip onboarding/landing/splash
+    localStorage.setItem('spothitch_cookie_consent', JSON.stringify({ essential: true, analytics: false, marketing: false }))
+    localStorage.setItem('spothitch_onboarding_done', 'true')
+    localStorage.setItem('spothitch_state', JSON.stringify({ tutorialCompleted: true, showLanding: false }))
+    // Close any visible overlay
+    window.setState?.({ showLanding: false, showWelcome: false, showTutorial: false })
+    document.querySelectorAll('[class*="splash"], [class*="landing"], [class*="onboarding"]').forEach(el => el.remove())
   })
+  await page.waitForTimeout(500)
 
   return { browser, page }
 }

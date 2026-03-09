@@ -960,6 +960,8 @@ window.toggleTheme = () => {
   const newTheme = s.theme === 'dark' ? 'light' : 'dark'
   setState({ theme: newTheme })
   document.body.classList.toggle('light-theme', newTheme === 'light')
+  // Persist immediately (don't wait for microtask debounce) so reload preserves theme
+  try { localStorage.setItem('spothitch_theme_override', newTheme) } catch { /* no-op */ }
 }
 window.setViewMode = (mode) => {
   setState({ viewMode: mode });
@@ -1467,13 +1469,13 @@ window.setLanguage = async (lang) => {
 };
 
 // Tutorial handlers — retired (replaced by Alpha Welcome Popup)
-// Stubs kept so onclick references don't throw
-window.startTutorial = () => {}
-window.nextTutorial = () => {}
-window.prevTutorial = () => {}
-window.skipTutorial = () => {}
-window.closeTutorial = () => {}
-window.finishTutorial = () => {}
+// Stubs kept so onclick references in AdminPanel don't throw
+window.startTutorial = () => { /* retired */ }
+window.nextTutorial = () => { /* retired */ }
+window.prevTutorial = () => { /* retired */ }
+window.skipTutorial = () => { /* retired */ }
+window.closeTutorial = () => { /* retired */ }
+window.finishTutorial = () => { /* retired */ }
 
 // Chat handlers — canonical: Conversations.js (with Firebase subscription)
 if (!window.setChatRoom) {
@@ -2866,7 +2868,7 @@ if (!window.openFeedbackOnFeature) {
 if (!window.openAddPastTrip) window.openAddPastTrip = () => setState({ showAddPastTrip: true })
 if (!window.openBlockedUsers) window.openBlockedUsers = () => setState({ showBlockedUsers: true })
 if (!window.openComingSoonProximity) window.openComingSoonProximity = () => setState({ showComingSoonProximity: true })
-if (!window.openReferences) window.openReferences = () => setState({ showReferences: true })
+if (!window.openReferences) window.openReferences = () => window.showToast?.('Fonctionnalité à venir', 'info')
 if (!window.openMySpots) window.openMySpots = () => setState({ profileDetailView: 'spots' })
 if (!window.openMyValidations) window.openMyValidations = () => setState({ profileDetailView: 'validations' })
 if (!window.openMyCountries) window.openMyCountries = () => setState({ profileDetailView: 'countries' })
@@ -2877,10 +2879,10 @@ if (!window.openFriendChat) window.openFriendChat = (id) => setState({ socialSub
 if (!window.openWriteReview) window.openWriteReview = (uid) => setState({ showWriteReview: true, reviewTargetUid: uid })
 // Map view handlers — lazy-loaded with Map.js
 if (!window.openCountryGuide) {
-  window.openCountryGuide = (code) => setState({ selectedCountryGuide: code, activeSubTab: 'guides', showGuidesOverlay: true })
+  window.openCountryGuide = (code) => setState({ selectedCountryGuide: code, activeSubTab: 'guides' })
 }
 // MyData modal handlers — lazy-loaded
-if (!window.openConsentSettings) window.openConsentSettings = () => setState({ showConsentSettings: true })
+if (!window.openConsentSettings) window.openConsentSettings = () => window.showToast?.('Paramètres de consentement à venir', 'info')
 // Voyage view handlers — lazy-loaded with Voyage.js
 if (!window.openTripDetail) window.openTripDetail = (i) => setState({ tripDetailIndex: i })
 if (!window.openEditTrip) window.openEditTrip = (i) => setState({ editTripIndex: i })

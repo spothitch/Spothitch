@@ -1,6 +1,6 @@
 {
   "totalScore": 98,
-  "updatedAt": "2026-03-08T02:46:05.113Z",
+  "updatedAt": "2026-03-09T07:30:44.202Z",
   "checks": {
     "Handlers Wiring": {
       "score": 100,
@@ -23,13 +23,13 @@
       "warnings": 0
     },
     "localStorage RGPD": {
-      "score": 100,
-      "errors": 0,
+      "score": 75,
+      "errors": 2,
       "warnings": 11
     },
     "Error Patterns": {
-      "score": 80,
-      "errors": 15,
+      "score": 100,
+      "errors": 0,
       "warnings": 0
     },
     "Duplicate Handlers": {
@@ -43,9 +43,9 @@
       "warnings": 0
     },
     "Bundle Size": {
-      "score": 85,
+      "score": 100,
       "errors": 0,
-      "warnings": 3
+      "warnings": 0
     },
     "Import Cycles": {
       "score": 100,

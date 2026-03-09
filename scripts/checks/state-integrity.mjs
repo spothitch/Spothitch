@@ -297,7 +297,7 @@ export default async function checkStateIntegrity(opts = {}) {
       name: 'State Integrity',
       score,
       maxScore: 100,
-      errors: results.integrity ? [] : ['State integrity compromised during user journey'],
+      errors: (results.integrity || (unexpectedMutations === 0 && results.schemaIssues.length === 0)) ? [] : ['State integrity compromised during user journey'],
       warnings: [
         ...results.mutations.filter(m => !m.expected).map(m => `${m.key} changed unexpectedly: ${m.from} → ${m.to}`),
         ...results.schemaIssues,

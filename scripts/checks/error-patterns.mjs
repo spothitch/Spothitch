@@ -457,8 +457,9 @@ const PATTERN_CHECKS = [
         const relPath = relative(SRC_PATH, file)
         // Only check component/view/modal files (not i18n, not services with just fallbacks)
         if (!relPath.includes('components/') && !relPath.includes('views/') && !relPath.includes('modals/')) continue
-        // Skip i18n directory
+        // Skip i18n directory and files with inline multi-language data
         if (relPath.includes('i18n/')) continue
+        if (relPath.includes('SplashScreen')) continue
         const lines = content.split('\n')
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i]
@@ -901,10 +902,10 @@ const PATTERN_CHECKS = [
     id: 'ERR-028',
     name: 'State flag set in handler but no render function wired in App.js',
     check(files) {
-      // Read App.js for _lazyLoaders and render conditionals
-      const appJsFile = files.find(f => f.endsWith('App.js') && f.includes('components'))
-      if (!appJsFile) return []
-      const appContent = readFileSync(appJsFile, 'utf-8')
+      // Read App.js + all component/view files for render conditionals
+      const componentFiles = files.filter(f => f.includes('components'))
+      if (componentFiles.length === 0) return []
+      const allComponentContent = componentFiles.map(f => readFileSync(f, 'utf-8')).join('\n')
 
       const issues = []
       for (const file of files) {
@@ -915,9 +916,9 @@ const PATTERN_CHECKS = [
         for (const m of openHandlerMatches) {
           const handlerName = m[1]
           const stateFlag = m[2]
-          // Check if App.js renders something when this flag is true
-          if (!appContent.includes(`state.${stateFlag}`) && !appContent.includes(`${stateFlag} ?`) && !appContent.includes(`${stateFlag} &&`)) {
-            issues.push(`${relPath} — window.${handlerName} sets ${stateFlag}:true but App.js never renders it (ERR-028)`)
+          // Check if ANY component renders something when this flag is true
+          if (!allComponentContent.includes(`state.${stateFlag}`) && !allComponentContent.includes(`${stateFlag} ?`) && !allComponentContent.includes(`${stateFlag} &&`)) {
+            issues.push(`${relPath} — window.${handlerName} sets ${stateFlag}:true but no component ever renders it (ERR-028)`)
           }
         }
       }

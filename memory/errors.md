@@ -796,3 +796,23 @@ Chaque erreur suit ce format :
   - **`position:fixed` + `overflow:hidden` sur html = seul moyen fiable de bloquer le scroll sur tous les navigateurs** (y compris iOS Safari)
 - **Fichiers** : `src/styles/main.css`, `src/components/App.js`, `tests/wiring/mapScrollLock.test.js`
 - **Statut** : CORRIGÉ + protégé par 8 tests CI
+
+### ERR-066 — Hardening alpha : 25+ corrections sécurité/UX/intégrité
+- **Date** : 2026-03-09
+- **Gravité** : MAJEUR (ensemble)
+- **Description** : Audit complet de l'app avant alpha. 37 problèmes identifiés, 25+ corrigés dans 9 fichiers.
+- **Corrections appliquées** :
+  - S1: XSS pickedCity geocoder → escapeHTML() dans AddSpot.js
+  - S2-S5: .replace(/'/g) → escapeJSString() dans main.js + Travel.js
+  - S7: Whitelists de champs pour addSpot, updateUserProfile, addReview dans firebase.js
+  - E1-E6,E10: try/catch + toast user sur reportSpot, sendChat, submitReview, password reset, admin login
+  - M1: Codes erreur auth réseau (network-request-failed, internal-error)
+  - M3: sendFriendRequest catch montre erreur réseau spécifique
+  - D1: Messages chat limités à 2000 caractères
+  - D2: mutualFriends fallback Math.random() → 0
+  - D3: deeplink settings action corrigée (showSettings → activeTab: 'profile')
+  - A3: Doublon openLeaderboard setTimeout supprimé
+- **Items non corrigés (acceptables)** : S6 (CSP unsafe-inline = config serveur), L1-L5 (loading polish), A1/A2/A4 (patterns architecturaux intentionnels), G1-G2 (error handlers coexistent sans conflit)
+- **Leçon** : Toujours scanner TOUTES les occurrences d'un pattern dangereux (spread ...data, innerHTML sans escape, catch silencieux). Un audit systématique vaut mieux que des corrections au coup par coup.
+- **Fichiers** : AddSpot.js, Auth.js, FriendProfile.js, Social.js, Travel.js, main.js, firebase.js, proximityNotify.js, deeplink.js
+- **Statut** : CORRIGÉ
