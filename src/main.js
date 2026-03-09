@@ -49,6 +49,8 @@ import { initSplashScreen, hideSplashScreen } from './components/SplashScreen.js
 
 // Data
 import { sampleSpots } from './data/spots.js';
+import { FEATURES_DATA } from './data/featuresData.js';
+import { getAllUserVotes } from './services/featureVotes.js';
 // guides.js loaded dynamically to reduce main bundle size
 
 // Utils
@@ -2109,7 +2111,7 @@ function initDraggableFeedbackBtn() {
   const btn = document.createElement('button')
   btn.id = 'fb-side-btn'
   btn.setAttribute('aria-label', t('fbSideTab') || 'Avis')
-  btn.innerHTML = `<span class="fb-pulse"></span><span class="fb-label">💬 ${escapeHTML(t('fbSideTab') || 'Avis')}</span>`
+  btn.innerHTML = `<span class="fb-badge" id="fb-badge"></span><span class="fb-label">💬 ${escapeHTML(t('fbSideTab') || 'Avis')}</span>`
 
   // Styles — amber on dark, darker amber on light for visibility
   const isLight = document.documentElement.classList.contains('light-theme')
@@ -2133,9 +2135,10 @@ function initDraggableFeedbackBtn() {
   // Pulse dot style
   const style = document.createElement('style')
   style.textContent = `
-    #fb-side-btn .fb-pulse { position:absolute;top:6px;right:4px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.8);animation:fbPulse 2s infinite }
+    #fb-side-btn .fb-badge { position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 6px rgba(239,68,68,0.6);animation:fbBadgePop 0.3s ease-out }
+    #fb-side-btn .fb-badge:empty { display:none }
     #fb-side-btn .fb-label { font-size:11px;font-weight:700;letter-spacing:1.5px }
-    @keyframes fbPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    @keyframes fbBadgePop { from{transform:scale(0)} to{transform:scale(1)} }
   `
   document.head.appendChild(style)
   document.body.appendChild(btn)
@@ -2184,10 +2187,21 @@ function initDraggableFeedbackBtn() {
   document.addEventListener('touchend', onEnd)
   document.addEventListener('mouseup', onEnd)
 
+  // Badge counter: show number of unvoted features
+  function updateFeedbackBadge() {
+    const badge = document.getElementById('fb-badge')
+    if (!badge) return
+    const votedCount = Object.keys(getAllUserVotes()).length
+    const remaining = FEATURES_DATA.length - votedCount
+    badge.textContent = remaining > 0 ? remaining : ''
+  }
+
   // Visibility + theme: hide during SOS, landing, feedback panel open
   subscribe((state) => {
     const hidden = state.showSOS || state.showLanding || state.showFeedbackPanel
     btn.style.display = hidden ? 'none' : ''
+    // Update badge when panel closes (user may have voted)
+    if (!state.showFeedbackPanel) updateFeedbackBadge()
     // Update colors on theme change
     const light = document.documentElement.classList.contains('light-theme')
     btn.style.background = light ? 'linear-gradient(180deg, #d97706, #b45309)' : 'linear-gradient(180deg, #fbbf24, #f59e0b)'
@@ -2196,6 +2210,7 @@ function initDraggableFeedbackBtn() {
   // Initial visibility check
   const s = getState()
   btn.style.display = (s.showSOS || s.showLanding || s.showFeedbackPanel) ? 'none' : ''
+  updateFeedbackBadge()
 }
 window.openContactForm = () => {
   setState({ showContactForm: true });
