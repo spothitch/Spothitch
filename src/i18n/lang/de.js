@@ -27,6 +27,7 @@ export default {
   from: 'Von',
   to: 'Nach',
   description: 'Beschreibung',
+  photoLabel: 'Spot-Foto',
   takePhoto: 'Foto aufnehmen',
   photoRequired: 'Foto erforderlich',
   proximityRequired: 'Du musst in den letzten 24h weniger als 5 km von diesem Spot entfernt gewesen sein',
@@ -3386,6 +3387,7 @@ export default {
   thumbMethod: "Daumen",
   hasShelter: "Regenschutz",
   goodVisibilityTag: "Von weitem sichtbar",
+  amenityFood: "Essen in der Nähe",
   stoppingSpaceTag: "Autos können anhalten",
   nearbyAmenities: "Wasser/Essen in der Nähe",
 

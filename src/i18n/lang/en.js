@@ -27,6 +27,7 @@ export default {
   from: 'From',
   to: 'To',
   description: 'Spot description',
+  photoLabel: 'Spot photo',
   takePhoto: 'Take photo',
   photoRequired: '📸 Photo required',
   proximityRequired: 'You must have been within 5 km of this spot in the last 24h',
@@ -3389,6 +3390,7 @@ export default {
   thumbMethod: "Thumb",
   hasShelter: "Rain shelter",
   goodVisibilityTag: "Visible from far",
+  amenityFood: "Food nearby",
   stoppingSpaceTag: "Cars can stop",
   nearbyAmenities: "Water/food nearby",
 

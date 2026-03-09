@@ -30,7 +30,7 @@ function detectSeason() {
 function renderStarInput(criterion, label) {
   return `
     <div class="mb-3">
-      <label class="text-sm text-slate-400 block mb-1">${label} <span aria-label="obligatoire">*</span></label>
+      <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1">${label} <span class="text-amber-400">*</span></label>
       <div class="flex items-center gap-1" role="radiogroup" aria-label="${label}">
         ${[1, 2, 3, 4, 5].map(star => `
           <button
@@ -83,11 +83,11 @@ function renderStep1(state) {
   const spotType = state.addSpotType || ''
   return `
     <div class="step-transition">
-      <!-- Photo (optional, bonus points — up to 3) -->
+      <!-- Photo (recommended, up to 3) -->
       <div>
-        <label for="spot-photo" class="text-sm text-slate-400 block mb-2">
-          ${t('photoBonus')}
-          <span class="text-xs text-slate-500 ml-1">(${t('maxPhotos')})</span>
+        <label for="spot-photo" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${t('photoLabel') || 'Photo du spot'}
+          <span class="text-xs normal-case text-slate-500 ml-1">(${t('recommended') || 'recommandé'})</span>
         </label>
         <input
           type="file"
@@ -129,41 +129,42 @@ function renderStep1(state) {
         </div>
       </div>
 
-      <!-- Spot Type - Big visual buttons -->
+      <!-- Spot Type -->
       <div>
-        <label class="text-sm text-slate-400 block mb-2">${t('spotTypeLabel')} <span aria-label="obligatoire">*</span></label>
+        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-3">${t('spotTypeLabel')} <span class="text-amber-400">*</span></label>
         <div class="spot-type-grid">
           <button type="button" onclick="selectSpotType('city_exit')"
             class="spot-type-btn ${spotType === 'city_exit' ? 'active' : ''}">
-            <span class="text-2xl">🏙️</span>
+            ${icon('building-2', 'w-5 h-5')}
             <span class="text-xs font-medium">${t('spotTypeCityExit')}</span>
           </button>
           <button type="button" onclick="selectSpotType('gas_station')"
             class="spot-type-btn ${spotType === 'gas_station' ? 'active' : ''}">
-            <span class="text-2xl">⛽</span>
+            ${icon('fuel', 'w-5 h-5')}
             <span class="text-xs font-medium">${t('spotTypeGasStation')}</span>
           </button>
           <button type="button" onclick="selectSpotType('highway')"
             class="spot-type-btn ${spotType === 'highway' ? 'active' : ''}">
-            <span class="text-2xl">🛣️</span>
+            ${icon('route', 'w-5 h-5')}
             <span class="text-xs font-medium">${t('spotTypeHighway')}</span>
           </button>
           <button type="button" onclick="selectSpotType('custom')"
             class="spot-type-btn ${spotType === 'custom' ? 'active' : ''}">
-            <span class="text-2xl">📍</span>
+            ${icon('map-pin', 'w-5 h-5')}
             <span class="text-xs font-medium">${t('spotTypeCustom')}</span>
           </button>
         </div>
-        <button type="button" onclick="autoDetectRoad()" class="w-full mt-2 py-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-slate-400 hover:text-primary-400 transition-colors flex items-center justify-center gap-2">
-          ${icon('map-pin', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
+        <button type="button" onclick="autoDetectRoad()" class="w-full mt-2 py-2 px-3 bg-transparent border-b border-white/10 text-xs text-slate-500 hover:text-amber-400 transition-colors flex items-center justify-center gap-2">
+          ${icon('crosshair', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
         </button>
       </div>
 
       <!-- Station Name (gas_station only) -->
       ${spotType === 'gas_station' ? `
         <div>
-          <label for="spot-station-name" class="text-sm text-slate-400 block mb-2">
-            ${t('stationNameLabel')} <span aria-label="obligatoire">*</span>
+          <label for="spot-station-name" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+            ${icon('fuel', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+            ${t('stationNameLabel')} <span class="text-amber-400">*</span>
           </label>
           <input
             type="text"
@@ -183,8 +184,9 @@ function renderStep1(state) {
 
       <!-- Departure City (autocomplete forced) -->
       <div class="relative">
-        <label for="spot-departure-city" class="text-sm text-slate-400 block mb-2">
-          ${t('departureCity') || 'Ville de départ'} <span aria-label="obligatoire">*</span>
+        <label for="spot-departure-city" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('navigation', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('departureCity') || 'Ville de départ'} <span class="text-amber-400">*</span>
         </label>
         <input
           type="text"
@@ -226,15 +228,11 @@ function renderStep2(state) {
 
   return `
     <div class="step-transition">
-      <h3 class="text-sm font-semibold text-slate-300 mb-4">
-        ${icon('compass', 'w-4 h-4 mr-1 text-primary-400')}
-        ${t('experienceSection') || 'Ton expérience'}
-      </h3>
-
       <!-- Direction City (autocomplete forced) -->
       <div class="relative mb-4">
-        <label for="spot-direction-city" class="text-sm text-slate-400 block mb-2">
-          ${t('destinationCity') || 'Direction'} <span aria-label="obligatoire">*</span>
+        <label for="spot-direction-city" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('compass', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('destinationCity') || 'Direction'} <span class="text-amber-400">*</span>
         </label>
         <input
           type="text"
@@ -284,9 +282,9 @@ function renderStep2(state) {
 
       <!-- Wait Time Slider -->
       <div class="mb-4">
-        <label class="text-sm text-slate-400 block mb-2">
-          ${icon('clock', 'w-4 h-4 mr-1')}
-          ${t('waitTimeLabel') || "Temps d'attente"} <span class="text-red-400">*</span>
+        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('clock', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('waitTimeLabel') || "Temps d'attente"} <span class="text-amber-400">*</span>
         </label>
         <input
           type="range"
@@ -311,9 +309,9 @@ function renderStep2(state) {
 
       <!-- Method (3 radio buttons) -->
       <div class="mb-4">
-        <label class="text-sm text-slate-400 block mb-2">
-          ${icon('hand', 'w-4 h-4 mr-1')}
-          ${t('practicalTips') || 'Méthode'} <span class="text-red-400">*</span>
+        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('hand', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('practicalTips') || 'Méthode'} <span class="text-amber-400">*</span>
         </label>
         <div class="radio-group">
           <button type="button" onclick="setMethod('sign')"
@@ -333,9 +331,9 @@ function renderStep2(state) {
 
       <!-- Group Size (3 radio buttons) -->
       <div class="mb-4">
-        <label class="text-sm text-slate-400 block mb-2">
-          ${icon('users', 'w-4 h-4 mr-1')}
-          ${t('groupSizeLabel') || 'Combien étiez-vous ?'} <span class="text-red-400">*</span>
+        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('users', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('groupSizeLabel') || 'Combien étiez-vous ?'} <span class="text-amber-400">*</span>
         </label>
         <div class="radio-group">
           <button type="button" onclick="setGroupSize('solo')"
@@ -355,44 +353,44 @@ function renderStep2(state) {
 
       <!-- Time of Day (4 radio buttons) -->
       <div class="mb-4">
-        <label class="text-sm text-slate-400 block mb-2">
-          ${icon('sun', 'w-4 h-4 mr-1')}
-          ${t('timeOfDayLabel') || 'Moment de la journée'} <span class="text-red-400">*</span>
+        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('sun', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('timeOfDayLabel') || 'Moment de la journée'} <span class="text-amber-400">*</span>
         </label>
         <div class="radio-group">
           <button type="button" onclick="setTimeOfDay('morning')"
             class="radio-btn ${timeOfDay === 'morning' ? 'active' : ''}">
-            🌅 ${t('timeMorning') || 'Matin'}
+            ${t('timeMorning') || 'Matin'}
           </button>
           <button type="button" onclick="setTimeOfDay('afternoon')"
             class="radio-btn ${timeOfDay === 'afternoon' ? 'active' : ''}">
-            ☀️ ${t('timeAfternoon') || 'Après-midi'}
+            ${t('timeAfternoon') || 'Après-midi'}
           </button>
           <button type="button" onclick="setTimeOfDay('evening')"
             class="radio-btn ${timeOfDay === 'evening' ? 'active' : ''}">
-            🌆 ${t('timeEvening') || 'Soir'}
+            ${t('timeEvening') || 'Soir'}
           </button>
           <button type="button" onclick="setTimeOfDay('night')"
             class="radio-btn ${timeOfDay === 'night' ? 'active' : ''}">
-            🌙 ${t('timeNight') || 'Nuit'}
+            ${t('timeNight') || 'Nuit'}
           </button>
         </div>
       </div>
 
       <!-- Got a ride? -->
       <div class="mb-4">
-        <label class="text-sm text-slate-400 block mb-2">
-          ${icon('thumbs-up', 'w-4 h-4 mr-1')}
-          ${t('gotARide') || 'Tu as eu un lift ?'} <span class="text-red-400">*</span>
+        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('thumbs-up', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('gotARide') || 'Tu as eu un lift ?'} <span class="text-amber-400">*</span>
         </label>
         <div class="radio-group">
           <button type="button" onclick="setRideResult('yes')"
             class="radio-btn ${rideResult === 'yes' ? 'active' : ''}">
-            ✅ ${t('yes') || 'Oui'}
+            ${t('yes') || 'Oui'}
           </button>
           <button type="button" onclick="setRideResult('gaveUp')"
             class="radio-btn ${rideResult === 'gaveUp' ? 'active' : ''}">
-            🏳️ ${t('gaveUp') || 'Abandonné'}
+            ${t('gaveUp') || 'Abandonné'}
           </button>
         </div>
       </div>
@@ -420,10 +418,10 @@ function renderStep3(state) {
     <div class="step-transition">
       <!-- Ratings -->
       <div class="mb-5">
-        <h3 class="text-sm font-semibold text-slate-300 mb-3">
-          ${icon('star', 'w-4 h-4 mr-1 text-yellow-400')}
-          ${t('detailedRatings')}
-        </h3>
+        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-3">
+          ${icon('star', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('detailedRatings')} <span class="text-amber-400">*</span>
+        </label>
         ${renderStarInput('safety', t('safetyRating'))}
         ${renderStarInput('traffic', t('traffic'))}
         ${renderStarInput('accessibility', t('accessibility'))}
@@ -431,8 +429,8 @@ function renderStep3(state) {
 
       <!-- Amenities -->
       <div class="mb-5">
-        <label class="text-sm text-slate-400 block mb-2">
-          ${icon('map-pin', 'w-4 h-4 mr-1 text-emerald-400')}
+        <label class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('map-pin', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
           ${t('amenitiesLabel') || 'Équipements à proximité'}
         </label>
         <div class="flex flex-wrap gap-2">
@@ -446,11 +444,11 @@ function renderStep3(state) {
           </button>
           <button type="button" onclick="toggleAmenity('toilets')"
             class="amenity-chip ${tags.toilets ? 'active' : ''}">
-            🚻 ${t('amenityToilets') || 'Toilettes'}
+            ${icon('bath', 'w-4 h-4 mr-1')} ${t('amenityToilets') || 'Toilettes'}
           </button>
-          <button type="button" onclick="toggleAmenity('visibility')"
-            class="amenity-chip ${tags.visibility ? 'active' : ''}">
-            ${icon('eye', 'w-4 h-4 mr-1')} ${t('goodVisibilityTag') || 'Visible de loin'}
+          <button type="button" onclick="toggleAmenity('food')"
+            class="amenity-chip ${tags.food ? 'active' : ''}">
+            ${icon('utensils', 'w-4 h-4 mr-1')} ${t('amenityFood') || 'Nourriture'}
           </button>
           <button type="button" onclick="toggleAmenity('stoppingSpace')"
             class="amenity-chip ${tags.stoppingSpace ? 'active' : ''}">
@@ -461,7 +459,11 @@ function renderStep3(state) {
 
       <!-- Description -->
       <div class="mb-5">
-        <label for="spot-description" class="text-sm text-slate-400 block mb-2">${t('description')} <span class="text-xs text-slate-500">(${t('optional') || 'optionnel'})</span></label>
+        <label for="spot-description" class="text-xs text-slate-500 uppercase tracking-wider block mb-2">
+          ${icon('file-text', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+          ${t('description')}
+          <span class="text-xs normal-case text-slate-500 ml-1">(${t('recommended') || 'recommandé'})</span>
+        </label>
         <textarea
           id="spot-description"
           name="description"
@@ -518,7 +520,10 @@ function renderPositionBlock() {
 
   return `
     <div>
-      <span class="text-sm text-slate-400 block mb-2" id="location-label">${t('position') || 'Position'} <span aria-label="obligatoire">*</span></span>
+      <span class="text-xs text-slate-500 uppercase tracking-wider block mb-2" id="location-label">
+        ${icon('map-pin', 'w-3.5 h-3.5 inline mr-1 text-amber-400')}
+        ${t('position') || 'Position'} <span class="text-amber-400">*</span>
+      </span>
 
       <!-- GPS button -->
       <button type="button" onclick="useGPSForSpot()" class="btn btn-ghost w-full mb-3" aria-describedby="location-display">

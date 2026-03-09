@@ -27,6 +27,7 @@ export default {
   from: 'Départ',
   to: 'Destination',
   description: 'Description du spot',
+  photoLabel: 'Photo du spot',
   takePhoto: 'Prendre une photo',
   photoRequired: '📸 Photo obligatoire',
   proximityRequired: 'Tu dois être passé à moins de 5 km de ce spot dans les dernières 24h',
@@ -3389,6 +3390,7 @@ export default {
   thumbMethod: "Pouce",
   hasShelter: "Abri pluie",
   goodVisibilityTag: "Visible de loin",
+  amenityFood: "Nourriture",
   stoppingSpaceTag: "Place pour s'arrêter",
   nearbyAmenities: "Eau/nourriture à proximité",
 

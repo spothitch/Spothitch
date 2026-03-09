@@ -18,6 +18,7 @@ export default {
   from: 'Origen',
   to: 'Destino',
   description: 'Descripción',
+  photoLabel: 'Foto del spot',
   takePhoto: 'Tomar foto',
   photoRequired: 'Foto requerida',
   proximityRequired: 'Debes haber estado a menos de 5 km de este spot en las últimas 24h',
@@ -3386,6 +3387,7 @@ export default {
   thumbMethod: "Dedo",
   hasShelter: "Refugio lluvia",
   goodVisibilityTag: "Visible desde lejos",
+  amenityFood: "Comida",
   stoppingSpaceTag: "Espacio para parar",
   nearbyAmenities: "Agua/comida cerca",
 
