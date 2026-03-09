@@ -3,14 +3,14 @@
  * "Split net + couronne 3 pointes + anneau fin doré"
  *
  * 8 marker types:
- *   marker-gray            — Non validé (0 validations)
- *   marker-gray-station    — Non validé + station-service (split gris/rouge)
- *   marker-gray-gold       — Certifié ambassadeur (non validé)
- *   marker-green           — Validé (3+ validations)
- *   marker-green-station   — Validé + station-service (split vert/rouge)
- *   marker-green-gold      — Certifié ambassadeur + validé
- *   marker-green-gold-station — Certifié + validé + station
- *   marker-fav             — Favori utilisateur (ambre)
+ *   marker-gray            — Nouveau (0 validations)
+ *   marker-gray-station    — Nouveau + station-service (split gris/rouge)
+ *   marker-gray-gold       — Certifié ambassadeur (nouveau)
+ *   marker-green           — Fiable (3+ validations)
+ *   marker-green-station   — Fiable + station-service (split vert/rouge)
+ *   marker-green-gold      — Certifié ambassadeur + fiable
+ *   marker-green-gold-station — Certifié + fiable + station
+ *   marker-fav             — Favori utilisateur (coeur rose)
  *
  * NOTE: Le rouge = station-service, PAS dangereux.
  * Les spots dangereux sont vérifiés par admin et supprimés.
@@ -21,7 +21,7 @@ const C = {
   green: '#22c55e',
   red: '#ef4444',
   gold: '#fbbf24',
-  amber: '#f59e0b',
+  pink: '#ec4899',
   goldStroke: '#fbbf24',
   white: '#ffffff',
 }
@@ -68,10 +68,10 @@ function goldStationSvg(leftFill, rightFill) {
 </svg>`
 }
 
-/** Favorite marker: amber circle, gold stroke — slightly larger */
+/** Favorite marker: pink heart */
 function favSvg() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 20 20">
-<circle cx="10" cy="10" r="7.5" fill="${C.amber}" stroke="${C.goldStroke}" stroke-width="2"/>
+<path d="M10 16.5 C10 16.5 2.5 12 2.5 7.5 C2.5 5 4.5 3 7 3 C8.5 3 9.5 3.8 10 4.8 C10.5 3.8 11.5 3 13 3 C15.5 3 17.5 5 17.5 7.5 C17.5 12 10 16.5 10 16.5Z" fill="${C.pink}" stroke="${C.white}" stroke-width="1.2"/>
 </svg>`
 }
 
@@ -156,19 +156,16 @@ export function buildLegendHTML(t) {
     `<svg width="14" height="14" viewBox="0 0 20 20"><defs><clipPath id="lL"><rect x="0" y="0" width="10" height="20"/></clipPath><clipPath id="lR"><rect x="10" y="0" width="10" height="20"/></clipPath></defs><circle cx="10" cy="10" r="6.5" fill="${l}" clip-path="url(#lL)"/><circle cx="10" cy="10" r="6.5" fill="${r}" clip-path="url(#lR)"/><circle cx="10" cy="10" r="6.5" fill="none" stroke="#fff" stroke-width="1.5"/></svg>`
   const g = (fill) =>
     `<svg width="18" height="17" viewBox="0 0 24 22"><path d="M7 7 L9 3 L12 6.5 L15 2 L17 7" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="7.5" fill="none" stroke="#fbbf24" stroke-width="1"/><circle cx="12" cy="13" r="5.5" fill="${fill}" stroke="#fff" stroke-width="1.5"/></svg>`
-  const gs = (l, r) =>
-    `<svg width="18" height="17" viewBox="0 0 24 22"><defs><clipPath id="lgL"><rect x="0" y="0" width="12" height="24"/></clipPath><clipPath id="lgR"><rect x="12" y="0" width="12" height="24"/></clipPath></defs><path d="M7 7 L9 3 L12 6.5 L15 2 L17 7" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="7.5" fill="none" stroke="#fbbf24" stroke-width="1"/><circle cx="12" cy="13" r="5.5" fill="${l}" clip-path="url(#lgL)"/><circle cx="12" cy="13" r="5.5" fill="${r}" clip-path="url(#lgR)"/><circle cx="12" cy="13" r="5.5" fill="none" stroke="#fff" stroke-width="1.5"/></svg>`
+  const heart = () =>
+    `<svg width="14" height="14" viewBox="0 0 20 20"><path d="M10 16.5 C10 16.5 2.5 12 2.5 7.5 C2.5 5 4.5 3 7 3 C8.5 3 9.5 3.8 10 4.8 C10.5 3.8 11.5 3 13 3 C15.5 3 17.5 5 17.5 7.5 C17.5 12 10 16.5 10 16.5Z" fill="#ec4899" stroke="#fff" stroke-width="1.2"/></svg>`
 
   return `
 <div class="text-xs font-bold mb-1.5">${t('mapLegend') || 'Légende'}</div>
-${row(c('#94a3b8'), t('unverifiedSpot') || 'Non vérifié')}
-${row(sp('#94a3b8', '#ef4444'), (t('unverifiedSpot') || 'Non vérifié') + ' + ' + (t('gasStation') || 'Station'))}
-${row(g('#94a3b8'), (t('ambassadorVerified') || 'Certifié') + ' (' + (t('unverifiedSpot') || 'non vérifié').toLowerCase() + ')')}
-${row(c('#22c55e'), t('reliableSpot') || 'Validé')}
-${row(sp('#22c55e', '#ef4444'), (t('reliableSpot') || 'Validé') + ' + ' + (t('gasStation') || 'Station'))}
-${row(g('#22c55e'), (t('ambassadorVerified') || 'Certifié') + ' + ' + (t('reliableSpot') || 'validé').toLowerCase())}
-${row(gs('#22c55e', '#ef4444'), (t('ambassadorVerified') || 'Certifié') + ' + ' + (t('gasStation') || 'station').toLowerCase())}
-${row(c('#f59e0b', '#fbbf24', 2), t('favorite') || 'Favori')}
+${row(c('#94a3b8'), t('legendNew') || 'Nouveau')}
+${row(sp('#94a3b8', '#ef4444'), t('legendSpotStation') || 'Spot + station')}
+${row(c('#22c55e'), t('reliableSpot') || 'Fiable')}
+${row(g('#94a3b8'), t('legendCertified') || 'Certifié')}
+${row(heart(), t('favorite') || 'Favori')}
 `
 }
 

@@ -1808,6 +1808,9 @@ export default {
   // Map & Spots
   mapLegend: 'Legend',
   favorite: 'Favorite',
+  legendNew: 'New',
+  legendSpotStation: 'Spot + station',
+  legendCertified: 'Certified',
   gasStation: 'Gas station',
   gasStations: 'Gas stations',
   loadingGasStations: 'Loading gas stations...',

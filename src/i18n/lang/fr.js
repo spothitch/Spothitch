@@ -1808,6 +1808,9 @@ export default {
   // Map & Spots
   mapLegend: 'Légende',
   favorite: 'Favori',
+  legendNew: 'Nouveau',
+  legendSpotStation: 'Spot + station',
+  legendCertified: 'Certifié',
   gasStation: 'Station essence',
   gasStations: 'Stations-service',
   loadingGasStations: 'Chargement des stations...',
