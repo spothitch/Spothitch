@@ -4642,4 +4642,12 @@ export default {
   moreDestinations: 'autres destinations',
   destinationCityPlaceholder: 'Ville de destination',
   addedBy: 'Ajouté par',
+  stepWhereIsSpot: 'Où est le spot ?',
+  leavingCity: 'Sortir de',
+  googleMapsShareTip: 'Tu peux aussi partager un spot depuis Google Maps vers SpotHitch',
+  amenityWater: 'Eau',
+  myExperience: 'MON EXPERIENCE',
+  location: 'Localisation',
+  statistics: 'Statistiques',
+  ratings: 'Evaluations',
 }

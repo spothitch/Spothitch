@@ -244,7 +244,7 @@ function renderStep2(state) {
   const tabBar = (items, currentVal, onclickFn) => `
     <div style="display:flex;gap:0;border-bottom:1px solid #334155">
       ${items.map(item => `
-        <div onclick="${onclickFn}('${item.value}')"
+        <div onclick="${onclickFn}('${item.value}')" role="button" tabindex="0"
           style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${
             currentVal === item.value
               ? `color:${item.color || '#f59e0b'};border-bottom:2px solid ${item.color || '#f59e0b'};margin-bottom:-1px`
@@ -355,9 +355,9 @@ function renderStep2(state) {
       <div style="margin-bottom:24px">
         <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('gotARide') || 'Lift obtenu'} <span style="color:#f59e0b">*</span></div>
         <div style="display:flex;gap:0;border-bottom:1px solid #334155">
-          <div onclick="setRideResult('yes')"
+          <div onclick="setRideResult('yes')" role="button" tabindex="0"
             style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'yes' ? 'color:#22c55e;border-bottom:2px solid #22c55e;margin-bottom:-1px' : 'color:#64748b'}">${t('yes') || 'Oui'}</div>
-          <div onclick="setRideResult('gaveUp')"
+          <div onclick="setRideResult('gaveUp')" role="button" tabindex="0"
             style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'gaveUp' ? 'color:#64748b;border-bottom:2px solid #64748b;margin-bottom:-1px' : 'color:#64748b'}">${t('gaveUp') || 'Abandonné'}</div>
         </div>
       </div>
