@@ -1,32 +1,35 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 # Pre-push hook: smart quality check before pushing
-# - feature/* branches: build + wiring tests only (~30s)
+# - feature/* branches: wiring tests only (~30s)
 # - dev/main branches: Fox quick check (~8-10 min)
 # Blocks push if checks fail
+# NOTE: husky runs hooks with sh (dash), not bash — use POSIX syntax only
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Feature branches: lightweight check only (build + wiring)
-if [[ "$BRANCH" == feature/* || "$BRANCH" == hotfix/* ]]; then
-  echo ""
-  echo "⚡ Quick check for $BRANCH (build + wiring)..."
-  echo ""
-
-  npx vitest run tests/wiring/ --reporter=dot 2>&1 | tail -5
-  WIRING_EXIT=${PIPESTATUS[0]}
-
-  if [ $WIRING_EXIT -ne 0 ]; then
+# Feature/hotfix branches: lightweight check only (wiring tests)
+case "$BRANCH" in
+  feature/*|hotfix/*)
     echo ""
-    echo "❌ Wiring tests failed. Push blocked."
-    exit 1
-  fi
+    echo "⚡ Quick check for $BRANCH (wiring tests only)..."
+    echo ""
 
-  echo ""
-  echo "✅ Quick check passed. Pushing..."
-  echo ""
-  exit 0
-fi
+    npx vitest run tests/wiring/ --reporter=dot 2>&1 | tail -5
+    WIRING_EXIT=$?
+
+    if [ $WIRING_EXIT -ne 0 ]; then
+      echo ""
+      echo "❌ Wiring tests failed. Push blocked."
+      exit 1
+    fi
+
+    echo ""
+    echo "✅ Quick check passed. Pushing..."
+    echo ""
+    exit 0
+    ;;
+esac
 
 # dev/main branches: full Fox quick check
 echo ""
