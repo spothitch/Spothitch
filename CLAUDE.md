@@ -230,6 +230,24 @@
 > - Si un élément visuel est cassé → corriger AVANT le push
 > - Les screenshots sont sauvegardés dans `audit-screenshots/` pour référence
 
+> **RÈGLE #19 — EXHAUSTIVITÉ TOTALE** (ABSOLUMENT OBLIGATOIRE) :
+> - Quand Antoine demande "tout", "tous", "toutes les solutions", "tout ce qui peut être corrigé", "liste complète", "analyse complète" → c'est LITTÉRALEMENT TOUT. Pas 10, pas 20, pas "les principaux". TOUT sans exception.
+> - **PROCÉDURE OBLIGATOIRE quand "tout" est demandé :**
+>   1. UTILISER extended thinking (hyper-think) pour faire l'analyse COMPLÈTE en interne AVANT de répondre
+>   2. Lancer TOUS les outils d'analyse disponibles en parallèle (QG, Fox, vitest, eslint, grep, etc.)
+>   3. Croiser TOUTES les sources : Fox layers, Quality Gate checks, tests E2E, tests unitaires, audit RGPD, eslint, build warnings, console errors
+>   4. Compiler la liste COMPLÈTE en interne
+>   5. Donner la liste ENTIÈRE d'un seul coup dans UNE SEULE réponse
+> - **INTERDICTIONS :**
+>   - JAMAIS dire "voici les principaux" ou "les plus importants" → TOUT donner
+>   - JAMAIS dire "il y en a d'autres" ou "je peux continuer" → tout mettre dès la première réponse
+>   - JAMAIS livrer en plusieurs fois (10 maintenant, 10 après) → TOUT d'un coup
+>   - JAMAIS filtrer ou prioriser sauf si Antoine le demande explicitement
+>   - JAMAIS arrondir ("une trentaine") → donner le nombre EXACT
+> - **VÉRIFICATION :** Après avoir compilé la liste, se poser la question : "Est-ce que j'ai VRAIMENT tout couvert ? Est-ce qu'il reste des sources non consultées ?" Si oui → les consulter AVANT de répondre.
+> - Si la liste est très longue (50+) → la structurer par catégorie mais TOUT inclure, ne RIEN couper
+> - Cette règle a été ajoutée parce que le problème s'est reproduit PLUSIEURS FOIS malgré les demandes répétées d'Antoine
+
 ---
 
 ## Vue du Projet
