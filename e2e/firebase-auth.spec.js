@@ -210,8 +210,16 @@ test.describe('Firebase Auth - Profile & Account', () => {
           bio: 'Testing profile update',
           avatar: '🎯',
         })
-        const snap = await getDoc(doc(db, 'users', testUid))
-        const data = snap.data()
+        // Poll until Firestore propagates the write (eventual consistency)
+        let data = null
+        const maxAttempts = 10
+        const delayMs = 500
+        for (let i = 0; i < maxAttempts; i++) {
+          const snap = await getDoc(doc(db, 'users', testUid))
+          data = snap.data()
+          if (data?.displayName === 'Alice E2E Updated') break
+          await new Promise(r => setTimeout(r, delayMs))
+        }
         // Reset
         await updateDoc(doc(db, 'users', testUid), {
           displayName: 'Alice Test', bio: '', avatar: '🤙',
