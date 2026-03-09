@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AddSpot · Design Final (v3)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #080c14; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 20px; }
+.page-title { text-align: center; font-size: 28px; font-weight: 700; color: #f59e0b; margin: 40px 0 10px; letter-spacing: -0.5px; }
+.page-subtitle { text-align: center; font-size: 14px; color: #64748b; margin-bottom: 60px; }
+.design-block { margin: 0 auto 80px; max-width: 1280px; }
+.steps-row { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; }
+.step-col { width: 390px; min-width: 390px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">AddSpot · Design Final (v3)</h1>
+<p class="page-subtitle">Design #2 corrigé avec les retours d'Antoine</p>
+
+<div class="design-block">
+<div class="steps-row">
+
+<!-- Step 1 -->
+<div class="step-col">
+<div style="background:#0f1520;border-radius:12px;padding:24px 20px;min-height:700px;">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+  <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0f1520;">1</div>
+  <div style="flex:1;height:1px;background:linear-gradient(90deg,#f59e0b,#334155);"></div>
+  <div style="width:28px;height:28px;border-radius:50%;background:#1a1f2e;display:flex;align-items:center;justify-content:center;font-size:13px;color:#475569;">2</div>
+  <div style="flex:1;height:1px;background:#1a1f2e;"></div>
+  <div style="width:28px;height:28px;border-radius:50%;background:#1a1f2e;display:flex;align-items:center;justify-content:center;font-size:13px;color:#475569;">3</div>
+</div>
+
+<div style="font-size:22px;font-weight:300;margin-bottom:28px;color:#e2e8f0;">Où est le spot ?</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Type</div>
+  <div style="display:flex;gap:0;border-bottom:1px solid #334155;">
+    <div style="flex:1;padding:12px 0;text-align:center;font-size:13px;color:#f59e0b;border-bottom:2px solid #f59e0b;margin-bottom:-1px;cursor:pointer;">Sortie de ville</div>
+    <div style="flex:1;padding:12px 0;text-align:center;font-size:13px;color:#64748b;cursor:pointer;">Station-service</div>
+    <div style="flex:1;padding:12px 0;text-align:center;font-size:13px;color:#64748b;cursor:pointer;">Bord de route</div>
+    <div style="flex:1;padding:12px 0;text-align:center;font-size:13px;color:#64748b;cursor:pointer;">Autre</div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Ville</div>
+  <input type="text" value="Namur" style="width:100%;background:transparent;border:none;border-bottom:1px solid #f59e0b;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none;" />
+  <div style="background:#111827;margin-top:2px;">
+    <div style="padding:10px 0;font-size:14px;color:#f59e0b;border-bottom:1px solid #1a1f2e;cursor:pointer;">Namur, Belgique</div>
+    <div style="padding:10px 0;font-size:14px;color:#64748b;cursor:pointer;">Namur, Quebec</div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Position sur la carte</div>
+  <div style="background:#111827;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#475569;font-size:12px;gap:6px;cursor:pointer;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Toucher pour placer le spot
+  </div>
+</div>
+
+<div style="padding:10px 0;border-bottom:1px solid #1a1f2e;margin-bottom:20px;">
+  <span style="font-size:14px;color:#e2e8f0;">Sortir de Namur</span>
+  <span style="color:#334155;"> · </span>
+  <span style="font-size:13px;color:#64748b;">Position: Jambes</span>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Photo <span style="font-size:10px;color:#334155;text-transform:none;letter-spacing:0;">(recommandé)</span></div>
+  <div style="border-bottom:1px dashed #334155;padding:14px 0;text-align:center;color:#475569;font-size:12px;cursor:pointer;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" style="vertical-align:middle;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    Ajouter une photo
+  </div>
+</div>
+
+<div style="font-size:11px;color:#334155;margin-bottom:20px;">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+  Tu peux aussi partager un spot depuis Google Maps vers SpotHitch
+</div>
+
+<button style="width:100%;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;letter-spacing:0.5px;">SUIVANT</button>
+</div>
+</div>
+
+<!-- Step 2 -->
+<div class="step-col">
+<div style="background:#0f1520;border-radius:12px;padding:24px 20px;min-height:700px;">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+  <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b44;display:flex;align-items:center;justify-content:center;font-size:13px;color:#f59e0b;">1</div>
+  <div style="flex:1;height:1px;background:#f59e0b;"></div>
+  <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0f1520;">2</div>
+  <div style="flex:1;height:1px;background:linear-gradient(90deg,#f59e0b,#334155);"></div>
+  <div style="width:28px;height:28px;border-radius:50%;background:#1a1f2e;display:flex;align-items:center;justify-content:center;font-size:13px;color:#475569;">3</div>
+</div>
+
+<div style="font-size:22px;font-weight:300;margin-bottom:28px;color:#e2e8f0;">Ton expérience</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Direction</div>
+  <input type="text" value="Bruxelles" style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none;" />
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Attente</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <input type="range" min="1" max="180" value="15" style="flex:1;accent-color:#f59e0b;" />
+    <span style="font-size:16px;font-weight:300;color:#f59e0b;">15 min</span>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Méthode</div>
+  <div style="display:flex;gap:0;border-bottom:1px solid #334155;">
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;color:#f59e0b;border-bottom:2px solid #f59e0b;margin-bottom:-1px;cursor:pointer;">Panneau</div>
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;color:#64748b;cursor:pointer;">Pouce</div>
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;color:#64748b;cursor:pointer;">En demandant</div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Groupe</div>
+  <div style="display:flex;gap:0;border-bottom:1px solid #334155;">
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;color:#64748b;cursor:pointer;">Solo</div>
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;color:#f59e0b;border-bottom:2px solid #f59e0b;margin-bottom:-1px;cursor:pointer;">Duo</div>
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;color:#64748b;cursor:pointer;">Groupe 3+</div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Moment</div>
+  <div style="display:flex;gap:0;border-bottom:1px solid #334155;">
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:12px;color:#64748b;cursor:pointer;">Matin</div>
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:12px;color:#f59e0b;border-bottom:2px solid #f59e0b;margin-bottom:-1px;cursor:pointer;">Après-midi</div>
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:12px;color:#64748b;cursor:pointer;">Soir</div>
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:12px;color:#64748b;cursor:pointer;">Nuit</div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Lift obtenu</div>
+  <div style="display:flex;gap:0;border-bottom:1px solid #334155;">
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;color:#22c55e;border-bottom:2px solid #22c55e;margin-bottom:-1px;cursor:pointer;">Oui</div>
+    <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;color:#64748b;cursor:pointer;">Abandonné</div>
+  </div>
+</div>
+
+<div style="display:flex;gap:12px;margin-top:24px;">
+  <button style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;">RETOUR</button>
+  <button style="flex:2;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;">SUIVANT</button>
+</div>
+</div>
+</div>
+
+<!-- Step 3 -->
+<div class="step-col">
+<div style="background:#0f1520;border-radius:12px;padding:24px 20px;min-height:700px;">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+  <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b44;display:flex;align-items:center;justify-content:center;font-size:13px;color:#f59e0b;">1</div>
+  <div style="flex:1;height:1px;background:#f59e0b;"></div>
+  <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b44;display:flex;align-items:center;justify-content:center;font-size:13px;color:#f59e0b;">2</div>
+  <div style="flex:1;height:1px;background:#f59e0b;"></div>
+  <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0f1520;">3</div>
+</div>
+
+<div style="font-size:22px;font-weight:300;margin-bottom:28px;color:#e2e8f0;">Derniers détails</div>
+
+<div style="margin-bottom:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+    <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Sécurité</span>
+    <span style="font-size:12px;color:#f59e0b;">4/5</span>
+  </div>
+  <div style="display:flex;gap:4px;">
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#1a1f2e;border-radius:2px;"></div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+    <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Trafic</span>
+    <span style="font-size:12px;color:#f59e0b;">3/5</span>
+  </div>
+  <div style="display:flex;gap:4px;">
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#1a1f2e;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#1a1f2e;border-radius:2px;"></div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+    <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Accessibilité</span>
+    <span style="font-size:12px;color:#f59e0b;">5/5</span>
+  </div>
+  <div style="display:flex;gap:4px;">
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+    <div style="flex:1;height:4px;background:#f59e0b;border-radius:2px;"></div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Commodités</div>
+  <div style="display:flex;flex-wrap:wrap;gap:0;">
+    <div style="padding:8px 16px;font-size:12px;color:#f59e0b;border-bottom:2px solid #f59e0b;cursor:pointer;">Abri</div>
+    <div style="padding:8px 16px;font-size:12px;color:#64748b;cursor:pointer;">Eau</div>
+    <div style="padding:8px 16px;font-size:12px;color:#64748b;cursor:pointer;">Toilettes</div>
+    <div style="padding:8px 16px;font-size:12px;color:#f59e0b;border-bottom:2px solid #f59e0b;cursor:pointer;">Nourriture</div>
+    <div style="padding:8px 16px;font-size:12px;color:#64748b;cursor:pointer;">Parking</div>
+  </div>
+</div>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Description <span style="font-size:10px;color:#334155;text-transform:none;letter-spacing:0;">(recommandé)</span></div>
+  <textarea style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;resize:none;min-height:60px;font-family:inherit;" placeholder="Quelques mots sur ce spot..."></textarea>
+</div>
+
+<div style="display:flex;gap:12px;margin-top:24px;">
+  <button style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;">RETOUR</button>
+  <button style="flex:2;background:#f59e0b;border:none;color:#0f1520;border-radius:0;padding:14px;font-size:14px;font-weight:600;cursor:pointer;">PUBLIER</button>
+</div>
+</div>
+</div>
+
+</div><!-- steps-row -->
+</div><!-- design-block -->
+
+</body>
+</html>

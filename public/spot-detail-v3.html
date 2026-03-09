@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotDetail v3 · 5 Proposals</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #080c14; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; padding: 20px; }
+.page-title { text-align: center; font-size: 28px; font-weight: 700; color: #f59e0b; margin: 40px 0 10px; letter-spacing: -0.5px; }
+.page-subtitle { text-align: center; font-size: 14px; color: #64748b; margin-bottom: 60px; }
+.design-block { margin: 0 auto 80px; max-width: 440px; }
+.design-label { font-size: 18px; font-weight: 700; color: #f59e0b; margin-bottom: 6px; }
+.design-desc { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+.phone { width: 390px; min-width: 390px; background: #0f1520; border-radius: 12px; overflow: hidden; }
+
+/* Utility: label */
+.lbl { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+/* Utility: section separator */
+.sep { height: 1px; background: #1a1f2e; margin: 20px 0; }
+/* Utility: rating bar row */
+.rating-row { margin-bottom: 16px; }
+.rating-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.rating-bars { display: flex; gap: 4px; }
+.bar { flex: 1; height: 4px; border-radius: 2px; background: #1a1f2e; }
+.bar.filled { background: #f59e0b; }
+
+/* Utility: tab selector */
+.tab-row { display: flex; gap: 0; border-bottom: 1px solid #334155; }
+.tab-item { flex: 1; padding: 10px 0; text-align: center; font-size: 13px; color: #64748b; cursor: pointer; }
+.tab-item.active { color: #f59e0b; border-bottom: 2px solid #f59e0b; margin-bottom: -1px; }
+
+/* Utility: amenity pills */
+.amenity-row { display: flex; flex-wrap: wrap; gap: 0; }
+.amenity { padding: 8px 14px; font-size: 12px; color: #64748b; cursor: default; }
+.amenity.has { color: #f59e0b; border-bottom: 2px solid #f59e0b; }
+
+/* Utility: review card */
+.review { padding: 16px 0; border-bottom: 1px solid #1a1f2e; }
+.review:last-child { border-bottom: none; }
+.review-meta { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+.review-text { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+
+/* Accordion */
+.accordion-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #1a1f2e; cursor: pointer; }
+.accordion-header .lbl { margin: 0; }
+.accordion-body { padding: 12px 0; }
+
+/* Map placeholder */
+.map-box { background: #161b28; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #475569; font-size: 12px; gap: 6px; }
+
+/* Action buttons */
+.btn-primary { width: 100%; background: #f59e0b; border: none; color: #0f1520; border-radius: 0; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px; }
+.btn-outline { width: 100%; background: transparent; border: 1px solid #f59e0b; color: #f59e0b; border-radius: 0; padding: 14px; font-size: 14px; font-weight: 500; cursor: pointer; letter-spacing: 0.5px; }
+.btn-ghost { width: 100%; background: transparent; border: 1px solid #334155; color: #64748b; border-radius: 0; padding: 14px; font-size: 14px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">SpotDetail · 5 Layout Proposals</h1>
+<p class="page-subtitle">Design language from AddSpot #2. Underline inputs, amber accents, ultra-minimal. 390px mobile.</p>
+
+<!-- ============================================================ -->
+<!-- DESIGN #1 — Linear Vertical Scroll -->
+<!-- ============================================================ -->
+<div class="design-block">
+<div class="design-label">#1 · Linear Vertical Scroll</div>
+<div class="design-desc">Actions at top, stats dashboard, then all details in a single scroll. No collapsibles.</div>
+<div class="phone" style="padding: 0;">
+
+<!-- Header bar -->
+<div style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1a1f2e;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span style="font-size: 13px; color: #64748b;">Retour</span>
+  </div>
+  <div style="display: flex; gap: 16px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+  </div>
+</div>
+
+<!-- Spot title + badge -->
+<div style="padding: 20px 20px 0;">
+  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+    <span style="font-size: 11px; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #f59e0b; padding-bottom: 2px;">Sortie de ville</span>
+  </div>
+  <div style="font-size: 22px; font-weight: 300; color: #e2e8f0; margin-bottom: 4px;">Sortie de Namur · Jambes</div>
+  <div style="font-size: 12px; color: #475569; margin-bottom: 16px;">50.4612, 4.8824</div>
+</div>
+
+<!-- ACTION BUTTONS — top priority -->
+<div style="padding: 0 20px 20px; display: flex; gap: 10px;">
+  <button class="btn-primary" style="flex: 1; font-size: 12px; padding: 12px 8px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"/></svg>
+    VALIDER CE SPOT
+  </button>
+  <button class="btn-outline" style="flex: 1; font-size: 12px; padding: 12px 8px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    MON EXPERIENCE
+  </button>
+</div>
+
+<!-- Last validation + last usage -->
+<div style="padding: 0 20px;">
+  <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+    <div style="flex: 1; padding: 12px 0; border-bottom: 1px solid #1a1f2e;">
+      <div class="lbl" style="margin-bottom: 6px;">Derniere validation</div>
+      <div style="font-size: 14px; color: #e2e8f0;">12 fev. 2026</div>
+      <div style="font-size: 11px; color: #475569; margin-top: 2px;">par Lucas_B</div>
+    </div>
+    <div style="flex: 1; padding: 12px 0; border-bottom: 1px solid #1a1f2e;">
+      <div class="lbl" style="margin-bottom: 6px;">Derniere utilisation</div>
+      <div style="font-size: 14px; color: #e2e8f0;">8 mars 2026</div>
+      <div style="font-size: 11px; color: #475569; margin-top: 2px;">15 min · vers Bruxelles</div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats dashboard — 4 numbers -->
+<div style="padding: 0 20px;">
+  <div class="lbl" style="margin-bottom: 12px;">Statistiques</div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0; border-bottom: 1px solid #1a1f2e; padding-bottom: 16px; margin-bottom: 20px;">
+    <div style="text-align: center;">
+      <div style="font-size: 28px; font-weight: 300; color: #e2e8f0;">18</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">min moy.</div>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 28px; font-weight: 300; color: #e2e8f0;">92%</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">succes</div>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 28px; font-weight: 300; color: #e2e8f0;">47</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">utilisations</div>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 28px; font-weight: 300; color: #f59e0b;">4.2</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">securite</div>
+    </div>
+  </div>
+</div>
+
+<!-- Photo -->
+<div style="padding: 0 20px; margin-bottom: 20px;">
+  <div style="background: #161b28; height: 180px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 12px; gap: 6px;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    Photo du spot
+  </div>
+</div>
+
+<!-- Directions -->
+<div style="padding: 0 20px;">
+  <div class="lbl" style="margin-bottom: 12px;">Directions</div>
+  <div style="display: flex; gap: 0; border-bottom: 1px solid #334155; margin-bottom: 20px;">
+    <div style="flex: 1; padding: 10px 0; text-align: center; font-size: 13px; color: #f59e0b; border-bottom: 2px solid #f59e0b; margin-bottom: -1px;">Bruxelles</div>
+    <div style="flex: 1; padding: 10px 0; text-align: center; font-size: 13px; color: #64748b;">Luxembourg</div>
+    <div style="flex: 1; padding: 10px 0; text-align: center; font-size: 13px; color: #64748b;">Liege</div>
+  </div>
+</div>
+
+<!-- Ratings -->
+<div style="padding: 0 20px;">
+  <div class="lbl" style="margin-bottom: 12px;">Evaluations</div>
+  <div class="rating-row">
+    <div class="rating-header">
+      <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Securite</span>
+      <span style="font-size: 12px; color: #f59e0b;">4/5</span>
+    </div>
+    <div class="rating-bars">
+      <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div>
+    </div>
+  </div>
+  <div class="rating-row">
+    <div class="rating-header">
+      <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Trafic</span>
+      <span style="font-size: 12px; color: #f59e0b;">3/5</span>
+    </div>
+    <div class="rating-bars">
+      <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+  </div>
+  <div class="rating-row">
+    <div class="rating-header">
+      <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Accessibilite</span>
+      <span style="font-size: 12px; color: #f59e0b;">5/5</span>
+    </div>
+    <div class="rating-bars">
+      <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Amenities -->
+<div style="padding: 0 20px;">
+  <div class="lbl" style="margin-bottom: 10px;">Commodites</div>
+  <div class="amenity-row" style="margin-bottom: 20px;">
+    <div class="amenity has">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Abri
+    </div>
+    <div class="amenity">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+      Eau
+    </div>
+    <div class="amenity">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      Toilettes
+    </div>
+    <div class="amenity has">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>
+      Nourriture
+    </div>
+    <div class="amenity">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/></svg>
+      Parking
+    </div>
+  </div>
+</div>
+
+<!-- Description -->
+<div style="padding: 0 20px;">
+  <div class="lbl" style="margin-bottom: 8px;">Description</div>
+  <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; border-bottom: 1px solid #1a1f2e; padding-bottom: 16px; margin-bottom: 20px;">
+    Rond-point a la sortie de Jambes, cote N4 direction Bruxelles. Placez-vous apres le feu rouge, les voitures ralentissent naturellement. Espace pour se garer sur le cote. Bien eclaire la nuit.
+  </div>
+</div>
+
+<!-- Reviews -->
+<div style="padding: 0 20px;">
+  <div class="lbl" style="margin-bottom: 12px;">Experiences (12)</div>
+
+  <div class="review">
+    <div class="review-meta">
+      <span style="color: #e2e8f0;">Marie_FR</span>
+      <span style="color: #334155;"> · </span>
+      8 mars 2026
+      <span style="color: #334155;"> · </span>
+      <span style="color: #f59e0b;">15 min</span>
+      <span style="color: #334155;"> · </span>
+      Panneau · Solo · Matin
+    </div>
+    <div class="review-text">Spot parfait pour aller vers Bruxelles. Le rond-point force les voitures a ralentir, j'ai ete prise en 15 minutes avec un panneau.</div>
+    <div style="display: flex; gap: 4px; margin-top: 6px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+    </div>
+  </div>
+
+  <div class="review">
+    <div class="review-meta">
+      <span style="color: #e2e8f0;">Backpack_Tom</span>
+      <span style="color: #334155;"> · </span>
+      2 mars 2026
+      <span style="color: #334155;"> · </span>
+      <span style="color: #f59e0b;">25 min</span>
+      <span style="color: #334155;"> · </span>
+      Pouce · Duo · Apres-midi
+    </div>
+    <div class="review-text">Un peu plus long a deux, mais tres bon spot. La visibilite est excellente et les conducteurs s'arretent facilement.</div>
+    <div style="display: flex; gap: 4px; margin-top: 6px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+    </div>
+  </div>
+
+  <div class="review">
+    <div class="review-meta">
+      <span style="color: #e2e8f0;">HitchQueen</span>
+      <span style="color: #334155;"> · </span>
+      18 fev. 2026
+      <span style="color: #334155;"> · </span>
+      <span style="color: #f59e0b;">8 min</span>
+      <span style="color: #334155;"> · </span>
+      En demandant · Solo · Soir
+    </div>
+    <div class="review-text">J'ai demande directement aux conducteurs a la station-service juste a cote. Super rapide, 8 minutes et j'etais partie vers Luxembourg.</div>
+    <div style="display: flex; gap: 4px; margin-top: 6px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Map -->
+<div style="padding: 20px;">
+  <div class="lbl" style="margin-bottom: 10px;">Localisation</div>
+  <div class="map-box">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    50.4612, 4.8824
+  </div>
+</div>
+
+<!-- Creator info -->
+<div style="padding: 0 20px 20px;">
+  <div style="border-top: 1px solid #1a1f2e; padding-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <div style="font-size: 11px; color: #475569;">Ajoute par <span style="color: #94a3b8;">Antoine_BE</span></div>
+      <div style="font-size: 11px; color: #475569;">14 janv. 2026</div>
+    </div>
+    <div style="font-size: 11px; color: #334155;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="vertical-align: middle; margin-right: 2px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      Signaler
+    </div>
+  </div>
+</div>
+
+</div><!-- phone -->
+</div><!-- design-block -->
+
+
+<!-- ============================================================ -->
+<!-- DESIGN #2 — Photo Hero + Quick Action Bar + Accordion -->
+<!-- ============================================================ -->
+<div class="design-block">
+<div class="design-label">#2 · Photo Hero + Quick Actions + Accordion</div>
+<div class="design-desc">Full-width photo at top, sticky action bar right below, collapsible accordion sections for details.</div>
+<div class="phone" style="padding: 0;">
+
+<!-- Photo hero -->
+<div style="position: relative; background: #161b28; height: 200px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 12px;">
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+  <!-- Overlay nav -->
+  <div style="position: absolute; top: 12px; left: 12px;">
+    <div style="width: 32px; height: 32px; background: rgba(15,21,32,0.7); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+  </div>
+  <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 8px;">
+    <div style="width: 32px; height: 32px; background: rgba(15,21,32,0.7); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    </div>
+    <div style="width: 32px; height: 32px; background: rgba(15,21,32,0.7); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    </div>
+  </div>
+  <!-- Badge overlay bottom -->
+  <div style="position: absolute; bottom: 12px; left: 12px;">
+    <span style="font-size: 11px; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; background: rgba(15,21,32,0.8); padding: 4px 10px;">Sortie de ville</span>
+  </div>
+</div>
+
+<!-- Title -->
+<div style="padding: 16px 20px 0;">
+  <div style="font-size: 22px; font-weight: 300; color: #e2e8f0; margin-bottom: 4px;">Sortie de Namur · Jambes</div>
+  <div style="font-size: 12px; color: #475569; margin-bottom: 16px;">50.4612, 4.8824</div>
+</div>
+
+<!-- Quick action bar -->
+<div style="padding: 0 20px 16px; display: flex; gap: 10px;">
+  <button class="btn-primary" style="flex: 1; font-size: 12px; padding: 12px 8px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"/></svg>
+    VALIDER
+  </button>
+  <button class="btn-outline" style="flex: 1; font-size: 12px; padding: 12px 8px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    MON EXPERIENCE
+  </button>
+</div>
+
+<!-- Last validation + usage inline -->
+<div style="padding: 0 20px 16px; display: flex; gap: 0; border-bottom: 1px solid #1a1f2e;">
+  <div style="flex: 1; padding-bottom: 12px;">
+    <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Derniere validation</div>
+    <div style="font-size: 13px; color: #e2e8f0;">12 fev. 2026</div>
+    <div style="font-size: 10px; color: #475569;">Lucas_B</div>
+  </div>
+  <div style="width: 1px; background: #1a1f2e; margin: 0 12px;"></div>
+  <div style="flex: 1; padding-bottom: 12px;">
+    <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Derniere utilisation</div>
+    <div style="font-size: 13px; color: #e2e8f0;">8 mars 2026</div>
+    <div style="font-size: 10px; color: #475569;">15 min · vers Bruxelles</div>
+  </div>
+</div>
+
+<!-- Accordion: Stats -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Statistiques</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div>
+        <div style="font-size: 24px; font-weight: 300; color: #e2e8f0;">18 min</div>
+        <div style="font-size: 10px; color: #64748b; text-transform: uppercase;">Attente moyenne</div>
+      </div>
+      <div>
+        <div style="font-size: 24px; font-weight: 300; color: #e2e8f0;">92%</div>
+        <div style="font-size: 10px; color: #64748b; text-transform: uppercase;">Taux de succes</div>
+      </div>
+      <div>
+        <div style="font-size: 24px; font-weight: 300; color: #e2e8f0;">47</div>
+        <div style="font-size: 10px; color: #64748b; text-transform: uppercase;">Utilisations</div>
+      </div>
+      <div>
+        <div style="font-size: 24px; font-weight: 300; color: #f59e0b;">4.2</div>
+        <div style="font-size: 10px; color: #64748b; text-transform: uppercase;">Securite moy.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Accordion: Evaluations -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Evaluations</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Securite</span>
+        <span style="font-size: 12px; color: #f59e0b;">4/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div>
+      </div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Trafic</span>
+        <span style="font-size: 12px; color: #f59e0b;">3/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Accessibilite</span>
+        <span style="font-size: 12px; color: #f59e0b;">5/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Accordion: Directions -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Directions (3)</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div style="display: flex; gap: 0; border-bottom: 1px solid #334155;">
+      <div style="flex: 1; padding: 10px 0; text-align: center; font-size: 13px; color: #f59e0b; border-bottom: 2px solid #f59e0b; margin-bottom: -1px;">Bruxelles</div>
+      <div style="flex: 1; padding: 10px 0; text-align: center; font-size: 13px; color: #64748b;">Luxembourg</div>
+      <div style="flex: 1; padding: 10px 0; text-align: center; font-size: 13px; color: #64748b;">Liege</div>
+    </div>
+  </div>
+</div>
+
+<!-- Accordion: Commodites -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Commodites</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div class="amenity-row">
+      <div class="amenity has">Abri</div>
+      <div class="amenity">Eau</div>
+      <div class="amenity">Toilettes</div>
+      <div class="amenity has">Nourriture</div>
+      <div class="amenity">Parking</div>
+    </div>
+  </div>
+</div>
+
+<!-- Accordion: Description -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Description</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div style="font-size: 13px; color: #94a3b8; line-height: 1.6;">
+      Rond-point a la sortie de Jambes, cote N4 direction Bruxelles. Placez-vous apres le feu rouge, les voitures ralentissent naturellement. Espace pour se garer sur le cote. Bien eclaire la nuit.
+    </div>
+  </div>
+</div>
+
+<!-- Accordion: Experiences -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Experiences (12)</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div class="review">
+      <div class="review-meta">
+        <span style="color: #e2e8f0;">Marie_FR</span>
+        <span style="color: #334155;"> · </span>
+        8 mars 2026
+        <span style="color: #334155;"> · </span>
+        <span style="color: #f59e0b;">15 min</span>
+        <span style="color: #334155;"> · </span>
+        Panneau · Solo
+      </div>
+      <div class="review-text">Spot parfait pour aller vers Bruxelles. Le rond-point force les voitures a ralentir.</div>
+      <div style="display: flex; gap: 4px; margin-top: 6px;">
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+      </div>
+    </div>
+
+    <div class="review">
+      <div class="review-meta">
+        <span style="color: #e2e8f0;">Backpack_Tom</span>
+        <span style="color: #334155;"> · </span>
+        2 mars 2026
+        <span style="color: #334155;"> · </span>
+        <span style="color: #f59e0b;">25 min</span>
+        <span style="color: #334155;"> · </span>
+        Pouce · Duo
+      </div>
+      <div class="review-text">Un peu plus long a deux, mais tres bon spot. La visibilite est excellente.</div>
+      <div style="display: flex; gap: 4px; margin-top: 6px;">
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+      </div>
+    </div>
+
+    <div class="review">
+      <div class="review-meta">
+        <span style="color: #e2e8f0;">HitchQueen</span>
+        <span style="color: #334155;"> · </span>
+        18 fev. 2026
+        <span style="color: #334155;"> · </span>
+        <span style="color: #f59e0b;">8 min</span>
+        <span style="color: #334155;"> · </span>
+        En demandant · Solo
+      </div>
+      <div class="review-text">J'ai demande directement aux conducteurs a la station-service juste a cote. Super rapide.</div>
+      <div style="display: flex; gap: 4px; margin-top: 6px;">
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Map -->
+<div style="padding: 20px;">
+  <div class="lbl" style="margin-bottom: 10px;">Localisation</div>
+  <div class="map-box">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    50.4612, 4.8824
+  </div>
+</div>
+
+<!-- Creator -->
+<div style="padding: 0 20px 20px;">
+  <div style="border-top: 1px solid #1a1f2e; padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="font-size: 11px; color: #475569;">
+      Ajoute par <span style="color: #94a3b8;">Antoine_BE</span> · 14 janv. 2026
+    </div>
+    <div style="font-size: 11px; color: #334155; cursor: pointer;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="vertical-align: middle; margin-right: 2px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      Signaler
+    </div>
+  </div>
+</div>
+
+</div><!-- phone -->
+</div><!-- design-block -->
+
+
+<!-- ============================================================ -->
+<!-- DESIGN #3 — Split Grid Layout -->
+<!-- ============================================================ -->
+<div class="design-block">
+<div class="design-label">#3 · Split Grid Layout</div>
+<div class="design-desc">Left column for stats and data, right column for details and reviews. Grid-based two-column layout on a 390px phone.</div>
+<div class="phone" style="padding: 0;">
+
+<!-- Header -->
+<div style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1a1f2e;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </div>
+  <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Detail du spot</div>
+  <div style="display: flex; gap: 12px;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+  </div>
+</div>
+
+<!-- Title + badge -->
+<div style="padding: 16px 20px 12px;">
+  <span style="font-size: 11px; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #f59e0b; padding-bottom: 2px;">Sortie de ville</span>
+  <div style="font-size: 22px; font-weight: 300; color: #e2e8f0; margin-top: 8px;">Sortie de Namur · Jambes</div>
+  <div style="font-size: 12px; color: #475569; margin-top: 2px;">50.4612, 4.8824</div>
+</div>
+
+<!-- Action buttons -->
+<div style="padding: 0 20px 16px; display: flex; gap: 10px;">
+  <button class="btn-primary" style="flex: 1; font-size: 12px; padding: 12px 8px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"/></svg>
+    VALIDER CE SPOT
+  </button>
+  <button class="btn-outline" style="flex: 1; font-size: 12px; padding: 12px 8px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    MON EXPERIENCE
+  </button>
+</div>
+
+<!-- Last validation / usage row -->
+<div style="padding: 0 20px 12px;">
+  <div style="display: flex; gap: 0; border-bottom: 1px solid #1a1f2e; padding-bottom: 12px;">
+    <div style="flex: 1;">
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Derniere validation</div>
+      <div style="font-size: 13px; color: #e2e8f0;">12 fev. 2026 · Lucas_B</div>
+    </div>
+    <div style="width: 1px; background: #1a1f2e; margin: 0 12px;"></div>
+    <div style="flex: 1;">
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Derniere utilisation</div>
+      <div style="font-size: 13px; color: #e2e8f0;">8 mars 2026 · 15 min</div>
+    </div>
+  </div>
+</div>
+
+<!-- SPLIT GRID: stats left, details right -->
+<div style="padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px;">
+
+  <!-- LEFT COLUMN: Stats + Ratings -->
+  <div>
+    <div class="lbl" style="margin-bottom: 10px;">Chiffres cles</div>
+
+    <div style="margin-bottom: 16px;">
+      <div style="font-size: 32px; font-weight: 300; color: #e2e8f0;">18</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">min. attente moy.</div>
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <div style="font-size: 32px; font-weight: 300; color: #e2e8f0;">92%</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">taux de succes</div>
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <div style="font-size: 32px; font-weight: 300; color: #e2e8f0;">47</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">utilisations</div>
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <div style="font-size: 32px; font-weight: 300; color: #f59e0b;">4.2</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">securite moyenne</div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="lbl" style="margin-bottom: 10px;">Evaluations</div>
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Securite</span>
+        <span style="font-size: 12px; color: #f59e0b;">4/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div>
+      </div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Trafic</span>
+        <span style="font-size: 12px; color: #f59e0b;">3/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Accessibilite</span>
+        <span style="font-size: 12px; color: #f59e0b;">5/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: Photo, Directions, Amenities, Description -->
+  <div>
+    <div class="lbl" style="margin-bottom: 10px;">Photo</div>
+    <div style="background: #161b28; height: 120px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 11px; margin-bottom: 16px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    </div>
+
+    <div class="lbl" style="margin-bottom: 10px;">Directions</div>
+    <div style="margin-bottom: 16px;">
+      <div style="padding: 6px 0; font-size: 13px; color: #f59e0b; border-bottom: 1px solid #1a1f2e;">Bruxelles</div>
+      <div style="padding: 6px 0; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #1a1f2e;">Luxembourg</div>
+      <div style="padding: 6px 0; font-size: 13px; color: #94a3b8;">Liege</div>
+    </div>
+
+    <div class="lbl" style="margin-bottom: 10px;">Commodites</div>
+    <div style="margin-bottom: 16px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 0;">
+        <div style="padding: 6px 10px; font-size: 11px; color: #f59e0b; border-bottom: 2px solid #f59e0b;">Abri</div>
+        <div style="padding: 6px 10px; font-size: 11px; color: #64748b;">Eau</div>
+        <div style="padding: 6px 10px; font-size: 11px; color: #64748b;">WC</div>
+        <div style="padding: 6px 10px; font-size: 11px; color: #f59e0b; border-bottom: 2px solid #f59e0b;">Nourriture</div>
+        <div style="padding: 6px 10px; font-size: 11px; color: #64748b;">Parking</div>
+      </div>
+    </div>
+
+    <div class="lbl" style="margin-bottom: 8px;">Description</div>
+    <div style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
+      Rond-point a la sortie de Jambes, cote N4 direction Bruxelles. Placez-vous apres le feu rouge.
+    </div>
+  </div>
+
+</div><!-- end grid -->
+
+<!-- Full-width: Reviews -->
+<div style="padding: 20px;">
+  <div class="lbl" style="margin-bottom: 12px;">Experiences (12)</div>
+
+  <div class="review">
+    <div class="review-meta">
+      <span style="color: #e2e8f0;">Marie_FR</span>
+      <span style="color: #334155;"> · </span>
+      8 mars 2026
+      <span style="color: #334155;"> · </span>
+      <span style="color: #f59e0b;">15 min</span>
+      <span style="color: #334155;"> · </span>
+      Panneau · Solo · Matin
+    </div>
+    <div class="review-text">Spot parfait pour aller vers Bruxelles. Le rond-point force les voitures a ralentir, j'ai ete prise en 15 minutes.</div>
+    <div style="display: flex; gap: 4px; margin-top: 6px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+    </div>
+  </div>
+
+  <div class="review">
+    <div class="review-meta">
+      <span style="color: #e2e8f0;">Backpack_Tom</span>
+      <span style="color: #334155;"> · </span>
+      2 mars 2026
+      <span style="color: #334155;"> · </span>
+      <span style="color: #f59e0b;">25 min</span>
+      <span style="color: #334155;"> · </span>
+      Pouce · Duo · Apres-midi
+    </div>
+    <div class="review-text">Un peu plus long a deux, mais tres bon spot. La visibilite est excellente et les conducteurs s'arretent facilement.</div>
+    <div style="display: flex; gap: 4px; margin-top: 6px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+    </div>
+  </div>
+
+  <div class="review">
+    <div class="review-meta">
+      <span style="color: #e2e8f0;">HitchQueen</span>
+      <span style="color: #334155;"> · </span>
+      18 fev. 2026
+      <span style="color: #334155;"> · </span>
+      <span style="color: #f59e0b;">8 min</span>
+      <span style="color: #334155;"> · </span>
+      En demandant · Solo · Soir
+    </div>
+    <div class="review-text">J'ai demande directement aux conducteurs a la station-service juste a cote. Super rapide.</div>
+    <div style="display: flex; gap: 4px; margin-top: 6px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Map -->
+<div style="padding: 0 20px 20px;">
+  <div class="lbl" style="margin-bottom: 10px;">Localisation</div>
+  <div class="map-box">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    50.4612, 4.8824
+  </div>
+</div>
+
+<!-- Creator -->
+<div style="padding: 0 20px 20px;">
+  <div style="border-top: 1px solid #1a1f2e; padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="font-size: 11px; color: #475569;">
+      Ajoute par <span style="color: #94a3b8;">Antoine_BE</span> · 14 janv. 2026
+    </div>
+    <div style="font-size: 11px; color: #334155; cursor: pointer;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="vertical-align: middle; margin-right: 2px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      Signaler
+    </div>
+  </div>
+</div>
+
+</div><!-- phone -->
+</div><!-- design-block -->
+
+
+<!-- ============================================================ -->
+<!-- DESIGN #4 — Card-Free Editorial Magazine -->
+<!-- ============================================================ -->
+<div class="design-block">
+<div class="design-label">#4 · Card-Free Editorial Magazine</div>
+<div class="design-desc">Generous whitespace, editorial feel. No cards, no boxes. Pure typography with amber accents. Content breathes.</div>
+<div class="phone" style="padding: 0;">
+
+<!-- Minimal header -->
+<div style="padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: center;">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  <div style="display: flex; gap: 16px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+  </div>
+</div>
+
+<!-- Big title area -->
+<div style="padding: 32px 24px 0;">
+  <div style="font-size: 11px; color: #f59e0b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;">Sortie de ville</div>
+  <div style="font-size: 28px; font-weight: 300; color: #e2e8f0; line-height: 1.2; margin-bottom: 8px;">Sortie de Namur</div>
+  <div style="font-size: 16px; font-weight: 300; color: #64748b; margin-bottom: 4px;">Jambes</div>
+  <div style="font-size: 11px; color: #334155; margin-bottom: 32px;">50.4612, 4.8824</div>
+</div>
+
+<!-- Action buttons — prominent -->
+<div style="padding: 0 24px 32px; display: flex; gap: 12px;">
+  <button class="btn-primary" style="flex: 1; padding: 14px 8px; font-size: 12px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><polyline points="20 6 9 17 4 12"/></svg>
+    VALIDER CE SPOT
+  </button>
+  <button class="btn-outline" style="flex: 1; padding: 14px 8px; font-size: 12px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    MON EXPERIENCE
+  </button>
+</div>
+
+<!-- Last validation + usage, editorial style -->
+<div style="padding: 0 24px; margin-bottom: 32px;">
+  <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Derniere activite</div>
+  <div style="border-bottom: 1px solid #1a1f2e; padding-bottom: 12px; margin-bottom: 12px;">
+    <div style="font-size: 14px; color: #e2e8f0; margin-bottom: 2px;">Valide le 12 fev. 2026</div>
+    <div style="font-size: 12px; color: #475569;">par Lucas_B. Le spot existe toujours.</div>
+  </div>
+  <div>
+    <div style="font-size: 14px; color: #e2e8f0; margin-bottom: 2px;">Utilise le 8 mars 2026</div>
+    <div style="font-size: 12px; color: #475569;">Marie_FR · 15 min d'attente · vers Bruxelles</div>
+  </div>
+</div>
+
+<!-- Large stats, magazine style -->
+<div style="padding: 0 24px; margin-bottom: 32px;">
+  <div style="display: flex; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid #1a1f2e;">
+    <div>
+      <div style="font-size: 40px; font-weight: 300; color: #e2e8f0; line-height: 1;">18</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">min. d'attente</div>
+    </div>
+    <div>
+      <div style="font-size: 40px; font-weight: 300; color: #e2e8f0; line-height: 1;">92<span style="font-size: 20px; color: #64748b;">%</span></div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">de succes</div>
+    </div>
+    <div>
+      <div style="font-size: 40px; font-weight: 300; color: #e2e8f0; line-height: 1;">47</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">utilisations</div>
+    </div>
+  </div>
+</div>
+
+<!-- Photo -->
+<div style="padding: 0 24px; margin-bottom: 32px;">
+  <div style="background: #161b28; height: 200px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 12px; gap: 8px;">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+  </div>
+</div>
+
+<!-- Directions -->
+<div style="padding: 0 24px; margin-bottom: 28px;">
+  <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Directions depuis ce spot</div>
+  <div style="display: flex; gap: 0; border-bottom: 1px solid #334155;">
+    <div style="flex: 1; padding: 12px 0; text-align: center; font-size: 14px; color: #f59e0b; border-bottom: 2px solid #f59e0b; margin-bottom: -1px;">Bruxelles</div>
+    <div style="flex: 1; padding: 12px 0; text-align: center; font-size: 14px; color: #64748b;">Luxembourg</div>
+    <div style="flex: 1; padding: 12px 0; text-align: center; font-size: 14px; color: #64748b;">Liege</div>
+  </div>
+</div>
+
+<!-- Ratings — full-width, editorial -->
+<div style="padding: 0 24px; margin-bottom: 28px;">
+  <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">Evaluations</div>
+
+  <div style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+      <span style="font-size: 14px; color: #e2e8f0; font-weight: 300;">Securite</span>
+      <span style="font-size: 14px; color: #f59e0b; font-weight: 300;">4/5</span>
+    </div>
+    <div class="rating-bars">
+      <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+      <span style="font-size: 14px; color: #e2e8f0; font-weight: 300;">Trafic</span>
+      <span style="font-size: 14px; color: #f59e0b; font-weight: 300;">3/5</span>
+    </div>
+    <div class="rating-bars">
+      <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+      <span style="font-size: 14px; color: #e2e8f0; font-weight: 300;">Accessibilite</span>
+      <span style="font-size: 14px; color: #f59e0b; font-weight: 300;">5/5</span>
+    </div>
+    <div class="rating-bars">
+      <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Amenities -->
+<div style="padding: 0 24px; margin-bottom: 28px;">
+  <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Commodites</div>
+  <div class="amenity-row">
+    <div class="amenity has" style="padding: 8px 16px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Abri
+    </div>
+    <div class="amenity" style="padding: 8px 16px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+      Eau
+    </div>
+    <div class="amenity" style="padding: 8px 16px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      Toilettes
+    </div>
+    <div class="amenity has" style="padding: 8px 16px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>
+      Nourriture
+    </div>
+    <div class="amenity" style="padding: 8px 16px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/></svg>
+      Parking
+    </div>
+  </div>
+</div>
+
+<!-- Description -->
+<div style="padding: 0 24px; margin-bottom: 28px;">
+  <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Description</div>
+  <div style="font-size: 14px; color: #94a3b8; line-height: 1.7; font-weight: 300;">
+    Rond-point a la sortie de Jambes, cote N4 direction Bruxelles. Placez-vous apres le feu rouge, les voitures ralentissent naturellement. Espace pour se garer sur le cote. Bien eclaire la nuit.
+  </div>
+</div>
+
+<!-- Reviews — editorial -->
+<div style="padding: 0 24px; margin-bottom: 28px;">
+  <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">Experiences des voyageurs (12)</div>
+
+  <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #1a1f2e;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+      <span style="font-size: 14px; color: #e2e8f0;">Marie_FR</span>
+      <span style="font-size: 12px; color: #475569;">8 mars 2026</span>
+    </div>
+    <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
+      <span style="color: #f59e0b;">15 min</span>
+      <span style="color: #334155;"> · </span>
+      Panneau · Solo · Matin
+    </div>
+    <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; font-weight: 300;">
+      Spot parfait pour aller vers Bruxelles. Le rond-point force les voitures a ralentir, j'ai ete prise en 15 minutes avec un panneau.
+    </div>
+    <div style="display: flex; gap: 4px; margin-top: 8px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #1a1f2e;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+      <span style="font-size: 14px; color: #e2e8f0;">Backpack_Tom</span>
+      <span style="font-size: 12px; color: #475569;">2 mars 2026</span>
+    </div>
+    <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
+      <span style="color: #f59e0b;">25 min</span>
+      <span style="color: #334155;"> · </span>
+      Pouce · Duo · Apres-midi
+    </div>
+    <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; font-weight: 300;">
+      Un peu plus long a deux, mais tres bon spot. La visibilite est excellente et les conducteurs s'arretent facilement.
+    </div>
+    <div style="display: flex; gap: 4px; margin-top: 8px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+      <span style="font-size: 14px; color: #e2e8f0;">HitchQueen</span>
+      <span style="font-size: 12px; color: #475569;">18 fev. 2026</span>
+    </div>
+    <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
+      <span style="color: #f59e0b;">8 min</span>
+      <span style="color: #334155;"> · </span>
+      En demandant · Solo · Soir
+    </div>
+    <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; font-weight: 300;">
+      J'ai demande directement aux conducteurs a la station-service juste a cote. Super rapide, 8 minutes et j'etais partie vers Luxembourg.
+    </div>
+    <div style="display: flex; gap: 4px; margin-top: 8px;">
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Map -->
+<div style="padding: 0 24px 28px;">
+  <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Localisation</div>
+  <div class="map-box">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    50.4612, 4.8824
+  </div>
+</div>
+
+<!-- Creator -->
+<div style="padding: 0 24px 24px;">
+  <div style="border-top: 1px solid #1a1f2e; padding-top: 16px;">
+    <div style="font-size: 11px; color: #475569;">
+      Ajoute par <span style="color: #94a3b8;">Antoine_BE</span> · 14 janv. 2026
+    </div>
+    <div style="font-size: 11px; color: #334155; margin-top: 6px; cursor: pointer;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="vertical-align: middle; margin-right: 2px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      Signaler un probleme
+    </div>
+  </div>
+</div>
+
+</div><!-- phone -->
+</div><!-- design-block -->
+
+
+<!-- ============================================================ -->
+<!-- DESIGN #5 — Dashboard-First with Expandable Sections -->
+<!-- ============================================================ -->
+<div class="design-block">
+<div class="design-label">#5 · Dashboard-First with Expandable Sections</div>
+<div class="design-desc">4 key metrics as the hero, followed by expandable detail sections. Data-forward approach.</div>
+<div class="phone" style="padding: 0;">
+
+<!-- Header -->
+<div style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1a1f2e;">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  <div style="display: flex; gap: 14px;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+  </div>
+</div>
+
+<!-- Badge + title -->
+<div style="padding: 16px 20px 0;">
+  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+    <span style="font-size: 11px; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #f59e0b; padding-bottom: 2px;">Sortie de ville</span>
+    <span style="font-size: 11px; color: #334155;">50.4612, 4.8824</span>
+  </div>
+  <div style="font-size: 22px; font-weight: 300; color: #e2e8f0; margin-bottom: 16px;">Sortie de Namur · Jambes</div>
+</div>
+
+<!-- Actions -->
+<div style="padding: 0 20px 16px; display: flex; gap: 10px;">
+  <button class="btn-primary" style="flex: 1; font-size: 12px; padding: 12px 8px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"/></svg>
+    VALIDER CE SPOT
+  </button>
+  <button class="btn-outline" style="flex: 1; font-size: 12px; padding: 12px 8px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    MON EXPERIENCE
+  </button>
+</div>
+
+<!-- Last validation + usage -->
+<div style="padding: 0 20px 16px; display: flex; gap: 0;">
+  <div style="flex: 1; padding: 10px 0; border-bottom: 1px solid #1a1f2e;">
+    <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Derniere validation</div>
+    <div style="font-size: 13px; color: #e2e8f0;">12 fev. 2026</div>
+    <div style="font-size: 10px; color: #475569;">Lucas_B</div>
+  </div>
+  <div style="width: 1px; background: #1a1f2e; margin: 0 12px;"></div>
+  <div style="flex: 1; padding: 10px 0; border-bottom: 1px solid #1a1f2e;">
+    <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Derniere utilisation</div>
+    <div style="font-size: 13px; color: #e2e8f0;">8 mars 2026</div>
+    <div style="font-size: 10px; color: #475569;">15 min · vers Bruxelles</div>
+  </div>
+</div>
+
+<!-- DASHBOARD: 4 key metrics in a 2x2 grid -->
+<div style="padding: 0 20px; margin-bottom: 20px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0;">
+    <div style="padding: 20px 0; border-bottom: 1px solid #1a1f2e; border-right: 1px solid #1a1f2e; text-align: center;">
+      <div style="font-size: 36px; font-weight: 300; color: #e2e8f0; line-height: 1;">18</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px;">min. attente moy.</div>
+    </div>
+    <div style="padding: 20px 0; border-bottom: 1px solid #1a1f2e; text-align: center;">
+      <div style="font-size: 36px; font-weight: 300; color: #e2e8f0; line-height: 1;">92<span style="font-size: 18px; color: #64748b;">%</span></div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px;">taux de succes</div>
+    </div>
+    <div style="padding: 20px 0; border-right: 1px solid #1a1f2e; text-align: center;">
+      <div style="font-size: 36px; font-weight: 300; color: #e2e8f0; line-height: 1;">47</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px;">utilisations</div>
+    </div>
+    <div style="padding: 20px 0; text-align: center;">
+      <div style="font-size: 36px; font-weight: 300; color: #f59e0b; line-height: 1;">4.2</div>
+      <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px;">securite moy.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Expandable: Photo -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Photo</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div style="background: #161b28; height: 160px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 12px; gap: 6px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      Photo du spot
+    </div>
+  </div>
+</div>
+
+<!-- Expandable: Directions -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Directions (3)</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div class="tab-row">
+      <div class="tab-item active">Bruxelles</div>
+      <div class="tab-item">Luxembourg</div>
+      <div class="tab-item">Liege</div>
+    </div>
+  </div>
+</div>
+
+<!-- Expandable: Evaluations -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Evaluations</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Securite</span>
+        <span style="font-size: 12px; color: #f59e0b;">4/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div>
+      </div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Trafic</span>
+        <span style="font-size: 12px; color: #f59e0b;">3/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+    <div class="rating-row">
+      <div class="rating-header">
+        <span style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Accessibilite</span>
+        <span style="font-size: 12px; color: #f59e0b;">5/5</span>
+      </div>
+      <div class="rating-bars">
+        <div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Expandable: Commodites -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Commodites</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div class="amenity-row">
+      <div class="amenity has">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        Abri
+      </div>
+      <div class="amenity">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+        Eau
+      </div>
+      <div class="amenity">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Toilettes
+      </div>
+      <div class="amenity has">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>
+        Nourriture
+      </div>
+      <div class="amenity">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/></svg>
+        Parking
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Expandable: Description -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Description</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div style="font-size: 13px; color: #94a3b8; line-height: 1.6;">
+      Rond-point a la sortie de Jambes, cote N4 direction Bruxelles. Placez-vous apres le feu rouge, les voitures ralentissent naturellement. Espace pour se garer sur le cote. Bien eclaire la nuit.
+    </div>
+  </div>
+</div>
+
+<!-- Expandable: Experiences -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Experiences (12)</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div class="review">
+      <div class="review-meta">
+        <span style="color: #e2e8f0;">Marie_FR</span>
+        <span style="color: #334155;"> · </span>
+        8 mars 2026
+        <span style="color: #334155;"> · </span>
+        <span style="color: #f59e0b;">15 min</span>
+        <span style="color: #334155;"> · </span>
+        Panneau · Solo · Matin
+      </div>
+      <div class="review-text">Spot parfait pour aller vers Bruxelles. Le rond-point force les voitures a ralentir, j'ai ete prise en 15 minutes avec un panneau.</div>
+      <div style="display: flex; gap: 4px; margin-top: 6px;">
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+      </div>
+    </div>
+
+    <div class="review">
+      <div class="review-meta">
+        <span style="color: #e2e8f0;">Backpack_Tom</span>
+        <span style="color: #334155;"> · </span>
+        2 mars 2026
+        <span style="color: #334155;"> · </span>
+        <span style="color: #f59e0b;">25 min</span>
+        <span style="color: #334155;"> · </span>
+        Pouce · Duo · Apres-midi
+      </div>
+      <div class="review-text">Un peu plus long a deux, mais tres bon spot. La visibilite est excellente et les conducteurs s'arretent facilement.</div>
+      <div style="display: flex; gap: 4px; margin-top: 6px;">
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #1a1f2e;"></div>
+      </div>
+    </div>
+
+    <div class="review">
+      <div class="review-meta">
+        <span style="color: #e2e8f0;">HitchQueen</span>
+        <span style="color: #334155;"> · </span>
+        18 fev. 2026
+        <span style="color: #334155;"> · </span>
+        <span style="color: #f59e0b;">8 min</span>
+        <span style="color: #334155;"> · </span>
+        En demandant · Solo · Soir
+      </div>
+      <div class="review-text">J'ai demande directement aux conducteurs a la station-service juste a cote. Super rapide, 8 minutes et j'etais partie vers Luxembourg.</div>
+      <div style="display: flex; gap: 4px; margin-top: 6px;">
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+        <div style="width: 30px; height: 4px; border-radius: 2px; background: #f59e0b;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Expandable: Map -->
+<div style="padding: 0 20px;">
+  <div class="accordion-header">
+    <span class="lbl">Localisation</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="accordion-body">
+    <div class="map-box">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      50.4612, 4.8824
+    </div>
+  </div>
+</div>
+
+<!-- Creator -->
+<div style="padding: 16px 20px 20px;">
+  <div style="border-top: 1px solid #1a1f2e; padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="font-size: 11px; color: #475569;">
+      Ajoute par <span style="color: #94a3b8;">Antoine_BE</span> · 14 janv. 2026
+    </div>
+    <div style="font-size: 11px; color: #334155; cursor: pointer;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="vertical-align: middle; margin-right: 2px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      Signaler
+    </div>
+  </div>
+</div>
+
+</div><!-- phone -->
+</div><!-- design-block -->
+
+
+</body>
+</html>
