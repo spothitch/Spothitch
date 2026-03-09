@@ -1297,6 +1297,8 @@ export default {
   confirmDeleteForever: 'Sind Sie sicher, dass Sie Ihr Konto dauerhaft löschen möchten?',
   userNotFound: 'Benutzer nicht gefunden',
   errorOccurred: 'Ein Fehler ist aufgetreten',
+  errorNetwork: 'Netzwerkfehler. Bitte erneut versuchen.',
+  messageSendFailed: 'Nachricht nicht gesendet. Überprüfe deine Verbindung.',
 
 
   // Location Permission

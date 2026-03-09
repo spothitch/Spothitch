@@ -451,6 +451,8 @@ export default {
   confirmDeleteForever: 'Etes-vous sur de vouloir supprimer definitivement votre compte ?',
   userNotFound: 'Utilisateur non trouvé',
   errorOccurred: 'Une erreur est survenue',
+  errorNetwork: 'Erreur réseau. Réessaie.',
+  messageSendFailed: 'Message non envoyé. Vérifie ta connexion.',
   gdprFooter: 'Conformement au RGPD, vous avez le droit d\'acceder, de rectifier et de supprimer vos données personnelles.',
   viewPrivacyPolicy: 'Consulter notre politique de confidentialite',
   accepted: 'Accepté',

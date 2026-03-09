@@ -948,6 +948,8 @@ export default {
   confirmDeleteForever: 'Estas seguro de que quieres eliminar permanentemente tu cuenta?',
   userNotFound: 'Usuario no encontrado',
   errorOccurred: 'Ha ocurrido un error',
+  errorNetwork: 'Error de red. Inténtalo de nuevo.',
+  messageSendFailed: 'Mensaje no enviado. Verifica tu conexión.',
 
   gdprFooter: 'De acuerdo con el RGPD, tienes derecho a acceder, rectificar y eliminar tus datos personales.',
   viewPrivacyPolicy: 'Consultar nuestra politica de privacidad',

@@ -451,6 +451,8 @@ export default {
   confirmDeleteForever: 'Are you sure you want to permanently delete your account?',
   userNotFound: 'User not found',
   errorOccurred: 'An error occurred',
+  errorNetwork: 'Network error. Please try again.',
+  messageSendFailed: 'Message not sent. Check your connection.',
   gdprFooter: 'In accordance with GDPR, you have the right to access, rectify, and delete your personal data.',
   viewPrivacyPolicy: 'View our Privacy Policy',
   accepted: 'Accepted',
