@@ -1,6 +1,6 @@
 # features.md - Inventaire complet des fonctionnalités SpotHitch
 
-> Dernière mise à jour : 2026-02-25 (session 23)
+> Dernière mise à jour : 2026-03-10 (session 40)
 > IMPORTANT : Vérifier ce fichier AVANT de proposer une feature — elle existe peut-être déjà !
 
 ---
@@ -40,7 +40,7 @@
 - [x] 3 critères notation : sécurité, trafic, accessibilité (1-5 étoiles)
 - [x] Tags enrichis : abri, visibilité, parking, commodités, méthode signalisation
 - [x] Direction/destination obligatoire
-- [x] Détail spot design final : photo arrondie 20px+padding, badge statut solide opaque, score cercle émeraude, boutons vert/ambre/bleu, cartes dates 2 colonnes, strip météo/légal/saison, 4 métriques, tags badges, 6 sections dépliables, 3 boutons secondaires, dates relatives
+- [x] Détail spot design final v3 : photo arrondie 20px+padding, badge statut solide opaque, score cercle émeraude, boutons vert/ambre/bleu, cartes dates 2 colonnes, strip météo/légal/saison, 4 métriques, tags badges, 6 sections ouvertes par défaut, 3 boutons secondaires, dates relatives, method/group/time/season chips, taux succès réel, photo fallback, station name, road number
 - [x] 2 boutons spot : "Je valide" (quick 1-tap, validationCount) + "J'ai testé" (formulaire, testCount)
 - [x] Infos légales par pays dans SpotDetail (vert/jaune/rouge depuis guides.js)
 - [x] Spots alternatifs proches (rayon 5km, triés par rating)

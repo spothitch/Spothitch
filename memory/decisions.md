@@ -1,6 +1,6 @@
 # decisions.md - Historique des décisions SpotHitch
 
-> Dernière mise à jour : 2026-03-02
+> Dernière mise à jour : 2026-03-10
 
 ---
 
@@ -58,6 +58,10 @@
 | Rouge = station uniquement | Rouge n'est PAS "dangereux", c'est station-service | Combinable avec n'importe quel tier (gris-rouge, vert-rouge, or-rouge) | 2026-03-02 |
 | Valider vs Tester | 2 boutons séparés (quick validate + formulaire test) | Valider = le spot existe (drive-by), Tester = j'ai fait du stop ici | 2026-03-02 |
 | SpotDetail K9 | Design arrondi organique avec sections dépliables | Plus lisible, moins de scroll, info hiérarchisée | 2026-03-02 |
+| SpotDetail sections ouvertes | Toutes les sections `<details open>` par défaut | Antoine veut tout visible sans cliquer | 2026-03-10 |
+| SpotDetail ordre sections | Stats > Ratings > Destinations > Description > Reviews > Amenities > Location | Amenities avant Location sur demande Antoine | 2026-03-10 |
+| SPOT_ALLOWED_FIELDS 35+ | Whitelist Firebase étendue de 21 à 35+ champs + flattening | v3 AddSpot collecte plus de données (method, group, time, season, tags, etc.) | 2026-03-10 |
+| Pas de faux avis | generatePlaceholderReviews supprimé | Seuls les vrais avis sont affichés | 2026-03-10 |
 | Marqueurs carte Style D | Split vertical (gauche=tier, droite=rouge) pour stations + bordure dorée brillante pour certifié. **VERROUILLÉ** — ne jamais changer sans accord Antoine. | Choisi par Antoine parmi 6 propositions (A-F). Icônes canvas, symbol layer. | 2026-03-02 |
 | Or auto-certifié | Spot d'Or (10+ tests + 10+ validations) est TOUJOURS certifié, même sans ambassadeur | La communauté qui valide massivement = preuve suffisante | 2026-03-02 |
 | Photo optionnelle + 50pts | Photo pas obligatoire à la création ni au test, mais donne +50 points bonus | Testeurs ajoutent beaucoup de spots sans photos au début | 2026-03-02 |

@@ -999,29 +999,8 @@ window.selectSpot = async (id) => {
 window.openSpotDetail = window.selectSpot; // alias for services that use openSpotDetail
 window.closeSpotDetail = () => actions.selectSpot(null);
 window.openAddSpot = () => {
-  // Test mode bypass — activate via console: localStorage.setItem('spothitch_test_mode', 'true')
-  const isTestMode = localStorage.getItem('spothitch_test_mode') === 'true'
-
-  if (isTestMode) {
-    // Skip auth in test mode but still require profile
-    if (!window.requireProfile('addSpot')) return
-    setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
-    return
-  }
-
-  // Production: require real authentication (Google/Facebook/Apple/Email)
-  const { isLoggedIn } = getState()
-  if (!isLoggedIn) {
-    setState({
-      showAuth: true,
-      authPendingAction: 'addSpot',
-      showAuthReason: t('authRequiredAddSpot') || 'Connecte-toi pour partager un spot',
-    })
-    return
-  }
-
-  // Authenticated — also require profile (username)
-  if (!window.requireProfile('addSpot')) return
+  // User is already authenticated from the landing carousel (login required to dismiss it)
+  // Just open the AddSpot wizard directly
   setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
   if (window._pendingShareCoords) {
     showToast(t('sharePositionImported') || 'Position imported from map', 'success')

@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-05 (session 39 — audit alpha complet production, toutes features confirmées ✅)
+> Dernière mise à jour : 2026-03-10 (session 40 — AddSpot v3 + SpotDetail v3 push, Firebase SPOT_ALLOWED_FIELDS fix, 7 améliorations SpotDetail)
 
 ---
 
@@ -154,6 +154,26 @@
 ---
 
 ## Dernières sessions (reconstitué depuis git log)
+
+### Session 2026-03-10 (session 40 — ADDSPOT V3 + SPOTDETAIL V3 + FIREBASE FIX)
+- **BUG CRITIQUE Firebase** : `SPOT_ALLOWED_FIELDS` dans firebase.js ne contenait que 21 champs → ratings, tags, destinations, method, groupSize, timeOfDay, season, spotType silencieusement supprimés à l'écriture. Étendu à 35+ champs + flattening coordinates/ratings.
+- **SpotDetail v3 améliorations** (7 points) :
+  1. Method/groupSize/timeOfDay/season affichés comme chips dans section Stats
+  2. Photo fallback (icône pin SVG si image cassée via onerror)
+  3. Taux de succès réel calculé depuis rideResult (couleur vert/rouge)
+  4. Meilleur créneau horaire/saison depuis les données spot
+  5. Suppression des faux avis (generatePlaceholderReviews supprimé)
+  6. Nom de station affiché pour les spots station-service
+  7. Numéro de route/nom de localisation affiché quand disponible
+- **SpotDetail sections ouvertes par défaut** : `<details>` → `<details open>` pour toutes les sections
+- **Amenities avant Location** : réordonnancement des sections dans SpotDetail
+- **GitHub Security** : Dependabot security updates activé, CodeQL alertes dismissées (justification client-side)
+- **Quality Gate** : 100/100 (ratchet mis à jour)
+- **i18n** : 8 clés ajoutées en 4 langues (stepWhereIsSpot, leavingCity, googleMapsShareTip, amenityWater, myExperience, location, statistics, ratings)
+- **a11y** : 3 divs interactifs dans AddSpot → `role="button" tabindex="0"`
+- **E2E Firebase** : retry polling ajouté pour gamification + spots (Firestore eventual consistency)
+- **CI** : 15/15 jobs verts sur dev ET main, Fox 96/100 READY TO SHIP
+- **Déployé** : spothitch.com (main) + preview (dev)
 
 ### Session 2026-03-05 (session 39 — AUDIT ALPHA PRODUCTION COMPLET)
 - **Audit complet de toutes les features alpha sur spothitch.com production**
