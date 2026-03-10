@@ -1147,20 +1147,7 @@ function renderNotificationsCard(state) {
         </div>
         <span class="text-[10px] text-amber-400 font-medium whitespace-nowrap">${t('comingSoon') || 'Bientôt'}</span>
       </button>
-      <button
-        onclick="openComingSoonProximity()"
-        class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
-        type="button"
-      >
-        <div class="flex items-center gap-3">
-          ${icon('bell-ring', 'w-5 h-5 text-blue-400')}
-          <div class="text-left">
-            <span class="text-sm block">${t('pushNotifications') || 'Notifications push'}</span>
-            <span class="text-xs text-slate-400">${t('pushNotificationsDesc') || 'Alertes push'}</span>
-          </div>
-        </div>
-        <span class="text-[10px] text-amber-400 font-medium whitespace-nowrap">${t('comingSoon') || 'Bientôt'}</span>
-      </button>
+      ${''}<!-- Notifications push: disabled for alpha, enable in beta -->
     </div>
   `
 }
@@ -1248,11 +1235,7 @@ function renderProfileFooter() {
     <div class="space-y-3 mt-4">
       <div class="card p-4">
         <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">${t('footerHelp') || 'Aide'}</h4>
-        <button onclick="openFAQ()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-          ${icon('help-circle', 'w-4 h-4 text-primary-400')}
-          <span class="text-sm text-slate-300">${t('faqAndHelp') || 'FAQ & Aide'}</span>
-          ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
-        </button>
+        ${''}<!-- FAQ: disabled for alpha, enable in beta -->
         <button onclick="openContactForm()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
           ${icon('mail', 'w-4 h-4 text-blue-400')}
           <span class="text-sm text-slate-300">${t('contactUs') || 'Nous contacter'}</span>
@@ -1284,30 +1267,13 @@ function renderProfileFooter() {
       </div>
       <div class="card p-4">
         <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">${t('footerAbout') || 'À propos'}</h4>
-        <button onclick="openChangelog()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-          ${icon('sparkles', 'w-4 h-4 text-purple-400')}
-          <span class="text-sm text-slate-300">${t('whatsNew') || 'Quoi de neuf'}</span>
-          <span class="text-xs text-slate-500 ml-auto">v2.0.0</span>
-        </button>
+        ${''}<!-- Quoi de neuf: disabled for alpha, enable in beta -->
         <button onclick="shareApp()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
           ${icon('share-2', 'w-4 h-4 text-primary-400')}
           <span class="text-sm text-slate-300">${t('inviteFriends') || 'Inviter des amis'}</span>
           ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
         </button>
-        <div class="flex items-center gap-4 p-3 pt-4 border-t border-white/5 mt-2">
-          <span class="text-xs text-slate-500">${t('followUs') || 'Nous suivre'}</span>
-          <div class="flex gap-3 ml-auto">
-            <a href="https://instagram.com/spothitch" target="_blank" rel="noopener" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-pink-400 hover:bg-pink-500/10 transition-colors" aria-label="Instagram">
-              ${icon('instagram', 'w-4 h-4')}
-            </a>
-            <a href="https://tiktok.com/@spothitch" target="_blank" rel="noopener" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors" aria-label="TikTok">
-              ${icon('video', 'w-4 h-4')}
-            </a>
-            <a href="https://discord.gg/spothitch" target="_blank" rel="noopener" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors" aria-label="Discord">
-              ${icon('message-square', 'w-4 h-4')}
-            </a>
-          </div>
-        </div>
+        ${''}<!-- Social links: disabled for alpha (no pages yet), enable in beta -->
         <div class="p-3 pt-2 border-t border-white/5">
           <p class="text-xs text-slate-500">${t('creditsText') || 'Données : Hitchwiki (ODBL) • Cartes : OpenFreeMap'}</p>
         </div>

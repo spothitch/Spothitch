@@ -277,6 +277,13 @@
 
 - [ ] Affiliés : inscription manuelle nécessaire
 
+## Désactivé pour l'alpha (à activer en beta)
+
+- [ ] FAQ & Aide (bouton dans Réglages > Aide) — nécessite création featureId `faq` dans featuresData.js
+- [ ] Notifications push (bouton dans Réglages > Notifications) — nécessite fenêtre dédiée push
+- [ ] Quoi de neuf / Changelog (bouton dans Réglages > À propos) — nécessite vrai contenu changelog
+- [ ] Liens sociaux "Nous suivre" Instagram/TikTok/Discord (dans Réglages > À propos) — créer les pages d'abord
+
 ---
 
 ## À venir — Mode Gardien (Companion In-App)
