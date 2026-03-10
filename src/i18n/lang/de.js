@@ -3746,6 +3746,8 @@ export default {
   showToNonFriends: 'Profil fuer alle sichtbar',
   showLocationHistory: 'Standortverlauf',
   showTravelStats: 'Reisestatistiken sichtbar',
+  sharePastTrips: 'Meine vergangenen Reisen teilen',
+  sharePastTripsDesc: 'Deine Routen und Daten für andere sichtbar',
   sharedTrips: 'Geteilte Reisen',
   shareNewTrip: 'Teilen',
   sharedTripsEmpty: 'Teile deine Abenteuer mit der Community!',

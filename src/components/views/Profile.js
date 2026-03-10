@@ -212,7 +212,6 @@ function renderProfilTab(state) {
     ${renderPhotoGalleryCard(state)}
     ${renderTrustScoreCard()}
     ${renderMyReviewsCard(state)}
-    ${renderReferencesCard(state)}
     ${renderPublicTripsCard(state)}
     ${renderBadgesGrid(state)}
     ${renderDonationCard()}
@@ -334,15 +333,14 @@ function renderVerificationCard(state) {
       </div>
       <div class="flex gap-2">
         ${steps.map((s, i) => `
-          <div class="flex-1 flex flex-col items-center gap-1.5 ${i === 2 && !s.done ? 'cursor-pointer' : ''}"
-            ${i === 2 && !s.done ? 'onclick="openComingSoonIdentity()" role="button" tabindex="0"' : ''}>
+          <div class="flex-1 flex flex-col items-center gap-1.5 ${!s.done && i === level ? 'cursor-pointer' : ''}"
+            ${!s.done && i === level ? 'onclick="openIdentityVerification()" role="button" tabindex="0"' : ''}>
             <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
               s.done ? 'bg-emerald-500 text-white' : i === level ? 'bg-primary-500/20 border-2 border-primary-500/50 text-primary-400' : 'bg-white/5 text-slate-600'
             }">
               ${s.done ? icon('check', 'w-4 h-4') : (i + 1)}
             </div>
             <span class="text-[10px] text-center leading-tight ${s.done ? 'text-emerald-400' : 'text-slate-500'}">${s.label}</span>
-            ${i === 2 && !s.done ? `<span class="text-[10px] text-amber-400">${t('comingSoon') || 'À venir'}</span>` : ''}
           </div>
         `).join('')}
       </div>
@@ -392,46 +390,6 @@ function renderMyReviewsCard(state) {
           ${reviews.length > 5 ? `<p class="text-xs text-slate-500 text-center">+${reviews.length - 5} ${t('moreReviews') || 'autres avis'}</p>` : ''}
         </div>
       `}
-    </div>
-  `
-}
-
-function renderReferencesCard(_state) {
-  const refs = typeof localStorage !== 'undefined'
-    ? JSON.parse(localStorage.getItem('spothitch_references') || '[]')
-    : []
-  return `
-    <div class="card p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold flex items-center gap-2">
-          ${icon('star', 'w-4 h-4 text-amber-400')}
-          ${t('references') || 'Références'} ${refs.length > 0 ? `(${refs.length})` : ''}
-        </h3>
-        <button
-          onclick="openReferences()"
-          class="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1 py-2"
-          aria-label="${t('seeAll') || 'Voir tout'}"
-        >
-          ${refs.length > 0 ? (t('seeAll') || 'Voir tout') : (t('add') || 'Ajouter')}
-          ${icon('chevron-right', 'w-3 h-3')}
-        </button>
-      </div>
-      ${refs.length > 0
-        ? `<div class="space-y-2">
-            ${refs.slice(0, 2).map(r => `
-              <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5">
-                <div class="w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-sm flex-shrink-0">
-                  ${r.avatar || '👤'}
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-xs font-semibold">${r.from || '?'}</div>
-                  <div class="text-[11px] text-emerald-400 leading-snug">${r.text || ''}</div>
-                </div>
-              </div>
-            `).join('')}
-          </div>`
-        : renderEmptyState('references', { compact: true })
-      }
     </div>
   `
 }
@@ -1162,10 +1120,6 @@ function renderAppearanceCard(state) {
 }
 
 function renderNotificationsCard(state) {
-  const pushConfig = typeof localStorage !== 'undefined'
-    ? JSON.parse(localStorage.getItem('spothitch_push_config') || '{}')
-    : {}
-  const pushOn = pushConfig.enabled === true
   return `
     <div class="card p-4 space-y-3">
       <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
@@ -1179,34 +1133,42 @@ function renderNotificationsCard(state) {
         </div>
         ${renderToggle(state.notifications !== false, "toggleNotifications()", t('toggleNotifications') || 'Activer les notifications')}
       </div>
-      <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+      <button
+        onclick="openComingSoonProximity()"
+        class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+        type="button"
+      >
         <div class="flex items-center gap-3">
           ${icon('map-pin', 'w-5 h-5 text-emerald-400')}
-          <div>
+          <div class="text-left">
             <span class="text-sm block">${t('proximityAlerts') || 'Alertes de proximité'}</span>
             <span class="text-xs text-slate-400">${t('proximityAlertsDesc') || 'Notifié près d\'un spot'}</span>
           </div>
         </div>
-        ${renderToggle(state.proximityAlerts !== false, "toggleProximityAlertsSetting()", t('proximityAlerts') || 'Alertes de proximité')}
-      </div>
-      <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+        <span class="text-[10px] text-amber-400 font-medium whitespace-nowrap">${t('comingSoon') || 'Bientôt'}</span>
+      </button>
+      <button
+        onclick="openComingSoonProximity()"
+        class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+        type="button"
+      >
         <div class="flex items-center gap-3">
           ${icon('bell-ring', 'w-5 h-5 text-blue-400')}
-          <div>
+          <div class="text-left">
             <span class="text-sm block">${t('pushNotifications') || 'Notifications push'}</span>
             <span class="text-xs text-slate-400">${t('pushNotificationsDesc') || 'Alertes push'}</span>
           </div>
         </div>
-        ${renderToggle(pushOn, "togglePushNotifications()", t('pushNotifications') || 'Notifications push')}
-      </div>
+        <span class="text-[10px] text-amber-400 font-medium whitespace-nowrap">${t('comingSoon') || 'Bientôt'}</span>
+      </button>
     </div>
   `
 }
 
 function renderPrivacyCard(_state) {
   const privacy = typeof localStorage !== 'undefined'
-    ? JSON.parse(localStorage.getItem('spothitch_privacy') || '{"showToNonFriends":true,"showLocationHistory":false,"showTravelStats":true}')
-    : { showToNonFriends: true, showLocationHistory: false, showTravelStats: true }
+    ? JSON.parse(localStorage.getItem('spothitch_privacy') || '{"sharePastTrips":true}')
+    : { sharePastTrips: true }
   return `
     <div class="card p-4 space-y-3">
       <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
@@ -1214,16 +1176,14 @@ function renderPrivacyCard(_state) {
         ${t('settingsPrivacy') || 'Confidentialité'}
       </h3>
       <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
-        <span class="text-sm">${t('showToNonFriends') || 'Profil visible par tous'}</span>
-        ${renderToggle(privacy.showToNonFriends, "togglePrivacy('showToNonFriends')", t('showToNonFriends') || 'Profil visible par tous')}
-      </div>
-      <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
-        <span class="text-sm">${t('showLocationHistory') || 'Historique de position'}</span>
-        ${renderToggle(privacy.showLocationHistory, "togglePrivacy('showLocationHistory')", t('showLocationHistory') || 'Historique de position')}
-      </div>
-      <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
-        <span class="text-sm">${t('showTravelStats') || 'Statistiques visibles'}</span>
-        ${renderToggle(privacy.showTravelStats, "togglePrivacy('showTravelStats')", t('showTravelStats') || 'Statistiques visibles')}
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          ${icon('route', 'w-4 h-4 text-slate-400 flex-shrink-0')}
+          <div>
+            <span class="text-sm block">${t('sharePastTrips') || 'Partager mes voyages passés'}</span>
+            <span class="text-xs text-slate-500">${t('sharePastTripsDesc') || 'Tes itinéraires et dates visibles par les autres'}</span>
+          </div>
+        </div>
+        ${renderToggle(privacy.sharePastTrips !== false, "togglePrivacy('sharePastTrips')", t('sharePastTrips') || 'Partager mes voyages passés')}
       </div>
       <button
         onclick="openBlockedUsers()"

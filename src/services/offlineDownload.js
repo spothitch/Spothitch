@@ -151,8 +151,8 @@ export async function deleteOfflineCountry(countryCode) {
       await deleteOfflineStations(code)
     } catch { /* optional */ }
 
-    // 4. Update localStorage tracking
-    const countries = getDownloadedCountries().filter(c => c.code !== code)
+    // 4. Update localStorage tracking (case-insensitive match)
+    const countries = getDownloadedCountries().filter(c => c.code.toUpperCase() !== code)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(countries))
 
     return true

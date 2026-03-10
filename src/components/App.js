@@ -361,21 +361,7 @@ export function renderApp(state) {
       ],
     }) : ''}
 
-    <!-- Coming Soon: Identity Verification -->
-    ${state.showComingSoonIdentity ? renderComingSoonModal({
-      onClose: 'closeComingSoonIdentity',
-      icon: 'scan-face',
-      iconColor: 'text-emerald-400',
-      iconBg: 'bg-emerald-500/20',
-      borderColor: 'border-emerald-500/30',
-      title: t('identityVerification') || 'Vérification d\'identité',
-      items: [
-        { ic: 'shield-check', text: t('identityFeature1') || 'Un service externe spécialisé vérifie ton identité (selfie + pièce d\'identité)' },
-        { ic: 'lock', text: t('identityFeature2') || 'Ta pièce d\'identité n\'est jamais stockée sur SpotHitch. Impossible de la partager, pour protéger ta vie privée' },
-        { ic: 'credit-card', text: t('identityFeature3') || 'Service payant (quelques euros) car traité par un prestataire certifié. Sécurité totale garantie' },
-        { ic: 'badge-check', text: t('identityFeature4') || 'Badge "Vérifié" sur ton profil. Plus de confiance pour voyager ensemble' },
-      ],
-    }) : ''}
+    <!-- Identity Verification uses standard beta guard (showFeatureIntro) -->
 
     <!-- Coming Soon: Proximity Alerts (Settings toggle) -->
     ${state.showComingSoonProximity ? renderComingSoonModal({

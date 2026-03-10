@@ -1920,8 +1920,7 @@ if (!window.closeReport) {
 // Coming soon feature modals
 window.openComingSoonRadar = () => setState({ showComingSoonRadar: true })
 window.closeComingSoonRadar = () => setState({ showComingSoonRadar: false })
-window.openComingSoonIdentity = () => setState({ showComingSoonIdentity: true })
-window.closeComingSoonIdentity = () => setState({ showComingSoonIdentity: false })
+// openComingSoonIdentity removed — uses standard beta guard
 
 // Nearby friends handlers — lazy-loaded
 window.toggleNearbyFriends = async (...args) => {
@@ -2612,7 +2611,8 @@ window.deleteOfflineCountry = async (code) => {
     const { deleteOfflineCountry } = await import('./services/offlineDownload.js')
     await deleteOfflineCountry(code)
     showToast(t('offlineDataDeleted') || 'Données offline supprimées', 'success')
-    scheduleRender(() => render(getState()))
+    if (window._refreshCountryBubbles) window._refreshCountryBubbles()
+    window._forceRender?.()
   } catch (e) {
     showToast(t('deletionError') || 'Erreur lors de la suppression', 'error')
   }
