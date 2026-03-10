@@ -7,6 +7,18 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/block-git-add.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-push-tests.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/visual-playwright-check.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/fox-session-start.sh"
           }
         ]
       }
