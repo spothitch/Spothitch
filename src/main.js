@@ -745,7 +745,7 @@ function restoreScrollPosition(tab) {
  */
 // Dynamic render fingerprint — hashes all primitive state values (bool/string/number/null)
 // Skips arrays/objects by default, but tracks null↔object transitions for key result states
-const OBJECT_PRESENCE_KEYS = new Set(['tripResults', 'userProfile', 'currentUser', 'roadmapVotes'])
+const OBJECT_PRESENCE_KEYS = new Set(['tripResults', 'userProfile', 'currentUser', 'roadmapVotes', 'selectedSpot'])
 function getRenderFingerprint(state) {
   let fp = ''
   for (const key in state) {
@@ -997,7 +997,19 @@ window.selectSpot = async (id) => {
   }
 };
 window.openSpotDetail = window.selectSpot; // alias for services that use openSpotDetail
-window.closeSpotDetail = () => actions.selectSpot(null);
+// Guard: on mobile, the touch/click that opens SpotDetail can propagate to the
+// backdrop's onclick="closeSpotDetail()" if the modal renders under the finger.
+// Ignore close calls within 600ms of opening to prevent the open→close→reopen flicker.
+let _spotDetailOpenedAt = 0
+const _origSelectSpot = actions.selectSpot.bind(actions)
+actions.selectSpot = (spot) => {
+  if (spot) _spotDetailOpenedAt = Date.now()
+  _origSelectSpot(spot)
+}
+window.closeSpotDetail = () => {
+  if (Date.now() - _spotDetailOpenedAt < 600) return // ignore immediate close
+  actions.selectSpot(null)
+};
 window.openAddSpot = () => {
   // User is already authenticated from the landing carousel (login required to dismiss it)
   // Reset form data for a fresh start (drafts use openSpotDraft instead)

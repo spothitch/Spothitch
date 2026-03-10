@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-10 (session 40 — AddSpot v3 + SpotDetail v3 push, Firebase SPOT_ALLOWED_FIELDS fix, 7 améliorations SpotDetail)
+> Dernière mise à jour : 2026-03-10 (session 41 — Fix AddSpot boutons + autocomplete + hooks Claude Code)
 
 ---
 
@@ -154,6 +154,22 @@
 ---
 
 ## Dernières sessions (reconstitué depuis git log)
+
+### Session 2026-03-10 (session 41 — FIX ADDSPOT BOUTONS + AUTOCOMPLETE + HOOKS)
+- **Fix boutons type spot** : classList.toggle('active') overridden par inline styles → mise à jour directe des styles inline dans selectSpotType
+- **Fix autocomplete ville départ** : lastAutocompleteStep guard empêchait re-init après re-render DOM → cleanup+reinit systématique
+- **Fix valeur ville départ perdue** : input manquait value="" attribute → ajout depuis spotFormData
+- **Fix forceSelection invalide** : après re-init, selectedItem null → appel setSelectedItem() avec données spotFormData
+- **Fix carte GPS écran noir** : MapLibre map.resize() manquant → ajout on('load') + setTimeout
+- **Fix boutons step 2** (method, group, time, ride) : même bug inline styles → shared updateTabBar() helper
+- **Fix données stale spotFormData** : pas de reset à l'ouverture modal → reset complet dans openAddSpot()
+- **Fix E2E sélecteurs** : modal AddSpot sans id/class → ajout id="addspot-modal" + class="addspot-dialog"
+- **3 Claude Code hooks créés** :
+  1. `pre-push-tests.sh` : wiring tests + build avant git push/commit, bloque si échec
+  2. `visual-playwright-check.sh` : screenshots Playwright auto quand fichiers UI modifiés, bloque si échec
+  3. `fox-session-start.sh` : Fox quick au début de session, bloque si score < 80
+- **Hooks existants** : `block-git-add.sh` (interdit git add -A), `auto-save-session.sh` (Stop hook)
+- **CI** : 15/15 jobs verts sur dev ET main, déployé spothitch.com
 
 ### Session 2026-03-10 (session 40 — ADDSPOT V3 + SPOTDETAIL V3 + FIREBASE FIX)
 - **BUG CRITIQUE Firebase** : `SPOT_ALLOWED_FIELDS` dans firebase.js ne contenait que 21 champs → ratings, tags, destinations, method, groupSize, timeOfDay, season, spotType silencieusement supprimés à l'écriture. Étendu à 35+ champs + flattening coordinates/ratings.

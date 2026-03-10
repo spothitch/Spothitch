@@ -488,14 +488,17 @@ function renderPositionBlock() {
       <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px" id="location-label">${t('position') || 'Position sur la carte'} <span style="color:#f59e0b">*</span></div>
 
       ${hasPosition ? `
-        <!-- Position chosen — compact preview -->
+        <!-- Position chosen — mini map preview + info -->
         <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
           onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
-          style="background:#111827;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;color:#e2e8f0">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
-            <div style="font-size:11px;color:#f59e0b">${t('modify') || 'Modifier'}</div>
+          style="background:#111827;cursor:pointer;overflow:hidden">
+          <div id="addspot-mini-map" style="width:100%;height:120px;background:#161b28"></div>
+          <div style="padding:10px 14px;display:flex;align-items:center;gap:10px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;color:#e2e8f0">${escapeHTML(window.spotFormData?.locationName || window.spotFormData?.departureCity || '')} <span style="color:#475569;font-size:11px">${lat.toFixed(4)}, ${lng.toFixed(4)}</span></div>
+              <div style="font-size:11px;color:#f59e0b">${t('modify') || 'Modifier la position'}</div>
+            </div>
           </div>
         </div>
       ` : `
@@ -807,8 +810,12 @@ window.removeSpotDestination = (index) => {
 window.toggleAmenity = (name) => {
   window.spotFormData.tags = window.spotFormData.tags || {}
   window.spotFormData.tags[name] = !window.spotFormData.tags[name]
+  const isActive = window.spotFormData.tags[name]
   const chip = document.querySelector(`[onclick*="toggleAmenity('${name}')"]`)
-  if (chip) chip.classList.toggle('active', window.spotFormData.tags[name])
+  if (chip) {
+    chip.style.borderBottom = isActive ? '2px solid #f59e0b' : 'none'
+    chip.style.color = isActive ? '#f59e0b' : '#64748b'
+  }
 }
 
 // Keep backward compat for setSpotTag — DOM-only, no re-render
@@ -1096,6 +1103,7 @@ window.openFullscreenMapPicker = async () => {
       window.spotFormData.lng = pickedLng
       window.spotFormData.positionSource = 'map'
       if (pickedCity) {
+        window.spotFormData.locationName = pickedCity
         const departureCityInput = document.getElementById('spot-departure-city')
         if (departureCityInput && !departureCityInput.value) {
           departureCityInput.value = pickedCity
@@ -1104,6 +1112,7 @@ window.openFullscreenMapPicker = async () => {
         }
         if (!window.spotFormData.departureCity) {
           window.spotFormData.departureCity = pickedCity
+          window.spotFormData.departureCityCoords = { lat: pickedLat, lng: pickedLng }
         }
       }
 
@@ -1356,6 +1365,38 @@ function initStep2Autocomplete() {
   })
 }
 
+// Init mini-map preview showing the selected position
+let miniMapInstance = null
+function initMiniMapPreview() {
+  const container = document.getElementById('addspot-mini-map')
+  const lat = window.spotFormData?.lat
+  const lng = window.spotFormData?.lng
+  if (!container || !lat || !lng) return
+  if (container.dataset.initialized === 'true') return
+  container.dataset.initialized = 'true'
+
+  import('maplibre-gl/dist/maplibre-gl.css').then(() => {
+    import('maplibre-gl').then(maplibregl => {
+      if (miniMapInstance) {
+        try { miniMapInstance.remove() } catch { /* ok */ }
+      }
+      miniMapInstance = new maplibregl.default.Map({
+        container,
+        style: 'https://tiles.openfreemap.org/styles/liberty',
+        center: [lng, lat],
+        zoom: 14,
+        interactive: false,
+        attributionControl: false,
+      })
+      new maplibregl.default.Marker({ color: '#f59e0b' })
+        .setLngLat([lng, lat])
+        .addTo(miniMapInstance)
+      miniMapInstance.on('load', () => miniMapInstance.resize())
+      setTimeout(() => miniMapInstance.resize(), 300)
+    })
+  })
+}
+
 function cleanupAutocompletes() {
   autocompleteCleanups.forEach(c => c.destroy())
   autocompleteCleanups = []
@@ -1374,6 +1415,8 @@ export function initAddSpotAfterRender() {
     cleanupAutocompletes()
     lastAutocompleteStep = 1
     initStep1Autocomplete()
+    // Init mini-map preview if position is set
+    initMiniMapPreview()
     // If share coords pending, auto-open fullscreen map picker
     if (window._pendingShareCoords) {
       requestAnimationFrame(() => window.openFullscreenMapPicker?.())
