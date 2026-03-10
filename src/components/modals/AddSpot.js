@@ -150,6 +150,7 @@ function renderStep1(state) {
           name="departureCity"
           style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none"
           placeholder="${t('departureCity') || 'Ville de départ'}"
+          value="${escapeHTML(window.spotFormData?.departureCity || '')}"
           required
           aria-required="true"
         />
@@ -1020,6 +1021,10 @@ window.openFullscreenMapPicker = async () => {
       zoom,
     })
 
+    // Ensure map renders properly after container is visible
+    fullscreenMap.on('load', () => fullscreenMap.resize())
+    setTimeout(() => fullscreenMap.resize(), 200)
+
     const confirmBtn = document.getElementById('fmp-confirm')
     const infoBar = document.getElementById('fmp-info')
 
@@ -1303,6 +1308,14 @@ function initStep1Autocomplete() {
             window.spotFormData.departureCityCoords = null
           },
         })
+        // Restore selected item if city was already chosen (after re-render)
+        if (window.spotFormData.departureCity && ac.setSelectedItem) {
+          ac.setSelectedItem({
+            name: window.spotFormData.departureCity,
+            lat: window.spotFormData.departureCityCoords?.lat,
+            lng: window.spotFormData.departureCityCoords?.lng,
+          })
+        }
         autocompleteCleanups.push(ac)
       }
     })
@@ -1330,6 +1343,14 @@ function initStep2Autocomplete() {
             window.spotFormData.directionCityCoords = null
           },
         })
+        // Restore selected item if direction was already chosen (after re-render)
+        if (window.spotFormData.directionCity && ac.setSelectedItem) {
+          ac.setSelectedItem({
+            name: window.spotFormData.directionCity,
+            lat: window.spotFormData.directionCityCoords?.lat,
+            lng: window.spotFormData.directionCityCoords?.lng,
+          })
+        }
         autocompleteCleanups.push(ac)
       }
     })
@@ -1349,14 +1370,17 @@ export function initAddSpotAfterRender() {
   const depInput = document.getElementById('spot-departure-city')
   const dirInput = document.getElementById('spot-direction-city')
 
-  if (depInput && !dirInput && lastAutocompleteStep !== 1) {
+  if (depInput && !dirInput) {
+    // Always cleanup + re-init: DOM is recreated on each render
+    cleanupAutocompletes()
     lastAutocompleteStep = 1
     initStep1Autocomplete()
     // If share coords pending, auto-open fullscreen map picker
     if (window._pendingShareCoords) {
       requestAnimationFrame(() => window.openFullscreenMapPicker?.())
     }
-  } else if (dirInput && lastAutocompleteStep !== 2) {
+  } else if (dirInput) {
+    cleanupAutocompletes()
     lastAutocompleteStep = 2
     initStep2Autocomplete()
   } else if (!depInput && !dirInput && lastAutocompleteStep !== 0) {
