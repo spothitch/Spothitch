@@ -1000,7 +1000,18 @@ window.openSpotDetail = window.selectSpot; // alias for services that use openSp
 window.closeSpotDetail = () => actions.selectSpot(null);
 window.openAddSpot = () => {
   // User is already authenticated from the landing carousel (login required to dismiss it)
-  // Just open the AddSpot wizard directly
+  // Reset form data for a fresh start (drafts use openSpotDraft instead)
+  window.spotFormData = {
+    photos: [], lat: null, lng: null, spotType: null,
+    ratings: { safety: 0, traffic: 0, accessibility: 0 },
+    tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
+    country: null, countryName: null,
+    departureCity: null, departureCityCoords: null,
+    directionCity: null, directionCityCoords: null,
+    locationName: null, roadNumber: null, positionSource: null,
+    method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
+    rideResult: null, stationName: '', extraDestinations: [],
+  }
   setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
   if (window._pendingShareCoords) {
     showToast(t('sharePositionImported') || 'Position imported from map', 'success')

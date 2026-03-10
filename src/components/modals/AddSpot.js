@@ -702,40 +702,39 @@ window.setWaitTime = (sliderIndex) => {
   }
 }
 
+// Helper: update tab bar inline styles (inline styles override CSS classes)
+function updateTabBar(selector, activeValue, activeColor = '#f59e0b') {
+  document.querySelectorAll(selector).forEach(btn => {
+    const val = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
+    const isActive = val === activeValue
+    btn.style.color = isActive ? activeColor : '#64748b'
+    btn.style.borderBottom = isActive ? `2px solid ${activeColor}` : 'none'
+    btn.style.marginBottom = isActive ? '-1px' : ''
+  })
+}
+
 // Method selection — DOM-only, no re-render
 window.setMethod = (method) => {
   window.spotFormData.method = method
-  document.querySelectorAll('[onclick*="setMethod"]').forEach(btn => {
-    const btnMethod = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
-    btn.classList.toggle('active', btnMethod === method)
-  })
+  updateTabBar('[onclick*="setMethod"]', method)
 }
 
 // Group size selection — DOM-only, no re-render
 window.setGroupSize = (size) => {
   window.spotFormData.groupSize = size
-  document.querySelectorAll('[onclick*="setGroupSize"]').forEach(btn => {
-    const btnSize = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
-    btn.classList.toggle('active', btnSize === size)
-  })
+  updateTabBar('[onclick*="setGroupSize"]', size)
 }
 
 // Time of day selection — DOM-only, no re-render
 window.setTimeOfDay = (time) => {
   window.spotFormData.timeOfDay = time
-  document.querySelectorAll('[onclick*="setTimeOfDay"]').forEach(btn => {
-    const btnTime = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
-    btn.classList.toggle('active', btnTime === time)
-  })
+  updateTabBar('[onclick*="setTimeOfDay"]', time)
 }
 
 // Ride result — DOM-only, no re-render (prevents data loss)
 window.setRideResult = (result) => {
   window.spotFormData.rideResult = result
-  document.querySelectorAll('[onclick*="setRideResult"]').forEach(btn => {
-    const btnResult = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
-    btn.classList.toggle('active', btnResult === result)
-  })
+  updateTabBar('[onclick*="setRideResult"]', result, result === 'yes' ? '#22c55e' : '#64748b')
 }
 
 // Multi-destination handlers
