@@ -46,8 +46,15 @@ test.describe('Firebase Gamification', () => {
         const { getDb, doc, updateDoc, getDoc } = window.__fb
         const db = getDb()
         await updateDoc(doc(db, 'users', testUid), { points: 42 })
-        const snap = await getDoc(doc(db, 'users', testUid))
-        return { points: snap.data()?.points }
+        // Retry polling for Firestore eventual consistency
+        for (let i = 0; i < 5; i++) {
+          const snap = await getDoc(doc(db, 'users', testUid))
+          const pts = snap.data()?.points
+          if (pts === 42) return { points: pts }
+          await new Promise(r => setTimeout(r, 500))
+        }
+        const finalSnap = await getDoc(doc(db, 'users', testUid))
+        return { points: finalSnap.data()?.points }
       } catch (err) { return { error: err.message } }
     }, aliceUid)
 

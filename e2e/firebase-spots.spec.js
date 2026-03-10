@@ -195,8 +195,14 @@ test.describe('Firebase Spots', () => {
           description: 'Before update', creatorId: uid, createdAt: serverTimestamp(),
         })
         await updateDoc(doc(db, 'spots', ref.id), { description: 'After update' })
-        const snap = await getDoc(doc(db, 'spots', ref.id))
-        const desc = snap.data()?.description
+        // Retry polling for Firestore eventual consistency
+        let desc
+        for (let i = 0; i < 5; i++) {
+          const snap = await getDoc(doc(db, 'spots', ref.id))
+          desc = snap.data()?.description
+          if (desc === 'After update') break
+          await new Promise(r => setTimeout(r, 500))
+        }
         await deleteDoc(doc(db, 'spots', ref.id))
         return { updated: desc === 'After update' }
       } catch (err) { return { error: err.message } }
