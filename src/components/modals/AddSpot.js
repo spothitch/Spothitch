@@ -666,13 +666,20 @@ window.setSpotRating = (criterion, value) => {
 // Spot type selection (big buttons) — DOM-only update, no re-render
 window.selectSpotType = (type) => {
   window.spotFormData.spotType = type
-  // Update button styles directly without triggering a full app re-render
+  // Update button styles directly (must override inline styles)
   document.querySelectorAll('.spot-type-btn').forEach(btn => {
     const btnType = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
-    if (btnType === type) {
+    const isActive = btnType === type
+    if (isActive) {
       btn.classList.add('active')
+      btn.style.border = '1px solid #f59e0b'
+      btn.style.background = 'rgba(245,158,11,0.07)'
+      btn.style.color = '#f59e0b'
     } else {
       btn.classList.remove('active')
+      btn.style.border = '1px solid #1a1f2e'
+      btn.style.background = '#1a1f2e'
+      btn.style.color = '#64748b'
     }
   })
   // Store in state silently for persistence (without triggering render)
