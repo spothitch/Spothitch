@@ -345,13 +345,24 @@ export function clearCache() {
  * @param {string} [options.countryCode] - Not supported by Photon, ignored
  * @returns {Promise<Array>} City suggestions
  */
+// Cache for Photon results — avoids re-fetching same queries (e.g. typing backspace)
+const _photonCache = new Map()
+const PHOTON_CACHE_MAX = 50
+
+// Pre-resolve lang once to avoid dynamic import on every keystroke
+let _photonLang = 'fr'
+try {
+  const saved = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+  if (saved.lang) _photonLang = saved.lang
+} catch { /* no-op */ }
+
 export async function searchPhoton(query, { countryCode } = {}) {
   if (!query || query.length < 2) return []
 
-  let lang = 'fr'
-  try { lang = (await import('../stores/state.js')).getState().lang || 'fr' } catch { /* no-op */ }
+  const cacheKey = `${query.toLowerCase()}|${_photonLang}`
+  if (_photonCache.has(cacheKey)) return _photonCache.get(cacheKey)
 
-  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${lang}&layer=city&layer=locality`
+  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${_photonLang}&layer=city&layer=locality`
 
   try {
     const response = await fetch(url)
@@ -379,12 +390,21 @@ export async function searchPhoton(query, { countryCode } = {}) {
 
     // Deduplicate
     const seen = new Set()
-    return results.filter(r => {
+    const deduplicated = results.filter(r => {
       const key = `${r.name.toLowerCase()}|${r.lat.toFixed(1)},${r.lng.toFixed(1)}`
       if (seen.has(key)) return false
       seen.add(key)
       return true
     }).slice(0, 5)
+
+    // Store in cache (evict oldest if full)
+    if (_photonCache.size >= PHOTON_CACHE_MAX) {
+      const firstKey = _photonCache.keys().next().value
+      _photonCache.delete(firstKey)
+    }
+    _photonCache.set(cacheKey, deduplicated)
+
+    return deduplicated
   } catch {
     // Fallback to Nominatim
     return searchCities(query, { countryCode })

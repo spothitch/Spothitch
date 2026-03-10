@@ -496,7 +496,8 @@ function renderPositionBlock() {
           <div style="padding:10px 14px;display:flex;align-items:center;gap:10px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <div style="flex:1;min-width:0">
-              <div style="font-size:13px;color:#e2e8f0">${escapeHTML(window.spotFormData?.locationName || window.spotFormData?.departureCity || '')} <span style="color:#475569;font-size:11px">${lat.toFixed(4)}, ${lng.toFixed(4)}</span></div>
+              <div style="font-size:13px;color:#e2e8f0">${escapeHTML(window.spotFormData?.locationName || '')} <span style="color:#475569;font-size:11px">${lat.toFixed(4)}, ${lng.toFixed(4)}</span></div>
+              ${window.spotFormData?.departureCity && window.spotFormData?.locationName && window.spotFormData.departureCity !== window.spotFormData.locationName ? `<div style="font-size:11px;color:#94a3b8">${t('departure') || 'Départ'}: ${escapeHTML(window.spotFormData.departureCity)}</div>` : ''}
               <div style="font-size:11px;color:#f59e0b">${t('modify') || 'Modifier la position'}</div>
             </div>
           </div>
@@ -1365,7 +1366,7 @@ function initStep2Autocomplete() {
   })
 }
 
-// Init mini-map preview showing the selected position
+// Init mini-map preview — try to snapshot the existing home map, fallback to lightweight MapLibre
 let miniMapInstance = null
 function initMiniMapPreview() {
   const container = document.getElementById('addspot-mini-map')
@@ -1375,25 +1376,62 @@ function initMiniMapPreview() {
   if (container.dataset.initialized === 'true') return
   container.dataset.initialized = 'true'
 
-  import('maplibre-gl/dist/maplibre-gl.css').then(() => {
-    import('maplibre-gl').then(maplibregl => {
-      if (miniMapInstance) {
-        try { miniMapInstance.remove() } catch { /* ok */ }
+  // Try to use existing home map for instant snapshot
+  const homeMap = window.spotHitchMap || window.mapInstance
+  if (homeMap && typeof homeMap.getCanvas === 'function') {
+    try {
+      // Save current state, fly to spot, capture, restore
+      const origCenter = homeMap.getCenter()
+      const origZoom = homeMap.getZoom()
+      homeMap.jumpTo({ center: [lng, lat], zoom: 14 })
+      // Wait for tiles to render then capture
+      const capture = () => {
+        try {
+          const srcCanvas = homeMap.getCanvas()
+          const destCanvas = document.createElement('canvas')
+          destCanvas.width = srcCanvas.width
+          destCanvas.height = srcCanvas.height
+          destCanvas.style.width = '100%'
+          destCanvas.style.height = '100%'
+          destCanvas.style.objectFit = 'cover'
+          destCanvas.getContext('2d').drawImage(srcCanvas, 0, 0)
+          container.innerHTML = ''
+          container.appendChild(destCanvas)
+          // Add amber marker overlay
+          const marker = document.createElement('div')
+          marker.innerHTML = '<svg width="28" height="38" viewBox="0 0 28 38"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.27 21.73 0 14 0z" fill="#f59e0b"/><circle cx="14" cy="14" r="6" fill="#fff"/></svg>'
+          marker.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);pointer-events:none'
+          container.style.position = 'relative'
+          container.appendChild(marker)
+        } catch { /* canvas tainted — fall through to MapLibre */ }
+        // Restore home map position
+        homeMap.jumpTo({ center: origCenter, zoom: origZoom })
       }
-      miniMapInstance = new maplibregl.default.Map({
-        container,
-        style: 'https://tiles.openfreemap.org/styles/liberty',
-        center: [lng, lat],
-        zoom: 14,
-        interactive: false,
-        attributionControl: false,
-      })
-      new maplibregl.default.Marker({ color: '#f59e0b' })
-        .setLngLat([lng, lat])
-        .addTo(miniMapInstance)
-      miniMapInstance.on('load', () => miniMapInstance.resize())
-      setTimeout(() => miniMapInstance.resize(), 300)
+      // Give a frame for tiles to render
+      homeMap.once('idle', capture)
+      setTimeout(capture, 500) // safety fallback
+      return
+    } catch { /* fall through to MapLibre */ }
+  }
+
+  // Fallback: create a lightweight MapLibre instance
+  import('maplibre-gl').then(maplibregl => {
+    if (miniMapInstance) {
+      try { miniMapInstance.remove() } catch { /* ok */ }
+    }
+    miniMapInstance = new maplibregl.default.Map({
+      container,
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: [lng, lat],
+      zoom: 14,
+      interactive: false,
+      attributionControl: false,
     })
+    new maplibregl.default.Marker({ color: '#f59e0b' })
+      .setLngLat([lng, lat])
+      .addTo(miniMapInstance)
+    miniMapInstance.on('load', () => miniMapInstance.resize())
+    setTimeout(() => miniMapInstance.resize(), 300)
   })
 }
 
