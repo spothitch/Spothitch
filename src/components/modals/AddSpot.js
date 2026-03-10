@@ -523,7 +523,8 @@ export function renderAddSpot(_state) {
 
   return `
     <div
-      class="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      id="addspot-modal"
+      class="addspot-dialog fixed inset-0 z-50 flex items-end sm:items-center justify-center"
       onclick="closeAddSpot()"
       role="dialog"
       aria-modal="true"
