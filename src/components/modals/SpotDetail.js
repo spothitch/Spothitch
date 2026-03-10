@@ -184,6 +184,7 @@ function renderPhotoHero(spot) {
     style="width:100%;height:100%;object-fit:cover"
     loading="lazy"
     onclick="event.stopPropagation();openPhotoFullscreen(0)"
+    onerror="this.style.display='none';this.parentElement.innerHTML='<svg width=\\'32\\' height=\\'32\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#475569\\' stroke-width=\\'1.5\\'><path d=\\'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z\\'/><circle cx=\\'12\\' cy=\\'10\\' r=\\'3\\'/></svg>'"
   />`
 }
 
@@ -220,9 +221,36 @@ function accordion(label, content) {
 
 
 /**
- * Accordion 1: Stats (2x2 grid)
+ * Accordion 1: Stats (2x2 grid) + practical info
  */
 function renderAccordionStats(spot, validationCount) {
+  // Compute success rate from rideResult if available
+  const successRate = spot.successRate
+    || (spot.rideResult === 'yes' ? 100 : spot.rideResult === 'gaveUp' ? 0 : null)
+
+  // Best time label
+  const timeLabels = {
+    morning: t('timeMorning') || 'Matin',
+    afternoon: t('timeAfternoon') || 'Apres-midi',
+    evening: t('timeEvening') || 'Soir',
+    night: t('timeNight') || 'Nuit',
+  }
+  const bestTime = spot.timeOfDay ? timeLabels[spot.timeOfDay] || null : null
+
+  // Method label
+  const methodLabels = {
+    sign: t('methodSign') || 'Panneau',
+    thumb: t('methodThumb') || 'Pouce',
+    asking: t('methodAsking') || 'En demandant',
+  }
+  const methodLabel = spot.method ? methodLabels[spot.method] || null : null
+
+  // Group label
+  const groupLabels = {
+    solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+',
+  }
+  const groupLabel = spot.groupSize ? groupLabels[spot.groupSize] || null : null
+
   const content = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
@@ -230,7 +258,7 @@ function renderAccordionStats(spot, validationCount) {
         <div style="font-size:10px;color:#64748b;text-transform:uppercase">${t('avgWaitTime') || 'Attente moyenne'}</div>
       </div>
       <div>
-        <div style="font-size:24px;font-weight:300;color:#e2e8f0">${spot.successRate ? spot.successRate + '%' : '—'}</div>
+        <div style="font-size:24px;font-weight:300;color:${successRate != null ? (successRate >= 50 ? '#22c55e' : '#ef4444') : '#e2e8f0'}">${successRate != null ? successRate + '%' : '—'}</div>
         <div style="font-size:10px;color:#64748b;text-transform:uppercase">${t('successRate') || 'Taux de succes'}</div>
       </div>
       <div>
@@ -242,6 +270,22 @@ function renderAccordionStats(spot, validationCount) {
         <div style="font-size:10px;color:#64748b;text-transform:uppercase">${t('safety') || 'Securite moy.'}</div>
       </div>
     </div>
+    ${(methodLabel || groupLabel || bestTime) ? `
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #1a1f2e">
+        ${methodLabel ? `<span style="font-size:11px;color:#94a3b8;background:#1a1f2e;padding:4px 10px">${methodLabel}</span>` : ''}
+        ${groupLabel ? `<span style="font-size:11px;color:#94a3b8;background:#1a1f2e;padding:4px 10px">${groupLabel}</span>` : ''}
+        ${bestTime ? `<span style="font-size:11px;color:#94a3b8;background:#1a1f2e;padding:4px 10px">${bestTime}</span>` : ''}
+        ${spot.season ? `<span style="font-size:11px;color:#94a3b8;background:#1a1f2e;padding:4px 10px">${escapeHTML(
+          spot.season === 'spring' ? (t('seasonSpring') || 'Printemps')
+          : spot.season === 'summer' ? (t('seasonSummer') || 'Ete')
+          : spot.season === 'autumn' ? (t('seasonAutumn') || 'Automne')
+          : spot.season === 'winter' ? (t('seasonWinter') || 'Hiver')
+          : spot.season
+        )}</span>` : ''}
+      </div>
+    ` : ''}
+    ${spot.stationName ? `<div style="font-size:12px;color:#94a3b8;margin-top:10px">⛽ ${escapeHTML(spot.stationName)}</div>` : ''}
+    ${spot.locationName || spot.roadNumber ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px">${spot.roadNumber ? escapeHTML(spot.roadNumber) + ' · ' : ''}${spot.locationName ? escapeHTML(spot.locationName) : ''}</div>` : ''}
   `
   return accordion(t('statistics') || 'Statistiques', content)
 }
@@ -347,9 +391,7 @@ function renderAccordionDescription(spot) {
  */
 function renderAccordionReviews(spot) {
   const reviews = spot.reviews || spot._reviews || []
-  const displayReviews = reviews.length > 0
-    ? reviews.filter(r => !r.isTip).slice(0, 5)
-    : generatePlaceholderReviews(spot)
+  const displayReviews = reviews.filter(r => !r.isTip).slice(0, 5)
 
   if (displayReviews.length === 0) return ''
 
@@ -387,20 +429,6 @@ function renderAccordionReviews(spot) {
   return accordion(`${t('userReviews') || 'Experiences'} (${displayReviews.length})`, content)
 }
 
-function generatePlaceholderReviews(spot) {
-  if (!spot.description && !spot.totalReviews) return []
-  const reviews = []
-  if (spot.description) {
-    reviews.push({
-      userName: spot.creator || 'HitchWiki',
-      avatar: '📝',
-      text: spot.description,
-      date: spot.lastUsed || spot.createdAt,
-      waitTime: spot.avgWaitTime || null,
-    })
-  }
-  return reviews
-}
 
 /**
  * Format date as relative time (il y a X jours/semaines/mois)
