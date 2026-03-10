@@ -409,7 +409,25 @@ export async function getSpots() {
 /**
  * Add a new spot
  */
-const SPOT_ALLOWED_FIELDS = ['lat', 'lng', 'type', 'direction', 'directionLat', 'directionLng', 'safety', 'traffic', 'accessibility', 'description', 'photos', 'photoURL', 'country', 'city', 'departureCity', 'departureCityCoords', 'waitTime', 'rideResult', 'tips', 'name', 'positionSource']
+const SPOT_ALLOWED_FIELDS = [
+  // Location
+  'lat', 'lng', 'coordinates', 'country', 'countryName', 'departureCity',
+  'departureCityCoords', 'directionCity', 'directionCityCoords',
+  'locationName', 'roadNumber', 'positionSource', 'city',
+  // Spot info
+  'type', 'spotType', 'stationName', 'direction', 'directionLat', 'directionLng',
+  'from', 'to', 'fromCity', 'destinations',
+  // Experience
+  'method', 'groupSize', 'timeOfDay', 'waitTime', 'avgWaitTime',
+  'rideResult', 'season',
+  // Ratings & tags
+  'ratings', 'globalRating', 'safety', 'traffic', 'accessibility',
+  'tags', 'description', 'tips',
+  // Media
+  'photos', 'photoUrl', 'photoURL', 'hasPhoto',
+  // Meta
+  'name', 'dataSource',
+]
 
 export async function addSpot(spotData) {
   try {
@@ -417,6 +435,17 @@ export async function addSpot(spotData) {
     const safeData = {}
     for (const key of SPOT_ALLOWED_FIELDS) {
       if (spotData[key] !== undefined) safeData[key] = spotData[key]
+    }
+    // Flatten coordinates if nested (for backward compat with queries)
+    if (safeData.coordinates && !safeData.lat) {
+      safeData.lat = safeData.coordinates.lat
+      safeData.lng = safeData.coordinates.lng
+    }
+    // Flatten ratings to top-level (for backward compat with queries)
+    if (safeData.ratings) {
+      if (!safeData.safety) safeData.safety = safeData.ratings.safety || 0
+      if (!safeData.traffic) safeData.traffic = safeData.ratings.traffic || 0
+      if (!safeData.accessibility) safeData.accessibility = safeData.ratings.accessibility || 0
     }
     const spotsRef = collection(db, 'spots');
     const docRef = await addDoc(spotsRef, {

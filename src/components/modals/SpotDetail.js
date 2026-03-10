@@ -122,14 +122,14 @@ export function renderSpotDetail(state) {
             <!-- 3. Directions -->
             ${renderAccordionDirections(spot)}
 
-            <!-- 4. Commodites -->
-            ${renderAccordionAmenities(spot)}
-
-            <!-- 5. Description -->
+            <!-- 4. Description -->
             ${renderAccordionDescription(spot)}
 
-            <!-- 6. Experiences (reviews) -->
+            <!-- 5. Experiences (reviews) -->
             ${renderAccordionReviews(spot)}
+
+            <!-- 6. Commodites (avant-dernier, juste avant Localisation) -->
+            ${renderAccordionAmenities(spot)}
 
           </div>
 
@@ -206,7 +206,7 @@ function renderSubtitleType(spot) {
 function accordion(label, content) {
   if (!content) return ''
   return `
-    <details>
+    <details open>
       <summary style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #1a1f2e;cursor:pointer;list-style:none">
         <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px">${label}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
