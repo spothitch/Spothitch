@@ -12,7 +12,6 @@ const STORAGE_PREFIX = 'spothitch_offline_'
 const SYNC_INTERVAL = 60 * 60 * 1000 // 1 hour
 
 let isInitialized = false
-let syncInterval = null
 let lastSyncTime = null
 
 /**
@@ -45,14 +44,16 @@ export function initAutoOfflineSync() {
       }, 5000) // Wait 5 seconds after init
     }
 
-    // Set up periodic sync check
-    syncInterval = setInterval(() => {
-      if (shouldAutoSync()) {
-        performAutoSync().catch(err => {
-          console.warn('[AutoOfflineSync] Periodic sync failed:', err.message)
-        })
-      }
-    }, SYNC_INTERVAL)
+    // Sync when app comes back to foreground (instead of permanent interval)
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && shouldAutoSync()) {
+          performAutoSync().catch(err => {
+            console.warn('[AutoOfflineSync] Visibility sync failed:', err.message)
+          })
+        }
+      })
+    }
 
     isInitialized = true
   } catch (err) {
@@ -382,13 +383,8 @@ function getRecentCheckins() {
   return []
 }
 
-// Cleanup on page unload
+// Expose force sync globally
 if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
-    if (syncInterval) clearInterval(syncInterval)
-  })
-
-  // Expose force sync globally
   window.forceOfflineSync = forceOfflineSync
 }
 

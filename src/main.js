@@ -74,7 +74,7 @@ import { initDeepLinkListener } from './utils/deeplink.js';
 import { initBackButton, goBack } from './utils/backButton.js';
 import { setupGlobalErrorHandlers as setupErrorHandlers } from './utils/errorBoundary.js';
 // animations.js, share.js, confetti.js — lazy-loaded (only triggered by user actions)
-import { initAutoOfflineSync } from './services/autoOfflineSync.js';
+// autoOfflineSync.js — lazy-loaded (syncs on visibility change, not permanent interval)
 import { resetFilters as resetFiltersUtil } from './components/modals/Filters.js';
 // redeemReward registered globally by Shop.js itself (canonical)
 import './components/modals/Leaderboard.js'; // Register global handlers
@@ -592,9 +592,10 @@ async function init() {
       console.warn('Checkin handlers skipped:', e.message);
     }
 
-    // Initialize auto offline sync
+    // Initialize auto offline sync (lazy-loaded, no permanent interval)
     try {
-      initAutoOfflineSync();
+      const { initAutoOfflineSync } = await import('./services/autoOfflineSync.js')
+      initAutoOfflineSync()
     } catch (e) {
       console.warn('Auto offline sync skipped:', e.message);
     }
