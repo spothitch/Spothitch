@@ -87,20 +87,63 @@ function parseMapUrl(url) {
 
 /**
  * Try to resolve a shortened Google Maps URL (maps.app.goo.gl/xxx)
- * by following the redirect to get the full URL with coordinates.
- * Falls back gracefully if CORS blocks the request.
+ * Uses a Cloudflare Worker proxy to follow redirects server-side (bypasses CORS).
+ * Falls back to direct fetch if the proxy is unavailable.
  * @param {string} shortUrl
  * @returns {Promise<{ lat: number, lng: number } | null>}
  */
 export async function resolveShortMapUrl(shortUrl) {
+  // Try Cloudflare Worker proxy first
+  const PROXY_URL = 'https://spothitch-resolve-map-url.antoine-v-ville.workers.dev'
+  try {
+    const res = await fetch(
+      `${PROXY_URL}?url=${encodeURIComponent(shortUrl)}`,
+      { signal: AbortSignal.timeout(8000) }
+    )
+    const data = await res.json()
+    // Worker found coordinates directly
+    if (data.lat && data.lng && isValidCoord(data.lat, data.lng)) {
+      return { lat: data.lat, lng: data.lng }
+    }
+    // Worker returned a place name, geocode it with Photon API
+    if (data.place) {
+      return geocodePlace(data.place)
+    }
+  } catch {
+    // Proxy unavailable, try direct fetch as fallback
+  }
+
+  // Fallback: direct fetch (works if no CORS issue, e.g. in some browsers/contexts)
   try {
     const res = await fetch(shortUrl, { redirect: 'follow', signal: AbortSignal.timeout(5000) })
-    // The final URL after redirect should contain coordinates
     if (res.url && res.url !== shortUrl) {
       return parseMapUrl(res.url)
     }
   } catch {
     // CORS or network error — expected, fail silently
+  }
+  return null
+}
+
+/**
+ * Geocode a place name using Photon API
+ * @param {string} place
+ * @returns {Promise<{ lat: number, lng: number } | null>}
+ */
+async function geocodePlace(place) {
+  try {
+    const res = await fetch(
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(place)}&limit=1`,
+      { signal: AbortSignal.timeout(3000) }
+    )
+    const data = await res.json()
+    const feature = data?.features?.[0]
+    if (feature?.geometry?.coordinates) {
+      const [lng, lat] = feature.geometry.coordinates
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
+  } catch {
+    // Geocoding failed, no coordinates available
   }
   return null
 }
