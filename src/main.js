@@ -44,7 +44,9 @@ function preloadMap() {
 import { t, setLanguage, initI18n } from './i18n/index.js';
 
 // Components
-import { renderApp, afterRender } from './components/App.js';
+import { renderApp, afterRender, getActiveTabPanelId, renderActiveView, renderModals, renderOverlays } from './components/App.js';
+import { renderHeader } from './components/Header.js';
+import { renderNavigation } from './components/Navigation.js';
 import { initSplashScreen, hideSplashScreen } from './components/SplashScreen.js';
 
 // Data
@@ -331,7 +333,13 @@ async function init() {
     // Expose _forceRender for lazy-loaded modules (bypasses dirty-checking + fingerprint)
     window._forceRender = () => {
       clearRenderCache('app')
-      scheduleRender(() => render(getState()))
+      // Force re-render of the active tab so lazy-loaded content appears
+      const state = getState()
+      const activePanel = getActiveTabPanelId(state)
+      if (activePanel !== 'map') {
+        _renderedTabs.delete(activePanel) // force re-render of this tab
+      }
+      scheduleRender(() => render(state))
     }
 
     // Subscribe to state changes and render IMMEDIATELY
@@ -762,16 +770,20 @@ function getRenderFingerprint(state) {
   return fp
 }
 
-function render(state) {
-  const app = document.getElementById('app');
-  if (!app) return;
+/**
+ * SELECTIVE RENDER — only updates DOM sections that actually changed.
+ * First call does a full render (app.innerHTML). Subsequent calls update
+ * individual containers (header, active tab, modals, overlays, nav).
+ * Tab panels are PERSISTENT — switching tabs shows/hides them via display:none.
+ */
+let _appInitialized = false
+const _renderedTabs = new Set() // tracks which tab panels have been rendered at least once
 
-  // Preserve landing carousel DOM across re-renders (prevents slide reset)
-  const landingEl = document.getElementById('landing-page')
-  const savedLanding = (landingEl && state.showLanding) ? landingEl : null
+function render(state) {
+  const app = document.getElementById('app')
+  if (!app) return
 
   // Skip re-render if user is actively typing in an input (prevents losing focus/value)
-  // Exception: don't block if the state signals a completed operation (tripLoading went false, etc.)
   const focused = document.activeElement
   const tripJustFinished = !state.tripLoading && state.tripResults
   if (focused && (focused.tagName === 'INPUT' || focused.tagName === 'TEXTAREA' || focused.tagName === 'SELECT') && !tripJustFinished) {
@@ -782,72 +794,134 @@ function render(state) {
   const fp = getRenderFingerprint(state)
   if (!shouldRerender('app', fp)) return
 
-  // Save scroll position before EVERY re-render (not just tab changes)
+  // Save scroll position before tab switches
   const savedScroll = window.scrollY || document.documentElement.scrollTop || 0
   if (previousTab && previousTab !== state.activeTab) {
     saveScrollPosition(previousTab)
   }
 
-  // Preserve map containers across re-renders to avoid destroying MapLibre
-  // A8: Always preserve the home map (it's rendered on all tabs now, just hidden)
-  const homeMapContainer = document.getElementById('home-map')
-  const hasHomeMap = homeMapContainer && window.homeMapInstance
-  const savedHomeMap = hasHomeMap ? homeMapContainer : null
+  // === FIRST RENDER: full innerHTML (creates all persistent containers) ===
+  if (!_appInitialized) {
+    // Preserve map containers across initial render
+    const homeMapContainer = document.getElementById('home-map')
+    const savedHomeMap = (homeMapContainer && window.homeMapInstance) ? homeMapContainer : null
+    const tripMapContainer = document.getElementById('trip-map')
+    const savedTripMap = (tripMapContainer && tripMapContainer.dataset.initialized === 'true') ? tripMapContainer : null
 
-  // Preserve trip map container (avoids white flash on every state change)
-  const tripMapContainer = document.getElementById('trip-map')
-  const hasTripMap = tripMapContainer && tripMapContainer.dataset.initialized === 'true'
-  const savedTripMap = hasTripMap ? tripMapContainer : null
+    app.innerHTML = renderApp(state)
+    _appInitialized = true
 
-  app.innerHTML = renderApp(state);
+    // Track which tab was rendered
+    const activePanel = getActiveTabPanelId(state)
+    _renderedTabs.add(activePanel)
+    _renderedTabs.add('map') // map is always rendered
 
-  // Re-insert preserved map containers (always — map is persistent across tabs)
-  if (savedHomeMap) {
-    const slot = document.getElementById('home-map')
-    if (slot) slot.replaceWith(savedHomeMap)
+    // Re-insert preserved map containers
+    if (savedHomeMap) {
+      const slot = document.getElementById('home-map')
+      if (slot) slot.replaceWith(savedHomeMap)
+    }
+    if (savedTripMap) {
+      const slot = document.getElementById('trip-map')
+      if (slot) slot.replaceWith(savedTripMap)
+    }
+
+    afterRender(state)
+    requestAnimationFrame(() => observeAllLazyImages())
+    previousTab = state.activeTab
+    return
   }
-  if (savedTripMap && (state.showTripMap || (state.tripFormCollapsed && state.tripResults && state.activeTab === 'challenges'))) {
-    const slot = document.getElementById('trip-map')
-    if (slot) {
-      slot.replaceWith(savedTripMap)
-      // Force MapLibre to repaint after DOM reinsertion
-      requestAnimationFrame(() => window._tripMapResize?.())
+
+  // === SELECTIVE RENDER: only update what changed ===
+  const activePanel = getActiveTabPanelId(state)
+  const tabChanged = previousTab !== state.activeTab
+  const isVoyageMapFirst = state.activeTab === 'challenges' && state.tripResults && state.tripFormCollapsed
+
+  // 1. Update header (only if needed)
+  const headerEl = document.getElementById('app-header')
+  if (headerEl) {
+    const newHeader = isVoyageMapFirst ? '' : renderHeader(state)
+    headerEl.innerHTML = newHeader
+  }
+
+  // 2. Update main-content class for voyage map-first
+  const mainEl = document.getElementById('main-content')
+  if (mainEl) {
+    mainEl.className = isVoyageMapFirst
+      ? 'min-h-screen overflow-x-hidden'
+      : 'pb-28 pt-[4.5rem] min-h-screen overflow-x-hidden'
+  }
+
+  // 3. Switch tab panels visibility (NO re-render of inactive tabs)
+  const allPanels = ['map', 'challenges', 'social', 'profile', 'spots']
+  for (const panelId of allPanels) {
+    const panel = document.getElementById(`panel-${panelId}`)
+    if (!panel) continue
+    const isActive = panelId === activePanel
+    panel.style.display = isActive ? '' : 'none'
+  }
+
+  // 4. Render the active tab content (only if it needs updating)
+  if (activePanel !== 'map') {
+    const panel = document.getElementById(`panel-${activePanel}`)
+    if (panel) {
+      // If this tab was never rendered, OR if it's currently active and state changed, re-render
+      if (!_renderedTabs.has(activePanel) || !tabChanged) {
+        panel.innerHTML = renderActiveView(state)
+        _renderedTabs.add(activePanel)
+      }
+      // If tab just switched back to a previously rendered tab, keep cached content
     }
   }
-  // Re-insert preserved landing carousel (prevents slide reset on state changes)
-  if (savedLanding) {
-    const slot = document.getElementById('landing-page')
-    if (slot) slot.replaceWith(savedLanding)
+
+  // 5. Update navigation
+  const navEl = document.getElementById('app-nav')
+  if (navEl) {
+    navEl.innerHTML = renderNavigation(state)
   }
 
-  // Call afterRender hook
-  afterRender(state);
-
-  // Observe lazy images after DOM update
-  requestAnimationFrame(() => observeAllLazyImages());
-
-  // Track tab changes for analytics
-  if (previousTab !== state.activeTab) {
-    trackTabChange(state.activeTab);
-    prefetchNextTab(state.activeTab);
+  // 6. Update modals container (independent from tabs)
+  const modalsEl = document.getElementById('app-modals')
+  if (modalsEl) {
+    modalsEl.innerHTML = renderModals(state)
   }
 
-  // Restore scroll position after render
-  if (previousTab !== state.activeTab) {
+  // 7. Update overlays container
+  const overlaysEl = document.getElementById('app-overlays')
+  if (overlaysEl) {
+    // Preserve landing carousel DOM
+    const landingEl = document.getElementById('landing-page')
+    const savedLanding = (landingEl && state.showLanding) ? landingEl : null
+
+    overlaysEl.innerHTML = renderOverlays(state)
+
+    if (savedLanding) {
+      const slot = document.getElementById('landing-page')
+      if (slot) slot.replaceWith(savedLanding)
+    }
+  }
+
+  // Post-render hooks
+  afterRender(state)
+  requestAnimationFrame(() => observeAllLazyImages())
+
+  // Track tab changes
+  if (tabChanged) {
+    trackTabChange(state.activeTab)
+    prefetchNextTab(state.activeTab)
     setTimeout(() => restoreScrollPosition(state.activeTab), 50)
   } else {
     // Same tab: restore exact scroll position (prevents jump to top)
     requestAnimationFrame(() => {
-      if (savedScroll > 0) {
-        window.scrollTo(0, savedScroll)
-      }
+      if (savedScroll > 0) window.scrollTo(0, savedScroll)
     })
   }
-  previousTab = state.activeTab;
+
+  previousTab = state.activeTab
 
   // Initialize map service for spots view
   if (state.activeTab === 'spots' && state.viewMode === 'map') {
-    getMap().then(m => m.initMap());
+    getMap().then(m => m.initMap())
   }
 }
 

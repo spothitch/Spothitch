@@ -117,352 +117,46 @@ let _activeFocusTrapCleanup = null
 /**
  * Render the complete application
  */
+/**
+ * Render the app shell with persistent tab panels.
+ * Tab panels are created once and shown/hidden via display:none.
+ * Only the active tab content is re-rendered on state changes.
+ */
 export function renderApp(state) {
-  // Main app content — always rendered so the map initializes in background
-  // even while the landing carousel is shown as an overlay on top
-  // Detect map-first Voyage view (full-screen map replaces header)
   const isVoyageMapFirst = state.activeTab === 'challenges' && state.tripResults && state.tripFormCollapsed
+  const activePanel = getActiveTabPanelId(state)
 
   const mainContent = `
-    <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">
       ${t('skipToContent') || 'Aller au contenu principal'}
     </a>
 
-    ${isVoyageMapFirst ? '' : renderHeader(state)}
+    <div id="app-header">
+      ${isVoyageMapFirst ? '' : renderHeader(state)}
+    </div>
 
     <main id="main-content" class="${isVoyageMapFirst ? 'min-h-screen overflow-x-hidden' : 'pb-28 pt-[4.5rem] min-h-screen overflow-x-hidden'}" role="main" tabindex="-1">
-      <!-- Map is ALWAYS rendered but hidden when not active (A8: persistence) -->
-      <div id="panel-map" role="tabpanel" aria-labelledby="tab-map" style="${isMapTab(state) ? '' : 'display:none'}">
+      <div id="panel-map" role="tabpanel" aria-labelledby="tab-map" style="${activePanel === 'map' ? '' : 'display:none'}">
         ${renderHome(state)}
       </div>
-      ${!isMapTab(state) ? `<div role="tabpanel" id="panel-${state.activeTab}" aria-labelledby="tab-${state.activeTab}">${renderActiveView(state)}</div>` : ''}
+      <div id="panel-challenges" role="tabpanel" aria-labelledby="tab-challenges" style="${activePanel === 'challenges' ? '' : 'display:none'}">
+        ${activePanel === 'challenges' ? lazyRender('renderVoyage', state) : ''}
+      </div>
+      <div id="panel-social" role="tabpanel" aria-labelledby="tab-social" style="${activePanel === 'social' ? '' : 'display:none'}">
+        ${activePanel === 'social' ? lazyRender('renderSocial', state) : ''}
+      </div>
+      <div id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" style="${activePanel === 'profile' ? '' : 'display:none'}">
+        ${activePanel === 'profile' ? lazyRender('renderProfile', state) : ''}
+      </div>
+      <div id="panel-spots" role="tabpanel" aria-labelledby="tab-spots" style="${activePanel === 'spots' ? '' : 'display:none'}">
+        ${activePanel === 'spots' ? lazyRender('renderSpots', state) : ''}
+      </div>
     </main>
 
-    ${renderNavigation(state)}
+    <div id="app-nav">${renderNavigation(state)}</div>
+    <div id="app-overlays">${renderOverlays(state)}</div>
+    <div id="app-modals">${renderModals(state)}</div>
 
-    <!-- Active Trip Bar (like Spotify "Now Playing") -->
-    ${state.tripResults && !state.showTripPlanner && !state.showTripMap && isMapTab(state) ? `
-      <div class="fixed bottom-[4.5rem] left-4 right-4 z-30 px-4 py-2.5 rounded-xl bg-primary-500/90 backdrop-blur-xl border border-primary-400/30 shadow-lg shadow-primary-500/20 cursor-pointer" role="button" tabindex="0" onclick="openActiveTrip()">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3 min-w-0">
-            ${icon('route', 'w-5 h-5 text-white/80')}
-            <div class="min-w-0">
-              <div class="text-xs text-white/70">${t('tripInProgress')}</div>
-              <div class="text-sm font-semibold text-white truncate">
-                ${state.tripResults.from?.split(',')[0] || '?'} → ${state.tripResults.to?.split(',')[0] || '?'}
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-white/70">${state.tripResults.spots?.length || 0} spots</span>
-            ${icon('chevron-up', 'w-3 h-3 text-white/60')}
-          </div>
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Draft Banner -->
-    ${state.spotDraftsBannerVisible ? lazyRender('renderDraftBanner') : ''}
-
-    <!-- City Panel -->
-    ${state.selectedCity ? renderCityPanel(state) : ''}
-
-    <!-- Modals -->
-    ${state.showAgeVerification ? lazyRender('renderAgeVerification', state) : ''}
-    ${state.showIdentityVerification ? lazyRender('renderIdentityVerification') : ''}
-    ${state.selectedSpot ? lazyRender('renderSpotDetail', state) : ''}
-    ${state.showAddSpot ? lazyRender('renderAddSpot', state) : ''}
-    ${state.showValidateSpot ? lazyRender('renderValidateSpot', state) : ''}
-    ${state.showSOS ? lazyRender('renderSOS', state) : ''}
-    ${state.showAuth ? lazyRender('renderAuth', state) : ''}
-    ${state.showCompleteProfile ? lazyRender('renderCompleteProfile', state) : ''}
-    ${''}<!-- Tutorial retired -->
-    ${state.showFilters ? lazyRender('renderFiltersModal') : ''}
-    ${state.showStats ? lazyRender('renderStatsModal') : ''}
-    ${state.showBadges ? lazyRender('renderBadgesModal') : ''}
-    ${state.showChallenges ? lazyRender('renderChallengesModal') : ''}
-    ${state.showShop ? lazyRender('renderShopModal') : ''}
-    ${state.showMyRewards ? lazyRender('renderMyRewardsModal') : ''}
-    ${state.showQuiz ? lazyRender('renderQuiz') : ''}
-    ${state.showLeaderboard ? lazyRender('renderLeaderboardModal') : ''}
-    ${state.checkinSpot ? lazyRender('renderCheckinModal', state) : ''}
-    ${state.showDailyReward ? lazyRender('renderDailyRewardModal') : ''}
-    ${state.showBadgePopup ? lazyRender('renderBadgePopup') : ''}
-    ${state.showBadgeDetail ? lazyRender('renderBadgeDetail', state.selectedBadgeId) : ''}
-
-    <!-- Navigation Overlay -->
-    ${state.navigationActive ? lazyRender('renderNavigationOverlay', state) : ''}
-
-    <!-- Donation Modal -->
-    ${state.showDonation ? lazyRender('renderDonationModal', state) : ''}
-
-    <!-- Donation Thank You Modal -->
-    ${state.showDonationThankYou ? lazyRender('renderThankYouModal', state) : ''}
-
-    <!-- Ambassador Success Modal -->
-    ${state.showAmbassadorSuccess ? `
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onclick="if(event.target===this)closeAmbassadorSuccess()" role="dialog" aria-modal="true" aria-labelledby="amb-success-title">
-        <div class="modal-panel rounded-2xl max-w-sm w-full p-6 text-center slide-up">
-          <div class="text-6xl mb-4">🌟</div>
-          <h2 id="amb-success-title" class="text-2xl font-bold mb-2">${t('ambassadorSuccessTitle') || 'Tu es maintenant Ambassadeur !'}</h2>
-          <p class="text-slate-300 text-sm mb-6">${t('ambassadorSuccessDesc') || 'Tu représentes désormais ta ville sur SpotHitch. Merci pour ton engagement !'}</p>
-          <button onclick="closeAmbassadorSuccess()" class="w-full py-3 px-6 rounded-xl bg-primary-500 text-white font-medium hover:bg-primary-600 transition-colors">
-            ${icon('check', 'w-5 h-5 mr-2')}${t('awesome') || 'Super !'}
-          </button>
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Contact Ambassador Modal -->
-    ${state.showContactAmbassador && state.selectedAmbassador ? `
-      <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4" onclick="if(event.target===this)closeContactAmbassador()" role="dialog" aria-modal="true" aria-labelledby="contact-amb-title">
-        <div class="modal-panel w-full max-w-md rounded-2xl overflow-hidden slide-up">
-          <div class="flex items-center justify-between p-4 border-b border-white/10">
-            <div class="flex items-center gap-3">
-              <span class="text-2xl">${state.selectedAmbassador.userAvatar || '🤙'}</span>
-              <div>
-                <h2 id="contact-amb-title" class="text-base font-bold">${state.selectedAmbassador.userName || ''}</h2>
-                <p class="text-xs text-slate-400">${state.selectedAmbassador.city || ''}, ${state.selectedAmbassador.country || ''}</p>
-              </div>
-            </div>
-            <button onclick="closeContactAmbassador()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">${icon('x', 'w-5 h-5')}</button>
-          </div>
-          <div class="p-4 space-y-4">
-            ${state.selectedAmbassador.bio ? `<p class="text-sm text-slate-300 italic">"${state.selectedAmbassador.bio}"</p>` : ''}
-            ${state.selectedAmbassador.languages?.length > 0 ? `
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-xs text-slate-400">${t('languages') || 'Langues'} :</span>
-                ${state.selectedAmbassador.languages.map(l => `<span class="px-2 py-0.5 rounded bg-white/10 text-xs">${l.toUpperCase()}</span>`).join('')}
-              </div>
-            ` : ''}
-            <div>
-              <label class="block text-sm font-medium mb-1">${t('yourMessage') || 'Ton message'}</label>
-              <textarea id="ambassador-message" rows="3" maxlength="500" placeholder="${t('ambassadorMessagePlaceholder') || 'Ex: Bonjour, j\'aurais besoin de conseils pour quitter Paris...'}" class="input-field w-full resize-none text-sm"></textarea>
-            </div>
-            <button onclick="window.sendAmbassadorMessage?.()" class="btn btn-primary w-full">
-              ${icon('send', 'w-4 h-4 mr-2')}${t('sendMessage') || 'Envoyer'}
-            </button>
-          </div>
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Feature Modals -->
-    ${state.showProfileCustomization ? lazyRender('renderCustomizationModal', state) : ''}
-    ${state.showNearbyFriends ? lazyRender('renderNearbyFriendsList', state) : ''}
-    ${state.showReport ? lazyRender('renderReportModal', state) : ''}
-    ${state.showBlockModal ? lazyRender('renderBlockModal', state.blockTargetId, state.blockTargetName) : ''}
-    ${state.showBlockedUsers ? `
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeBlockedUsers()" role="dialog" aria-modal="true" tabindex="0">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-        <div class="relative modal-panel rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()">
-          <div class="p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-bold">${t('blockedUsers') || 'Blocked users'}</h2>
-              <button onclick="closeBlockedUsers()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Close'}">
-                ${icon('x', 'w-5 h-5')}
-              </button>
-            </div>
-            ${lazyRender('renderBlockedUsersList')}
-          </div>
-        </div>
-      </div>
-    ` : ''}
-    ${state.showAccessibilityHelp ? lazyRender('renderAccessibilityHelp', state) : ''}
-    ${state.showTeamChallenges ? `
-      <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeTeamChallenges()">
-        <div class="min-h-screen pb-20">
-          <div class="sticky top-0 z-10 flex items-center justify-between p-4 bg-dark-primary/80 backdrop-blur-xl border-b border-white/5">
-            <h2 class="text-lg font-bold">${icon('users', 'w-5 h-5 mr-2 text-orange-400')}${t('teamChallenges') || "Défis d'équipe"}</h2>
-            <button onclick="closeTeamChallenges()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
-              ${icon('x', 'w-5 h-5')}
-            </button>
-          </div>
-          ${lazyRender('renderTeamDashboard', state)}
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Create Team Modal -->
-    ${state.showCreateTeam ? `
-      <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" onclick="if(event.target===this)closeCreateTeam()">
-        <div class="modal-panel w-full max-w-md rounded-2xl overflow-hidden slide-up">
-          <div class="flex items-center justify-between p-4 border-b border-white/10">
-            <h2 class="text-lg font-bold">${icon('users', 'w-5 h-5 mr-2 text-primary-400')}${t('teamCreateButton') || 'Créer une équipe'}</h2>
-            <button onclick="closeCreateTeam()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">${icon('x', 'w-5 h-5')}</button>
-          </div>
-          <div class="p-4 space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">${t('teamNameLabel') || 'Nom de l\'équipe'} *</label>
-              <input id="create-team-name" type="text" maxlength="30" placeholder="${t('teamNamePlaceholder') || 'Ex: Les routards du monde'}" class="input-field w-full" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">${t('teamDescLabel') || 'Description'}</label>
-              <textarea id="create-team-desc" rows="2" maxlength="100" placeholder="${t('teamDescPlaceholder') || 'Décrivez votre équipe...'}" class="input-field w-full resize-none"></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-2">${t('teamAvatarLabel') || 'Emoji de l\'équipe'}</label>
-              <div class="flex flex-wrap gap-2">
-                ${['👥','🚗','🌍','🏕️','✈️','🚀','🦅','🔥','⚡','🌟'].map(emoji => `
-                  <button onclick="document.getElementById('create-team-avatar').value='${emoji}';document.querySelectorAll('.team-avatar-btn').forEach(b=>b.classList.remove('ring-2','ring-primary-400'));this.classList.add('ring-2','ring-primary-400')"
-                    class="team-avatar-btn w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl hover:bg-white/20 transition-colors">${emoji}</button>
-                `).join('')}
-              </div>
-              <input id="create-team-avatar" type="hidden" value="👥" />
-            </div>
-            <button onclick="handleCreateTeam()" class="btn btn-primary w-full">
-              ${icon('plus', 'w-5 h-5 mr-2')}${t('teamCreateConfirm') || 'Créer l\'équipe'}
-            </button>
-          </div>
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Floating Widgets (conditional to avoid unnecessary lazy-loads) -->
-    ${state.nearbyFriendsEnabled ? lazyRender('renderNearbyFriendsWidget', state) : ''}
-    ${state.sosActive && state.sosSession ? lazyRender('renderSOSTrackingWidget', state) : ''}
-    ${state.proximityAlertSpot ? lazyRender('renderProximityAlert', state.proximityAlertSpot) : ''}
-
-    <!-- Admin Panel -->
-    ${state.showAdminPanel ? lazyRender('renderAdminPanel', state) : ''}
-
-    <!-- GDPR My Data Modal -->
-    ${state.showMyData ? lazyRender('renderMyDataModal') : ''}
-
-    <!-- Titles Modal -->
-    ${state.showTitles ? lazyRender('renderTitlesModal', state) : ''}
-
-    <!-- Friend Profile Modal -->
-    ${state.showFriendProfile ? lazyRender('renderFriendProfileModal', state) : ''}
-
-    <!-- Contact Form Modal -->
-    ${state.showContactForm ? lazyRender('renderContactFormModal') : ''}
-
-    <!-- Delete Account Modal -->
-    ${state.showDeleteAccount ? lazyRender('renderDeleteAccountModal', state) : ''}
-
-    <!-- Companion Mode Modal -->
-    ${state.showCompanionModal ? lazyRender('renderCompanionModal', state) : ''}
-
-    <!-- Coming Soon: Proximity Radar -->
-    ${state.showComingSoonRadar ? renderComingSoonModal({
-      onClose: 'closeComingSoonRadar',
-      icon: 'radar',
-      iconColor: 'text-blue-400',
-      iconBg: 'bg-blue-500/20',
-      borderColor: 'border-blue-500/30',
-      title: t('proximityRadar') || 'Radar de proximité',
-      items: [
-        { ic: 'map-pin', text: t('radarFeature1') || 'Voir les autostoppeurs proches de toi en temps réel' },
-        { ic: 'message-circle', text: t('radarFeature2') || 'Les contacter pour faire route ensemble' },
-        { ic: 'bell', text: t('radarFeature3') || "Recevoir une alerte quand quelqu'un est à moins de 5km" },
-        { ic: 'eye-off', text: t('radarFeature4') || "Visible uniquement si tu l'actives. Vie privée respectée" },
-      ],
-    }) : ''}
-
-    <!-- Identity Verification uses standard beta guard (showFeatureIntro) -->
-
-    <!-- Coming Soon: Proximity Alerts (Settings toggle) -->
-    ${state.showComingSoonProximity ? renderComingSoonModal({
-      onClose: 'closeComingSoonProximity',
-      icon: 'map-pin',
-      iconColor: 'text-emerald-400',
-      iconBg: 'bg-emerald-500/20',
-      borderColor: 'border-emerald-500/30',
-      title: t('comingSoonProximityTitle') || 'Alertes spot proche',
-      items: [
-        { ic: 'bell', text: t('comingSoonProximityF1') || 'Notification quand tu passes près d\'un spot bien noté' },
-        { ic: 'settings', text: t('comingSoonProximityF2') || 'Rayon personnalisable (500m à 5km)' },
-        { ic: 'battery-charging', text: t('comingSoonProximityF3') || 'Économie de batterie. GPS intelligent' },
-        { ic: 'compass', text: t('comingSoonProximityF4') || 'Actif uniquement en mode voyage' },
-      ],
-    }) : ''}
-
-    <!-- Trip History Modal -->
-    ${state.showTripHistory ? `
-      <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeTripHistory()">
-        <div class="min-h-screen pb-20">
-          <div class="sticky top-0 z-10 flex items-center justify-between p-4 bg-dark-primary/80 backdrop-blur-xl border-b border-white/5">
-            <h2 class="text-lg font-bold">${icon('clipboard-list', 'w-5 h-5 mr-2 text-emerald-400')}${t('tripHistory') || 'Historique de voyage'}</h2>
-            <div class="flex items-center gap-2">
-              <button onclick="clearTripHistory()" class="px-3 py-1.5 rounded-xl bg-red-500/20 text-red-400 text-sm hover:bg-red-500/30 transition-colors" aria-label="${t('clearHistory') || "Effacer l'historique"}">
-                ${icon('trash', 'w-5 h-5 mr-1')}${t('clear') || 'Effacer'}
-              </button>
-              <button onclick="closeTripHistory()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
-                ${icon('x', 'w-5 h-5')}
-              </button>
-            </div>
-          </div>
-          <div class="p-4">
-            ${lazyRender('renderTripHistory')}
-          </div>
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- FAQ Overlay -->
-    ${state.showFAQ ? `
-      <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeFAQ()">
-        <div class="min-h-screen pb-20">
-          <div class="sticky top-0 z-10 flex items-center justify-between p-4 bg-dark-primary/80 backdrop-blur-xl border-b border-white/5">
-            <h2 class="text-lg font-bold flex items-center gap-2">${icon('help-circle', 'w-5 h-5 text-primary-400')}${t('faqTitle') || 'FAQ & Aide'}</h2>
-            <button onclick="closeFAQ()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
-              ${icon('x', 'w-5 h-5')}
-            </button>
-          </div>
-          <div class="p-4">
-            ${lazyRender('renderFAQ', state)}
-          </div>
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Legal Overlay -->
-    ${state.showLegal ? `
-      <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeLegal()">
-        <div class="min-h-screen pb-20">
-          ${lazyRender('renderLegalPage', state.legalPage || 'cgu')}
-        </div>
-      </div>
-    ` : ''}
-
-
-    <!-- Add Friend Modal -->
-    ${state.showAddFriend ? lazyRender('renderAddFriendModal', state) : ''}
-
-    <!-- Unblock User Modal -->
-    ${state.showUnblockModal ? lazyRender('renderUnblockModal', state.unblockTargetId, state.unblockTargetName) : ''}
-
-    <!-- Safety Page Overlay -->
-    ${state.showSafety ? lazyRender('renderSafety') : ''}
-
-    <!-- Location Permission Modal -->
-    ${state.showLocationPermission ? lazyRender('renderLocationPermission', state) : ''}
-
-    <!-- PWA Install Banner -->
-    ${state.showInstallBanner ? lazyRender('renderInstallBanner') : ''}
-
-    <!-- Language Selector Modal -->
-    ${state.showLanguageSelector ? lazyRender('renderLanguageSelector', state) : ''}
-
-    <!-- Profile Setup (triggered when user wants to contribute) -->
-    ${state.showWelcome ? lazyRender('renderWelcome', state) : ''}
-
-    <!-- Cookie Banner (RGPD) - hidden during landing and map-first Voyage view -->
-    ${!state.showLanding && !isVoyageMapFirst ? renderCookieBanner() : ''}
-
-    <!-- Alpha Banner + popup (hidden during landing) -->
-    ${!state.showLanding ? renderBetaBanner() : ''}
-
-    <!-- Feedback Side Tab (managed by initDraggableFeedbackBtn in main.js) -->
-    <div id="fb-side-btn-anchor"></div>
-
-    <!-- Feedback Panel -->
-    ${state.showFeedbackPanel ? lazyRender('renderFeedbackPanel', state) : ''}
-
-    <!-- Guide Nudge Modal (shown after spot creation) -->
-    ${state.showGuideNudge && state.pendingGuideCountry ? lazyRender('renderGuideNudge', state) : ''}
   `
 
   // Landing overlay for first-time visitors (map loads behind it)
@@ -520,7 +214,7 @@ function renderComingSoonModal({ onClose, icon: ic, iconColor, iconBg, borderCol
 /**
  * Check if the current tab is a map tab
  */
-function isMapTab(state) {
+export function isMapTab(state) {
   return ['map', 'fullmap', 'home', 'travel', 'planner'].includes(state.activeTab) || !state.activeTab
 }
 
@@ -528,7 +222,7 @@ function isMapTab(state) {
  * Render the active view based on current tab
  * Note: Map is rendered separately in panel-map (A8)
  */
-function renderActiveView(state) {
+export function renderActiveView(state) {
   switch (state.activeTab) {
     case 'challenges':
       return lazyRender('renderVoyage', state);
@@ -542,6 +236,322 @@ function renderActiveView(state) {
     default:
       return '' // Map handled by panel-map
   }
+}
+
+/**
+ * Get the panel id for the current active tab
+ */
+export function getActiveTabPanelId(state) {
+  if (isMapTab(state)) return 'map'
+  if (state.activeTab === 'social' || state.activeTab === 'chat') return 'social'
+  return state.activeTab || 'map'
+}
+
+/**
+ * Render modals section only (for selective rendering)
+ */
+export function renderModals(state) {
+  return `
+    ${state.showAgeVerification ? lazyRender('renderAgeVerification', state) : ''}
+    ${state.showIdentityVerification ? lazyRender('renderIdentityVerification') : ''}
+    ${state.selectedSpot ? lazyRender('renderSpotDetail', state) : ''}
+    ${state.showAddSpot ? lazyRender('renderAddSpot', state) : ''}
+    ${state.showValidateSpot ? lazyRender('renderValidateSpot', state) : ''}
+    ${state.showSOS ? lazyRender('renderSOS', state) : ''}
+    ${state.showAuth ? lazyRender('renderAuth', state) : ''}
+    ${state.showCompleteProfile ? lazyRender('renderCompleteProfile', state) : ''}
+    ${''}<!-- Tutorial retired -->
+    ${state.showFilters ? lazyRender('renderFiltersModal') : ''}
+    ${state.showStats ? lazyRender('renderStatsModal') : ''}
+    ${state.showBadges ? lazyRender('renderBadgesModal') : ''}
+    ${state.showChallenges ? lazyRender('renderChallengesModal') : ''}
+    ${state.showShop ? lazyRender('renderShopModal') : ''}
+    ${state.showMyRewards ? lazyRender('renderMyRewardsModal') : ''}
+    ${state.showQuiz ? lazyRender('renderQuiz') : ''}
+    ${state.showLeaderboard ? lazyRender('renderLeaderboardModal') : ''}
+    ${state.checkinSpot ? lazyRender('renderCheckinModal', state) : ''}
+    ${state.showDailyReward ? lazyRender('renderDailyRewardModal') : ''}
+    ${state.showBadgePopup ? lazyRender('renderBadgePopup') : ''}
+    ${state.showBadgeDetail ? lazyRender('renderBadgeDetail', state.selectedBadgeId) : ''}
+    ${state.navigationActive ? lazyRender('renderNavigationOverlay', state) : ''}
+    ${state.showDonation ? lazyRender('renderDonationModal', state) : ''}
+    ${state.showDonationThankYou ? lazyRender('renderThankYouModal', state) : ''}
+    ${state.showAmbassadorSuccess ? renderAmbassadorSuccessModal(state) : ''}
+    ${state.showContactAmbassador && state.selectedAmbassador ? renderContactAmbassadorModal(state) : ''}
+    ${state.showProfileCustomization ? lazyRender('renderCustomizationModal', state) : ''}
+    ${state.showNearbyFriends ? lazyRender('renderNearbyFriendsList', state) : ''}
+    ${state.showReport ? lazyRender('renderReportModal', state) : ''}
+    ${state.showBlockModal ? lazyRender('renderBlockModal', state.blockTargetId, state.blockTargetName) : ''}
+    ${state.showBlockedUsers ? renderBlockedUsersModal(state) : ''}
+    ${state.showAccessibilityHelp ? lazyRender('renderAccessibilityHelp', state) : ''}
+    ${state.showTeamChallenges ? renderTeamChallengesModal(state) : ''}
+    ${state.showCreateTeam ? renderCreateTeamModal(state) : ''}
+    ${state.showTripHistory ? renderTripHistoryModal(state) : ''}
+    ${state.showFAQ ? renderFAQModal(state) : ''}
+    ${state.showLegal ? renderLegalModal(state) : ''}
+    ${state.showAddFriend ? lazyRender('renderAddFriendModal', state) : ''}
+    ${state.showUnblockModal ? lazyRender('renderUnblockModal', state.unblockTargetId, state.unblockTargetName) : ''}
+    ${state.showSafety ? lazyRender('renderSafety') : ''}
+    ${state.showLocationPermission ? lazyRender('renderLocationPermission', state) : ''}
+    ${state.showInstallBanner ? lazyRender('renderInstallBanner') : ''}
+    ${state.showLanguageSelector ? lazyRender('renderLanguageSelector', state) : ''}
+    ${state.showWelcome ? lazyRender('renderWelcome', state) : ''}
+    ${state.showComingSoonRadar ? renderComingSoonModal({
+      onClose: 'closeComingSoonRadar',
+      icon: 'radar',
+      iconColor: 'text-blue-400',
+      iconBg: 'bg-blue-500/20',
+      borderColor: 'border-blue-500/30',
+      title: t('proximityRadar') || 'Radar de proximité',
+      items: [
+        { ic: 'map-pin', text: t('radarFeature1') || 'Voir les autostoppeurs proches de toi en temps réel' },
+        { ic: 'message-circle', text: t('radarFeature2') || 'Les contacter pour faire route ensemble' },
+        { ic: 'bell', text: t('radarFeature3') || "Recevoir une alerte quand quelqu'un est à moins de 5km" },
+        { ic: 'eye-off', text: t('radarFeature4') || "Visible uniquement si tu l'actives. Vie privée respectée" },
+      ],
+    }) : ''}
+    ${state.showComingSoonProximity ? renderComingSoonModal({
+      onClose: 'closeComingSoonProximity',
+      icon: 'map-pin',
+      iconColor: 'text-emerald-400',
+      iconBg: 'bg-emerald-500/20',
+      borderColor: 'border-emerald-500/30',
+      title: t('comingSoonProximityTitle') || 'Alertes spot proche',
+      items: [
+        { ic: 'bell', text: t('comingSoonProximityF1') || 'Notification quand tu passes près d\'un spot bien noté' },
+        { ic: 'settings', text: t('comingSoonProximityF2') || 'Rayon personnalisable (500m à 5km)' },
+        { ic: 'battery-charging', text: t('comingSoonProximityF3') || 'Économie de batterie. GPS intelligent' },
+        { ic: 'compass', text: t('comingSoonProximityF4') || 'Actif uniquement en mode voyage' },
+      ],
+    }) : ''}
+    ${state.showMyData ? lazyRender('renderMyDataModal') : ''}
+    ${state.showTitles ? lazyRender('renderTitlesModal', state) : ''}
+    ${state.showFriendProfile ? lazyRender('renderFriendProfileModal', state) : ''}
+    ${state.showContactForm ? lazyRender('renderContactFormModal') : ''}
+    ${state.showDeleteAccount ? lazyRender('renderDeleteAccountModal', state) : ''}
+    ${state.showCompanionModal ? lazyRender('renderCompanionModal', state) : ''}
+    ${state.showFeedbackPanel ? lazyRender('renderFeedbackPanel', state) : ''}
+    ${state.showGuideNudge && state.pendingGuideCountry ? lazyRender('renderGuideNudge', state) : ''}
+    ${state.showFeatureIntro ? lazyRender('renderFeatureIntro', state) : ''}
+  `
+}
+
+/**
+ * Render overlays section (cookie, beta banner, floating widgets)
+ */
+export function renderOverlays(state) {
+  const isVoyageMapFirst = state.activeTab === 'challenges' && state.tripResults && state.tripFormCollapsed
+  return `
+    ${!state.showLanding && !isVoyageMapFirst ? renderCookieBanner() : ''}
+    ${!state.showLanding ? renderBetaBanner() : ''}
+    <div id="fb-side-btn-anchor"></div>
+    ${state.nearbyFriendsEnabled ? lazyRender('renderNearbyFriendsWidget', state) : ''}
+    ${state.sosActive && state.sosSession ? lazyRender('renderSOSTrackingWidget', state) : ''}
+    ${state.proximityAlertSpot ? lazyRender('renderProximityAlert', state.proximityAlertSpot) : ''}
+    ${state.showAdminPanel ? lazyRender('renderAdminPanel', state) : ''}
+    ${state.tripResults && !state.showTripPlanner && !state.showTripMap && isMapTab(state) ? renderActiveTripBar(state) : ''}
+    ${state.spotDraftsBannerVisible ? lazyRender('renderDraftBanner') : ''}
+    ${state.selectedCity ? renderCityPanel(state) : ''}
+    ${state.showLanding ? lazyRender('renderLanding') : ''}
+  `
+}
+
+/**
+ * Render the active trip bar
+ */
+function renderActiveTripBar(state) {
+  return `
+    <div class="fixed bottom-[4.5rem] left-4 right-4 z-30 px-4 py-2.5 rounded-xl bg-primary-500/90 backdrop-blur-xl border border-primary-400/30 shadow-lg shadow-primary-500/20 cursor-pointer" role="button" tabindex="0" onclick="openActiveTrip()">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          ${icon('route', 'w-5 h-5 text-white/80')}
+          <div class="min-w-0">
+            <div class="text-xs text-white/70">${t('tripInProgress')}</div>
+            <div class="text-sm font-semibold text-white truncate">
+              ${state.tripResults.from?.split(',')[0] || '?'} → ${state.tripResults.to?.split(',')[0] || '?'}
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-white/70">${state.tripResults.spots?.length || 0} spots</span>
+          ${icon('chevron-up', 'w-3 h-3 text-white/60')}
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// Helper functions for inline modals (extracted from renderApp)
+function renderAmbassadorSuccessModal(_state) {
+  return `
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onclick="if(event.target===this)closeAmbassadorSuccess()" role="dialog" aria-modal="true" aria-labelledby="amb-success-title">
+      <div class="modal-panel rounded-2xl max-w-sm w-full p-6 text-center slide-up">
+        <div class="text-6xl mb-4">🌟</div>
+        <h2 id="amb-success-title" class="text-2xl font-bold mb-2">${t('ambassadorSuccessTitle') || 'Tu es maintenant Ambassadeur !'}</h2>
+        <p class="text-slate-300 text-sm mb-6">${t('ambassadorSuccessDesc') || 'Tu représentes désormais ta ville sur SpotHitch. Merci pour ton engagement !'}</p>
+        <button onclick="closeAmbassadorSuccess()" class="w-full py-3 px-6 rounded-xl bg-primary-500 text-white font-medium hover:bg-primary-600 transition-colors">
+          ${icon('check', 'w-5 h-5 mr-2')}${t('awesome') || 'Super !'}
+        </button>
+      </div>
+    </div>
+  `
+}
+
+function renderContactAmbassadorModal(state) {
+  return `
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4" onclick="if(event.target===this)closeContactAmbassador()" role="dialog" aria-modal="true" aria-labelledby="contact-amb-title">
+      <div class="modal-panel w-full max-w-md rounded-2xl overflow-hidden slide-up">
+        <div class="flex items-center justify-between p-4 border-b border-white/10">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">${state.selectedAmbassador.userAvatar || '🤙'}</span>
+            <div>
+              <h2 id="contact-amb-title" class="text-base font-bold">${state.selectedAmbassador.userName || ''}</h2>
+              <p class="text-xs text-slate-400">${state.selectedAmbassador.city || ''}, ${state.selectedAmbassador.country || ''}</p>
+            </div>
+          </div>
+          <button onclick="closeContactAmbassador()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">${icon('x', 'w-5 h-5')}</button>
+        </div>
+        <div class="p-4 space-y-4">
+          ${state.selectedAmbassador.bio ? `<p class="text-sm text-slate-300 italic">"${state.selectedAmbassador.bio}"</p>` : ''}
+          ${state.selectedAmbassador.languages?.length > 0 ? `
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs text-slate-400">${t('languages') || 'Langues'} :</span>
+              ${state.selectedAmbassador.languages.map(l => `<span class="px-2 py-0.5 rounded bg-white/10 text-xs">${l.toUpperCase()}</span>`).join('')}
+            </div>
+          ` : ''}
+          <div>
+            <label class="block text-sm font-medium mb-1">${t('yourMessage') || 'Ton message'}</label>
+            <textarea id="ambassador-message" rows="3" maxlength="500" placeholder="${t('ambassadorMessagePlaceholder') || 'Ex: Bonjour, j\'aurais besoin de conseils pour quitter Paris...'}" class="input-field w-full resize-none text-sm"></textarea>
+          </div>
+          <button onclick="window.sendAmbassadorMessage?.()" class="btn btn-primary w-full">
+            ${icon('send', 'w-4 h-4 mr-2')}${t('sendMessage') || 'Envoyer'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function renderBlockedUsersModal(_state) {
+  return `
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeBlockedUsers()" role="dialog" aria-modal="true" tabindex="0">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
+      <div class="relative modal-panel rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold">${t('blockedUsers') || 'Blocked users'}</h2>
+            <button onclick="closeBlockedUsers()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Close'}">
+              ${icon('x', 'w-5 h-5')}
+            </button>
+          </div>
+          ${lazyRender('renderBlockedUsersList')}
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function renderTeamChallengesModal(state) {
+  return `
+    <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeTeamChallenges()">
+      <div class="min-h-screen pb-20">
+        <div class="sticky top-0 z-10 flex items-center justify-between p-4 bg-dark-primary/80 backdrop-blur-xl border-b border-white/5">
+          <h2 class="text-lg font-bold">${icon('users', 'w-5 h-5 mr-2 text-orange-400')}${t('teamChallenges') || "Défis d'équipe"}</h2>
+          <button onclick="closeTeamChallenges()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
+            ${icon('x', 'w-5 h-5')}
+          </button>
+        </div>
+        ${lazyRender('renderTeamDashboard', state)}
+      </div>
+    </div>
+  `
+}
+
+function renderCreateTeamModal(_state) {
+  return `
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" onclick="if(event.target===this)closeCreateTeam()">
+      <div class="modal-panel w-full max-w-md rounded-2xl overflow-hidden slide-up">
+        <div class="flex items-center justify-between p-4 border-b border-white/10">
+          <h2 class="text-lg font-bold">${icon('users', 'w-5 h-5 mr-2 text-primary-400')}${t('teamCreateButton') || 'Créer une équipe'}</h2>
+          <button onclick="closeCreateTeam()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">${icon('x', 'w-5 h-5')}</button>
+        </div>
+        <div class="p-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">${t('teamNameLabel') || 'Nom de l\'équipe'} *</label>
+            <input id="create-team-name" type="text" maxlength="30" placeholder="${t('teamNamePlaceholder') || 'Ex: Les routards du monde'}" class="input-field w-full" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">${t('teamDescLabel') || 'Description'}</label>
+            <textarea id="create-team-desc" rows="2" maxlength="100" placeholder="${t('teamDescPlaceholder') || 'Décrivez votre équipe...'}" class="input-field w-full resize-none"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">${t('teamAvatarLabel') || 'Emoji de l\'équipe'}</label>
+            <div class="flex flex-wrap gap-2">
+              ${['👥','🚗','🌍','🏕️','✈️','🚀','🦅','🔥','⚡','🌟'].map(emoji => `
+                <button onclick="document.getElementById('create-team-avatar').value='${emoji}';document.querySelectorAll('.team-avatar-btn').forEach(b=>b.classList.remove('ring-2','ring-primary-400'));this.classList.add('ring-2','ring-primary-400')"
+                  class="team-avatar-btn w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl hover:bg-white/20 transition-colors">${emoji}</button>
+              `).join('')}
+            </div>
+            <input id="create-team-avatar" type="hidden" value="👥" />
+          </div>
+          <button onclick="handleCreateTeam()" class="btn btn-primary w-full">
+            ${icon('plus', 'w-5 h-5 mr-2')}${t('teamCreateConfirm') || 'Créer l\'équipe'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function renderTripHistoryModal(_state) {
+  return `
+    <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeTripHistory()">
+      <div class="min-h-screen pb-20">
+        <div class="sticky top-0 z-10 flex items-center justify-between p-4 bg-dark-primary/80 backdrop-blur-xl border-b border-white/5">
+          <h2 class="text-lg font-bold">${icon('clipboard-list', 'w-5 h-5 mr-2 text-emerald-400')}${t('tripHistory') || 'Historique de voyage'}</h2>
+          <div class="flex items-center gap-2">
+            <button onclick="clearTripHistory()" class="px-3 py-1.5 rounded-xl bg-red-500/20 text-red-400 text-sm hover:bg-red-500/30 transition-colors" aria-label="${t('clearHistory') || "Effacer l'historique"}">
+              ${icon('trash', 'w-5 h-5 mr-1')}${t('clear') || 'Effacer'}
+            </button>
+            <button onclick="closeTripHistory()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
+              ${icon('x', 'w-5 h-5')}
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          ${lazyRender('renderTripHistory')}
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function renderFAQModal(state) {
+  return `
+    <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeFAQ()">
+      <div class="min-h-screen pb-20">
+        <div class="sticky top-0 z-10 flex items-center justify-between p-4 bg-dark-primary/80 backdrop-blur-xl border-b border-white/5">
+          <h2 class="text-lg font-bold flex items-center gap-2">${icon('help-circle', 'w-5 h-5 text-primary-400')}${t('faqTitle') || 'FAQ & Aide'}</h2>
+          <button onclick="closeFAQ()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
+            ${icon('x', 'w-5 h-5')}
+          </button>
+        </div>
+        <div class="p-4">
+          ${lazyRender('renderFAQ', state)}
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function renderLegalModal(state) {
+  return `
+    <div class="fixed inset-0 z-50 bg-black/90 overflow-y-auto" role="dialog" aria-modal="true" onclick="if(event.target===this)closeLegal()">
+      <div class="min-h-screen pb-20">
+        ${lazyRender('renderLegalPage', state.legalPage || 'cgu')}
+      </div>
+    </div>
+  `
 }
 
 /**
