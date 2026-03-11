@@ -2224,19 +2224,7 @@ function initDraggableFeedbackBtn() {
   let startTop = 0
   let hasMoved = false
 
-  function onStart(e) {
-    isDragging = true
-    hasMoved = false
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY
-    startY = clientY
-    startTop = parseInt(btn.style.top, 10) || initialTop
-    btn.style.cursor = 'grabbing'
-    btn.style.transition = 'none'
-    e.preventDefault()
-  }
-
   function onMove(e) {
-    if (!isDragging) return
     const clientY = e.touches ? e.touches[0].clientY : e.clientY
     const delta = clientY - startY
     if (Math.abs(delta) > 4) hasMoved = true
@@ -2249,18 +2237,35 @@ function initDraggableFeedbackBtn() {
     isDragging = false
     btn.style.cursor = 'grab'
     btn.style.transition = 'opacity 0.2s'
+    // Remove move/end listeners when drag ends
+    document.removeEventListener('touchmove', onMove)
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('touchend', onEnd)
+    document.removeEventListener('mouseup', onEnd)
     // Save position
     localStorage.setItem(STORAGE_KEY, parseInt(btn.style.top, 10))
     // If not dragged, open panel
     if (!hasMoved) window.openFeedbackPanel()
   }
 
+  function onStart(e) {
+    isDragging = true
+    hasMoved = false
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY
+    startY = clientY
+    startTop = parseInt(btn.style.top, 10) || initialTop
+    btn.style.cursor = 'grabbing'
+    btn.style.transition = 'none'
+    // Attach move/end listeners only while dragging
+    document.addEventListener('touchmove', onMove, { passive: false })
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('touchend', onEnd)
+    document.addEventListener('mouseup', onEnd)
+    e.preventDefault()
+  }
+
   btn.addEventListener('touchstart', onStart, { passive: false })
   btn.addEventListener('mousedown', onStart)
-  document.addEventListener('touchmove', onMove, { passive: false })
-  document.addEventListener('mousemove', onMove)
-  document.addEventListener('touchend', onEnd)
-  document.addEventListener('mouseup', onEnd)
 
   // Badge counter: show number of unvoted features
   function updateFeedbackBadge() {
