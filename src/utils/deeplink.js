@@ -56,7 +56,20 @@ const ACTIONS = {
     if (title || text) {
       window._pendingShareText = title || text.split('\n')[0] || ''
     }
-    // Always open AddSpot — user can pick location manually if coords not found
+    // Wait for app to be fully initialized before opening AddSpot
+    // (on share target launch, the app restarts and openAddSpot may not exist yet)
+    const waitForApp = () => new Promise((resolve) => {
+      if (window.openAddSpot) return resolve()
+      let attempts = 0
+      const check = setInterval(() => {
+        attempts++
+        if (window.openAddSpot || attempts > 50) {
+          clearInterval(check)
+          resolve()
+        }
+      }, 100)
+    })
+    await waitForApp()
     window.openAddSpot?.()
   },
 };
