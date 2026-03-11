@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-10 (session 41 — Fix AddSpot boutons + autocomplete + hooks Claude Code)
+> Dernière mise à jour : 2026-03-11 (session 41 — Fix AddSpot/SpotDetail + audit complet + nettoyage profil)
 
 ---
 
