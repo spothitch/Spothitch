@@ -234,12 +234,51 @@ export async function shareLink(options = {}) {
 }
 
 /**
- * Listen to popstate for back/forward navigation
+ * Listen for deep link triggers:
+ * - popstate: back/forward navigation
+ * - pageshow: PWA launched via share target (navigate-existing)
+ * - visibilitychange: app brought to foreground with new URL
+ * - LaunchParams: modern PWA launch queue API
  */
 export function initDeepLinkListener() {
   window.addEventListener('popstate', () => {
     handleDeepLink();
   });
+
+  // PWA share target: when the app is already open and receives a share,
+  // the browser navigates the existing window. Detect this via pageshow/focus.
+  let lastHandledUrl = window.location.href;
+
+  const checkForNewShareUrl = () => {
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastHandledUrl && currentUrl.includes('action=share')) {
+      lastHandledUrl = currentUrl;
+      handleDeepLink();
+    }
+  };
+
+  // pageshow fires when the page is shown (including BFCache restore)
+  window.addEventListener('pageshow', checkForNewShareUrl);
+
+  // visibilitychange fires when the app comes to foreground
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      checkForNewShareUrl();
+    }
+  });
+
+  // focus fires when the PWA window receives focus
+  window.addEventListener('focus', checkForNewShareUrl);
+
+  // Modern Launch Queue API (Chrome 110+): handles PWA launch with URL
+  if ('launchQueue' in window) {
+    window.launchQueue.setConsumer((launchParams) => {
+      if (launchParams.targetURL && launchParams.targetURL.includes('action=share')) {
+        lastHandledUrl = launchParams.targetURL;
+        handleDeepLink();
+      }
+    });
+  }
 
   // Handle initial load
   handleDeepLink();
