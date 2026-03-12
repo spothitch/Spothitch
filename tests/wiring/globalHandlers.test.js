@@ -419,7 +419,7 @@ const MAIN_JS_HANDLERS = [
   'translateElement', 'showOriginal',
   'startNavigation', 'removeKnownDevice',
   'closeShareModal', 'copySpotLink',
-  'exportUserData', 'shareLink', 'generateShareUrl',
+  'exportUserData', 'shareLink', 'generateShareUrl', 'processShare',
   'openInGoogleMaps', 'openInWaze', 'openInAppleMaps', 'openInNativeMaps',
   'selectNavigationApp', 'closeNavigationPicker',
   // Feedback Panel (session 2026-02-27)
