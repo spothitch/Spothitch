@@ -23,7 +23,7 @@ export async function fetchSpotValidations(spotId) {
   try {
     const { getFirestore } = await import('firebase/firestore')
     const { collection, query, orderBy, limit, getDocs } = await import('firebase/firestore')
-    const { initializeApp, getApps, getApp } = await import('firebase/app')
+    const { getApps, getApp } = await import('firebase/app')
 
     // Get existing Firebase app
     const app = getApps().length > 0 ? getApp() : null
