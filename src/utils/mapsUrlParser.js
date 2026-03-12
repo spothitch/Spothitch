@@ -130,7 +130,7 @@ export async function resolveShortMapUrl(shortUrl) {
  * @param {string} place
  * @returns {Promise<{ lat: number, lng: number } | null>}
  */
-async function geocodePlace(place) {
+export async function geocodePlace(place) {
   try {
     const res = await fetch(
       `https://photon.komoot.io/api/?q=${encodeURIComponent(place)}&limit=1`,

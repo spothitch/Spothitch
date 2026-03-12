@@ -39,7 +39,7 @@ const ACTIONS = {
     const url = params.get('url') || ''
     const text = params.get('text') || ''
     const title = params.get('title') || ''
-    const { extractCoordsFromShare, resolveShortMapUrl } = await import('./mapsUrlParser.js')
+    const { extractCoordsFromShare, resolveShortMapUrl, geocodePlace } = await import('./mapsUrlParser.js')
     let coords = extractCoordsFromShare(url, text)
     // Try resolving shortened Google Maps URLs (maps.app.goo.gl)
     if (!coords) {
@@ -47,6 +47,19 @@ const ACTIONS = {
         || (text || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
       if (shortUrl) {
         coords = await resolveShortMapUrl(shortUrl)
+      }
+    }
+    // Fallback: geocode the place name from title/text when no coords found
+    if (!coords && (title || text)) {
+      const placeName = title || text.split('\n')[0] || ''
+      // Clean place name: remove URLs, "Google Maps", extra whitespace
+      const cleanName = placeName
+        .replace(/https?:\/\/\S+/g, '')
+        .replace(/google\s*maps?/gi, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim()
+      if (cleanName.length >= 2) {
+        coords = await geocodePlace(cleanName)
       }
     }
     if (coords) {
