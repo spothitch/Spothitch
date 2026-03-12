@@ -296,11 +296,12 @@ export async function initFirebasePage(browser, email, password) {
   // Wait for window.__fb to be available
   await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
 
-  // Login programmatically with retry for rate limiting
+  // Login programmatically with retry for rate limiting and transient errors
   const pw = password || getTestPassword()
   let loginResult
-  const maxRetries = 4
-  const delays = [0, 5000, 15000, 30000]
+  const maxRetries = 5
+  const delays = [0, 3000, 8000, 15000, 30000]
+  const retryableErrors = ['too-many-requests', 'network-request-failed', 'internal-error', 'unavailable', 'timeout', 'ECONNRESET']
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (delays[attempt] > 0) {
@@ -326,7 +327,9 @@ export async function initFirebasePage(browser, email, password) {
     }, { e: email, p: pw })
 
     if (loginResult.success) break
-    if (!loginResult.error?.includes('too-many-requests')) break
+    // Retry on transient/rate-limit errors, stop on auth errors (wrong password etc.)
+    const isRetryable = retryableErrors.some(e => loginResult.error?.includes(e))
+    if (!isRetryable) break
   }
 
   if (!loginResult.success) {
