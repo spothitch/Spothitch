@@ -199,6 +199,7 @@ test.describe('Firebase Auth - Profile & Account', () => {
   })
 
   test('update user profile fields in Firestore', async () => {
+    test.setTimeout(60000) // Firestore writes + polling need extra time in CI
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     const result = await page.evaluate(async (testUid) => {
