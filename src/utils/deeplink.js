@@ -35,55 +35,83 @@ const ACTIONS = {
   'settings': () => setState({ activeTab: 'profile' }),
   'filters': () => setState({ showFilters: true }),
   'share': async () => {
-    const params = getUrlParams()
-    const url = params.get('url') || ''
-    const text = params.get('text') || ''
-    const title = params.get('title') || ''
-    const { extractCoordsFromShare, resolveShortMapUrl, geocodePlace } = await import('./mapsUrlParser.js')
-    let coords = extractCoordsFromShare(url, text)
-    // Try resolving shortened Google Maps URLs (maps.app.goo.gl)
-    if (!coords) {
-      const shortUrl = (url || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
-        || (text || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
-      if (shortUrl) {
-        coords = await resolveShortMapUrl(shortUrl)
+    try {
+      const params = getUrlParams()
+      const url = params.get('url') || ''
+      const text = params.get('text') || ''
+      const title = params.get('title') || ''
+
+      // Store shared text for place name fallback (early, so it's available even if coord resolution fails)
+      if (title || text) {
+        window._pendingShareText = title || text.split('\n')[0] || ''
       }
-    }
-    // Fallback: geocode the place name from title/text when no coords found
-    if (!coords && (title || text)) {
-      const placeName = title || text.split('\n')[0] || ''
-      // Clean place name: remove URLs, "Google Maps", extra whitespace
-      const cleanName = placeName
-        .replace(/https?:\/\/\S+/g, '')
-        .replace(/google\s*maps?/gi, '')
-        .replace(/\s{2,}/g, ' ')
-        .trim()
-      if (cleanName.length >= 2) {
-        coords = await geocodePlace(cleanName)
-      }
-    }
-    if (coords) {
-      window._pendingShareCoords = coords
-    }
-    // Store shared text for place name fallback
-    if (title || text) {
-      window._pendingShareText = title || text.split('\n')[0] || ''
-    }
-    // Wait for app to be fully initialized before opening AddSpot
-    // (on share target launch, the app restarts and openAddSpot may not exist yet)
-    const waitForApp = () => new Promise((resolve) => {
-      if (window.openAddSpot) return resolve()
-      let attempts = 0
-      const check = setInterval(() => {
-        attempts++
-        if (window.openAddSpot || attempts > 50) {
-          clearInterval(check)
-          resolve()
+
+      // Resolve coordinates
+      let coords = null
+      try {
+        const { extractCoordsFromShare, resolveShortMapUrl, geocodePlace } = await import('./mapsUrlParser.js')
+        coords = extractCoordsFromShare(url, text)
+        // Try resolving shortened Google Maps URLs (maps.app.goo.gl)
+        if (!coords) {
+          const shortUrl = (url || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
+            || (text || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
+          if (shortUrl) {
+            coords = await resolveShortMapUrl(shortUrl)
+          }
         }
-      }, 100)
-    })
-    await waitForApp()
-    window.openAddSpot?.()
+        // Fallback: geocode the place name from title/text when no coords found
+        if (!coords && (title || text)) {
+          const placeName = title || text.split('\n')[0] || ''
+          const cleanName = placeName
+            .replace(/https?:\/\/\S+/g, '')
+            .replace(/google\s*maps?/gi, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim()
+          if (cleanName.length >= 2) {
+            coords = await geocodePlace(cleanName)
+          }
+        }
+      } catch (e) {
+        console.warn('[Share] Coord resolution error:', e.message)
+      }
+
+      if (coords) {
+        window._pendingShareCoords = coords
+      }
+
+      // Wait for app to be fully initialized before opening AddSpot
+      // (on share target launch, the app restarts and openAddSpot may not exist yet)
+      const waitForApp = () => new Promise((resolve) => {
+        if (window.openAddSpot) return resolve()
+        let attempts = 0
+        const check = setInterval(() => {
+          attempts++
+          if (window.openAddSpot || attempts > 150) { // 15s max (150 × 100ms)
+            clearInterval(check)
+            resolve()
+          }
+        }, 100)
+      })
+      await waitForApp()
+
+      // Open AddSpot — use the function if available, fallback to setState directly
+      if (window.openAddSpot) {
+        window.openAddSpot()
+      } else {
+        // Direct fallback: open AddSpot via state
+        setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
+      }
+    } catch (e) {
+      console.error('[Share] Handler failed:', e)
+      // Last resort fallback: try to open AddSpot anyway
+      try {
+        if (window.openAddSpot) {
+          window.openAddSpot()
+        } else {
+          setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
+        }
+      } catch { /* give up */ }
+    }
   },
 };
 
@@ -112,9 +140,26 @@ export function handleDeepLink() {
 
   // Handle action (validated against known whitelist)
   const action = params.get('action');
+
+  // Early share detection: immediately dismiss landing/welcome so share can take priority
+  if (action === 'share') {
+    console.log('[Share] Deep link detected:', window.location.search)
+    setState({ showLanding: false, showWelcome: false })
+    try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
+  }
   if (action && Object.prototype.hasOwnProperty.call(ACTIONS, action)) {
     const handler = ACTIONS[action];
-    setTimeout(() => handler(), 100);
+    setTimeout(() => {
+      try {
+        const result = handler()
+        // Catch async handler rejections
+        if (result && typeof result.catch === 'function') {
+          result.catch(e => console.error('[DeepLink] Action handler failed:', e))
+        }
+      } catch (e) {
+        console.error('[DeepLink] Action handler failed:', e)
+      }
+    }, 100);
   }
 
   // Handle spot ID
