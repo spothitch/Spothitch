@@ -169,6 +169,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_changelog_read', category: DataCategory.CACHE, description: 'Changelog read status' },
   { key: 'spothitch_share_target', category: DataCategory.CACHE, description: 'Share target data' },
   { key: 'spothitch_share_debug', category: DataCategory.CACHE, description: 'Share flow debug log (last 20 entries)' },
+  { key: 'spothitch_url_log', category: DataCategory.CACHE, description: 'Temporary URL debug log for share target diagnosis' },
   { key: 'spothitch_clean_urls', category: DataCategory.CACHE, description: 'Clean URLs config' },
   { key: 'spothitch_static_seo', category: DataCategory.CACHE, description: 'Static SEO pages cache' },
   { key: 'spothitch_spot_subscriptions', category: DataCategory.CACHE, description: 'Spot notification subscriptions' },
