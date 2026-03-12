@@ -306,6 +306,15 @@ async function init() {
     window.history.replaceState({}, '', window.location.pathname);
   }
 
+  // EARLY share target detection: if the app is opened via share,
+  // skip landing/welcome and prepare for share handling.
+  // This runs BEFORE i18n, rendering, and deeplink init to prevent race conditions.
+  const _isShareTarget = window.location.search.includes('action=share')
+  if (_isShareTarget) {
+    try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
+    setState({ showLanding: false, showWelcome: false })
+  }
+
   try {
     // Load detected language translations (only active language, not all 4)
     const lang = await initI18n();

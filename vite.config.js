@@ -97,14 +97,35 @@ export default defineConfig({
             text: 'text',
             url: 'url'
           }
-        }
+        },
+        launch_handler: {
+          client_mode: 'navigate-new'
+        },
+        prefer_related_applications: false,
+        handle_links: 'preferred',
+        screenshots: [
+          {
+            src: 'screenshot-mobile.png',
+            sizes: '750x1334',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'SpotHitch - Carte des spots d\'autostop'
+          },
+          {
+            src: 'screenshot-desktop.png',
+            sizes: '1280x720',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'SpotHitch - Vue desktop'
+          }
+        ]
       },
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
-        globPatterns: ['index.html', 'assets/index-*.js', 'assets/vendor-utils-*.js', 'assets/*.css', 'fonts/*.woff2'],
+        globPatterns: ['index.html', 'assets/index-*.js', 'assets/vendor-utils-*.js', 'assets/mapsUrlParser-*.js', 'assets/*.css', 'fonts/*.woff2'],
       globIgnores: ['**/*.map', '**/*legacy*', '**/gamification-*', '**/vendor-maplibre-*', '**/vendor-firebase-*', '**/vendor-sentry-*', '**/social-*', '**/guides-*', '**/admin-*'],
         navigateFallbackDenylist: [/^\/design-/, /^\/debug-/, /^\/city\//, /^\/guides\//],
         runtimeCaching: [
