@@ -222,7 +222,8 @@ function shouldExcludeSpot(s) {
 
 /**
  * Convert Hitchmap format to app spot format
- * HitchWiki ratings are NOT used — all imported spots start as unverified (grey)
+ * Enriched spots have: from, safetyRating, trafficRating, accessibilityRating,
+ * spotType, descriptionEn/Fr/Es/De, reviews (for tier colors)
  * IDs are deterministic: hm_{countryCode}_{originalIndex} for stable persistence
  */
 function convertToAppFormat(rawSpots, countryCode) {
@@ -230,43 +231,57 @@ function convertToAppFormat(rawSpots, countryCode) {
     .filter(s => !shouldExcludeSpot(s))
     .map((s, i) => {
       const id = `hm_${countryCode}_${i}`
-      const bestComment = s.comments?.[0]?.text || ''
       const legal = legalityByCountry[countryCode]
+
+      // Pick description by user language (enriched spots have descriptionEn/Fr/Es/De)
+      const description = s.descriptionEn || s.comments?.[0]?.text || ''
+
+      const reviews = s.reviews || 0
 
       const spot = {
         id,
-        from: '',
+        from: s.from || '',
         to: '',
-        description: bestComment,
+        description,
+        descriptionEn: s.descriptionEn || '',
+        descriptionFr: s.descriptionFr || '',
+        descriptionEs: s.descriptionEs || '',
+        descriptionDe: s.descriptionDe || '',
         photoUrl: null,
         photos: [],
         creator: 'Hitchwiki',
         creatorAvatar: '🗺️',
         coordinates: { lat: s.lat, lng: s.lon },
-        // No ratings from HitchWiki — user validations only
-        ratings: { accessibility: 0, safety: 0, traffic: 0 },
-        globalRating: 0,
-        spotType: 'custom',
+        ratings: {
+          safety: s.safetyRating || 0,
+          traffic: s.trafficRating || 0,
+          accessibility: s.accessibilityRating || 0,
+        },
+        globalRating: s.safetyRating && s.trafficRating && s.accessibilityRating
+          ? Math.round((s.safetyRating + s.trafficRating + s.accessibilityRating) / 3 * 10) / 10
+          : 0,
+        spotType: s.spotType || 'custom',
         direction: '',
         fromCity: '',
         stationName: '',
         roadNumber: '',
-        totalReviews: 0,
+        totalReviews: reviews,
         avgWaitTime: s.wait,
         lastUsed: s.lastUsed,
         checkins: 0,
-        // New tier system fields
-        validationCount: 0,
-        testCount: 0,
+        // Tier system: use reviews count for validation/test counts
+        validationCount: reviews,
+        testCount: reviews,
         lastValidated: null,
         lastTested: null,
         lastValidatedBy: null,
         lastTestedBy: null,
         // Legacy (kept for backward compat)
-        userValidations: 0,
-        verified: false,
+        userValidations: reviews,
+        verified: reviews >= 3,
         ambassadorVerified: false,
         source: 'hitchwiki',
+        attribution: s.attribution || 'Hitchwiki (ODBL)',
         country: countryCode,
         signal: s.signal,
         comments: s.comments || [],
@@ -274,9 +289,9 @@ function convertToAppFormat(rawSpots, countryCode) {
         _legality: legal?.legality || null,
         _legalityText: legal?.text || null,
         _legalityTextEn: legal?.textEn || null,
-        // Keep original HitchWiki data for reference (not displayed)
+        // Keep original HitchWiki data for reference
         _hitchwikiRating: s.rating,
-        _hitchwikiReviews: s.reviews || 0,
+        _hitchwikiReviews: reviews,
       }
 
       return normalizeSpotDestinations(spot)

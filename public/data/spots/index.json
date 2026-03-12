@@ -1,333 +1,258 @@
 {
   "totalCountries": 132,
-  "totalLocations": 11027,
-  "totalReviews": 19237,
-  "lastUpdated": "2026-02-18",
+  "totalLocations": 7061,
+  "totalReviews": 18609,
+  "lastUpdated": "2026-03-12",
   "countries": [
     {
       "code": "FR",
-      "locations": 1407,
-      "reviews": 2710
+      "locations": 1273,
+      "reviews": 3434
     },
     {
       "code": "DE",
-      "locations": 820,
-      "reviews": 2135
-    },
-    {
-      "code": "PL",
-      "locations": 537,
-      "reviews": 982
-    },
-    {
-      "code": "US",
-      "locations": 440,
-      "reviews": 510
+      "locations": 742,
+      "reviews": 3146
     },
     {
       "code": "ES",
-      "locations": 418,
-      "reviews": 710
-    },
-    {
-      "code": "NO",
-      "locations": 395,
-      "reviews": 637
+      "locations": 379,
+      "reviews": 815
     },
     {
       "code": "CZ",
-      "locations": 371,
-      "reviews": 681
-    },
-    {
-      "code": "EE",
-      "locations": 341,
-      "reviews": 434
+      "locations": 333,
+      "reviews": 967
     },
     {
       "code": "GB",
-      "locations": 333,
-      "reviews": 529
+      "locations": 305,
+      "reviews": 582
     },
     {
-      "code": "SE",
-      "locations": 294,
-      "reviews": 538
+      "code": "PL",
+      "locations": 263,
+      "reviews": 819
     },
     {
       "code": "AT",
-      "locations": 280,
-      "reviews": 599
-    },
-    {
-      "code": "IT",
-      "locations": 265,
-      "reviews": 442
+      "locations": 256,
+      "reviews": 837
     },
     {
       "code": "NL",
-      "locations": 247,
-      "reviews": 597
-    },
-    {
-      "code": "HR",
-      "locations": 230,
-      "reviews": 424
-    },
-    {
-      "code": "TR",
-      "locations": 215,
-      "reviews": 284
+      "locations": 207,
+      "reviews": 777
     },
     {
       "code": "AL",
-      "locations": 200,
-      "reviews": 289
+      "locations": 185,
+      "reviews": 309
     },
     {
-      "code": "CH",
-      "locations": 189,
-      "reviews": 401
+      "code": "HR",
+      "locations": 166,
+      "reviews": 398
     },
     {
       "code": "FI",
-      "locations": 189,
-      "reviews": 308
+      "locations": 162,
+      "reviews": 331
+    },
+    {
+      "code": "CH",
+      "locations": 160,
+      "reviews": 500
     },
     {
       "code": "DK",
-      "locations": 187,
-      "reviews": 377
+      "locations": 160,
+      "reviews": 480
     },
     {
-      "code": "RO",
-      "locations": 184,
-      "reviews": 302
-    },
-    {
-      "code": "HU",
-      "locations": 167,
-      "reviews": 318
-    },
-    {
-      "code": "SK",
-      "locations": 154,
-      "reviews": 288
-    },
-    {
-      "code": "LT",
-      "locations": 152,
-      "reviews": 268
-    },
-    {
-      "code": "RS",
-      "locations": 149,
-      "reviews": 246
+      "code": "IT",
+      "locations": 157,
+      "reviews": 379
     },
     {
       "code": "BA",
-      "locations": 143,
-      "reviews": 219
+      "locations": 131,
+      "reviews": 233
     },
     {
       "code": "BE",
-      "locations": 138,
-      "reviews": 374
-    },
-    {
-      "code": "LV",
-      "locations": 135,
-      "reviews": 204
-    },
-    {
-      "code": "CA",
-      "locations": 132,
-      "reviews": 191
-    },
-    {
-      "code": "NZ",
       "locations": 131,
-      "reviews": 168
-    },
-    {
-      "code": "SI",
-      "locations": 125,
-      "reviews": 273
+      "reviews": 507
     },
     {
       "code": "GR",
-      "locations": 123,
-      "reviews": 185
+      "locations": 113,
+      "reviews": 197
     },
     {
-      "code": "ME",
-      "locations": 122,
-      "reviews": 209
-    },
-    {
-      "code": "BG",
-      "locations": 116,
-      "reviews": 204
-    },
-    {
-      "code": "PT",
+      "code": "US",
       "locations": 104,
-      "reviews": 170
-    },
-    {
-      "code": "MA",
-      "locations": 92,
-      "reviews": 133
-    },
-    {
-      "code": "JP",
-      "locations": 76,
-      "reviews": 97
-    },
-    {
-      "code": "GE",
-      "locations": 74,
-      "reviews": 109
-    },
-    {
-      "code": "AU",
-      "locations": 73,
-      "reviews": 94
-    },
-    {
-      "code": "MK",
-      "locations": 71,
       "reviews": 138
     },
     {
-      "code": "IE",
+      "code": "BG",
+      "locations": 97,
+      "reviews": 220
+    },
+    {
+      "code": "RO",
+      "locations": 97,
+      "reviews": 202
+    },
+    {
+      "code": "TR",
+      "locations": 97,
+      "reviews": 170
+    },
+    {
+      "code": "CA",
+      "locations": 93,
+      "reviews": 161
+    },
+    {
+      "code": "HU",
+      "locations": 83,
+      "reviews": 278
+    },
+    {
+      "code": "SE",
+      "locations": 80,
+      "reviews": 298
+    },
+    {
+      "code": "EE",
+      "locations": 78,
+      "reviews": 168
+    },
+    {
+      "code": "RS",
+      "locations": 75,
+      "reviews": 171
+    },
+    {
+      "code": "AU",
       "locations": 70,
-      "reviews": 101
+      "reviews": 94
     },
     {
-      "code": "RU",
-      "locations": 56,
-      "reviews": 65
+      "code": "JP",
+      "locations": 64,
+      "reviews": 89
     },
     {
-      "code": "TW",
-      "locations": 56,
-      "reviews": 60
+      "code": "NO",
+      "locations": 63,
+      "reviews": 154
     },
     {
-      "code": "ID",
-      "locations": 43,
-      "reviews": 45
+      "code": "GE",
+      "locations": 62,
+      "reviews": 111
     },
     {
-      "code": "TH",
-      "locations": 43,
-      "reviews": 50
+      "code": "SI",
+      "locations": 58,
+      "reviews": 201
     },
     {
-      "code": "KG",
+      "code": "LT",
       "locations": 42,
-      "reviews": 47
+      "reviews": 159
     },
     {
-      "code": "KZ",
-      "locations": 40,
-      "reviews": 45
+      "code": "MA",
+      "locations": 41,
+      "reviews": 67
     },
     {
-      "code": "AR",
-      "locations": 39,
-      "reviews": 66
-    },
-    {
-      "code": "BR",
-      "locations": 39,
-      "reviews": 46
-    },
-    {
-      "code": "IS",
+      "code": "PT",
       "locations": 38,
-      "reviews": 65
+      "reviews": 128
     },
     {
       "code": "AM",
       "locations": 36,
-      "reviews": 41
-    },
-    {
-      "code": "CL",
-      "locations": 35,
       "reviews": 47
     },
     {
-      "code": "XK",
-      "locations": 35,
-      "reviews": 40
+      "code": "AR",
+      "locations": 36,
+      "reviews": 67
     },
     {
-      "code": "PH",
-      "locations": 32,
-      "reviews": 33
+      "code": "BR",
+      "locations": 34,
+      "reviews": 46
     },
     {
-      "code": "TJ",
-      "locations": 29,
-      "reviews": 30
+      "code": "CL",
+      "locations": 33,
+      "reviews": 52
     },
     {
-      "code": "IL",
+      "code": "SK",
       "locations": 28,
-      "reviews": 37
+      "reviews": 120
     },
     {
-      "code": "MX",
-      "locations": 28,
+      "code": "RU",
+      "locations": 27,
       "reviews": 34
     },
     {
-      "code": "VN",
-      "locations": 25,
-      "reviews": 29
+      "code": "LV",
+      "locations": 26,
+      "reviews": 71
     },
     {
-      "code": "UA",
+      "code": "NZ",
+      "locations": 26,
+      "reviews": 39
+    },
+    {
+      "code": "ID",
       "locations": 23,
-      "reviews": 30
+      "reviews": 25
     },
     {
-      "code": "CN",
-      "locations": 22,
-      "reviews": 23
+      "code": "ME",
+      "locations": 23,
+      "reviews": 42
     },
     {
-      "code": "NA",
-      "locations": 21,
-      "reviews": 23
+      "code": "TW",
+      "locations": 23,
+      "reviews": 26
     },
     {
       "code": "CO",
       "locations": 20,
-      "reviews": 27
+      "reviews": 28
     },
     {
-      "code": "UZ",
-      "locations": 20,
-      "reviews": 24
-    },
-    {
-      "code": "KH",
+      "code": "MK",
       "locations": 19,
-      "reviews": 20
+      "reviews": 62
     },
     {
-      "code": "MY",
-      "locations": 19,
-      "reviews": 20
-    },
-    {
-      "code": "JO",
+      "code": "PH",
       "locations": 18,
-      "reviews": 22
+      "reviews": 19
+    },
+    {
+      "code": "XK",
+      "locations": 18,
+      "reviews": 23
+    },
+    {
+      "code": "VN",
+      "locations": 17,
+      "reviews": 19
     },
     {
       "code": "DO",
@@ -335,134 +260,124 @@
       "reviews": 16
     },
     {
-      "code": "IN",
-      "locations": 16,
-      "reviews": 16
+      "code": "KZ",
+      "locations": 15,
+      "reviews": 20
     },
     {
-      "code": "LA",
-      "locations": 14,
-      "reviews": 16
-    },
-    {
-      "code": "SA",
-      "locations": 14,
+      "code": "CN",
+      "locations": 13,
       "reviews": 14
     },
     {
       "code": "CY",
       "locations": 13,
+      "reviews": 17
+    },
+    {
+      "code": "IE",
+      "locations": 12,
+      "reviews": 24
+    },
+    {
+      "code": "MY",
+      "locations": 12,
+      "reviews": 14
+    },
+    {
+      "code": "TH",
+      "locations": 11,
+      "reviews": 13
+    },
+    {
+      "code": "MX",
+      "locations": 10,
       "reviews": 15
     },
     {
-      "code": "UY",
-      "locations": 13,
-      "reviews": 18
-    },
-    {
-      "code": "BO",
-      "locations": 12,
-      "reviews": 12
-    },
-    {
-      "code": "IQ",
-      "locations": 11,
+      "code": "UZ",
+      "locations": 10,
       "reviews": 12
     },
     {
       "code": "MD",
-      "locations": 11,
-      "reviews": 15
-    },
-    {
-      "code": "PA",
-      "locations": 11,
-      "reviews": 12
-    },
-    {
-      "code": "LU",
-      "locations": 10,
-      "reviews": 40
-    },
-    {
-      "code": "MR",
-      "locations": 10,
-      "reviews": 10
-    },
-    {
-      "code": "ZA",
-      "locations": 10,
-      "reviews": 10
-    },
-    {
-      "code": "PE",
       "locations": 9,
-      "reviews": 10
+      "reviews": 13
     },
     {
-      "code": "AO",
-      "locations": 8,
-      "reviews": 8
+      "code": "UA",
+      "locations": 9,
+      "reviews": 18
     },
     {
-      "code": "JE",
-      "locations": 8,
-      "reviews": 8
-    },
-    {
-      "code": "XZ",
+      "code": "BO",
       "locations": 8,
       "reviews": 9
     },
     {
+      "code": "KH",
+      "locations": 8,
+      "reviews": 9
+    },
+    {
+      "code": "SA",
+      "locations": 8,
+      "reviews": 8
+    },
+    {
+      "code": "AO",
+      "locations": 7,
+      "reviews": 7
+    },
+    {
+      "code": "IL",
+      "locations": 7,
+      "reviews": 10
+    },
+    {
+      "code": "IS",
+      "locations": 7,
+      "reviews": 20
+    },
+    {
       "code": "AD",
       "locations": 6,
-      "reviews": 6
+      "reviews": 7
     },
     {
       "code": "EC",
       "locations": 6,
-      "reviews": 7
+      "reviews": 8
     },
     {
-      "code": "IR",
+      "code": "IQ",
       "locations": 6,
       "reviews": 8
     },
     {
-      "code": "KR",
-      "locations": 6,
-      "reviews": 7
+      "code": "IN",
+      "locations": 5,
+      "reviews": 5
     },
     {
-      "code": "LI",
-      "locations": 6,
+      "code": "KR",
+      "locations": 5,
       "reviews": 7
     },
     {
       "code": "BZ",
-      "locations": 5,
-      "reviews": 5
+      "locations": 4,
+      "reviews": 4
     },
     {
       "code": "CM",
-      "locations": 5,
-      "reviews": 5
+      "locations": 4,
+      "reviews": 4
     },
     {
       "code": "CR",
-      "locations": 5,
-      "reviews": 5
-    },
-    {
-      "code": "MT",
-      "locations": 5,
-      "reviews": 6
-    },
-    {
-      "code": "TN",
-      "locations": 5,
-      "reviews": 5
+      "locations": 4,
+      "reviews": 4
     },
     {
       "code": "FO",
@@ -470,24 +385,19 @@
       "reviews": 5
     },
     {
-      "code": "SN",
+      "code": "KG",
       "locations": 4,
       "reviews": 4
     },
     {
-      "code": "ZM",
+      "code": "LA",
       "locations": 4,
-      "reviews": 4
+      "reviews": 5
     },
     {
       "code": "BW",
       "locations": 3,
-      "reviews": 4
-    },
-    {
-      "code": "GH",
-      "locations": 3,
-      "reviews": 3
+      "reviews": 5
     },
     {
       "code": "GT",
@@ -495,19 +405,9 @@
       "reviews": 3
     },
     {
-      "code": "IM",
+      "code": "IR",
       "locations": 3,
-      "reviews": 3
-    },
-    {
-      "code": "KE",
-      "locations": 3,
-      "reviews": 3
-    },
-    {
-      "code": "LK",
-      "locations": 3,
-      "reviews": 3
+      "reviews": 5
     },
     {
       "code": "MZ",
@@ -515,17 +415,27 @@
       "reviews": 3
     },
     {
-      "code": "SV",
+      "code": "PE",
       "locations": 3,
       "reviews": 3
     },
     {
-      "code": "TL",
+      "code": "SN",
       "locations": 3,
       "reviews": 3
     },
     {
-      "code": "TZ",
+      "code": "TJ",
+      "locations": 3,
+      "reviews": 4
+    },
+    {
+      "code": "TN",
+      "locations": 3,
+      "reviews": 3
+    },
+    {
+      "code": "ZM",
       "locations": 3,
       "reviews": 3
     },
@@ -545,11 +455,6 @@
       "reviews": 2
     },
     {
-      "code": "EG",
-      "locations": 2,
-      "reviews": 2
-    },
-    {
       "code": "GG",
       "locations": 2,
       "reviews": 2
@@ -560,7 +465,12 @@
       "reviews": 2
     },
     {
-      "code": "HN",
+      "code": "JO",
+      "locations": 2,
+      "reviews": 2
+    },
+    {
+      "code": "KE",
       "locations": 2,
       "reviews": 2
     },
@@ -570,34 +480,14 @@
       "reviews": 2
     },
     {
-      "code": "NG",
+      "code": "TL",
       "locations": 2,
       "reviews": 2
     },
     {
-      "code": "NI",
-      "locations": 2,
-      "reviews": 3
-    },
-    {
-      "code": "NP",
+      "code": "ZA",
       "locations": 2,
       "reviews": 2
-    },
-    {
-      "code": "OM",
-      "locations": 2,
-      "reviews": 2
-    },
-    {
-      "code": "SZ",
-      "locations": 2,
-      "reviews": 2
-    },
-    {
-      "code": "UG",
-      "locations": 2,
-      "reviews": 3
     },
     {
       "code": "AF",
@@ -615,27 +505,27 @@
       "reviews": 1
     },
     {
-      "code": "DM",
-      "locations": 1,
-      "reviews": 1
-    },
-    {
-      "code": "GD",
-      "locations": 1,
-      "reviews": 1
-    },
-    {
       "code": "GL",
       "locations": 1,
       "reviews": 1
     },
     {
-      "code": "MN",
+      "code": "HN",
       "locations": 1,
-      "reviews": 2
+      "reviews": 1
     },
     {
-      "code": "MU",
+      "code": "MR",
+      "locations": 1,
+      "reviews": 1
+    },
+    {
+      "code": "NA",
+      "locations": 1,
+      "reviews": 1
+    },
+    {
+      "code": "NP",
       "locations": 1,
       "reviews": 1
     },
@@ -650,19 +540,129 @@
       "reviews": 1
     },
     {
-      "code": "TG",
+      "code": "SV",
       "locations": 1,
       "reviews": 1
+    },
+    {
+      "code": "TZ",
+      "locations": 1,
+      "reviews": 1
+    },
+    {
+      "code": "UG",
+      "locations": 1,
+      "reviews": 3
+    },
+    {
+      "code": "UY",
+      "locations": 1,
+      "reviews": 1
+    },
+    {
+      "code": "XZ",
+      "locations": 1,
+      "reviews": 1
+    },
+    {
+      "code": "DM",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "EG",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "GD",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "GH",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "IM",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "JE",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "LI",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "LK",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "LU",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "MN",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "MT",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "MU",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "NG",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "NI",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "OM",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "PA",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "SZ",
+      "locations": 0,
+      "reviews": 0
+    },
+    {
+      "code": "TG",
+      "locations": 0,
+      "reviews": 0
     },
     {
       "code": "TO",
-      "locations": 1,
-      "reviews": 1
+      "locations": 0,
+      "reviews": 0
     },
     {
       "code": "VC",
-      "locations": 1,
-      "reviews": 1
+      "locations": 0,
+      "reviews": 0
     }
   ]
 }
