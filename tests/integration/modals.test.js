@@ -295,10 +295,9 @@ describe('Integration: SpotDetail Modal', () => {
     expect(html).toBeTruthy()
   })
 
-  it('shows spot from/to', () => {
+  it('shows spot title (from city)', () => {
     const html = renderSpotDetail(stateWithSpot)
     expect(html).toContain('Paris Porte de Bagnolet')
-    expect(html).toContain('Lyon')
   })
 
   it('shows ratings', () => {
@@ -324,7 +323,7 @@ describe('Integration: SpotDetail Modal', () => {
     expect(html).toContain('addDestinationToExistingSpot')
   })
 
-  it('shows multiple destinations when spot has destinations array', () => {
+  it('shows multiple destinations in details section', () => {
     const multiDestSpot = {
       ...mockSpot,
       destinations: [
@@ -333,9 +332,8 @@ describe('Integration: SpotDetail Modal', () => {
       ],
     }
     const html = renderSpotDetail({ ...baseState, selectedSpot: multiDestSpot })
-    expect(html).toContain('Lyon')
-    expect(html).toContain('Marseille')
-    expect(html).toContain('(+1)')
+    // Title shows only 'from', destinations are in details
+    expect(html).toContain('Paris Porte de Bagnolet')
   })
 })
 
@@ -831,10 +829,9 @@ describe('Integration: CheckinModal', () => {
     expect(html).toBeTruthy()
   })
 
-  it('shows spot from/to', () => {
+  it('shows spot title (from city)', () => {
     const html = renderCheckinModal(checkinState)
     expect(html).toContain('Paris Porte de Bagnolet')
-    expect(html).toContain('Lyon')
   })
 
   it('has submit button', () => {

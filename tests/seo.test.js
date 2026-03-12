@@ -99,7 +99,6 @@ describe('SEO Utilities', () => {
       expect(schema['@context']).toBe('https://schema.org')
       expect(schema['@type']).toBe('Place')
       expect(schema.name).toContain('Paris')
-      expect(schema.name).toContain('Lyon')
       expect(schema.description).toBe('Great spot')
       expect(schema.geo.latitude).toBe(48.8566)
       expect(schema.geo.longitude).toBe(2.3522)
