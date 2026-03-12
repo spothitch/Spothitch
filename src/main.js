@@ -70,7 +70,7 @@ import { cleanupDrafts } from './utils/formPersistence.js';
 import { initWasm } from './utils/wasmGeo.js';
 import { escapeHTML, escapeJSString } from './utils/sanitize.js';
 import { runAllCleanup } from './utils/cleanup.js';
-import { initDeepLinkListener } from './utils/deeplink.js';
+import { initDeepLinkListener, captureShareParams } from './utils/deeplink.js';
 import { initBackButton, goBack } from './utils/backButton.js';
 import { setupGlobalErrorHandlers as setupErrorHandlers } from './utils/errorBoundary.js';
 // animations.js, share.js, confetti.js — lazy-loaded (only triggered by user actions)
@@ -306,10 +306,9 @@ async function init() {
     window.history.replaceState({}, '', window.location.pathname);
   }
 
-  // EARLY share target detection: if the app is opened via share,
-  // skip landing/welcome and prepare for share handling.
-  // This runs BEFORE i18n, rendering, and deeplink init to prevent race conditions.
-  const _isShareTarget = window.location.search.includes('action=share')
+  // EARLY share target detection: capture share params to sessionStorage IMMEDIATELY
+  // before any async work. This preserves share data even if the URL changes later.
+  const _isShareTarget = captureShareParams() || window.location.search.includes('action=share')
   if (_isShareTarget) {
     try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
     setState({ showLanding: false, showWelcome: false })

@@ -98,9 +98,8 @@ export default defineConfig({
             url: 'url'
           }
         },
-        launch_handler: {
-          client_mode: 'navigate-existing'
-        },
+        // No launch_handler: let Chrome use default behavior for share_target
+        // (navigates to the share URL instead of focusing existing window)
         prefer_related_applications: false,
         handle_links: 'preferred',
         screenshots: [
@@ -125,7 +124,7 @@ export default defineConfig({
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
-        globPatterns: ['index.html', 'assets/index-*.js', 'assets/vendor-utils-*.js', 'assets/mapsUrlParser-*.js', 'assets/*.css', 'fonts/*.woff2'],
+        globPatterns: ['index.html', 'assets/index-*.js', 'assets/vendor-utils-*.js', 'assets/*.css', 'fonts/*.woff2'],
       globIgnores: ['**/*.map', '**/*legacy*', '**/gamification-*', '**/vendor-maplibre-*', '**/vendor-firebase-*', '**/vendor-sentry-*', '**/social-*', '**/guides-*', '**/admin-*'],
         navigateFallbackDenylist: [/^\/design-/, /^\/debug-/, /^\/city\//, /^\/guides\//],
         runtimeCaching: [
