@@ -4652,7 +4652,6 @@ export default {
   validateSubtitle: 'The spot is still here',
   experienceSubtitle: 'I hitchhiked here',
   usageCount: 'Uses',
-  waitTimeLabel: 'Wait',
   location: 'Location',
   statistics: 'Statistics',
   ratings: 'Ratings',

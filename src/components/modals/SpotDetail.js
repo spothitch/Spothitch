@@ -7,7 +7,6 @@ import { t } from '../../i18n/index.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { renderTranslateButton } from '../../services/autoTranslate.js'
 import { renderMiniTrustBadge } from '../../services/trustScore.js'
-import { getDestinationsDisplay } from '../../utils/spotDestinations.js'
 import '../../utils/navigation.js' // Registers window.showNavigationPicker
 
 export function renderSpotDetail(state) {

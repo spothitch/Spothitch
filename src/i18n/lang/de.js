@@ -4707,7 +4707,6 @@ export default {
   validateSubtitle: 'Der Spot ist noch da',
   experienceSubtitle: 'Ich habe hier getrampt',
   usageCount: 'Nutzungen',
-  waitTimeLabel: 'Wartezeit',
   location: 'Standort',
   statistics: 'Statistiken',
   ratings: 'Bewertungen',

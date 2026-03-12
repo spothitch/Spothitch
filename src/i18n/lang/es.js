@@ -4649,7 +4649,6 @@ export default {
   validateSubtitle: 'El spot sigue aqui',
   experienceSubtitle: 'Hice autostop aqui',
   usageCount: 'Usos',
-  waitTimeLabel: 'Espera',
   location: 'Ubicación',
   statistics: 'Estadísticas',
   ratings: 'Valoraciones',

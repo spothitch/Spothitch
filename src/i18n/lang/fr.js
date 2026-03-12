@@ -4653,7 +4653,6 @@ export default {
   validateSubtitle: 'Le spot est toujours la',
   experienceSubtitle: "J'ai fait du stop ici",
   usageCount: 'Utilisations',
-  waitTimeLabel: 'Attente',
   location: 'Localisation',
   statistics: 'Statistiques',
   ratings: 'Evaluations',
