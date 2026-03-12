@@ -64,7 +64,8 @@ const ACTIONS = {
         // Strategy 2: Resolve shortened Google Maps URLs (maps.app.goo.gl / goo.gl)
         if (!coords) {
           const allText = `${url} ${text}`
-          const shortUrl = allText.match(/https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/maps|goo\.gle\/maps)\/\S+/)?.[0]
+          const shortRe = /https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/maps|goo\.gle\/maps)\/\S+/
+          const shortUrl = allText.match(shortRe)?.[0]
           if (shortUrl) {
             coords = await resolveShortMapUrl(shortUrl)
           }
