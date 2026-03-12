@@ -18,7 +18,7 @@ const APP_URL = 'https://spothitch.com'
 export function generateShareCard(spot) {
   if (!spot) return ''
 
-  const spotName = spot.name || `${spot.from} → ${spot.to}`
+  const spotName = spot.name || spot.from || 'Spot'
   const country = spot.country || '🌍'
   const rating = spot.globalRating?.toFixed(1) || '?'
   const waitTime = spot.avgWaitTime || '?'
@@ -80,7 +80,7 @@ export function showShareModal(spot) {
   const existing = document.getElementById('share-card-modal')
   if (existing) existing.remove()
 
-  const spotName = spot.name || `${spot.from} → ${spot.to}`
+  const spotName = spot.name || spot.from || 'Spot'
   const spotUrl = `${APP_URL}/?spot=${spot.id}`
   const SMSText = encodeURIComponent(
     `🚗 ${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} ! 🤙\n\n${spotUrl}`
@@ -280,7 +280,7 @@ export function shareOnSMS(spotId) {
     return
   }
 
-  const spotName = spot.name || `${spot.from} → ${spot.to}`
+  const spotName = spot.name || spot.from || 'Spot'
   const spotUrl = `${APP_URL}/?spot=${spotId}`
   const text = encodeURIComponent(
     `🚗 ${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} ! 🤙\n\n${spotUrl}`

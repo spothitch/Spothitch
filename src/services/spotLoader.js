@@ -269,13 +269,14 @@ function convertToAppFormat(rawSpots, countryCode) {
         avgWaitTime: s.wait,
         lastUsed: s.lastUsed,
         checkins: 0,
-        // Tier system: use reviews count for validation/test counts
-        validationCount: reviews,
+        // Tier system: use reviews count for test counts
+        validationCount: 0,
         testCount: reviews,
         lastValidated: null,
-        lastTested: null,
+        lastTested: s.lastUsed || null,
         lastValidatedBy: null,
         lastTestedBy: null,
+        rideResult: reviews > 0 ? 'yes' : null,
         // Legacy (kept for backward compat)
         userValidations: reviews,
         verified: reviews >= 3,

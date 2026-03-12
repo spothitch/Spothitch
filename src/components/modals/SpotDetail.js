@@ -18,8 +18,8 @@ export function renderSpotDetail(state) {
   const navName = escapeJSString((spot.from || '') + ' - ' + (spot.to || ''))
   const validationCount = spot.validationCount || spot.userValidations || 0
 
-  const spotTitle = spot.from && (spot.to || (spot.destinations && spot.destinations.length))
-    ? `${escapeHTML(spot.from)} · ${escapeHTML(getDestinationsDisplay(spot))}`
+  const spotTitle = spot.from
+    ? escapeHTML(spot.from)
     : spot.direction
       ? escapeHTML(spot.direction)
       : `${t('spotLocation') || 'Spot'} #${spot.id}`
@@ -180,7 +180,7 @@ function renderPhotoHero(spot) {
 
   return `<img
     src="${escapeHTML(mainPhoto)}"
-    alt="${t('spotPhoto') || 'Photo du spot'}: ${escapeHTML(spot.from || '')} → ${escapeHTML(spot.to || '')}"
+    alt="${t('spotPhoto') || 'Photo du spot'}: ${escapeHTML(spot.from || 'Spot')}"
     style="width:100%;height:100%;object-fit:cover"
     loading="lazy"
     onclick="event.stopPropagation();openPhotoFullscreen(0)"

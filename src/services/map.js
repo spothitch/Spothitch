@@ -710,7 +710,7 @@ export function displayFallbackSpots(container) {
           <div class="flex items-center gap-2 p-2 bg-white/10 rounded-xl cursor-pointer"
                onclick="selectSpot(${spot.id})" role="button" tabindex="0">
             <span>📍</span>
-            <span class="text-white text-sm truncate">${spot.from} → ${spot.to}</span>
+            <span class="text-white text-sm truncate">${spot.from || 'Spot'}${spot.to ? ' → ' + spot.to : ''}</span>
             <span class="text-amber-400 text-xs ml-auto">⭐${spot.globalRating?.toFixed(1) || 'N/A'}</span>
           </div>
         `).join('')}

@@ -36,8 +36,8 @@ export async function share(data) {
  * @param {Object} spot - Spot object
  */
 export function shareSpot(spot) {
-  const title = `${spot.from} → ${spot.to} | SpotHitch`;
-  const text = t('shareSpotText') || `J'ai trouvé un super spot d'autostop ! ${spot.from} → ${spot.to} (${spot.globalRating?.toFixed(1) || '?'}/5) 🚗👍`;
+  const title = `${spot.from || 'Spot'} | SpotHitch`;
+  const text = t('shareSpotText') || `J'ai trouvé un super spot d'autostop ! ${spot.from || 'Spot'} (${spot.globalRating?.toFixed(1) || '?'}/5) 🚗👍`;
   const url = `${APP_URL}/?spot=${spot.id}`;
 
   return share({ title, text, url });

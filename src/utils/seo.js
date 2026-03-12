@@ -170,7 +170,7 @@ export function getSpotSchema(spot) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Place',
-    name: `Spot d'autostop: ${spot.from} → ${spot.to}`,
+    name: `Spot d'autostop: ${spot.from || 'Spot'}${spot.to ? ' → ' + spot.to : ''}`,
     description: spot.description,
     geo: {
       '@type': 'GeoCoordinates',

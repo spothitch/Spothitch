@@ -65,7 +65,7 @@ function renderValStarInput(criterion, label) {
 export function renderValidateSpot(state) {
   const spotId = state.validateSpotId
   const spot = (state.spots || []).find(s => s.id === spotId) || state.selectedSpot
-  const spotName = spot ? (spot.from && spot.to ? `${spot.from} → ${spot.to}` : spot.direction || `Spot #${spot.id}`) : ''
+  const spotName = spot ? (spot.from || spot.direction || `Spot #${spot.id}`) : ''
 
   const vf = window.validateFormData
   const waitIdx = vf.waitTime != null ? WAIT_STEPS.indexOf(vf.waitTime) : 4

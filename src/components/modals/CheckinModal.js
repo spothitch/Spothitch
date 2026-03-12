@@ -37,7 +37,7 @@ export function renderCheckinModal(state) {
                 ${t('validateSpot') || 'Valider ce spot'}
               </h2>
               <p class="text-sm text-slate-400 mt-1">
-                ${escapeHTML(spot.from)} → ${escapeHTML(spot.to)}
+                ${escapeHTML(spot.from || spot.direction || 'Spot #' + spot.id)}
               </p>
             </div>
             <button
