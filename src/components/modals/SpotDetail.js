@@ -1,6 +1,6 @@
 /**
- * SpotDetail Modal Component — Design #2 (Photo Hero + Quick Actions + Accordion)
- * Full-width photo hero, quick action bar, accordion sections, Google Maps button.
+ * SpotDetail Modal Component — Design v5 (Photo Hero + Stats Overlay + Flat Layout)
+ * Photo hero, glassmorphism stats bar, flat sections, modified CTA buttons.
  */
 
 import { t } from '../../i18n/index.js'
@@ -17,12 +17,79 @@ export function renderSpotDetail(state) {
   const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
   const navName = escapeJSString((spot.from || '') + ' - ' + (spot.to || ''))
   const validationCount = spot.validationCount || spot.userValidations || 0
+  const testCount = spot.testCount || 0
+  const usageCount = testCount || validationCount
+
+  const successRate = spot.successRate
+    || (spot.rideResult === 'yes' ? 100 : spot.rideResult === 'gaveUp' ? 0 : null)
 
   const spotTitle = spot.from
     ? escapeHTML(spot.from)
     : spot.direction
       ? escapeHTML(spot.direction)
       : `${t('spotLocation') || 'Spot'} #${spot.id}`
+
+  // Destinations subtitle
+  const dests = spot.destinations || []
+  const mainDest = spot.to || spot.direction
+  const allDests = dests.length > 0
+    ? dests.map(d => d.city)
+    : mainDest ? [mainDest] : []
+  const destsSubtitle = allDests.length > 0
+    ? allDests.map(d => escapeHTML(d)).join(', ')
+    : ''
+
+  // Ratings
+  const safety = spot.safetyRating || spot.ratings?.safety || 0
+  const traffic = spot.trafficRating || spot.ratings?.traffic || 0
+  const access = spot.accessRating || spot.ratings?.accessibility || 0
+
+  // Practical tags
+  const methodLabels = {
+    sign: t('methodSign') || 'Panneau',
+    thumb: t('methodThumb') || 'Pouce',
+    asking: t('methodAsking') || 'En demandant',
+  }
+  const groupLabels = {
+    solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+',
+  }
+  const timeLabels = {
+    morning: t('timeMorning') || 'Matin',
+    afternoon: t('timeAfternoon') || 'Apres-midi',
+    evening: t('timeEvening') || 'Soir',
+    night: t('timeNight') || 'Nuit',
+  }
+  const seasonMap = {
+    spring: t('seasonSpring') || 'Printemps',
+    summer: t('seasonSummer') || 'Ete',
+    autumn: t('seasonAutumn') || 'Automne',
+    winter: t('seasonWinter') || 'Hiver',
+  }
+  const methodLabel = spot.method ? methodLabels[spot.method] || null : null
+  const groupLabel = spot.groupSize ? groupLabels[spot.groupSize] || null : null
+  const bestTime = spot.timeOfDay ? timeLabels[spot.timeOfDay] || null : null
+  const seasonLabel = spot.season ? seasonMap[spot.season] || null : null
+
+  const methodEmoji = spot.method === 'thumb' ? '👍' : spot.method === 'sign' ? '📋' : spot.method === 'asking' ? '🗣' : ''
+  const groupEmoji = spot.groupSize === 'solo' ? '👤' : spot.groupSize === 'duo' ? '👥' : spot.groupSize === 'group' ? '👥' : ''
+  const timeEmoji = spot.timeOfDay === 'morning' ? '🌅' : spot.timeOfDay === 'afternoon' ? '☀️' : spot.timeOfDay === 'evening' ? '🌇' : spot.timeOfDay === 'night' ? '🌙' : ''
+  const seasonEmoji = spot.season === 'spring' ? '🌸' : spot.season === 'summer' ? '☀️' : spot.season === 'autumn' ? '🍂' : spot.season === 'winter' ? '❄️' : ''
+
+  const hasTags = methodLabel || groupLabel || bestTime || seasonLabel
+
+  // Active amenities only
+  const tags = spot.tags || {}
+  const amenities = [
+    { label: t('amenityShelter') || 'Abri', emoji: '🏕', has: tags.shelter || tags.hasShelter },
+    { label: t('amenityWater') || 'Eau', emoji: '💧', has: tags.waterFood },
+    { label: t('amenityToilets') || 'Toilettes', emoji: '🚻', has: tags.toilets },
+    { label: t('amenityFood') || 'Nourriture', emoji: '🍔', has: tags.food },
+    { label: t('stoppingSpaceTag') || 'Parking', emoji: '🅿️', has: tags.stoppingSpace },
+  ].filter(a => a.has)
+
+  // Reviews
+  const reviews = spot.reviews || spot._reviews || []
+  const displayReviews = reviews.filter(r => !r.isTip).slice(0, 5)
 
   return `
     <div
@@ -41,126 +108,204 @@ export function renderSpotDetail(state) {
         style="background:#0f1520"
         onclick="event.stopPropagation()"
       >
-        <!-- ========== PHOTO HERO — full width 200px ========== -->
+        <!-- ========== PHOTO HERO 200px ========== -->
         <div style="position:relative;height:200px;background:#161b28;display:flex;align-items:center;justify-content:center;color:#475569;font-size:12px">
           ${renderPhotoHero(spot)}
 
-          <!-- Overlay nav: back button (top-left) -->
-          <div style="position:absolute;top:12px;left:12px">
+          <!-- Back button (top-left) -->
+          <div style="position:absolute;top:12px;left:12px;z-index:2">
             <button onclick="event.stopPropagation();closeSpotDetail()" type="button"
-              style="width:32px;height:32px;background:rgba(15,21,32,0.7);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer"
+              style="width:32px;height:32px;background:rgba(15,21,32,0.7);backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer"
               aria-label="${t('closeSpotDetails') || 'Fermer'}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
           </div>
 
-          <!-- Overlay nav: heart + share (top-right) -->
-          <div style="position:absolute;top:12px;right:12px;display:flex;gap:8px">
+          <!-- Heart + Share (top-right) -->
+          <div style="position:absolute;top:12px;right:12px;z-index:2;display:flex;gap:6px">
             <button onclick="event.stopPropagation();toggleFavorite('${escapeJSString(String(spot.id))}')" type="button"
-              style="width:32px;height:32px;background:rgba(15,21,32,0.7);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer">
+              style="width:32px;height:32px;background:rgba(15,21,32,0.7);backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
             </button>
             <button onclick="event.stopPropagation();openShareCard()" type="button"
-              style="width:32px;height:32px;background:rgba(15,21,32,0.7);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer">
+              style="width:32px;height:32px;background:rgba(15,21,32,0.7);backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
             </button>
           </div>
 
-          <!-- Badge type (bottom-left) -->
-          <div style="position:absolute;bottom:12px;left:12px">
-            <span style="font-size:11px;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;background:rgba(15,21,32,0.8);padding:4px 10px">${renderSubtitleType(spot)}</span>
+          <!-- Type badge (bottom-left) -->
+          <div style="position:absolute;bottom:12px;left:12px;z-index:2">
+            <span style="font-size:11px;color:#f59e0b;background:rgba(15,21,32,0.8);padding:4px 10px;border-radius:99px">${renderSubtitleType(spot)}</span>
           </div>
         </div>
 
         <!-- ========== SCROLLABLE CONTENT ========== -->
         <div class="overflow-y-auto" style="max-height:calc(90vh - 200px)">
 
-          <!-- Title + coordinates -->
-          <div style="padding:16px 20px 0">
-            <h2 id="spotdetail-title" style="font-size:22px;font-weight:300;color:#e2e8f0;margin-bottom:4px">${spotTitle}</h2>
-            <div style="font-size:12px;color:#475569;margin-bottom:16px">${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''}</div>
+          <!-- Stats glassmorphism bar -->
+          <div style="margin:10px 12px 0;background:rgba(22,27,40,0.9);backdrop-filter:blur(12px);border-radius:14px;padding:14px;display:flex;justify-content:space-around;border:1px solid #1e293b">
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:700;color:${successRate != null ? (successRate >= 50 ? '#22c55e' : '#ef4444') : '#e2e8f0'}">${successRate != null ? successRate + '%' : '—'}</div>
+              <div style="font-size:9px;color:#64748b">${t('successRate') || 'Succes'}</div>
+            </div>
+            <div style="width:1px;background:#1e293b"></div>
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:700;color:#e2e8f0">${spot.avgWaitTime ? spot.avgWaitTime + "'" : '—'}</div>
+              <div style="font-size:9px;color:#64748b">${t('waitTimeLabel') || 'Attente'}</div>
+            </div>
+            <div style="width:1px;background:#1e293b"></div>
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:700;color:#f59e0b">${usageCount || '—'}</div>
+              <div style="font-size:9px;color:#64748b">${t('usageCount') || 'Utilisations'}</div>
+            </div>
           </div>
 
-          <!-- Quick action bar — 2 buttons -->
-          <div style="padding:0 20px 16px;display:flex;gap:10px">
+          <!-- Title + destinations subtitle -->
+          <div style="padding:14px 16px 0">
+            <h2 id="spotdetail-title" style="font-size:22px;font-weight:600;color:#e2e8f0;margin-bottom:2px">${spotTitle}</h2>
+            ${destsSubtitle ? `<div style="font-size:13px;color:#64748b;margin-bottom:14px">\u2192 ${destsSubtitle}</div>` : '<div style="margin-bottom:14px"></div>'}
+          </div>
+
+          <!-- CTA Buttons: Valider (secondary) + Mon experience (primary amber) -->
+          <div style="padding:0 16px 14px;display:flex;gap:8px">
             <button onclick="quickValidateSpot(${spotIdStr})" type="button"
-              style="flex:1;background:#f59e0b;border:none;color:#0f1520;border-radius:0;padding:12px 8px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2.5" style="vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>
-              ${t('validateSpot') || 'VALIDER'}
+              style="flex:1;background:#161b28;color:#94a3b8;border:1px solid #334155;padding:12px 8px 8px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px">
+              <span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" style="vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>
+                ${t('validateBtn') || 'Valider'}
+              </span>
+              <span style="font-size:9px;color:#475569;font-weight:400">${t('validateSubtitle') || 'Le spot est toujours la'}</span>
             </button>
             <button onclick="openTestSpot(${spotIdStr})" type="button"
-              style="flex:1;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:12px 8px;font-size:12px;font-weight:500;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-              ${t('myExperience') || 'MON EXPERIENCE'}
+              style="flex:1;background:#f59e0b;color:#0f1520;border:none;padding:12px 8px 8px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px">
+              <span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                ${t('myExperience') || 'Mon experience'}
+              </span>
+              <span style="font-size:9px;color:rgba(15,21,32,0.6);font-weight:400">${t('experienceSubtitle') || "J'ai fait du stop ici"}</span>
             </button>
           </div>
 
-          <!-- Dates inline — 2 columns separated by vertical line -->
-          <div style="padding:0 20px 16px;display:flex;gap:0;border-bottom:1px solid #1a1f2e">
-            <div style="flex:1;padding-bottom:12px">
-              <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">${t('lastValidation') || 'Derniere validation'}</div>
-              <div style="font-size:13px;color:#e2e8f0">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}</div>
-              ${spot.lastValidatedBy ? `<div style="font-size:10px;color:#475569">${escapeHTML(spot.lastValidatedBy)}</div>` : ''}
+          <!-- Dates (2 cards) -->
+          <div style="padding:0 16px 12px;display:flex;gap:8px">
+            <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
+              <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastTest') || 'Derniere utilisation'}</div>
+              <div style="font-size:12px;color:#e2e8f0">${spot.lastTested ? formatRelativeDate(spot.lastTested) : '—'}${spot.lastTestedBy ? ' · ' + escapeHTML(spot.lastTestedBy) : ''}</div>
             </div>
-            <div style="width:1px;background:#1a1f2e;margin:0 12px"></div>
-            <div style="flex:1;padding-bottom:12px">
-              <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">${t('lastTest') || 'Derniere utilisation'}</div>
-              <div style="font-size:13px;color:#e2e8f0">${spot.lastTested ? formatRelativeDate(spot.lastTested) : '—'}</div>
-              ${spot.lastTestedBy ? `<div style="font-size:10px;color:#475569">${escapeHTML(spot.lastTestedBy)}${spot.avgWaitTime ? ' · ' + spot.avgWaitTime + ' min' : ''}</div>` : ''}
+            <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
+              <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastValidation') || 'Derniere validation'}</div>
+              <div style="font-size:12px;color:#e2e8f0">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}${spot.lastValidatedBy ? ' · ' + escapeHTML(spot.lastValidatedBy) : ''}</div>
             </div>
           </div>
 
-          <!-- ========== ACCORDION SECTIONS ========== -->
-          <div style="padding:0 20px">
-
-            <!-- 1. Statistiques -->
-            ${renderAccordionStats(spot, validationCount)}
-
-            <!-- 2. Evaluations (rating bars) -->
-            ${renderAccordionRatings(spot)}
-
-            <!-- 3. Directions -->
-            ${renderAccordionDirections(spot)}
-
-            <!-- 4. Description -->
-            ${renderAccordionDescription(spot)}
-
-            <!-- 5. Experiences (reviews) -->
-            ${renderAccordionReviews(spot)}
-
-            <!-- 6. Commodites (avant-dernier, juste avant Localisation) -->
-            ${renderAccordionAmenities(spot)}
-
-          </div>
-
-          <!-- ========== MAP + Google Maps button ========== -->
-          <div style="padding:20px">
-            <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">${t('location') || 'Localisation'}</div>
-            <div style="background:#161b28;height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#475569;font-size:12px;gap:6px">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''}
+          <!-- Ratings (3 colored boxes) -->
+          ${(safety || traffic || access) ? `
+          <div style="padding:0 16px 12px;display:flex;gap:8px">
+            <div style="flex:1;background:#161b28;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:18px;font-weight:600;color:#f59e0b">${safety || '—'}${safety ? '/5' : ''}</div>
+              <div style="font-size:10px;color:#64748b">${t('safety') || 'Securite'}</div>
             </div>
-            <button onclick="showNavigationPicker(${spot.coordinates?.lat}, ${spot.coordinates?.lng}, '${navName}')" type="button"
-              style="width:100%;margin-top:10px;background:transparent;border:1px solid #334155;color:#94a3b8;border-radius:0;padding:12px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              ${t('openInGoogleMaps') || 'Ouvrir dans Google Maps'}
-            </button>
+            <div style="flex:1;background:#161b28;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:18px;font-weight:600;color:#3b82f6">${traffic || '—'}${traffic ? '/5' : ''}</div>
+              <div style="font-size:10px;color:#64748b">${t('traffic') || 'Trafic'}</div>
+            </div>
+            <div style="flex:1;background:#161b28;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:18px;font-weight:600;color:#a855f7">${access || '—'}${access ? '/5' : ''}</div>
+              <div style="font-size:10px;color:#64748b">${t('accessibility') || 'Acces'}</div>
+            </div>
           </div>
+          ` : ''}
 
-          <!-- ========== CREATOR + REPORT ========== -->
-          <div style="padding:0 20px 20px">
-            <div style="border-top:1px solid #1a1f2e;padding-top:12px;display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:#475569">
-                ${t('addedBy') || 'Ajouté par'} <span style="color:#94a3b8">${escapeHTML(spot.creator || 'HitchWiki')}</span>
-                ${spot.createdAt ? ` · ${formatRelativeDate(spot.createdAt)}` : ''}
+          <!-- Practical tags (colored pills) -->
+          ${hasTags ? `
+          <div style="padding:0 16px 4px;display:flex;flex-wrap:wrap;gap:5px">
+            ${methodLabel ? `<span style="font-size:11px;color:#f59e0b;background:rgba(245,158,11,0.08);padding:4px 9px;border-radius:99px">${methodEmoji} ${escapeHTML(methodLabel)}</span>` : ''}
+            ${groupLabel ? `<span style="font-size:11px;color:#3b82f6;background:rgba(59,130,246,0.08);padding:4px 9px;border-radius:99px">${groupEmoji} ${escapeHTML(groupLabel)}</span>` : ''}
+            ${bestTime ? `<span style="font-size:11px;color:#22c55e;background:rgba(34,197,94,0.08);padding:4px 9px;border-radius:99px">${timeEmoji} ${escapeHTML(bestTime)}</span>` : ''}
+            ${seasonLabel ? `<span style="font-size:11px;color:#a855f7;background:rgba(168,85,247,0.08);padding:4px 9px;border-radius:99px">${seasonEmoji} ${escapeHTML(seasonLabel)}</span>` : ''}
+          </div>
+          ` : ''}
+
+          <!-- Active amenities (pills) -->
+          ${amenities.length > 0 ? `
+          <div style="padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:5px;${hasTags ? 'margin-top:4px' : ''}">
+            ${amenities.map(a => `<span style="font-size:11px;color:#94a3b8;background:rgba(148,163,184,0.08);padding:4px 9px;border-radius:99px">${a.emoji} ${escapeHTML(a.label)}</span>`).join('')}
+          </div>
+          ` : ''}
+
+          <!-- Description -->
+          ${spot.description ? `
+          <div style="padding:0 16px 12px">
+            <div style="font-size:13px;color:#94a3b8;line-height:1.5">${escapeHTML(spot.description)}</div>
+            ${renderTranslateButton(spot.description, `spot-desc-${spot.id}`)}
+          </div>
+          ` : ''}
+
+          <!-- Station name / Road info -->
+          ${(spot.stationName || spot.locationName || spot.roadNumber) ? `
+          <div style="padding:0 16px 12px">
+            ${spot.stationName ? `<div style="font-size:12px;color:#94a3b8">\u26fd ${escapeHTML(spot.stationName)}</div>` : ''}
+            ${(spot.roadNumber || spot.locationName) ? `<div style="font-size:12px;color:#94a3b8;${spot.stationName ? 'margin-top:4px' : ''}">${spot.roadNumber ? escapeHTML(spot.roadNumber) : ''}${spot.roadNumber && spot.locationName ? ' · ' : ''}${spot.locationName ? escapeHTML(spot.locationName) : ''}</div>` : ''}
+          </div>
+          ` : ''}
+
+          <!-- Destinations -->
+          ${allDests.length > 0 ? `
+          <div style="padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px">
+            ${allDests.map(d => `<span style="font-size:12px;color:#f59e0b;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.2);padding:5px 10px;border-radius:8px">\u2192 ${escapeHTML(d)}</span>`).join('')}
+            <button type="button" onclick="addDestinationToExistingSpot(${spotIdStr})"
+              style="font-size:12px;color:#475569;background:transparent;border:1px dashed #334155;padding:5px 10px;border-radius:8px;cursor:pointer">+</button>
+          </div>
+          ` : `
+          <div style="padding:0 16px 12px">
+            <button type="button" onclick="addDestinationToExistingSpot(${spotIdStr})"
+              style="font-size:12px;color:#475569;background:transparent;border:1px dashed #334155;padding:5px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:4px">+ ${t('addYourDestination') || 'Ajouter ta destination'}</button>
+          </div>
+          `}
+
+          <!-- Reviews -->
+          ${displayReviews.length > 0 ? `
+          <div style="padding:0 16px 12px">
+            ${displayReviews.map(review => {
+              const rMethod = review.method === 'sign' ? (t('methodSign') || 'Panneau')
+                : review.method === 'thumb' ? (t('methodThumb') || 'Pouce')
+                  : review.method === 'asking' ? (t('methodAsking') || 'En demandant')
+                    : review.travelMode || ''
+              const rGroup = review.groupSize === 'solo' ? 'Solo'
+                : review.groupSize === 'duo' ? 'Duo'
+                  : review.groupSize === 'group' ? 'Groupe'
+                    : ''
+              return `
+              <div style="background:#161b28;border-radius:10px;padding:12px;margin-bottom:6px">
+                <div style="font-size:12px;margin-bottom:2px">
+                  <span style="font-weight:500">${escapeHTML(review.userName || t('traveler') || 'Voyageur')}</span>
+                  ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
+                  ${review.rating ? ` <span style="color:#f59e0b">${'\u2605'.repeat(review.rating)}${'\u2606'.repeat(5 - review.rating)}</span>` : ''}
+                  <span style="color:#64748b">${review.waitTime ? ' · ' + review.waitTime + ' min' : ''}${rMethod ? ' · ' + rMethod : ''}${rGroup ? ' · ' + rGroup : ''}${review.date ? ' · ' + (typeof review.date === 'string' ? formatRelativeDate(review.date) : '') : ''}</span>
+                </div>
+                ${review.text ? `<div style="font-size:12px;color:#94a3b8">"${escapeHTML(review.text)}"</div>` : ''}
               </div>
-              <button onclick="openReport('SPOT', '${escapeJSString(String(spot.id))}')" type="button"
-                style="font-size:11px;color:#334155;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-                ${t('report') || 'Signaler'}
-              </button>
-            </div>
+              `
+            }).join('')}
           </div>
+          ` : ''}
+
+          <!-- Meta + Maps -->
+          <div style="padding:0 16px 12px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:11px;color:#475569">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · ${escapeHTML(spot.creator || 'HitchWiki')}${spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''}</div>
+            <button onclick="showNavigationPicker(${spot.coordinates?.lat}, ${spot.coordinates?.lng}, '${navName}')" type="button"
+              style="background:#161b28;border:1px solid #334155;color:#94a3b8;padding:7px 12px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">\ud83d\uddfa Maps</button>
+          </div>
+
+          <!-- Report -->
+          <div style="text-align:center;padding:8px 16px 16px">
+            <button onclick="openReport('SPOT', '${escapeJSString(String(spot.id))}')" type="button"
+              style="font-size:11px;color:#334155;background:transparent;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              ${t('report') || 'Signaler'}
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
@@ -198,235 +343,6 @@ function renderSubtitleType(spot) {
   if (spot.spotType === 'highway') return t('spotTypeHighway') || 'Autoroute'
   if (spot.spotType) return escapeHTML(spot.spotType)
   return t('spotLocation') || 'Spot'
-}
-
-
-/**
- * Accordion helper using <details><summary>
- */
-function accordion(label, content) {
-  if (!content) return ''
-  return `
-    <details open>
-      <summary style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #1a1f2e;cursor:pointer;list-style:none">
-        <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px">${label}</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </summary>
-      <div style="padding:12px 0">
-        ${content}
-      </div>
-    </details>
-  `
-}
-
-
-/**
- * Accordion 1: Stats (2x2 grid) + practical info
- */
-function renderAccordionStats(spot, validationCount) {
-  // Compute success rate from rideResult if available
-  const successRate = spot.successRate
-    || (spot.rideResult === 'yes' ? 100 : spot.rideResult === 'gaveUp' ? 0 : null)
-
-  // Best time label
-  const timeLabels = {
-    morning: t('timeMorning') || 'Matin',
-    afternoon: t('timeAfternoon') || 'Apres-midi',
-    evening: t('timeEvening') || 'Soir',
-    night: t('timeNight') || 'Nuit',
-  }
-  const bestTime = spot.timeOfDay ? timeLabels[spot.timeOfDay] || null : null
-
-  // Method label
-  const methodLabels = {
-    sign: t('methodSign') || 'Panneau',
-    thumb: t('methodThumb') || 'Pouce',
-    asking: t('methodAsking') || 'En demandant',
-  }
-  const methodLabel = spot.method ? methodLabels[spot.method] || null : null
-
-  // Group label
-  const groupLabels = {
-    solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+',
-  }
-  const groupLabel = spot.groupSize ? groupLabels[spot.groupSize] || null : null
-
-  const content = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div>
-        <div style="font-size:24px;font-weight:300;color:#e2e8f0">${spot.avgWaitTime ? spot.avgWaitTime + ' min' : '—'}</div>
-        <div style="font-size:10px;color:#64748b;text-transform:uppercase">${t('avgWaitTime') || 'Attente moyenne'}</div>
-      </div>
-      <div>
-        <div style="font-size:24px;font-weight:300;color:${successRate != null ? (successRate >= 50 ? '#22c55e' : '#ef4444') : '#e2e8f0'}">${successRate != null ? successRate + '%' : '—'}</div>
-        <div style="font-size:10px;color:#64748b;text-transform:uppercase">${t('successRate') || 'Taux de succes'}</div>
-      </div>
-      <div>
-        <div style="font-size:24px;font-weight:300;color:#e2e8f0">${validationCount || '—'}</div>
-        <div style="font-size:10px;color:#64748b;text-transform:uppercase">${t('validations') || 'Utilisations'}</div>
-      </div>
-      <div>
-        <div style="font-size:24px;font-weight:300;color:#f59e0b">${spot.safetyRating || spot.ratings?.safety || '—'}</div>
-        <div style="font-size:10px;color:#64748b;text-transform:uppercase">${t('safety') || 'Securite moy.'}</div>
-      </div>
-    </div>
-    ${(methodLabel || groupLabel || bestTime) ? `
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #1a1f2e">
-        ${methodLabel ? `<span style="font-size:11px;color:#94a3b8;background:#1a1f2e;padding:4px 10px">${methodLabel}</span>` : ''}
-        ${groupLabel ? `<span style="font-size:11px;color:#94a3b8;background:#1a1f2e;padding:4px 10px">${groupLabel}</span>` : ''}
-        ${bestTime ? `<span style="font-size:11px;color:#94a3b8;background:#1a1f2e;padding:4px 10px">${bestTime}</span>` : ''}
-        ${spot.season ? `<span style="font-size:11px;color:#94a3b8;background:#1a1f2e;padding:4px 10px">${escapeHTML(
-          spot.season === 'spring' ? (t('seasonSpring') || 'Printemps')
-          : spot.season === 'summer' ? (t('seasonSummer') || 'Ete')
-          : spot.season === 'autumn' ? (t('seasonAutumn') || 'Automne')
-          : spot.season === 'winter' ? (t('seasonWinter') || 'Hiver')
-          : spot.season
-        )}</span>` : ''}
-      </div>
-    ` : ''}
-    ${spot.stationName ? `<div style="font-size:12px;color:#94a3b8;margin-top:10px">⛽ ${escapeHTML(spot.stationName)}</div>` : ''}
-    ${spot.locationName || spot.roadNumber ? `<div style="font-size:12px;color:#94a3b8;margin-top:6px">${spot.roadNumber ? escapeHTML(spot.roadNumber) + ' · ' : ''}${spot.locationName ? escapeHTML(spot.locationName) : ''}</div>` : ''}
-  `
-  return accordion(t('statistics') || 'Statistiques', content)
-}
-
-/**
- * Accordion 2: Ratings (3 bar ratings)
- */
-function renderAccordionRatings(spot) {
-  const safety = spot.safetyRating || spot.ratings?.safety || 0
-  const traffic = spot.trafficRating || spot.ratings?.traffic || 0
-  const access = spot.accessRating || spot.ratings?.accessibility || 0
-
-  if (!safety && !traffic && !access) return ''
-
-  const renderBar = (label, val) => `
-    <div style="margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px">${label}</span>
-        <span style="font-size:12px;color:#f59e0b">${val}/5</span>
-      </div>
-      <div style="display:flex;gap:4px">
-        ${[1, 2, 3, 4, 5].map(i => `<div style="flex:1;height:4px;border-radius:2px;background:${i <= val ? '#f59e0b' : '#1a1f2e'}"></div>`).join('')}
-      </div>
-    </div>
-  `
-
-  const content = renderBar(t('safety') || 'Securite', safety)
-    + renderBar(t('traffic') || 'Trafic', traffic)
-    + renderBar(t('accessibility') || 'Accessibilite', access)
-
-  return accordion(t('ratings') || 'Evaluations', content)
-}
-
-
-/**
- * Accordion 3: Directions (underline tabs)
- */
-function renderAccordionDirections(spot) {
-  const dests = spot.destinations || []
-  const mainDest = spot.to || spot.direction
-  if (!mainDest && dests.length === 0) return ''
-
-  const allDests = dests.length > 0
-    ? dests.map(d => d.city)
-    : mainDest ? [mainDest] : []
-
-  if (allDests.length === 0) return ''
-
-  const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
-
-  const content = `
-    <div style="display:flex;gap:0;border-bottom:1px solid #334155;margin-bottom:8px">
-      ${allDests.map((city, i) => `
-        <div style="flex:1;padding:10px 0;text-align:center;font-size:13px;${i === 0 ? 'color:#f59e0b;border-bottom:2px solid #f59e0b;margin-bottom:-1px' : 'color:#64748b'}">${escapeHTML(city)}</div>
-      `).join('')}
-    </div>
-    <button
-      type="button"
-      onclick="addDestinationToExistingSpot(${spotIdStr})"
-      style="width:100%;padding:8px;font-size:11px;color:#475569;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"
-    >+ ${t('addYourDestination') || 'Ajouter ta destination'}</button>
-  `
-  return accordion(`${t('destinations') || 'Directions'} (${allDests.length})`, content)
-}
-
-/**
- * Accordion 4: Amenities (underline chips)
- */
-function renderAccordionAmenities(spot) {
-  const tags = spot.tags || {}
-  const amenities = [
-    { key: 'shelter', label: t('amenityShelter') || 'Abri', has: tags.shelter || tags.hasShelter },
-    { key: 'waterFood', label: t('amenityWater') || 'Eau', has: tags.waterFood },
-    { key: 'toilets', label: t('amenityToilets') || 'Toilettes', has: tags.toilets },
-    { key: 'food', label: t('amenityFood') || 'Nourriture', has: tags.food || tags.waterFood },
-    { key: 'stoppingSpace', label: t('stoppingSpaceTag') || 'Parking', has: tags.stoppingSpace },
-  ]
-
-  const content = `
-    <div style="display:flex;flex-wrap:wrap;gap:0">
-      ${amenities.map(a => `
-        <div style="padding:8px 14px;font-size:12px;${a.has ? 'color:#f59e0b;border-bottom:2px solid #f59e0b' : 'color:#64748b'}">${escapeHTML(a.label)}</div>
-      `).join('')}
-    </div>
-  `
-  return accordion(t('amenities') || 'Commodites', content)
-}
-
-/**
- * Accordion 5: Description
- */
-function renderAccordionDescription(spot) {
-  if (!spot.description) return ''
-  const content = `
-    <div style="font-size:13px;color:#94a3b8;line-height:1.6">${escapeHTML(spot.description)}</div>
-    ${renderTranslateButton(spot.description, `spot-desc-${spot.id}`)}
-  `
-  return accordion(t('description') || 'Description', content)
-}
-
-/**
- * Accordion 6: Experiences / Reviews
- */
-function renderAccordionReviews(spot) {
-  const reviews = spot.reviews || spot._reviews || []
-  const displayReviews = reviews.filter(r => !r.isTip).slice(0, 5)
-
-  if (displayReviews.length === 0) return ''
-
-  const content = displayReviews.map(review => {
-    const methodLabel = review.method === 'sign' ? (t('methodSign') || 'Panneau')
-      : review.method === 'thumb' ? (t('methodThumb') || 'Pouce')
-        : review.method === 'asking' ? (t('methodAsking') || 'En demandant')
-          : review.travelMode || ''
-
-    const groupLabel = review.groupSize === 'solo' ? 'Solo'
-      : review.groupSize === 'duo' ? 'Duo'
-        : review.groupSize === 'group' ? 'Groupe'
-          : ''
-
-    return `
-      <div style="padding:16px 0;border-bottom:1px solid #1a1f2e">
-        <div style="font-size:11px;color:#64748b;margin-bottom:6px">
-          <span style="color:#e2e8f0">${escapeHTML(review.userName || t('traveler') || 'Voyageur')}</span>
-          ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
-          ${review.date ? `<span style="color:#334155"> · </span>${typeof review.date === 'string' ? formatRelativeDate(review.date) : ''}` : ''}
-          ${review.waitTime ? `<span style="color:#334155"> · </span><span style="color:#f59e0b">${review.waitTime} min</span>` : ''}
-          ${methodLabel ? `<span style="color:#334155"> · </span>${methodLabel}` : ''}
-          ${groupLabel ? ` · ${groupLabel}` : ''}
-        </div>
-        <div style="font-size:13px;color:#94a3b8;line-height:1.5">${escapeHTML(review.text || '')}</div>
-        ${review.rating ? `
-          <div style="display:flex;gap:4px;margin-top:6px">
-            ${[1, 2, 3, 4, 5].map(i => `<div style="width:30px;height:4px;border-radius:2px;background:${i <= (review.rating || 0) ? '#f59e0b' : '#1a1f2e'}"></div>`).join('')}
-          </div>
-        ` : ''}
-      </div>
-    `
-  }).join('')
-
-  return accordion(`${t('userReviews') || 'Experiences'} (${displayReviews.length})`, content)
 }
 
 
