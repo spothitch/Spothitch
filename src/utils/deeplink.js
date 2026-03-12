@@ -4,6 +4,7 @@
  */
 
 import { setState, getState } from '../stores/state.js';
+import { showToast } from '../services/notifications.js';
 
 // Base path for the app (e.g., '/' for deployed app)
 const BASE_PATH = import.meta.env.BASE_URL || '/';
@@ -22,8 +23,129 @@ const ROUTES = {
   profile: { tab: 'profile' },
 };
 
-// Guard: prevent share handler from running twice (pageshow/focus/visibilitychange can re-trigger)
-let _shareHandled = false
+// Track which exact share URL has been processed (not a boolean — per-URL guard)
+let _lastProcessedShareUrl = ''
+
+/**
+ * Process a share from Google Maps (or other maps app).
+ * Can be called from multiple entry points: initial load, focus, pageshow, launchQueue.
+ * Idempotent: won't process the same URL twice.
+ */
+async function processShare() {
+  const currentSearch = window.location.search
+  if (!currentSearch.includes('action=share')) return
+
+  // Per-URL guard: don't process the same share URL twice
+  if (_lastProcessedShareUrl === currentSearch) {
+    console.log('[Share] Already processed this URL, skipping')
+    return
+  }
+  _lastProcessedShareUrl = currentSearch
+  console.log('[Share] Processing share:', currentSearch)
+
+  // Dismiss landing/welcome immediately
+  setState({ showLanding: false, showWelcome: false })
+  try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
+
+  // Show immediate feedback so user knows something is happening
+  try { showToast('📍 Resolving shared location...', 'info') } catch { /* notifications not loaded yet */ }
+
+  try {
+    const params = new URLSearchParams(currentSearch)
+    const url = params.get('url') || ''
+    const text = params.get('text') || ''
+    const title = params.get('title') || ''
+
+    console.log('[Share] Params:', { url: url.slice(0, 80), text: text.slice(0, 80), title })
+
+    // Store shared text for place name fallback
+    if (title || text) {
+      window._pendingShareText = title || text.split('\n')[0] || ''
+    }
+
+    // Resolve coordinates — try multiple strategies
+    let coords = null
+    try {
+      const { extractCoordsFromShare, resolveShortMapUrl, geocodePlace } = await import('./mapsUrlParser.js')
+
+      // Strategy 1: Extract coords directly from URL or text
+      coords = extractCoordsFromShare(url, text)
+      if (coords) console.log('[Share] Strategy 1 (direct extract):', coords)
+
+      // Strategy 2: Resolve shortened Google Maps URLs (maps.app.goo.gl / goo.gl)
+      if (!coords) {
+        const allText = `${url} ${text}`
+        const shortRe = /https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/maps|goo\.gle\/maps)\/\S+/
+        const shortUrl = allText.match(shortRe)?.[0]
+        if (shortUrl) {
+          console.log('[Share] Strategy 2: resolving short URL:', shortUrl)
+          coords = await resolveShortMapUrl(shortUrl)
+          if (coords) console.log('[Share] Strategy 2 resolved:', coords)
+          else console.log('[Share] Strategy 2 failed')
+        }
+      }
+
+      // Strategy 3: Geocode the place name from title/text
+      if (!coords && (title || text)) {
+        const placeName = title || text.split('\n')[0] || ''
+        const cleanName = placeName
+          .replace(/https?:\/\/\S+/g, '')
+          .replace(/google\s*maps?/gi, '')
+          .replace(/\s{2,}/g, ' ')
+          .trim()
+        if (cleanName.length >= 2 && !cleanName.toLowerCase().includes('not found') && !cleanName.toLowerCase().includes('dynamic link')) {
+          console.log('[Share] Strategy 3: geocoding:', cleanName)
+          coords = await geocodePlace(cleanName)
+          if (coords) console.log('[Share] Strategy 3 resolved:', coords)
+          else console.log('[Share] Strategy 3 failed')
+        }
+      }
+    } catch (e) {
+      console.warn('[Share] Coord resolution failed:', e.message)
+    }
+
+    if (coords) {
+      window._pendingShareCoords = coords
+      console.log('[Share] Coords ready:', coords.lat, coords.lng)
+    } else {
+      console.log('[Share] No coords found, will open AddSpot without position')
+    }
+
+    // Wait for app to be fully initialized before opening AddSpot
+    const waitForApp = () => new Promise((resolve) => {
+      if (window.openAddSpot) return resolve()
+      let attempts = 0
+      const check = setInterval(() => {
+        attempts++
+        if (window.openAddSpot || attempts > 150) {
+          clearInterval(check)
+          resolve()
+        }
+      }, 100)
+    })
+    await waitForApp()
+
+    // Open AddSpot
+    console.log('[Share] Opening AddSpot, coords:', coords ? 'yes' : 'no')
+    if (window.openAddSpot) {
+      window.openAddSpot()
+    } else {
+      setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
+    }
+  } catch (e) {
+    console.error('[Share] Handler failed:', e)
+    try {
+      if (window.openAddSpot) {
+        window.openAddSpot()
+      } else {
+        setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
+      }
+    } catch { /* give up */ }
+  }
+}
+
+// Expose globally so it can be called from main.js or console for debugging
+window.processShare = processShare
 
 // Action mappings
 const ACTIONS = {
@@ -37,91 +159,7 @@ const ACTIONS = {
   'challenges': () => setState({ showChallenges: true }),
   'settings': () => setState({ activeTab: 'profile' }),
   'filters': () => setState({ showFilters: true }),
-  'share': async () => {
-    // Prevent double execution (pageshow/focus events can re-trigger handleDeepLink)
-    if (_shareHandled) return
-    _shareHandled = true
-
-    try {
-      const params = getUrlParams()
-      const url = params.get('url') || ''
-      const text = params.get('text') || ''
-      const title = params.get('title') || ''
-
-      // Store shared text for place name fallback (early, so it's available even if coord resolution fails)
-      if (title || text) {
-        window._pendingShareText = title || text.split('\n')[0] || ''
-      }
-
-      // Resolve coordinates — try multiple strategies
-      let coords = null
-      try {
-        const { extractCoordsFromShare, resolveShortMapUrl, geocodePlace } = await import('./mapsUrlParser.js')
-
-        // Strategy 1: Extract coords directly from URL or text
-        coords = extractCoordsFromShare(url, text)
-
-        // Strategy 2: Resolve shortened Google Maps URLs (maps.app.goo.gl / goo.gl)
-        if (!coords) {
-          const allText = `${url} ${text}`
-          const shortRe = /https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/maps|goo\.gle\/maps)\/\S+/
-          const shortUrl = allText.match(shortRe)?.[0]
-          if (shortUrl) {
-            coords = await resolveShortMapUrl(shortUrl)
-          }
-        }
-
-        // Strategy 3: Geocode the place name from title/text
-        if (!coords && (title || text)) {
-          const placeName = title || text.split('\n')[0] || ''
-          const cleanName = placeName
-            .replace(/https?:\/\/\S+/g, '')
-            .replace(/google\s*maps?/gi, '')
-            .replace(/\s{2,}/g, ' ')
-            .trim()
-          // Don't geocode garbage like "Dynamic Link Not Found"
-          if (cleanName.length >= 2 && !cleanName.toLowerCase().includes('not found') && !cleanName.toLowerCase().includes('dynamic link')) {
-            coords = await geocodePlace(cleanName)
-          }
-        }
-      } catch (e) {
-        console.warn('[Share] Coord resolution failed:', e.message)
-      }
-      if (coords) {
-        window._pendingShareCoords = coords
-      }
-
-      // Wait for app to be fully initialized before opening AddSpot
-      const waitForApp = () => new Promise((resolve) => {
-        if (window.openAddSpot) return resolve()
-        let attempts = 0
-        const check = setInterval(() => {
-          attempts++
-          if (window.openAddSpot || attempts > 150) {
-            clearInterval(check)
-            resolve()
-          }
-        }, 100)
-      })
-      await waitForApp()
-
-      // Open AddSpot
-      if (window.openAddSpot) {
-        window.openAddSpot()
-      } else {
-        setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
-      }
-    } catch (e) {
-      console.error('[Share] Handler failed:', e)
-      try {
-        if (window.openAddSpot) {
-          window.openAddSpot()
-        } else {
-          setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
-        }
-      } catch { /* give up */ }
-    }
-  },
+  'share': () => processShare(),
 };
 
 /**
@@ -152,12 +190,10 @@ export function handleDeepLink() {
 
   // Early share detection: immediately dismiss landing/welcome so share can take priority
   if (action === 'share') {
-    // Guard: prevent multiple share handlers from being scheduled
-    if (_shareHandled) return
-    console.log('[Share] Deep link detected:', window.location.search)
     setState({ showLanding: false, showWelcome: false })
     try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
   }
+
   if (action && Object.prototype.hasOwnProperty.call(ACTIONS, action)) {
     const handler = ACTIONS[action];
     setTimeout(() => {
@@ -209,9 +245,6 @@ export function handleDeepLink() {
     // Trigger search
     setTimeout(() => window.searchLocation?.(search), 200);
   }
-
-  // Clear URL params after handling (optional - keeps URL clean)
-  // clearUrlParams()
 }
 
 /**
@@ -295,45 +328,59 @@ export async function shareLink(options = {}) {
  * - pageshow: PWA launched via share target (navigate-existing)
  * - visibilitychange: app brought to foreground with new URL
  * - LaunchParams: modern PWA launch queue API
+ * - focus: PWA window receives focus
  */
 export function initDeepLinkListener() {
   window.addEventListener('popstate', () => {
     handleDeepLink();
   });
 
-  // PWA share target: when the app is already open and receives a share,
-  // the browser navigates the existing window. Detect this via pageshow/focus.
-  let lastHandledUrl = window.location.href;
-
-  const checkForNewShareUrl = () => {
-    const currentUrl = window.location.href;
-    if (currentUrl !== lastHandledUrl && currentUrl.includes('action=share')) {
-      lastHandledUrl = currentUrl;
-      _shareHandled = false // Reset guard for genuinely new share URL
-      handleDeepLink();
+  // Check for share target on every focus/visibility change.
+  // On Android, Chrome may navigate the existing window to the share URL
+  // but the events may fire before or after the URL updates.
+  const checkForShareUrl = () => {
+    const search = window.location.search
+    if (search.includes('action=share')) {
+      // processShare() has its own per-URL guard to prevent double-processing
+      processShare()
     }
   };
 
+  // Also check with a short delay (some browsers update URL asynchronously)
+  const checkForShareUrlDelayed = () => {
+    checkForShareUrl()
+    // Retry after 500ms in case URL was updated late
+    setTimeout(checkForShareUrl, 500)
+  }
+
   // pageshow fires when the page is shown (including BFCache restore)
-  window.addEventListener('pageshow', checkForNewShareUrl);
+  window.addEventListener('pageshow', checkForShareUrlDelayed);
 
   // visibilitychange fires when the app comes to foreground
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      checkForNewShareUrl();
+      checkForShareUrlDelayed();
     }
   });
 
   // focus fires when the PWA window receives focus
-  window.addEventListener('focus', checkForNewShareUrl);
+  window.addEventListener('focus', checkForShareUrlDelayed);
 
   // Modern Launch Queue API (Chrome 110+): handles PWA launch with URL
   if ('launchQueue' in window) {
     window.launchQueue.setConsumer((launchParams) => {
-      if (launchParams.targetURL && launchParams.targetURL.includes('action=share')) {
-        lastHandledUrl = launchParams.targetURL;
-        _shareHandled = false // Reset guard for new launch
-        handleDeepLink();
+      if (launchParams.targetURL) {
+        console.log('[LaunchQueue] Received URL:', launchParams.targetURL)
+        // Update URL if needed (some browsers don't navigate automatically)
+        if (launchParams.targetURL.includes('action=share')) {
+          const url = new URL(launchParams.targetURL)
+          if (window.location.search !== url.search) {
+            window.history.replaceState({}, '', launchParams.targetURL)
+          }
+          // Reset guard so this new share gets processed
+          _lastProcessedShareUrl = ''
+          processShare()
+        }
       }
     });
   }

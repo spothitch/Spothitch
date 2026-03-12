@@ -99,7 +99,7 @@ export default defineConfig({
           }
         },
         launch_handler: {
-          client_mode: 'navigate-new'
+          client_mode: 'navigate-existing'
         },
         prefer_related_applications: false,
         handle_links: 'preferred',
