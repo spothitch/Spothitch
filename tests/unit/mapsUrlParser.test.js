@@ -61,6 +61,42 @@ describe('extractCoordsFromShare', () => {
     const result = extractCoordsFromShare('https://maps.google.com/?ll=48.8566,2.3522&z=15', '')
     expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
   })
+
+  it('parses /search/lat,lng format (Google Maps 2025+ share)', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/search/50.744637,+4.575336?entry=tts', '')
+    expect(result).toEqual({ lat: 50.744637, lng: 4.575336 })
+  })
+
+  it('parses /search/lat,lng without plus sign', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/search/48.8566,2.3522', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses !3d/!4d data format (Google Maps long URL)', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/place/Tour+Eiffel/data=!4m6!3m5!1s0x47e66e2964e34e2d!8m2!3d48.8583701!4d2.2944813', '')
+    expect(result).toEqual({ lat: 48.8583701, lng: 2.2944813 })
+  })
+
+  it('parses center= parameter', () => {
+    const result = extractCoordsFromShare('https://maps.example.com/?center=48.8566,2.3522', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses destination= parameter', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/dir/?destination=48.8566,2.3522', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses OpenStreetMap #map=zoom/lat/lng', () => {
+    const result = extractCoordsFromShare('https://www.openstreetmap.org/#map=15/48.8566/2.3522', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('extracts multiple URLs from text and finds coords in second URL', () => {
+    const text = 'Check this link: https://example.com\nAlso this: https://maps.google.com/?q=48.8566,2.3522'
+    const result = extractCoordsFromShare('', text)
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
 })
 
 describe('resolveShortMapUrl', () => {

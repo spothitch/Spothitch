@@ -1,15 +1,17 @@
 /**
  * Cloudflare Worker: Resolve shortened Google Maps URLs
- * Follows redirects manually to extract coordinates from the final URL
+ * Follows redirects manually to extract coordinates from the final URL.
  * Google Maps short URLs (maps.app.goo.gl/xxx) redirect via HTTP 302
- * to a full URL containing @lat,lng coordinates
+ * to a full URL containing @lat,lng coordinates.
+ *
+ * Note: Firebase Dynamic Links was deprecated (Aug 2025). Some old links
+ * may return 404. The worker tries multiple strategies to extract coords.
  */
 export default {
   async fetch(request) {
     const url = new URL(request.url)
     const target = url.searchParams.get('url')
 
-    // CORS headers for SpotHitch
     const headers = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET',
@@ -20,34 +22,34 @@ export default {
       return new Response(null, { headers })
     }
 
-    if (!target || !target.match(/^https:\/\/(maps\.app\.goo\.gl|goo\.gl)\//)) {
+    if (!target || !target.match(/^https:\/\/(maps\.app\.goo\.gl|goo\.gl|g\.co|goo\.gle)\//)) {
       return new Response(JSON.stringify({ error: 'Invalid URL' }), { status: 400, headers })
+    }
+
+    const browserHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
     }
 
     try {
       // Strategy 1: Follow redirects manually to capture each Location header
-      // Google Maps short URLs do HTTP 302 → full URL with @lat,lng
       let currentUrl = target
       let finalUrl = target
-      const browserHeaders = {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-      }
+      const visitedUrls = []
 
-      // Follow up to 10 redirects manually
       for (let i = 0; i < 10; i++) {
         const res = await fetch(currentUrl, {
           redirect: 'manual',
           headers: browserHeaders,
         })
 
-        // Check for redirect (301, 302, 303, 307, 308)
+        visitedUrls.push(currentUrl)
+
         if (res.status >= 300 && res.status < 400) {
           const location = res.headers.get('location')
           if (!location) break
 
-          // Resolve relative URLs
           currentUrl = location.startsWith('http') ? location : new URL(location, currentUrl).href
           finalUrl = currentUrl
 
@@ -59,31 +61,40 @@ export default {
           continue
         }
 
-        // We got a 200 (or other non-redirect) — try extracting from this URL
+        // Got a 200 (or other non-redirect) — try extracting from URL
         finalUrl = res.url || currentUrl
         const coordsFromUrl = extractCoordsFromUrl(finalUrl)
         if (coordsFromUrl) {
           return new Response(JSON.stringify({ ...coordsFromUrl, resolvedUrl: finalUrl }), { headers })
         }
 
-        // Try extracting from the page HTML
+        // Try extracting from the page HTML (Google Maps embeds coords in JS data)
         const html = await res.text()
         const htmlCoords = extractCoordsFromHtml(html)
         if (htmlCoords) {
           return new Response(JSON.stringify({ ...htmlCoords, resolvedUrl: finalUrl }), { headers })
         }
 
-        // Try extracting place name for client-side geocoding
+        // Try extracting a place name for client-side geocoding
         const place = extractPlaceName(finalUrl) || extractPlaceFromHtml(html)
         if (place) {
           return new Response(JSON.stringify({ place, resolvedUrl: finalUrl }), { headers })
+        }
+
+        // If we got a 404 (dead Dynamic Link), check all visited redirect URLs
+        if (res.status === 404) {
+          for (const visited of visitedUrls) {
+            const coordsFromVisited = extractCoordsFromUrl(visited)
+            if (coordsFromVisited) {
+              return new Response(JSON.stringify({ ...coordsFromVisited, resolvedUrl: visited }), { headers })
+            }
+          }
         }
 
         break
       }
 
       // Strategy 2: Try with redirect: 'follow' as fallback
-      // (in case manual redirect following missed something)
       const followRes = await fetch(target, {
         redirect: 'follow',
         headers: browserHeaders,
@@ -100,9 +111,18 @@ export default {
         if (htmlCoords) {
           return new Response(JSON.stringify({ ...htmlCoords, resolvedUrl: followUrl }), { headers })
         }
+
+        const place = extractPlaceName(followUrl) || extractPlaceFromHtml(html)
+        if (place) {
+          return new Response(JSON.stringify({ place, resolvedUrl: followUrl }), { headers })
+        }
       }
 
-      return new Response(JSON.stringify({ error: 'No coordinates found', resolvedUrl: finalUrl }), { status: 404, headers })
+      return new Response(JSON.stringify({
+        error: 'No coordinates found',
+        resolvedUrl: finalUrl,
+        visitedUrls,
+      }), { status: 404, headers })
     } catch (e) {
       return new Response(JSON.stringify({ error: 'Failed to resolve URL', detail: e.message }), { status: 500, headers })
     }
@@ -118,7 +138,23 @@ function extractCoordsFromUrl(url) {
     if (isValid(lat, lng)) return { lat, lng }
   }
 
-  // ?q=lat,lng or &q=lat,lng format
+  // /search/lat,lng or /search/lat,+lng (Google Maps 2025+ share format)
+  const searchMatch = url.match(/\/(?:search|place)\/(-?\d{1,3}\.\d{3,8}),\s?\+?(-?\d{1,3}\.\d{3,8})/)
+  if (searchMatch) {
+    const lat = parseFloat(searchMatch[1])
+    const lng = parseFloat(searchMatch[2])
+    if (isValid(lat, lng)) return { lat, lng }
+  }
+
+  // !3d(lat)!4d(lng) format (Google Maps data URL encoding)
+  const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,8})!4d(-?\d{1,3}\.\d{3,8})/)
+  if (dataMatch) {
+    const lat = parseFloat(dataMatch[1])
+    const lng = parseFloat(dataMatch[2])
+    if (isValid(lat, lng)) return { lat, lng }
+  }
+
+  // ?q=lat,lng or &q=lat,lng and similar query params
   try {
     const parsed = new URL(url)
     for (const key of ['q', 'll', 'center', 'destination', 'query']) {
@@ -133,14 +169,6 @@ function extractCoordsFromUrl(url) {
       }
     }
   } catch { /* ignore */ }
-
-  // !3d(lat)!4d(lng) format (Google Maps data URL encoding)
-  const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,8})!4d(-?\d{1,3}\.\d{3,8})/)
-  if (dataMatch) {
-    const lat = parseFloat(dataMatch[1])
-    const lng = parseFloat(dataMatch[2])
-    if (isValid(lat, lng)) return { lat, lng }
-  }
 
   return null
 }
@@ -157,10 +185,10 @@ function extractCoordsFromHtml(html) {
     /lat"?:\s*(-?\d{1,3}\.\d{4,8}).*?lng"?:\s*(-?\d{1,3}\.\d{4,8})/s,
     // @lat,lng in any context
     /@(-?\d{1,3}\.\d{4,8}),(-?\d{1,3}\.\d{4,8})/,
-    // Array format [lat, lng, 0]
-    /\[(-?\d{1,3}\.\d{4,8}),(-?\d{1,3}\.\d{4,8}),0\]/,
     // !3d(lat)!4d(lng) in HTML content
     /!3d(-?\d{1,3}\.\d{4,8})!4d(-?\d{1,3}\.\d{4,8})/,
+    // Array format [lat, lng, 0]
+    /\[(-?\d{1,3}\.\d{4,8}),(-?\d{1,3}\.\d{4,8}),0\]/,
     // og:url or canonical with coordinates
     /content="[^"]*@(-?\d{1,3}\.\d{4,8}),(-?\d{1,3}\.\d{4,8})/,
   ]
@@ -171,7 +199,6 @@ function extractCoordsFromHtml(html) {
       const a = parseFloat(match[1])
       const b = parseFloat(match[2])
       if (isValid(a, b)) return { lat: a, lng: b }
-      // Sometimes lat/lng are swapped in data arrays
       if (isValid(b, a)) return { lat: b, lng: a }
     }
   }
@@ -189,14 +216,12 @@ function extractPlaceName(url) {
 
 function extractPlaceFromHtml(html) {
   if (!html) return null
-  // Try og:title meta tag
   const ogMatch = html.match(/<meta[^>]*property="og:title"[^>]*content="([^"]+)"/)
-  if (ogMatch && ogMatch[1] && !ogMatch[1].includes('Google Maps')) {
+  if (ogMatch && ogMatch[1] && !ogMatch[1].includes('Google Maps') && !ogMatch[1].includes('Dynamic Link')) {
     return ogMatch[1]
   }
-  // Try <title> tag
   const titleMatch = html.match(/<title>([^<]+)<\/title>/)
-  if (titleMatch && titleMatch[1] && !titleMatch[1].includes('Google Maps')) {
+  if (titleMatch && titleMatch[1] && !titleMatch[1].includes('Google Maps') && !titleMatch[1].includes('Dynamic Link') && !titleMatch[1].includes('Not Found')) {
     return titleMatch[1].split(' - ')[0].trim()
   }
   return null

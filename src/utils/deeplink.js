@@ -22,6 +22,9 @@ const ROUTES = {
   profile: { tab: 'profile' },
 };
 
+// Guard: prevent share handler from running twice (pageshow/focus/visibilitychange can re-trigger)
+let _shareHandled = false
+
 // Action mappings
 const ACTIONS = {
   'add-spot': () => setState({ showAddSpot: true }),
@@ -35,6 +38,10 @@ const ACTIONS = {
   'settings': () => setState({ activeTab: 'profile' }),
   'filters': () => setState({ showFilters: true }),
   'share': async () => {
+    // Prevent double execution (pageshow/focus events can re-trigger handleDeepLink)
+    if (_shareHandled) return
+    _shareHandled = true
+
     try {
       const params = getUrlParams()
       const url = params.get('url') || ''
@@ -46,20 +53,24 @@ const ACTIONS = {
         window._pendingShareText = title || text.split('\n')[0] || ''
       }
 
-      // Resolve coordinates
+      // Resolve coordinates — try multiple strategies
       let coords = null
       try {
         const { extractCoordsFromShare, resolveShortMapUrl, geocodePlace } = await import('./mapsUrlParser.js')
+
+        // Strategy 1: Extract coords directly from URL or text
         coords = extractCoordsFromShare(url, text)
-        // Try resolving shortened Google Maps URLs (maps.app.goo.gl)
+
+        // Strategy 2: Resolve shortened Google Maps URLs (maps.app.goo.gl / goo.gl)
         if (!coords) {
-          const shortUrl = (url || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
-            || (text || '').match(/https?:\/\/maps\.app\.goo\.gl\/\S+/)?.[0]
+          const allText = `${url} ${text}`
+          const shortUrl = allText.match(/https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/maps|goo\.gle\/maps)\/\S+/)?.[0]
           if (shortUrl) {
             coords = await resolveShortMapUrl(shortUrl)
           }
         }
-        // Fallback: geocode the place name from title/text when no coords found
+
+        // Strategy 3: Geocode the place name from title/text
         if (!coords && (title || text)) {
           const placeName = title || text.split('\n')[0] || ''
           const cleanName = placeName
@@ -67,26 +78,25 @@ const ACTIONS = {
             .replace(/google\s*maps?/gi, '')
             .replace(/\s{2,}/g, ' ')
             .trim()
-          if (cleanName.length >= 2) {
+          // Don't geocode garbage like "Dynamic Link Not Found"
+          if (cleanName.length >= 2 && !cleanName.toLowerCase().includes('not found') && !cleanName.toLowerCase().includes('dynamic link')) {
             coords = await geocodePlace(cleanName)
           }
         }
       } catch (e) {
-        console.warn('[Share] Coord resolution error:', e.message)
+        console.warn('[Share] Coord resolution failed:', e.message)
       }
-
       if (coords) {
         window._pendingShareCoords = coords
       }
 
       // Wait for app to be fully initialized before opening AddSpot
-      // (on share target launch, the app restarts and openAddSpot may not exist yet)
       const waitForApp = () => new Promise((resolve) => {
         if (window.openAddSpot) return resolve()
         let attempts = 0
         const check = setInterval(() => {
           attempts++
-          if (window.openAddSpot || attempts > 150) { // 15s max (150 × 100ms)
+          if (window.openAddSpot || attempts > 150) {
             clearInterval(check)
             resolve()
           }
@@ -94,16 +104,14 @@ const ACTIONS = {
       })
       await waitForApp()
 
-      // Open AddSpot — use the function if available, fallback to setState directly
+      // Open AddSpot
       if (window.openAddSpot) {
         window.openAddSpot()
       } else {
-        // Direct fallback: open AddSpot via state
         setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
       }
     } catch (e) {
       console.error('[Share] Handler failed:', e)
-      // Last resort fallback: try to open AddSpot anyway
       try {
         if (window.openAddSpot) {
           window.openAddSpot()
@@ -143,6 +151,8 @@ export function handleDeepLink() {
 
   // Early share detection: immediately dismiss landing/welcome so share can take priority
   if (action === 'share') {
+    // Guard: prevent multiple share handlers from being scheduled
+    if (_shareHandled) return
     console.log('[Share] Deep link detected:', window.location.search)
     setState({ showLanding: false, showWelcome: false })
     try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
@@ -298,6 +308,7 @@ export function initDeepLinkListener() {
     const currentUrl = window.location.href;
     if (currentUrl !== lastHandledUrl && currentUrl.includes('action=share')) {
       lastHandledUrl = currentUrl;
+      _shareHandled = false // Reset guard for genuinely new share URL
       handleDeepLink();
     }
   };
@@ -320,6 +331,7 @@ export function initDeepLinkListener() {
     window.launchQueue.setConsumer((launchParams) => {
       if (launchParams.targetURL && launchParams.targetURL.includes('action=share')) {
         lastHandledUrl = launchParams.targetURL;
+        _shareHandled = false // Reset guard for new launch
         handleDeepLink();
       }
     });
