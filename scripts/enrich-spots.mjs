@@ -245,31 +245,23 @@ function extractBestTip(comments) {
 
 function generateDescriptions(spot, cityName, ratings) {
   const type = spot._enrichedType || 'custom'
-  const wait = spot.wait
-  const reviews = spot.reviews || 0
   const tip = extractBestTip(spot.comments)
-
-  // Build factual descriptions in 4 languages
   const typeLabel = SPOT_TYPE_LABELS[type] || SPOT_TYPE_LABELS.custom
 
-  const waitEn = wait ? `Average wait: ${wait} min.` : ''
-  const waitFr = wait ? `Attente moyenne : ${wait} min.` : ''
-  const waitEs = wait ? `Espera media: ${wait} min.` : ''
-  const waitDe = wait ? `Wartezeit: ca. ${wait} min.` : ''
+  // Use the best real comment as the description (same text in all 4 fields).
+  // The in-app translate button handles translation.
+  // If no comment, fall back to the spot type label only.
+  if (tip) {
+    const desc = `${typeLabel.en}. ${tip}`.slice(0, 300)
+    return { descriptionEn: desc, descriptionFr: desc, descriptionEs: desc, descriptionDe: desc }
+  }
 
-  const testedEn = reviews > 1 ? `Tested by ${reviews} hitchhikers.` : reviews === 1 ? 'Tested by 1 hitchhiker.' : ''
-  const testedFr = reviews > 1 ? `Testé par ${reviews} auto-stoppeurs.` : reviews === 1 ? 'Testé par 1 auto-stoppeur.' : ''
-  const testedEs = reviews > 1 ? `Probado por ${reviews} autoestopistas.` : reviews === 1 ? 'Probado por 1 autoestopista.' : ''
-  const testedDe = reviews > 1 ? `Getestet von ${reviews} Trampern.` : reviews === 1 ? 'Getestet von 1 Tramper.' : ''
-
-  const avgRating = ((ratings.safety + ratings.traffic + ratings.accessibility) / 3).toFixed(1)
-
-  const descEn = [typeLabel.en + '.', waitEn, testedEn, tip].filter(Boolean).join(' ').slice(0, 300)
-  const descFr = [typeLabel.fr + '.', waitFr, testedFr].filter(Boolean).join(' ').slice(0, 300)
-  const descEs = [typeLabel.es + '.', waitEs, testedEs].filter(Boolean).join(' ').slice(0, 300)
-  const descDe = [typeLabel.de + '.', waitDe, testedDe].filter(Boolean).join(' ').slice(0, 300)
-
-  return { descriptionEn: descEn, descriptionFr: descFr, descriptionEs: descEs, descriptionDe: descDe }
+  return {
+    descriptionEn: typeLabel.en + '.',
+    descriptionFr: typeLabel.fr + '.',
+    descriptionEs: typeLabel.es + '.',
+    descriptionDe: typeLabel.de + '.',
+  }
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────

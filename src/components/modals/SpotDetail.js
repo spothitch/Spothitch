@@ -16,11 +16,12 @@ export function renderSpotDetail(state) {
   const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
   const navName = escapeJSString((spot.from || '') + ' - ' + (spot.to || ''))
   const validationCount = spot.validationCount || spot.userValidations || 0
-  const testCount = spot.testCount || 0
+  const testCount = spot.liveTestCount || spot.testCount || 0
   const usageCount = testCount || validationCount
 
-  const successRate = spot.successRate
-    || (spot.rideResult === 'yes' ? 100 : spot.rideResult === 'gaveUp' ? 0 : null)
+  const successRate = spot.liveSuccessRate != null ? spot.liveSuccessRate
+    : spot.successRate != null ? spot.successRate
+      : (spot.rideResult === 'yes' ? 100 : spot.rideResult === 'gaveUp' ? 0 : null)
 
   const spotTitle = spot.from
     ? escapeHTML(spot.from)
@@ -28,20 +29,26 @@ export function renderSpotDetail(state) {
       ? escapeHTML(spot.direction)
       : `${t('spotLocation') || 'Spot'} #${spot.id}`
 
-  // Destinations subtitle
+  // Destinations subtitle — merge static + live destinations
   const dests = spot.destinations || []
   const mainDest = spot.to || spot.direction
-  const allDests = dests.length > 0
+  const staticDests = dests.length > 0
     ? dests.map(d => d.city)
     : mainDest ? [mainDest] : []
+  // Add live destinations from Firebase validations (with counts)
+  const liveDests = spot.liveDestinations || []
+  const allDestsSet = new Set(staticDests.map(d => d.toLowerCase()))
+  const extraDests = liveDests.filter(ld => !allDestsSet.has(ld.city.toLowerCase())).map(ld => ld.city)
+  const allDests = [...staticDests, ...extraDests]
   const destsSubtitle = allDests.length > 0
     ? allDests.map(d => escapeHTML(d)).join(', ')
     : ''
 
-  // Ratings
-  const safety = spot.safetyRating || spot.ratings?.safety || 0
-  const traffic = spot.trafficRating || spot.ratings?.traffic || 0
-  const access = spot.accessRating || spot.ratings?.accessibility || 0
+  // Ratings — prefer live aggregated ratings
+  const liveR = spot.liveRatings
+  const safety = liveR?.safety || spot.safetyRating || spot.ratings?.safety || 0
+  const traffic = liveR?.traffic || spot.trafficRating || spot.ratings?.traffic || 0
+  const access = liveR?.accessibility || spot.accessRating || spot.ratings?.accessibility || 0
 
   // Practical tags
   const methodLabels = {
@@ -86,9 +93,9 @@ export function renderSpotDetail(state) {
     { label: t('stoppingSpaceTag') || 'Parking', emoji: '🅿️', has: tags.stoppingSpace },
   ].filter(a => a.has)
 
-  // Reviews
-  const reviews = spot.reviews || spot._reviews || []
-  const displayReviews = reviews.filter(r => !r.isTip).slice(0, 5)
+  // Reviews — use comments array (real Hitchwiki experiences) or liveComments from Firebase
+  const reviews = spot.liveComments || spot.comments || []
+  const displayReviews = reviews.slice(0, 10)
 
   return `
     <div
@@ -149,7 +156,7 @@ export function renderSpotDetail(state) {
             </div>
             <div style="width:1px;background:#1e293b"></div>
             <div style="text-align:center">
-              <div style="font-size:22px;font-weight:700;color:#e2e8f0">${spot.avgWaitTime ? spot.avgWaitTime + "'" : '—'}</div>
+              <div style="font-size:22px;font-weight:700;color:#e2e8f0">${(spot.liveAvgWaitTime || spot.avgWaitTime) ? (spot.liveAvgWaitTime || spot.avgWaitTime) + "'" : '—'}</div>
               <div style="font-size:9px;color:#64748b">${t('waitTimeLabel') || 'Attente'}</div>
             </div>
             <div style="width:1px;background:#1e293b"></div>
@@ -189,7 +196,7 @@ export function renderSpotDetail(state) {
           <div style="padding:0 16px 12px;display:flex;gap:8px">
             <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
               <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastTest') || 'Derniere utilisation'}</div>
-              <div style="font-size:12px;color:#e2e8f0">${spot.lastTested ? formatRelativeDate(spot.lastTested) : '—'}${spot.lastTestedBy ? ' · ' + escapeHTML(spot.lastTestedBy) : ''}</div>
+              <div style="font-size:12px;color:#e2e8f0">${(spot.liveLastTested || spot.lastTested) ? formatRelativeDate(spot.liveLastTested || spot.lastTested) : '—'}${spot.lastTestedBy ? ' · ' + escapeHTML(spot.lastTestedBy) : ''}</div>
             </div>
             <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
               <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastValidation') || 'Derniere validation'}</div>
@@ -277,12 +284,13 @@ export function renderSpotDetail(state) {
               return `
               <div style="background:#161b28;border-radius:10px;padding:12px;margin-bottom:6px">
                 <div style="font-size:12px;margin-bottom:2px">
-                  <span style="font-weight:500">${escapeHTML(review.userName || t('traveler') || 'Voyageur')}</span>
+                  <span style="font-weight:500">${escapeHTML(review.userName || 'Hitchwiki')}</span>
                   ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
                   ${review.rating ? ` <span style="color:#f59e0b">${'\u2605'.repeat(review.rating)}${'\u2606'.repeat(5 - review.rating)}</span>` : ''}
                   <span style="color:#64748b">${review.waitTime ? ' · ' + review.waitTime + ' min' : ''}${rMethod ? ' · ' + rMethod : ''}${rGroup ? ' · ' + rGroup : ''}${review.date ? ' · ' + (typeof review.date === 'string' ? formatRelativeDate(review.date) : '') : ''}</span>
                 </div>
-                ${review.text ? `<div style="font-size:12px;color:#94a3b8">"${escapeHTML(review.text)}"</div>` : ''}
+                ${review.text ? `<div style="font-size:12px;color:#94a3b8">"${escapeHTML(review.text)}"</div>
+                ${renderTranslateButton(review.text, 'spot-comment-' + spot.id + '-' + displayReviews.indexOf(review))}` : ''}
               </div>
               `
             }).join('')}

@@ -105,7 +105,7 @@ export function renderValidateSpot(state) {
             <!-- Wait Time Slider -->
             <div>
               <label class="text-sm text-slate-400 block mb-2">
-                ${icon('clock', 'w-4 h-4 mr-1')} ${t('waitTimeLabel') || "Temps d'attente"}
+                ${icon('clock', 'w-4 h-4 mr-1')} ${t('waitTimeLabel') || "Temps d'attente"} <span class="text-red-400">*</span>
               </label>
               <input type="range" min="0" max="${WAIT_STEPS.length - 1}"
                 value="${waitIdx >= 0 ? waitIdx : 4}"
@@ -122,7 +122,7 @@ export function renderValidateSpot(state) {
 
             <!-- Got a ride? -->
             <div>
-              <label class="text-sm text-slate-400 block mb-2">${t('gotARide') || 'Tu as eu un lift ?'}</label>
+              <label class="text-sm text-slate-400 block mb-2">${t('gotARide') || 'Tu as eu un lift ?'} <span class="text-red-400">*</span></label>
               <div class="radio-group">
                 <button type="button" onclick="setValidationRideResult('yes')"
                   class="radio-btn ${vf.rideResult === 'yes' ? 'active' : ''}">
@@ -142,7 +142,7 @@ export function renderValidateSpot(state) {
             <!-- Method -->
             <div>
               <label class="text-sm text-slate-400 block mb-2">
-                ${icon('hand', 'w-4 h-4 mr-1')} ${t('practicalTips') || 'Méthode'}
+                ${icon('hand', 'w-4 h-4 mr-1')} ${t('practicalTips') || 'Méthode'} <span class="text-red-400">*</span>
               </label>
               <div class="radio-group">
                 <button type="button" onclick="setValidationMethod('sign')"
@@ -163,7 +163,7 @@ export function renderValidateSpot(state) {
             <!-- Group Size -->
             <div>
               <label class="text-sm text-slate-400 block mb-2">
-                ${icon('users', 'w-4 h-4 mr-1')} ${t('groupSizeLabel')}
+                ${icon('users', 'w-4 h-4 mr-1')} ${t('groupSizeLabel')} <span class="text-red-400">*</span>
               </label>
               <div class="radio-group">
                 <button type="button" onclick="setValidationGroupSize('solo')"
@@ -178,7 +178,7 @@ export function renderValidateSpot(state) {
             <!-- Time of Day -->
             <div>
               <label class="text-sm text-slate-400 block mb-2">
-                ${icon('sun', 'w-4 h-4 mr-1')} ${t('timeOfDayLabel')}
+                ${icon('sun', 'w-4 h-4 mr-1')} ${t('timeOfDayLabel')} <span class="text-red-400">*</span>
               </label>
               <div class="radio-group">
                 <button type="button" onclick="setValidationTimeOfDay('morning')"
@@ -233,6 +233,7 @@ export function renderValidateSpot(state) {
 
             <!-- Ratings -->
             <div class="border-t border-white/10 pt-3">
+              <label class="text-sm text-slate-400 block mb-2">${t('ratings') || 'Notes'} <span class="text-red-400">*</span></label>
               ${renderValStarInput('safety', t('safetyRating'))}
               ${renderValStarInput('traffic', t('traffic'))}
               ${renderValStarInput('accessibility', t('accessibility'))}
@@ -414,10 +415,20 @@ window.submitValidation = async (event) => {
     submitBtn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('sending') || 'Envoi...'}`
   }
 
-  // Direction is mandatory
-  if (!directionCity) {
+  // Validate all mandatory fields
+  const validationErrors = []
+  if (!directionCity) validationErrors.push(t('destinationRequired') || 'Direction obligatoire')
+  if (!vf.method) validationErrors.push(t('methodRequired') || 'Choisis ta methode')
+  if (!vf.groupSize) validationErrors.push(t('groupSizeRequired') || 'Indique ta taille de groupe')
+  if (!vf.timeOfDay) validationErrors.push(t('timeOfDayRequired') || 'Indique le moment de la journee')
+  if (!vf.rideResult) validationErrors.push(t('rideResultRequired') || 'Indique si tu as eu un lift')
+  if (!vf.ratings.safety || !vf.ratings.traffic || !vf.ratings.accessibility) {
+    validationErrors.push(t('ratingsRequired') || 'Note les 3 criteres')
+  }
+
+  if (validationErrors.length > 0) {
     const { showError } = await import('../../services/notifications.js')
-    showError(t('destinationRequired') || 'Direction obligatoire')
+    showError(validationErrors[0])
     if (submitBtn) {
       submitBtn.disabled = false
       submitBtn.innerHTML = `${icon('circle-check', 'w-5 h-5')} ${t('submitValidation')}`
@@ -494,6 +505,17 @@ window.submitValidation = async (event) => {
       ? (t('testSubmitted') || 'Test envoyé ! Merci') + photoMsg
       : (t('validationSubmitted') || 'Validation envoyée ! Merci') + photoMsg)
     setState({ showValidateSpot: false, validateSpotId: null, validateSpotMode: null })
+
+    // Refresh live data so SpotDetail shows updated stats immediately
+    try {
+      const { invalidateSpotCache, enrichSpotWithLiveData } = await import('../../services/spotLiveData.js')
+      invalidateSpotCache(spotId)
+      const currentSpot = getState().selectedSpot
+      if (currentSpot && String(currentSpot.id) === String(spotId)) {
+        const enriched = await enrichSpotWithLiveData({ ...currentSpot, _liveLoaded: false })
+        setState({ selectedSpot: enriched })
+      }
+    } catch { /* non-blocking */ }
 
   } catch (error) {
     console.error('Validation failed:', error)

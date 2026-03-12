@@ -234,7 +234,20 @@ function convertToAppFormat(rawSpots, countryCode) {
       const legal = legalityByCountry[countryCode]
 
       // Pick description by user language (enriched spots have descriptionEn/Fr/Es/De)
-      const description = s.descriptionEn || s.comments?.[0]?.text || ''
+      const userLang = (typeof localStorage !== 'undefined' && localStorage.getItem('spothitch_lang')) || 'en'
+      const langDescMap = { fr: s.descriptionFr, en: s.descriptionEn, es: s.descriptionEs, de: s.descriptionDe }
+      const rawDesc = langDescMap[userLang] || s.descriptionEn || s.comments?.[0]?.text || ''
+      // Clean "Tested by X hitchhikers." patterns in all 4 languages
+      const description = rawDesc
+        .replace(/\s*Tested by \d+ hitchhikers?\.\s*/gi, ' ')
+        .replace(/\s*Testé par \d+ auto-stoppeurs?\.\s*/gi, ' ')
+        .replace(/\s*Probado por \d+ autoestopistas?\.\s*/gi, ' ')
+        .replace(/\s*Getestet von \d+ Trampern?\.\s*/gi, ' ')
+        .replace(/\s*Average wait: \d+ min\.\s*/gi, ' ')
+        .replace(/\s*Attente moyenne : \d+ min\.\s*/gi, ' ')
+        .replace(/\s*Espera media: \d+ min\.\s*/gi, ' ')
+        .replace(/\s*Wartezeit: ca\. \d+ min\.\s*/gi, ' ')
+        .trim()
 
       const reviews = s.reviews || 0
 

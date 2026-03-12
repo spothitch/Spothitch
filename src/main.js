@@ -1086,7 +1086,19 @@ window.openSpotDetail = window.selectSpot; // alias for services that use openSp
 let _spotDetailOpenedAt = 0
 const _origSelectSpot = actions.selectSpot.bind(actions)
 actions.selectSpot = (spot) => {
-  if (spot) _spotDetailOpenedAt = Date.now()
+  if (spot) {
+    _spotDetailOpenedAt = Date.now()
+    // Load live Firebase data in background (non-blocking)
+    if (!spot._liveLoaded) {
+      import('./services/spotLiveData.js').then(({ enrichSpotWithLiveData }) => {
+        enrichSpotWithLiveData(spot).then(enriched => {
+          if (enriched && enriched !== spot) {
+            setState({ selectedSpot: enriched })
+          }
+        })
+      }).catch(() => {})
+    }
+  }
   _origSelectSpot(spot)
 }
 window.closeSpotDetail = () => {
