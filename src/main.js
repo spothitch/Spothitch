@@ -314,6 +314,14 @@ async function init() {
     setState({ showLanding: false, showWelcome: false })
   }
 
+  // TEMPORARY DEBUG: log every page load URL so we can diagnose share target issues
+  try {
+    const _dbg = JSON.parse(localStorage.getItem('spothitch_url_log') || '[]')
+    _dbg.push({ t: Date.now(), url: window.location.href.slice(0, 300) })
+    if (_dbg.length > 10) _dbg.splice(0, _dbg.length - 10)
+    localStorage.setItem('spothitch_url_log', JSON.stringify(_dbg))
+  } catch { /* no-op */ }
+
   try {
     // Load detected language translations (only active language, not all 4)
     const lang = await initI18n();
@@ -558,6 +566,15 @@ async function init() {
 
     // Trigger initial render
     scheduleRender(() => render(getState()));
+
+    // TEMPORARY DEBUG: show URL as toast so user can see what Chrome sent
+    setTimeout(() => {
+      try {
+        const q = window.location.search
+        if (q) showToast('URL: ' + q.slice(0, 120), 'info', 8000)
+        else showToast('URL: (pas de paramètres)', 'info', 5000)
+      } catch { /* no-op */ }
+    }, 2000)
 
     // Handle deep links from URL params
     try {
