@@ -169,66 +169,99 @@ function loadGIS() {
 const GOOGLE_CLIENT_ID = '314974309234-eh794g3edfe35h8r7eom2q0i092c5h35.apps.googleusercontent.com'
 
 /**
- * Sign in with Google using Google Identity Services (GIS).
+ * Setup GIS invisible overlay button on top of a visible Google sign-in button.
+ * When GIS loads, the overlay captures clicks → opens Google popup directly
+ * (no Firebase intermediate page). If GIS fails to load, nothing happens
+ * and the regular onclick handler fires instead (signInWithGoogle fallback).
  *
- * Why GIS instead of Firebase signInWithPopup?
- * - signInWithPopup opens spothitch.firebaseapp.com/__/auth/handler first,
- *   which shows a visible Firebase loading page before redirecting to Google.
- * - GIS shows the native Google account picker directly — no intermediate page.
- * - The ID token from GIS is passed to Firebase via signInWithCredential.
- * - Fallback to signInWithPopup if GIS fails (script blocked, One Tap dismissed).
+ * @param {HTMLElement} overlayContainer - positioned absolutely over the button
+ * @param {function} onResult - called with { success, user } or { success: false, error }
+ */
+export function setupGISOverlay(overlayContainer, onResult) {
+  if (!overlayContainer) return
+  loadGIS().then(() => {
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: async (response) => {
+        if (!response.credential) {
+          onResult({ success: false, error: 'no-credential' })
+          return
+        }
+        try {
+          window._authInProgress = true
+          const credential = GoogleAuthProvider.credential(response.credential)
+          const result = await signInWithCredential(auth, credential)
+          window._authInProgress = false
+          if (result?.user) {
+            onResult({ success: true, user: result.user })
+          } else {
+            onResult({ success: false, error: 'no-user' })
+          }
+        } catch (e) {
+          window._authInProgress = false
+          onResult({ success: false, error: e.code || e.message })
+        }
+      },
+      auto_select: false,
+    })
+
+    // Render the real Google button into the overlay container
+    window.google.accounts.id.renderButton(overlayContainer, {
+      type: 'standard',
+      theme: 'filled_black',
+      size: 'large',
+      width: Math.max(overlayContainer.offsetWidth, 300),
+      text: 'continue_with',
+    })
+
+    // Make the rendered GIS iframe cover the overlay container (transparent)
+    // The user sees our styled button but clicks the real Google button
+    requestAnimationFrame(() => {
+      const iframe = overlayContainer.querySelector('iframe')
+      if (iframe) {
+        iframe.style.width = '100%'
+        iframe.style.height = '100%'
+        iframe.style.opacity = '0.01'
+        iframe.style.position = 'absolute'
+        iframe.style.top = '0'
+        iframe.style.left = '0'
+      }
+      // Also make the container div from GIS fill the space
+      const gisDiv = overlayContainer.firstElementChild
+      if (gisDiv) {
+        gisDiv.style.width = '100%'
+        gisDiv.style.height = '100%'
+        gisDiv.style.position = 'absolute'
+        gisDiv.style.top = '0'
+        gisDiv.style.left = '0'
+      }
+    })
+  }).catch(() => {
+    // GIS unavailable — the regular onclick handler will be used
+  })
+}
+
+/**
+ * Sign in with Google using Firebase signInWithPopup.
+ *
+ * This is the FALLBACK method, used when GIS overlay is not available
+ * (script blocked, GIS not loaded). It briefly shows a Firebase
+ * intermediate page before redirecting to Google.
+ *
+ * IMPORTANT: This function uses ONE method only (no chaining).
+ * The GIS overlay (setupGISOverlay) is the primary method and
+ * bypasses this function entirely when it works.
  */
 export async function signInWithGoogle() {
   try {
     window._authInProgress = true
-
-    // Try Google Identity Services first (native picker, no Firebase page)
-    try {
-      await loadGIS()
-
-      const idToken = await new Promise((resolve, reject) => {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: (response) => {
-            if (response.credential) {
-              resolve(response.credential)
-            } else {
-              reject(new Error('no-credential'))
-            }
-          },
-          auto_select: false,
-          cancel_on_tap_outside: false,
-        })
-
-        window.google.accounts.id.prompt((notification) => {
-          if (notification.isNotDisplayed()) {
-            reject(new Error('prompt-not-displayed'))
-          } else if (notification.isSkippedMoment()) {
-            reject(new Error('prompt-skipped'))
-          }
-          // If displayed, the callback above will fire when user picks account
-        })
-      })
-
-      // Got ID token from Google — sign into Firebase with it
-      const credential = GoogleAuthProvider.credential(idToken)
-      const result = await signInWithCredential(auth, credential)
-      window._authInProgress = false
-      if (result?.user) {
-        return { success: true, user: result.user }
-      }
-      return { success: false, error: 'no-user' }
-    } catch (gisError) {
-      // GIS unavailable — fallback to Firebase popup
-      console.warn('GIS fallback to popup:', gisError.message)
-      const provider = new GoogleAuthProvider()
-      const result = await signInWithPopup(auth, provider)
-      window._authInProgress = false
-      if (result?.user) {
-        return { success: true, user: result.user }
-      }
-      return { success: false, error: 'no-user' }
+    const provider = new GoogleAuthProvider()
+    const result = await signInWithPopup(auth, provider)
+    window._authInProgress = false
+    if (result?.user) {
+      return { success: true, user: result.user }
     }
+    return { success: false, error: 'no-user' }
   } catch (error) {
     window._authInProgress = false
     return { success: false, error: error.code || error.message }
