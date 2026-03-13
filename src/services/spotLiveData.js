@@ -53,6 +53,11 @@ export async function fetchSpotValidations(spotId) {
 
 /**
  * Merge static spot data with live Firebase validations (pure function)
+ *
+ * RULE: when at least 1 community validation exists for a Hitchwiki spot,
+ * ALL Hitchwiki data (comments, ratings, wait time, test count) is replaced
+ * by community data only. The goal is to phase out Hitchwiki entirely.
+ *
  * @param {object} staticSpot - The static Hitchwiki spot
  * @param {Array} validations - Firebase validation records
  * @returns {object} merged spot with live* fields
@@ -62,15 +67,22 @@ export function mergeSpotData(staticSpot, validations) {
     return { ...staticSpot, _liveLoaded: true }
   }
 
+  const isHitchwiki = staticSpot.source === 'hitchwiki'
   const testValidations = validations.filter(v => v.type === 'test')
   const allValidations = validations
 
-  // Live test count: static + Firebase tests
-  const liveTestCount = (staticSpot.testCount || 0) + testValidations.length
+  // When community data exists for a Hitchwiki spot → ignore Hitchwiki data
+  // Community-created spots keep adding to their own data normally
+  const ignoreStatic = isHitchwiki
+
+  // Live test count
+  const liveTestCount = ignoreStatic
+    ? testValidations.length
+    : (staticSpot.testCount || 0) + testValidations.length
 
   // Live average wait time
   const waitTimes = []
-  if (staticSpot.avgWaitTime) waitTimes.push(staticSpot.avgWaitTime)
+  if (!ignoreStatic && staticSpot.avgWaitTime) waitTimes.push(staticSpot.avgWaitTime)
   for (const v of allValidations) {
     if (v.waitTime && typeof v.waitTime === 'number') waitTimes.push(v.waitTime)
   }
@@ -78,29 +90,34 @@ export function mergeSpotData(staticSpot, validations) {
     ? Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length)
     : null
 
-  // Live success rate: % of validations with rideResult === 'yes'
+  // Live success rate
   const rideResults = allValidations.filter(v => v.rideResult)
   let liveSuccessRate = null
   if (rideResults.length > 0) {
     const successes = rideResults.filter(v => v.rideResult === 'yes').length
-    // If static spot also has rideResult data, count it as 1 entry
     let totalEntries = rideResults.length
     let totalSuccesses = successes
-    if (staticSpot.rideResult === 'yes') {
-      totalEntries += 1
-      totalSuccesses += 1
-    } else if (staticSpot.rideResult === 'no' || staticSpot.rideResult === 'gaveUp') {
-      totalEntries += 1
+    // Only count static rideResult for non-Hitchwiki spots
+    if (!ignoreStatic) {
+      if (staticSpot.rideResult === 'yes') {
+        totalEntries += 1
+        totalSuccesses += 1
+      } else if (staticSpot.rideResult === 'no' || staticSpot.rideResult === 'gaveUp') {
+        totalEntries += 1
+      }
     }
     liveSuccessRate = Math.round((totalSuccesses / totalEntries) * 100)
   }
 
-  // Live ratings: weighted average (static = 1 vote + each validation = 1 vote)
+  // Live ratings
   const ratingVotes = { safety: [], traffic: [], accessibility: [] }
-  const staticRatings = staticSpot.ratings || {}
-  if (staticRatings.safety) ratingVotes.safety.push(staticRatings.safety)
-  if (staticRatings.traffic) ratingVotes.traffic.push(staticRatings.traffic)
-  if (staticRatings.accessibility) ratingVotes.accessibility.push(staticRatings.accessibility)
+  // Only include static ratings for non-Hitchwiki spots
+  if (!ignoreStatic) {
+    const staticRatings = staticSpot.ratings || {}
+    if (staticRatings.safety) ratingVotes.safety.push(staticRatings.safety)
+    if (staticRatings.traffic) ratingVotes.traffic.push(staticRatings.traffic)
+    if (staticRatings.accessibility) ratingVotes.accessibility.push(staticRatings.accessibility)
+  }
 
   for (const v of allValidations) {
     const r = v.ratings || {}
@@ -120,11 +137,7 @@ export function mergeSpotData(staticSpot, validations) {
   const dates = allValidations.map(v => v.date).filter(Boolean)
   const liveLastTested = dates.length > 0 ? dates[0] : staticSpot.lastTested
 
-  // Live comments: merge Hitchwiki comments + Firebase validation comments
-  const staticComments = (staticSpot.comments || []).map(c => ({
-    ...c,
-    userName: c.userName || 'Hitchwiki',
-  }))
+  // Live comments: community only for Hitchwiki spots, merged for others
   const firebaseComments = allValidations
     .filter(v => v.comment)
     .map(v => ({
@@ -138,8 +151,18 @@ export function mergeSpotData(staticSpot, validations) {
         (v.ratings.safety || 0) + (v.ratings.traffic || 0) + (v.ratings.accessibility || 0)
       ) / 3) : null,
     }))
-  // Firebase comments first (newest), then static
-  const liveComments = [...firebaseComments, ...staticComments]
+
+  let liveComments
+  if (ignoreStatic) {
+    // Hitchwiki spot with community data → only community comments
+    liveComments = firebaseComments
+  } else {
+    const staticComments = (staticSpot.comments || []).map(c => ({
+      ...c,
+      userName: c.userName || 'Hitchwiki',
+    }))
+    liveComments = [...firebaseComments, ...staticComments]
+  }
 
   // Aggregated destinations from Firebase validations
   const liveDestinations = []
@@ -154,7 +177,7 @@ export function mergeSpotData(staticSpot, validations) {
   }
   liveDestinations.sort((a, b) => b.count - a.count)
 
-  return {
+  const result = {
     ...staticSpot,
     liveTestCount,
     liveAvgWaitTime,
@@ -165,6 +188,17 @@ export function mergeSpotData(staticSpot, validations) {
     liveDestinations,
     _liveLoaded: true,
   }
+
+  // Hitchwiki spot with community data → mark as community, clear old descriptions
+  if (ignoreStatic) {
+    result.source = 'community'
+    result.descriptionEn = ''
+    result.descriptionFr = ''
+    result.descriptionEs = ''
+    result.descriptionDe = ''
+  }
+
+  return result
 }
 
 /**
