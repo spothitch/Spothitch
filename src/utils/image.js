@@ -10,7 +10,7 @@
  * @param {number} quality - JPEG quality 0-1 (default 0.8)
  * @returns {Promise<string>} Base64 data URL
  */
-export async function compressImage(file, maxWidth = 1200, quality = 0.8) {
+export async function compressImage(file, maxWidth = 1200, quality = 0.75) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -34,10 +34,13 @@ export async function compressImage(file, maxWidth = 1200, quality = 0.8) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to base64
-        const compressed = canvas.toDataURL('image/jpeg', quality);
-
-        resolve(compressed);
+        // Try WebP first (50% smaller), fallback to JPEG
+        const webp = canvas.toDataURL('image/webp', quality);
+        if (webp.startsWith('data:image/webp')) {
+          resolve(webp);
+        } else {
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        }
       };
 
       img.onerror = () => reject(new Error('Failed to load image'));

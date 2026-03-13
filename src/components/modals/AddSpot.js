@@ -182,7 +182,7 @@ function renderStep1(state) {
           onchange="handlePhotoSelect(event)"
           aria-describedby="photo-help"
         />
-        ${(window.spotFormData?.photos?.length || 0) < 3 ? `
+        ${(window.spotFormData?.photos?.length || 0) < 5 ? `
         <div
           id="photo-upload"
           onclick="triggerPhotoUpload()"
@@ -620,7 +620,7 @@ window.handlePhotoSelect = async (event) => {
   if (!file) return
 
   if (!window.spotFormData.photos) window.spotFormData.photos = []
-  if (window.spotFormData.photos.length >= 3) {
+  if (window.spotFormData.photos.length >= 5) {
     const { showError } = await import('../../services/notifications.js')
     showError(t('maxPhotos'))
     return
@@ -628,7 +628,7 @@ window.handlePhotoSelect = async (event) => {
 
   try {
     const { compressImage } = await import('../../utils/image.js')
-    const compressed = await compressImage(file)
+    const compressed = await compressImage(file, 1200, 0.75)
     window.spotFormData.photos.push(compressed)
 
     // Re-render to update thumbnails and hide upload button if at max

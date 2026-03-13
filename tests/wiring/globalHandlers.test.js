@@ -222,8 +222,8 @@ const MAIN_JS_HANDLERS = [
   'autoDetectStation', 'autoDetectRoad',
   'saveSpotAsDraft', 'openSpotDraft', 'deleteSpotDraft',
   'addSpotDestination', 'removeSpotDestination',
-  // SpotDetail destinations (defined in SpotDetail.js)
-  'addDestinationToExistingSpot',
+  // SpotDetail destinations + street view (defined in SpotDetail.js)
+  'addDestinationToExistingSpot', 'openSpotStreetView',
   // Map (defined in Map.js)
   'searchMapSuggestions',
   // AdminPanel (defined in AdminPanel.js)

@@ -378,7 +378,7 @@ window.handleValidationPhoto = async (event) => {
   if (!file) return
 
   if (!window.validateFormData.photos) window.validateFormData.photos = []
-  if (window.validateFormData.photos.length >= 3) {
+  if (window.validateFormData.photos.length >= 5) {
     const { showError } = await import('../../services/notifications.js')
     showError(t('maxPhotos'))
     return
@@ -386,7 +386,7 @@ window.handleValidationPhoto = async (event) => {
 
   try {
     const { compressImage } = await import('../../utils/image.js')
-    const compressed = await compressImage(file)
+    const compressed = await compressImage(file, 1200, 0.75)
     window.validateFormData.photos.push(compressed)
     // Re-render to update thumbnails
     import('../../stores/state.js').then(({ setState }) => setState({ _valRefresh: Date.now() }))

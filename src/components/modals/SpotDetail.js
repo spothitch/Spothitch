@@ -297,11 +297,16 @@ export function renderSpotDetail(state) {
           </div>
           ` : ''}
 
-          <!-- Meta + Maps -->
+          <!-- Meta + Maps + Street View -->
           <div style="padding:0 16px 12px;display:flex;justify-content:space-between;align-items:center">
             <div style="font-size:11px;color:#475569">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · ${escapeHTML(spot.creator || 'HitchWiki')}${spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''}</div>
-            <button onclick="showNavigationPicker(${spot.coordinates?.lat}, ${spot.coordinates?.lng}, '${navName}')" type="button"
-              style="background:#161b28;border:1px solid #334155;color:#94a3b8;padding:7px 12px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">\ud83d\uddfa Maps</button>
+            <div style="display:flex;gap:6px">
+              ${spot.coordinates?.lat ? `<button onclick="openSpotStreetView(${spot.coordinates.lat}, ${spot.coordinates.lng})" type="button"
+                style="background:#161b28;border:1px solid #334155;color:#94a3b8;padding:7px 12px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="vertical-align:middle;margin-right:3px"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>${t('streetView') || 'Street View'}</button>` : ''}
+              <button onclick="showNavigationPicker(${spot.coordinates?.lat}, ${spot.coordinates?.lng}, '${navName}')" type="button"
+                style="background:#161b28;border:1px solid #334155;color:#94a3b8;padding:7px 12px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">\ud83d\uddfa Maps</button>
+            </div>
           </div>
 
           <!-- Report -->
@@ -321,23 +326,87 @@ export function renderSpotDetail(state) {
 
 /**
  * Render photo hero — full-width, cover image
+ * Priority: user photos > Mapillary photos (loaded async)
  */
 function renderPhotoHero(spot) {
   const photos = spot.photos || []
   const mainPhoto = photos[0] || spot.photoUrl
 
-  if (!mainPhoto) {
-    return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`
+  if (mainPhoto) {
+    return `<img
+      src="${escapeHTML(mainPhoto)}"
+      alt="${t('spotPhoto') || 'Photo du spot'}: ${escapeHTML(spot.from || 'Spot')}"
+      style="width:100%;height:100%;object-fit:cover"
+      loading="lazy"
+      onclick="event.stopPropagation();openPhotoFullscreen(0)"
+      onerror="this.style.display='none';this.parentElement.innerHTML='<svg width=\\'32\\' height=\\'32\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#475569\\' stroke-width=\\'1.5\\'><path d=\\'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z\\'/><circle cx=\\'12\\' cy=\\'10\\' r=\\'3\\'/></svg>'"
+    />`
   }
 
-  return `<img
-    src="${escapeHTML(mainPhoto)}"
-    alt="${t('spotPhoto') || 'Photo du spot'}: ${escapeHTML(spot.from || 'Spot')}"
-    style="width:100%;height:100%;object-fit:cover"
-    loading="lazy"
-    onclick="event.stopPropagation();openPhotoFullscreen(0)"
-    onerror="this.style.display='none';this.parentElement.innerHTML='<svg width=\\'32\\' height=\\'32\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#475569\\' stroke-width=\\'1.5\\'><path d=\\'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z\\'/><circle cx=\\'12\\' cy=\\'10\\' r=\\'3\\'/></svg>'"
-  />`
+  // No user photo: show placeholder + trigger Mapillary loading
+  const lat = spot.coordinates?.lat
+  const lng = spot.coordinates?.lng
+  if (lat && lng) {
+    // Async load Mapillary photos after render
+    setTimeout(() => loadMapillaryForHero(lat, lng, spot.id), 100)
+  }
+
+  return `<div id="spot-hero-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:6px">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    <span style="font-size:11px;color:#475569" id="spot-hero-loading">${t('loadingStreetPhotos') || 'Chargement des photos...'}</span>
+  </div>`
+}
+
+/**
+ * Load Mapillary photos into the hero area when no user photos exist
+ */
+async function loadMapillaryForHero(lat, lng, spotId) {
+  const placeholder = document.getElementById('spot-hero-placeholder')
+  if (!placeholder) return
+
+  try {
+    const { fetchMapillaryPhotos } = await import('../../services/mapillary.js')
+    const photos = await fetchMapillaryPhotos(lat, lng, 100, 3)
+
+    if (photos.length > 0 && document.getElementById('spot-hero-placeholder')) {
+      const heroContainer = placeholder.parentElement
+      if (!heroContainer) return
+
+      // Store Mapillary photos for gallery
+      window._mapillaryPhotos = photos.map(p => p.url)
+
+      // Show first Mapillary photo as hero
+      heroContainer.innerHTML = `
+        <img
+          src="${escapeHTML(photos[0].url)}"
+          alt="${t('streetViewPhoto') || 'Photo de rue'}: ${escapeHTML(String(spotId))}"
+          style="width:100%;height:100%;object-fit:cover"
+          loading="lazy"
+          onerror="this.style.display='none'"
+        />
+        <div style="position:absolute;bottom:12px;right:12px;z-index:2;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.6);padding:3px 8px;border-radius:99px">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          <span style="font-size:9px;color:#94a3b8">Mapillary</span>
+          ${photos.length > 1 ? `<span style="font-size:9px;color:#64748b">${photos.length} photos</span>` : ''}
+        </div>
+      `
+
+      // Re-add the overlay buttons (back, heart, share, type badge)
+      const overlayButtons = heroContainer.parentElement?.querySelectorAll('[style*="position:absolute"]')
+      // Buttons are already in the parent container, they won't be affected
+    } else if (document.getElementById('spot-hero-placeholder')) {
+      // No Mapillary photos found — show static placeholder
+      const loadingEl = document.getElementById('spot-hero-loading')
+      if (loadingEl) {
+        loadingEl.textContent = t('noStreetPhotos') || 'Pas de photo disponible'
+      }
+    }
+  } catch {
+    const loadingEl = document.getElementById('spot-hero-loading')
+    if (loadingEl) {
+      loadingEl.textContent = t('noStreetPhotos') || 'Pas de photo disponible'
+    }
+  }
 }
 
 
@@ -379,6 +448,12 @@ function formatRelativeDate(dateStr) {
     const years = Math.floor(diffDays / 365)
     return `${years} ${years === 1 ? (t('yearAgo') || 'an') : (t('yearsAgo') || 'ans')}`
   } catch { return '' }
+}
+
+// Handler: open Google Street View for a spot
+window.openSpotStreetView = async (lat, lng) => {
+  const { openStreetView } = await import('../../services/streetview.js')
+  openStreetView(lat, lng)
 }
 
 // Handler: add a destination to an existing spot
