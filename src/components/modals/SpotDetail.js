@@ -5,7 +5,6 @@
 
 import { t } from '../../i18n/index.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
-import { renderTranslateButton } from '../../services/autoTranslate.js'
 import { renderMiniTrustBadge } from '../../services/trustScore.js'
 import '../../utils/navigation.js' // Registers window.showNavigationPicker
 
@@ -96,6 +95,11 @@ export function renderSpotDetail(state) {
   // Reviews — use comments array (real Hitchwiki experiences) or liveComments from Firebase
   const reviews = spot.liveComments || spot.comments || []
   const displayReviews = reviews.slice(0, 10)
+
+  // Auto-translate comments after render
+  if (displayReviews.some(r => r.text)) {
+    setTimeout(() => autoTranslateComments(spot.id, displayReviews), 300)
+  }
 
   return `
     <div
@@ -242,8 +246,7 @@ export function renderSpotDetail(state) {
           <!-- Description -->
           ${spot.description ? `
           <div style="padding:0 16px 12px">
-            <div style="font-size:13px;color:#94a3b8;line-height:1.5">${escapeHTML(spot.description)}</div>
-            ${renderTranslateButton(spot.description, `spot-desc-${spot.id}`)}
+            <div id="spot-desc-${escapeHTML(String(spot.id))}" style="font-size:13px;color:#94a3b8;line-height:1.5">${escapeHTML(spot.description)}</div>
           </div>
           ` : ''}
 
@@ -255,19 +258,12 @@ export function renderSpotDetail(state) {
           </div>
           ` : ''}
 
-          <!-- Destinations -->
+          <!-- Destinations (from user experiences only) -->
           ${allDests.length > 0 ? `
           <div style="padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px">
             ${allDests.map(d => `<span style="font-size:12px;color:#f59e0b;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.2);padding:5px 10px;border-radius:8px">\u2192 ${escapeHTML(d)}</span>`).join('')}
-            <button type="button" onclick="addDestinationToExistingSpot(${spotIdStr})"
-              style="font-size:12px;color:#475569;background:transparent;border:1px dashed #334155;padding:5px 10px;border-radius:8px;cursor:pointer">+</button>
           </div>
-          ` : `
-          <div style="padding:0 16px 12px">
-            <button type="button" onclick="addDestinationToExistingSpot(${spotIdStr})"
-              style="font-size:12px;color:#475569;background:transparent;border:1px dashed #334155;padding:5px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:4px">+ ${t('addYourDestination') || 'Ajouter ta destination'}</button>
-          </div>
-          `}
+          ` : ''}
 
           <!-- Reviews -->
           ${displayReviews.length > 0 ? `
@@ -287,10 +283,12 @@ export function renderSpotDetail(state) {
                   <span style="font-weight:500">${escapeHTML(review.userName || 'Hitchwiki')}</span>
                   ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
                   ${review.rating ? ` <span style="color:#f59e0b">${'\u2605'.repeat(review.rating)}${'\u2606'.repeat(5 - review.rating)}</span>` : ''}
-                  <span style="color:#64748b">${review.waitTime ? ' · ' + review.waitTime + ' min' : ''}${rMethod ? ' · ' + rMethod : ''}${rGroup ? ' · ' + rGroup : ''}${review.date ? ' · ' + (typeof review.date === 'string' ? formatRelativeDate(review.date) : '') : ''}</span>
+                  <span style="color:#64748b">${review.waitTime ? ' · ' + review.waitTime + ' min' : ''}${rMethod ? ' · ' + rMethod : ''}${rGroup ? ' · ' + rGroup : ''}${review.date ? ' · ' + formatReviewDate(review.date) : ''}</span>
                 </div>
-                ${review.text ? `<div style="font-size:12px;color:#94a3b8">"${escapeHTML(review.text)}"</div>
-                ${renderTranslateButton(review.text, 'spot-comment-' + spot.id + '-' + displayReviews.indexOf(review))}` : ''}
+                ${review.text ? (() => {
+                  const commentId = 'spot-comment-' + spot.id + '-' + displayReviews.indexOf(review)
+                  return `<div id="${commentId}" style="font-size:12px;color:#94a3b8" data-original-text="${escapeHTML(review.text)}">"${escapeHTML(review.text)}"</div>`
+                })() : ''}
               </div>
               `
             }).join('')}
@@ -447,6 +445,70 @@ function formatRelativeDate(dateStr) {
     }
     const years = Math.floor(diffDays / 365)
     return `${years} ${years === 1 ? (t('yearAgo') || 'an') : (t('yearsAgo') || 'ans')}`
+  } catch { return '' }
+}
+
+/**
+ * Auto-translate comments to user's language when spot opens
+ * Uses MyMemory API with localStorage cache to avoid repeated calls
+ */
+async function autoTranslateComments(spotId, reviews) {
+  try {
+    const { detectLanguage } = await import('../../services/autoTranslate.js')
+    const userLang = localStorage.getItem('spothitch_language') || 'fr'
+
+    for (let i = 0; i < reviews.length; i++) {
+      const review = reviews[i]
+      if (!review.text) continue
+
+      const detectedLang = detectLanguage(review.text)
+      if (detectedLang === userLang || detectedLang === 'unknown') continue
+
+      const commentId = `spot-comment-${spotId}-${i}`
+      const el = document.getElementById(commentId)
+      if (!el) continue
+
+      // Check localStorage cache
+      const cacheKey = `spothitch_tr_${detectedLang}_${userLang}_${review.text.substring(0, 40)}`
+      const cached = localStorage.getItem(cacheKey)
+      if (cached) {
+        el.textContent = `"${cached}"`
+        continue
+      }
+
+      // Translate via MyMemory API (small delay between calls)
+      if (i > 0) await new Promise(r => setTimeout(r, 300))
+      const langPair = `${detectedLang}|${userLang}`
+      const res = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(review.text.slice(0, 500))}&langpair=${langPair}`,
+        { signal: AbortSignal.timeout(5000) }
+      )
+      const data = await res.json()
+      const translated = data?.responseData?.translatedText
+      if (translated && translated.toLowerCase() !== review.text.toLowerCase()) {
+        el.textContent = `"${translated}"`
+        try { localStorage.setItem(cacheKey, translated) } catch { /* quota */ }
+      }
+    }
+  } catch { /* offline or API error, keep original text */ }
+}
+
+/**
+ * Format review date: cap at "2+ years" to avoid "12 years ago" on a new app
+ */
+function formatReviewDate(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return ''
+  try {
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return ''
+    const now = new Date()
+    const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24))
+
+    // Recent: normal relative date
+    if (diffDays < 730) return formatRelativeDate(dateStr)
+
+    // Old: cap at "2+ years"
+    return '2+ ' + (t('yearsAgo') || 'ans')
   } catch { return '' }
 }
 
