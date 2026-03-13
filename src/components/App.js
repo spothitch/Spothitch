@@ -627,6 +627,9 @@ export function afterRender(state) {
   }
 
   // Init modal-specific post-render hooks (replaces global MutationObservers)
+  if (state.showAuth) {
+    import('./modals/Auth.js').then(mod => mod.initAuthAfterRender?.())
+  }
   if (state.showAddSpot) {
     import('./modals/AddSpot.js').then(mod => mod.initAddSpotAfterRender?.())
   }

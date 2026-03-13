@@ -51,16 +51,20 @@ export function renderAuth(state) {
 
         <!-- Social Login Buttons -->
         <div class="px-6 space-y-3">
-          <!-- Google -->
-          <button
-            onclick="handleGoogleSignIn()"
-            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-white font-medium"
-            type="button"
-            id="auth-google-btn"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-            ${t('continueWithGoogle')}
-          </button>
+          <!-- Google (with GIS overlay for direct Google popup, no Firebase page) -->
+          <div class="relative" id="auth-google-wrapper">
+            <button
+              onclick="handleGoogleSignIn()"
+              class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-white font-medium"
+              type="button"
+              id="auth-google-btn"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              ${t('continueWithGoogle')}
+            </button>
+            <!-- GIS overlay: invisible Google button that captures clicks -->
+            <div id="gis-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;border-radius:12px;pointer-events:auto"></div>
+          </div>
 
           <!-- Facebook (requires Facebook Developer App — hidden until configured) -->
           <!-- <button onclick="handleFacebookSignIn()" id="auth-facebook-btn">Facebook</button> -->
@@ -552,35 +556,46 @@ window.handleAuth = async (event) => {
   }
 }
 
-window.handleGoogleSignIn = async () => {
-  // Google Sign-In via POPUP — instant, no page reload
+// ==================== GIS OVERLAY INIT ====================
+
+let _gisOverlayReady = false
+
+/**
+ * Called by afterRender when the Auth modal is visible.
+ * Sets up a transparent GIS button overlay on top of the Google button.
+ * When GIS works: user clicks → goes directly to Google (no Firebase page).
+ * When GIS fails: user clicks → falls through to handleGoogleSignIn (signInWithPopup).
+ */
+export function initAuthAfterRender() {
+  if (_gisOverlayReady) return
+  const overlay = document.getElementById('gis-overlay')
+  if (!overlay) return
+
+  import('../../services/firebase.js').then(fb => {
+    fb.initializeFirebase()
+    fb.setupGISOverlay(overlay, (result) => {
+      // GIS callback: Google returned a result (success or error)
+      _handleGoogleResult(result)
+    })
+    _gisOverlayReady = true
+  }).catch(() => {})
+}
+
+/**
+ * Handle Google sign-in result (shared between GIS overlay and signInWithPopup fallback).
+ */
+async function _handleGoogleResult(result) {
   const btn = document.getElementById('auth-google-btn')
   try {
     const fb = await import('../../services/firebase.js')
     const { getState, setState } = await import('../../stores/state.js')
 
-    fb.initializeFirebase()
-
-    // Show loading state
-    if (btn) {
-      btn.disabled = true
-      btn.style.opacity = '0.6'
-      btn.textContent = t('loading') || 'Connexion...'
-    }
-
-    const result = await fb.signInWithGoogle()
-
     if (result?.success && result.user) {
       const user = result.user
-      // Block page reloads for 15s after auth (SW update, version.json)
       window._authJustCompleted = Date.now()
       const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
-
-      // Auto-dismiss landing if it was showing (connexion obligatoire)
       const wasOnLanding = getState().showLanding
 
-      // Set currentUser IMMEDIATELY so onAuthStateChanged guard fires correctly
-      // and doesn't trigger a second re-render while we wait for Firestore.
       setState({
         currentUser: user,
         isLoggedIn: true,
@@ -597,26 +612,20 @@ window.handleGoogleSignIn = async () => {
         ...(wasOnLanding ? { showLanding: false } : {}),
       })
 
-      // Persist landing dismissed flag
       if (wasOnLanding) {
         try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
       }
 
-      // Now load Firestore profile (may take 1-3s on mobile — UI is already shown)
       const profileResult = await fb.createOrUpdateUserProfile(user).catch(() => ({ success: false }))
       fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
 
-      // Check if user needs to complete profile (new user or no username)
       const needsProfile = profileResult?.isNew || !profileResult?.hasUsername
-
       if (needsProfile) {
         setState({ showCompleteProfile: true })
       } else {
         const { showToast } = await import('../../services/notifications.js')
         showToast(t('googleLoginSuccess') || 'Connexion réussie !', 'success')
-        // Sync gamification in background
         import('../../services/gamification.js').then(m => m.loadPointsFromFirestore?.(user.uid)).catch(() => {})
-        // Execute pending action
         const { authPendingAction } = getState()
         if (authPendingAction === 'addSpot') setTimeout(() => window.openAddSpot?.(), 300)
         else if (authPendingAction === 'sos') setTimeout(() => window.openSOS?.(), 300)
@@ -625,14 +634,46 @@ window.handleGoogleSignIn = async () => {
         else if (authPendingAction === 'tripPlanner') setTimeout(() => window.openTripPlanner?.(), 300)
       }
     } else if (result?.error === 'auth/popup-closed-by-user') {
-      // User cancelled — restore button silently
-      if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = '<svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continuer avec Google' }
+      // User cancelled — restore button
+      if (btn) { btn.disabled = false; btn.style.opacity = '1' }
     } else if (result?.error) {
-      // Show error
       if (btn) { btn.disabled = false; btn.style.opacity = '1' }
       const { showError } = await import('../../services/notifications.js')
       showError(t('authError') || 'Erreur de connexion: ' + result.error)
     }
+  } catch (error) {
+    console.error('Google sign in error:', error)
+    if (btn) { btn.disabled = false; btn.style.opacity = '1' }
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('authError') || 'Erreur de connexion')
+  }
+}
+
+// Reset GIS overlay flag when auth modal closes
+const _origCloseAuth = window.closeAuth
+window.closeAuth = () => {
+  _gisOverlayReady = false
+  _origCloseAuth?.()
+}
+
+window.handleGoogleSignIn = async () => {
+  // Fallback: called when GIS overlay is not available (script blocked, GIS not loaded).
+  // Uses signInWithPopup directly — ONE method, no chaining.
+  const btn = document.getElementById('auth-google-btn')
+  try {
+    const fb = await import('../../services/firebase.js')
+
+    fb.initializeFirebase()
+
+    // Show loading state
+    if (btn) {
+      btn.disabled = true
+      btn.style.opacity = '0.6'
+      btn.textContent = t('loading') || 'Connexion...'
+    }
+
+    const result = await fb.signInWithGoogle()
+    await _handleGoogleResult(result)
   } catch (error) {
     console.error('Google sign in error:', error)
     if (btn) { btn.disabled = false; btn.style.opacity = '1' }
