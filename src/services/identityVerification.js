@@ -140,12 +140,12 @@ export const verificationReasons = {
   fr: {
     title: 'Pourquoi se faire verifier ?',
     subtitle: 'La securite est notre priorite',
-    mainReason: 'L\'auto-stop repose sur la confiance entre inconnus. Plus tu es verifie, plus les autres voyageurs te feront confiance !',
+    mainReason: 'L\'auto-stop repose sur la confiance entre inconnus. Plus tu es vérifié, plus les autres voyageurs te feront confiance !',
     reasons: [
       {
         icon: '',
-        title: 'Securite renforcee',
-        description: 'Les profils verifies permettent de voyager plus sereinement. Tu sais a qui tu as affaire.',
+        title: 'Sécurité renforcée',
+        description: 'Les profils vérifiés permettent de voyager plus sereinement. Tu sais à qui tu as affaire.',
       },
       {
         icon: '',

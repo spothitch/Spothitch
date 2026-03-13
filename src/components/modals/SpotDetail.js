@@ -187,13 +187,13 @@ export function renderSpotDetail(state) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" style="vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>
                 ${t('validateBtn') || 'Valider'}
               </span>
-              <span style="font-size:9px;color:#475569;font-weight:400">${t('validateSubtitle') || 'Le spot est toujours la'}</span>
+              <span style="font-size:9px;color:#475569;font-weight:400">${t('validateSubtitle') || 'Le spot est toujours là'}</span>
             </button>
             <button onclick="openTestSpot(${spotIdStr})" type="button"
               style="flex:1;background:#f59e0b;color:#0f1520;border:none;padding:12px 8px 8px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px">
               <span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                ${t('myExperience') || 'Mon experience'}
+                ${t('myExperience') || 'Mon expérience'}
               </span>
               <span style="font-size:9px;color:rgba(15,21,32,0.6);font-weight:400">${t('experienceSubtitle') || "J'ai fait du stop ici"}</span>
             </button>
@@ -202,11 +202,11 @@ export function renderSpotDetail(state) {
           <!-- Dates (2 cards) -->
           <div style="padding:0 16px 12px;display:flex;gap:8px">
             <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
-              <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastTest') || 'Derniere utilisation'}</div>
+              <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastTest') || 'Dernière utilisation'}</div>
               <div style="font-size:12px;color:#e2e8f0">${(spot.liveLastTested || spot.lastTested) ? formatRelativeDate(spot.liveLastTested || spot.lastTested) : '—'}${spot.lastTestedBy ? ' · ' + escapeHTML(spot.lastTestedBy) : ''}</div>
             </div>
             <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
-              <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastValidation') || 'Derniere validation'}</div>
+              <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastValidation') || 'Dernière validation'}</div>
               <div style="font-size:12px;color:#e2e8f0">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}${spot.lastValidatedBy ? ' · ' + escapeHTML(spot.lastValidatedBy) : ''}</div>
             </div>
           </div>
@@ -216,7 +216,7 @@ export function renderSpotDetail(state) {
           <div style="padding:0 16px 12px;display:flex;gap:8px">
             <div style="flex:1;background:#161b28;border-radius:8px;padding:10px;text-align:center">
               <div style="font-size:18px;font-weight:600;color:#f59e0b">${safety || '—'}${safety ? '/5' : ''}</div>
-              <div style="font-size:10px;color:#64748b">${t('safety') || 'Securite'}</div>
+              <div style="font-size:10px;color:#64748b">${t('safety') || 'Sécurité'}</div>
             </div>
             <div style="flex:1;background:#161b28;border-radius:8px;padding:10px;text-align:center">
               <div style="font-size:18px;font-weight:600;color:#3b82f6">${traffic || '—'}${traffic ? '/5' : ''}</div>
