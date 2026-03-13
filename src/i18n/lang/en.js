@@ -4661,4 +4661,16 @@ export default {
   location: 'Location',
   statistics: 'Statistics',
   ratings: 'Ratings',
+
+  // Summary / Preview
+  reviewAndPublish: 'REVIEW AND PUBLISH',
+  reviewAndSubmit: 'Review and submit',
+  summaryTitle: 'Summary',
+  summaryWarning: 'Once published, this spot cannot be edited.',
+  confirmPublish: 'Confirm and publish',
+  confirmSubmit: 'Confirm and submit',
+  noPhoto: 'No photo',
+  modify: 'Edit',
+  removeFromFavorites: 'Removed from favorites',
+  addToFavorites: 'Added to favorites',
 }

@@ -9,6 +9,7 @@
 
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
+import { escapeHTML } from '../../utils/sanitize.js'
 
 // Wait time slider steps (minutes)
 const WAIT_STEPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 45, 60, 90, 120, 180]
@@ -21,6 +22,7 @@ window.validateFormData = window.validateFormData || {
   timeOfDay: null,
   directionCity: null,
   directionCityCoords: null,
+  extraDestinations: [],
   ratings: { safety: 0, traffic: 0, accessibility: 0 },
   tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
   photos: [],
@@ -201,6 +203,35 @@ export function renderValidateSpot(state) {
                 placeholder="${t('destinationCity') || 'Direction'}" required aria-required="true" />
             </div>
 
+            <!-- Extra destinations -->
+            <div>
+              ${(vf.extraDestinations || []).map((d, i) => `
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="flex-1 text-sm text-amber-400 border-b border-amber-400 px-2 py-1">
+                    ${icon('map-pin', 'w-3.5 h-3.5 inline mr-1')} ${escapeHTML(d.city)}
+                  </span>
+                  <button type="button" onclick="removeValDestination(${i})"
+                    class="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center text-red-400"
+                    aria-label="${t('removeDestination') || 'Supprimer'}">
+                    ${icon('x', 'w-4 h-4')}
+                  </button>
+                </div>
+              `).join('')}
+              ${(vf.extraDestinations || []).length < 4 ? `
+                <div class="relative" id="val-extra-dest-wrapper" style="display:none">
+                  <input type="text" id="val-extra-dest" class="input-modern text-sm"
+                    placeholder="${t('destinationCityPlaceholder') || 'Ville de destination'}" />
+                </div>
+                <button type="button" onclick="addValDestination()"
+                  class="w-full text-xs text-slate-500 py-2 flex items-center justify-center gap-1"
+                  id="val-add-dest-btn">
+                  ${icon('plus', 'w-3.5 h-3.5')} ${t('addDestination') || 'Ajouter une destination'}
+                </button>
+              ` : `
+                <div class="text-xs text-slate-500 text-center">${t('maxDestinations') || 'Maximum 5 destinations'}</div>
+              `}
+            </div>
+
             <!-- Amenities -->
             <div>
               <label class="text-sm text-slate-400 block mb-2">
@@ -257,7 +288,7 @@ export function renderValidateSpot(state) {
               </label>
               <input type="file" id="val-photo" accept="image/*" capture="environment"
                 class="hidden" onchange="handleValidationPhoto(event)" />
-              ${(vf.photos?.length || 0) < 3 ? `
+              ${(vf.photos?.length || 0) < 5 ? `
               <button type="button" onclick="document.getElementById('val-photo')?.click()"
                 class="btn btn-ghost btn-sm w-full">
                 ${icon('camera', 'w-4 h-4')} ${t('takePhoto')}
@@ -278,8 +309,8 @@ export function renderValidateSpot(state) {
             </div>
 
             <!-- Submit -->
-            <button type="submit" class="btn btn-primary w-full text-lg" id="val-submit-btn">
-              ${icon('circle-check', 'w-5 h-5')} ${t('submitValidation') || 'Envoyer ma validation'}
+            <button type="button" onclick="showValidationSummary()" class="btn btn-primary w-full text-lg" id="val-submit-btn">
+              ${icon('circle-check', 'w-5 h-5')} ${t('reviewAndSubmit') || 'Vérifier et envoyer'}
             </button>
           </form>
         </div>
@@ -294,7 +325,7 @@ window.openValidateSpot = async (spotId) => {
   const { setState } = await import('../../stores/state.js')
   window.validateFormData = {
     waitTime: 10, method: null, groupSize: null, timeOfDay: null,
-    directionCity: null, directionCityCoords: null,
+    directionCity: null, directionCityCoords: null, extraDestinations: [],
     ratings: { safety: 0, traffic: 0, accessibility: 0 },
     tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
     photos: [], comment: '', rideResult: null,
@@ -307,7 +338,7 @@ window.openTestSpot = async (spotId) => {
   const { setState } = await import('../../stores/state.js')
   window.validateFormData = {
     waitTime: 10, method: null, groupSize: null, timeOfDay: null,
-    directionCity: null, directionCityCoords: null,
+    directionCity: null, directionCityCoords: null, extraDestinations: [],
     ratings: { safety: 0, traffic: 0, accessibility: 0 },
     tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
     photos: [], comment: '', rideResult: null,
@@ -373,6 +404,56 @@ window.toggleValAmenity = (name) => {
   if (chip) chip.classList.toggle('active', window.validateFormData.tags[name])
 }
 
+// Multi-destination handlers for validation form
+window.addValDestination = async () => {
+  if (!window.validateFormData.extraDestinations) window.validateFormData.extraDestinations = []
+  if (window.validateFormData.extraDestinations.length >= 4) {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('maxDestinations'))
+    return
+  }
+  const wrapper = document.getElementById('val-extra-dest-wrapper')
+  const btn = document.getElementById('val-add-dest-btn')
+  if (wrapper && btn) {
+    wrapper.style.display = 'block'
+    btn.style.display = 'none'
+    const input = document.getElementById('val-extra-dest')
+    if (input) {
+      input.focus()
+      const { initAutocomplete } = await import('../../utils/autocomplete.js')
+      const { searchPhoton } = await import('../../services/osrm.js')
+      initAutocomplete({
+        inputId: 'val-extra-dest',
+        searchFn: (q) => searchPhoton(q, {}),
+        debounceMs: 100,
+        forceSelection: true,
+        onSelect: async (item) => {
+          const city = item.name
+          const mainDest = window.validateFormData.directionCity || ''
+          const extras = window.validateFormData.extraDestinations || []
+          const allCities = [mainDest, ...extras.map(d => d.city)].map(c => c.toLowerCase())
+          if (allCities.includes(city.toLowerCase())) {
+            const { showError } = await import('../../services/notifications.js')
+            showError(t('destinationAlreadyExists'))
+            return
+          }
+          window.validateFormData.extraDestinations.push({ city, coords: { lat: item.lat, lng: item.lng } })
+          const { setState } = await import('../../stores/state.js')
+          setState({ _valRefresh: Date.now() })
+        },
+        onClear: () => {},
+      })
+    }
+  }
+}
+
+window.removeValDestination = async (index) => {
+  if (!window.validateFormData.extraDestinations) return
+  window.validateFormData.extraDestinations.splice(index, 1)
+  const { setState } = await import('../../stores/state.js')
+  setState({ _valRefresh: Date.now() })
+}
+
 window.handleValidationPhoto = async (event) => {
   const file = event.target.files?.[0]
   if (!file) return
@@ -397,6 +478,77 @@ window.removeValPhoto = async (index) => {
   if (!window.validateFormData.photos) return
   window.validateFormData.photos.splice(index, 1)
   import('../../stores/state.js').then(({ setState }) => setState({ _valRefresh: Date.now() }))
+}
+
+// Show summary before submitting validation
+window.showValidationSummary = async () => {
+  const vf = window.validateFormData
+  const directionCity = document.getElementById('val-direction-city')?.value?.trim() || vf.directionCity || ''
+  const comment = document.getElementById('val-comment')?.value?.trim() || ''
+
+  // Quick validation
+  const { showError } = await import('../../services/notifications.js')
+  if (!directionCity) { showError(t('destinationRequired') || 'Direction obligatoire'); return }
+  if (!vf.method) { showError(t('methodRequired')); return }
+  if (!vf.groupSize) { showError(t('groupSizeRequired')); return }
+  if (!vf.timeOfDay) { showError(t('timeOfDayRequired')); return }
+  if (!vf.rideResult) { showError(t('rideResultRequired')); return }
+  if (!vf.ratings.safety || !vf.ratings.traffic || !vf.ratings.accessibility) {
+    showError(t('ratingsRequired') || 'Note les 3 critères'); return
+  }
+
+  const methodLabels = { sign: t('methodSign') || 'Panneau', thumb: t('methodThumb') || 'Pouce', asking: t('methodAsking') || 'En demandant' }
+  const groupLabels = { solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+' }
+  const timeLabels = { morning: t('timeMorning') || 'Matin', afternoon: t('timeAfternoon') || 'Après-midi', evening: t('timeEvening') || 'Soir', night: t('timeNight') || 'Nuit' }
+  const rideLabels = { yes: '✅ ' + (t('yes') || 'Oui'), no: '❌ ' + (t('no') || 'Non'), gaveUp: '🏳️ ' + (t('gaveUp') || 'Abandonné') }
+
+  const allDests = [directionCity, ...(vf.extraDestinations || []).map(d => d.city)].filter(Boolean)
+  const r = vf.ratings
+  const photoCount = (vf.photos || []).length
+
+  const row = (label, value) => value ? `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b">
+      <span style="font-size:12px;color:#64748b">${escapeHTML(label)}</span>
+      <span style="font-size:12px;color:#e2e8f0;text-align:right;max-width:60%">${escapeHTML(String(value))}</span>
+    </div>` : ''
+
+  const overlay = document.createElement('div')
+  overlay.id = 'val-summary-overlay'
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px'
+  overlay.innerHTML = `
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)" onclick="closeValSummary()"></div>
+    <div style="position:relative;background:#0f1520;border:1px solid #1e293b;border-radius:12px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;padding:20px" onclick="event.stopPropagation()">
+      <h3 style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:16px;text-align:center">${t('summaryTitle') || 'Récapitulatif'}</h3>
+
+      ${row(t('destinationCity') || 'Direction', allDests.join(', '))}
+      ${row(t('waitTimeLabel') || 'Attente', vf.waitTime ? (vf.waitTime >= 180 ? '3h+' : vf.waitTime + ' min') : '')}
+      ${row(t('practicalTips') || 'Méthode', methodLabels[vf.method] || '')}
+      ${row(t('groupSizeLabel') || 'Groupe', groupLabels[vf.groupSize] || '')}
+      ${row(t('timeOfDayLabel') || 'Moment', timeLabels[vf.timeOfDay] || '')}
+      ${row(t('gotARide') || 'Lift obtenu', rideLabels[vf.rideResult] || '')}
+      ${row(t('safety') || 'Sécurité', r.safety + '/5')}
+      ${row(t('traffic') || 'Trafic', r.traffic + '/5')}
+      ${row(t('accessibility') || 'Accessibilité', r.accessibility + '/5')}
+      ${comment ? row(t('addComment') || 'Commentaire', comment.length > 80 ? comment.slice(0, 80) + '...' : comment) : ''}
+      ${row(t('photoLabel') || 'Photos', photoCount > 0 ? photoCount + ' photo' + (photoCount > 1 ? 's' : '') : (t('optional') || 'Aucune'))}
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button type="button" onclick="closeValSummary()"
+          style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;padding:12px;font-size:13px;cursor:pointer;border-radius:8px">
+          ${t('modify') || 'Modifier'}
+        </button>
+        <button type="button" onclick="closeValSummary();submitValidation()"
+          style="flex:2;background:#f59e0b;border:none;color:#0f1520;padding:12px;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px">
+          ${t('confirmSubmit') || 'Confirmer et envoyer'}
+        </button>
+      </div>
+    </div>
+  `
+  document.body.appendChild(overlay)
+}
+
+window.closeValSummary = () => {
+  document.getElementById('val-summary-overlay')?.remove()
 }
 
 window.submitValidation = async (event) => {
@@ -440,6 +592,12 @@ window.submitValidation = async (event) => {
     // Determine mode: 'test' = full hitchhiking experience, 'validate' = confirm spot exists
     const mode = state.validateSpotMode || 'test'
 
+    // Build destinations array (primary + extras)
+    const destinations = [{ city: directionCity, coords: vf.directionCityCoords || null }]
+    for (const extra of (vf.extraDestinations || [])) {
+      destinations.push({ city: extra.city, coords: extra.coords || null })
+    }
+
     // Build validation data — ALL structured
     const validationData = {
       spotId,
@@ -450,6 +608,7 @@ window.submitValidation = async (event) => {
       timeOfDay: vf.timeOfDay,
       rideResult: vf.rideResult,
       directionCity: directionCity,
+      destinations,
       ratings: vf.ratings,
       tags: vf.tags || {},
       comment: comment,
