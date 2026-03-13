@@ -201,15 +201,15 @@ export async function resolveShortMapUrl(shortUrl) {
 }
 
 /**
- * Geocode a place name. Tries Photon (fast) then Nominatim (reliable) as fallback.
- * @param {string} place
+ * Try a single geocode query against Photon then Nominatim.
+ * @param {string} query
  * @returns {Promise<{ lat: number, lng: number } | null>}
  */
-export async function geocodePlace(place) {
-  // Strategy 1: Photon API (Komoot, fast, no rate limit)
+async function tryGeocode(query) {
+  // Photon API (Komoot, fast, no rate limit)
   try {
     const res = await fetch(
-      `https://photon.komoot.io/api/?q=${encodeURIComponent(place)}&limit=1`,
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1`,
       { signal: AbortSignal.timeout(3000) }
     )
     const data = await res.json()
@@ -218,14 +218,12 @@ export async function geocodePlace(place) {
       const [lng, lat] = feature.geometry.coordinates
       if (isValidCoord(lat, lng)) return { lat, lng }
     }
-  } catch {
-    // Photon unavailable, try Nominatim
-  }
+  } catch { /* Photon unavailable */ }
 
-  // Strategy 2: Nominatim (OpenStreetMap, more reliable, 1 req/s limit)
+  // Nominatim (OpenStreetMap, more reliable, 1 req/s limit)
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`,
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
       { signal: AbortSignal.timeout(5000), headers: { 'User-Agent': 'SpotHitch/2.0' } }
     )
     const data = await res.json()
@@ -234,10 +232,65 @@ export async function geocodePlace(place) {
       const lng = parseFloat(data[0].lon)
       if (isValidCoord(lat, lng)) return { lat, lng }
     }
-  } catch {
-    // Both geocoders failed
+  } catch { /* Both failed */ }
+
+  return null
+}
+
+/**
+ * Generate simplified versions of a place name for progressive geocoding.
+ * Google Maps titles are often "Brand/Store - Location, City, Country"
+ * which geocoders can't handle, but "Location, City" works.
+ */
+function simplifyPlaceName(place) {
+  const variants = []
+
+  // 1. Original name
+  variants.push(place)
+
+  // 2. After the last dash (often contains the location part)
+  if (place.includes(' - ')) {
+    variants.push(place.split(' - ').pop().trim())
   }
 
+  // 3. After the first comma onward (address part)
+  const commaIdx = place.indexOf(',')
+  if (commaIdx > 0) {
+    variants.push(place.slice(commaIdx + 1).trim())
+  }
+
+  // 4. Last 2-3 words (often city + country)
+  const words = place.replace(/[,]/g, '').split(/\s+/).filter(w => w.length > 1)
+  if (words.length > 3) {
+    variants.push(words.slice(-3).join(' '))
+    variants.push(words.slice(-2).join(' '))
+  }
+
+  // 5. Remove common noise words (ATM, branch, store, etc.) and retry
+  const cleaned = place
+    .replace(/\b(ATM|branch|store|shop|mart|outlet|kiosk|located at|plot|phum)\b/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+  if (cleaned !== place && cleaned.length > 2) {
+    variants.push(cleaned)
+  }
+
+  // Deduplicate and filter
+  return [...new Set(variants)].filter(v => v.length >= 2)
+}
+
+/**
+ * Geocode a place name with progressive simplification.
+ * Tries the full name first, then simplified versions.
+ * @param {string} place
+ * @returns {Promise<{ lat: number, lng: number } | null>}
+ */
+export async function geocodePlace(place) {
+  const variants = simplifyPlaceName(place)
+  for (const query of variants) {
+    const result = await tryGeocode(query)
+    if (result) return result
+  }
   return null
 }
 
