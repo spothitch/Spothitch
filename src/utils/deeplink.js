@@ -130,9 +130,23 @@ async function processShare() {
   // Clear sessionStorage so this share isn't re-processed on next focus
   try { sessionStorage.removeItem('spothitch_pending_share') } catch { /* no-op */ }
 
-  // Dismiss landing/welcome immediately
+  // Dismiss ALL blocking popups immediately
   setState({ showLanding: false, showWelcome: false })
   try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
+  try { localStorage.setItem('spothitch_beta_seen', '1') } catch { /* no-op */ }
+  try { localStorage.setItem('spothitch_v4_cookie_consent', JSON.stringify({ preferences: { necessary: true, analytics: false, marketing: false, personalization: false }, timestamp: Date.now(), version: '1.0' })) } catch { /* no-op */ }
+  // Remove blocking overlays from DOM (now + observe for late renders)
+  const removeBlockers = () => {
+    document.getElementById('alpha-welcome-overlay')?.remove()
+    document.getElementById('cookie-banner')?.remove()
+  }
+  removeBlockers()
+  // Some popups render later — watch DOM for 10s to catch them
+  try {
+    const obs = new MutationObserver(() => removeBlockers())
+    obs.observe(document.body || document.documentElement, { childList: true, subtree: true })
+    setTimeout(() => obs.disconnect(), 10000)
+  } catch { /* no-op */ }
 
   // Show immediate feedback so user knows something is happening
   try { showToast('📍 Resolving shared location...', 'info') } catch { /* notifications not loaded yet */ }
@@ -272,10 +286,14 @@ export function handleDeepLink() {
   const hasShareParams = !action && (params.get('title') || params.get('text') || params.get('url'))
   const effectiveAction = action || (hasShareParams ? 'share' : null)
 
-  // Early share detection: immediately dismiss landing/welcome so share can take priority
+  // Early share detection: immediately dismiss ALL blocking popups so share can take priority
   if (effectiveAction === 'share') {
     setState({ showLanding: false, showWelcome: false })
     try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
+    try { localStorage.setItem('spothitch_beta_seen', '1') } catch { /* no-op */ }
+    try { localStorage.setItem('spothitch_v4_cookie_consent', JSON.stringify({ preferences: { necessary: true, analytics: false, marketing: false, personalization: false }, timestamp: Date.now(), version: '1.0' })) } catch { /* no-op */ }
+    try { document.getElementById('alpha-welcome-overlay')?.remove() } catch { /* no-op */ }
+    try { document.getElementById('cookie-banner')?.remove() } catch { /* no-op */ }
   }
 
   if (effectiveAction && Object.prototype.hasOwnProperty.call(ACTIONS, effectiveAction)) {
