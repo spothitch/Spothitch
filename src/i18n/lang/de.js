@@ -4725,7 +4725,4 @@ export default {
   confirmPublish: 'Bestätigen und veröffentlichen',
   confirmSubmit: 'Bestätigen und senden',
   noPhoto: 'Kein Foto',
-  modify: 'Bearbeiten',
-  removeFromFavorites: 'Aus Favoriten entfernt',
-  addToFavorites: 'Zu Favoriten hinzugefügt',
 }

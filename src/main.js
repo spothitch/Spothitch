@@ -2992,7 +2992,8 @@ window.shareSOS = () => window.shareSOSLink?.()
 
 // Lazy modal stubs — canonical handlers defined in their respective modules,
 // these stubs ensure buttons always work before the module is first loaded.
-if (!window.toggleFavorite) window.toggleFavorite = async (spotId) => {
+if (!window.toggleFavorite) {
+  window.toggleFavorite = async (spotId) => {
   if (!spotId) return
   try {
     const { isFavorite, addFavorite, removeFavorite } = await import('./services/favorites.js')
@@ -3013,6 +3014,7 @@ if (!window.toggleFavorite) window.toggleFavorite = async (spotId) => {
     }
   } catch (e) {
     console.error('toggleFavorite failed:', e)
+  }
   }
 }
 if (!window.openAdminPanel) window.openAdminPanel = () => setState({ showAdminPanel: true })

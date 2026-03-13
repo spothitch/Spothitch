@@ -392,9 +392,7 @@ async function loadMapillaryForHero(lat, lng, spotId) {
         </div>
       `
 
-      // Re-add the overlay buttons (back, heart, share, type badge)
-      const overlayButtons = heroContainer.parentElement?.querySelectorAll('[style*="position:absolute"]')
-      // Buttons are already in the parent container, they won't be affected
+      // Overlay buttons (back, heart, share, type badge) are in the parent container — unaffected
     } else if (document.getElementById('spot-hero-placeholder')) {
       // No Mapillary photos found — show static placeholder
       const loadingEl = document.getElementById('spot-hero-loading')

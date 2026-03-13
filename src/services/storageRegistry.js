@@ -125,6 +125,8 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_notifications', category: DataCategory.SETTINGS, description: 'Legacy notification prefs' },
   { key: 'spothitch_push_config', category: DataCategory.SETTINGS, description: 'Push notification opt-in config' },
   { key: 'spothitch_test_mode', category: DataCategory.SETTINGS, description: 'Developer test mode bypass for auth' },
+  { key: 'spothitch_beta_seen', category: DataCategory.SETTINGS, description: 'Beta banner dismissed flag' },
+  { key: 'spothitch_v4_cookie_consent', category: DataCategory.SETTINGS, description: 'Cookie consent preferences (RGPD)' },
 
   // === SECURITY ===
   { key: 'spothitch_2fa_enabled', category: DataCategory.SECURITY, description: '2FA enabled flag', sensitive: true },
