@@ -567,12 +567,20 @@ async function init() {
     // Trigger initial render
     scheduleRender(() => render(getState()));
 
-    // TEMPORARY DEBUG: show URL as toast so user can see what Chrome sent
+    // TEMPORARY DEBUG: show share params as toast so user can see what Chrome sent
     setTimeout(() => {
       try {
         const q = window.location.search
-        if (q) showToast('URL: ' + q.slice(0, 120), 'info', 8000)
-        else showToast('URL: (pas de paramètres)', 'info', 5000)
+        if (q) {
+          const p = new URLSearchParams(q)
+          const parts = []
+          if (p.get('action')) parts.push('action=' + p.get('action'))
+          if (p.get('title')) parts.push('TITLE: ' + p.get('title').slice(0, 80))
+          if (p.get('text')) parts.push('TEXT: ' + p.get('text').slice(0, 120))
+          if (p.get('url')) parts.push('URL: ' + p.get('url').slice(0, 120))
+          if (parts.length === 0) parts.push('params: ' + q.slice(0, 150))
+          showToast(parts.join('\n'), 'info', 15000)
+        }
       } catch { /* no-op */ }
     }, 2000)
 
