@@ -4667,7 +4667,4 @@ export default {
   confirmPublish: 'Confirmar y publicar',
   confirmSubmit: 'Confirmar y enviar',
   noPhoto: 'Sin foto',
-  modify: 'Modificar',
-  removeFromFavorites: 'Eliminado de favoritos',
-  addToFavorites: 'Añadido a favoritos',
 }
