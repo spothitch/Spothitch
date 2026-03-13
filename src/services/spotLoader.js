@@ -234,7 +234,14 @@ function convertToAppFormat(rawSpots, countryCode) {
       const legal = legalityByCountry[countryCode]
 
       // Pick description by user language (enriched spots have descriptionEn/Fr/Es/De)
-      const userLang = (typeof localStorage !== 'undefined' && localStorage.getItem('spothitch_lang')) || 'en'
+      let userLang = 'en'
+      try {
+        const persisted = typeof localStorage !== 'undefined' && localStorage.getItem('spothitch_v4_state')
+        if (persisted) {
+          const parsed = JSON.parse(persisted)
+          if (parsed && parsed.lang) userLang = parsed.lang
+        }
+      } catch { /* default to en */ }
       const langDescMap = { fr: s.descriptionFr, en: s.descriptionEn, es: s.descriptionEs, de: s.descriptionDe }
       const rawDesc = langDescMap[userLang] || s.descriptionEn || s.comments?.[0]?.text || ''
       // Clean "Tested by X hitchhikers." patterns in all 4 languages
@@ -298,7 +305,11 @@ function convertToAppFormat(rawSpots, countryCode) {
         attribution: s.attribution || 'Hitchwiki (ODBL)',
         country: countryCode,
         signal: s.signal,
-        comments: s.comments || [],
+        comments: (s.comments || []).map(c => {
+          // Use pre-translated comment text if available
+          const langKey = `text${userLang.charAt(0).toUpperCase() + userLang.slice(1)}`
+          return { ...c, text: c[langKey] || c.text || '' }
+        }),
         // Legal info from guides.js (for SpotDetail A4)
         _legality: legal?.legality || null,
         _legalityText: legal?.text || null,
