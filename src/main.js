@@ -567,14 +567,30 @@ async function init() {
     // Trigger initial render
     scheduleRender(() => render(getState()));
 
-    // TEMPORARY DEBUG: show URL as toast so user can see what Chrome sent
+    // TEMPORARY DEBUG: show share params as big overlay so user can see what Chrome sent
     setTimeout(() => {
       try {
         const q = window.location.search
-        if (q) showToast('URL: ' + q.slice(0, 120), 'info', 8000)
-        else showToast('URL: (pas de paramètres)', 'info', 5000)
+        if (q) {
+          const p = new URLSearchParams(q)
+          const dbg = document.createElement('div')
+          dbg.id = 'share-debug'
+          dbg.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#000;color:#0f0;font:14px monospace;padding:16px;max-height:60vh;overflow:auto;white-space:pre-wrap;word-break:break-all;'
+          const lines = ['=== SHARE DEBUG ===', 'Full URL: ' + q.slice(0, 300)]
+          lines.push('action: ' + (p.get('action') || '(vide)'))
+          lines.push('title: ' + (p.get('title') || '(vide)'))
+          lines.push('text: ' + (p.get('text') || '(vide)'))
+          lines.push('url: ' + (p.get('url') || '(vide)'))
+          dbg.textContent = lines.join('\n')
+          const closeBtn = document.createElement('button')
+          closeBtn.textContent = 'FERMER'
+          closeBtn.style.cssText = 'display:block;margin-top:12px;padding:8px 24px;background:#f00;color:#fff;border:none;font-size:16px;border-radius:4px;'
+          closeBtn.onclick = () => dbg.remove()
+          dbg.appendChild(closeBtn)
+          document.body.appendChild(dbg)
+        }
       } catch { /* no-op */ }
-    }, 2000)
+    }, 1500)
 
     // Handle deep links from URL params
     try {

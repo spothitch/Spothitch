@@ -46,7 +46,11 @@ let _lastProcessedShareId = ''
  */
 export function captureShareParams() {
   const search = window.location.search
-  if (!search.includes('action=share')) return false
+  // Detect share: either explicit action=share OR title/text/url params from share_target
+  const params = new URLSearchParams(search)
+  const hasShareAction = search.includes('action=share')
+  const hasShareParams = params.get('title') || params.get('text') || params.get('url')
+  if (!hasShareAction && !hasShareParams) return false
   try {
     const params = new URLSearchParams(search)
     const data = {
@@ -67,10 +71,12 @@ export function captureShareParams() {
  * Returns null if no share is pending.
  */
 function getShareParams() {
-  // Source 1: Current URL
+  // Source 1: Current URL — detect via action=share OR any share-like params
   const search = window.location.search
-  if (search.includes('action=share')) {
-    const params = new URLSearchParams(search)
+  const params = new URLSearchParams(search)
+  const hasShareAction = search.includes('action=share')
+  const hasShareParams = params.get('title') || params.get('text') || params.get('url')
+  if (hasShareAction || hasShareParams) {
     return {
       url: params.get('url') || '',
       text: params.get('text') || '',
@@ -262,14 +268,18 @@ export function handleDeepLink() {
   // Handle action (validated against known whitelist)
   const action = params.get('action');
 
+  // Detect share even without action=share: if title/text/url params are present
+  const hasShareParams = !action && (params.get('title') || params.get('text') || params.get('url'))
+  const effectiveAction = action || (hasShareParams ? 'share' : null)
+
   // Early share detection: immediately dismiss landing/welcome so share can take priority
-  if (action === 'share') {
+  if (effectiveAction === 'share') {
     setState({ showLanding: false, showWelcome: false })
     try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
   }
 
-  if (action && Object.prototype.hasOwnProperty.call(ACTIONS, action)) {
-    const handler = ACTIONS[action];
+  if (effectiveAction && Object.prototype.hasOwnProperty.call(ACTIONS, effectiveAction)) {
+    const handler = ACTIONS[effectiveAction];
     setTimeout(() => {
       try {
         const result = handler()
@@ -413,8 +423,10 @@ export function initDeepLinkListener() {
   // processShare() checks both URL and sessionStorage, so it works
   // even if the URL wasn't updated.
   const checkForShare = () => {
-    // Check URL
-    if (window.location.search.includes('action=share')) {
+    const search = window.location.search
+    const params = new URLSearchParams(search)
+    // Check URL: action=share OR title/text/url params from share_target
+    if (search.includes('action=share') || params.get('title') || params.get('text') || params.get('url')) {
       processShare()
       return
     }
@@ -450,22 +462,23 @@ export function initDeepLinkListener() {
     window.launchQueue.setConsumer((launchParams) => {
       if (launchParams.targetURL) {
         shareLog('launchQueue', launchParams.targetURL)
-        if (launchParams.targetURL.includes('action=share')) {
+        const parsed = new URL(launchParams.targetURL)
+        const lqParams = new URLSearchParams(parsed.search)
+        const isShare = launchParams.targetURL.includes('action=share') || lqParams.get('title') || lqParams.get('text') || lqParams.get('url')
+        if (isShare) {
           // Save share params to sessionStorage and update URL
           try {
-            const parsed = new URL(launchParams.targetURL)
-            const params = new URLSearchParams(parsed.search)
             const data = {
-              url: params.get('url') || '',
-              text: params.get('text') || '',
-              title: params.get('title') || '',
+              url: lqParams.get('url') || '',
+              text: lqParams.get('text') || '',
+              title: lqParams.get('title') || '',
               ts: Date.now(),
               search: parsed.search,
             }
             sessionStorage.setItem('spothitch_pending_share', JSON.stringify(data))
           } catch { /* no-op */ }
 
-          if (window.location.search !== new URL(launchParams.targetURL).search) {
+          if (window.location.search !== parsed.search) {
             window.history.replaceState({}, '', launchParams.targetURL)
           }
           // Reset guard so this new share gets processed
