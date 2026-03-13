@@ -2992,6 +2992,29 @@ window.shareSOS = () => window.shareSOSLink?.()
 
 // Lazy modal stubs — canonical handlers defined in their respective modules,
 // these stubs ensure buttons always work before the module is first loaded.
+if (!window.toggleFavorite) window.toggleFavorite = async (spotId) => {
+  if (!spotId) return
+  try {
+    const { isFavorite, addFavorite, removeFavorite } = await import('./services/favorites.js')
+    const currently = isFavorite(spotId)
+    if (currently) {
+      await removeFavorite(spotId)
+      window.showToast?.(t('removeFromFavorites') || 'Retiré des favoris', 'success')
+    } else {
+      await addFavorite(spotId)
+      window.showToast?.(t('addToFavorites') || 'Ajouté aux favoris', 'success')
+    }
+    // Update heart icon in SpotDetail
+    const heartBtn = document.querySelector('[data-favorite-btn]')
+    if (heartBtn) {
+      const isFav = isFavorite(spotId)
+      const svg = heartBtn.querySelector('svg')
+      if (svg) svg.setAttribute('fill', isFav ? '#f59e0b' : 'none')
+    }
+  } catch (e) {
+    console.error('toggleFavorite failed:', e)
+  }
+}
 if (!window.openAdminPanel) window.openAdminPanel = () => setState({ showAdminPanel: true })
 if (!window.openMyData) window.openMyData = () => setState({ showMyData: true })
 // openConsentSettings — canonical in MyData.js, rendered inside that modal

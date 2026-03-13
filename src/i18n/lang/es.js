@@ -4658,4 +4658,16 @@ export default {
   location: 'Ubicación',
   statistics: 'Estadísticas',
   ratings: 'Valoraciones',
+
+  // Summary / Preview
+  reviewAndPublish: 'REVISAR Y PUBLICAR',
+  reviewAndSubmit: 'Revisar y enviar',
+  summaryTitle: 'Resumen',
+  summaryWarning: 'Una vez publicado, este spot no se puede modificar.',
+  confirmPublish: 'Confirmar y publicar',
+  confirmSubmit: 'Confirmar y enviar',
+  noPhoto: 'Sin foto',
+  modify: 'Modificar',
+  removeFromFavorites: 'Eliminado de favoritos',
+  addToFavorites: 'Añadido a favoritos',
 }

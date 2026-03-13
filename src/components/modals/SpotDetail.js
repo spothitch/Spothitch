@@ -6,6 +6,7 @@
 import { t } from '../../i18n/index.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { renderMiniTrustBadge } from '../../services/trustScore.js'
+import { isFavorite } from '../../services/favorites.js'
 import '../../utils/navigation.js' // Registers window.showNavigationPicker
 
 export function renderSpotDetail(state) {
@@ -81,6 +82,7 @@ export function renderSpotDetail(state) {
   const seasonEmoji = spot.season === 'spring' ? '🌸' : spot.season === 'summer' ? '☀️' : spot.season === 'autumn' ? '🍂' : spot.season === 'winter' ? '❄️' : ''
 
   const hasTags = methodLabel || groupLabel || bestTime || seasonLabel
+  const isFav = isFavorite(spot.id)
 
   // Active amenities only
   const tags = spot.tags || {}
@@ -134,8 +136,9 @@ export function renderSpotDetail(state) {
           <!-- Heart + Share (top-right) -->
           <div style="position:absolute;top:12px;right:12px;z-index:2;display:flex;gap:6px">
             <button onclick="event.stopPropagation();toggleFavorite('${escapeJSString(String(spot.id))}')" type="button"
+              data-favorite-btn
               style="width:32px;height:32px;background:rgba(15,21,32,0.7);backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? '#f59e0b' : 'none'}" stroke="${isFav ? '#f59e0b' : '#e2e8f0'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
             </button>
             <button onclick="event.stopPropagation();openShareCard()" type="button"
               style="width:32px;height:32px;background:rgba(15,21,32,0.7);backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer">
@@ -455,7 +458,14 @@ function formatRelativeDate(dateStr) {
 async function autoTranslateComments(spotId, reviews) {
   try {
     const { detectLanguage } = await import('../../services/autoTranslate.js')
-    const userLang = localStorage.getItem('spothitch_language') || 'fr'
+    let userLang = 'fr'
+    try {
+      const persisted = localStorage.getItem('spothitch_v4_state')
+      if (persisted) {
+        const parsed = JSON.parse(persisted)
+        if (parsed && parsed.lang) userLang = parsed.lang
+      }
+    } catch { /* default to fr */ }
 
     for (let i = 0; i < reviews.length; i++) {
       const review = reviews[i]

@@ -358,6 +358,8 @@ function renderStep2(state) {
         <div style="display:flex;gap:0;border-bottom:1px solid #334155">
           <div onclick="setRideResult('yes')" role="button" tabindex="0"
             style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'yes' ? 'color:#22c55e;border-bottom:2px solid #22c55e;margin-bottom:-1px' : 'color:#64748b'}">${t('yes') || 'Oui'}</div>
+          <div onclick="setRideResult('no')" role="button" tabindex="0"
+            style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'no' ? 'color:#ef4444;border-bottom:2px solid #ef4444;margin-bottom:-1px' : 'color:#64748b'}">${t('no') || 'Non'}</div>
           <div onclick="setRideResult('gaveUp')" role="button" tabindex="0"
             style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'gaveUp' ? 'color:#64748b;border-bottom:2px solid #64748b;margin-bottom:-1px' : 'color:#64748b'}">${t('gaveUp') || 'Abandonné'}</div>
         </div>
@@ -453,9 +455,9 @@ function renderStep3(state) {
           ${t('previewModeClose') || 'FERMER'}
         </button>
         ` : `
-        <button type="submit"
+        <button type="button" onclick="showSpotSummary()"
           style="flex:2;background:#f59e0b;border:none;color:#0f1520;border-radius:0;padding:14px;font-size:14px;font-weight:600;cursor:pointer;text-transform:uppercase" id="submit-spot-btn">
-          ${t('publish') || 'PUBLIER'}
+          ${t('reviewAndPublish') || 'VÉRIFIER ET PUBLIER'}
         </button>
         `}
       </div>
@@ -738,7 +740,8 @@ window.setTimeOfDay = (time) => {
 // Ride result — DOM-only, no re-render (prevents data loss)
 window.setRideResult = (result) => {
   window.spotFormData.rideResult = result
-  updateTabBar('[onclick*="setRideResult"]', result, result === 'yes' ? '#22c55e' : '#64748b')
+  const color = result === 'yes' ? '#22c55e' : result === 'no' ? '#ef4444' : '#64748b'
+  updateTabBar('[onclick*="setRideResult"]', result, color)
 }
 
 // Multi-destination handlers
@@ -1469,6 +1472,113 @@ export function initAddSpotAfterRender() {
     // Cleanup fullscreen map if modal closes
     closeFullscreenMapPicker()
   }
+}
+
+// Show summary overlay before publishing — user must confirm
+window.showSpotSummary = async () => {
+  const fd = window.spotFormData
+  const { getState } = await import('../../stores/state.js')
+  const state = getState()
+  const spotType = state.addSpotType || 'custom'
+  const description = document.getElementById('spot-description')?.value.trim() || ''
+
+  // Quick validation first (same checks as handleAddSpot)
+  const { showError } = await import('../../services/notifications.js')
+  if (!fd.lat || !fd.lng) { showError(t('positionRequired') || 'Position obligatoire'); return }
+  if (!fd.directionCity) { showError(t('directionRequired')); return }
+  if (!fd.departureCity) { showError(t('departureRequired') || 'Ville de départ obligatoire'); return }
+  if (!fd.method) { showError(t('methodRequired')); return }
+  if (!fd.groupSize) { showError(t('groupSizeRequired')); return }
+  if (!fd.timeOfDay) { showError(t('timeOfDayRequired')); return }
+  if (!fd.rideResult) { showError(t('rideResultRequired')); return }
+  const r = fd.ratings || {}
+  if (!r.safety || !r.traffic || !r.accessibility) { showError(t('ratingsRequired') || 'Note les 3 critères'); return }
+
+  // Type labels
+  const typeLabels = {
+    city_exit: t('spotTypeCityExit') || 'Sortie de ville',
+    gas_station: t('spotTypeGasStation') || 'Station-service',
+    highway: t('spotTypeHighway') || 'Autoroute',
+    custom: t('spotTypeCustom') || 'Autre',
+  }
+  const methodLabels = {
+    sign: t('methodSign') || 'Panneau', thumb: t('methodThumb') || 'Pouce', asking: t('methodAsking') || 'En demandant',
+  }
+  const groupLabels = {
+    solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+',
+  }
+  const timeLabels = {
+    morning: t('timeMorning') || 'Matin', afternoon: t('timeAfternoon') || 'Après-midi',
+    evening: t('timeEvening') || 'Soir', night: t('timeNight') || 'Nuit',
+  }
+  const rideLabels = {
+    yes: '✅ ' + (t('yes') || 'Oui'), no: '❌ ' + (t('no') || 'Non'), gaveUp: '🏳️ ' + (t('gaveUp') || 'Abandonné'),
+  }
+
+  // Build destinations text
+  const allDests = [fd.directionCity, ...(fd.extraDestinations || []).map(d => d.city)].filter(Boolean)
+
+  // Build amenities list
+  const tags = fd.tags || {}
+  const amenityList = []
+  if (tags.shelter) amenityList.push(t('amenityShelter') || 'Abri')
+  if (tags.waterFood) amenityList.push(t('amenityWater') || 'Eau')
+  if (tags.toilets) amenityList.push(t('amenityToilets') || 'Toilettes')
+  if (tags.food) amenityList.push(t('amenityFood') || 'Nourriture')
+  if (tags.stoppingSpace) amenityList.push(t('stoppingSpaceTag') || 'Parking')
+
+  const row = (label, value) => value ? `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b">
+      <span style="font-size:12px;color:#64748b">${escapeHTML(label)}</span>
+      <span style="font-size:12px;color:#e2e8f0;text-align:right;max-width:60%">${escapeHTML(String(value))}</span>
+    </div>` : ''
+
+  const photoCount = (fd.photos || []).length
+
+  const overlay = document.createElement('div')
+  overlay.id = 'spot-summary-overlay'
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px'
+  overlay.innerHTML = `
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)" onclick="closeSpotSummary()"></div>
+    <div style="position:relative;background:#0f1520;border:1px solid #1e293b;border-radius:12px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;padding:20px" onclick="event.stopPropagation()">
+      <h3 style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:16px;text-align:center">${t('summaryTitle') || 'Récapitulatif du spot'}</h3>
+
+      ${row(t('spotTypeLabel') || 'Type', typeLabels[spotType] || spotType)}
+      ${row(t('departureCity') || 'Départ', fd.departureCity)}
+      ${row(t('position') || 'Position', fd.locationName || (fd.lat?.toFixed(4) + ', ' + fd.lng?.toFixed(4)))}
+      ${fd.stationName ? row(t('stationNameLabel') || 'Station', fd.stationName) : ''}
+      ${row(t('destinationCity') || 'Direction', allDests.join(', '))}
+      ${row(t('waitTimeLabel') || 'Attente', fd.waitTime ? (fd.waitTime >= 180 ? '3h+' : fd.waitTime + ' min') : '')}
+      ${row(t('practicalTips') || 'Méthode', methodLabels[fd.method] || '')}
+      ${row(t('groupSizeLabel') || 'Groupe', groupLabels[fd.groupSize] || '')}
+      ${row(t('timeOfDayLabel') || 'Moment', timeLabels[fd.timeOfDay] || '')}
+      ${row(t('gotARide') || 'Lift obtenu', rideLabels[fd.rideResult] || '')}
+      ${row(t('safety') || 'Sécurité', r.safety + '/5')}
+      ${row(t('traffic') || 'Trafic', r.traffic + '/5')}
+      ${row(t('accessibility') || 'Accessibilité', r.accessibility + '/5')}
+      ${amenityList.length > 0 ? row(t('amenitiesLabel') || 'Commodités', amenityList.join(', ')) : ''}
+      ${description ? row(t('description') || 'Description', description.length > 80 ? description.slice(0, 80) + '...' : description) : ''}
+      ${row(t('photoLabel') || 'Photos', photoCount > 0 ? photoCount + ' photo' + (photoCount > 1 ? 's' : '') : (t('noPhoto') || 'Aucune photo'))}
+
+      <p style="font-size:11px;color:#64748b;text-align:center;margin:16px 0 12px">${t('summaryWarning') || 'Une fois publié, ce spot ne pourra plus être modifié.'}</p>
+
+      <div style="display:flex;gap:10px">
+        <button type="button" onclick="closeSpotSummary()"
+          style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;padding:12px;font-size:13px;cursor:pointer;border-radius:8px">
+          ${t('modify') || 'Modifier'}
+        </button>
+        <button type="button" onclick="closeSpotSummary();document.getElementById('add-spot-form')?.dispatchEvent(new Event('submit',{cancelable:true}))"
+          style="flex:2;background:#f59e0b;border:none;color:#0f1520;padding:12px;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px">
+          ${t('confirmPublish') || 'Confirmer et publier'}
+        </button>
+      </div>
+    </div>
+  `
+  document.body.appendChild(overlay)
+}
+
+window.closeSpotSummary = () => {
+  document.getElementById('spot-summary-overlay')?.remove()
 }
 
 window.handleAddSpot = async (event) => {
