@@ -126,7 +126,7 @@ export function getMarkerType(spot, isFav) {
   if (isFav) return 'marker-fav'
 
   const validated = (spot.userValidations || 0) >= 3
-  const isStation = spot.spotType === 'station'
+  const isStation = spot.spotType === 'gas_station'
   const isGold = spot.ambassadorVerified === true
 
   if (validated && isGold && isStation) return 'marker-green-gold-station'
