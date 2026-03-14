@@ -42,7 +42,7 @@
     "firebase": "^12.10.0",
     "globals": "^17.4.0",
     "lucide": "^0.575.0",
-    "maplibre-gl": "^5.19.0"
+    "maplibre-gl": "^5.20.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
