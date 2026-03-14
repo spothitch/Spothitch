@@ -488,21 +488,21 @@ function renderLegalModal(state) {
  * Update the spot counter (Hitchwiki vs SpotHitch) displayed on the map.
  * Reads from spotLoader and writes to #hw-count / #sh-count DOM elements.
  */
+let _spotCounterDone = false
 function updateSpotCounter() {
+  if (_spotCounterDone) return
   const hwEl = document.getElementById('hw-count')
   const shEl = document.getElementById('sh-count')
   if (!hwEl && !shEl) return
   import('../services/spotLoader.js').then(({ loadSpotIndex, getAllLoadedSpots }) => {
-    // Get total from index (all spots, not just loaded)
     loadSpotIndex?.().then(index => {
       const totalHW = index?.totalSpots || 0
-      // Community spots from loaded data
       const all = getAllLoadedSpots?.() || []
       const community = all.filter(s => s.source !== 'hitchwiki').length
       if (hwEl) hwEl.textContent = totalHW
       if (shEl) shEl.textContent = community
+      if (totalHW > 0) _spotCounterDone = true
     }).catch(() => {
-      // Fallback to loaded spots
       const all = getAllLoadedSpots?.() || []
       if (hwEl) hwEl.textContent = all.filter(s => s.source === 'hitchwiki').length
       if (shEl) shEl.textContent = all.filter(s => s.source !== 'hitchwiki').length

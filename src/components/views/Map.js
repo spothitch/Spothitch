@@ -143,31 +143,10 @@ export function renderMap(state) {
   `;
 }
 
-// Update spot counter with real numbers
-function updateSpotCounter() {
-  import('../../services/spotLoader.js').then(({ getAllLoadedSpots }) => {
-    const all = getAllLoadedSpots?.() || []
-    const hw = all.filter(s => s.source === 'hitchwiki').length
-    const community = all.filter(s => s.source !== 'hitchwiki').length
-    const hwEl = document.getElementById('hw-count')
-    const shEl = document.getElementById('sh-count')
-    if (hwEl) hwEl.textContent = hw
-    if (shEl) shEl.textContent = community
-  }).catch(() => {})
-}
-
 // Initialize map when the view is rendered
 export function initMainMap(state) {
   const mapContainer = document.getElementById('main-map');
   if (!mapContainer) return;
-
-  // Update spot counter
-  updateSpotCounter()
-  // Re-update when more spots load
-  const counterInterval = setInterval(() => {
-    if (!document.getElementById('spot-counter')) { clearInterval(counterInterval); return }
-    updateSpotCounter()
-  }, 5000)
 
   // Import and initialize the map service
   import('../../services/map.js').then(({ initMapService }) => {
