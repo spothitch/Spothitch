@@ -245,7 +245,7 @@ function renderProfileHeader(state) {
         </div>
         <div class="mt-1">
           <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400">
-            ${vipLevel.icon} ${t('level') || 'Niv.'} ${level} — ${vipLevel.name}
+            ${vipLevel.icon} ${t('level') || 'Niv.'} ${level} · ${vipLevel.name}
           </span>
         </div>
         ${memberSince ? `<p class="text-[10px] text-slate-500 mt-1">${t('memberSince') || 'Membre depuis'} ${memberSince}</p>` : ''}
