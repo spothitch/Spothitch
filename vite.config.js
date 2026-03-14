@@ -129,6 +129,16 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/design-/, /^\/debug-/, /^\/city\//, /^\/guides\//],
         runtimeCaching: [
           {
+            // Local JS/CSS assets: network first so stale hashes don't break the app
+            urlPattern: /\/assets\/.*\.(js|css)$/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'app-assets',
+              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              networkTimeoutSeconds: 5,
+            }
+          },
+          {
             urlPattern: /^https:\/\/tiles\.openfreemap\.org\/.*/i,
             handler: 'CacheFirst',
             options: {

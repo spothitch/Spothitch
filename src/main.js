@@ -118,6 +118,32 @@ import {
   withLoading,
 } from './components/LoadingIndicator.js';
 
+// ==================== STALE CACHE RECOVERY ====================
+// If a dynamic import fails (e.g. stale hash after deploy), clear caches and reload.
+// This prevents "site inaccessible" errors when the PWA serves outdated assets.
+window.addEventListener('error', (e) => {
+  const msg = e.message || ''
+  if (msg.includes('Failed to fetch dynamically imported module')
+    || msg.includes('Importing a module script failed')
+    || msg.includes('Loading chunk')
+    || msg.includes('Loading CSS chunk')) {
+    // Already reloading? Don't loop
+    if (sessionStorage.getItem('spothitch_cache_recovery')) return
+    sessionStorage.setItem('spothitch_cache_recovery', '1')
+    // Clear all SW caches then reload
+    if (window.caches) {
+      caches.keys().then(keys =>
+        Promise.all(keys.map(k => caches.delete(k)))
+      ).then(() => window.location.reload())
+        .catch(() => window.location.reload())
+    } else {
+      window.location.reload()
+    }
+  }
+})
+// Clear recovery flag on successful load
+sessionStorage.removeItem('spothitch_cache_recovery')
+
 // ==================== AUTO-UPDATE ====================
 // Ensures users ALWAYS get the latest code — no manual cache clearing needed.
 // Two mechanisms work together:
