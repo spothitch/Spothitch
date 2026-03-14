@@ -328,9 +328,9 @@ function getAlertMessage(state) {
  * Generate departure notification message
  */
 function getDepartureMessage(state) {
-  const depMsg = t('companionDepartureMsg') || 'I am starting my hitchhiking trip. I will check in regularly. — SpotHitch Companion'
+  const depMsg = t('companionDepartureMsg') || 'I am starting my hitchhiking trip. I will check in regularly. · SpotHitch Companion'
   const guardianName = state.guardian.name ? state.guardian.name + ', ' : ''
-  let msg = `\u{1F6E3}\uFE0F SpotHitch — ${guardianName}${depMsg}`
+  let msg = `\u{1F6E3}\uFE0F SpotHitch · ${guardianName}${depMsg}`
   if (state.destination) {
     const destLabel = t('companionDestination') || 'Destination'
     msg += `\n${destLabel}: ${state.destination}`
@@ -342,7 +342,7 @@ function getDepartureMessage(state) {
  * Generate safe arrival message
  */
 function getArrivalMessage(state) {
-  const arrMsg = t('companionArrivalMsg') || 'I have arrived safely. My trip is now complete. — SpotHitch Companion'
+  const arrMsg = t('companionArrivalMsg') || 'I have arrived safely. My trip is now complete. · SpotHitch Companion'
   const guardianName = state.guardian.name ? state.guardian.name + ', ' : ''
   const tripDuration = state.tripStart
     ? formatDurationMs(Date.now() - state.tripStart)
@@ -359,7 +359,7 @@ function getArrivalMessage(state) {
  * Generate low battery alert message
  */
 function buildBatteryAlertMessage(state, pct) {
-  const battMsg = (t('companionBatteryMsg') || "My phone battery is at {pct}%. I may lose contact soon. — SpotHitch Companion").replace('{pct}', pct)
+  const battMsg = (t('companionBatteryMsg') || "My phone battery is at {pct}%. I may lose contact soon. · SpotHitch Companion").replace('{pct}', pct)
   const guardianName = state.guardian.name ? state.guardian.name + ', ' : ''
   const lastPos = state.positions.length > 0
     ? state.positions[state.positions.length - 1]

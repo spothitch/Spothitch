@@ -77,7 +77,7 @@ function renderSOSDisclaimer() {
             ${icon('triangle-alert', 'w-8 h-8 text-amber-400')}
           </div>
           <h2 id="sos-disclaimer-title" class="text-xl font-bold text-amber-400 mb-4">
-            ${t('sosDisclaimerTitle') || 'Important — SOS'}
+            ${t('sosDisclaimerTitle') || 'Important : SOS'}
           </h2>
           <div class="text-sm text-slate-300 text-left space-y-3 mb-6">
             <p>${t('sosDisclaimerText1') || 'SpotHitch does NOT replace emergency services.'}</p>
@@ -143,7 +143,7 @@ function renderSOSMain(state) {
             <div class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-medium" role="alert">
               ${icon('wifi-off', 'w-3 h-3')}
               ${t('sosOfflineMode') || 'Mode hors ligne'}
-              ${cachedPos ? `— ${t('sosUsingCachedPos') || 'position en cache'}` : `— ${t('sosNoCachedPos') || 'aucune position en cache'}`}
+              ${cachedPos ? `· ${t('sosUsingCachedPos') || 'position en cache'}` : `· ${t('sosNoCachedPos') || 'aucune position en cache'}`}
             </div>
           ` : ''}
         </div>
@@ -273,7 +273,7 @@ function renderSOSMain(state) {
             <div class="bg-danger-500/10 rounded-xl p-3 mb-3 border border-danger-500/20">
               <p class="text-xs text-danger-300 leading-relaxed flex items-start gap-2">
                 ${icon('zap', 'w-4 h-4 text-danger-400 shrink-0 mt-0.5')}
-                <span>${t('sosTripleAlertDesc') || 'When SOS is triggered, everything fires at once: push notification + SMS + phone call to your primary contact. No choice needed — maximum safety.'}</span>
+                <span>${t('sosTripleAlertDesc') || 'When SOS is triggered, everything fires at once: push notification + SMS + phone call to your primary contact. No choice needed. Maximum safety.'}</span>
               </p>
             </div>
 
@@ -384,7 +384,7 @@ function renderSOSMain(state) {
               aria-label="${t('sosAutoCallLabel') || 'Appeler les secours'} (${detectedNumber})"
             >
               ${icon('phone', 'w-5 h-5')}
-              ${t('sosCallEmergency') || 'Appeler les secours'} — <strong>${detectedNumber}</strong>
+              ${t('sosCallEmergency') || 'Appeler les secours'} · <strong>${detectedNumber}</strong>
             </a>
             <p class="text-xs text-slate-500 text-center">
               ${t('sosAutoCallHint') || 'Numéro détecté selon votre région'}

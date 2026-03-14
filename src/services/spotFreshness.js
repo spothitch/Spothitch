@@ -3,7 +3,7 @@
  * Color-coded tier system based on validations + tests
  *
  * Tiers (based on validationCount + testCount):
- *   - Grey (#94a3b8): Unverified (0 validations, HitchWiki import)
+ *   - Grey (#94a3b8): Unverified (0 validations, imported spot)
  *   - Green (#10b981): Reliable (3+ testCount AND 3+ validationCount)
  *   - Gold (#fbbf24): Gold Spot (10+ testCount AND 10+ validationCount)
  *

@@ -12,7 +12,7 @@
 
 | Feature | Notes |
 |---------|-------|
-| 🗺️ Carte avec spots | Spots Hitchmap temporaires (supprimés au lancement public) |
+| 🗺️ Carte avec spots | 14 669 spots dans 137 pays |
 | ⛽ Pompes à essence | Affichées sur la carte |
 | 📍 Ajouter / valider un spot | Photo obligatoire |
 | 🔍 Détail d'un spot | Infos, photos, directions |
@@ -67,7 +67,7 @@
 - 🧠 Quiz voyage (questions quotidiennes, anecdotes pays)
 - 🛡️ Score de confiance visible
 - 📚 Guides par pays (basés sur les conseils collectés en Alpha)
-- ⚠️ Suppression des données Hitchmap (spots 100% communautaires)
+- ⚠️ Transition vers spots 100% communautaires
 
 ---
 
@@ -100,6 +100,5 @@
 
 ---
 
-*⚠️ Les données Hitchmap/Hitchwiki sont conservées temporairement pour tester
-les fonctionnalités. Elles seront supprimées avant le lancement public —
-seuls les spots de la communauté resteront.*
+*⚠️ Les données importées sont conservées temporairement pour tester
+les fonctionnalités. Seuls les spots de la communauté resteront à terme.*

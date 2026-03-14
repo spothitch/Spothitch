@@ -11,7 +11,7 @@ Issues label `phase-1` — ce qu'il faut finir avant d'inviter des utilisateurs 
 - N7. Notification au bon moment
 - L1. Revoir le plan robots.txt
 - J1. Vérification légale 100%
-- J2. Retirer toute mention de Hitchwiki
+- J2. ~~Retirer toute mention de Hitchwiki~~ ✅ FAIT 2026-03-13
 - I2. Relecture complète des 4 langues
 - G1-G3. Téléchargement cartes hors réseau
 - D2. Recherche d'amis + suggestions

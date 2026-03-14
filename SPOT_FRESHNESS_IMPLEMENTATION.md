@@ -47,7 +47,7 @@ A color-coded indicator system has been implemented to help users quickly assess
 **`src/services/map.js`**
 - Added import: `getFreshnessColor`
 - Modified `createSpotIcon()` to use freshness color for marker tinting
-- Both small (Hitchwiki) and large (user-created) markers now use freshness colors
+- Both small (imported) and large (user-created) markers now use freshness colors
 
 ## Color Logic Implementation
 

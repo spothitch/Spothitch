@@ -94,7 +94,7 @@ export function renderSpotDetail(state) {
     { label: t('stoppingSpaceTag') || 'Parking', emoji: '🅿️', has: tags.stoppingSpace },
   ].filter(a => a.has)
 
-  // Reviews — use comments array (real Hitchwiki experiences) or liveComments from Firebase
+  // Reviews — use comments array or liveComments from Firebase
   const reviews = spot.liveComments || spot.comments || []
   const displayReviews = reviews.slice(0, 10)
 

@@ -891,7 +891,7 @@ export async function quickValidateSpot(spotId) {
       validationCount: increment(1),
       lastValidated: new Date().toISOString(),
       lastValidatedBy: user.uid,
-    }).catch(() => {}) // May fail if spot is from Hitchmap (not in Firestore)
+    }).catch(() => {}) // May fail if spot is imported (not in Firestore)
 
     // Log the validation
     const validationsRef = collection(db, 'spots', String(spotId), 'validations')
@@ -1042,7 +1042,7 @@ export async function addValidation(data) {
       lastTested: new Date().toISOString(),
       lastTestedBy: user?.uid || 'anonymous',
       lastUsed: new Date().toISOString().split('T')[0],
-    }).catch(() => {}) // May fail if spot is from Hitchmap (not in Firestore)
+    }).catch(() => {}) // May fail if spot is imported (not in Firestore)
 
     return { success: true }
   } catch (error) {

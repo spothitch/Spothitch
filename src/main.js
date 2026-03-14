@@ -2209,7 +2209,6 @@ window.openHelpCenter = () => {
   setState({ showFAQ: true, faqSearchQuery: '' });
 };
 window.openChangelog = () => {
-  setState({ showFAQ: true, faqSearchQuery: '' });
   showToast(t('changelogToast') || 'SpotHitch v2.0 · Février 2026', 'info');
 };
 window.openRoadmap = () => {
@@ -3163,6 +3162,9 @@ if (!window.syncTripFieldsAndCalculate) {
     if (tab === 'chat') return window.showFeatureIntro?.('chat')
     return _origChangeTabBeta?.(tab, ...args)
   }
+
+  // — PANNEAUX VILLE (beta) —
+  window.openCityPanel = guard('villes')
 
   // — PLANIFICATEUR ITINÉRAIRE (beta) —
   window.openTripPlanner = guard('itineraire')

@@ -134,7 +134,7 @@ Cette version intègre les recommandations de **5 audits QA externes** couvrant 
 
 ### Ajouté
 - **Carte interactive** avec Leaflet.js et clustering
-- **40+ spots** d'autostop en Europe (basés sur Hitchwiki)
+- **40+ spots** d'autostop en Europe
 - **Système de gamification** : Points, niveaux, badges, ligues
 - **Planificateur de voyage** avec routing OSRM
 - **Chat communautaire** en temps réel

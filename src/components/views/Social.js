@@ -323,7 +323,7 @@ function renderMessagerieTab(state) {
       <div class="px-4 py-3">
         <button
           onclick="openCreateGroupConversation()"
-          class="card p-3 w-full text-left border-dashed border-2 border-emerald-500/30 hover:border-emerald-500/60 transition-colors"
+          class="card p-3 w-full text-left border border-emerald-500/20 hover:border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors"
         >
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-full bg-emerald-500/10 flex items-center justify-center">

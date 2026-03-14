@@ -736,7 +736,7 @@ function renderMySpotsList(state) {
     { name: 'Aire de Ressons', location: 'Hauts-de-France, France', type: 'rest_area', validations: 14 },
     { name: 'Sortie A10 Orléans', location: 'Sortie autoroute · Loiret, France', type: 'highway_exit', validations: 8 },
     { name: 'Bahnhof München', location: 'Gare · Munich, Bavière', type: 'station', validations: 3 },
-    { name: 'N12 — Péage Espagne', location: 'Péage · Catalogne, Espagne', type: 'other', validations: 0 },
+    { name: 'N12 · Péage Espagne', location: 'Péage · Catalogne, Espagne', type: 'other', validations: 0 },
     { name: 'Aire de repos A6', location: 'Aire de repos · Bourgogne, France', type: 'rest_area', validations: 21 },
   ].slice(0, count || 5)
 
@@ -778,7 +778,7 @@ function renderMyValidationsList(state) {
   const mockValidations = [
     { name: 'Aire de Dole', location: 'Jura, France', date: '10 jan 2025', stars: 5 },
     { name: 'Stazione di Bologna', location: 'Bologne, Italie', date: '3 déc 2024', stars: 4 },
-    { name: 'A4 — Strasbourg Est', location: 'Bas-Rhin, France', date: '20 nov 2024', stars: 3 },
+    { name: 'A4 · Strasbourg Est', location: 'Bas-Rhin, France', date: '20 nov 2024', stars: 3 },
     { name: 'Aire de Vienne', location: 'Isère, France', date: '12 oct 2024', stars: 5 },
     { name: 'Autobahn A9 München', location: 'Bavière, Allemagne', date: '2 sep 2024', stars: 4 },
   ].slice(0, count || 5)
@@ -791,7 +791,7 @@ function renderMyValidationsList(state) {
       </h2>
       ${count === 0
         ? `<div class="card p-6 text-center">
-            <p class="text-slate-400 text-sm">${t('noValidationsYet') || 'Aucune validation encore — valide des spots que tu as utilisés !'}</p>
+            <p class="text-slate-400 text-sm">${t('noValidationsYet') || 'Aucune validation encore. Valide des spots que tu as utilisés !'}</p>
           </div>`
         : `<div class="space-y-2">
             ${mockValidations.map(v => `
@@ -825,7 +825,7 @@ function renderMyCountriesList(state) {
       </h2>
       ${countryCodes.length === 0
         ? `<div class="card p-6 text-center">
-            <p class="text-slate-400 text-sm">${t('noCountriesYet') || 'Aucun pays encore — commence à bouger !'}</p>
+            <p class="text-slate-400 text-sm">${t('noCountriesYet') || 'Aucun pays encore. Commence à bouger !'}</p>
           </div>`
         : `<div class="grid grid-cols-2 gap-2">
             ${countryCodes.map(code => {
@@ -1275,7 +1275,7 @@ function renderProfileFooter() {
         </button>
         ${''}<!-- Social links: disabled for alpha (no pages yet), enable in beta -->
         <div class="p-3 pt-2 border-t border-white/5">
-          <p class="text-xs text-slate-500">${t('creditsText') || 'Données : Hitchwiki (ODBL) • Cartes : OpenFreeMap'}</p>
+          <p class="text-xs text-slate-500">${t('creditsText') || 'Cartes : OpenFreeMap'}</p>
         </div>
       </div>
     </div>

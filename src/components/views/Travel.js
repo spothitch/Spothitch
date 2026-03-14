@@ -297,7 +297,7 @@ function renderTripResults(results) {
                 <span class="text-[10px] font-bold text-white">${i + 1}</span>
               </div>
               <div class="pt-0.5 flex-1 min-w-0">
-                <div class="text-sm font-medium truncate">${spot.from || spot.city || spot.stationName || (distFromStart !== null ? `${t('hitchhikingSpot') || 'Spot'} — ${distFromStart} km` : (t('hitchhikingSpot') || 'Spot d\'autostop'))}</div>
+                <div class="text-sm font-medium truncate">${spot.from || spot.city || spot.stationName || (distFromStart !== null ? `${t('hitchhikingSpot') || 'Spot'} · ${distFromStart} km` : (t('hitchhikingSpot') || 'Spot d\'autostop'))}</div>
                 <div class="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
                   ${distFromStart !== null ? `<span class="text-slate-400">${distFromStart} km</span>` : ''}
                   ${spot.type ? `<span class="px-1.5 py-0.5 rounded bg-white/5 text-slate-400">${spot.type}</span>` : ''}

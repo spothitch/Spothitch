@@ -15,7 +15,7 @@ export function renderGuideNudge(state) {
   const countryName = escapeHTML(country.name || country.code)
   const countryFlag = escapeHTML(country.flag || '')
 
-  const nudgeText = (t('guideNudgeText') || 'Tu as visité [pays] — tu as des conseils pour les prochains voyageurs ?')
+  const nudgeText = (t('guideNudgeText') || 'Tu as visité [pays]. Tu as des conseils pour les prochains voyageurs ?')
     .replace('[pays]', `${countryFlag} ${countryName}`)
     .replace('[country]', `${countryFlag} ${countryName}`)
     .replace('[Land]', `${countryFlag} ${countryName}`)

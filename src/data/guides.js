@@ -1,7 +1,6 @@
 /**
  * Country Guides
  * Hitchhiking guides by country
- * Source: Hitchwiki.org (ODBL) - Content reformulated, never invented
  */
 
 export const countryGuides = [

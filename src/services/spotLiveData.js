@@ -1,6 +1,6 @@
 /**
  * Spot Live Data Service
- * Fetches Firebase validations and merges with static Hitchwiki data
+ * Fetches Firebase validations and merges with static spot data
  * to produce live, dynamic spot statistics.
  */
 
@@ -54,11 +54,11 @@ export async function fetchSpotValidations(spotId) {
 /**
  * Merge static spot data with live Firebase validations (pure function)
  *
- * RULE: when at least 1 community validation exists for a Hitchwiki spot,
- * ALL Hitchwiki data (comments, ratings, wait time, test count) is replaced
- * by community data only. The goal is to phase out Hitchwiki entirely.
+ * RULE: when at least 1 community validation exists for an imported spot,
+ * ALL imported data (comments, ratings, wait time, test count) is replaced
+ * by community data only.
  *
- * @param {object} staticSpot - The static Hitchwiki spot
+ * @param {object} staticSpot - The static imported spot
  * @param {Array} validations - Firebase validation records
  * @returns {object} merged spot with live* fields
  */
@@ -71,7 +71,7 @@ export function mergeSpotData(staticSpot, validations) {
   const testValidations = validations.filter(v => v.type === 'test')
   const allValidations = validations
 
-  // When community data exists for a Hitchwiki spot → ignore Hitchwiki data
+  // When community data exists for an imported spot → ignore imported data
   // Community-created spots keep adding to their own data normally
   const ignoreStatic = isHitchwiki
 
@@ -97,7 +97,7 @@ export function mergeSpotData(staticSpot, validations) {
     const successes = rideResults.filter(v => v.rideResult === 'yes').length
     let totalEntries = rideResults.length
     let totalSuccesses = successes
-    // Only count static rideResult for non-Hitchwiki spots
+    // Only count static rideResult for non-imported spots
     if (!ignoreStatic) {
       if (staticSpot.rideResult === 'yes') {
         totalEntries += 1
@@ -111,7 +111,7 @@ export function mergeSpotData(staticSpot, validations) {
 
   // Live ratings
   const ratingVotes = { safety: [], traffic: [], accessibility: [] }
-  // Only include static ratings for non-Hitchwiki spots
+  // Only include static ratings for non-imported spots
   if (!ignoreStatic) {
     const staticRatings = staticSpot.ratings || {}
     if (staticRatings.safety) ratingVotes.safety.push(staticRatings.safety)
@@ -137,7 +137,7 @@ export function mergeSpotData(staticSpot, validations) {
   const dates = allValidations.map(v => v.date).filter(Boolean)
   const liveLastTested = dates.length > 0 ? dates[0] : staticSpot.lastTested
 
-  // Live comments: community only for Hitchwiki spots, merged for others
+  // Live comments: community only for imported spots, merged for others
   const firebaseComments = allValidations
     .filter(v => v.comment)
     .map(v => ({
@@ -154,7 +154,7 @@ export function mergeSpotData(staticSpot, validations) {
 
   let liveComments
   if (ignoreStatic) {
-    // Hitchwiki spot with community data → only community comments
+    // Imported spot with community data → only community comments
     liveComments = firebaseComments
   } else {
     const staticComments = (staticSpot.comments || []).map(c => ({
@@ -189,7 +189,7 @@ export function mergeSpotData(staticSpot, validations) {
     _liveLoaded: true,
   }
 
-  // Hitchwiki spot with community data → mark as community, clear old descriptions
+  // Imported spot with community data → mark as community, clear old descriptions
   if (ignoreStatic) {
     result.source = 'community'
     result.descriptionEn = ''

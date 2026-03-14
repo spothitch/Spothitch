@@ -204,7 +204,7 @@ window.searchMapSuggestions = (query) => {
                     onclick="openCityPanel('${citySlug}', '${cityName}', ${r.lat}, ${r.lon}, '${cc}', '${countryName}')"
                     class="w-full px-4 py-2 text-left text-primary-400 hover:bg-primary-500/10 transition-colors text-xs font-medium border-t border-white/5"
                   >
-                    📍 ${window.t?.('guideHitchhikingCity') || 'Hitchhiking guide —'} ${cityName}
+                    📍 ${window.t?.('guideHitchhikingCity') || 'Hitchhiking guide:'} ${cityName}
                   </button>
                 ` : ''}
               </div>`

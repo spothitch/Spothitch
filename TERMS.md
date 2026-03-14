@@ -1,6 +1,6 @@
 # Conditions Générales d'Utilisation - SpotHitch
 
-**Dernière mise à jour :** 26 décembre 2025
+**Dernière mise à jour :** 13 mars 2026
 
 ## 1. Acceptation des Conditions
 
@@ -87,7 +87,7 @@ SpotHitch est fourni "tel quel". Nous déclinons toute responsabilité pour :
 - L'application et son code sont protégés (licence MIT)
 - Les marques SpotHitch nous appartiennent
 - Le contenu utilisateur appartient à ses auteurs
-- Les données Hitchwiki sont sous licence CC-BY-SA
+- Les données de spots sont fournies par la communauté
 
 ## 8. Résiliation
 
