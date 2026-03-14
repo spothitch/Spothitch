@@ -238,12 +238,47 @@ async function tryGeocode(query) {
 }
 
 /**
+ * Extract city name from administrative address parts.
+ * Google Maps addresses go from small → large: Tambon → District → Province.
+ * Returns the LAST valid part (= highest admin level = city/province).
+ * "Mueang Chiang Mai District" → "Chiang Mai"
+ * "Chang Wat Chiang Mai 50300" → "Chiang Mai"
+ */
+function extractCityFromParts(parts) {
+  const adminPrefixes = /\b(Tambon|Mueang|District|Chang\s*Wat|Changwat|Sub.?district|Province|Amphoe|Amphur|Khet|Khwaeng|Phum|Sangkat)\b/gi
+
+  let last = null
+  for (const part of parts) {
+    const cleaned = part
+      .replace(adminPrefixes, '')
+      .replace(/\b\d{4,6}\b/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+    if (cleaned.length >= 3) {
+      last = cleaned
+    }
+  }
+  return last
+}
+
+/**
  * Generate simplified versions of a place name for progressive geocoding.
- * Google Maps titles are often "Brand/Store - Location, City, Country"
- * which geocoders can't handle, but "Location, City" works.
+ * Google Maps titles are often "Business Name Street, District, City, Country"
+ * which geocoders can't handle, but "Street, City, Country" works.
  */
 function simplifyPlaceName(place) {
   const variants = []
+  const parts = place.split(',').map(p => p.trim())
+
+  // Road/street keywords to detect address parts
+  const roadRe = /\b(Rd|Road|Ave|Avenue|St|Street|Blvd|Boulevard|Lane|Ln|Dr|Drive|Way|Hwy|Highway|Soi|Alley|Route|Rue|Straße|Strasse|Calle|Camino|Via|Viale|Corso|Passage|Chemin|Place|Platz|Plaza)\b/i
+  const hasNumber = /\d+\/?[\d]*/
+
+  // Extract city from admin parts
+  const middleParts = parts.slice(1, -1)
+  const cityName = parts.length >= 3 ? extractCityFromParts(middleParts) : null
+  const country = parts.length >= 2 ? parts[parts.length - 1] : ''
+  const street = parts[0]
 
   // 1. Original name
   variants.push(place)
@@ -253,26 +288,52 @@ function simplifyPlaceName(place) {
     variants.push(place.split(' - ').pop().trim())
   }
 
-  // 3. After the first comma onward (address part)
+  // 3. Street without business name + city + country (BEST for addresses)
+  if (parts.length >= 3 && roadRe.test(street) && hasNumber.test(street) && cityName) {
+    const numMatch = street.match(/(\d+\/?[\d]*\s+.*)/)
+    if (numMatch) {
+      variants.push(`${numMatch[1]}, ${cityName}, ${country}`)
+    }
+  }
+
+  // 4. Full street + city + country
+  if (cityName && country) {
+    variants.push(`${street}, ${cityName}, ${country}`)
+  }
+
+  // 5. Address without business name + full remaining
+  if (parts.length >= 2 && roadRe.test(street) && hasNumber.test(street)) {
+    const numMatch = street.match(/(\d+\/?[\d]*\s+.*)/)
+    if (numMatch) {
+      variants.push([numMatch[1], ...parts.slice(1)].join(', '))
+    }
+  }
+
+  // 6. After the first comma onward (fallback)
   const commaIdx = place.indexOf(',')
   if (commaIdx > 0) {
     variants.push(place.slice(commaIdx + 1).trim())
   }
 
-  // 4. Last 2-3 words (often city + country)
+  // 7. City + Country
+  if (cityName && country) {
+    variants.push(`${cityName}, ${country}`)
+  }
+
+  // 8. Last 2-3 words (often city + country)
   const words = place.replace(/[,]/g, '').split(/\s+/).filter(w => w.length > 1)
   if (words.length > 3) {
     variants.push(words.slice(-3).join(' '))
     variants.push(words.slice(-2).join(' '))
   }
 
-  // 5. Remove common noise words (ATM, branch, store, etc.) and retry
-  const cleaned = place
+  // 9. Remove common noise words (ATM, branch, store, etc.) and retry
+  const noNoise = place
     .replace(/\b(ATM|branch|store|shop|mart|outlet|kiosk|located at|plot|phum)\b/gi, '')
     .replace(/\s{2,}/g, ' ')
     .trim()
-  if (cleaned !== place && cleaned.length > 2) {
-    variants.push(cleaned)
+  if (noNoise !== place && noNoise.length > 2) {
+    variants.push(noNoise)
   }
 
   // Deduplicate and filter

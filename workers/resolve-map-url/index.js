@@ -75,9 +75,14 @@ export default {
           return new Response(JSON.stringify({ ...htmlCoords, resolvedUrl: finalUrl }), { headers })
         }
 
-        // Try extracting a place name for client-side geocoding
+        // Try extracting a place name and geocoding it server-side
         const place = extractPlaceName(finalUrl) || extractPlaceFromHtml(html)
         if (place) {
+          // Try server-side geocoding (no CORS issues) before falling back to client
+          const geocoded = await geocodeAddress(place)
+          if (geocoded) {
+            return new Response(JSON.stringify({ ...geocoded, resolvedUrl: finalUrl }), { headers })
+          }
           return new Response(JSON.stringify({ place, resolvedUrl: finalUrl }), { headers })
         }
 
@@ -114,6 +119,10 @@ export default {
 
         const place = extractPlaceName(followUrl) || extractPlaceFromHtml(html)
         if (place) {
+          const geocoded = await geocodeAddress(place)
+          if (geocoded) {
+            return new Response(JSON.stringify({ ...geocoded, resolvedUrl: followUrl }), { headers })
+          }
           return new Response(JSON.stringify({ place, resolvedUrl: followUrl }), { headers })
         }
       }
@@ -224,6 +233,132 @@ function extractPlaceFromHtml(html) {
   if (titleMatch && titleMatch[1] && !titleMatch[1].includes('Google Maps') && !titleMatch[1].includes('Dynamic Link') && !titleMatch[1].includes('Not Found')) {
     return titleMatch[1].split(' - ')[0].trim()
   }
+  return null
+}
+
+/**
+ * Extract city name from administrative address parts.
+ * Google Maps addresses go from small → large: Tambon → District → Province.
+ * Returns the LAST valid part (= highest admin level = city/province).
+ * "Mueang Chiang Mai District" → "Chiang Mai"
+ * "Chang Wat Chiang Mai 50300" → "Chiang Mai"
+ */
+function extractCityName(parts) {
+  const adminPrefixes = /\b(Tambon|Mueang|District|Chang\s*Wat|Changwat|Sub.?district|Province|Amphoe|Amphur|Khet|Khwaeng|Phum|Sangkat)\b/gi
+
+  let last = null
+  for (const part of parts) {
+    const cleaned = part
+      .replace(adminPrefixes, '')
+      .replace(/\b\d{4,6}\b/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+    if (cleaned.length >= 3) {
+      last = cleaned
+    }
+  }
+  return last
+}
+
+/**
+ * Generate smart address variants for geocoding.
+ * Google Maps place names look like:
+ * "Business Name Street Addr, District, City Region, Postal, Country"
+ * Geocoders fail on business names but work well with street + city.
+ */
+function buildAddressVariants(place) {
+  const variants = []
+  const parts = place.split(',').map(p => p.trim())
+
+  // Road/street keyword detection
+  const roadRe = /\b(Rd|Road|Ave|Avenue|St|Street|Blvd|Boulevard|Lane|Ln|Dr|Drive|Way|Hwy|Highway|Soi|Alley|Route|Rue|Straße|Strasse|Calle|Carrer|Camino|Via|Viale|Corso|Passage|Chemin|Chaussée|Place|Platz|Plaza)\b/i
+  const hasNumber = /\d+\/?[\d]*/
+
+  // Extract city name from middle administrative parts
+  const middleParts = parts.slice(1, -1)
+  const cityName = extractCityName(middleParts)
+  const country = parts.length >= 2 ? parts[parts.length - 1] : ''
+  const street = parts[0]
+
+  // 1. Street address without business name + city + country (BEST variant)
+  if (parts.length >= 3 && roadRe.test(street) && hasNumber.test(street) && cityName) {
+    const numMatch = street.match(/(\d+\/?[\d]*\s+.*)/)
+    if (numMatch) {
+      variants.push(`${numMatch[1]}, ${cityName}, ${country}`)
+    }
+  }
+
+  // 2. Full street part + city + country
+  if (cityName && country) {
+    variants.push(`${street}, ${cityName}, ${country}`)
+  }
+
+  // 3. Street address without business name + full remaining
+  if (parts.length >= 2 && roadRe.test(street) && hasNumber.test(street)) {
+    const numMatch = street.match(/(\d+\/?[\d]*\s+.*)/)
+    if (numMatch) {
+      variants.push([numMatch[1], ...parts.slice(1)].join(', '))
+    }
+  }
+
+  // 4. Full address as-is
+  variants.push(place)
+
+  // 5. Just city + country
+  if (cityName && country) {
+    variants.push(`${cityName}, ${country}`)
+  }
+
+  // 6. After first comma (existing fallback)
+  if (parts.length >= 2) {
+    variants.push(parts.slice(1).join(', '))
+  }
+
+  // Deduplicate
+  return [...new Set(variants)].filter(v => v.length >= 3)
+}
+
+/**
+ * Server-side geocoding using Nominatim (no CORS issues from Cloudflare Worker).
+ * Tries multiple address variants for best accuracy.
+ */
+async function geocodeAddress(place) {
+  const variants = buildAddressVariants(place)
+
+  for (const query of variants) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
+        {
+          headers: { 'User-Agent': 'SpotHitch/2.0 (https://spothitch.com)' },
+          signal: AbortSignal.timeout(4000),
+        }
+      )
+      const data = await res.json()
+      if (data?.[0]?.lat && data?.[0]?.lon) {
+        const lat = parseFloat(data[0].lat)
+        const lng = parseFloat(data[0].lon)
+        if (isValid(lat, lng)) return { lat, lng }
+      }
+    } catch { /* timeout or network error, try next variant */ }
+  }
+
+  // Fallback: try Photon geocoder
+  for (const query of variants.slice(0, 3)) {
+    try {
+      const res = await fetch(
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1`,
+        { signal: AbortSignal.timeout(3000) }
+      )
+      const data = await res.json()
+      const feature = data?.features?.[0]
+      if (feature?.geometry?.coordinates) {
+        const [lng, lat] = feature.geometry.coordinates
+        if (isValid(lat, lng)) return { lat, lng }
+      }
+    } catch { /* try next */ }
+  }
+
   return null
 }
 
