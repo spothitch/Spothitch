@@ -33,10 +33,9 @@ export function renderLanding() {
   return `
     <div id="landing-page" class="fixed inset-0 z-[100] bg-dark-primary overflow-hidden">
 
-      <!-- Top bar: Language + Skip -->
-      <div class="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
+      <!-- Top bar: Language -->
+      <div class="absolute top-4 left-4 right-4 z-20 flex items-center">
         <div class="flex gap-1.5">${langButtons}</div>
-        <button onclick="skipToLandingAuth()" class="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-slate-500 text-[13px] font-medium">${t('alphaSlideSkip')}</button>
       </div>
 
       <!-- Carousel Track -->
@@ -302,7 +301,7 @@ export function renderLanding() {
             class="w-full max-w-[320px] flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/[0.06] border border-white/[0.1] text-slate-400 font-medium text-[14px] relative z-10"
             type="button"
           >
-            ${t('alphaSlideSkip')}
+            ${t('laterBtn') || 'Plus tard'}
           </button>
         </div>
 
