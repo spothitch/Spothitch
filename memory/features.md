@@ -1,6 +1,6 @@
 # features.md - Inventaire complet des fonctionnalités SpotHitch
 
-> Dernière mise à jour : 2026-03-10 (session 40)
+> Dernière mise à jour : 2026-03-14
 > IMPORTANT : Vérifier ce fichier AVANT de proposer une feature — elle existe peut-être déjà !
 
 ---
@@ -31,8 +31,9 @@
 
 ## Spots
 
-- [x] 14 669 spots dans 137 pays (données importées)
+- [x] 3026 spots dans 74 pays (données importées, filtrées >= 2 reviews)
 - [x] Chargement lazy par pays (JSON)
+- [x] Déduction automatique method/groupSize/timeOfDay/season depuis les commentaires
 - [x] Création spot : wizard 3 étapes (Photo+Type → Expérience → Détails)
 - [x] Mini-carte toujours visible à l'étape 1 (tap pour placer le spot, GPS en raccourci)
 - [x] Photo obligatoire (compression WebP + preview, max 5 photos par spot)
@@ -158,7 +159,9 @@
 
 ## Onboarding & UX
 
-- [x] Carousel d'accueil 6 slides (nouveaux visiteurs) + sélecteur de langue (4 drapeaux, changement instantané)
+- [x] Carousel d'accueil 7 slides (5 originales + PWA install prompt + timeline Hitchwiki) + sélecteur de langue
+- [x] Astuce Google Maps dans AddSpot (design avant/après : manuel ~2min vs partage 3sec, masquable, lien discret)
+- [x] Compteur Hitchwiki vs SpotHitch sur la carte
 - [x] Map-first : montrer la carte immédiatement
 - [x] États vides avec messages et actions
 - [x] Skeletons de chargement animés
@@ -240,16 +243,17 @@
 - [x] Bannière d'installation après 30s
 - [x] Screenshots pour install prompt
 - [x] App shortcuts (Add Spot, SOS, Trip Planner, Profile)
-- [x] Share Target API (recevoir des partages d'autres apps)
+- [x] Share Target API (recevoir des partages d'autres apps, coordonnées GPS exactes via Google Maps embed)
 - [x] Carte de partage visuelle (WhatsApp, lien, screenshot) — branchée session 11
+- [x] Téléchargement offline par pays (sélecteur dans settings)
 - [x] Alertes de proximité spots (GPS, rayon configurable) — toggle branché session 11
 - [x] Badging API (badge compteur messages non-lus)
 - [x] Optimisations Lighthouse (preconnect, dns-prefetch, fetchpriority)
 
 ## Monitoring & Tests
 
-- [x] Sentry error tracking (optionnel, chunk isolé)
-- [x] 123 tests wiring + impact analysis (handlers, modal flags, structure App/state/main)
+- [x] Sentry error tracking (filtres agressifs, rate limit 5/min, traces 2%, un seul error handler)
+- [x] 131 tests wiring + impact analysis (handlers, modal flags, structure App/state/main)
 - [x] Tests integration modales
 - [x] E2E Playwright
 - [x] Visual regression (screenshots)
@@ -260,7 +264,7 @@
 - [x] Quality Gate CI (6 checks automatiques : handlers, i18n, dead exports, security patterns, localStorage RGPD, error patterns — score /100, bloque le deploy si < 70)
 - [x] Production Monitor (health check toutes les 6h + alerte GitHub issue automatique si échec)
 - [x] Plan Wolf v5 (mode --delta, intégration Quality Gate, tracking tendances QG)
-- [x] Sentry → GitHub Issues sync automatique (workflow 6h, labels sentry+bug, déduplication par titre)
+- [x] Sentry → GitHub Issues intégration native (pas de workflow custom)
 - [x] Visual Check script (screenshots automatiques Playwright, viewport 390x844)
 - [x] Pill toggle unifié (👍/👎) via src/utils/toggle.js (renderToggle + renderToggleCompact)
 

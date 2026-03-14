@@ -17,7 +17,8 @@
 | **Firebase Auth** | Configuré | Google, Email. Secrets GitHub OK (nouveau repo) |
 | **Firestore** | Configuré | Users, validations, messages, events, roadmap votes/comments |
 | **Firebase Storage** | Configuré | Photos spots, avatars |
-| **Sentry** | Configuré | DSN dans secrets GitHub. Intégration native Sentry → GitHub (pas de workflow custom) |
+| **Sentry** | Configuré + optimisé | DSN dans secrets GitHub. Filtres agressifs (réseau, WebGL, extensions), rate limit 5/min, traces 2%, un seul error handler. Intégration Sentry → GitHub active. |
+| **Worker Cloudflare** | Déployé | `spothitch-resolve-map-url.antoine-v-ville.workers.dev` résout les URLs courtes Google Maps avec coordonnées exactes via embed |
 | **Cloudflare** | Configuré | Account ID + API Token dans secrets GitHub |
 | **Monitoring** | UptimeRobot | Surveillance spothitch.com toutes les 5 min (remplace ancien workflow monitor.yml) |
 | **HTTPS** | Actif | Géré par Cloudflare |
@@ -39,7 +40,7 @@
 - **Geocoding** : Photon API (100ms) avec fallback Nominatim
 - **Auth** : Firebase Auth (Google, email)
 - **DB** : Firestore (temps réel) + localStorage (offline)
-- **Spots** : 3026 spots importés dans `public/data/spots/` (74 fichiers JSON par pays, filtrés >= 2 reviews)
+- **Spots** : 3026 spots importés dans `public/data/spots/` (74 fichiers JSON par pays, filtrés >= 2 reviews, method/groupSize/timeOfDay/season déduits des commentaires)
 - **i18n** : 4 langues (FR/EN/ES/DE), lazy-loaded par langue, ~4500 clés
 - **Tests** : Vitest (131 wiring tests) + Playwright E2E + Quality Gate CI
 - **PWA** : Service Worker Workbox, offline-first, installable
@@ -115,7 +116,10 @@
 - Accessibilité (clavier, lecteur écran, ARIA, contraste WCAG AA)
 - Conformité RGPD (cookie banner, export données, suppression compte)
 - SEO (188 pages villes, sitemap, structured data, Open Graph)
-- Onboarding carousel 5 slides + welcome alpha popup
+- Onboarding carousel 7 slides (5 originales + PWA install + Hitchwiki timeline) + welcome alpha popup
+- Astuce Google Maps dans AddSpot (design avant/après, masquable, lien discret après masquage)
+- Compteur Hitchwiki vs SpotHitch sur la carte
+- Téléchargement offline par pays (sélecteur dans settings)
 - Vérification identité progressive (5 niveaux)
 - Score de confiance (11 facteurs)
 - Signalement/blocage utilisateurs
@@ -159,7 +163,7 @@
 | Bandeau alpha | Toujours affiché | Phase alpha, sera retiré en beta |
 | Zéros nouvel utilisateur | Normal partout | Données viennent avec l'usage |
 | Beta guards | Modal "ARRIVE BIENTÔT" + vote | Collecte priorités avant dev |
-| Spots importés | 7061 spots affichés | Seront supprimés au lancement |
+| Spots importés | 3026 spots (filtrés >= 2 reviews) | Seront supprimés au lancement |
 | Auth pas obligatoire | On peut utiliser l'app sans compte | Auth progressive par design |
 
 ---

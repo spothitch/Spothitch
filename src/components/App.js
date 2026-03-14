@@ -485,6 +485,23 @@ function renderLegalModal(state) {
 }
 
 /**
+ * Update the spot counter (Hitchwiki vs SpotHitch) displayed on the map.
+ * Reads from spotLoader and writes to #hw-count / #sh-count DOM elements.
+ */
+function updateSpotCounter() {
+  const hwEl = document.getElementById('hw-count')
+  const shEl = document.getElementById('sh-count')
+  if (!hwEl && !shEl) return
+  import('../services/spotLoader.js').then(({ getAllLoadedSpots }) => {
+    const all = getAllLoadedSpots?.() || []
+    const hw = all.filter(s => s.source === 'hitchwiki').length
+    const community = all.filter(s => s.source !== 'hitchwiki').length
+    if (hwEl) hwEl.textContent = hw
+    if (shEl) shEl.textContent = community
+  }).catch(() => {})
+}
+
+/**
  * Inject / update persistent map controls inside #home-map.
  * Since #home-map is preserved across re-renders (never destroyed),
  * controls inside it won't blink/flash on state changes.
@@ -546,6 +563,10 @@ export function afterRender(state) {
 
   // Inject / update persistent map controls (zoom, GPS, gas stations)
   ensureMapControls(state)
+
+  // Update spot counter (hw-count / sh-count in Home.js)
+  updateSpotCounter()
+
   // Trip map: init when map-first view is active OR old showTripMap
   const tripMapNeeded = (state.showTripMap && (isMapTab(state) || state.showTripPlanner)) ||
     (state.tripResults && state.tripFormCollapsed && state.activeTab === 'challenges')
