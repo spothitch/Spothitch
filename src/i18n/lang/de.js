@@ -4297,6 +4297,16 @@ export default {
   comingSoonProximityF3: 'Batterieschonend. Intelligentes GPS',
   comingSoonProximityF4: 'Nur im Reisemodus aktiv',
 
+  companionF1: 'Finde einen Begleiter, der in die gleiche Richtung fährt',
+  companionF2: 'Kontaktiere ihn, um gemeinsam zu reisen',
+  companionF3: 'Verifizierte Profile für sicheres Reisen',
+  companionF4: 'Filter nach Datum, Ziel und Reisestil',
+  cityGuideTitle: 'Tramper-Stadtführer',
+  cityGuideF1: 'Die besten Spots der Stadt nach Richtung sortiert',
+  cityGuideF2: 'Durchschnittliche Wartezeit pro Spot und Tageszeit',
+  cityGuideF3: 'Lokale Gesetze und praktische Tipps zum Trampen',
+  cityGuideF4: 'Von der Community bei jedem Besuch bereichert',
+
   // Admin Dashboard (Feedback + Sentry)
   adminTabFeedback: 'Feedbacks',
   adminTabSentry: 'Fehler',

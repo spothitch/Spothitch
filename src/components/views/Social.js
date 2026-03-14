@@ -263,7 +263,24 @@ function renderMessagerieTab(state) {
         </button>
       </div>
 
-      <!-- Companion travel search: hidden until beta -->
+      <!-- Companion travel search — beta guard -->
+      <div class="px-4 pb-2">
+        <button onclick="openComingSoonCompanion()"
+          class="card p-3 border-white/10 opacity-75 w-full text-left">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center text-lg">
+                🤝
+              </div>
+              <div>
+                <div class="text-sm font-medium">${t('lookingForCompanion')}</div>
+                <div class="text-xs text-slate-400">${t('comingSoon')}</div>
+              </div>
+            </div>
+            <span class="text-xs">${icon('chevron-right', 'w-4 h-4 text-slate-400')}</span>
+          </div>
+        </button>
+      </div>
 
       <!-- Conversation list -->
       ${allConversations.length > 0 ? `

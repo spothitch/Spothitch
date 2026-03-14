@@ -4242,6 +4242,16 @@ export default {
   comingSoonProximityF3: 'Battery-saving. Smart GPS',
   comingSoonProximityF4: 'Active only in travel mode',
 
+  companionF1: 'Find a companion heading the same direction',
+  companionF2: 'Get in touch to travel together',
+  companionF3: 'Verified profiles for safe travel',
+  companionF4: 'Filter by date, destination and travel style',
+  cityGuideTitle: 'Hitchhiking city guide',
+  cityGuideF1: 'Best spots in the city sorted by direction',
+  cityGuideF2: 'Average wait time per spot and time of day',
+  cityGuideF3: 'Local hitchhiking laws and practical tips',
+  cityGuideF4: 'Enriched by the community with every visit',
+
   // Admin Dashboard (Feedback + Sentry)
   adminTabFeedback: 'Feedbacks',
   adminTabSentry: 'Errors',

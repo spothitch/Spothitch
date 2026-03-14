@@ -113,6 +113,8 @@ const MAIN_JS_HANDLERS = [
   'createTeamAction', 'joinTeamAction', 'leaveTeamAction', 'startTeamChallengeAction',
   // Coming soon feature modals
   'openComingSoonRadar', 'closeComingSoonRadar',
+  'openComingSoonCompanion', 'closeComingSoonCompanion',
+  'openComingSoonCityGuide', 'closeComingSoonCityGuide',
   // Nearby friends
   'toggleNearbyFriends', 'openNearbyFriends', 'closeNearbyFriends',
   // Profile customization

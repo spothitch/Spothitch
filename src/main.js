@@ -2065,7 +2065,10 @@ if (!window.closeReport) {
 // Coming soon feature modals
 window.openComingSoonRadar = () => setState({ showComingSoonRadar: true })
 window.closeComingSoonRadar = () => setState({ showComingSoonRadar: false })
-// openComingSoonIdentity removed — uses standard beta guard
+window.openComingSoonCompanion = () => setState({ showComingSoonCompanion: true })
+window.closeComingSoonCompanion = () => setState({ showComingSoonCompanion: false })
+window.openComingSoonCityGuide = () => setState({ showComingSoonCityGuide: true })
+window.closeComingSoonCityGuide = () => setState({ showComingSoonCityGuide: false })
 
 // Nearby friends handlers — lazy-loaded
 window.toggleNearbyFriends = async (...args) => {

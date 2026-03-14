@@ -324,6 +324,34 @@ export function renderModals(state) {
         { ic: 'compass', text: t('comingSoonProximityF4') || 'Actif uniquement en mode voyage' },
       ],
     }) : ''}
+    ${state.showComingSoonCompanion ? renderComingSoonModal({
+      onClose: 'closeComingSoonCompanion',
+      icon: 'users',
+      iconColor: 'text-emerald-400',
+      iconBg: 'bg-emerald-500/20',
+      borderColor: 'border-emerald-500/30',
+      title: t('lookingForCompanion') || 'Compagnon de route',
+      items: [
+        { ic: 'search', text: t('companionF1') || 'Trouve un compagnon qui va dans la même direction' },
+        { ic: 'message-circle', text: t('companionF2') || 'Contacte-le pour faire route ensemble' },
+        { ic: 'shield', text: t('companionF3') || 'Profils vérifiés pour voyager en confiance' },
+        { ic: 'map-pin', text: t('companionF4') || 'Filtre par date, destination et style de voyage' },
+      ],
+    }) : ''}
+    ${state.showComingSoonCityGuide ? renderComingSoonModal({
+      onClose: 'closeComingSoonCityGuide',
+      icon: 'book-open',
+      iconColor: 'text-amber-400',
+      iconBg: 'bg-amber-500/20',
+      borderColor: 'border-amber-500/30',
+      title: t('cityGuideTitle') || 'Guide autostop par ville',
+      items: [
+        { ic: 'map-pin', text: t('cityGuideF1') || 'Les meilleurs spots de la ville classés par direction' },
+        { ic: 'clock', text: t('cityGuideF2') || "Temps d'attente moyen par spot et par heure" },
+        { ic: 'alert-triangle', text: t('cityGuideF3') || 'Lois locales et conseils pratiques pour le stop' },
+        { ic: 'users', text: t('cityGuideF4') || 'Enrichi par la communauté à chaque passage' },
+      ],
+    }) : ''}
     ${state.showMyData ? lazyRender('renderMyDataModal') : ''}
     ${state.showTitles ? lazyRender('renderTitlesModal', state) : ''}
     ${state.showFriendProfile ? lazyRender('renderFriendProfileModal', state) : ''}

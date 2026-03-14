@@ -228,7 +228,15 @@ window.searchMapSuggestions = (query) => {
                   <div class="font-medium text-sm truncate">${shortName}</div>
                   <div class="text-xs text-slate-400 truncate">${r.display_name}</div>
                 </button>
-                ${''}<!-- City guide: hidden until beta -->
+                ${isCity ? `
+                  <button
+                    onclick="openComingSoonCityGuide()"
+                    class="w-full px-4 py-2 text-left text-slate-400 hover:bg-white/5 transition-colors text-xs border-t border-white/5 opacity-75"
+                  >
+                    📍 ${window.t?.('guideHitchhikingCity') || 'Hitchhiking guide:'} ${cityName}
+                    <span class="text-amber-400 ml-1">${window.t?.('comingSoon') || 'Bientôt'}</span>
+                  </button>
+                ` : ''}
               </div>`
             }).join('')}
           </div>

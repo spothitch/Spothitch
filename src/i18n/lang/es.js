@@ -4239,6 +4239,16 @@ export default {
   comingSoonProximityF3: 'Ahorro de batería. GPS inteligente',
   comingSoonProximityF4: 'Activo solo en modo viaje',
 
+  companionF1: 'Encuentra un compañero que va en la misma dirección',
+  companionF2: 'Contáctalo para viajar juntos',
+  companionF3: 'Perfiles verificados para viajar con confianza',
+  companionF4: 'Filtra por fecha, destino y estilo de viaje',
+  cityGuideTitle: 'Guía de autostop por ciudad',
+  cityGuideF1: 'Los mejores spots de la ciudad ordenados por dirección',
+  cityGuideF2: 'Tiempo de espera promedio por spot y hora',
+  cityGuideF3: 'Leyes locales y consejos prácticos para el autostop',
+  cityGuideF4: 'Enriquecido por la comunidad con cada visita',
+
   // Admin Dashboard (Feedback + Sentry)
   adminTabFeedback: 'Feedbacks',
   adminTabSentry: 'Errores',
