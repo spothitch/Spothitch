@@ -126,7 +126,7 @@ export default defineConfig({
         navigateFallback: '/index.html',
         globPatterns: ['index.html', 'assets/index-*.js', 'assets/vendor-utils-*.js', 'assets/*.css', 'fonts/*.woff2'],
       globIgnores: ['**/*.map', '**/*legacy*', '**/gamification-*', '**/vendor-maplibre-*', '**/vendor-firebase-*', '**/vendor-sentry-*', '**/social-*', '**/guides-*', '**/admin-*'],
-        navigateFallbackDenylist: [/^\/design-/, /^\/debug-/, /^\/city\//, /^\/guides\//],
+        navigateFallbackDenylist: [/^\/design-/, /^\/debug-/, /^\/guides\//],
         runtimeCaching: [
           {
             // Local JS/CSS assets: network first so stale hashes don't break the app

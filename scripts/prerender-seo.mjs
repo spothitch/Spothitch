@@ -240,15 +240,12 @@ ${crossLinks}
 </html>`
 }
 
-function generateSitemap(guides, cities) {
+function generateSitemap(guides) {
   const today = new Date().toISOString().split('T')[0]
   const urls = [
     `  <url><loc>${BASE_URL}/</loc><changefreq>weekly</changefreq><priority>1.0</priority><lastmod>${today}</lastmod></url>`,
     ...guides.map(g =>
       `  <url><loc>${BASE_URL}/guides/${g.code.toLowerCase()}</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>${today}</lastmod></url>`
-    ),
-    ...cities.map(c =>
-      `  <url><loc>${BASE_URL}/city/${c.slug}</loc><changefreq>monthly</changefreq><priority>0.6</priority><lastmod>${today}</lastmod></url>`
     ),
   ]
 
@@ -971,25 +968,9 @@ for (const guide of guides) {
   writeFileSync(join(dir, 'index.html'), generateGuideHTML(guide, guides))
 }
 
-// ==================== CITY PAGES ====================
-console.log('Loading all spots for city pages...')
-const allSpots = await loadAllSpots()
+// City pages removed — will be re-added with real community data for beta
 
-const cities = buildCitySEOData(allSpots)
-console.log(`Building city pages for ${cities.length} cities with 2+ spots...`)
+// Generate sitemap (guides only, no city pages)
+writeFileSync(join(DIST_PATH, 'sitemap.xml'), generateSitemap(guides))
 
-// Create city directory
-const cityDir = join(DIST_PATH, 'city')
-if (!existsSync(cityDir)) mkdirSync(cityDir, { recursive: true })
-
-// Generate city pages
-for (const city of cities) {
-  const dir = join(cityDir, city.slug)
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
-  writeFileSync(join(dir, 'index.html'), generateCityHTML(city))
-}
-
-// Generate sitemap (robots.txt comes from public/, not generated here)
-writeFileSync(join(DIST_PATH, 'sitemap.xml'), generateSitemap(guides, cities))
-
-console.log(`Generated ${guides.length} guide pages + ${cities.length} city pages + sitemap.xml`)
+console.log(`Generated ${guides.length} guide pages + sitemap.xml`)
