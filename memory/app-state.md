@@ -118,10 +118,13 @@
 - Accessibilité (clavier, lecteur écran, ARIA, contraste WCAG AA)
 - Conformité RGPD (cookie banner, export données, suppression compte)
 - SEO (sitemap, structured data, Open Graph). Pages villes SEO supprimées (nettoyage).
-- Onboarding carousel 7 slides (5 originales + PWA install + Hitchwiki timeline) + welcome alpha popup
+- Onboarding carousel 8 slides (5 originales + Hitchwiki timeline + code alpha + PWA install + connexion). Bouton Skip supprimé.
 - Astuce Google Maps dans AddSpot (design avant/après, masquable, lien discret après masquage)
-- Compteur Hitchwiki vs SpotHitch sur la carte
-- Téléchargement offline par pays (sélecteur dans settings)
+- Code d'accès alpha (slide 6 du carousel, code "Dreamer2026", bloquant, contact @captain_pouce / spothitch@gmail.com)
+- Compteur Hitchwiki vs SpotHitch sur la carte (à droite du bouton Guides, total 3026 depuis index)
+- Téléchargement offline par pays (sélecteur dans settings, i18n corrigé, jauge espace fonctionnelle)
+- Recherche suggestions dédupliquées (plus de doublons)
+- Réseaux sociaux avec emoji + label texte + liens cliquables (📷 Instagram, 🎵 TikTok, 👤 Facebook, ▶️ YouTube, 𝕏 X/Twitter, 👻 Snapchat)
 - Vérification identité progressive (5 niveaux)
 - Score de confiance (11 facteurs) dans Réglages > Vérification (retiré du Profil)
 - Signalement/blocage utilisateurs
@@ -167,6 +170,8 @@
 |---------|----------|--------|
 | Badge "Avis" flottant | Visible partout, draggable | Mécanisme central feedback alpha |
 | Bandeau alpha | Toujours affiché | Phase alpha, sera retiré en beta |
+| Code alpha "Dreamer2026" | Slide 6 du carousel, bloquant | Empêche l'accès sans invitation |
+| Bouton Skip supprimé | Plus de raccourci dans le carousel | Tout le monde doit passer par le code |
 | Zéros nouvel utilisateur | Normal partout | Données viennent avec l'usage |
 | Beta guards | Modal "ARRIVE BIENTÔT" + vote | Collecte priorités avant dev |
 | Spots importés | 3026 spots (filtrés >= 2 reviews) | Seront supprimés au lancement |
