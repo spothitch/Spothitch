@@ -397,10 +397,11 @@ async function init() {
         try { await initNotifications() } catch (e) { /* optional */ }
 
         // Error tracking (Sentry)
+        // NOTE: only initSentry — do NOT call setupGlobalErrorHandlers here,
+        // errorBoundary already handles global errors and Sentry SDK auto-captures them.
         try {
-          const { initSentry, setupGlobalErrorHandlers } = await import('./services/sentry.js')
+          const { initSentry } = await import('./services/sentry.js')
           await initSentry()
-          setupGlobalErrorHandlers()
         } catch (e) { /* optional */ }
 
         // Firebase — always initialize and listen for auth state
@@ -596,7 +597,9 @@ async function init() {
       console.warn('Back button init skipped:', e.message);
     }
 
-    // Setup global error handlers
+    // Setup global error handlers (errorBoundary only — Sentry has its own via initSentry)
+    // NOTE: Sentry's setupGlobalErrorHandlers is intentionally NOT called to avoid
+    // double-reporting. Sentry SDK auto-captures unhandled errors via its integration.
     try {
       setupErrorHandlers();
     } catch (e) {
@@ -2727,38 +2730,57 @@ window.downloadCountryFromBubble = async (code, name) => {
 // ==================== OFFLINE DOWNLOAD HANDLERS ====================
 
 window.downloadCountryOffline = async (code, name) => {
-  const btn = document.getElementById(`offline-download-${code}`)
+  // Disable button
+  const btn = document.getElementById(`dl-btn-${code}`) || document.getElementById(`offline-download-${code}`)
   if (btn) {
     btn.disabled = true
-    btn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin mr-2')}${t('downloading') || 'Téléchargement...'}`
+    btn.style.opacity = '0.5'
   }
+
+  // Show progress panel if in settings
+  const progressEl = document.getElementById('offline-dl-progress')
+  const labelEl = document.getElementById('offline-dl-label')
+  const pctEl = document.getElementById('offline-dl-pct')
+  const barEl = document.getElementById('offline-dl-bar')
+  const phaseEl = document.getElementById('offline-dl-phase')
+  if (progressEl) progressEl.classList.remove('hidden')
+  if (labelEl) labelEl.textContent = `${name}...`
+
+  const phases = [
+    t('offlinePhaseSpots') || 'Spots...',
+    t('offlinePhaseSpots') || 'Spots...',
+    t('offlinePhaseTiles') || 'Carte...',
+    t('offlinePhaseStations') || 'Stations-service...',
+    t('offlinePhaseDone') || 'Finalisation...',
+  ]
+
   try {
     const { downloadCountrySpots } = await import('./services/offlineDownload.js')
     const result = await downloadCountrySpots(code, (progress) => {
-      if (btn) btn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin mr-2')}${progress}%`
+      if (pctEl) pctEl.textContent = `${progress}%`
+      if (barEl) barEl.style.width = `${progress}%`
+      if (phaseEl) {
+        if (progress < 30) phaseEl.textContent = phases[1]
+        else if (progress < 70) phaseEl.textContent = phases[2]
+        else if (progress < 95) phaseEl.textContent = phases[3]
+        else phaseEl.textContent = phases[4]
+      }
     })
     if (result.success) {
-      showToast(`${name}: ${result.count} ${t('spotsDownloaded') || 'spots téléchargés pour offline'}`, 'success')
-      if (btn) {
-        btn.innerHTML = `${icon('check', 'w-5 h-5 mr-2')}${t('downloaded') || 'Téléchargé'}`
-        btn.classList.remove('border-primary-500/30', 'text-primary-400')
-        btn.classList.add('border-green-500/30', 'text-green-400')
-      }
+      showToast(`${name}: ${result.count} spots · ${result.stationCount} ⛽ · ${Math.round(result.tileSizeMB)} Mo`, 'success')
+      // Refresh the settings view to show new country in list
+      setState({ profileSubTab: 'reglages' })
     } else {
       showToast(t('downloadFailed') || 'Échec du téléchargement', 'error')
-      if (btn) {
-        btn.disabled = false
-        btn.innerHTML = `${icon('download', 'w-5 h-5')} ${t('downloadForOffline') || 'Télécharger pour offline'}`
-      }
+      if (btn) { btn.disabled = false; btn.style.opacity = '1' }
     }
   } catch (e) {
     console.error('Offline download error:', e)
     showToast(t('downloadError') || 'Erreur lors du téléchargement', 'error')
-    if (btn) {
-      btn.disabled = false
-      btn.innerHTML = `${icon('download', 'w-5 h-5')} ${t('downloadForOffline') || 'Télécharger pour offline'}`
-    }
+    if (btn) { btn.disabled = false; btn.style.opacity = '1' }
   }
+  // Hide progress
+  if (progressEl) progressEl.classList.add('hidden')
 }
 
 window.deleteOfflineCountry = async (code) => {

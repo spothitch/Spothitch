@@ -1021,19 +1021,21 @@ function renderOfflineManagerCard(_state) {
   const offlineCountries = (() => {
     try { return JSON.parse(localStorage.getItem('spothitch_offline_countries') || '[]') } catch { return [] }
   })()
+  const downloadedCodes = new Set(offlineCountries.map(c => c.code))
 
+  // Downloaded countries list
   const countryRows = offlineCountries.map(c => {
     const info = COUNTRY_MAP[c.code] || { flag: '🌍', name: c.code }
     const spots = c.count || 0
     const stations = c.stationCount || 0
-    const tiles = c.tileSizeMB ? `${c.tileSizeMB} Mo` : '-'
+    const tiles = c.tileSizeMB ? `${Math.round(c.tileSizeMB)} Mo` : '-'
     return `
-      <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+      <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
         <div class="flex items-center gap-3 min-w-0">
           <span class="text-lg">${info.flag}</span>
           <div class="min-w-0">
-            <div class="text-sm font-medium truncate">${info.name}</div>
-            <div class="text-xs text-slate-400">${spots} spots · ${stations} stations · ${tiles}</div>
+            <div class="text-sm font-medium truncate">${info.name} <span class="text-emerald-400 text-xs">✓</span></div>
+            <div class="text-xs text-slate-400">${spots} spots · ${stations} ⛽ · ${tiles}</div>
           </div>
         </div>
         <button
@@ -1048,13 +1050,22 @@ function renderOfflineManagerCard(_state) {
     `
   }).join('')
 
-  const emptyState = offlineCountries.length === 0
-    ? `<div class="text-center py-4">
-        <div class="text-2xl mb-2">📥</div>
-        <div class="text-sm text-slate-400">${t('noOfflineData') || 'Aucune donnée hors-ligne'}</div>
-        <div class="text-xs text-slate-500 mt-1">${t('offlineHint') || 'Télécharge un pays depuis la carte pour l\'utiliser sans internet'}</div>
-      </div>`
-    : ''
+  // Available countries to download (not yet downloaded, sorted by name)
+  const availableCountries = Object.entries(COUNTRY_MAP)
+    .filter(([code]) => !downloadedCodes.has(code))
+    .sort((a, b) => a[1].name.localeCompare(b[1].name))
+    .map(([code, info]) => `
+      <button
+        id="dl-btn-${code}"
+        onclick="downloadCountryOffline('${code}', '${info.name.replace(/'/g, "\\'")}')"
+        class="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors w-full text-left"
+        type="button"
+      >
+        <span class="text-base">${info.flag}</span>
+        <span class="text-xs text-slate-300 flex-1 truncate">${info.name}</span>
+        <span class="text-[10px] text-primary-400">${icon('download', 'w-3.5 h-3.5')}</span>
+      </button>
+    `).join('')
 
   return `
     <div class="card p-4 space-y-3">
@@ -1062,6 +1073,8 @@ function renderOfflineManagerCard(_state) {
         ${icon('download', 'w-4 h-4')}
         ${t('offlineManager') || 'Données hors-ligne'}
       </h3>
+
+      <!-- Storage bar -->
       <div class="p-3 rounded-xl bg-white/5">
         <div class="flex items-center justify-between mb-1">
           <span class="text-xs text-slate-400">${t('storageUsed') || 'Espace utilisé'}</span>
@@ -1071,8 +1084,31 @@ function renderOfflineManagerCard(_state) {
           <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all" id="offline-storage-bar" style="width: 0%"></div>
         </div>
       </div>
+
+      <!-- Progress indicator (hidden by default) -->
+      <div id="offline-dl-progress" class="hidden p-3 rounded-xl bg-primary-500/5 border border-primary-500/10">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs text-primary-400 font-medium" id="offline-dl-label">${t('downloading') || 'Téléchargement...'}</span>
+          <span class="text-xs font-mono text-primary-300" id="offline-dl-pct">0%</span>
+        </div>
+        <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-primary-500 to-amber-400 rounded-full transition-all" id="offline-dl-bar" style="width: 0%"></div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-1" id="offline-dl-phase">${t('offlinePhaseSpots') || 'Spots...'}</div>
+      </div>
+
+      <!-- Downloaded countries -->
       ${countryRows}
-      ${emptyState}
+
+      <!-- Download a country -->
+      <div class="pt-1">
+        <div class="text-xs text-slate-500 font-medium mb-2">${t('downloadCountry') || 'Télécharger un pays'}</div>
+        <div class="text-[10px] text-slate-600 mb-2">${t('offlineIncluded') || 'Inclut : carte, spots et stations-service'}</div>
+        <div class="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">
+          ${availableCountries}
+        </div>
+      </div>
+
       ${offlineCountries.length > 0 ? `
         <button
           onclick="clearAllOfflineData()"
