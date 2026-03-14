@@ -296,9 +296,9 @@ function convertToAppFormat(rawSpots, countryCode) {
         lastValidatedBy: null,
         lastTestedBy: null,
         rideResult: reviews > 0 ? 'yes' : null,
-        method: s.method || 'thumb',
-        groupSize: s.groupSize || 'solo',
-        timeOfDay: s.timeOfDay || 'morning',
+        method: s.method || null,
+        groupSize: s.groupSize || null,
+        timeOfDay: s.timeOfDay || null,
         season: s.season || null,
         // Legacy (kept for backward compat)
         userValidations: reviews,
