@@ -12,7 +12,7 @@ export function renderAuth(state) {
 
   return `
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      class="fixed inset-0 z-[110] flex items-center justify-center p-4"
       onclick="closeAuth()"
       role="dialog"
       aria-modal="true"
@@ -294,7 +294,7 @@ export function renderAuth(state) {
 export function renderCompleteProfile(_state) {
   return `
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      class="fixed inset-0 z-[110] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="complete-profile-title"
