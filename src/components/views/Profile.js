@@ -594,12 +594,12 @@ function renderSocialLinksCard(_state) {
     ? JSON.parse(localStorage.getItem('spothitch_social_links') || '{}')
     : {}
   const networks = [
-    { id: 'instagram', icon: 'camera', label: 'Instagram', color: 'text-pink-400', url: 'https://instagram.com/', prefix: '@' },
-    { id: 'tiktok', icon: 'video', label: 'TikTok', color: 'text-slate-300', url: 'https://tiktok.com/@', prefix: '@' },
-    { id: 'facebook', icon: 'users', label: 'Facebook', color: 'text-blue-400', url: 'https://facebook.com/', prefix: '' },
-    { id: 'youtube', icon: 'play', label: 'YouTube', color: 'text-red-400', url: 'https://youtube.com/@', prefix: '@' },
-    { id: 'twitter', icon: 'mail', label: 'X / Twitter', color: 'text-sky-400', url: 'https://x.com/', prefix: '@' },
-    { id: 'snapchat', icon: 'send', label: 'Snapchat', color: 'text-yellow-300', url: 'https://snapchat.com/add/', prefix: '' },
+    { id: 'instagram', emoji: '📷', label: 'Instagram', color: 'text-pink-400', url: 'https://instagram.com/', prefix: '@' },
+    { id: 'tiktok', emoji: '🎵', label: 'TikTok', color: 'text-slate-300', url: 'https://tiktok.com/@', prefix: '@' },
+    { id: 'facebook', emoji: '👤', label: 'Facebook', color: 'text-blue-400', url: 'https://facebook.com/', prefix: '' },
+    { id: 'youtube', emoji: '▶️', label: 'YouTube', color: 'text-red-400', url: 'https://youtube.com/@', prefix: '@' },
+    { id: 'twitter', emoji: '𝕏', label: 'X / Twitter', color: 'text-sky-400', url: 'https://x.com/', prefix: '@' },
+    { id: 'snapchat', emoji: '👻', label: 'Snapchat', color: 'text-yellow-300', url: 'https://snapchat.com/add/', prefix: '' },
   ]
   return `
     <div class="card p-4">
@@ -614,22 +614,23 @@ function renderSocialLinksCard(_state) {
           const val = social[n.id] || ''
           const username = val.replace(/^@/, '')
           const hasValue = username.length > 0
+          const link = `${n.url}${encodeURIComponent(username)}`
           return `
           <div class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5">
-            ${hasValue
-              ? `<a href="${n.url}${encodeURIComponent(username)}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0" aria-label="${n.label}">${icon(n.icon, `w-4 h-4 ${n.color}`)}</a>`
-              : icon(n.icon, `w-4 h-4 ${n.color} flex-shrink-0`)
-            }
-            <input
-              type="text"
-              id="social-link-${n.id}"
-              placeholder="${n.prefix}${t('username') || 'pseudo'}"
-              value="${val}"
-              onblur="saveSocialLink('${n.id}', this.value); setState({profileSubTab:'profil'})"
-              onkeydown="if(event.key==='Enter'){this.blur()}"
-              class="flex-1 bg-transparent text-sm outline-none placeholder-slate-600"
-            />
-            ${hasValue ? `<a href="${n.url}${encodeURIComponent(username)}" target="_blank" rel="noopener noreferrer" class="text-xs ${n.color} hover:underline flex-shrink-0">${icon('external-link', 'w-3.5 h-3.5')}</a>` : ''}
+            <span class="text-base flex-shrink-0">${n.emoji}</span>
+            <div class="flex-1 min-w-0">
+              <div class="text-[10px] ${n.color} font-semibold mb-0.5">${escapeHTML(n.label)}</div>
+              <input
+                type="text"
+                id="social-link-${n.id}"
+                placeholder="${n.prefix}${t('username') || 'pseudo'}"
+                value="${escapeHTML(val)}"
+                onblur="saveSocialLink('${n.id}', this.value); setState({profileSubTab:'profil'})"
+                onkeydown="if(event.key==='Enter'){this.blur()}"
+                class="w-full bg-transparent text-sm outline-none placeholder-slate-600"
+              />
+            </div>
+            ${hasValue ? `<a href="${escapeHTML(link)}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 transition-colors" aria-label="${escapeHTML(n.label)}">${icon('external-link', `w-4 h-4 ${n.color}`)}</a>` : ''}
           </div>
           `
         }).join('')}

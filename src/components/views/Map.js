@@ -202,8 +202,16 @@ window.searchMapSuggestions = (query) => {
         `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5`,
         { headers: { 'User-Agent': 'SpotHitch/2.0' } }
       )
-      const results = await response.json()
-      if (results && results.length > 0) {
+      let results = await response.json()
+      // Deduplicate by short name
+      const seen = new Set()
+      results = (results || []).filter(r => {
+        const key = r.display_name.split(',').slice(0, 2).join(',').trim().toLowerCase()
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      if (results.length > 0) {
         container.classList.remove('hidden')
         const isCityType = (r) => ['city', 'town', 'village', 'municipality', 'hamlet', 'suburb'].some(
           t => (r.type || '').includes(t) || (r.class || '') === 'place'

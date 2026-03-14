@@ -492,12 +492,21 @@ function updateSpotCounter() {
   const hwEl = document.getElementById('hw-count')
   const shEl = document.getElementById('sh-count')
   if (!hwEl && !shEl) return
-  import('../services/spotLoader.js').then(({ getAllLoadedSpots }) => {
-    const all = getAllLoadedSpots?.() || []
-    const hw = all.filter(s => s.source === 'hitchwiki').length
-    const community = all.filter(s => s.source !== 'hitchwiki').length
-    if (hwEl) hwEl.textContent = hw
-    if (shEl) shEl.textContent = community
+  import('../services/spotLoader.js').then(({ loadSpotIndex, getAllLoadedSpots }) => {
+    // Get total from index (all spots, not just loaded)
+    loadSpotIndex?.().then(index => {
+      const totalHW = index?.totalSpots || 0
+      // Community spots from loaded data
+      const all = getAllLoadedSpots?.() || []
+      const community = all.filter(s => s.source !== 'hitchwiki').length
+      if (hwEl) hwEl.textContent = totalHW
+      if (shEl) shEl.textContent = community
+    }).catch(() => {
+      // Fallback to loaded spots
+      const all = getAllLoadedSpots?.() || []
+      if (hwEl) hwEl.textContent = all.filter(s => s.source === 'hitchwiki').length
+      if (shEl) shEl.textContent = all.filter(s => s.source !== 'hitchwiki').length
+    })
   }).catch(() => {})
 }
 
@@ -566,6 +575,20 @@ export function afterRender(state) {
 
   // Update spot counter (hw-count / sh-count in Home.js)
   updateSpotCounter()
+
+  // Update offline storage size
+  const storageSizeEl = document.getElementById('offline-storage-size')
+  if (storageSizeEl && storageSizeEl.textContent === '...') {
+    navigator.storage?.estimate?.().then(est => {
+      const usedMB = ((est.usage || 0) / 1024 / 1024).toFixed(1)
+      const quotaMB = ((est.quota || 0) / 1024 / 1024 / 1024).toFixed(1)
+      if (storageSizeEl) storageSizeEl.textContent = `${usedMB} Mo / ${quotaMB} Go`
+      const barEl = document.getElementById('offline-storage-bar')
+      if (barEl && est.quota) barEl.style.width = `${Math.min(100, (est.usage / est.quota) * 100).toFixed(1)}%`
+    }).catch(() => {
+      if (storageSizeEl) storageSizeEl.textContent = 'Non disponible'
+    })
+  }
 
   // Trip map: init when map-first view is active OR old showTripMap
   const tripMapNeeded = (state.showTripMap && (isMapTab(state) || state.showTripPlanner)) ||
