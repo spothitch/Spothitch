@@ -4305,7 +4305,6 @@ export default {
   clearAllOffline: 'Eliminar todo',
   downloadCountry: 'Descargar un país',
   offlineIncluded: 'Incluye: mapa, spots y gasolineras',
-  downloading: 'Descargando...',
   offlinePhaseSpots: 'Spots...',
   offlinePhaseTiles: 'Mapa...',
   offlinePhaseStations: 'Gasolineras...',

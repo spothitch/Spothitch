@@ -5,7 +5,7 @@
 
 import { t } from '../../i18n/index.js'
 import { renderDonationCard } from '../ui/DonationCard.js'
-import { renderTrustScoreCard, renderVerifiedCheckmark, getUserTrustScore } from '../../services/trustScore.js'
+import { renderVerifiedCheckmark, getUserTrustScore } from '../../services/trustScore.js'
 import { icon } from '../../utils/icons.js'
 import { renderEmptyState } from '../EmptyState.js'
 import { renderToggle } from '../../utils/toggle.js'

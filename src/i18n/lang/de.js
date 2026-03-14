@@ -4363,7 +4363,6 @@ export default {
   clearAllOffline: 'Alles löschen',
   downloadCountry: 'Ein Land herunterladen',
   offlineIncluded: 'Enthält: Karte, Spots und Tankstellen',
-  downloading: 'Herunterladen...',
   offlinePhaseSpots: 'Spots...',
   offlinePhaseTiles: 'Karte...',
   offlinePhaseStations: 'Tankstellen...',

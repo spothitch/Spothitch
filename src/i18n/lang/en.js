@@ -4308,7 +4308,6 @@ export default {
   clearAllOffline: 'Delete all',
   downloadCountry: 'Download a country',
   offlineIncluded: 'Includes: map, spots and gas stations',
-  downloading: 'Downloading...',
   offlinePhaseSpots: 'Spots...',
   offlinePhaseTiles: 'Map...',
   offlinePhaseStations: 'Gas stations...',

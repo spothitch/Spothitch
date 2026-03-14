@@ -208,6 +208,7 @@ export const STORAGE_KEYS = [
 
   // === UX ===
   { key: 'spothitch_landing_v2', category: DataCategory.SETTINGS, description: 'Alpha landing carousel dismissed flag' },
+  { key: 'spothitch_alpha_code', category: DataCategory.SETTINGS, description: 'Alpha access code validated flag' },
   { key: 'spothitch_fb_btn_y', category: DataCategory.SETTINGS, description: 'Feedback button Y position on left edge' },
   { key: 'spothitch_sos_disclaimer_seen', category: DataCategory.SETTINGS, description: 'SOS disclaimer accepted flag' },
   { key: 'spothitch_roadmap_intro_seen', category: DataCategory.SETTINGS, description: 'Roadmap intro screen dismissed flag' },

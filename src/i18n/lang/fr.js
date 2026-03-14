@@ -4308,7 +4308,6 @@ export default {
   clearAllOffline: 'Tout supprimer',
   downloadCountry: 'Télécharger un pays',
   offlineIncluded: 'Inclut : carte, spots et stations-service',
-  downloading: 'Téléchargement...',
   offlinePhaseSpots: 'Spots...',
   offlinePhaseTiles: 'Carte...',
   offlinePhaseStations: 'Stations-service...',
