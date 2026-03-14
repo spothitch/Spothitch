@@ -392,7 +392,7 @@ jobs:
         run: |
           echo "Waiting 30s for deploy propagation..."
           sleep 30
-          node scripts/monitor.mjs
+          curl -sf https://spothitch.com > /dev/null && echo "Site is live" || (echo "Site unreachable" && exit 1)
 
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
@@ -434,7 +434,7 @@ jobs:
         run: |
           echo "Waiting 30s for deploy propagation..."
           sleep 30
-          node scripts/monitor.mjs
+          curl -sf https://spothitch.com > /dev/null && echo "Site is live" || (echo "Site unreachable" && exit 1)
 
   deploy-staging:
     name: Deploy to Cloudflare Pages (staging → preview)
