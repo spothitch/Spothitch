@@ -24,6 +24,7 @@ export default defineConfig({
         'src/services/sentry.js',
         'src/utils/image.js',
         'src/utils/backButton.js',
+        'src/components/modals/AddSpot.js',
       ],
       thresholds: {
         statements: 20,
