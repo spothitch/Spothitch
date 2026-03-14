@@ -91,16 +91,8 @@ export function renderHome(state) {
 
       <!-- Map controls injected persistently inside #home-map by App.js afterRender -->
 
-      <!-- Spot Counter -->
-      <div id="spot-counter" class="absolute bottom-[6.5rem] right-16 z-20 pointer-events-none">
-        <div class="flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg text-[11px]">
-          <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> Hitchwiki</span>
-          <span class="flex items-center gap-1 text-emerald-400"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> SpotHitch</span>
-        </div>
-      </div>
-
-      <!-- Country Guide shortcut → Voyage > Guides -->
-      <div class="absolute bottom-[6.5rem] left-4 z-20">
+      <!-- Country Guide shortcut + Spot Counter -->
+      <div class="absolute bottom-[6.5rem] left-4 z-20 flex items-center gap-2">
         <button
           onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
           class="flex items-center gap-2 px-4 py-3 rounded-xl min-h-[44px] ${hasGuide ? 'bg-emerald-500/90 text-white hover:bg-emerald-600' : 'bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 hover:text-white hover:border-emerald-500/50'} transition-colors text-sm shadow-lg"
@@ -110,6 +102,12 @@ export function renderHome(state) {
           <span>${t('guides') || 'Guides'}</span>
           ${icon('chevron-right', 'w-3 h-3')}
         </button>
+        <div id="spot-counter" class="pointer-events-none">
+          <div class="flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-2 rounded-lg text-[11px]">
+            <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> Hitchwiki</span>
+            <span class="flex items-center gap-1 text-emerald-400"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> SpotHitch</span>
+          </div>
+        </div>
       </div>
 
       <!-- Add Spot FAB -->
