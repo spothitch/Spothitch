@@ -18,13 +18,10 @@ test.describe('Profile View', () => {
 
   test('should display user stats', async ({ page }) => {
     await expect(page.locator('text=Spots créés').first()).toBeVisible({ timeout: 5000 })
-    await expect(page.locator('text=Score de confiance').first()).toBeVisible({ timeout: 5000 })
+    // Score de confiance is beta-gated, not visible in alpha
   })
 
-  test('should display trust score section', async ({ page }) => {
-    const trustScore = page.locator('text=Détail du score').or(page.locator('text=Améliore ton score'))
-    await expect(trustScore.first()).toBeVisible({ timeout: 5000 })
-  })
+  // Trust score section is beta-gated (behind showFeatureIntro guard)
 
   test('should have sub-tabs bar', async ({ page }) => {
     await expect(page.locator('[onclick*="setProfileSubTab"]').first()).toBeVisible({ timeout: 5000 })
