@@ -121,6 +121,14 @@ export function renderMap(state) {
         </button>
       </div>
 
+      <!-- Spot Counter -->
+      <div id="spot-counter" class="absolute bottom-32 left-1/2 -translate-x-1/2 z-20">
+        <div class="flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg text-[11px]">
+          <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> Hitchwiki</span>
+          <span class="flex items-center gap-1 text-emerald-400"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> SpotHitch</span>
+        </div>
+      </div>
+
       <!-- Add Spot FAB -->
       <button
         onclick="openAddSpot()"
@@ -135,10 +143,31 @@ export function renderMap(state) {
   `;
 }
 
+// Update spot counter with real numbers
+function updateSpotCounter() {
+  import('../../services/spotLoader.js').then(({ getAllLoadedSpots }) => {
+    const all = getAllLoadedSpots?.() || []
+    const hw = all.filter(s => s.source === 'hitchwiki').length
+    const community = all.filter(s => s.source !== 'hitchwiki').length
+    const hwEl = document.getElementById('hw-count')
+    const shEl = document.getElementById('sh-count')
+    if (hwEl) hwEl.textContent = hw
+    if (shEl) shEl.textContent = community
+  }).catch(() => {})
+}
+
 // Initialize map when the view is rendered
 export function initMainMap(state) {
   const mapContainer = document.getElementById('main-map');
   if (!mapContainer) return;
+
+  // Update spot counter
+  updateSpotCounter()
+  // Re-update when more spots load
+  const counterInterval = setInterval(() => {
+    if (!document.getElementById('spot-counter')) { clearInterval(counterInterval); return }
+    updateSpotCounter()
+  }, 5000)
 
   // Import and initialize the map service
   import('../../services/map.js').then(({ initMapService }) => {
