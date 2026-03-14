@@ -1008,15 +1008,14 @@ function initHomeMap(state) {
     }
 
     // Update layer visibility based on zoom level
+    // Spots always visible (clusters at low zoom, individual at high zoom)
+    // Bubbles fade in/out via their own opacity interpolation (zoom 6→7)
     const updateLayerVisibility = () => {
       const z = map.getZoom()
-      if (z < 7) {
-        setBubbleLayersVisibility(map, true)
-        setSpotLayersVisibility(map, false)
-      } else {
-        setBubbleLayersVisibility(map, false)
-        setSpotLayersVisibility(map, true)
-      }
+      // Always show spots — clusters aggregate at low zoom automatically
+      setSpotLayersVisibility(map, true)
+      // Country bubbles visible only at low zoom (opacity already fades at zoom 6→7)
+      setBubbleLayersVisibility(map, z < 7)
     }
 
     // Refresh bubble data (downloaded/loaded states)
