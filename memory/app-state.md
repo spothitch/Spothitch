@@ -67,16 +67,18 @@
 | deploy | Cloudflare Pages (main → spothitch.com) |
 | deploy-dev | Cloudflare Pages (dev → preview) |
 
+**Optimisation CI (2026-03-14)** : feature/* = lint+tests+build seulement. dev = +E2E core/features +Fox quick. main = tout (E2E complet + Fox 26 layers + Lighthouse + Firebase).
+
 **Règle** : TOUS les jobs doivent être `success`. Le dernier CI complet sur main (2026-03-14) : 17/17 verts.
 
 ## 4. Données
 
 | Donnée | Source | Quantité | Format |
 |--------|--------|----------|--------|
-| Spots importés | Import initial | 3026 spots (>= 2 reviews) | JSON par pays |
+| Spots importés | Import initial | 3026 spots (>= 2 reviews, 74 pays) | JSON par pays |
 | Spots communauté | Firebase | 0 (alpha) | Firestore |
 | Guides pays | Statique | 53 pays | `guides.js` |
-| Pages villes SEO | Auto-générées | 188 villes | HTML statique |
+| Pages villes SEO | Supprimées | 0 (nettoyage 2026-03-14) | — |
 | Badges | Statique | 50+ | `gamification.js` |
 | Features feedback | Statique + Firebase | 28 features | `featuresData.js` |
 
@@ -98,7 +100,7 @@
 - Journal de voyages (historique, ajouter voyage passé)
 - Système de favoris (coeur, export)
 - Auth progressive (Google, email, anonyme possible)
-- Profil enrichi (bio, langues, réseaux sociaux, galerie photos)
+- Profil enrichi (bio, langues, 6 réseaux sociaux cliquables : Instagram/TikTok/Facebook/YouTube/X/Snapchat, galerie photos)
 - Système d'amis Firebase (envoi/accepter/refuser, temps réel)
 - Messages privés 1-on-1 Firebase (temps réel)
 - Conversations de groupe
@@ -115,16 +117,20 @@
 - Share Target API (recevoir partages d'autres apps)
 - Accessibilité (clavier, lecteur écran, ARIA, contraste WCAG AA)
 - Conformité RGPD (cookie banner, export données, suppression compte)
-- SEO (188 pages villes, sitemap, structured data, Open Graph)
+- SEO (sitemap, structured data, Open Graph). Pages villes SEO supprimées (nettoyage).
 - Onboarding carousel 7 slides (5 originales + PWA install + Hitchwiki timeline) + welcome alpha popup
 - Astuce Google Maps dans AddSpot (design avant/après, masquable, lien discret après masquage)
 - Compteur Hitchwiki vs SpotHitch sur la carte
 - Téléchargement offline par pays (sélecteur dans settings)
 - Vérification identité progressive (5 niveaux)
-- Score de confiance (11 facteurs)
+- Score de confiance (11 facteurs) dans Réglages > Vérification (retiré du Profil)
 - Signalement/blocage utilisateurs
 - Admin panel (feedbacks, erreurs Sentry, outils)
-- Auto-update silencieux (version.json)
+- Auto-update immédiat (version.json polling + toast "Mise à jour..." + reload, même quand app active)
+- Manifest simplifié (nom "SpotHitch" seul)
+- Récupération cache périmé PWA (stale cache recovery après deploy)
+- Beta guards FeatureIntroModal pour features pas encore prêtes
+- Sentry optimisé (filtres agressifs réseau/WebGL/extensions, rate limit 5/min, traces 2%)
 
 ### BETA GUARDS (modal "ARRIVE BIENTÔT" + vote, feature pas encore active)
 
