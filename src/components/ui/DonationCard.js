@@ -201,6 +201,7 @@ export function renderDonationModal(state) {
                   id="custom-amount"
                   class="w-full px-4 py-4 bg-white/10 border border-white/20 rounded-xl text-center text-2xl font-bold text-white focus:border-rose-500 focus:outline-hidden"
                   placeholder="5"
+                  oninput="updateDonationLink(this.value)"
                 />
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl font-bold">EUR</span>
               </div>
@@ -219,9 +220,10 @@ export function renderDonationModal(state) {
 
           <!-- Payment Method -->
           <a
-            href="https://www.paypal.com/donate?business=support@spothitch.com&currency_code=EUR"
+            href="https://www.paypal.com/paypalme/antoineville/${isCustom ? 5 : donationAmount}EUR"
             target="_blank"
             rel="noopener noreferrer"
+            id="donation-paypal-link"
             onclick="handleDonationClick('paypal')"
             class="w-full py-4 px-6 rounded-xl bg-[#0070ba] text-white font-medium flex items-center justify-center gap-3 hover:bg-[#005ea6] transition-colors block text-center"
           >
@@ -316,6 +318,14 @@ window.handleDonationClick = (_platform) => {
 
 window.closeDonationThankYou = () => {
   window.setState?.({ showDonationThankYou: false });
+};
+
+window.updateDonationLink = (amount) => {
+  const link = document.getElementById('donation-paypal-link');
+  if (link) {
+    const val = Math.max(1, Math.min(500, parseInt(amount) || 5));
+    link.href = `https://www.paypal.com/paypalme/antoineville/${val}EUR`;
+  }
 };
 
 // Legacy handler for backward compatibility
