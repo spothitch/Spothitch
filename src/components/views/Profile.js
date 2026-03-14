@@ -11,7 +11,7 @@ import { renderEmptyState } from '../EmptyState.js'
 import { renderToggle } from '../../utils/toggle.js'
 import { getVipLevel } from '../../data/vip-levels.js'
 import { allBadges } from '../../data/badges.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { FEATURES_DATA } from '../../data/featuresData.js'
 import { getVoteTotals, getFeatureComments } from '../../services/featureVotes.js'
 import './ProfileDemos.js' // Interactive demo overlays for Prochainement features
@@ -1057,7 +1057,7 @@ function renderOfflineManagerCard(_state) {
     .map(([code, info]) => `
       <button
         id="dl-btn-${code}"
-        onclick="downloadCountryOffline('${code}', '${info.name.replace(/'/g, "\\'")}')"
+        onclick="downloadCountryOffline('${code}', '${escapeJSString(info.name)}')"
         class="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors w-full text-left"
         type="button"
       >
