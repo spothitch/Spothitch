@@ -214,10 +214,7 @@ window.searchMapSuggestions = (query) => {
               const safeName = escapeJSString(r.display_name)
               const shortName = r.display_name.split(',').slice(0, 2).join(',')
               const parts = r.display_name.split(',')
-              const countryName = escapeJSString((parts[parts.length - 1] || '').trim())
-              const cc = (r.address?.country_code || '').toUpperCase()
               const cityName = escapeJSString((parts[0] || '').trim())
-              const citySlug = (parts[0] || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-')
               const isCity = isCityType(r)
               return `
               <div class="border-b border-white/5 last:border-0">
