@@ -289,6 +289,7 @@ const initialState = {
   showFeedbackPanel: false,
   feedbackActiveTab: 'carte',
   feedbackDetailFeature: null,
+  showComingSoonRadar: false,
   showComingSoonProximity: false,
   showComingSoonCompanion: false,
   showComingSoonCityGuide: false,
