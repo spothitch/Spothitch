@@ -8,14 +8,14 @@ import { t, languageConfig } from '../i18n/index.js'
 import { getState } from '../stores/state.js'
 
 function stepIndicator(active) {
-  return [0, 1, 2, 3, 4].map(i => {
+  return [0, 1, 2, 3, 4, 5].map(i => {
     const cls = i < active ? 'bg-primary-500/15 text-primary-300'
       : i === active ? 'bg-primary-500 text-dark-primary'
       : 'bg-white/[0.04] text-slate-600'
     const dot = `<div class="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${cls}">${i + 1}</div>`
-    if (i < 4) {
+    if (i < 5) {
       const lineClass = i < active ? 'bg-primary-500/30' : 'bg-white/[0.06]'
-      return dot + `<div class="w-6 h-0.5 ${lineClass}"></div>`
+      return dot + `<div class="w-5 h-0.5 ${lineClass}"></div>`
     }
     return dot
   }).join('')
@@ -37,10 +37,10 @@ export function renderLanding() {
       </div>
 
       <!-- Carousel Track -->
-      <div id="landing-track" class="flex h-full transition-transform duration-300 ease-out" style="width:500%">
+      <div id="landing-track" class="flex h-full transition-transform duration-300 ease-out" style="width:600%">
 
         <!-- Slide 1: Bienvenue -->
-        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:#192839">
+        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:#192839">
           <div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:rgba(245,158,11,0.05);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(0)}</div>
           <div class="relative w-[170px] h-[170px] mb-6 z-10">
@@ -58,7 +58,7 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 2: L'app en un coup d'œil -->
-        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#101722,#0f1520)">
+        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#101722,#0f1520)">
           <div class="absolute rounded-full pointer-events-none" style="width:350px;height:350px;background:rgba(245,158,11,0.04);bottom:-80px;left:-80px;filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(1)}</div>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-5 tracking-tight relative z-10">
@@ -91,7 +91,7 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 3: Ton rôle -->
-        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#121a28,#0f1520)">
+        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#121a28,#0f1520)">
           <div class="absolute rounded-full pointer-events-none" style="width:300px;height:300px;background:rgba(245,158,11,0.05);top:30%;right:-60px;filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(2)}</div>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-5 tracking-tight relative z-10">
@@ -124,7 +124,7 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 4: Roadmap -->
-        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#111825,#0f1520)">
+        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#111825,#0f1520)">
           <div class="absolute rounded-full pointer-events-none" style="width:350px;height:350px;background:rgba(245,158,11,0.04);bottom:-60px;left:-60px;filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(3)}</div>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
@@ -174,10 +174,39 @@ export function renderLanding() {
           </div>
         </div>
 
-        <!-- Slide 5: Connexion obligatoire -->
-        <div class="w-[20%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#161e2e,#0f1520)">
-          <div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:rgba(245,158,11,0.07);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
+        <!-- Slide 5: Installer l'app -->
+        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#131b2a,#0f1520)">
+          <div class="absolute rounded-full pointer-events-none" style="width:400px;height:400px;background:rgba(245,158,11,0.06);top:40%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(4)}</div>
+          <span class="text-5xl mb-4 relative z-10">📲</span>
+          <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
+            ${t('installTitle')}
+          </h2>
+          <p class="text-[15px] text-slate-400 leading-relaxed max-w-sm mb-6 relative z-10">${t('installDesc')}</p>
+
+          <button
+            onclick="installFromLanding()"
+            id="landing-install-btn"
+            class="w-full max-w-[320px] flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-semibold text-[16px] relative z-10 mb-3 cursor-pointer"
+            style="background:linear-gradient(135deg,#f59e0b,#fb923c);color:#0f1520;border:none;box-shadow:0 4px 20px rgba(245,158,11,0.4)"
+            type="button"
+          >
+            📲 ${t('installBtn')}
+          </button>
+
+          <button
+            onclick="landingNext()"
+            class="w-full max-w-[320px] flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/[0.06] border border-white/[0.1] text-slate-400 font-medium text-[14px] relative z-10"
+            type="button"
+          >
+            ${t('alphaSlideSkip')}
+          </button>
+        </div>
+
+        <!-- Slide 6: Connexion obligatoire -->
+        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#161e2e,#0f1520)">
+          <div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:rgba(245,158,11,0.07);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
+          <div class="flex items-center mb-7 relative z-10">${stepIndicator(5)}</div>
           <span class="text-5xl mb-4 relative z-10">🔐</span>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('landingAuthTitle')}
@@ -222,6 +251,7 @@ export function renderLanding() {
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="2"></div>
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="3"></div>
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="4"></div>
+          <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="5"></div>
         </div>
         <button id="landing-next" onclick="landingNext()" class="text-primary-400 text-sm font-semibold">
           ${t('onboardingNext')} →
@@ -232,8 +262,8 @@ export function renderLanding() {
   `
 }
 
-const TOTAL_SLIDES = 5
-const SLIDE_WIDTH = 100 / TOTAL_SLIDES // 20%
+const TOTAL_SLIDES = 6
+const SLIDE_WIDTH = 100 / TOTAL_SLIDES // 16.666%
 
 export function initLandingCarousel() {
   let current = 0

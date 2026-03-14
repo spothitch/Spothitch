@@ -2185,6 +2185,16 @@ window.changeLandingLanguage = async (langCode) => {
 // Must exist early so onclick="landingNext()" in landing HTML doesn't throw before carousel init.
 window.landingNext = () => {}
 
+window.installFromLanding = async () => {
+  const installed = await installPWA()
+  const btn = document.getElementById('landing-install-btn')
+  if (installed && btn) {
+    btn.textContent = `✅ ${t('appInstalled') || 'Application installée !'}`
+    btn.style.background = '#22c55e'
+    btn.disabled = true
+  }
+}
+
 window.installPWAFromLanding = () => {
   localStorage.setItem('spothitch_landing_v2', '1')
   setState({ showLanding: false })

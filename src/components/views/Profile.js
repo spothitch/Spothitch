@@ -976,9 +976,37 @@ function renderRoadmapTab(_state) {
 
 // ==================== TAB 3: RÉGLAGES ====================
 
+function renderInstallCard() {
+  const isInstalled = typeof localStorage !== 'undefined' && localStorage.getItem('pwa_installed') === 'true'
+  if (isInstalled) return ''
+  return `
+    <div class="card p-4 space-y-3">
+      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+        ${icon('download', 'w-4 h-4')}
+        ${t('installSpotHitch') || 'Installer SpotHitch'}
+      </h3>
+      <button
+        onclick="installPWA()"
+        class="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:from-amber-500/20 hover:to-orange-500/20 transition-colors"
+        type="button"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📲</span>
+          <div class="text-left">
+            <span class="text-sm font-semibold block">${t('installBtn') || 'Installer gratuitement'}</span>
+            <span class="text-xs text-slate-400">${t('installDescription') || 'Accès rapide et mode hors-ligne'}</span>
+          </div>
+        </div>
+        ${icon('chevron-right', 'w-5 h-5 text-amber-400')}
+      </button>
+    </div>
+  `
+}
+
 function renderReglagesTab(state) {
   return `
     ${renderSettingsMiniHeader(state)}
+    ${renderInstallCard()}
     ${renderVerificationCard(state)}
     ${renderAppearanceCard(state)}
     ${renderOfflineManagerCard(state)}
