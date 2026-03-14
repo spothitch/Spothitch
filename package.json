@@ -38,7 +38,7 @@
   "dependencies": {
     "@eslint/js": "^10.0.1",
     "@sentry/browser": "^10.40.0",
-    "dompurify": "^3.3.2",
+    "dompurify": "^3.3.3",
     "firebase": "^12.10.0",
     "globals": "^17.4.0",
     "lucide": "^0.575.0",
