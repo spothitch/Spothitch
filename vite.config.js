@@ -40,7 +40,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'og-image.png'],
       manifest: {
-        name: 'SpotHitch - La communauté des autostoppeurs',
+        name: 'SpotHitch',
         short_name: 'SpotHitch',
         description: 'Trouvez les meilleurs spots d\'auto-stop dans le monde. 37 000+ spots dans 170 pays.',
         theme_color: '#f59e0b',
