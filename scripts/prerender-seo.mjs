@@ -360,15 +360,15 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 }
 
 // ==================== DATA SOURCES ====================
-// HITCHMAP_ENABLED: set to false to stop loading Hitchmap data entirely
+// Set to false to stop loading imported spot data entirely
 const HITCHMAP_ENABLED = process.env.HITCHMAP_ENABLED !== 'false'
 
 /**
- * Load Hitchmap spots from static JSON files
+ * Load imported spots from static JSON files
  */
 function loadHitchmapSpots() {
   if (!HITCHMAP_ENABLED) {
-    console.log('  Hitchmap data DISABLED (HITCHMAP_ENABLED=false)')
+    console.log('  Imported data DISABLED (HITCHMAP_ENABLED=false)')
     return []
   }
   const files = readdirSync(SPOTS_PATH).filter(f => f.endsWith('.json'))
@@ -383,7 +383,7 @@ function loadHitchmapSpots() {
       }
     } catch { /* skip broken files */ }
   }
-  console.log(`  Hitchmap: ${allSpots.length} spots loaded`)
+  console.log(`  Imported: ${allSpots.length} spots loaded`)
   return allSpots
 }
 
@@ -476,7 +476,7 @@ function firestoreValueToJS(val) {
 }
 
 /**
- * Load ALL spots from both sources (Hitchmap + Firebase community)
+ * Load ALL spots from both sources (imported + Firebase community)
  */
 async function loadAllSpots() {
   const [hitchmap, firebase] = await Promise.all([
@@ -484,7 +484,7 @@ async function loadAllSpots() {
     loadFirebaseSpots(),
   ])
   const all = [...hitchmap, ...firebase]
-  console.log(`  Total: ${all.length} spots (${hitchmap.length} Hitchmap + ${firebase.length} community)`)
+  console.log(`  Total: ${all.length} spots (${hitchmap.length} imported + ${firebase.length} community)`)
   return all
 }
 

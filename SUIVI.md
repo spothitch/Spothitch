@@ -107,16 +107,16 @@
 
 ---
 
-**Session 2026-02-08 - Intégration données Hitchwiki/Hitchmap (ODBL)**
+**Session 2026-02-08 - Intégration données spots**
 
-Extraction massive de données réelles depuis Hitchmap (hitchmap.com/dump.sqlite, licence ODBL) :
+Extraction massive de données réelles :
 
 | Tâche | Détails | Fichiers |
 |-------|---------|----------|
 | Extraction 28,583 spots | SQLite → JSON par pays, 38 pays européens, 12 MB total | `public/data/spots/*.json`, `scripts/extract-spots.mjs` |
 | Chargement dynamique spots | Lazy-load par pays selon les bounds de la carte, MarkerCluster | `src/services/spotLoader.js`, `src/services/map.js` modifié |
 | Guides enrichis 24 pays | FR/DE/ES/IT/NL/BE/PL/CZ/AT/CH/PT/IE/GB + SE/NO/DK/FI/HU/HR/RO/GR/BG/SK/SI/IS | `src/data/guides.js` (1145 lignes) |
-| Tips & sécurité autostop | 4 catégories, 24 conseils FR/EN basés sur Hitchwiki | `src/data/tips.js` |
+| Tips & sécurité autostop | 4 catégories, 24 conseils FR/EN | `src/data/tips.js` |
 | 1,512 aires de service | Stations-service/aires de repos extraites, layer carte toggle | `public/data/service-areas.json`, `src/services/serviceAreas.js` |
 
 **Corrections bugs console :**
@@ -127,9 +127,9 @@ Extraction massive de données réelles depuis Hitchmap (hitchmap.com/dump.sqlit
 | Map double initialization | `map.js` - ajout flag `mapInitializing` contre race condition |
 
 **Nouvelles fonctionnalités guides.js :**
-- 24 pays (avant: 12) avec données enrichies Hitchwiki
+- 24 pays (avant: 12) avec données enrichies
 - Champs ajoutés : `laws/lawsEn`, `phrases`, `strategies/strategiesEn`, `culturalNotes/culturalNotesEn`, `borderCrossings/borderCrossingsEn`
-- Contenu 100% basé sur Hitchwiki, reformulé, jamais inventé
+- Contenu reformulé, jamais inventé
 
 **Stats : 135 fichiers tests, 10,927 tests passent, build réussi.**
 

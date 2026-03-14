@@ -14,7 +14,7 @@
 
 ## 🌍 Fonctionnalités
 
-- 📍 **14 669 spots** dans **137 pays** (données Hitchmap/Hitchwiki ODBL)
+- 📍 **14 669 spots** dans **137 pays**
 - 🗺️ **Carte interactive** MapLibre GL JS avec tuiles OpenFreeMap
 - 📱 **PWA installable** — fonctionne hors-ligne sur mobile et desktop
 - 🆘 **Mode SOS** — contacts d'urgence locaux + partage de position
@@ -69,7 +69,7 @@ npm run lint            # Linting ESLint
 | `npm run test:run` | Tests unitaires |
 | `npm run test:e2e` | Tests E2E |
 | `npm run lint` | Linting |
-| `npm run sync:spots` | Synchronise les spots depuis Hitchmap |
+| `npm run sync:spots` | Synchronise les spots |
 
 ## 🔧 Configuration
 
@@ -100,7 +100,6 @@ Pour les bugs → [Issues](https://github.com/antoine626/Spothitch/issues/new?te
 
 ## 🙏 Crédits
 
-- Données de spots : [Hitchwiki](https://hitchwiki.org) & [Hitchmap](https://hitchmap.com) (ODBL)
 - Cartes : [OpenFreeMap](https://openfreemap.org) & [OpenStreetMap](https://www.openstreetmap.org)
 - Routing : [OSRM](http://project-osrm.org)
 

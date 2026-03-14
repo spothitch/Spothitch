@@ -79,7 +79,7 @@ export function renderCGU() {
   return `
     <div class="legal-content">
       <h2>${t('legalCguTitle')}</h2>
-      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateDec2024')}</p>
+      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateMar2026')}</p>
 
       <h3>${t('legalCgu1Title')}</h3>
       <p>${t('legalCgu1Text')}</p>
@@ -134,7 +134,7 @@ export function renderPrivacyPolicy() {
   return `
     <div class="legal-content">
       <h2>${t('legalPrivacyTitle')}</h2>
-      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateDec2024')}</p>
+      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateMar2026')}</p>
 
       <h3>${t('legalPrivacy1Title')}</h3>
       <p>${t('legalPrivacy1Intro')}</p>
@@ -163,6 +163,9 @@ export function renderPrivacyPolicy() {
         <li>${t('legalPrivacy4Item1')}</li>
         <li>${t('legalPrivacy4Item2')}</li>
         <li>${t('legalPrivacy4Item3')}</li>
+        <li>${t('legalPrivacy4Item4')}</li>
+        <li>${t('legalPrivacy4Item5')}</li>
+        <li>${t('legalPrivacy4Item6')}</li>
       </ul>
 
       <h3>${t('legalPrivacy5Title')}</h3>
@@ -214,6 +217,8 @@ export function renderCookiePolicy() {
 
       <h3>${t('legalCookie2Title')}</h3>
 
+      <p class="text-sm text-slate-400 mb-3">${t('cookieLocalStorageNote')}</p>
+
       <h4 class="text-amber-400 mt-4">${t('legalCookieNecessaryTitle')}</h4>
       <p>${t('legalCookieNecessaryDesc')}</p>
       <table class="w-full text-sm mt-2 mb-4">
@@ -226,72 +231,63 @@ export function renderCookiePolicy() {
         </thead>
         <tbody>
           <tr class="border-b border-white/10">
-            <td class="py-2"><code>spothitch_auth</code></td>
-            <td class="py-2">${t('legalCookieAuthDesc')}</td>
-            <td class="py-2">${t('legalCookieSession')}</td>
-          </tr>
-          <tr class="border-b border-white/10">
-            <td class="py-2"><code>spothitch_state</code></td>
+            <td class="py-2"><code>spothitch_v4_state</code></td>
             <td class="py-2">${t('legalCookieStateDesc')}</td>
-            <td class="py-2">${t('legalCookie1Year')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
           </tr>
           <tr class="border-b border-white/10">
             <td class="py-2"><code>cookie_consent</code></td>
             <td class="py-2">${t('legalCookieConsentDesc')}</td>
-            <td class="py-2">${t('legalCookie1Year')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
           </tr>
           <tr class="border-b border-white/10">
             <td class="py-2"><code>consent_history</code></td>
             <td class="py-2">${t('legalCookieHistoryDesc')}</td>
-            <td class="py-2">${t('legalCookie3Years')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
           </tr>
           <tr class="border-b border-white/10">
-            <td class="py-2"><code>spothitch_offline</code></td>
+            <td class="py-2"><code>spothitch_language_selected</code></td>
+            <td class="py-2">${t('legalCookieLangDesc')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 class="text-amber-400 mt-4">${t('cookieFunctionalTitle')}</h4>
+      <p>${t('cookieFunctionalDesc')}</p>
+      <table class="w-full text-sm mt-2 mb-4">
+        <thead>
+          <tr class="border-b border-white/10">
+            <th class="text-left py-2">${t('legalCookieColName')}</th>
+            <th class="text-left py-2">${t('legalCookieColPurpose')}</th>
+            <th class="text-left py-2">${t('legalCookieColDuration')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-white/10">
+            <td class="py-2"><code>spothitch_favorites</code></td>
+            <td class="py-2">${t('cookieFavoritesDesc')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
+          </tr>
+          <tr class="border-b border-white/10">
+            <td class="py-2"><code>spothitch_saved_trips</code></td>
+            <td class="py-2">${t('cookieTripsDesc')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
+          </tr>
+          <tr class="border-b border-white/10">
+            <td class="py-2"><code>spothitch_last_position</code></td>
+            <td class="py-2">${t('cookiePositionDesc')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
+          </tr>
+          <tr class="border-b border-white/10">
+            <td class="py-2"><code>spothitch_offline_*</code></td>
             <td class="py-2">${t('legalCookieOfflineDesc')}</td>
-            <td class="py-2">${t('legalCookie30Days')}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h4 class="text-amber-400 mt-4">${t('legalCookieAnalyticsTitle')}</h4>
-      <p>${t('legalCookieAnalyticsDesc')}</p>
-      <table class="w-full text-sm mt-2 mb-4">
-        <thead>
-          <tr class="border-b border-white/10">
-            <th class="text-left py-2">${t('legalCookieColName')}</th>
-            <th class="text-left py-2">${t('legalCookieColPurpose')}</th>
-            <th class="text-left py-2">${t('legalCookieColDuration')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-b border-white/10">
-            <td class="py-2"><code>_ga</code></td>
-            <td class="py-2">${t('legalCookieGaDesc')}</td>
-            <td class="py-2">${t('legalCookie2Years')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
           </tr>
           <tr class="border-b border-white/10">
-            <td class="py-2"><code>mp_*</code></td>
-            <td class="py-2">${t('legalCookieMixpanelDesc')}</td>
-            <td class="py-2">${t('legalCookie1Year')}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h4 class="text-amber-400 mt-4">${t('legalCookieMarketingTitle')}</h4>
-      <p>${t('legalCookieMarketingDesc')}</p>
-      <table class="w-full text-sm mt-2 mb-4">
-        <thead>
-          <tr class="border-b border-white/10">
-            <th class="text-left py-2">${t('legalCookieColName')}</th>
-            <th class="text-left py-2">${t('legalCookieColPurpose')}</th>
-            <th class="text-left py-2">${t('legalCookieColDuration')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-b border-white/10">
-            <td class="py-2"><code>spothitch_ads</code></td>
-            <td class="py-2">${t('legalCookieAdsDesc')}</td>
-            <td class="py-2">${t('legalCookie6Months')}</td>
+            <td class="py-2"><code>spothitch_companion</code></td>
+            <td class="py-2">${t('cookieCompanionDesc')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
           </tr>
         </tbody>
       </table>
@@ -308,22 +304,19 @@ export function renderCookiePolicy() {
         </thead>
         <tbody>
           <tr class="border-b border-white/10">
-            <td class="py-2"><code>spothitch_lang</code></td>
-            <td class="py-2">${t('legalCookieLangDesc')}</td>
-            <td class="py-2">${t('legalCookie1Year')}</td>
-          </tr>
-          <tr class="border-b border-white/10">
-            <td class="py-2"><code>spothitch_theme</code></td>
+            <td class="py-2"><code>spothitch_theme_override</code></td>
             <td class="py-2">${t('legalCookieThemeDesc')}</td>
-            <td class="py-2">${t('legalCookie1Year')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
           </tr>
           <tr class="border-b border-white/10">
-            <td class="py-2"><code>spothitch_recent</code></td>
-            <td class="py-2">${t('legalCookieRecentDesc')}</td>
-            <td class="py-2">${t('legalCookie30Days')}</td>
+            <td class="py-2"><code>spothitch_preferred_nav_app</code></td>
+            <td class="py-2">${t('cookieNavAppDesc')}</td>
+            <td class="py-2">${t('cookiePersistent')}</td>
           </tr>
         </tbody>
       </table>
+
+      <p class="text-sm text-slate-400 mt-2">${t('cookieNoMarketingNote')}</p>
 
       <h3>${t('legalCookie3Title')}</h3>
       <p>${t('legalCookie3Intro')}</p>
@@ -389,30 +382,36 @@ export function renderLegalNotice() {
   return `
     <div class="legal-content">
       <h2>${t('legalNoticeTitle')}</h2>
-      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateDec2024')}</p>
+      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateMar2026')}</p>
 
       <h3>${t('legalNoticeEditorTitle')}</h3>
       <p>
         ${t('legalNoticeEditorText')}<br>
-        ${t('legalNoticeHostingLabel')} GitHub Pages<br>
+        ${t('legalNoticeHostingLabel')} Cloudflare Pages<br>
         ${t('legalNoticeSourceLabel')} <a href="https://github.com/antoine626/Spothitch" class="text-amber-400">GitHub</a>
       </p>
 
       <h3>${t('legalNoticeHostingTitle')}</h3>
       <p>
-        GitHub, Inc.<br>
-        88 Colin P Kelly Jr St<br>
+        Cloudflare, Inc.<br>
+        101 Townsend St<br>
         San Francisco, CA 94107<br>
         ${t('legalNoticeUSA')}
       </p>
 
       <h3>${t('legalNoticeServicesTitle')}</h3>
       <ul>
-        <li><strong>Firebase</strong> (Google) - ${t('legalNoticeFirebaseDesc')}</li>
-        <li><strong>OpenStreetMap</strong> - ${t('legalNoticeOSMDesc')}</li>
-        <li><strong>Hitchwiki/Hitchmap</strong> - ${t('legalNoticeHitchwikiDesc')}</li>
-        <li><strong>OSRM</strong> - ${t('legalNoticeOSRMDesc')}</li>
-        <li><strong>Nominatim</strong> - ${t('legalNoticeNominatimDesc')}</li>
+        <li><strong>Firebase</strong> (Google) · ${t('legalNoticeFirebaseDesc')}</li>
+        <li><strong>Cloudflare Pages</strong> · ${t('legalNoticeCloudflareDesc')}</li>
+        <li><strong>Sentry</strong> · ${t('legalNoticeSentryDesc')}</li>
+        <li><strong>OpenStreetMap</strong> · ${t('legalNoticeOSMDesc')}</li>
+        <li><strong>OpenFreeMap</strong> · ${t('legalNoticeOpenFreeMapDesc')}</li>
+        <li><strong>OSRM</strong> · ${t('legalNoticeOSRMDesc')}</li>
+        <li><strong>Nominatim</strong> · ${t('legalNoticeNominatimDesc')}</li>
+        <li><strong>Photon</strong> (Komoot) · ${t('legalNoticePhotonDesc')}</li>
+        <li><strong>Mapillary</strong> (Meta) · ${t('legalNoticeMapillaryDesc')}</li>
+        <li><strong>MyMemory</strong> · ${t('legalNoticeMyMemoryDesc')}</li>
+        <li><strong>Formspree</strong> · ${t('legalNoticeFormspreeDesc')}</li>
       </ul>
 
       <h3>${t('legalNoticeCreditsTitle')}</h3>

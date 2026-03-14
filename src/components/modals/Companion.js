@@ -786,7 +786,7 @@ async function updateBatteryDisplay() {
           <div class="h-full rounded-full transition-colors ${isLow ? 'bg-red-500' : pct <= 30 ? 'bg-amber-500' : 'bg-emerald-500'}"
             style="width: ${pct}%"></div>
         </div>
-        ${isLow ? `<p class="text-xs text-red-400 mt-1">${t('batteryLowWarning') || 'Battery low — guardian will be alerted'}</p>` : ''}
+        ${isLow ? `<p class="text-xs text-red-400 mt-1">${t('batteryLowWarning') || 'Battery low. Guardian will be alerted'}</p>` : ''}
       </div>
     </div>
   `

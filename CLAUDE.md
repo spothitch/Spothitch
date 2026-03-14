@@ -84,7 +84,7 @@
 > - Ça peut rapporter de l'argent un jour ?
 > - Ça tiendra avec 100 000 utilisateurs ?
 > - Ça donne envie de revenir et d'inviter ses potes ?
-> - C'est mieux que Hitchwiki et les autres ?
+> - C'est mieux que la concurrence ?
 > - Les données seront fiables et utiles ?
 > - Ça coûte combien à faire tourner ?
 > - C'est facile à maintenir et faire évoluer ?
@@ -272,7 +272,7 @@ src/
 ├── styles/main.css      # Tailwind
 ├── data/spots.js        # Vide (spots chargés dynamiquement via spotLoader.js)
 └── main.js              # Point d'entrée + auto-reload (version.json)
-public/data/spots/       # 137 fichiers JSON pays (source Hitchmap ODBL)
+public/data/spots/       # 137 fichiers JSON pays
 tests/                   # Tests unitaires Vitest (88 tests wiring)
 e2e/                     # Tests E2E Playwright
 ```

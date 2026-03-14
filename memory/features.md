@@ -31,11 +31,14 @@
 
 ## Spots
 
-- [x] 14 669 spots dans 137 pays (Hitchmap/Hitchwiki ODBL)
+- [x] 14 669 spots dans 137 pays (données importées)
 - [x] Chargement lazy par pays (JSON)
 - [x] Création spot : wizard 3 étapes (Photo+Type → Expérience → Détails)
 - [x] Mini-carte toujours visible à l'étape 1 (tap pour placer le spot, GPS en raccourci)
-- [x] Photo obligatoire (compression + preview)
+- [x] Photo obligatoire (compression WebP + preview, max 5 photos par spot)
+- [x] Photos Mapillary automatiques (street-level, gratuites, quand pas de photo utilisateur)
+- [x] Bouton Street View dans SpotDetail (ouvre Google Maps, gratuit)
+- [x] Priorité photos : utilisateur > Mapillary > placeholder
 - [x] 4 types : sortie ville, station-service, bord de route, autre
 - [x] 3 critères notation : sécurité, trafic, accessibilité (1-5 étoiles)
 - [x] Tags enrichis : abri, visibilité, parking, commodités, méthode signalisation
@@ -184,7 +187,7 @@
 
 - [x] Code splitting (chunks : maplibre, firebase, sentry, gamification, social, admin, guides)
 - [x] Lazy-loading images (IntersectionObserver)
-- [x] Compression images WebP (128/256px)
+- [x] Compression images WebP (photos spots 1200px, thumbnails 400px, fallback JPEG)
 - [x] Service Worker offline-first (Workbox)
 - [x] Cache tuiles carte pour offline
 - [x] IndexedDB pour spots offline

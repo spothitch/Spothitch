@@ -1,8 +1,7 @@
 /**
  * Spot Loader Service
  * Dynamically loads hitchhiking spots from JSON files per country
- * Source: Hitchmap (ODBL license)
- * Set VITE_HITCHMAP_ENABLED=false to disable all Hitchmap data loading
+ * Set VITE_HITCHMAP_ENABLED=false to disable all imported data loading
  *
  * Loading strategy (IDB-first):
  * 1. In-memory Map cache → instantaneous
@@ -208,7 +207,7 @@ function shouldExcludeSpot(s) {
     if (diffYears > 5) return true
   }
 
-  // Filter very low rating (< 2) — likely "not recommended" on HitchWiki
+  // Filter very low rating (< 2)
   if (s.rating && s.rating < 2) return true
 
   // Filter bus-only spots (description mentions bus but NOT "take bus to spot")
@@ -221,7 +220,7 @@ function shouldExcludeSpot(s) {
 }
 
 /**
- * Convert Hitchmap format to app spot format
+ * Convert imported JSON format to app spot format
  * Enriched spots have: from, safetyRating, trafficRating, accessibilityRating,
  * spotType, descriptionEn/Fr/Es/De, reviews (for tier colors)
  * IDs are deterministic: hm_{countryCode}_{originalIndex} for stable persistence
@@ -314,7 +313,7 @@ function convertToAppFormat(rawSpots, countryCode) {
         _legality: legal?.legality || null,
         _legalityText: legal?.text || null,
         _legalityTextEn: legal?.textEn || null,
-        // Keep original HitchWiki data for reference
+        // Keep original imported data for reference
         _hitchwikiRating: s.rating,
         _hitchwikiReviews: reviews,
       }

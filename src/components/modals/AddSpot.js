@@ -1207,7 +1207,7 @@ window.autoDetectRoad = async () => {
       showSuccess(t('cityDetected') || `Sortie de ville detectee : ${isCity}`)
     } else {
       window.selectSpotType('custom')
-      showSuccess(t('roadDetected') || 'Route detectee — type mis a "Autre"')
+      showSuccess(t('roadDetected') || 'Route detectee, type mis a "Autre"')
     }
     if (btn) btn.disabled = false
   } catch {

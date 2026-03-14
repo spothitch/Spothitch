@@ -6,6 +6,7 @@
 
 ## Fichiers mémoire détaillés
 
+- `memory/app-state.md` — **ÉTAT DES LIEUX VISUEL** de chaque écran + décisions design. LIRE EN PREMIER pour ne pas signaler comme bug ce qui est voulu.
 - `memory/teasing-templates.md` — Guidelines templates teasing (style, ton, règles, templates existants)
 - `memory/funding.md` — Dossier financement
 - `memory/features.md` — Inventaire des 190+ features
@@ -15,9 +16,9 @@
 
 ---
 
-## CRITIQUE — Hitchwiki/Hitchmap
+## CRITIQUE — Données spots importées
 
-**TOUTES les données Hitchwiki/Hitchmap (14 669 spots) seront SUPPRIMÉES avant l'alpha.** SpotHitch repart de ZÉRO avec uniquement les spots créés par la communauté. NE JAMAIS mentionner ces chiffres dans le marketing/teasing. Antoine l'a répété plusieurs fois — c'est une décision ferme.
+**Les données spots importées (14 669 spots) seront SUPPRIMÉES avant le lancement public.** SpotHitch repart de ZÉRO avec uniquement les spots créés par la communauté. NE JAMAIS mentionner ces chiffres dans le marketing/teasing. Antoine l'a répété plusieurs fois — c'est une décision ferme. Les mentions d'attribution ont été nettoyées le 2026-03-13 (seule l'attribution par spot dans SpotDetail est conservée).
 
 ---
 
@@ -74,7 +75,7 @@
 - **Commits** : 432+
 - **Premier commit** : 2025-12-23
 - **Site live** : spothitch.com (GitHub Pages, HTTPS actif, cert expire 2026-05-13)
-- **Spots** : 14 669 spots dans 137 pays (source Hitchmap/Hitchwiki ODBL)
+- **Spots** : 14 669 spots dans 137 pays (données importées, attribution par spot uniquement)
 - **Langues** : FR, EN, ES, DE
 - **Tests** : 35 fichiers, 1276 assertions (wiring + integration + unit), E2E Playwright, La Fourmi 191 tests/23 niveaux
 
@@ -518,7 +519,7 @@
 - Système auth progressif + social login
 
 ### Sessions antérieures
-- Order 66 script (suppression données Hitchmap)
+- Order 66 script (suppression données importées)
 - Kill switch VITE_HITCHMAP_ENABLED
 - Pages SEO par ville (852 villes)
 - Refonte AddSpot + ValidateSpot modal

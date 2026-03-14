@@ -37,7 +37,7 @@ function getSlidesData(featureId) {
         color: '#8b5cf6',
         title: t('guardianSlide2Title') || "23h47. Maman attend.",
         subtitle: t('guardianSlide2Sub') || "Elle ne dort pas. Elle regarde son téléphone.",
-        quote: '"Chaque fois que ma fille part en stop, je passe la nuit à regarder mon téléphone. — Maman d\'une autostoppeuse"',
+        quote: '"Chaque fois que ma fille part en stop, je passe la nuit à regarder mon téléphone." · Maman d\'une autostoppeuse',
       },
       {
         emoji: '😌',
@@ -46,7 +46,7 @@ function getSlidesData(featureId) {
         subtitle: t('guardianSlide3Sub') || "Ta position en direct. Tes check-ins. Ta batterie.",
         card: {
           items: [
-            { icon: '📍', label: 'Position', value: 'A62 — Bordeaux' },
+            { icon: '📍', label: 'Position', value: 'A62 · Bordeaux' },
             { icon: '✅', label: 'Check-in', value: 'Il y a 12 min' },
             { icon: '🔋', label: 'Batterie', value: '78%' },
           ],
@@ -139,7 +139,7 @@ function getSlidesData(featureId) {
         emoji: '🏷️',
         color: '#f59e0b',
         title: t('hostelsSlide3Title') || "Filtres qui te ressemblent",
-        subtitle: t('hostelsSlide3Sub') || "Festif, Calme, Budget, Social — trouve ton style en un tap.",
+        subtitle: t('hostelsSlide3Sub') || "Festif, Calme, Budget, Social. Trouve ton style en un tap.",
         tags: ['🎉 Festif', '🤫 Calme', '💸 Budget', '🤝 Social'],
       },
       {
@@ -185,7 +185,7 @@ function getSlidesData(featureId) {
         emoji: '🏆',
         color: '#f59e0b',
         title: t('leaguesSlide1Title') || "Ta route compte",
-        subtitle: t('leaguesSlide1Sub') || "Chaque spot créé, chaque validation, chaque check-in — ça compte vraiment.",
+        subtitle: t('leaguesSlide1Sub') || "Chaque spot créé, chaque validation, chaque check-in, ça compte vraiment.",
         hint: t('swipeHint') || "Glisse pour continuer →",
       },
       {
