@@ -520,8 +520,36 @@ function renderPositionBlock() {
       `}
 
       <div id="location-display" class="sr-only" aria-live="polite" role="status"></div>
+
+      ${renderGmapsTip()}
     </div>
   `
+}
+
+/**
+ * Google Maps share tip — design "avant/après"
+ * Shows full tip if not dismissed, otherwise a discrete link.
+ * Dismissed state stored in localStorage key spothitch_gmaps_tip_hidden.
+ */
+function renderGmapsTip() {
+  const hidden = (() => {
+    try { return localStorage.getItem('spothitch_gmaps_tip_hidden') === '1' }
+    catch { return false }
+  })()
+
+  if (hidden) {
+    return `
+      <div style="text-align:center;padding:8px 0 0">
+        <span onclick="window._showGmapsTipFull()"
+          style="font-size:11px;color:#f59e0b;cursor:pointer;
+            text-decoration:underline" role="button" tabindex="0"
+          onkeydown="if(event.key==='Enter')window._showGmapsTipFull()">
+          ${t('gmapsTipLink')}
+        </span>
+      </div>`
+  }
+
+  return renderGmapsTipCard()
 }
 
 export function renderAddSpot(_state) {
@@ -899,6 +927,116 @@ window.addSpotPrevStep = async () => {
     document.activeElement?.blur()
     setState({ addSpotStep: currentStep - 1 })
   }
+}
+
+// Google Maps share tip handlers
+window._dismissGmapsTip = (checked) => {
+  try {
+    if (checked) {
+      localStorage.setItem('spothitch_gmaps_tip_hidden', '1')
+      const card = document.getElementById('gmaps-tip-card')
+      if (card) {
+        card.outerHTML = `<div style="text-align:center;padding:8px 0 0">
+          <span onclick="window._showGmapsTipFull()"
+            style="font-size:11px;color:#f59e0b;cursor:pointer;
+              text-decoration:underline" role="button" tabindex="0">
+            ${t('gmapsTipLink')}
+          </span></div>`
+      }
+    } else {
+      localStorage.removeItem('spothitch_gmaps_tip_hidden')
+    }
+  } catch { /* no-op */ }
+}
+
+window._showGmapsTipFull = () => {
+  try { localStorage.removeItem('spothitch_gmaps_tip_hidden') } catch { /* no-op */ }
+  // Replace the link with the full tip card via DOM
+  const link = document.querySelector('[onclick*="_showGmapsTipFull"]')
+  if (link?.parentElement) {
+    const wrapper = link.parentElement
+    wrapper.outerHTML = renderGmapsTipCard()
+  }
+}
+
+// Exported so _showGmapsTipFull can re-insert the card
+function renderGmapsTipCard() {
+  return `
+    <div id="gmaps-tip-card"
+      style="background:#0f1520;border:1px solid #1e293b;
+        border-radius:12px;padding:16px;margin-top:14px">
+      <div style="font-size:14px;font-weight:700;text-align:center;
+        margin-bottom:14px">
+        ${t('gmapsTipTitle')}
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div style="flex:1;background:#1a1f2e;border-radius:10px;
+          overflow:hidden;border:1px solid rgba(239,68,68,0.2)">
+          <div style="background:rgba(239,68,68,0.08);padding:6px;
+            text-align:center;font-size:10px;font-weight:700;
+            color:#ef4444;letter-spacing:1px">
+            ❌ ${t('gmapsTipManual')}
+          </div>
+          <div style="height:80px;position:relative;overflow:hidden;
+            background:#111827">
+            <img src="https://tile.openstreetmap.org/6/32/22.png"
+              style="width:100%;height:100%;object-fit:cover;opacity:0.4"
+              alt="" onerror="this.style.display='none'">
+            <div style="position:absolute;inset:0;display:flex;
+              align-items:center;justify-content:center">
+              <span style="font-size:28px;opacity:0.8">🔍</span>
+            </div>
+          </div>
+          <div style="padding:8px;text-align:center;font-size:10px;
+            color:#94a3b8">
+            ${t('gmapsTipManualDesc')}
+            <div style="color:#ef4444;font-weight:600;margin-top:4px">
+              ⏱ ~2 min
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;background:#1a1f2e;border-radius:10px;
+          overflow:hidden;border:1px solid rgba(34,197,94,0.2)">
+          <div style="background:rgba(34,197,94,0.08);padding:6px;
+            text-align:center;font-size:10px;font-weight:700;
+            color:#22c55e;letter-spacing:1px">
+            ✓ GOOGLE MAPS
+          </div>
+          <div style="height:80px;position:relative;overflow:hidden;
+            background:#111827">
+            <img src="https://tile.openstreetmap.org/14/8529/5975.png"
+              style="width:100%;height:100%;object-fit:cover;opacity:0.5"
+              alt="" onerror="this.style.display='none'">
+            <div style="position:absolute;top:50%;left:50%;
+              transform:translate(-50%,-100%)">
+              <svg width="18" height="24" viewBox="0 0 24 32"
+                fill="#f59e0b"><path d="M12 0C5.4 0 0 5.4 0 12c0 9
+                12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z"/></svg>
+            </div>
+          </div>
+          <div style="padding:8px;text-align:center;font-size:10px;
+            color:#94a3b8">
+            ${t('gmapsTipShareDesc')}
+            <div style="color:#22c55e;font-weight:600;margin-top:4px">
+              ⏱ 3 sec
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:#94a3b8;
+        margin-bottom:12px">
+        ${t('gmapsTipHowTo')}
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;
+        font-size:12px;color:#64748b;cursor:pointer;
+        justify-content:center"
+        onclick="event.stopPropagation()">
+        <input type="checkbox"
+          onchange="window._dismissGmapsTip(this.checked)"
+          style="accent-color:#f59e0b;width:14px;height:14px">
+        ${t('gmapsTipDismiss')}
+      </label>
+    </div>`
 }
 
 // GPS position

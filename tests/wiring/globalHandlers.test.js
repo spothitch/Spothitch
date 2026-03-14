@@ -219,6 +219,7 @@ const MAIN_JS_HANDLERS = [
   'handlePhotoSelect', 'setSpotRating', 'onSpotTypeChange',
   'triggerPhotoUpload', 'addSpotNextStep', 'addSpotPrevStep',
   'useGPSForSpot', 'toggleSpotMapPicker', 'spotMapPickLocation', 'openFullscreenMapPicker',
+  '_dismissGmapsTip', '_showGmapsTipFull',
   'autoDetectStation', 'autoDetectRoad',
   'saveSpotAsDraft', 'openSpotDraft', 'deleteSpotDraft',
   'addSpotDestination', 'removeSpotDestination',
