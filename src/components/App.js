@@ -168,49 +168,6 @@ export function renderApp(state) {
 }
 
 /**
- * Render a "Coming Soon" feature modal (list style with bullet points)
- */
-function renderComingSoonModal({ onClose, icon: ic, iconColor, iconBg, borderColor, title, items }) {
-  return `
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onclick="${onClose}()" role="dialog" aria-modal="true" tabindex="0">
-      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-      <div class="relative bg-dark-primary border ${borderColor} rounded-3xl w-full max-w-sm slide-up"
-        onclick="event.stopPropagation()">
-        <div class="p-6 text-center">
-          <div class="w-14 h-14 rounded-full ${iconBg} flex items-center justify-center mx-auto mb-3">
-            ${icon(ic, 'w-7 h-7 ' + iconColor)}
-          </div>
-          <div class="text-xs font-bold ${iconColor} uppercase tracking-wider mb-1">${t('comingSoon') || 'À venir'}</div>
-          <h2 class="text-lg font-bold text-white mb-4">${title}</h2>
-          <ul class="text-sm text-slate-300 text-left space-y-3 mb-5">
-            ${items.map(it => `
-              <li class="flex items-start gap-3">
-                <span class="shrink-0 mt-0.5">${icon(it.ic, 'w-4 h-4 ' + iconColor)}</span>
-                <span>${it.text}</span>
-              </li>
-            `).join('')}
-          </ul>
-          <button onclick="${onClose}()"
-            class="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold transition-colors mb-2">
-            ${t('gotIt') || "J'ai compris"}
-          </button>
-          <button onclick="${onClose}();changeTab('profile');setState({profileSubTab:'progression'})"
-            class="w-full py-2.5 rounded-xl text-sm ${iconColor} hover:bg-white/5 transition-colors flex items-center justify-center gap-2">
-            ${icon('star', 'w-4 h-4')}
-            ${t('voteToAccelerate') || 'Voter pour accélérer'}
-          </button>
-        </div>
-        <button onclick="${onClose}()"
-          class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
-          aria-label="${t('close') || 'Fermer'}">
-          ${icon('x', 'w-4 h-4')}
-        </button>
-      </div>
-    </div>
-  `
-}
-
 /**
  * Check if the current tab is a map tab
  */
@@ -296,62 +253,7 @@ export function renderModals(state) {
     ${state.showInstallBanner ? lazyRender('renderInstallBanner') : ''}
     ${state.showLanguageSelector ? lazyRender('renderLanguageSelector', state) : ''}
     ${state.showWelcome ? lazyRender('renderWelcome', state) : ''}
-    ${state.showComingSoonRadar ? renderComingSoonModal({
-      onClose: 'closeComingSoonRadar',
-      icon: 'radar',
-      iconColor: 'text-blue-400',
-      iconBg: 'bg-blue-500/20',
-      borderColor: 'border-blue-500/30',
-      title: t('proximityRadar') || 'Radar de proximité',
-      items: [
-        { ic: 'map-pin', text: t('radarFeature1') || 'Voir les autostoppeurs proches de toi en temps réel' },
-        { ic: 'message-circle', text: t('radarFeature2') || 'Les contacter pour faire route ensemble' },
-        { ic: 'bell', text: t('radarFeature3') || "Recevoir une alerte quand quelqu'un est à moins de 5km" },
-        { ic: 'eye-off', text: t('radarFeature4') || "Visible uniquement si tu l'actives. Vie privée respectée" },
-      ],
-    }) : ''}
-    ${state.showComingSoonProximity ? renderComingSoonModal({
-      onClose: 'closeComingSoonProximity',
-      icon: 'map-pin',
-      iconColor: 'text-emerald-400',
-      iconBg: 'bg-emerald-500/20',
-      borderColor: 'border-emerald-500/30',
-      title: t('comingSoonProximityTitle') || 'Alertes spot proche',
-      items: [
-        { ic: 'bell', text: t('comingSoonProximityF1') || 'Notification quand tu passes près d\'un spot bien noté' },
-        { ic: 'settings', text: t('comingSoonProximityF2') || 'Rayon personnalisable (500m à 5km)' },
-        { ic: 'battery-charging', text: t('comingSoonProximityF3') || 'Économie de batterie. GPS intelligent' },
-        { ic: 'compass', text: t('comingSoonProximityF4') || 'Actif uniquement en mode voyage' },
-      ],
-    }) : ''}
-    ${state.showComingSoonCompanion ? renderComingSoonModal({
-      onClose: 'closeComingSoonCompanion',
-      icon: 'users',
-      iconColor: 'text-emerald-400',
-      iconBg: 'bg-emerald-500/20',
-      borderColor: 'border-emerald-500/30',
-      title: t('lookingForCompanion') || 'Compagnon de route',
-      items: [
-        { ic: 'search', text: t('companionF1') || 'Trouve un compagnon qui va dans la même direction' },
-        { ic: 'message-circle', text: t('companionF2') || 'Contacte-le pour faire route ensemble' },
-        { ic: 'shield', text: t('companionF3') || 'Profils vérifiés pour voyager en confiance' },
-        { ic: 'map-pin', text: t('companionF4') || 'Filtre par date, destination et style de voyage' },
-      ],
-    }) : ''}
-    ${state.showComingSoonCityGuide ? renderComingSoonModal({
-      onClose: 'closeComingSoonCityGuide',
-      icon: 'book-open',
-      iconColor: 'text-amber-400',
-      iconBg: 'bg-amber-500/20',
-      borderColor: 'border-amber-500/30',
-      title: t('cityGuideTitle') || 'Guide autostop par ville',
-      items: [
-        { ic: 'map-pin', text: t('cityGuideF1') || 'Les meilleurs spots de la ville classés par direction' },
-        { ic: 'clock', text: t('cityGuideF2') || "Temps d'attente moyen par spot et par heure" },
-        { ic: 'alert-triangle', text: t('cityGuideF3') || 'Lois locales et conseils pratiques pour le stop' },
-        { ic: 'users', text: t('cityGuideF4') || 'Enrichi par la communauté à chaque passage' },
-      ],
-    }) : ''}
+    <!-- Coming-soon modals removed: now use showFeatureIntro() from FeatureIntroModal -->
     ${state.showMyData ? lazyRender('renderMyDataModal') : ''}
     ${state.showTitles ? lazyRender('renderTitlesModal', state) : ''}
     ${state.showFriendProfile ? lazyRender('renderFriendProfileModal', state) : ''}

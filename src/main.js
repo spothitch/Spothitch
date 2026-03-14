@@ -2062,14 +2062,6 @@ if (!window.closeReport) {
   })
 }
 
-// Coming soon feature modals
-window.openComingSoonRadar = () => setState({ showComingSoonRadar: true })
-window.closeComingSoonRadar = () => setState({ showComingSoonRadar: false })
-window.openComingSoonCompanion = () => setState({ showComingSoonCompanion: true })
-window.closeComingSoonCompanion = () => setState({ showComingSoonCompanion: false })
-window.openComingSoonCityGuide = () => setState({ showComingSoonCityGuide: true })
-window.closeComingSoonCityGuide = () => setState({ showComingSoonCityGuide: false })
-
 // Nearby friends handlers — lazy-loaded
 window.toggleNearbyFriends = async (...args) => {
   const { toggleNearbyFriends } = await import('./services/nearbyFriends.js')
@@ -3210,6 +3202,13 @@ if (!window.syncTripFieldsAndCalculate) {
   window.toggleNearbyFriends = guard('radar')
   window.openNearbyFriends = guard('radar')
   window.closeNearbyFriends = noop
+
+  // — ÉVÉNEMENTS (beta) — intercept setSocialTab('evenements')
+  const _origSetSocialTab = window.setSocialTab
+  window.setSocialTab = (tab, ...args) => {
+    if (tab === 'evenements') return window.showFeatureIntro?.('evenements')
+    return _origSetSocialTab?.(tab, ...args)
+  }
 
   // — VÉRIFICATION IDENTITÉ (beta) —
   window.openIdentityVerification = guard('score-confiance')

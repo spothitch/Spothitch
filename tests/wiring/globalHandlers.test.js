@@ -111,10 +111,7 @@ const MAIN_JS_HANDLERS = [
   'openTeamChallenges', 'closeTeamChallenges',
   'openCreateTeam', 'closeCreateTeam',
   'createTeamAction', 'joinTeamAction', 'leaveTeamAction', 'startTeamChallengeAction',
-  // Coming soon feature modals
-  'openComingSoonRadar', 'closeComingSoonRadar',
-  'openComingSoonCompanion', 'closeComingSoonCompanion',
-  'openComingSoonCityGuide', 'closeComingSoonCityGuide',
+  // Coming soon feature modals (legacy — now handled by showFeatureIntro beta guards)
   // Nearby friends
   'toggleNearbyFriends', 'openNearbyFriends', 'closeNearbyFriends',
   // Profile customization

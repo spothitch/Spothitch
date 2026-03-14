@@ -230,7 +230,7 @@ window.searchMapSuggestions = (query) => {
                 </button>
                 ${isCity ? `
                   <button
-                    onclick="openComingSoonCityGuide()"
+                    onclick="showFeatureIntro('villes')"
                     class="w-full px-4 py-2 text-left text-slate-400 hover:bg-white/5 transition-colors text-xs border-t border-white/5 opacity-75"
                   >
                     📍 ${window.t?.('guideHitchhikingCity') || 'Hitchhiking guide:'} ${cityName}

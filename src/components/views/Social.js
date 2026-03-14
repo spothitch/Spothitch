@@ -265,7 +265,7 @@ function renderMessagerieTab(state) {
 
       <!-- Companion travel search — beta guard -->
       <div class="px-4 pb-2">
-        <button onclick="openComingSoonCompanion()"
+        <button onclick="showFeatureIntro('compagnon')"
           class="card p-3 border-white/10 opacity-75 w-full text-left">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -367,7 +367,7 @@ function renderEvenementsTab(state) {
     <div class="flex-1 overflow-y-auto relative">
       <!-- Proximity Radar — coming soon -->
       <div class="mx-4 mt-3 mb-2">
-        <button onclick="openComingSoonRadar()" class="card p-3 border-white/10 opacity-75 w-full text-left">
+        <button onclick="showFeatureIntro('radar')" class="card p-3 border-white/10 opacity-75 w-full text-left">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
