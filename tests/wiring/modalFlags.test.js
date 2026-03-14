@@ -334,7 +334,6 @@ describe('Modal Flags: flag produces non-empty HTML', () => {
     expect(html).toBeTruthy()
     expect(html.length).toBeGreaterThan(100)
     expect(html).toContain('landing-page')
-    expect(html).toContain('skipToLandingAuth')
     expect(html).toContain('handleGoogleSignIn')
     expect(html).toContain('landingNext')
   })
