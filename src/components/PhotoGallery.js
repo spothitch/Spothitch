@@ -246,7 +246,8 @@ window.goToPhoto = (galleryId, index) => {
   if (mainImg) {
     mainImg.style.opacity = '0';
     setTimeout(() => {
-      mainImg.src = safePhotoURL(photos[index]); // lgtm[js/dom-text-reinterpreted-as-html] — URL validated by safePhotoURL
+      // lgtm[js/dom-text-reinterpreted-as-html]
+      mainImg.src = safePhotoURL(photos[index]);
       mainImg.style.opacity = '1';
     }, 150);
   }
@@ -311,7 +312,8 @@ window.openPhotoFullscreen = async (galleryId, index) => {
 
   // Create fullscreen container
   const container = document.createElement('div');
-  container.innerHTML = renderPhotoFullscreen(photos, index, galleryId); // lgtm[js/dom-text-reinterpreted-as-html] — photos sanitized by safePhotoURL + escapeHTML
+  // lgtm[js/dom-text-reinterpreted-as-html]
+  container.innerHTML = renderPhotoFullscreen(photos, index, galleryId);
   document.body.appendChild(container.firstElementChild);
 
   // Prevent body scroll
@@ -378,7 +380,8 @@ function updateFullscreenPhoto(photos, index) {
   const counter = document.getElementById('fullscreen-counter');
   const indexEl = document.getElementById('fullscreen-current-index');
 
-  if (img) img.src = safePhotoURL(photos[index]); // lgtm[js/dom-text-reinterpreted-as-html] — URL validated by safePhotoURL
+  // lgtm[js/dom-text-reinterpreted-as-html]
+  if (img) img.src = safePhotoURL(photos[index]);
   if (counter) counter.textContent = index + 1;
   if (indexEl) indexEl.value = index;
 
