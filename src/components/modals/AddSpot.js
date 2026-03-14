@@ -498,7 +498,7 @@ function renderPositionBlock() {
           <div style="padding:10px 14px;display:flex;align-items:center;gap:10px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <div style="flex:1;min-width:0">
-              <div style="font-size:13px;color:#e2e8f0">${escapeHTML(window.spotFormData?.locationName || '')} <span style="color:#475569;font-size:11px">${lat.toFixed(4)}, ${lng.toFixed(4)}</span></div>
+              <div style="font-size:13px;color:#e2e8f0">${escapeHTML(window.spotFormData?.locationName || '')} <span style="color:#475569;font-size:11px">${lat?.toFixed(4) || '?'}, ${lng?.toFixed(4) || '?'}</span></div>
               ${window.spotFormData?.departureCity && window.spotFormData?.locationName && window.spotFormData.departureCity !== window.spotFormData.locationName ? `<div style="font-size:11px;color:#94a3b8">${t('departure') || 'Départ'}: ${escapeHTML(window.spotFormData.departureCity)}</div>` : ''}
               <div style="font-size:11px;color:#f59e0b">${t('modify') || 'Modifier la position'}</div>
             </div>

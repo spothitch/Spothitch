@@ -1789,7 +1789,8 @@ window.searchTripCity = (query) => {
 window.addTripStepFromSearch = async (name, lat, lng, fullName) => {
   const { addTripStep } = await import('./services/planner.js')
   addTripStep({ name, lat, lng, fullName })
-  document.getElementById('step-input').value = ''
+  const stepInput = document.getElementById('step-input')
+  if (stepInput) stepInput.value = ''
   document.getElementById('city-suggestions')?.classList.add('hidden')
 }
 window.addFirstSuggestion = () => {
@@ -2553,7 +2554,8 @@ window.closeAddHostel = () => {
 
 window.setHostelCategory = (category) => {
   // Update selected category
-  document.getElementById('selected-category').value = category;
+  const catEl = document.getElementById('selected-category')
+  if (catEl) catEl.value = category;
 
   // Update button styles
   document.querySelectorAll('.category-btn').forEach(btn => {

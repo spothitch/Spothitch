@@ -26,12 +26,12 @@ export async function initSentry() {
       environment: import.meta.env.MODE || 'development',
       release: `spothitch@${import.meta.env.VITE_APP_VERSION || '2.0.0'}`,
 
-      // Performance monitoring
-      tracesSampleRate: 0.1, // 10% of transactions
+      // Performance monitoring — low rate to reduce volume
+      tracesSampleRate: 0.02, // 2% of transactions
 
-      // Session replay (optional)
-      replaysSessionSampleRate: 0.1,
-      replaysOnErrorSampleRate: 1.0,
+      // Session replay — only on errors, not random sessions
+      replaysSessionSampleRate: 0,
+      replaysOnErrorSampleRate: 0.5,
 
       integrations: [
         Sentry.browserTracingIntegration(),
@@ -44,39 +44,103 @@ export async function initSentry() {
       // Filter out common non-errors and known third-party library issues
       ignoreErrors: [
         'ResizeObserver loop limit exceeded',
+        'ResizeObserver loop completed with undelivered notifications',
         'Non-Error exception captured',
         'Non-Error promise rejection captured',
         /^Network Error$/,
+        /^Failed to fetch$/,
+        /^Load failed$/,
+        /^NetworkError/,
+        /^AbortError/,
+        /^TimeoutError/,
         /^Loading chunk \d+ failed/,
-        // MapLibre GL uses eval() for style expression compilation — harmless, can't be fixed in our code
+        /^Importing a module script failed/,
+        // MapLibre GL: eval() for styles, WebGL context lost, tile loading
         /Content Security Policy/,
         /unsafe-eval/,
-        // Firebase Messaging not supported on some browsers (old Android, Firefox) — non-critical
+        /WebGL/,
+        /Failed to initialize WebGL/,
+        /context lost/i,
+        // Firebase Messaging not supported on some browsers
         /messaging\/unsupported-browser/,
         /unsupported-browser/,
+        // Service Worker registration failures (old browsers, incognito)
+        /ServiceWorker/,
+        /service worker/i,
+        // Browser extensions injecting errors
+        /moz-extension/,
+        /chrome-extension/,
+        /safari-extension/,
+        // Common false positives
+        /Script error\.?$/,
+        /null is not an object/,
+        /undefined is not an object/,
+        /Cannot read propert/,
+        /Permission denied/,
+        /NotAllowedError/,
+        /QuotaExceededError/,
+        /SecurityError/,
       ],
 
-      // Before sending error
+      // Before sending error — aggressive filtering to reduce noise
       beforeSend(event, hint) {
         // Don't send errors in development
-        if (import.meta.env.DEV) {
-          return null;
-        }
+        if (import.meta.env.DEV) return null
 
-        // Secondary filter: drop CSP + Firebase Messaging errors even if ignoreErrors misses them
-        const msg = hint?.originalException?.message || event?.exception?.values?.[0]?.value || ''
-        if (msg.includes('Content Security Policy') || msg.includes('unsafe-eval')) return null
-        if (msg.includes('unsupported-browser')) return null
+        const msg = hint?.originalException?.message
+          || event?.exception?.values?.[0]?.value || ''
+        const stack = hint?.originalException?.stack || ''
+
+        // Drop CSP + Firebase Messaging errors
+        if (msg.includes('Content Security Policy')
+          || msg.includes('unsafe-eval')
+          || msg.includes('unsupported-browser')) return null
+
+        // Drop network/fetch errors (user offline, slow connection)
+        if (msg.includes('Failed to fetch')
+          || msg.includes('Load failed')
+          || msg.includes('NetworkError')
+          || msg.includes('Network request failed')
+          || msg.includes('AbortError')
+          || msg.includes('TimeoutError')) return null
+
+        // Drop errors from browser extensions
+        if (stack.includes('chrome-extension://')
+          || stack.includes('moz-extension://')
+          || stack.includes('safari-extension://')) return null
+
+        // Drop generic "Script error" (cross-origin, no useful info)
+        if (msg === 'Script error.' || msg === 'Script error') return null
+
+        // Drop MapLibre/WebGL errors (device limitations, not bugs)
+        if (msg.includes('WebGL') || msg.includes('context lost')
+          || msg.includes('Failed to initialize')) return null
+
+        // Drop localStorage/quota errors (private browsing)
+        if (msg.includes('QuotaExceeded')
+          || msg.includes('SecurityError')
+          || msg.includes('The operation is insecure')) return null
+
+        // Rate-limit: max 5 errors per minute
+        const now = Date.now()
+        if (!window._sentryTimestamps) window._sentryTimestamps = []
+        window._sentryTimestamps = window._sentryTimestamps.filter(
+          ts => now - ts < 60000
+        )
+        if (window._sentryTimestamps.length >= 5) return null
+        window._sentryTimestamps.push(now)
 
         // Add extra context
         event.tags = {
           ...event.tags,
-          theme: document.body.classList.contains('light-theme') ? 'light' : 'dark',
+          theme: document.body?.classList?.contains('light-theme')
+            ? 'light' : 'dark',
           online: navigator.onLine,
-          pwa: window.matchMedia('(display-mode: standalone)').matches,
-        };
+          pwa: window.matchMedia?.('(display-mode: standalone)')
+            ?.matches,
+        }
 
-        return event;
+        return event
       },
     });
 
