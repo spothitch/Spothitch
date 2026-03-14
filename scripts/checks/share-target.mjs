@@ -196,25 +196,15 @@ async function runShareTargetAudit() {
     console.log('\n--- Share-to-AddSpot Flow ---')
     try {
       // Simulate what happens when the app receives a share
+      // Navigate to share URL with query params (simulates Share Target API)
+      const shareUrl = `${BASE_URL}/?url=${encodeURIComponent('https://www.google.com/maps/@48.8566,2.3522,15z')}&title=Test+Share`
+      await page.goto(shareUrl, { waitUntil: 'domcontentloaded', timeout: 20000 })
+      await page.waitForTimeout(5000)
+
       const shareResult = await page.evaluate(() => {
-        return new Promise((resolve) => {
-          // Check if handleIncomingShare or handleDeepLink exists
-          if (typeof window.handleDeepLink === 'function') {
-            window.handleDeepLink('https://www.google.com/maps/@48.8566,2.3522,15z')
-            setTimeout(() => {
-              const addSpotOpen = document.querySelector('[class*="add-spot"], [class*="AddSpot"], .modal-overlay')
-              resolve({ method: 'handleDeepLink', modalOpened: !!addSpotOpen })
-            }, 2000)
-          } else if (typeof window.handleIncomingShare === 'function') {
-            window.handleIncomingShare({ url: 'https://www.google.com/maps/@48.8566,2.3522,15z' })
-            setTimeout(() => {
-              const addSpotOpen = document.querySelector('[class*="add-spot"], [class*="AddSpot"], .modal-overlay')
-              resolve({ method: 'handleIncomingShare', modalOpened: !!addSpotOpen })
-            }, 2000)
-          } else {
-            resolve({ method: 'none', modalOpened: false, error: 'No share handler found' })
-          }
-        })
+        const addSpotOpen = document.querySelector('[class*="add-spot"], [class*="AddSpot"], .modal-overlay')
+        const hasProcessShare = typeof window.processShare === 'function'
+        return { method: hasProcessShare ? 'processShare' : 'none', modalOpened: !!addSpotOpen }
       })
 
       results.shareFlow.tested = true
@@ -223,7 +213,7 @@ async function runShareTargetAudit() {
       if (shareResult.modalOpened) {
         console.log(`  [OK] Share flow works via ${shareResult.method}`)
       } else if (shareResult.method === 'none') {
-        console.log(`  [WARN] No share handler (handleDeepLink/handleIncomingShare) found on window`)
+        console.log(`  [WARN] No share handler (processShare/handleDeepLink) found on window`)
       } else {
         console.log(`  [FAIL] ${shareResult.method} called but AddSpot modal did not open`)
       }

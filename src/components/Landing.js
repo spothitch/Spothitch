@@ -15,7 +15,7 @@ function stepIndicator(active) {
     const cls = i < active ? 'bg-primary-500/15 text-primary-300'
       : i === active ? 'bg-primary-500 text-dark-primary'
       : 'bg-white/[0.04] text-slate-600'
-    const dot = `<div class="w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center ${cls}">${i + 1}</div>`
+    const dot = `<div class="w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center ${cls}">${i + 1}</div>`
     if (i < 7) {
       const lineClass = i < active ? 'bg-primary-500/30' : 'bg-white/[0.06]'
       return dot + `<div class="w-2 h-0.5 ${lineClass}"></div>`
