@@ -36,10 +36,10 @@ export function buildCountryBubblesGeoJSON(
       properties: {
         code,
         name: safeDisplayName(displayNames, code),
-        spotCount: country.locations || 0,
+        spotCount: country.count || country.locations || 0,
         isDownloaded: downloadedCodes.has(code) ? 1 : 0,
         isLoaded: loadedCodes.has(code) ? 1 : 0,
-        label: `${country.locations || 0}`,
+        label: `${country.count || country.locations || 0}`,
       },
     })
   }
