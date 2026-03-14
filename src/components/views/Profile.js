@@ -595,9 +595,12 @@ function renderSocialLinksCard(_state) {
     ? JSON.parse(localStorage.getItem('spothitch_social_links') || '{}')
     : {}
   const networks = [
-    { id: 'instagram', icon: 'camera', label: 'Instagram', color: 'text-pink-400', url: 'https://instagram.com/' },
-    { id: 'tiktok', icon: 'video', label: 'TikTok', color: 'text-slate-300', url: 'https://tiktok.com/@' },
-    { id: 'facebook', icon: 'users', label: 'Facebook', color: 'text-blue-400', url: 'https://facebook.com/' },
+    { id: 'instagram', icon: 'camera', label: 'Instagram', color: 'text-pink-400', url: 'https://instagram.com/', prefix: '@' },
+    { id: 'tiktok', icon: 'video', label: 'TikTok', color: 'text-slate-300', url: 'https://tiktok.com/@', prefix: '@' },
+    { id: 'facebook', icon: 'users', label: 'Facebook', color: 'text-blue-400', url: 'https://facebook.com/', prefix: '' },
+    { id: 'youtube', icon: 'play', label: 'YouTube', color: 'text-red-400', url: 'https://youtube.com/@', prefix: '@' },
+    { id: 'twitter', icon: 'mail', label: 'X / Twitter', color: 'text-sky-400', url: 'https://x.com/', prefix: '@' },
+    { id: 'snapchat', icon: 'send', label: 'Snapchat', color: 'text-yellow-300', url: 'https://snapchat.com/add/', prefix: '' },
   ]
   return `
     <div class="card p-4">
@@ -621,9 +624,10 @@ function renderSocialLinksCard(_state) {
             <input
               type="text"
               id="social-link-${n.id}"
-              placeholder="@${t('username') || 'pseudo'}"
+              placeholder="${n.prefix}${t('username') || 'pseudo'}"
               value="${val}"
-              onblur="saveSocialLink('${n.id}', this.value)"
+              onblur="saveSocialLink('${n.id}', this.value); setState({profileSubTab:'profil'})"
+              onkeydown="if(event.key==='Enter'){this.blur()}"
               class="flex-1 bg-transparent text-sm outline-none placeholder-slate-600"
             />
             ${hasValue ? `<a href="${n.url}${encodeURIComponent(username)}" target="_blank" rel="noopener noreferrer" class="text-xs ${n.color} hover:underline flex-shrink-0">${icon('external-link', 'w-3.5 h-3.5')}</a>` : ''}
