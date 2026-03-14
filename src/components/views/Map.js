@@ -228,14 +228,7 @@ window.searchMapSuggestions = (query) => {
                   <div class="font-medium text-sm truncate">${shortName}</div>
                   <div class="text-xs text-slate-400 truncate">${r.display_name}</div>
                 </button>
-                ${isCity ? `
-                  <button
-                    onclick="openCityPanel('${citySlug}', '${cityName}', ${r.lat}, ${r.lon}, '${cc}', '${countryName}')"
-                    class="w-full px-4 py-2 text-left text-primary-400 hover:bg-primary-500/10 transition-colors text-xs font-medium border-t border-white/5"
-                  >
-                    📍 ${window.t?.('guideHitchhikingCity') || 'Hitchhiking guide:'} ${cityName}
-                  </button>
-                ` : ''}
+                ${''}<!-- City guide: hidden until beta -->
               </div>`
             }).join('')}
           </div>

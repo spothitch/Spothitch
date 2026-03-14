@@ -263,24 +263,7 @@ function renderMessagerieTab(state) {
         </button>
       </div>
 
-      <!-- Companion travel search card -->
-      <div class="px-4 pb-2">
-        <button
-          onclick="showCompanionSearchView()"
-          class="card p-3 w-full text-left bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/20 hover:border-emerald-500/40 transition-colors"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-lg">
-              🤝
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-sm">${t('lookingForCompanion')}</div>
-              <div class="text-xs text-slate-400">${t('companionDesc')}</div>
-            </div>
-            ${icon('chevron-right', 'w-4 h-4 text-slate-400')}
-          </div>
-        </button>
-      </div>
+      <!-- Companion travel search: hidden until beta -->
 
       <!-- Conversation list -->
       ${allConversations.length > 0 ? `
