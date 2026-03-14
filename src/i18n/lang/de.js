@@ -2131,6 +2131,7 @@ export default {
   // PWA
   appInstalled: 'App installiert!',
   installingApp: 'Wird installiert...',
+  updatingApp: 'Aktualisierung...',
   pwaInstallIOS: 'Tippen Sie auf Teilen und dann Zum Home-Bildschirm',
   pwaInstallAndroid: 'Tippen Sie auf das Menü und dann Zum Startbildschirm hinzufügen',
   pwaInstallChrome: 'Klicken Sie auf das Installationssymbol in der Adressleiste',

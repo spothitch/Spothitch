@@ -2134,6 +2134,7 @@ export default {
   // PWA
   appInstalled: 'Application installée !',
   installingApp: 'Installation en cours...',
+  updatingApp: 'Mise à jour...',
   pwaInstallIOS: "Appuyez sur Partager puis Sur l'écran d'accueil",
   pwaInstallAndroid: "Appuyez sur le menu puis Ajouter à l'écran d'accueil",
   pwaInstallChrome: "Cliquez sur l'icône d'installation dans la barre d'adresse",

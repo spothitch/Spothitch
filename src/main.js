@@ -172,13 +172,14 @@ function startVersionCheck() {
         await Promise.all(keys.map(k => caches.delete(k)))
       } catch { /* ignore */ }
     }
-    // Never reload while user is actively using the app — wait until they background it
-    if (document.visibilityState !== 'hidden') {
-      pendingReload = true
-      return
-    }
+    // Reload even if user is active — show brief toast then reload
     isReloading = true
-    window.location.reload()
+    if (document.visibilityState !== 'hidden' && window.showToast) {
+      window.showToast(t('updatingApp') || 'Mise à jour...', 'info')
+      setTimeout(() => window.location.reload(), 800)
+    } else {
+      window.location.reload()
+    }
   }
 
   // When user backgrounds the app, apply pending reload
