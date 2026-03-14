@@ -91,7 +91,7 @@
 - Carte interactive avec clustering, marqueurs colorés (tier gris/vert/or)
 - Recherche villes (Photon API, suggestions instantanées)
 - Détail spot complet (photos Mapillary/Street View, ratings, reviews, infos légales)
-- Création spot (wizard 3 étapes, photo WebP, 4 types, 3 critères)
+- Création spot (wizard 3 étapes, photo OPTIONNELLE en alpha, 4 types, 3 critères)
 - Validation spot ("Je valide" quick + "J'ai testé" formulaire complet)
 - Filtres carte (note, attente, vérifiés, tri)
 - 53 guides pays (légalité, phrases, urgences, culture, visa, devise)

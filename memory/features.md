@@ -36,7 +36,7 @@
 - [x] Déduction automatique method/groupSize/timeOfDay/season depuis les commentaires
 - [x] Création spot : wizard 3 étapes (Photo+Type → Expérience → Détails)
 - [x] Mini-carte toujours visible à l'étape 1 (tap pour placer le spot, GPS en raccourci)
-- [x] Photo obligatoire (compression WebP + preview, max 5 photos par spot)
+- [x] Photo optionnelle en alpha (compression WebP + preview, max 5 photos par spot)
 - [x] Photos Mapillary automatiques (street-level, gratuites, quand pas de photo utilisateur)
 - [x] Bouton Street View dans SpotDetail (ouvre Google Maps, gratuit)
 - [x] Priorité photos : utilisateur > Mapillary > placeholder

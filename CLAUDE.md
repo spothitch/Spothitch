@@ -321,7 +321,7 @@ Voir `/memory/decisions.md` pour l'historique complet.
 | 3 critères spots (sécurité, trafic, accessibilité) | Simple et suffisant |
 | Direction toujours obligatoire | Le coeur de l'app = trouver un spot VERS une destination |
 | 4 types de spots | Sortie de ville, station, bord de route, autre |
-| Photo obligatoire création spot | Qualité des données |
+| Photo optionnelle en alpha | Les testeurs créent des spots de mémoire sans avoir les photos |
 | Auto-reload via version.json | L'user voit les changements sans vider le cache |
 | Pas de paywall | Les autostoppeurs sont fauchés |
 
