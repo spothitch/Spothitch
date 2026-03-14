@@ -245,12 +245,14 @@ async function tryGeocode(query) {
  * "Chang Wat Chiang Mai 50300" → "Chiang Mai"
  */
 function extractCityFromParts(parts) {
-  const adminPrefixes = /\b(Tambon|Mueang|District|Chang\s*Wat|Changwat|Sub.?district|Province|Amphoe|Amphur|Khet|Khwaeng|Phum|Sangkat)\b/gi
+  const adminPrefixes = /\b(Tambon|Mueang|District|Chang\s*Wat|Changwat)\b/gi
+  const adminPrefixes2 = /\b(Sub.?district|Province|Amphoe|Amphur|Khet|Khwaeng|Phum|Sangkat)\b/gi
 
   let last = null
   for (const part of parts) {
     const cleaned = part
       .replace(adminPrefixes, '')
+      .replace(adminPrefixes2, '')
       .replace(/\b\d{4,6}\b/g, '')
       .replace(/\s{2,}/g, ' ')
       .trim()
@@ -271,7 +273,11 @@ function simplifyPlaceName(place) {
   const parts = place.split(',').map(p => p.trim())
 
   // Road/street keywords to detect address parts
-  const roadRe = /\b(Rd|Road|Ave|Avenue|St|Street|Blvd|Boulevard|Lane|Ln|Dr|Drive|Way|Hwy|Highway|Soi|Alley|Route|Rue|Straße|Strasse|Calle|Camino|Via|Viale|Corso|Passage|Chemin|Place|Platz|Plaza)\b/i
+  const roadWords = 'Rd|Road|Ave|Avenue|St|Street|Blvd|Boulevard'
+    + '|Lane|Ln|Dr|Drive|Way|Hwy|Highway|Soi|Alley|Route'
+    + '|Rue|Straße|Strasse|Calle|Camino|Via|Viale|Corso'
+    + '|Passage|Chemin|Place|Platz|Plaza'
+  const roadRe = new RegExp(`\\b(${roadWords})\\b`, 'i')
   const hasNumber = /\d+\/?[\d]*/
 
   // Extract city from admin parts
