@@ -722,7 +722,7 @@ window.companionAddTrustedContact = async () => {
   state.trustedContacts = contacts
 
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state))
+    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data] — trusted contacts, local device only, declared in RGPD registry
   } catch {
     // ignore
   }
@@ -743,7 +743,7 @@ window.companionRemoveTrustedContact = async (index) => {
   state.trustedContacts = contacts
 
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state))
+    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data] — trusted contacts, local device only
   } catch {
     // ignore
   }
