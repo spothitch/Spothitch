@@ -711,6 +711,11 @@ export default {
   cityDetected: 'Salida de ciudad detectada',
   roadDetected: 'Carretera detectada. Tipo puesto en "Otro"',
   detectionFailed: 'Detección imposible (¿sin conexión?)',
+  verifyingStation: 'Verificando estación...',
+  noStationConfirmTitle: 'No se detecta gasolinera',
+  noStationConfirmMessage: 'No detectamos una gasolinera a menos de 300m de este punto. ¿Estás seguro de que es una gasolinera?',
+  noStationKeep: 'Sí, es una gasolinera',
+  noStationChange: 'Cambiar tipo',
   spotLocation: 'Spot',
 
   // Spot form fields

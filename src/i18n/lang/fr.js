@@ -130,6 +130,11 @@ export default {
   cityDetected: 'Sortie de ville détectée',
   roadDetected: 'Route détectée. Type mis à "Autre"',
   detectionFailed: 'Détection impossible (pas de connexion ?)',
+  verifyingStation: 'Vérification de la station...',
+  noStationConfirmTitle: 'Pas de station détectée',
+  noStationConfirmMessage: 'On ne détecte pas de station-service à moins de 300m de ce point. Tu es sûr que c\'est bien une station ?',
+  noStationKeep: 'Oui, c\'est une station',
+  noStationChange: 'Changer le type',
   spotLocation: 'Spot',
 
   // Spot form fields

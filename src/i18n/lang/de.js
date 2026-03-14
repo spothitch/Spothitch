@@ -130,6 +130,11 @@ export default {
   cityDetected: 'Stadtausgang erkannt',
   roadDetected: 'Straße erkannt. Typ auf "Andere" gesetzt',
   detectionFailed: 'Erkennung fehlgeschlagen (keine Verbindung?)',
+  verifyingStation: 'Tankstelle wird überprüft...',
+  noStationConfirmTitle: 'Keine Tankstelle erkannt',
+  noStationConfirmMessage: 'Wir erkennen keine Tankstelle im Umkreis von 300m. Bist du sicher, dass es eine Tankstelle ist?',
+  noStationKeep: 'Ja, es ist eine Tankstelle',
+  noStationChange: 'Typ ändern',
   spotLocation: 'Spot',
 
   // Spot form fields

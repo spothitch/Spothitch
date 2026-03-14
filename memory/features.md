@@ -41,6 +41,7 @@
 - [x] Bouton Street View dans SpotDetail (ouvre Google Maps, gratuit)
 - [x] Priorité photos : utilisateur > Mapillary > placeholder
 - [x] 4 types : sortie ville, station-service, bord de route, autre
+- [x] Vérification station-service automatique à la création (Overpass API, rayon 300m, popup confirmation si aucune station détectée)
 - [x] 3 critères notation : sécurité, trafic, accessibilité (1-5 étoiles)
 - [x] Tags enrichis : abri, visibilité, parking, commodités, méthode signalisation
 - [x] Direction/destination obligatoire
@@ -123,7 +124,7 @@
 - [x] Formulaire voyage passé amélioré (dates début/fin, layout 2 colonnes)
 - [x] Sélecteur de langues in-app (modal au lieu de prompt())
 - [x] Vérification identité déplacée dans Réglages
-- [x] Carte donation dans Profil et Réglages
+- [x] Carte donation dans Profil et Réglages (lien PayPal.me/antoineville actif, montants 3/10/50€ + libre)
 - [x] **Roadmap / Feature Requests** : sous-onglet dans Profil (remplace Progression), 7 features détaillées, votes approve/disapprove Firebase partagés, commentaires Firebase, auth requise, optimistic UI + localStorage fallback
 - [x] Toggles 👍/👎 pill classique unifié (renderToggle via src/utils/toggle.js — 19 toggles)
 
@@ -272,7 +273,7 @@
 
 - [ ] Affiliés Hostelworld/Booking (pas encore inscrit)
 - [x] Contenu sponsorisé (hostels/hébergements recommandés — code prêt)
-- [x] Modal donation
+- [x] Modal donation (PayPal connecte : paypal.me/antoineville, montant pre-rempli)
 
 ## Configuré en prod
 

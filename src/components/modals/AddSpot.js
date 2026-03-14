@@ -1290,6 +1290,56 @@ function closeFullscreenMapPicker() {
 window.toggleSpotMapPicker = async () => {}
 window.spotMapPickLocation = () => {}
 
+// Gas station verification — checks Overpass for fuel amenity within 300m
+async function verifyGasStationNearby(lat, lng) {
+  try {
+    const radius = 300
+    const query = `[out:json][timeout:10];(node["amenity"="fuel"](around:${radius},${lat},${lng}););out center 1;`
+    const resp = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`)
+    if (!resp.ok) return { verified: true } // fail open on API error
+    const ct = resp.headers.get('content-type') || ''
+    if (!ct.includes('json')) return { verified: true } // server overloaded, fail open
+    const data = await resp.json()
+    const found = data.elements && data.elements.length > 0
+    return {
+      verified: found,
+      stationName: found ? (data.elements[0].tags?.name || data.elements[0].tags?.brand || '') : '',
+    }
+  } catch {
+    return { verified: true } // fail open on network error
+  }
+}
+
+// Show gas station confirmation overlay — returns 'keep' or 'change'
+function showGasStationConfirm() {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div')
+    overlay.id = 'gas-station-confirm'
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px'
+    overlay.innerHTML = `
+      <div style="background:#0f1520;border-radius:16px;padding:24px;max-width:340px;width:100%;border:1px solid #1a1f2e">
+        <div style="text-align:center;margin-bottom:16px">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <div style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:8px;text-align:center">${t('noStationConfirmTitle')}</div>
+        <div style="font-size:14px;color:#94a3b8;margin-bottom:24px;text-align:center;line-height:1.5">${t('noStationConfirmMessage')}</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button id="gas-confirm-keep" style="padding:14px;border-radius:10px;border:1px solid #334155;background:transparent;color:#e2e8f0;font-size:14px;cursor:pointer">${t('noStationKeep')}</button>
+          <button id="gas-confirm-change" style="padding:14px;border-radius:10px;border:none;background:#f59e0b;color:#0f1520;font-size:14px;font-weight:600;cursor:pointer">${t('noStationChange')}</button>
+        </div>
+      </div>
+    `
+    document.body.appendChild(overlay)
+    document.getElementById('gas-confirm-keep').addEventListener('click', () => {
+      overlay.remove()
+      resolve('keep')
+    })
+    document.getElementById('gas-confirm-change').addEventListener('click', () => {
+      overlay.remove()
+      resolve('change')
+    })
+  })
+}
 
 // Auto-detect spot type based on GPS position
 window.autoDetectStation = async () => {
@@ -1724,7 +1774,7 @@ window.handleAddSpot = async (event) => {
 
   const { getState } = await import('../../stores/state.js')
   const state = getState()
-  const spotType = state.addSpotType || 'custom'
+  let spotType = state.addSpotType || 'custom'
   const description = document.getElementById('spot-description')?.value.trim()
   const submitBtn = document.getElementById('submit-spot-btn')
 
@@ -1771,6 +1821,33 @@ window.handleAddSpot = async (event) => {
   if (!ratingsCheck.safety || !ratingsCheck.traffic || !ratingsCheck.accessibility) {
     showError(t('ratingsRequired') || 'Note les 3 critères (sécurité, trafic, accessibilité)')
     return
+  }
+
+  // Gas station verification — check Overpass for nearby fuel amenity
+  if (spotType === 'gas_station' && window.spotFormData.lat && window.spotFormData.lng) {
+    if (submitBtn) {
+      submitBtn.disabled = true
+      submitBtn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('verifyingStation')}`
+    }
+    const verification = await verifyGasStationNearby(window.spotFormData.lat, window.spotFormData.lng)
+    if (!verification.verified) {
+      if (submitBtn) {
+        submitBtn.disabled = false
+        submitBtn.innerHTML = t('submit') || 'Publier'
+      }
+      const decision = await showGasStationConfirm()
+      if (decision === 'change') {
+        spotType = 'custom'
+        window.selectSpotType('custom')
+        import('../../stores/state.js').then(({ getState: gs }) => {
+          gs().addSpotType = 'custom'
+        })
+      }
+      // Either way, continue with submission
+    } else if (verification.stationName && !window.spotFormData.stationName) {
+      // Auto-fill station name if detected and user left it empty
+      window.spotFormData.stationName = verification.stationName
+    }
   }
 
   // Proximity check

@@ -131,6 +131,11 @@ export default {
   cityDetected: 'City exit detected',
   roadDetected: 'Road detected. Type set to "Other"',
   detectionFailed: 'Detection failed (no connection?)',
+  verifyingStation: 'Verifying station...',
+  noStationConfirmTitle: 'No station detected',
+  noStationConfirmMessage: 'We can\'t detect a gas station within 300m of this spot. Are you sure it\'s a gas station?',
+  noStationKeep: 'Yes, it\'s a station',
+  noStationChange: 'Change type',
   spotLocation: 'Spot',
 
   // Spot form fields
