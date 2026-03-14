@@ -314,7 +314,7 @@ const MAIN_JS_HANDLERS = [
   'openDeleteAccount', 'closeDeleteAccount',
   'confirmDeleteAccount', 'confirmDeleteAccountGoogle',
   // DonationCard extras (defined in DonationCard.js)
-  'handleDonationClick', 'processDonation',
+  'handleDonationClick', 'processDonation', 'updateDonationLink',
   // Planner (defined in Planner.js)
   'saveCurrentTrip', 'shareTrip',
   // CookieBanner (defined in CookieBanner.js)
@@ -402,7 +402,7 @@ const MAIN_JS_HANDLERS = [
   // City Panel (defined in main.js)
   'openCityPanel', 'closeCityPanel', 'selectCityRoute', 'viewCitySpotsOnMap',
   // Missing close handlers (session 2026-02-22)
-  'closeLanding', 'closeSafety', 'toggleFormToggle', 'changeLandingLanguage',
+  'closeLanding', 'closeSafety', 'toggleFormToggle', 'changeLandingLanguage', 'validateAlphaCode',
   'closeConsentSettings', 'closeJoinTeam', 'closeTeamSettings',
   'closeTitlePopup', 'closeSeasonRewards', 'closeAnniversaryModal',
   'closeAmbassadorSuccess', 'closeAmbassadorProfile', 'closeContactAmbassador',

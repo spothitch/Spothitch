@@ -290,7 +290,6 @@ const initialState = {
   feedbackActiveTab: 'carte',
   feedbackDetailFeature: null,
   showComingSoonRadar: false,
-  showComingSoonProximity: false,
   showComingSoonCompanion: false,
   showComingSoonCityGuide: false,
 

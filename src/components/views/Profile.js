@@ -1396,16 +1396,15 @@ window.toggleNotifications = () => {
 }
 
 window.toggleProximityAlertsSetting = () => {
-  // Open "Coming Soon" popup instead of toggling
-  window.setState?.({ showComingSoonProximity: true })
+  import('../../services/notifications.js').then(m => m.showToast(t('comingSoon') || 'Coming soon!', 'info'))
 }
 
 window.openComingSoonProximity = () => {
-  window.setState?.({ showComingSoonProximity: true })
+  import('../../services/notifications.js').then(m => m.showToast(t('comingSoon') || 'Coming soon!', 'info'))
 }
 
 window.closeComingSoonProximity = () => {
-  window.setState?.({ showComingSoonProximity: false })
+  // No-op, kept for backward compat
 }
 
 window.editAvatar = () => {

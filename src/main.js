@@ -3090,7 +3090,7 @@ if (!window.openFeedbackOnFeature) {
 // Profile view handlers — lazy-loaded with Profile.js
 if (!window.openAddPastTrip) window.openAddPastTrip = () => setState({ showAddPastTrip: true })
 if (!window.openBlockedUsers) window.openBlockedUsers = () => setState({ showBlockedUsers: true })
-if (!window.openComingSoonProximity) window.openComingSoonProximity = () => setState({ showComingSoonProximity: true })
+if (!window.openComingSoonProximity) window.openComingSoonProximity = () => import('./services/notifications.js').then(m => m.showToast('Coming soon!', 'info'))
 if (!window.openReferences) window.openReferences = () => window.showToast?.('Fonctionnalité à venir', 'info')
 if (!window.openMySpots) window.openMySpots = () => setState({ profileDetailView: 'spots' })
 if (!window.openMyValidations) window.openMyValidations = () => setState({ profileDetailView: 'validations' })
