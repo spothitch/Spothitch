@@ -2174,14 +2174,17 @@ window.toggleFormToggle = (checkboxId) => {
 
 // Skip button in landing carousel → jump to slide 5 (auth)
 window.skipToLandingAuth = () => {
-  // Jump to slide 5 (index 4) using the carousel
+  // Jump to code slide (index 5) — user must enter code first
+  const alphaOk = localStorage.getItem('spothitch_alpha_code') === 'ok'
+  const targetSlide = alphaOk ? 7 : 5 // code slide or auth slide
+  const slideWidth = 100 / 8
   const track = document.getElementById('landing-track')
   const dots = document.querySelectorAll('.landing-dot')
   const nextBtn = document.getElementById('landing-next')
   if (track) {
-    track.style.transform = 'translateX(-80%)'
+    track.style.transform = `translateX(-${targetSlide * slideWidth}%)`
     dots.forEach((d, j) => {
-      d.className = j === 4
+      d.className = j === targetSlide
         ? 'landing-dot w-6 h-2 rounded-full bg-primary-400 transition-colors duration-200'
         : 'landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200'
     })

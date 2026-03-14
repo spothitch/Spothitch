@@ -4678,6 +4678,17 @@ export default {
   hwSlidePhase3Desc: '100% SpotHitch spots. Photos, details, up-to-date info. And tons of new spots discovered by the community.',
   alphaSlideHitchwikiNote: '3,000+ spots inherited from Hitchwiki to get started. The mission: replace them with your feedback and discover new ones.',
 
+  // Alpha access code
+  alphaPrivate: 'PRIVATE ALPHA',
+  alphaJoinTitle: 'Join the',
+  alphaJoinAccent: 'first ones',
+  alphaJoinDesc: "We're building SpotHitch with a handful of testers. Every feedback counts. Enter your code to access the app.",
+  alphaCodePlaceholder: 'Access code',
+  alphaCodeWrong: 'Wrong code',
+  alphaEnter: 'Access the app',
+  alphaNoCode: "DON'T HAVE A CODE?",
+  alphaNoCodeDesc: 'Contact us to become an alpha tester. Your opinion has a real impact on the app.',
+
   // Landing auth required
   landingAuthTitle: 'Sign in to get started',
   landingAuthDesc: 'Your account saves your spots, votes and reviews.',
