@@ -75,6 +75,16 @@ export default {
           return new Response(JSON.stringify({ ...htmlCoords, resolvedUrl: finalUrl }), { headers })
         }
 
+        // Strategy 1b: Use Google Maps embed endpoint for EXACT place coordinates
+        // When URL has a place ftid like !1s0x...!  the embed returns exact coords
+        const ftid = extractFtid(finalUrl)
+        if (ftid) {
+          const embedCoords = await resolveViaEmbed(ftid, extractPlaceName(finalUrl))
+          if (embedCoords) {
+            return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: finalUrl }), { headers })
+          }
+        }
+
         // Try extracting a place name and geocoding it server-side
         const place = extractPlaceName(finalUrl) || extractPlaceFromHtml(html)
         if (place) {
@@ -211,6 +221,56 @@ function extractCoordsFromHtml(html) {
       if (isValid(b, a)) return { lat: b, lng: a }
     }
   }
+
+  return null
+}
+
+/**
+ * Extract Google Maps feature ID (ftid) from a place URL.
+ * Format: "0x<hex>:0x<hex>" found in data=...!1s... parameter
+ */
+function extractFtid(url) {
+  const match = url.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i)
+  return match ? match[1] : null
+}
+
+/**
+ * Resolve exact coordinates via Google Maps embed endpoint.
+ * The embed response contains exact place coordinates in a small HTML page.
+ * This is much more reliable than parsing the full Google Maps page.
+ */
+async function resolveViaEmbed(ftid, placeName) {
+  try {
+    const name = placeName ? encodeURIComponent(placeName) : 'place'
+    const embedUrl = `https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1000!2d0!3d0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s${encodeURIComponent(ftid)}!2s${name}!5e0`
+    const res = await fetch(embedUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
+        'Accept': 'text/html',
+      },
+      signal: AbortSignal.timeout(6000),
+    })
+    const html = await res.text()
+
+    // Embed response contains: [lat,lng] in JSON array format
+    // Pattern: ",[lat,lng]," where lat/lng are the exact place coordinates
+    const coordMatch = html.match(/\[(-?\d{1,3}\.\d{4,10}),(-?\d{1,3}\.\d{4,15})\]/)
+    if (coordMatch) {
+      const a = parseFloat(coordMatch[1])
+      const b = parseFloat(coordMatch[2])
+      // Google embed returns [lat,lng] - verify which is which
+      if (isValid(a, b)) return { lat: a, lng: b }
+      if (isValid(b, a)) return { lat: b, lng: a }
+    }
+
+    // Also try the viewport center format: [zoom, lng, lat]
+    const viewMatch = html.match(/\[\d+,(-?\d{1,3}\.\d{4,15}),(-?\d{1,3}\.\d{4,10})\]/)
+    if (viewMatch) {
+      const lng = parseFloat(viewMatch[1])
+      const lat = parseFloat(viewMatch[2])
+      if (isValid(lat, lng)) return { lat, lng }
+    }
+  } catch { /* embed fetch failed */ }
 
   return null
 }
