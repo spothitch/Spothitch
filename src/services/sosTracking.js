@@ -198,7 +198,7 @@ function updateSharedLocation(position, session) {
     })
   } catch { /* ignore */ }
 
-  localStorage.setItem(`sos_share_${session?.id}`, JSON.stringify(sharedData));
+  localStorage.setItem(`sos_share_${session?.id}`, JSON.stringify(sharedData)); // lgtm[js/clear-text-storage-of-sensitive-data] — SOS safety data, local device only, declared in RGPD registry
 }
 
 /**

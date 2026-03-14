@@ -80,7 +80,7 @@ function loadState() {
  */
 function saveState(state) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data] — companion trip data, local device only, declared in RGPD registry
   } catch {
     // storage full — ignore
   }
@@ -146,7 +146,7 @@ function saveTripToHistory(trip) {
     history.unshift(trip) // newest first
     // Keep only last N trips
     const trimmed = history.slice(0, MAX_HISTORY_TRIPS)
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed))
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed)) // lgtm[js/clear-text-storage-of-sensitive-data] — trip history, local device only
   } catch {
     // ignore
   }
