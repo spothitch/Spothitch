@@ -210,7 +210,6 @@ function renderProfilTab(state) {
     ${renderLanguagesCard(state)}
     ${renderSocialLinksCard(state)}
     ${renderPhotoGalleryCard(state)}
-    ${renderTrustScoreCard()}
     ${renderMyReviewsCard(state)}
     ${renderPublicTripsCard(state)}
     ${renderBadgesGrid(state)}
