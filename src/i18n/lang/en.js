@@ -4649,6 +4649,17 @@ export default {
   alphaSlideCtaMap: 'Open the map',
   alphaSlideCtaExplore: 'Explore first',
 
+  // Hitchwiki slide
+  hwSlideTitle: 'Where we come from,',
+  hwSlideTitleAccent: 'where we\'re going',
+  hwSlidePhase1Title: 'Hitchwiki',
+  hwSlidePhase1Desc: '3,000+ spots. Basic positions and ratings. Thanks to them!',
+  hwSlidePhase2Title: 'Now',
+  hwSlidePhase2Desc: 'SpotHitch picks up the torch. Replace spots one by one with your own experience.',
+  hwSlidePhase3Title: 'Tomorrow',
+  hwSlidePhase3Desc: '100% SpotHitch spots. Photos, details, up-to-date info. And tons of new spots discovered by the community.',
+  alphaSlideHitchwikiNote: '3,000+ spots inherited from Hitchwiki to get started. The mission: replace them with your feedback and discover new ones.',
+
   // Landing auth required
   landingAuthTitle: 'Sign in to get started',
   landingAuthDesc: 'Your account saves your spots, votes and reviews.',

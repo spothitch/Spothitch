@@ -39,7 +39,7 @@
 - **Geocoding** : Photon API (100ms) avec fallback Nominatim
 - **Auth** : Firebase Auth (Google, email)
 - **DB** : Firestore (temps réel) + localStorage (offline)
-- **Spots** : 7061 spots importés dans `public/data/spots/` (133 fichiers JSON par pays)
+- **Spots** : 3026 spots importés dans `public/data/spots/` (74 fichiers JSON par pays, filtrés >= 2 reviews)
 - **i18n** : 4 langues (FR/EN/ES/DE), lazy-loaded par langue, ~4500 clés
 - **Tests** : Vitest (131 wiring tests) + Playwright E2E + Quality Gate CI
 - **PWA** : Service Worker Workbox, offline-first, installable
@@ -72,14 +72,14 @@
 
 | Donnée | Source | Quantité | Format |
 |--------|--------|----------|--------|
-| Spots importés | Import initial | 7061 spots enrichis | JSON par pays |
+| Spots importés | Import initial | 3026 spots (>= 2 reviews) | JSON par pays |
 | Spots communauté | Firebase | 0 (alpha) | Firestore |
 | Guides pays | Statique | 53 pays | `guides.js` |
 | Pages villes SEO | Auto-générées | 188 villes | HTML statique |
 | Badges | Statique | 50+ | `gamification.js` |
 | Features feedback | Statique + Firebase | 28 features | `featuresData.js` |
 
-**IMPORTANT** : Les 7061 spots importés seront SUPPRIMÉS avant le lancement public. SpotHitch repart de zéro avec uniquement les spots communauté.
+**IMPORTANT** : Les 3026 spots importés seront SUPPRIMÉS avant le lancement public. SpotHitch repart de zéro avec uniquement les spots communauté.
 
 ## 5. Features par état
 

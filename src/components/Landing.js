@@ -8,14 +8,14 @@ import { t, languageConfig } from '../i18n/index.js'
 import { getState } from '../stores/state.js'
 
 function stepIndicator(active) {
-  return [0, 1, 2, 3, 4, 5].map(i => {
+  return [0, 1, 2, 3, 4, 5, 6].map(i => {
     const cls = i < active ? 'bg-primary-500/15 text-primary-300'
       : i === active ? 'bg-primary-500 text-dark-primary'
       : 'bg-white/[0.04] text-slate-600'
-    const dot = `<div class="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${cls}">${i + 1}</div>`
-    if (i < 5) {
+    const dot = `<div class="w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center ${cls}">${i + 1}</div>`
+    if (i < 6) {
       const lineClass = i < active ? 'bg-primary-500/30' : 'bg-white/[0.06]'
-      return dot + `<div class="w-5 h-0.5 ${lineClass}"></div>`
+      return dot + `<div class="w-3 h-0.5 ${lineClass}"></div>`
     }
     return dot
   }).join('')
@@ -37,10 +37,10 @@ export function renderLanding() {
       </div>
 
       <!-- Carousel Track -->
-      <div id="landing-track" class="flex h-full transition-transform duration-300 ease-out" style="width:600%">
+      <div id="landing-track" class="flex h-full transition-transform duration-300 ease-out" style="width:700%">
 
         <!-- Slide 1: Bienvenue -->
-        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:#192839">
+        <div class="w-[14.285%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:#192839">
           <div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:rgba(245,158,11,0.05);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(0)}</div>
           <div class="relative w-[170px] h-[170px] mb-6 z-10">
@@ -58,7 +58,7 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 2: L'app en un coup d'œil -->
-        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#101722,#0f1520)">
+        <div class="w-[14.285%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#101722,#0f1520)">
           <div class="absolute rounded-full pointer-events-none" style="width:350px;height:350px;background:rgba(245,158,11,0.04);bottom:-80px;left:-80px;filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(1)}</div>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-5 tracking-tight relative z-10">
@@ -71,6 +71,7 @@ export function renderLanding() {
               <span class="text-[17px] font-bold text-slate-200">${t('alphaSlideFeatureMap')}</span>
             </div>
             <p class="text-[13px] text-slate-400 mt-1.5 leading-relaxed text-left">${t('alphaSlideFeatureMapDesc')}</p>
+            <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed text-left italic">${t('alphaSlideHitchwikiNote')}</p>
           </div>
 
           <div class="w-full max-w-[340px] p-5 bg-white/[0.03] border border-white/[0.06] rounded-2xl mb-3 relative z-10">
@@ -91,7 +92,7 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 3: Ton rôle -->
-        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#121a28,#0f1520)">
+        <div class="w-[14.285%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#121a28,#0f1520)">
           <div class="absolute rounded-full pointer-events-none" style="width:300px;height:300px;background:rgba(245,158,11,0.05);top:30%;right:-60px;filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(2)}</div>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-5 tracking-tight relative z-10">
@@ -124,7 +125,7 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 4: Roadmap -->
-        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#111825,#0f1520)">
+        <div class="w-[14.285%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#111825,#0f1520)">
           <div class="absolute rounded-full pointer-events-none" style="width:350px;height:350px;background:rgba(245,158,11,0.04);bottom:-60px;left:-60px;filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(3)}</div>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
@@ -174,10 +175,52 @@ export function renderLanding() {
           </div>
         </div>
 
-        <!-- Slide 5: Installer l'app -->
-        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#131b2a,#0f1520)">
-          <div class="absolute rounded-full pointer-events-none" style="width:400px;height:400px;background:rgba(245,158,11,0.06);top:40%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
+        <!-- Slide 5: Hitchwiki timeline -->
+        <div class="w-[14.285%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#0f1722,#0f1520)">
+          <div class="absolute rounded-full pointer-events-none" style="width:300px;height:300px;background:rgba(245,158,11,0.05);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(4)}</div>
+
+          <h2 class="text-[22px] font-extrabold text-white leading-tight mb-5 tracking-tight relative z-10">
+            ${t('hwSlideTitle')} <span class="text-primary-400">${t('hwSlideTitleAccent')}</span>
+          </h2>
+
+          <div class="w-full max-w-[280px] relative z-10 text-left">
+            <div class="flex gap-3 items-start mb-5">
+              <div class="flex flex-col items-center gap-1 shrink-0">
+                <div class="w-[10px] h-[10px] bg-slate-600 rounded-full"></div>
+                <div class="w-[2px] h-10 bg-white/[0.06]"></div>
+              </div>
+              <div>
+                <div class="text-[12px] text-slate-500 font-semibold">${t('hwSlidePhase1Title')}</div>
+                <div class="text-[11px] text-slate-600 leading-relaxed mt-1">${t('hwSlidePhase1Desc')}</div>
+              </div>
+            </div>
+            <div class="flex gap-3 items-start mb-5">
+              <div class="flex flex-col items-center gap-1 shrink-0">
+                <div class="w-[10px] h-[10px] bg-primary-500 rounded-full" style="box-shadow:0 0 8px rgba(245,158,11,0.4)"></div>
+                <div class="w-[2px] h-10 bg-primary-500/20"></div>
+              </div>
+              <div>
+                <div class="text-[12px] text-primary-400 font-semibold">${t('hwSlidePhase2Title')}</div>
+                <div class="text-[11px] text-slate-400 leading-relaxed mt-1">${t('hwSlidePhase2Desc')}</div>
+              </div>
+            </div>
+            <div class="flex gap-3 items-start">
+              <div class="flex flex-col items-center shrink-0">
+                <div class="w-[10px] h-[10px] bg-emerald-400 rounded-full" style="box-shadow:0 0 8px rgba(74,222,128,0.4)"></div>
+              </div>
+              <div>
+                <div class="text-[12px] text-emerald-400 font-semibold">${t('hwSlidePhase3Title')}</div>
+                <div class="text-[11px] text-slate-400 leading-relaxed mt-1">${t('hwSlidePhase3Desc')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 6: Installer l'app -->
+        <div class="w-[14.285%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#131b2a,#0f1520)">
+          <div class="absolute rounded-full pointer-events-none" style="width:400px;height:400px;background:rgba(245,158,11,0.06);top:40%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
+          <div class="flex items-center mb-7 relative z-10">${stepIndicator(5)}</div>
           <span class="text-5xl mb-4 relative z-10">📲</span>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('installTitle')}
@@ -203,10 +246,10 @@ export function renderLanding() {
           </button>
         </div>
 
-        <!-- Slide 6: Connexion obligatoire -->
-        <div class="w-[16.666%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#161e2e,#0f1520)">
+        <!-- Slide 7: Connexion obligatoire -->
+        <div class="w-[14.285%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(180deg,#161e2e,#0f1520)">
           <div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:rgba(245,158,11,0.07);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
-          <div class="flex items-center mb-7 relative z-10">${stepIndicator(5)}</div>
+          <div class="flex items-center mb-7 relative z-10">${stepIndicator(6)}</div>
           <span class="text-5xl mb-4 relative z-10">🔐</span>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('landingAuthTitle')}
@@ -252,6 +295,7 @@ export function renderLanding() {
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="3"></div>
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="4"></div>
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="5"></div>
+          <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="6"></div>
         </div>
         <button id="landing-next" onclick="landingNext()" class="text-primary-400 text-sm font-semibold">
           ${t('onboardingNext')} →
@@ -262,8 +306,8 @@ export function renderLanding() {
   `
 }
 
-const TOTAL_SLIDES = 6
-const SLIDE_WIDTH = 100 / TOTAL_SLIDES // 16.666%
+const TOTAL_SLIDES = 7
+const SLIDE_WIDTH = 100 / TOTAL_SLIDES // 14.285%
 
 export function initLandingCarousel() {
   let current = 0
