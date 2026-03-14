@@ -92,7 +92,7 @@ export function renderHome(state) {
       <!-- Map controls injected persistently inside #home-map by App.js afterRender -->
 
       <!-- Spot Counter -->
-      <div id="spot-counter" class="absolute bottom-[6.5rem] left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+      <div id="spot-counter" class="absolute bottom-[6.5rem] right-16 z-20 pointer-events-none">
         <div class="flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg text-[11px]">
           <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> Hitchwiki</span>
           <span class="flex items-center gap-1 text-emerald-400"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> SpotHitch</span>
