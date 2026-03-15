@@ -78,6 +78,7 @@ export function renderSearchInput(options = {}) {
         placeholder="${placeholder}"
         aria-label="${label}"
         class="${inputClass} ${paddingLeft}"
+        maxlength="100"
         ${valAttr}
         ${oninputAttr}
         ${onkeydownAttr}
