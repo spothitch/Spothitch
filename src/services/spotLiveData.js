@@ -189,13 +189,30 @@ export function mergeSpotData(staticSpot, validations) {
     _liveLoaded: true,
   }
 
-  // Imported spot with community data → mark as community, clear old descriptions
-  if (ignoreStatic) {
+  // Imported spot with community test → become SpotHitch spot, erase all Hitchwiki data
+  // Only validations from our users + test data remain. GPS + name + neighborhood kept.
+  if (ignoreStatic && testValidations.length > 0) {
     result.source = 'community'
+    // Erase Hitchwiki data
+    result.description = ''
     result.descriptionEn = ''
     result.descriptionFr = ''
     result.descriptionEs = ''
     result.descriptionDe = ''
+    result.ratings = liveRatings // only community ratings
+    result.safetyRating = liveRatings.safety
+    result.trafficRating = liveRatings.traffic
+    result.accessRating = liveRatings.accessibility
+    result.avgWaitTime = liveAvgWaitTime // only community wait times
+    result.totalReviews = testValidations.length
+    result.testCount = liveTestCount
+    result._hitchwikiRating = null
+    result._hitchwikiReviews = null
+    result.signal = null
+    result.attribution = 'SpotHitch'
+    result.creator = 'SpotHitch'
+    // Keep: from, neighborhood, coordinates, spotType, id, country
+    // Keep: validationCount (our users' validations)
   }
 
   return result

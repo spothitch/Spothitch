@@ -11,6 +11,7 @@ import { icon } from '../utils/icons.js'
 // Report types - labels are now translated dynamically
 export const REPORT_TYPES = {
   SPOT: {
+    MISPLACED: { id: 'misplaced', labelKey: 'reportMisplaced', icon: 'map-pin-off', severity: 'medium' },
     INACCURATE: { id: 'inaccurate', labelKey: 'reportInaccurate', icon: 'circle-alert', severity: 'medium' },
     DANGEROUS: { id: 'dangerous', labelKey: 'reportDangerous', icon: 'skull', severity: 'high' },
     INAPPROPRIATE: { id: 'inappropriate', labelKey: 'reportInappropriate', icon: 'ban', severity: 'high' },

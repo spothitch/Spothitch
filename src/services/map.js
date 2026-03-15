@@ -93,6 +93,7 @@ function generateMarkerIcons(map) {
 
   const tiers = [
     { name: 'grey', hex: '#94a3b8' },
+    { name: 'blue', hex: '#3b82f6' },
     { name: 'green', hex: '#10b981' },
     { name: 'gold', hex: '#fbbf24' },
   ]

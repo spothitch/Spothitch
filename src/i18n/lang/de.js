@@ -2492,6 +2492,7 @@ export default {
   hostelRecommendAction: 'Empfehlen',
 
   // moderation
+  reportMisplaced: 'Falsch platziert',
   reportInaccurate: 'Ungenau',
   reportDangerous: 'Gefaehrlich',
   reportInappropriate: 'Unangemessen',
@@ -4460,8 +4461,8 @@ export default {
   roadmapCompanionStep3Desc: 'Wenn du einen Check-in verpasst, werden deine Wächter alarmiert',
 
   // Spot tiers & validation (Phase A+B)
-  spotStatusBasic: 'Nicht verifiziert',
-  spotStatusCertified: 'Zertifiziert',
+  spotStatusToVerify: 'Zu überprüfen',
+  spotStatusSpotHitch: 'SpotHitch',
   spotStatusReliable: 'Zuverlässig',
   spotStatusReliableCertified: 'Zuverlässig zertifiziert',
   spotStatusGold: 'Gold Spot',

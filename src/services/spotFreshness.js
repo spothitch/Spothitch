@@ -1,11 +1,11 @@
 /**
  * Spot Freshness/Reliability Service
- * Color-coded tier system based on validations + tests
+ * Color-coded tier system:
  *
- * Tiers (based on validationCount + testCount):
- *   - Grey (#94a3b8): Unverified (0 validations, imported spot)
- *   - Green (#10b981): Reliable (3+ testCount AND 3+ validationCount)
- *   - Gold (#fbbf24): Gold Spot (10+ testCount AND 10+ validationCount)
+ *   - Grey (#94a3b8): Hitchwiki imported, not yet tested by SpotHitch community ("à vérifier")
+ *   - Blue (#3b82f6): SpotHitch community spot (created or tested by our users)
+ *   - Green (#10b981): Reliable (3+ tests AND 3+ validations by SpotHitch users)
+ *   - Gold (#fbbf24): Certified (10+ tests AND 10+ validations)
  *
  * Overlays:
  *   - Crown (👑): ambassadorVerified = true
@@ -32,7 +32,7 @@ export function getSpotFreshness(spot) {
       tier: 'grey',
       color: 'slate',
       hexColor: '#94a3b8',
-      labelKey: 'spotStatusBasic',
+      labelKey: 'spotStatusToVerify',
       icon: 'help-circle',
       bgClass: 'bg-slate-500/20',
       textClass: 'text-slate-400',
@@ -43,12 +43,15 @@ export function getSpotFreshness(spot) {
   }
 
   const validationCount = spot.validationCount || spot.userValidations || 0
+  const liveTestCount = spot.liveTestCount || 0
   const testCount = spot.testCount || 0
   const isCertified = spot.ambassadorVerified === true
   const isStation = spot.spotType === 'gas_station'
+  const isHitchwiki = spot.source === 'hitchwiki'
+  const hasCommunityTests = liveTestCount > 0
 
-  // GOLD: 10+ tests AND 10+ validations — always certified (community-proven)
-  if (testCount >= 10 && validationCount >= 10) {
+  // GOLD: 10+ community tests AND 10+ validations — always certified
+  if (liveTestCount >= 10 && validationCount >= 10) {
     return {
       tier: 'gold',
       color: 'amber',
@@ -63,8 +66,8 @@ export function getSpotFreshness(spot) {
     }
   }
 
-  // GREEN: 3+ tests AND 3+ validations
-  if (testCount >= 3 && validationCount >= 3) {
+  // GREEN: 3+ community tests AND 3+ validations
+  if (liveTestCount >= 3 && validationCount >= 3) {
     return {
       tier: 'green',
       color: 'emerald',
@@ -79,17 +82,33 @@ export function getSpotFreshness(spot) {
     }
   }
 
-  // GREY: Unverified (default)
+  // BLUE: SpotHitch community spot (has at least 1 community test, or was created by community)
+  if (!isHitchwiki || hasCommunityTests) {
+    return {
+      tier: 'blue',
+      color: 'blue',
+      hexColor: '#3b82f6',
+      labelKey: 'spotStatusSpotHitch',
+      icon: 'circle-check',
+      bgClass: 'bg-blue-500/20',
+      textClass: 'text-blue-400',
+      borderClass: 'border-blue-500/30',
+      isCertified,
+      isStation,
+    }
+  }
+
+  // GREY: Hitchwiki imported, not yet tested by SpotHitch community
   return {
     tier: 'grey',
     color: 'slate',
     hexColor: '#94a3b8',
-    labelKey: isCertified ? 'spotStatusCertified' : 'spotStatusBasic',
-    icon: isCertified ? 'badge-check' : 'help-circle',
+    labelKey: 'spotStatusToVerify',
+    icon: 'help-circle',
     bgClass: 'bg-slate-500/20',
     textClass: 'text-slate-400',
     borderClass: 'border-slate-500/30',
-    isCertified,
+    isCertified: false,
     isStation,
   }
 }
