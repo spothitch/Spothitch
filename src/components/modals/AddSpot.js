@@ -1990,6 +1990,18 @@ window.handleAddSpot = async (event) => {
       })
     }
 
+    // Safety net: if country is empty but we have coordinates, reverse geocode now
+    if (!window.spotFormData.country && window.spotFormData.lat && window.spotFormData.lng) {
+      try {
+        const { reverseGeocode } = await import('../../services/osrm.js')
+        const loc = await reverseGeocode(window.spotFormData.lat, window.spotFormData.lng)
+        if (loc?.countryCode) {
+          window.spotFormData.country = loc.countryCode
+          window.spotFormData.countryName = loc.country
+        }
+      } catch { /* continue without country */ }
+    }
+
     // Build complete spot data — ALL fields structured
     const spotData = {
       // Structured fields (unique data!)
@@ -2054,6 +2066,13 @@ window.handleAddSpot = async (event) => {
         ? (t('spotShared') || 'Spot partagé !') + ` 📸 +50 pts (${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''})`
         : (t('spotShared') || 'Spot partagé avec succès !'))
       actions.incrementSpotsCreated()
+      // Record country visit for "Pays visités" in profile
+      if (spotData.country) {
+        try {
+          const { recordCountryVisit } = await import('../../services/gamification.js')
+          recordCountryVisit(spotData.country)
+        } catch { /* no-op */ }
+      }
       // Bonus points for photo (50 pts if at least 1 photo)
       if (hasPhoto) {
         actions.addPoints?.(50)

@@ -800,10 +800,24 @@ function renderMySpotsList(state) {
     import('../../stores/state.js').then(({ setState }) => {
       setState({ _userSpotsLoading: true })
     })
-    import('../../services/firebase.js').then(({ getUserSpots, getCurrentUser }) => {
+    import('../../services/firebase.js').then(({ getUserSpots, getCurrentUser, updateSpot }) => {
       const user = getCurrentUser()
       if (user) {
-        getUserSpots(user.uid).then(results => {
+        getUserSpots(user.uid).then(async (results) => {
+          // Auto-fix spots with missing country (from share target bug)
+          for (const spot of results) {
+            if (!spot.country && spot.lat && spot.lng) {
+              try {
+                const { reverseGeocode } = await import('../../services/osrm.js')
+                const loc = await reverseGeocode(spot.lat, spot.lng)
+                if (loc?.countryCode) {
+                  spot.country = loc.countryCode
+                  spot.countryName = loc.country
+                  updateSpot(spot.id, { country: loc.countryCode, countryName: loc.country }).catch(() => {})
+                }
+              } catch { /* no-op */ }
+            }
+          }
           import('../../stores/state.js').then(({ setState }) => {
             setState({ _userSpots: results, _userSpotsLoading: false, spotsCreated: results.length || count })
           })
