@@ -463,6 +463,20 @@ export async function getUserSpots(userId) {
 }
 
 /**
+ * Get a single spot by ID from Firestore
+ */
+export async function getSpotById(spotId) {
+  try {
+    const spotRef = doc(db, 'spots', spotId)
+    const snap = await getDoc(spotRef)
+    if (snap.exists()) return { id: snap.id, ...snap.data() }
+    return null
+  } catch {
+    return null
+  }
+}
+
+/**
  * Add a new spot
  */
 const SPOT_ALLOWED_FIELDS = [

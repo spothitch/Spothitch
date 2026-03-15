@@ -13,6 +13,10 @@ import { getFreshnessColor, isGasStation, getMarkerIcon } from './spotFreshness.
 let mainMap = null
 let plannerMap = null
 let tripDetailMap = null
+
+// Community spots from Firestore (loaded once)
+let _communitySpots = []
+let _communityLoaded = false
 let mapInitializing = false
 let loadedSpotIds = new Set()
 
@@ -570,10 +574,28 @@ async function loadDynamicSpots(map) {
 
     newSpots.forEach(s => loadedSpotIds.add(s.id))
 
-    // Update existing spots source with all loaded spots
+    // Load community spots from Firestore once
+    if (!_communityLoaded) {
+      _communityLoaded = true
+      import('./firebase.js').then(({ loadSpotsFromFirebase }) => {
+        loadSpotsFromFirebase().then(result => {
+          if (result.success && result.spots.length > 0) {
+            // Only keep real community spots (with valid coords, not test data)
+            _communitySpots = result.spots.filter(s =>
+              s.dataSource === 'community' && (s.lat || s.coordinates?.lat) && (s.lng || s.coordinates?.lng)
+            )
+            _communitySpots.forEach(s => loadedSpotIds.add(s.id))
+            const src = map.getSource('spots')
+            if (src) src.setData(spotsToGeoJSON([...getAllLoadedSpots(), ..._communitySpots]))
+          }
+        }).catch(() => {})
+      }).catch(() => {})
+    }
+
+    // Update existing spots source with all loaded spots + community
     const source = map.getSource('spots')
     if (source) {
-      const allSpots = getAllLoadedSpots()
+      const allSpots = [...getAllLoadedSpots(), ..._communitySpots]
       source.setData(spotsToGeoJSON(allSpots))
     }
 

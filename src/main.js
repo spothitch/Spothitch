@@ -1138,18 +1138,35 @@ window.getState = getState;
 window.showToast = showToast;
 
 // Spot handlers
-window.selectSpot = async (id) => {
+window.selectSpot = async (idOrSpot) => {
+  // Accept either a plain ID string or an object {id, coordinates}
+  const spotId = typeof idOrSpot === 'object' ? idOrSpot?.id : idOrSpot
+  const coords = typeof idOrSpot === 'object' ? idOrSpot?.coordinates : null
+
   const { spots } = getState();
   // eslint-disable-next-line eqeqeq
-  let spot = spots.find(s => s.id === id || s.id == id);
+  let spot = spots.find(s => s.id === spotId || s.id == spotId);
   // Also check dynamically loaded spots
   if (!spot) {
     try {
       const { getAllLoadedSpots: getAll } = await import('./services/spotLoader.js');
       const allLoaded = getAll();
       // eslint-disable-next-line eqeqeq
-      spot = allLoaded.find(s => s.id === id || s.id == id);
+      spot = allLoaded.find(s => s.id === spotId || s.id == spotId);
     } catch (e) { /* spotLoader not available */ }
+  }
+  // Also check Firestore community spots
+  if (!spot && spotId) {
+    try {
+      const { getSpotById } = await import('./services/firebase.js');
+      if (typeof getSpotById === 'function') {
+        spot = await getSpotById(spotId)
+      }
+    } catch { /* no-op */ }
+  }
+  // Fallback: build minimal spot from passed coordinates
+  if (!spot && coords?.lat && coords?.lng) {
+    spot = { id: spotId, coordinates: coords, lat: coords.lat, lng: coords.lng }
   }
   if (spot) {
     actions.selectSpot(spot);

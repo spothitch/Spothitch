@@ -803,24 +803,31 @@ function renderMySpotsList(state) {
     import('../../services/firebase.js').then(({ getUserSpots, getCurrentUser, updateSpot }) => {
       const user = getCurrentUser()
       if (user) {
-        getUserSpots(user.uid).then(async (results) => {
-          // Auto-fix spots with missing country (from share target bug)
-          for (const spot of results) {
-            if (!spot.country && spot.lat && spot.lng) {
-              try {
-                const { reverseGeocode } = await import('../../services/osrm.js')
-                const loc = await reverseGeocode(spot.lat, spot.lng)
-                if (loc?.countryCode) {
-                  spot.country = loc.countryCode
-                  spot.countryName = loc.country
-                  updateSpot(spot.id, { country: loc.countryCode, countryName: loc.country }).catch(() => {})
-                }
-              } catch { /* no-op */ }
-            }
-          }
+        getUserSpots(user.uid).then((results) => {
+          // Render spots immediately
           import('../../stores/state.js').then(({ setState }) => {
             setState({ _userSpots: results, _userSpotsLoading: false, spotsCreated: results.length || count })
           })
+          // Auto-fix spots with missing country in background (non-blocking)
+          const spotsToFix = results.filter(s => (!s.country || !s.countryName || s.departureCity === 'undefined') && s.lat && s.lng)
+          if (spotsToFix.length > 0) {
+            import('../../services/osrm.js').then(({ reverseGeocode }) => {
+              spotsToFix.forEach(spot => {
+                reverseGeocode(spot.lat, spot.lng).then(loc => {
+                  if (loc) {
+                    const fixes = {}
+                    if (!spot.country && loc.countryCode) { spot.country = loc.countryCode; fixes.country = loc.countryCode }
+                    if (!spot.countryName && loc.country) { spot.countryName = loc.country; fixes.countryName = loc.country }
+                    if (spot.departureCity === 'undefined' && loc.city) { spot.departureCity = loc.city; fixes.departureCity = loc.city }
+                    if (Object.keys(fixes).length > 0) {
+                      updateSpot(spot.id, fixes).catch(() => {})
+                      import('../../stores/state.js').then(({ setState }) => setState({ _userSpots: [...results] }))
+                    }
+                  }
+                }).catch(() => {})
+              })
+            }).catch(() => {})
+          }
         })
       }
     })
