@@ -42,6 +42,9 @@ function navigate(page) {
   renderPage()
 }
 
+// Make navigate global for debugging
+window.__navigate = navigate
+
 function renderPage() {
   if (!currentUser) {
     appEl.innerHTML = renderLogin()
@@ -74,40 +77,35 @@ function renderPage() {
   const mainContent = document.getElementById('main-content')
   if (!mainContent) return
 
-  switch (currentPage) {
-    case 'dashboard':
-      mainContent.innerHTML = renderDashboard()
-      bindDashboardEvents()
-      break
-    case 'guides':
-      mainContent.innerHTML = renderGuideModeration()
-      bindGuideModerationEvents()
-      break
-    case 'users':
-      mainContent.innerHTML = renderUserList()
-      bindUserListEvents()
-      break
-    case 'cleanup':
-      mainContent.innerHTML = renderCleanup()
-      bindCleanupEvents()
-      break
-    default:
-      mainContent.innerHTML = renderDashboard()
-      bindDashboardEvents()
+  try {
+    switch (currentPage) {
+      case 'dashboard':
+        mainContent.innerHTML = renderDashboard()
+        bindDashboardEvents()
+        break
+      case 'guides':
+        mainContent.innerHTML = renderGuideModeration()
+        bindGuideModerationEvents()
+        break
+      case 'users':
+        mainContent.innerHTML = renderUserList()
+        bindUserListEvents()
+        break
+      case 'cleanup':
+        mainContent.innerHTML = renderCleanup()
+        bindCleanupEvents()
+        break
+      default:
+        mainContent.innerHTML = renderDashboard()
+        bindDashboardEvents()
+    }
+  } catch (err) {
+    console.error('Error rendering page:', err)
+    mainContent.innerHTML = '<p class="text-danger-400 p-8">Erreur de chargement</p>'
   }
 
-  // Bind navigation
-  document.querySelectorAll('[data-nav]').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault()
-      const page = link.dataset.nav
-      if (page !== currentPage) {
-        navigate(page)
-      }
-      // Close mobile sidebar
-      closeMobileSidebar()
-    })
-  })
+  // Bind navigation — use event delegation on the sidebar for reliability
+  bindNavigation()
 
   // Bind logout
   document.getElementById('logout-btn')?.addEventListener('click', async () => {
@@ -126,6 +124,20 @@ function renderPage() {
     })
     overlay.addEventListener('click', closeMobileSidebar)
   }
+}
+
+function bindNavigation() {
+  // Use event delegation on document body for maximum reliability
+  document.body.addEventListener('click', (e) => {
+    const navLink = e.target.closest('[data-nav]')
+    if (!navLink) return
+    e.preventDefault()
+    const page = navLink.dataset.nav
+    if (page && page !== currentPage) {
+      navigate(page)
+    }
+    closeMobileSidebar()
+  })
 }
 
 function closeMobileSidebar() {
