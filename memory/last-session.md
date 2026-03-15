@@ -1,13 +1,13 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-14 16:59
+Date : 2026-03-15 07:56
 
 ## Derniers commits
-92e19c4 style: remove unused variables from Map.js search (cc, citySlug, countryName)
-03070ef remove: delete all 118 city SEO pages
-8eb8644 fix: move spot counter to right of Guides button on same line
-7c181dc fix: remove trust score card from Profile tab (already in Settings)
-9f77bd0 fix: prevent "site inaccessible" after PWA deploy (stale cache recovery)
+ab3e4ea fix: exclude AddSpot.js from coverage thresholds (UI modal, not unit-testable)
+84cbb0d fix: lower branches coverage threshold to match actual coverage
+672b61b fix: country bubbles showing 0 instead of actual spot counts
+f9867fe fix: age verification test using relative dates instead of hardcoded
+4a6dd2c feat: auto-verify gas station type at spot creation via Overpass API
 
 ## Note
 Reprendre avec : claude --continue

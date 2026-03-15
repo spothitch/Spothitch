@@ -816,3 +816,23 @@ Chaque erreur suit ce format :
 - **Leçon** : Toujours scanner TOUTES les occurrences d'un pattern dangereux (spread ...data, innerHTML sans escape, catch silencieux). Un audit systématique vaut mieux que des corrections au coup par coup.
 - **Fichiers** : AddSpot.js, Auth.js, FriendProfile.js, Social.js, Travel.js, main.js, firebase.js, proximityNotify.js, deeplink.js
 - **Statut** : CORRIGÉ
+
+### ERR-067 — Auth modal invisible derrière le landing (z-index)
+- **Date** : 2026-03-14
+- **Gravité** : CRITIQUE
+- **Description** : La modale auth (z-50) s'ouvrait derrière le landing carousel (z-100). Le bouton "Connexion par email" ouvrait la modale mais elle était cachée. Aucun utilisateur ne pouvait se connecter par email depuis le landing.
+- **Cause racine** : Le landing utilise z-[100], les modales auth et complete-profile utilisaient z-50.
+- **Correction** : Passage des modales auth et complete-profile à z-[110].
+- **Leçon** : Quand un composant overlay (landing, SOS) a un z-index élevé, TOUTES les modales qui peuvent s'ouvrir par-dessus doivent avoir un z-index supérieur. Tester l'ouverture des modales DEPUIS chaque contexte (landing, carte, profil).
+- **Fichiers** : src/components/modals/Auth.js
+- **Statut** : CORRIGÉ
+
+### ERR-068 — CI bloqué 5h sans deploy (RGPD + lint + quality gate)
+- **Date** : 2026-03-14
+- **Gravité** : CRITIQUE
+- **Description** : Le CI échouait silencieusement depuis 10h06. 10 pushes sur main, 0 déployé. La version en prod n'avait pas le code alpha, pas les corrections, rien de la journée.
+- **Cause racine** : 3 problèmes cumulés : (1) clé localStorage spothitch_alpha_code non enregistrée dans storageRegistry → RGPD audit fail, (2) clé i18n downloading dupliquée → lint fail, (3) handlers validateAlphaCode + updateDonationLink non déclarés dans les tests wiring + ghost state flag showComingSoonProximity → quality gate ratchet regression.
+- **Correction** : Enregistrer la clé RGPD, supprimer les doublons i18n, ajouter les handlers dans wiring tests, remplacer le ghost flag par une toast.
+- **Leçon** : TOUJOURS vérifier `gh run view` après chaque push. Ne JAMAIS dire "c'est déployé" sans avoir vu le CI passer. Quand on ajoute un nouveau handler window.* ou une clé localStorage, penser immédiatement à : (1) tests wiring (2) storageRegistry (3) quality gate.
+- **Fichiers** : src/services/storageRegistry.js, src/i18n/lang/*.js, tests/wiring/globalHandlers.test.js, src/components/views/Profile.js
+- **Statut** : CORRIGÉ

@@ -23,6 +23,7 @@
 | **Monitoring** | UptimeRobot | Surveillance spothitch.com toutes les 5 min (remplace ancien workflow monitor.yml) |
 | **HTTPS** | Actif | Géré par Cloudflare |
 | **Affiliés** | PAS configuré | Inscription manuelle Hostelworld/Booking nécessaire |
+| **Dons PayPal** | Actif | paypal.me/antoineville. Bouton dans Profil + Réglages. Montants 3/10/50€ + libre |
 
 ### Secrets GitHub (11 configurés)
 `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_MEASUREMENT_ID`, `VITE_SENTRY_DSN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `E2E_TEST_PASSWORD`
@@ -69,7 +70,9 @@
 
 **Optimisation CI (2026-03-14)** : feature/* = lint+tests+build seulement. dev = +E2E core/features +Fox quick. main = tout (E2E complet + Fox 26 layers + Lighthouse + Firebase).
 
-**Règle** : TOUS les jobs doivent être `success`. Le dernier CI complet sur main (2026-03-14) : 17/17 verts.
+**Règle** : TOUS les jobs doivent être `success`. Le dernier CI complet sur main (2026-03-14 15h05) : 17/17 verts + deploy Cloudflare OK.
+
+**Incident 2026-03-14** : le CI était bloqué de 10h06 à 15h05 (5h) à cause de : clé RGPD non enregistrée (spothitch_alpha_code) + clé i18n dupliquée (downloading) + quality gate ratchet regression. Aucun deploy pendant ce temps. Leçon : toujours vérifier `gh run view` après chaque push.
 
 ## 4. Données
 
