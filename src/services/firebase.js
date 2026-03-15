@@ -440,6 +440,21 @@ export async function getSpots() {
 }
 
 /**
+ * Get spots created by a specific user
+ */
+export async function getUserSpots(userId) {
+  try {
+    const spotsRef = collection(db, 'spots')
+    const q = query(spotsRef, where('creatorId', '==', userId), orderBy('createdAt', 'desc'), limit(20))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  } catch (error) {
+    console.error('Error fetching user spots:', error)
+    return []
+  }
+}
+
+/**
  * Add a new spot
  */
 const SPOT_ALLOWED_FIELDS = [

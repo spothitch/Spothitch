@@ -792,43 +792,71 @@ function renderDetailBackButton() {
 
 function renderMySpotsList(state) {
   const count = state.spotsCreated || 0
-  // Mock data (real data would come from Firebase)
-  const mockSpots = [
-    { name: 'Aire de Ressons', location: 'Hauts-de-France, France', type: 'rest_area', validations: 14 },
-    { name: 'Sortie A10 Orléans', location: 'Sortie autoroute · Loiret, France', type: 'highway_exit', validations: 8 },
-    { name: 'Bahnhof München', location: 'Gare · Munich, Bavière', type: 'station', validations: 3 },
-    { name: 'N12 · Péage Espagne', location: 'Péage · Catalogne, Espagne', type: 'other', validations: 0 },
-    { name: 'Aire de repos A6', location: 'Aire de repos · Bourgogne, France', type: 'rest_area', validations: 21 },
-  ].slice(0, count || 5)
+  const spots = state._userSpots || []
+  const loading = state._userSpotsLoading
+
+  // Fetch real spots from Firebase on first render
+  if (!spots.length && !loading && state.isLoggedIn && count > 0) {
+    import('../../stores/state.js').then(({ setState }) => {
+      setState({ _userSpotsLoading: true })
+    })
+    import('../../services/firebase.js').then(({ getUserSpots, getCurrentUser }) => {
+      const user = getCurrentUser()
+      if (user) {
+        getUserSpots(user.uid).then(results => {
+          import('../../stores/state.js').then(({ setState }) => {
+            setState({ _userSpots: results, _userSpotsLoading: false, spotsCreated: results.length || count })
+          })
+        })
+      }
+    })
+  }
+
+  const typeLabels = {
+    gas_station: t('spotTypeGasStation') || 'Station',
+    toll: t('spotTypeToll') || 'Péage',
+    roundabout: t('spotTypeRoundabout') || 'Rond-point',
+    on_ramp: t('spotTypeOnRamp') || 'Bretelle',
+    roadside: t('spotTypeRoadside') || 'Bord de route',
+    custom: t('spotTypeCustom') || 'Autre',
+  }
 
   return `
     <div>
       ${renderDetailBackButton()}
       <h2 class="text-base font-bold flex items-center gap-2 mb-4">
-        📍 ${t('myCreatedSpots') || 'Mes spots créés'} (${count})
+        📍 ${t('myCreatedSpots') || 'Mes spots créés'} (${spots.length || count})
       </h2>
-      ${count === 0
-        ? renderEmptyState('mySpots', { compact: true })
-        : `<div class="space-y-2">
-            ${mockSpots.map(s => `
-              <div class="card p-3 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                  ${icon('map-pin', 'w-5 h-5 text-emerald-400')}
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-semibold truncate">${s.name}</div>
-                  <div class="text-[10px] text-slate-400 truncate">${s.location}</div>
-                </div>
-                <div class="flex-shrink-0 text-right">
-                  <div class="text-xs ${s.validations > 0 ? 'text-emerald-400' : 'text-slate-500'} font-semibold">
-                    ${s.validations > 0 ? `✓ ${s.validations}` : '0'}
-                  </div>
-                  <div class="text-[10px] text-slate-600">${t('validations') || 'valid.'}</div>
-                </div>
-              </div>
-            `).join('')}
-            ${count > mockSpots.length ? `<p class="text-xs text-slate-500 text-center pt-2">+ ${count - mockSpots.length} ${t('otherSpots') || 'autres spots'}</p>` : ''}
-          </div>`
+      ${loading
+        ? `<div class="text-center text-slate-400 text-sm py-8">${t('loading') || 'Chargement...'}</div>`
+        : spots.length === 0 && count === 0
+          ? renderEmptyState('mySpots', { compact: true })
+          : spots.length === 0
+            ? `<div class="text-center text-slate-400 text-sm py-8">${t('loading') || 'Chargement...'}</div>`
+            : `<div class="space-y-2">
+                ${spots.map(s => {
+                  const name = s.locationName || s.departureCity || s.fromCity || s.name || '?'
+                  const location = [typeLabels[s.spotType] || '', s.countryName || s.country || ''].filter(Boolean).join(' · ')
+                  const validations = s.validationCount || s.totalReviews || 0
+                  return `
+                    <div class="card p-3 flex items-center gap-3" onclick="window.selectSpot?.({id:'${s.id}',coordinates:{lat:${s.lat || s.coordinates?.lat || 0},lng:${s.lng || s.coordinates?.lng || 0}}})" style="cursor:pointer">
+                      <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                        ${icon('map-pin', 'w-5 h-5 text-emerald-400')}
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="text-sm font-semibold truncate">${escapeHTML(name)}</div>
+                        <div class="text-[10px] text-slate-400 truncate">${escapeHTML(location)}</div>
+                      </div>
+                      <div class="flex-shrink-0 text-right">
+                        <div class="text-xs ${validations > 0 ? 'text-emerald-400' : 'text-slate-500'} font-semibold">
+                          ${validations > 0 ? `✓ ${validations}` : '0'}
+                        </div>
+                        <div class="text-[10px] text-slate-600">${t('validations') || 'valid.'}</div>
+                      </div>
+                    </div>
+                  `
+                }).join('')}
+              </div>`
       }
     </div>
   `

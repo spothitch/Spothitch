@@ -350,20 +350,19 @@ export function clearCache() {
 const _photonCache = new Map()
 const PHOTON_CACHE_MAX = 50
 
-// Pre-resolve lang once to avoid dynamic import on every keystroke
-let _photonLang = 'fr'
-try {
-  const saved = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-  if (saved.lang) _photonLang = saved.lang
-} catch { /* no-op */ }
+// Resolve lang dynamically from document.documentElement.lang (updated by i18n)
+function getPhotonLang() {
+  return document.documentElement.lang || 'en'
+}
 
 export async function searchPhoton(query, { countryCode } = {}) {
   if (!query || query.length < 2) return []
 
-  const cacheKey = `${query.toLowerCase()}|${_photonLang}`
+  const lang = getPhotonLang()
+  const cacheKey = `${query.toLowerCase()}|${lang}`
   if (_photonCache.has(cacheKey)) return _photonCache.get(cacheKey)
 
-  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${_photonLang}&layer=city&layer=locality`
+  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${lang}&layer=city&layer=locality`
 
   try {
     const response = await fetch(url)

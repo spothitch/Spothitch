@@ -119,16 +119,12 @@ window.acceptGuideNudge = async () => {
   const countryCode = state.pendingGuideCountry?.code || null
   setState({
     showGuideNudge: false,
-    activeTab: 'profile',
+    activeTab: 'challenges',
+    activeSubTab: 'guides',
     guideSection: 'countries',
     selectedCountryGuide: countryCode,
   })
-  // Navigate to guides view — use changeTab
-  window.changeTab?.('profile')
-  // Switch to guides subview if available
-  setTimeout(() => {
-    window.setSubTab?.('guides')
-  }, 100)
+  window.changeTab?.('challenges')
 }
 
 export default { renderGuideNudge }
