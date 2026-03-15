@@ -1,6 +1,7 @@
 /**
  * SpotHitch Admin Dashboard — Entry Point
  * Firebase init, auth gate, router
+ * V1 Clean design
  */
 
 import './styles/main.css'
@@ -10,16 +11,16 @@ import { renderLogin, bindLoginEvents } from './components/Login.js'
 import { renderApp } from './components/App.js'
 import { renderDashboard, bindDashboardEvents } from './components/Dashboard.js'
 import {
-  renderGuideModeration,
-  bindGuideModerationEvents,
-  resetGuideModerationCache,
-} from './components/GuideModeration.js'
+  renderModeration,
+  bindModerationEvents,
+  resetModerationCache,
+} from './components/Moderation.js'
 import { renderUserList, bindUserListEvents, resetUserListCache } from './components/UserList.js'
-import { resetCleanupCache } from './components/Cleanup.js'
 
 const appEl = document.getElementById('app')
 let currentPage = 'dashboard'
 let currentUser = null
+let pendingCount = 0
 
 // Toast helper
 window.__showToast = function (message, type = 'info') {
@@ -33,16 +34,25 @@ window.__showToast = function (message, type = 'info') {
   setTimeout(() => toast.remove(), 3000)
 }
 
+// Pending badge update helper (called from Dashboard and Moderation)
+window.__updatePendingBadge = function (count) {
+  pendingCount = count || 0
+  const badge = document.querySelector('[data-nav="moderation"] .nav-badge')
+  if (badge) {
+    badge.textContent = pendingCount
+    badge.style.display = pendingCount > 0 ? '' : 'none'
+  }
+}
+
 // Router
 function navigate(page) {
   currentPage = page
-  resetGuideModerationCache()
+  resetModerationCache()
   resetUserListCache()
-  resetCleanupCache()
   renderPage()
 }
 
-// Make navigate global for debugging
+// Make navigate global for components
 window.__navigate = navigate
 
 function renderPage() {
@@ -54,13 +64,13 @@ function renderPage() {
 
   if (!isAdmin(currentUser)) {
     appEl.innerHTML = `
-      <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="card p-8 max-w-sm w-full text-center">
-          <div class="text-5xl mb-4">🚫</div>
-          <h1 class="font-display text-xl font-bold mb-2 text-danger-400">Acces refuse</h1>
-          <p class="text-slate-400 text-sm mb-4">Ce compte n'a pas les droits administrateur.</p>
-          <p class="text-xs text-slate-500 mb-6">${currentUser.email || ''}</p>
-          <button id="denied-logout" class="btn-secondary w-full py-2">Se deconnecter</button>
+      <div class="login-container">
+        <div class="login-card">
+          <div class="login-icon">🚫</div>
+          <h1 class="login-title" style="color:#f87171;">Accès refusé</h1>
+          <p class="login-subtitle">Ce compte n'a pas les droits administrateur.</p>
+          <p class="denied-email">${currentUser.email || ''}</p>
+          <button id="denied-logout" class="btn-secondary" style="width:100%;padding:10px;">Se déconnecter</button>
         </div>
       </div>
     `
@@ -70,8 +80,8 @@ function renderPage() {
     return
   }
 
-  // Render app layout
-  appEl.innerHTML = renderApp(currentPage)
+  // Render app layout with sidebar
+  appEl.innerHTML = renderApp(currentPage, pendingCount)
 
   // Inject page content
   const mainContent = document.getElementById('main-content')
@@ -83,9 +93,9 @@ function renderPage() {
         mainContent.innerHTML = renderDashboard()
         bindDashboardEvents()
         break
-      case 'guides':
-        mainContent.innerHTML = renderGuideModeration()
-        bindGuideModerationEvents()
+      case 'moderation':
+        mainContent.innerHTML = renderModeration()
+        bindModerationEvents()
         break
       case 'users':
         mainContent.innerHTML = renderUserList()
@@ -97,50 +107,28 @@ function renderPage() {
     }
   } catch (err) {
     console.error('Error rendering page:', err)
-    mainContent.innerHTML = '<p class="text-danger-400 p-8">Erreur de chargement</p>'
+    mainContent.innerHTML = '<div style="text-align:center;padding:32px;font-size:13px;color:#f87171;">Erreur de chargement</div>'
   }
 
-  // Bind navigation — use event delegation on the sidebar for reliability
+  // Bind navigation (event delegation)
   bindNavigation()
 
   // Bind logout
   document.getElementById('logout-btn')?.addEventListener('click', async () => {
     await logOut()
   })
-
-  // Mobile menu
-  const menuBtn = document.getElementById('mobile-menu-btn')
-  const sidebar = document.getElementById('sidebar')
-  const overlay = document.getElementById('sidebar-overlay')
-
-  if (menuBtn && sidebar && overlay) {
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('-translate-x-full')
-      overlay.classList.toggle('hidden')
-    })
-    overlay.addEventListener('click', closeMobileSidebar)
-  }
 }
 
 function bindNavigation() {
-  // Use event delegation on document body for maximum reliability
   document.body.addEventListener('click', (e) => {
-    const navLink = e.target.closest('[data-nav]')
-    if (!navLink) return
+    const navItem = e.target.closest('[data-nav]')
+    if (!navItem) return
     e.preventDefault()
-    const page = navLink.dataset.nav
+    const page = navItem.dataset.nav
     if (page && page !== currentPage) {
       navigate(page)
     }
-    closeMobileSidebar()
   })
-}
-
-function closeMobileSidebar() {
-  const sidebar = document.getElementById('sidebar')
-  const overlay = document.getElementById('sidebar-overlay')
-  if (sidebar) sidebar.classList.add('-translate-x-full')
-  if (overlay) overlay.classList.add('hidden')
 }
 
 // Auth state listener

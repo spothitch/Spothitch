@@ -1,10 +1,12 @@
 /**
- * User List Component — Clickable cards with expandable details
+ * User List Component — V1 Clean design
+ * Clickable cards with expandable details
  * Shows ONLY real users (filters out ci-*@spothitch.com test accounts)
  */
 
 import { getAllDocs, getDocsByField } from '../services/firebase.js'
 import { isTestEmail } from '../services/stats.js'
+import { isAdmin as checkAdmin } from '../services/auth.js'
 
 function escapeHTML(str) {
   const div = document.createElement('div')
@@ -26,21 +28,26 @@ function formatDate(dateStr) {
   }
 }
 
-function formatDateTime(dateStr) {
+function timeAgo(dateStr) {
   if (!dateStr) return ''
   try {
     const d = dateStr.toDate ? dateStr.toDate() : new Date(dateStr)
-    return d.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    const now = Date.now()
+    const diff = now - d.getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return 'maintenant'
+    if (mins < 60) return `il y a ${mins}min`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `il y a ${hours}h`
+    const days = Math.floor(hours / 24)
+    if (days === 1) return 'hier'
+    return `il y a ${days}j`
   } catch {
-    return String(dateStr).slice(0, 16)
+    return ''
   }
 }
+
+const USER_EMOJIS = ['🤙', '🎒', '✌️', '🌿', '🌸', '🧭', '🌍', '🚐', '🦊', '🐺']
 
 let allUsers = null
 let searchQuery = ''
@@ -49,27 +56,23 @@ let userDetailsCache = {}
 
 export function renderUserList() {
   return `
-    <div class="p-6 max-w-6xl mx-auto">
-      <h1 class="font-display text-2xl font-bold mb-6 text-primary-400">Utilisateurs</h1>
+    <div class="page-title">Utilisateurs</div>
 
-      <!-- Search -->
-      <div class="mb-6">
-        <input
-          id="user-search"
-          type="text"
-          placeholder="Rechercher par nom ou email..."
-          class="w-full sm:w-80 px-4 py-2.5 rounded-lg bg-dark-card border border-dark-border text-white text-sm placeholder-slate-500 focus:outline-none focus:border-primary-500"
-          value="${escapeHTML(searchQuery)}"
-        />
-      </div>
+    <!-- Search -->
+    <input
+      id="user-search"
+      type="text"
+      placeholder="Rechercher par nom ou email..."
+      class="search-input"
+      value="${escapeHTML(searchQuery)}"
+    />
 
-      <!-- User count -->
-      <div id="user-count" class="text-sm text-slate-400 mb-4"></div>
+    <!-- User count -->
+    <div id="user-count" style="font-size:13px;color:#94a3b8;margin-bottom:16px;"></div>
 
-      <!-- User cards -->
-      <div id="user-cards">
-        <div class="text-center py-8"><span class="spinner"></span></div>
-      </div>
+    <!-- User cards -->
+    <div class="card" style="padding:0;" id="user-cards">
+      <div style="text-align:center;padding:32px;"><span class="spinner"></span></div>
     </div>
   `
 }
@@ -80,54 +83,47 @@ function renderUserCards(users) {
   if (!container) return
 
   if (!users || users.length === 0) {
-    container.innerHTML = '<p class="text-slate-500 text-center py-8">Aucun utilisateur</p>'
+    container.innerHTML = '<div style="text-align:center;padding:32px;font-size:13px;color:#64748b;">Aucun utilisateur</div>'
     if (countEl) countEl.textContent = '0 utilisateur'
     return
   }
 
-  if (countEl) countEl.textContent = `${users.length} utilisateur${users.length > 1 ? 's' : ''}`
+  if (countEl) countEl.textContent = `${users.length} utilisateur${users.length > 1 ? 's' : ''} réel${users.length > 1 ? 's' : ''}`
 
   container.innerHTML = users
-    .map((u) => {
+    .map((u, index) => {
       const uid = escapeHTML(u.id)
       const username = escapeHTML(u.username || u.displayName || '')
       const email = escapeHTML(u.email || '')
-      const joined = formatDate(u.createdAt || u.joinedAt)
       const points = u.points || u.totalPoints || 0
-      const level = u.level || 1
       const spotsCount = u.spotsCreated || u.spotCount || 0
-      const avatarUrl = u.photoURL || u.avatarUrl || ''
+      const lastActive = timeAgo(u.lastLogin)
+      const emoji = USER_EMOJIS[index % USER_EMOJIS.length]
       const isExpanded = expandedUserId === u.id
+      const avatarUrl = u.photoURL || u.avatarUrl || ''
 
       const avatarHtml = avatarUrl
-        ? `<img src="${escapeHTML(avatarUrl)}" alt="" class="w-10 h-10 rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        + `<div class="w-10 h-10 rounded-full bg-primary-500/20 items-center justify-center text-primary-400 font-bold text-sm" style="display:none">${(username || email || '?')[0].toUpperCase()}</div>`
-        : `<div class="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 font-bold text-sm">${(username || email || '?')[0].toUpperCase()}</div>`
+        ? `<div class="user-avatar"><img src="${escapeHTML(avatarUrl)}" alt="" onerror="this.parentElement.textContent='${emoji}'"></div>`
+        : `<div class="user-avatar">${emoji}</div>`
+
+      const detailHtml = isExpanded
+        ? `<div class="user-detail" id="user-detail-${uid}"><div style="text-align:center;padding:16px;"><span class="spinner"></span></div></div>`
+        : ''
 
       return `
-      <div class="card mb-3 overflow-hidden">
-        <div class="p-4 cursor-pointer hover:bg-white/[0.02] transition-colors" data-user-toggle="${uid}">
-          <div class="flex items-center gap-3">
-            ${avatarHtml}
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-medium text-white text-sm">${username || '<span class="text-slate-500">Sans nom</span>'}</span>
-                <span class="text-xs text-slate-500">${email}</span>
-              </div>
-              <div class="flex items-center gap-3 mt-1 text-xs text-slate-500">
-                <span>${joined ? 'Inscrit ' + joined : ''}</span>
-                <span class="text-primary-400 font-medium">${points} pts</span>
-                <span class="text-emerald-400">${spotsCount} spot${spotsCount > 1 ? 's' : ''}</span>
-                <span>Niv. ${level}</span>
-              </div>
-            </div>
-            <svg class="w-5 h-5 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
+        <div class="user-card" data-user-toggle="${uid}">
+          ${avatarHtml}
+          <div class="user-info">
+            <div class="user-name">${username || '<span style="color:#64748b;">Sans nom</span>'}</div>
+            <div class="user-email">${email}</div>
+          </div>
+          <div class="user-stats">
+            <span>${spotsCount} spot${spotsCount > 1 ? 's' : ''}</span>
+            <span>${points.toLocaleString('fr-FR')} pts</span>
+            <span>${lastActive ? 'Actif ' + lastActive : ''}</span>
           </div>
         </div>
-        ${isExpanded ? `<div class="border-t border-white/5 p-4 bg-white/[0.01]" id="user-detail-${uid}"><div class="text-center py-4"><span class="spinner"></span></div></div>` : ''}
-      </div>`
+        ${detailHtml}`
     })
     .join('')
 
@@ -141,7 +137,6 @@ function renderUserCards(users) {
         expandedUserId = uid
       }
       renderUserCards(filterUsers())
-      // If expanded, load details
       if (expandedUserId) {
         loadUserDetails(expandedUserId)
       }
@@ -153,7 +148,6 @@ async function loadUserDetails(uid) {
   const detailEl = document.getElementById(`user-detail-${uid}`)
   if (!detailEl) return
 
-  // Use cache if available
   if (userDetailsCache[uid]) {
     renderUserDetail(detailEl, uid, userDetailsCache[uid])
     return
@@ -169,7 +163,7 @@ async function loadUserDetails(uid) {
     renderUserDetail(detailEl, uid, userDetailsCache[uid])
   } catch (err) {
     console.error('Failed to load user details:', err)
-    detailEl.innerHTML = '<p class="text-danger-400 text-sm">Erreur de chargement des details</p>'
+    detailEl.innerHTML = '<div style="padding:12px;font-size:13px;color:#f87171;">Erreur de chargement</div>'
   }
 }
 
@@ -177,90 +171,55 @@ function renderUserDetail(el, uid, data) {
   const user = allUsers.find((u) => u.id === uid)
   if (!user) return
 
-  const username = escapeHTML(user.username || user.displayName || 'Sans nom')
-  const email = escapeHTML(user.email || '')
-  const joined = formatDateTime(user.createdAt || user.joinedAt)
-  const lastLogin = formatDateTime(user.lastLogin)
-  const points = user.points || user.totalPoints || 0
-  const level = user.level || 1
-  const badges = user.badges || []
-  const avatarUrl = user.photoURL || user.avatarUrl || ''
+  const spotsCount = data.spots.length
+  const tipsCount = data.tips.length
+  const reviewCount = user.reviewsGiven || 0
+  const joined = formatDate(user.createdAt || user.joinedAt)
 
-  const badgesHtml = badges.length > 0
-    ? badges.map((b) => `<span class="text-xs bg-primary-500/20 text-primary-400 px-2 py-0.5 rounded">${escapeHTML(typeof b === 'string' ? b : b.name || b.id || '')}</span>`).join(' ')
-    : '<span class="text-xs text-slate-600">Aucun badge</span>'
+  // Check if this is the admin's own account
+  const isOwnAccount = checkAdmin(user)
 
   const spotsHtml = data.spots.length > 0
-    ? data.spots.map((s) => {
+    ? data.spots.slice(0, 10).map((s) => {
         const title = escapeHTML(s.title || s.city || `${(s.lat || 0).toFixed(2)}, ${(s.lng || 0).toFixed(2)}`)
         const country = escapeHTML(s.country || s.countryCode || '')
-        const date = formatDate(s.createdAt)
-        return `
-        <div class="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-slate-200">${title}</span>
-            ${country ? `<span class="text-xs text-slate-500">${country}</span>` : ''}
-          </div>
-          <span class="text-xs text-slate-600">${date}</span>
-        </div>`
-      }).join('')
-    : '<p class="text-xs text-slate-600">Aucun spot cree</p>'
+        return `${title}${country ? ' (' + country + ')' : ''}`
+      }).join(' · ')
+    : 'Aucun spot'
 
-  const tipsHtml = data.tips.length > 0
-    ? data.tips.map((t) => {
-        const text = escapeHTML((t.text || '').slice(0, 80))
-        const status = t.status || 'pending'
-        const statusColor = status === 'approved' ? 'text-emerald-400' : status === 'rejected' ? 'text-danger-400' : 'text-amber-400'
-        return `
-        <div class="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-          <span class="text-sm text-slate-200 truncate flex-1 mr-2">${text || 'Sans texte'}</span>
-          <span class="text-xs ${statusColor}">${escapeHTML(status)}</span>
-        </div>`
-      }).join('')
-    : '<p class="text-xs text-slate-600">Aucune contribution guide</p>'
+  const banButtonHtml = isOwnAccount
+    ? ''
+    : `<div style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn btn-reject" data-ban-user="${escapeHTML(uid)}">🚫 Bannir</button>
+      </div>`
 
   el.innerHTML = `
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-      <div>
-        <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Profil</div>
-        <div class="text-sm text-slate-300 mb-1"><strong>Nom :</strong> ${username}</div>
-        <div class="text-sm text-slate-300 mb-1"><strong>Email :</strong> ${email}</div>
-        ${avatarUrl ? `<div class="text-sm text-slate-300 mb-1"><strong>Avatar :</strong> <img src="${escapeHTML(avatarUrl)}" class="w-8 h-8 rounded-full inline-block align-middle" onerror="this.style.display='none'"></div>` : ''}
+    <div class="user-detail-grid">
+      <div class="user-detail-item">
+        <div class="user-detail-value">${spotsCount}</div>
+        <div class="user-detail-label">Spots créés</div>
       </div>
-      <div>
-        <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Activite</div>
-        <div class="text-sm text-slate-300 mb-1"><strong>Inscription :</strong> ${joined || 'Inconnue'}</div>
-        <div class="text-sm text-slate-300 mb-1"><strong>Derniere connexion :</strong> ${lastLogin || 'Inconnue'}</div>
-        <div class="text-sm text-slate-300 mb-1"><strong>Points :</strong> <span class="text-primary-400">${points}</span> · Niveau ${level}</div>
+      <div class="user-detail-item">
+        <div class="user-detail-value">${reviewCount}</div>
+        <div class="user-detail-label">Avis donnés</div>
+      </div>
+      <div class="user-detail-item">
+        <div class="user-detail-value">${tipsCount}</div>
+        <div class="user-detail-label">Contributions guides</div>
       </div>
     </div>
-
-    <div class="mb-3">
-      <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Badges</div>
-      <div class="flex flex-wrap gap-1">${badgesHtml}</div>
+    <div style="font-size:12px;color:#64748b;">Inscrit le ${joined || 'date inconnue'}</div>
+    <div style="margin-top:10px;font-size:12px;">
+      <strong class="amber">Ses spots :</strong>
+      <div style="margin-top:6px;color:#cbd5e1;">${spotsHtml}</div>
     </div>
-
-    <div class="mb-3">
-      <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Spots crees (${data.spots.length})</div>
-      <div class="max-h-40 overflow-y-auto">${spotsHtml}</div>
-    </div>
-
-    <div class="mb-3">
-      <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Contributions guide (${data.tips.length})</div>
-      <div class="max-h-40 overflow-y-auto">${tipsHtml}</div>
-    </div>
-
-    <div class="flex justify-end">
-      <button class="text-xs text-danger-400 hover:text-danger-300 border border-danger-400/30 hover:border-danger-400 px-3 py-1.5 rounded transition-colors" data-ban-user="${escapeHTML(uid)}">
-        Bannir
-      </button>
-    </div>
+    ${banButtonHtml}
   `
 
-  // Bind ban button (UI only, no action yet)
+  // Bind ban button
   el.querySelector('[data-ban-user]')?.addEventListener('click', (e) => {
     e.stopPropagation()
-    window.__showToast?.('Fonction de bannissement pas encore implementee', 'info')
+    window.__showToast?.('Fonction de bannissement pas encore implémentée', 'info')
   })
 }
 
@@ -296,7 +255,7 @@ export async function bindUserListEvents() {
     console.error('Failed to load users:', err)
     const container = document.getElementById('user-cards')
     if (container) {
-      container.innerHTML = '<p class="text-danger-400 text-center py-8">Erreur de chargement</p>'
+      container.innerHTML = '<div style="text-align:center;padding:32px;font-size:13px;color:#f87171;">Erreur de chargement</div>'
     }
   }
 }

@@ -141,3 +141,21 @@ export async function getDocsByField(collectionName, field, value) {
   const snapshot = await getDocs(q)
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
+
+/**
+ * Load reports from the 'reports' collection
+ * Returns all reports ordered by createdAt desc
+ */
+export async function getReports() {
+  try {
+    const coll = collection(db, 'reports')
+    const q = query(coll, orderBy('createdAt', 'desc'), limit(100))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+  } catch (err) {
+    // Firestore rules may block reads on reports (allow read: if false)
+    // In that case, try reading with admin SDK or return empty
+    console.warn('Cannot read reports collection (check Firestore rules):', err.code || err.message)
+    return []
+  }
+}
