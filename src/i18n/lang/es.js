@@ -4609,6 +4609,7 @@ export default {
   guideNudgeDontShow: 'No mostrar más',
   guideTipCategory: 'Categoría',
   guideTipPlaceholder: 'Tu consejo para los viajeros...',
+  guideTipCTA: 'Comparte tu experiencia...',
   guideTipSubmit: 'Enviar mi consejo',
   guideTipSubmitted: '¡Consejo enviado, gracias!',
   guideTipCategorySafety: 'Seguridad',

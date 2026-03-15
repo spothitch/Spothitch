@@ -639,7 +639,7 @@ export function renderCountryDetail(guideOrCode) {
         <p class="text-sm text-slate-400">
           ${contribCount > 0
             ? `${contribCount}/7 ${t('guideContribCount') || 'catégories contribuées'}`
-            : (t('guideNoContribution') || 'Aucune contribution. Sois le premier !')
+            : (t('guideNoContribution') || 'Aucune contribution pour le moment')
           }
         </p>
       </div>
@@ -661,13 +661,13 @@ export function renderCountryDetail(guideOrCode) {
                 <span class="text-xs font-medium leading-tight">${t(cat.labelKey) || cat.fallback}</span>
               </div>
               ${userTip ? `
-                ${cat.ratingEnabled ? `<div class="flex items-center gap-0.5 mb-1">
+                ${cat.ratingEnabled && userTip.rating ? `<div class="flex items-center gap-0.5 mb-1">
                   ${renderStarsStatic(userTip.rating)}
                 </div>` : ''}
                 <p class="text-xs text-slate-400 line-clamp-2">${escapeHTML(userTip.text)}</p>
                 ${userTip.status === 'pending' ? `<span class="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-500/20 text-amber-400">${t('guideTipPending') || 'En attente de validation'}</span>` : ''}
               ` : `
-                <p class="text-xs text-slate-500">${cat.ratingEnabled ? (t('guideYourRating') || 'Tap pour noter') : (t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...')}</p>
+                <p class="text-xs text-slate-500">${t('guideTipCTA') || 'Partage ton expérience...'}</p>
               `}
             </button>
           `

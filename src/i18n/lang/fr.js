@@ -4613,6 +4613,7 @@ export default {
   guideNudgeDontShow: 'Ne plus afficher',
   guideTipCategory: 'Catégorie',
   guideTipPlaceholder: 'Ton conseil pour les voyageurs...',
+  guideTipCTA: 'Partage ton expérience...',
   guideTipSubmit: 'Envoyer mon conseil',
   guideTipSubmitted: 'Conseil envoyé, merci !',
   guideTipCategorySafety: 'Sécurité',

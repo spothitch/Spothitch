@@ -4612,6 +4612,7 @@ export default {
   guideNudgeDontShow: "Don't show again",
   guideTipCategory: 'Category',
   guideTipPlaceholder: 'Your tip for travelers...',
+  guideTipCTA: 'Share your experience...',
   guideTipSubmit: 'Send my tip',
   guideTipSubmitted: 'Tip sent, thanks!',
   guideTipCategorySafety: 'Safety',
