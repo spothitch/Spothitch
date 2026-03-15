@@ -305,26 +305,7 @@ export function renderReportModal(state) {
             `).join('')}
           </div>
 
-          <!-- Misplaced: mini-map to suggest correct location -->
-          ${state.selectedReportReason === 'misplaced' ? `
-            <div class="mt-4">
-              <label class="block text-sm text-slate-400 mb-2">${t('reportMisplacedHint') || 'Place le pin au bon endroit'}</label>
-              <div id="report-misplaced-map" style="width:100%;height:200px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)"></div>
-              <div id="report-misplaced-coords" class="text-xs text-slate-500 mt-1"></div>
-            </div>
-          ` : ''}
-
-          <!-- Additional details -->
-          ${state.selectedReportReason ? `
-            <div class="mt-4">
-              <label class="block text-sm text-slate-400 mb-2">${t('reportDetailsLabel') || 'Détails supplémentaires (optionnel)'}</label>
-              <textarea
-                id="report-details"
-                class="input-modern h-24 resize-none"
-                placeholder="${t('reportDetailsPlaceholder') || 'Décris le problème en détail...'}"
-              ></textarea>
-            </div>
-          ` : ''}
+          <!-- Misplaced map + details are injected by selectReportReason (no re-render) -->
         </div>
 
         <!-- Submit button -->
@@ -357,19 +338,95 @@ window.openReport = (type, targetId) => {
 };
 
 window.closeReport = () => {
+  _selectedReportReason = null
+  _suggestedCoords = null
+  _misplacedMarker = null
   setState({
     showReport: false,
     reportType: null,
     reportTargetId: null,
     selectedReportReason: null,
-  });
-};
+  })
+}
+
+// Local state for report reason — avoids full re-render via setState
+let _selectedReportReason = null
 
 window.selectReportReason = (reason) => {
-  setState({ selectedReportReason: reason })
-  // Init mini-map for misplaced reports
-  if (reason === 'misplaced') {
+  _selectedReportReason = reason
+  // Update state for render consistency (but prevent re-render by setting silently)
+  getState().selectedReportReason = reason
+
+  // Update UI directly without re-render
+  const modal = document.querySelector('.report-modal')
+  if (!modal) return
+
+  // Toggle active state on reason buttons
+  modal.querySelectorAll('button[onclick*="selectReportReason"]').forEach(btn => {
+    const btnReason = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1]
+    if (btnReason === reason) {
+      btn.classList.add('ring-2', 'ring-primary-500', 'bg-primary-500/10')
+      // Add check icon if not present
+      if (!btn.querySelector('.report-check-icon')) {
+        const checkHtml = document.createElement('span')
+        checkHtml.className = 'report-check-icon'
+        checkHtml.innerHTML = icon('check', 'w-5 h-5 text-primary-400')
+        btn.appendChild(checkHtml)
+      }
+    } else {
+      btn.classList.remove('ring-2', 'ring-primary-500', 'bg-primary-500/10')
+      btn.querySelector('.report-check-icon')?.remove()
+    }
+  })
+
+  // Show/hide misplaced map container
+  const existingMap = document.getElementById('report-misplaced-map')
+  const detailsSection = modal.querySelector('#report-details')?.parentElement
+
+  if (reason === 'misplaced' && !existingMap) {
+    // Insert mini-map before details
+    const mapWrapper = document.createElement('div')
+    mapWrapper.className = 'mt-4'
+    mapWrapper.id = 'report-misplaced-wrapper'
+    mapWrapper.innerHTML = `
+      <label class="block text-sm text-slate-400 mb-2">${t('reportMisplacedHint') || 'Place le pin bleu au bon endroit'}</label>
+      <div id="report-misplaced-map" style="width:100%;height:200px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)"></div>
+      <div id="report-misplaced-coords" class="text-xs text-slate-500 mt-1"></div>
+    `
+    const scrollArea = modal.querySelector('.overflow-y-auto')
+    if (detailsSection) {
+      detailsSection.parentElement.insertBefore(mapWrapper, detailsSection)
+    } else if (scrollArea) {
+      scrollArea.appendChild(mapWrapper)
+    }
     setTimeout(() => initMisplacedMap(), 100)
+  } else if (reason !== 'misplaced' && document.getElementById('report-misplaced-wrapper')) {
+    document.getElementById('report-misplaced-wrapper').remove()
+  }
+
+  // Show details textarea if not present
+  if (!detailsSection) {
+    const scrollArea = modal.querySelector('.overflow-y-auto')
+    if (scrollArea) {
+      const detailsDiv = document.createElement('div')
+      detailsDiv.className = 'mt-4'
+      detailsDiv.innerHTML = `
+        <label class="block text-sm text-slate-400 mb-2">${t('reportDetailsLabel') || 'Détails supplémentaires (optionnel)'}</label>
+        <textarea id="report-details" class="input-modern h-24 resize-none"
+          placeholder="${t('reportDetailsPlaceholder') || 'Décris le problème en détail...'}"></textarea>
+      `
+      scrollArea.appendChild(detailsDiv)
+    }
+  }
+
+  // Enable submit button
+  const submitBtn = modal.querySelector('button[onclick*="submitCurrentReport"]')
+  if (submitBtn) submitBtn.disabled = false
+
+  // Scroll to show the map/details
+  const scrollArea = modal.querySelector('.overflow-y-auto')
+  if (scrollArea) {
+    setTimeout(() => { scrollArea.scrollTop = scrollArea.scrollHeight }, 200)
   }
 }
 
@@ -436,12 +493,18 @@ async function initMisplacedMap() {
 
 window.submitCurrentReport = async () => {
   const state = getState()
+  const reason = _selectedReportReason || state.selectedReportReason
   const details = document.getElementById('report-details')?.value || ''
+
+  if (!reason) {
+    showToast(t('reportSelectReason') || 'Sélectionne une raison', 'error')
+    return
+  }
 
   const reportDetails = { description: details }
 
   // Include suggested coordinates for misplaced reports
-  if (state.selectedReportReason === 'misplaced' && _suggestedCoords) {
+  if (reason === 'misplaced' && _suggestedCoords) {
     reportDetails.suggestedLat = _suggestedCoords.lat
     reportDetails.suggestedLng = _suggestedCoords.lng
     reportDetails.additionalInfo = `Suggested location: ${_suggestedCoords.lat.toFixed(5)}, ${_suggestedCoords.lng.toFixed(5)}`
@@ -450,7 +513,7 @@ window.submitCurrentReport = async () => {
   const result = await submitReport(
     state.reportType,
     state.reportTargetId,
-    state.selectedReportReason,
+    reason,
     reportDetails,
   )
 
