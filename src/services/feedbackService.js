@@ -57,8 +57,28 @@ export function voteGuideTip(section, tipIndex, direction) {
   const votes = getVotes()
   const key = `${section}_${tipIndex}`
 
-  // Check if already voted
-  if (votes[key]) return false
+  // If already voted same direction → toggle off (undo)
+  if (votes[key]?.direction === direction) {
+    const oldDirection = votes[key].direction
+    delete votes[key]
+    saveVotes(votes)
+
+    // Update community totals
+    if (_communityVotes[key]) {
+      _communityVotes[key][oldDirection] = Math.max(0, (_communityVotes[key][oldDirection] || 0) - 1)
+    }
+    _syncVoteToFirestore(key, oldDirection, true) // undo
+    return true
+  }
+
+  // If already voted other direction → switch vote
+  if (votes[key]) {
+    const oldDirection = votes[key].direction
+    if (_communityVotes[key]) {
+      _communityVotes[key][oldDirection] = Math.max(0, (_communityVotes[key][oldDirection] || 0) - 1)
+    }
+    _syncVoteToFirestore(key, oldDirection, true) // undo old
+  }
 
   votes[key] = {
     direction,
@@ -76,7 +96,7 @@ export function voteGuideTip(section, tipIndex, direction) {
   return true
 }
 
-async function _syncVoteToFirestore(key, direction) {
+async function _syncVoteToFirestore(key, direction, undo = false) {
   const db = getDb()
   if (!db) return
   const user = getCurrentUser()
@@ -84,16 +104,21 @@ async function _syncVoteToFirestore(key, direction) {
     const ref = doc(db, 'guideVotes', key)
     const snap = await getDoc(ref)
     if (snap.exists()) {
-      await updateDoc(ref, { [direction]: fsIncrement(1), updatedAt: new Date().toISOString() })
-    } else {
+      await updateDoc(ref, { [direction]: fsIncrement(undo ? -1 : 1), updatedAt: new Date().toISOString() })
+    } else if (!undo) {
       await setDoc(ref, { up: direction === 'up' ? 1 : 0, down: direction === 'down' ? 1 : 0, updatedAt: new Date().toISOString() })
     }
-    // Also record user's vote in their profile (for cross-device sync)
+    // Also record/remove user's vote in their profile
     if (user) {
-      await setDoc(doc(db, 'users', user.uid, 'guideVotes', key), {
-        direction,
-        votedAt: new Date().toISOString(),
-      })
+      if (undo) {
+        const { deleteDoc: delDoc } = await import('firebase/firestore')
+        await delDoc(doc(db, 'users', user.uid, 'guideVotes', key))
+      } else {
+        await setDoc(doc(db, 'users', user.uid, 'guideVotes', key), {
+          direction,
+          votedAt: new Date().toISOString(),
+        })
+      }
     }
   } catch { /* silent — local vote already saved */ }
 }
@@ -195,7 +220,6 @@ export function renderTipVoteButtons(section, tipIndex) {
   const vote = getVote(section, tipIndex)
   const upActive = vote?.direction === 'up'
   const downActive = vote?.direction === 'down'
-  const voted = !!vote
   const counts = getTipVoteCounts(section, tipIndex)
 
   return `
@@ -206,14 +230,11 @@ export function renderTipVoteButtons(section, tipIndex) {
         class="px-2 py-0.5 rounded-full text-xs transition-colors ${
           upActive
             ? 'bg-emerald-500/30 text-emerald-400'
-            : voted
-              ? 'bg-white/5 text-slate-500 cursor-default'
-              : 'bg-white/5 text-slate-400 hover:bg-emerald-500/20 hover:text-emerald-400'
+            : 'bg-white/5 text-slate-400 hover:bg-emerald-500/20 hover:text-emerald-400'
         }"
-        ${voted ? 'disabled' : ''}
         aria-label="${t('tipUseful') || 'Utile'}"
       >
-        ${icon('thumbs-up', 'w-3 h-3 inline mr-0.5')} ${counts.up}
+        ${icon('thumbs-up', 'w-3 h-3 inline mr-0.5')}${counts.up > 0 ? ' ' + counts.up : ''}
       </button>
       <button
         type="button"
@@ -221,14 +242,11 @@ export function renderTipVoteButtons(section, tipIndex) {
         class="px-2 py-0.5 rounded-full text-xs transition-colors ${
           downActive
             ? 'bg-danger-500/30 text-danger-400'
-            : voted
-              ? 'bg-white/5 text-slate-500 cursor-default'
-              : 'bg-white/5 text-slate-400 hover:bg-danger-500/20 hover:text-danger-400'
+            : 'bg-white/5 text-slate-400 hover:bg-danger-500/20 hover:text-danger-400'
         }"
-        ${voted ? 'disabled' : ''}
         aria-label="${t('tipNotUseful') || 'Pas utile'}"
       >
-        ${icon('thumbs-down', 'w-3 h-3 inline mr-0.5')} ${counts.down}
+        ${icon('thumbs-down', 'w-3 h-3 inline mr-0.5')}${counts.down > 0 ? ' ' + counts.down : ''}
       </button>
     </div>
   `

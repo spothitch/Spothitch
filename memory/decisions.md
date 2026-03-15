@@ -1,6 +1,6 @@
 # decisions.md - Historique des décisions SpotHitch
 
-> Dernière mise à jour : 2026-03-10
+> Dernière mise à jour : 2026-03-15
 
 ---
 
@@ -31,6 +31,9 @@
 | Cache client | IndexedDB + localStorage | Offline, pas de limite 5MB (IndexedDB) | 2025-12-26 |
 | Nettoyage données | Suppression 3642 spots dangereux/peu fiables | Qualité > quantité | 2026-02 |
 | Kill switch Hitchmap | VITE_HITCHMAP_ENABLED env var | Pouvoir couper les données Hitchmap si besoin légal | 2026-02 |
+| Suppression commentaires Hitchwiki | Commentaires bruts retirés, infos extraites dans champs structurés | Spots temporaires, pas besoin de texte libre. Destinations avec % plus utiles. | 2026-03-15 |
+| Destinations avec pourcentages | Extraites des commentaires + nearest city lookup | L'utilisateur voit "→ Budapest 40%, → Bratislava 30%" au lieu de commentaires bruts | 2026-03-15 |
+| Noms spots = ville principale | Quartiers/arrondissements en sous-info, pas dans le titre | "Paris #5" avec "13e arrondissement" en dessous, pas "Paris 13e Arrondissement #5" | 2026-03-15 |
 
 ## UX / Produit
 
@@ -42,7 +45,7 @@
 | Onboarding | Carousel 5 slides puis carte directe | Map-first, montrer la valeur immédiatement | 2026-02 |
 | Spots : 3 critères | Sécurité, trafic, accessibilité (1-5 étoiles) | Simple et suffisant pour évaluer un spot | 2025-12-23 |
 | Direction obligatoire | Toujours indiquer la destination | Le coeur de l'app = trouver un spot VERS une destination | 2025-12-23 |
-| 4 types de spots | Sortie de ville, station, bord de route, autre | Couvre tous les cas réels | 2025-12-23 |
+| 6 types de spots | Station/aire, péage, rond-point, bretelle, bord de route, autre | Types physiques (où tu te poses). "Sortie de ville" retiré car c'est une situation, pas un lieu. | 2026-03-15 |
 | Photo obligatoire | Requise à la création de spot | Qualité des données, preuve visuelle | 2025-12-23 |
 | Pas de paywall | Gratuit pour tous | Les autostoppeurs sont fauchés | 2025-12-23 |
 | 4 langues | FR, EN, ES, DE | Couverture Europe principale | 2025-12-23 |

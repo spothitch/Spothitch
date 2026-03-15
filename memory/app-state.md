@@ -1,6 +1,6 @@
 # État des lieux complet SpotHitch
 
-> Dernière mise à jour : 2026-03-14
+> Dernière mise à jour : 2026-03-15
 > Ce fichier décrit l'état COMPLET de l'app : visuel, technique, services, ce qui marche, ce qui est en beta guard.
 > RELIRE AU DÉBUT DE CHAQUE SESSION. METTRE À JOUR après chaque push.
 
@@ -41,7 +41,7 @@
 - **Geocoding** : Photon API (100ms) avec fallback Nominatim
 - **Auth** : Firebase Auth (Google, email)
 - **DB** : Firestore (temps réel) + localStorage (offline)
-- **Spots** : 3026 spots importés dans `public/data/spots/` (74 fichiers JSON par pays, filtrés >= 2 reviews, method/groupSize/timeOfDay/season déduits des commentaires)
+- **Spots** : 3026 spots importés dans `public/data/spots/` (74 fichiers JSON par pays, filtrés >= 2 reviews, 6 types, destinations avec %, commentaires/descriptions supprimés)
 - **i18n** : 4 langues (FR/EN/ES/DE), lazy-loaded par langue, ~4500 clés
 - **Tests** : Vitest (131 wiring tests) + Playwright E2E + Quality Gate CI
 - **PWA** : Service Worker Workbox, offline-first, installable
@@ -78,7 +78,7 @@
 
 | Donnée | Source | Quantité | Format |
 |--------|--------|----------|--------|
-| Spots importés | Import initial | 3026 spots (>= 2 reviews, 74 pays) | JSON par pays |
+| Spots importés | Import initial, retraité 2026-03-15 | 3026 spots (74 pays, 6 types, destinations avec %, sans commentaires) | JSON par pays |
 | Spots communauté | Firebase | 0 (alpha) | Firestore |
 | Guides pays | Statique | 53 pays | `guides.js` |
 | Pages villes SEO | Supprimées | 0 (nettoyage 2026-03-14) | — |
@@ -93,8 +93,8 @@
 
 - Carte interactive avec clustering, marqueurs colorés (tier gris/vert/or)
 - Recherche villes (Photon API, suggestions instantanées)
-- Détail spot complet (photos Mapillary/Street View, ratings, reviews, infos légales)
-- Création spot (wizard 3 étapes, photo OPTIONNELLE en alpha, 4 types, 3 critères)
+- Détail spot complet (photos Mapillary/Street View, ratings, destinations avec %, quartier en sous-info, infos légales)
+- Création spot (wizard 3 étapes, photo OPTIONNELLE en alpha, 6 types : station/aire, péage, rond-point, bretelle, bord de route, autre, 3 critères)
 - Validation spot ("Je valide" quick + "J'ai testé" formulaire complet)
 - Filtres carte (note, attente, vérifiés, tri)
 - 53 guides pays (légalité, phrases, urgences, culture, visa, devise)

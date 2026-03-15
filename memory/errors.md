@@ -827,6 +827,26 @@ Chaque erreur suit ce format :
 - **Fichiers** : src/components/modals/Auth.js
 - **Statut** : CORRIGÉ
 
+### ERR-069 — Icône trash-2 inexistante dans ICON_MAP
+- **Date** : 2026-03-15
+- **Gravité** : MAJEUR
+- **Description** : Le bouton de suppression des pays offline (et des contributions guides) affichait un rectangle rouge vide sans icône. Antoine voyait un bouton mystérieux non identifiable.
+- **Cause racine** : `icon('trash-2', ...)` utilisé dans Profile.js et Guides.js, mais l'ICON_MAP ne contient que `trash` (pas `trash-2`). `icon()` retourne `''` quand le nom n'existe pas.
+- **Correction** : Remplacer tous les `icon('trash-2'` par `icon('trash'` dans Profile.js et Guides.js.
+- **Leçon** : TOUJOURS vérifier qu'un nom d'icône existe dans `src/utils/icons.js` AVANT de l'utiliser. Tester visuellement le rendu des boutons. Scanner tout le code pour le même pattern (propagation ERR).
+- **Fichiers** : src/components/views/Profile.js, src/components/views/Guides.js
+- **Statut** : CORRIGÉ
+
+### ERR-070 — Auto-sync re-télécharge les pays supprimés manuellement
+- **Date** : 2026-03-15
+- **Gravité** : MAJEUR
+- **Description** : Quand l'utilisateur supprime un pays offline (ex: KH/Cambodge), le service autoOfflineSync le re-télécharge automatiquement au prochain sync (ouverture app, retour online, visibilitychange). Le pays "fantôme" revient systématiquement.
+- **Cause racine** : `performAutoSync()` appelle `getRelevantCountries()` qui peut retourner le pays (via trips, checkins, ou localisation). `markCountryDownloaded()` le remet dans la liste sans vérifier si l'utilisateur l'avait supprimé.
+- **Correction** : Ajout d'une "dismissed list" (`spothitch_offline_dismissed` dans localStorage). `deleteOfflineCountry()` ajoute le pays à la liste. `performAutoSync()` filtre les pays dismissed. `downloadCountrySpots()` (téléchargement manuel) retire le pays de la liste dismissed.
+- **Leçon** : Quand un service automatique (sync, background task) crée/modifie des données, il DOIT respecter les actions manuelles de l'utilisateur. Toujours prévoir un mécanisme de "ne plus me montrer ça" que les auto-services respectent.
+- **Fichiers** : src/services/offlineDownload.js, src/services/autoOfflineSync.js
+- **Statut** : CORRIGÉ
+
 ### ERR-068 — CI bloqué 5h sans deploy (RGPD + lint + quality gate)
 - **Date** : 2026-03-14
 - **Gravité** : CRITIQUE
