@@ -5,7 +5,7 @@
  */
 
 import { loadAllDocs, getDocsByField } from '../services/firebase.js'
-import { isTestEmail } from '../services/stats.js'
+import { isRealUser } from '../services/stats.js'
 import { isAdmin as checkAdmin } from '../services/auth.js'
 
 function escapeHTML(str) {
@@ -251,7 +251,7 @@ export async function bindUserListEvents() {
   try {
     const rawUsers = await loadAllDocs('users')
     allUsers = rawUsers
-      .filter((u) => !isTestEmail(u.email))
+      .filter((u) => isRealUser(u))
       .sort((a, b) => {
         const da = a.lastLogin?.toDate ? a.lastLogin.toDate().getTime() : new Date(a.lastLogin || 0).getTime()
         const db2 = b.lastLogin?.toDate ? b.lastLogin.toDate().getTime() : new Date(b.lastLogin || 0).getTime()

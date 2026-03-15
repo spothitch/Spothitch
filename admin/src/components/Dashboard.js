@@ -3,7 +3,7 @@
  * KPIs (4 cards), Sentry errors + activity (two-col), cleanup bar
  */
 
-import { loadDashboardStats, loadRecentActivity, isTestUser, isTestSpot } from '../services/stats.js'
+import { loadDashboardStats, loadRecentActivity, isTestUser, isRealUser, isRealSpot } from '../services/stats.js'
 import { loadSentryIssues } from '../services/sentry.js'
 import { loadAllSpots, loadAllUsers } from '../services/stats.js'
 import { deleteDocument } from '../services/firebase.js'
@@ -150,9 +150,10 @@ async function runCleanup(type) {
 
   try {
     const [allUsers, allSpots] = await Promise.all([loadAllUsers(), loadAllSpots()])
+    const realUsers = allUsers.filter((u) => isRealUser(u))
     const testUsers = allUsers.filter((u) => isTestUser(u))
-    const testUserIds = testUsers.map((u) => u.id)
-    const testSpots = allSpots.filter((s) => isTestSpot(s, testUserIds))
+    const realUserIds = realUsers.map((u) => u.id)
+    const testSpots = allSpots.filter((s) => !isRealSpot(s, realUserIds))
     const total = type === 'spots' ? testSpots.length : testUsers.length
 
     if (total === 0) {
@@ -194,11 +195,10 @@ async function runCleanup(type) {
     btn.textContent = type === 'spots' ? 'Supprimer les spots test' : 'Supprimer les comptes test'
 
     // Refresh summary
-    const newUsers = allUsers.filter((u) => isTestUser(u))
-    const newSpots = allSpots.filter((s) => isTestSpot(s, newUsers.map(u => u.id)))
-    const remaining = type === 'spots' ? { users: newUsers.length, spots: 0 } : { users: 0, spots: newSpots.length }
+    const remainingTestUsers = type === 'users' ? 0 : testUsers.length
+    const remainingTestSpots = type === 'spots' ? 0 : testSpots.length
     const summaryEl = document.getElementById('cleanup-summary')
-    if (summaryEl) summaryEl.textContent = `🧹 ${type === 'users' ? 0 : newUsers.length} compte(s) de test · ${type === 'spots' ? 0 : newSpots.length} spot(s) de test`
+    if (summaryEl) summaryEl.textContent = `🧹 ${remainingTestUsers} compte(s) de test · ${remainingTestSpots} spot(s) de test`
 
     window.__showToast?.(`${deleted} ${type === 'spots' ? 'spot(s)' : 'compte(s)'} de test supprimé(s)`, 'success')
   } catch (err) {
