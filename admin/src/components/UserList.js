@@ -4,7 +4,7 @@
  * Shows ONLY real users (filters out ci-*@spothitch.com test accounts)
  */
 
-import { loadAllDocs, getDocsByField } from '../services/firebase.js'
+import { loadAllDocs, getDocsByField, updateDocument, deleteDocument } from '../services/firebase.js'
 import { isRealUser } from '../services/stats.js'
 import { isAdmin as checkAdmin } from '../services/auth.js'
 
@@ -187,10 +187,15 @@ function renderUserDetail(el, uid, data) {
       }).join(' · ')
     : 'Aucun spot'
 
-  const banButtonHtml = isOwnAccount
+  const isBanned = Boolean(user.banned)
+  const username = escapeHTML(user.username || user.displayName || 'cet utilisateur')
+
+  const actionsHtml = isOwnAccount
     ? ''
-    : `<div style="margin-top:10px;display:flex;gap:8px;">
-        <button class="btn btn-reject" data-ban-user="${escapeHTML(uid)}">🚫 Bannir</button>
+    : `<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" data-force-reconnect="${escapeHTML(uid)}" style="background:#d97706;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;">🔄 Forcer la reconnexion</button>
+        <button class="btn" data-delete-user="${escapeHTML(uid)}" style="background:#dc2626;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;">🗑️ Supprimer le compte</button>
+        <button class="btn" data-ban-user="${escapeHTML(uid)}" style="background:${isBanned ? '#16a34a' : '#7f1d1d'};color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;">${isBanned ? '✅ Débannir' : '🚫 Bannir'}</button>
       </div>`
 
   el.innerHTML = `
@@ -209,18 +214,77 @@ function renderUserDetail(el, uid, data) {
       </div>
     </div>
     <div style="font-size:12px;color:#64748b;">Inscrit le ${joined || 'date inconnue'}</div>
+    ${isBanned ? '<div style="margin-top:6px;font-size:12px;color:#f87171;font-weight:600;">⛔ Utilisateur banni</div>' : ''}
     <div style="margin-top:10px;font-size:12px;">
       <strong class="amber">Ses spots :</strong>
       <div style="margin-top:6px;color:#cbd5e1;">${spotsHtml}</div>
     </div>
-    ${banButtonHtml}
+    ${actionsHtml}
   `
 
-  // Bind ban button
-  el.querySelector('[data-ban-user]')?.addEventListener('click', (e) => {
+  // Bind force reconnect button
+  el.querySelector('[data-force-reconnect]')?.addEventListener('click', async (e) => {
     e.stopPropagation()
-    if (!confirm('Bannir cet utilisateur ?\n\nIl ne pourra plus se connecter ni créer de contenu. Ses spots existants restent visibles sur la carte. Tu peux annuler le ban plus tard.')) return
-    window.__showToast?.('Fonction de bannissement pas encore implémentée', 'info')
+    if (!confirm('Forcer cet utilisateur à se reconnecter ?\n\nSa session sera invalidée et il devra se reconnecter avec Google. Ses données (spots, avis, contributions) ne sont pas touchées.')) return
+    try {
+      await updateDocument('users', uid, { forceReconnect: true })
+      window.__showToast?.('Reconnexion forcée', 'success')
+    } catch (err) {
+      console.error('Force reconnect failed:', err)
+      window.__showToast?.('Erreur : ' + (err.message || 'échec'), 'error')
+    }
+  })
+
+  // Bind delete user button
+  el.querySelector('[data-delete-user]')?.addEventListener('click', async (e) => {
+    e.stopPropagation()
+    if (!confirm(`Supprimer le compte de ${username} ?\n\nSon profil sera supprimé. Ses spots et contributions restent visibles sur l'app (ils appartiennent à SpotHitch). L'utilisateur peut se recréer un compte.\n\nCette action est irréversible.`)) return
+    try {
+      await deleteDocument('users', uid)
+      // Remove from local list
+      allUsers = allUsers.filter((u) => u.id !== uid)
+      delete userDetailsCache[uid]
+      expandedUserId = null
+      renderUserCards(filterUsers())
+      window.__showToast?.('Compte supprimé', 'success')
+    } catch (err) {
+      console.error('Delete user failed:', err)
+      window.__showToast?.('Erreur : ' + (err.message || 'échec'), 'error')
+    }
+  })
+
+  // Bind ban/unban button
+  el.querySelector('[data-ban-user]')?.addEventListener('click', async (e) => {
+    e.stopPropagation()
+    if (isBanned) {
+      if (!confirm(`Débannir ${username} ?\n\nCet utilisateur pourra à nouveau utiliser l'app.`)) return
+      try {
+        await updateDocument('users', uid, { banned: false, bannedAt: null })
+        // Update local state
+        const u = allUsers.find((u) => u.id === uid)
+        if (u) { u.banned = false; u.bannedAt = null }
+        delete userDetailsCache[uid]
+        loadUserDetails(uid)
+        window.__showToast?.('Utilisateur débanni', 'success')
+      } catch (err) {
+        console.error('Unban failed:', err)
+        window.__showToast?.('Erreur : ' + (err.message || 'échec'), 'error')
+      }
+    } else {
+      if (!confirm(`Bannir ${username} ?\n\nCet utilisateur ne pourra plus utiliser l'app. Ses spots et contributions restent visibles. Tu peux annuler le ban plus tard en remettant banned: false.`)) return
+      try {
+        await updateDocument('users', uid, { banned: true, bannedAt: new Date().toISOString() })
+        // Update local state
+        const u = allUsers.find((u) => u.id === uid)
+        if (u) { u.banned = true; u.bannedAt = new Date().toISOString() }
+        delete userDetailsCache[uid]
+        loadUserDetails(uid)
+        window.__showToast?.('Utilisateur banni', 'success')
+      } catch (err) {
+        console.error('Ban failed:', err)
+        window.__showToast?.('Erreur : ' + (err.message || 'échec'), 'error')
+      }
+    }
   })
 }
 
