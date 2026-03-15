@@ -1,6 +1,6 @@
 # errors.md - Journal des erreurs et corrections SpotHitch
 
-> Dernière mise à jour : 2026-03-01
+> Dernière mise à jour : 2026-03-16
 > IMPORTANT : Après CHAQUE bug trouvé ou corrigé, ajouter une entrée ici.
 > Le Plan Wolf analyse ce fichier pour éviter les régressions.
 
@@ -895,4 +895,34 @@ Chaque erreur suit ce format :
 - **Correction** : Tout réécrit en Node.js direct (pas de Playwright). Créé une clé API CI séparée (`VITE_FIREBASE_API_KEY_CI`) sans restriction de referer, restreinte aux APIs Identity Toolkit + Firestore. Supprimé les jobs cassés (Lighthouse, Fox, E2E Firebase Playwright). 16 tests passent maintenant.
 - **Leçon** : Ne JAMAIS laisser un job CI cassé "en attendant de le corriger". Si un test ne peut pas marcher dans l'environnement CI, le réécrire pour qu'il marche, ou le supprimer. Un test qui échoue toujours est pire qu'un test absent : il cache les vrais problèmes. Pour Firebase en CI, utiliser le SDK Node.js directement, pas le navigateur.
 - **Fichiers** : .github/workflows/ci.yml, scripts/firebase-test-setup.mjs, scripts/firebase-test.mjs, scripts/cleanup-test-data.mjs
+- **Statut** : CORRIGÉ
+
+### ERR-075 — 3 dépendances circulaires (proximityVerification ↔ location ↔ notifications)
+- **Date** : 2026-03-16
+- **Gravité** : MAJEUR
+- **Description** : madge détectait 3 cycles : i18n→state→proximityVerification→location→notifications, state→proximityVerification→location→notifications, proximityVerification→location.
+- **Cause racine** : `proximityVerification.js` importait statiquement `getDistanceKm` depuis `location.js`, qui importait dynamiquement `notifications.js`, qui importait `state.js` et `i18n`. La fonction `getDistanceKm` est purement mathématique et n'a aucune dépendance.
+- **Correction** : Redirigé les imports de `getDistanceKm` vers `utils/geo.js` (qui existait déjà avec `haversineKm`). `proximityVerification.js` et `nearbyFriends.js` importent maintenant depuis `utils/geo.js`. `location.js` ré-exporte via `import + const` au lieu de définir la fonction.
+- **Leçon** : Les fonctions utilitaires pures (math, formatting) ne doivent JAMAIS vivre dans des fichiers de service qui ont des dépendances lourdes (state, i18n, notifications). Les extraire dans `utils/` pour casser les cycles.
+- **Fichiers** : src/services/proximityVerification.js, src/services/nearbyFriends.js, src/services/location.js
+- **Statut** : CORRIGÉ
+
+### ERR-076 — onclick openLanguagePicker() sans handler window correspondant
+- **Date** : 2026-03-16
+- **Gravité** : MAJEUR
+- **Description** : Le bouton "Ajouter une langue" dans le formulaire d'édition du profil appelait `openLanguagePicker()` qui n'existait pas. Le vrai handler est `window.editLanguages`.
+- **Cause racine** : Lors de la création du formulaire de profil, le nom du handler dans l'onclick ne correspondait pas au nom défini dans `window.*`.
+- **Correction** : Remplacé `onclick="openLanguagePicker()"` par `onclick="editLanguages()"` dans profileCustomization.js.
+- **Leçon** : Toujours vérifier avec `grep` que le nom utilisé dans `onclick` existe bien comme `window.nomHandler`. Le Quality Gate check ERR-024 détecte ces orphelins automatiquement.
+- **Fichiers** : src/services/profileCustomization.js
+- **Statut** : CORRIGÉ
+
+### ERR-077 — E2E helpers ne bypassent pas le code alpha
+- **Date** : 2026-03-16
+- **Gravité** : MINEUR
+- **Description** : Les E2E helpers (`skipOnboarding`) ne posaient pas `spothitch_alpha_code = 'ok'` dans localStorage. Cela pouvait causer des interférences si le carousel s'affichait partiellement.
+- **Cause racine** : Le mécanisme alpha code a été ajouté après les E2E helpers, et l'absence de cette clé n'empêchait pas le fonctionnement car `showWelcome: false` bypassait le carousel. Mais c'est un manque de rigueur.
+- **Correction** : Ajout de `localStorage.setItem('spothitch_alpha_code', 'ok')` dans e2e/helpers.js.
+- **Leçon** : Quand un nouveau mécanisme de gating est ajouté (alpha code, beta guard, feature flag), TOUJOURS mettre à jour e2e/helpers.js skipOnboarding en même temps.
+- **Fichiers** : e2e/helpers.js
 - **Statut** : CORRIGÉ

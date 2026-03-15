@@ -1,13 +1,13 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-15 15:01
+Date : 2026-03-16 01:38
 
 ## Derniers commits
-a3cd579 fix: cleanup notifications — remove useless toasts, improve error messages
-1a70e1a feat: fullscreen mandatory update screen (replaces auto-reload)
-1c58d56 feat: auto-cleanup test data after CI + safe cleanup button
-8a37e14 fix: force geocoding results in user's language (no Thai/Arabic/Chinese script)
-52c59dd fix(admin): single cleanup button for all test data (spots + users + reports)
+ca5d6a5 fix: quality gate 95→100, eliminate circular deps, dead code cleanup
+e40a815 feat: community spots visible on map + fix profile loading
+bea035e fix: critical production crash — circular chunk dependency (TDZ error)
+7e24f74 fix: getUserSpots query failed due to missing composite index
+bc62c94 fix: share target missing country + auto-fix spots without country
 
 ## Note
 Reprendre avec : claude --continue
