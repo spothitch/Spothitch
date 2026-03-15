@@ -4631,6 +4631,7 @@ export default {
   guideNudgeBtn: 'Compartir mis consejos',
   guideNudgeLater: 'Más tarde',
   guideNudgeDontShow: 'No mostrar más',
+  guideNudgeDontShowCountry: 'No mostrar más para [país]',
   guideTipCategory: 'Categoría',
   guideTipPlaceholder: 'Tu consejo para los viajeros...',
   guideTipCTA: 'Comparte tu experiencia...',

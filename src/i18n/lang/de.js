@@ -4689,6 +4689,7 @@ export default {
   guideNudgeBtn: 'Meine Tipps teilen',
   guideNudgeLater: 'Später',
   guideNudgeDontShow: 'Nicht mehr anzeigen',
+  guideNudgeDontShowCountry: 'Nicht mehr anzeigen für [Land]',
   guideTipCategory: 'Kategorie',
   guideTipPlaceholder: 'Dein Tipp für Reisende...',
   guideTipCTA: 'Teile deine Erfahrung...',

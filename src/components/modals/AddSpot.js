@@ -2041,14 +2041,17 @@ window.handleAddSpot = async (event) => {
         const countryCode = spotData.country
         const countryName = spotData.countryName
         if (countryCode) {
-          const nudgeSeen = localStorage.getItem('spothitch_guide_nudge_seen')
+          const nudgeSeenGlobal = localStorage.getItem('spothitch_guide_nudge_seen')
+          const dismissedCountries = JSON.parse(localStorage.getItem('spothitch_guide_nudge_countries') || '[]')
+          const countryDismissed = dismissedCountries.includes(countryCode)
+          const shouldShow = !nudgeSeenGlobal && !countryDismissed
           // Get country flag emoji from country code
           const flagEmoji = countryCode
             .toUpperCase()
             .replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)))
           setStateFn({
             pendingGuideCountry: { code: countryCode, name: countryName || countryCode, flag: flagEmoji },
-            showGuideNudge: !nudgeSeen,
+            showGuideNudge: shouldShow,
           })
         }
       } catch { /* no-op */ }

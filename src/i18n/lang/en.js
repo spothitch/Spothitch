@@ -4634,6 +4634,7 @@ export default {
   guideNudgeBtn: 'Share my tips',
   guideNudgeLater: 'Later',
   guideNudgeDontShow: "Don't show again",
+  guideNudgeDontShowCountry: "Don't show again for [country]",
   guideTipCategory: 'Category',
   guideTipPlaceholder: 'Your tip for travelers...',
   guideTipCTA: 'Share your experience...',

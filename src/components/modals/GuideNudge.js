@@ -88,18 +88,21 @@ export function renderGuideNudge(state) {
             </button>
           </div>
 
-          <!-- Don't show again -->
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              id="guide-nudge-dont-show"
-              class="w-4 h-4 rounded accent-primary-400"
-              onchange="if(this.checked){localStorage.setItem('spothitch_guide_nudge_seen','1')}"
-            />
-            <span class="text-xs text-slate-500">
+          <!-- Don't show again — per-country or global -->
+          <div class="pt-1 space-y-1.5">
+            <button
+              onclick="dismissGuideNudgeForCountry()"
+              class="w-full text-[11px] text-slate-500 hover:text-slate-400 transition-colors py-1"
+            >
+              ${(t('guideNudgeDontShowCountry') || 'Ne plus afficher pour [pays]').replace('[pays]', countryName).replace('[country]', countryName).replace('[Land]', countryName).replace('[país]', countryName)}
+            </button>
+            <button
+              onclick="dismissGuideNudgeGlobal()"
+              class="w-full text-[10px] text-slate-600 hover:text-slate-500 transition-colors py-0.5"
+            >
               ${escapeHTML(t('guideNudgeDontShow') || 'Ne plus afficher')}
-            </span>
-          </label>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -111,6 +114,27 @@ export function renderGuideNudge(state) {
 window.closeGuideNudge = async () => {
   const { setState } = await import('../../stores/state.js')
   setState({ showGuideNudge: false })
+}
+
+// Dismiss for this specific country only — will re-appear for other countries
+window.dismissGuideNudgeForCountry = async () => {
+  const { getState, setState } = await import('../../stores/state.js')
+  const code = getState().pendingGuideCountry?.code
+  if (code) {
+    try {
+      const dismissed = JSON.parse(localStorage.getItem('spothitch_guide_nudge_countries') || '[]')
+      if (!dismissed.includes(code)) dismissed.push(code)
+      localStorage.setItem('spothitch_guide_nudge_countries', JSON.stringify(dismissed))
+    } catch { /* no-op */ }
+  }
+  setState({ showGuideNudge: false, pendingGuideCountry: null })
+}
+
+// Dismiss globally — never show again for any country
+window.dismissGuideNudgeGlobal = async () => {
+  const { setState } = await import('../../stores/state.js')
+  try { localStorage.setItem('spothitch_guide_nudge_seen', '1') } catch { /* no-op */ }
+  setState({ showGuideNudge: false, pendingGuideCountry: null })
 }
 
 window.acceptGuideNudge = async () => {
