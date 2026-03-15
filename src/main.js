@@ -1172,11 +1172,31 @@ window.openAddSpot = () => {
     method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
     rideResult: null, stationName: '', extraDestinations: [],
   }
-  setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
+  // If share target already has coordinates → skip map picker, go straight to form
   if (window._pendingShareCoords) {
-    showToast(t('sharePositionImported') || 'Position imported from map', 'success')
-  } else if (window._pendingShareText) {
-    showToast(t('sharePickLocation') || 'Pick the spot location on the map', 'info')
+    const coords = window._pendingShareCoords
+    window.spotFormData.lat = coords.lat
+    window.spotFormData.lng = coords.lng
+    window.spotFormData.positionSource = 'share'
+    window._pendingShareCoords = null
+    // Reverse geocode to get city name
+    import('./services/osrm.js').then(({ reverseGeocode }) => {
+      reverseGeocode(coords.lat, coords.lng).then(loc => {
+        if (loc?.city) {
+          window.spotFormData.departureCity = loc.city
+          window.spotFormData.locationName = loc.road || loc.city
+          // Re-render to show the position
+          setState({ addSpotStep: getState().addSpotStep })
+        }
+      }).catch(() => {})
+    }).catch(() => {})
+    setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
+    showToast(t('sharePositionImported') || 'Position importée', 'success')
+  } else {
+    setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
+    if (window._pendingShareText) {
+      showToast(t('sharePickLocation') || 'Pick the spot location on the map', 'info')
+    }
   }
 }
 window.openAddSpotPreview = () => setState({ showAddSpot: true, addSpotPreview: true });

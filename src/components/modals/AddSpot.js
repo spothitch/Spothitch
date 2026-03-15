@@ -1148,9 +1148,19 @@ window.openFullscreenMapPicker = async () => {
       } catch { /* no-op */ }
     }
 
+    // Try to reuse the home map's already-loaded style for instant tiles
+    let styleToUse = 'https://tiles.openfreemap.org/styles/liberty'
+    try {
+      const homeMap = window.spotHitchMap || window.mapInstance
+      if (homeMap && typeof homeMap.getStyle === 'function') {
+        const s = homeMap.getStyle()
+        if (s && s.sources) styleToUse = s
+      }
+    } catch { /* use default URL */ }
+
     fullscreenMap = new maplibregl.default.Map({
       container: document.getElementById('fmp-map'),
-      style: 'https://tiles.openfreemap.org/styles/liberty',
+      style: styleToUse,
       center,
       zoom,
     })
