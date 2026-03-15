@@ -1231,7 +1231,7 @@ window.openAddSpot = () => {
             const depInput = document.getElementById('spot-departure-city')
             if (depInput) depInput.value = loc.city
             const locDisplay = document.querySelector('#addspot-modal [style*="font-size:13px"][style*="color:#e2e8f0"]')
-            if (locDisplay) locDisplay.innerHTML = `${loc.road || loc.city} <span style="color:#475569;font-size:11px">${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}</span>`
+            if (locDisplay) locDisplay.innerHTML = `${escapeHTML(loc.road || loc.city)} <span style="color:#475569;font-size:11px">${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}</span>`
           }
           if (loc.countryCode) {
             window.spotFormData.country = loc.countryCode

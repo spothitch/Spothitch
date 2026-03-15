@@ -7,6 +7,7 @@ import { getState, setState } from '../stores/state.js';
 import { showToast } from './notifications.js';
 import { t } from '../i18n/index.js';
 import { icon } from '../utils/icons.js'
+import { escapeHTML } from '../utils/sanitize.js'
 
 // Profile frames collection
 export const PROFILE_FRAMES = {
@@ -575,7 +576,7 @@ window.selectProfilePhoto = async (index) => {
     setState({ userProfile: { ...getState().userProfile, photoURL: selected } })
     // Update preview
     const preview = document.getElementById('edit-avatar-preview')
-    if (preview) preview.innerHTML = `<img src="${selected}" style="width:100%;height:100%;object-fit:cover" alt="">`
+    if (preview) preview.innerHTML = `<img src="${escapeHTML(selected)}" style="width:100%;height:100%;object-fit:cover" alt="">`
     showToast(t('photoUpdated') || 'Photo mise à jour', 'success')
   } catch { /* offline */ }
 }
@@ -598,7 +599,7 @@ window.uploadProfilePhoto = () => {
         await updateUserProfile(user.uid, { photoURL: result.url })
         setState({ userProfile: { ...getState().userProfile, photoURL: result.url } })
         const preview = document.getElementById('edit-avatar-preview')
-        if (preview) preview.innerHTML = `<img src="${result.url}" style="width:100%;height:100%;object-fit:cover" alt="">`
+        if (preview) preview.innerHTML = `<img src="${escapeHTML(result.url)}" style="width:100%;height:100%;object-fit:cover" alt="">`
         showToast(t('photoUpdated') || 'Photo mise à jour', 'success')
       }
     } catch {
