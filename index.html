@@ -5,6 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google" content="notranslate">
     <script>try{var l=JSON.parse(localStorage.getItem('spothitch_v4_state')||'{}').lang;if(l&&/^(fr|en|es|de)$/.test(l))document.documentElement.lang=l}catch(e){}</script>
+    <script>
+    // Stale cache recovery: if a JS module fails to load (hash mismatch after deploy),
+    // unregister the Service Worker and hard-reload to get fresh assets.
+    // This prevents the "site inaccessible" error after deploys, especially via share target.
+    window.addEventListener('error', function(e) {
+      if (e.filename && /assets\/.*\.js$/.test(e.filename) && !window.__swRecovery) {
+        window.__swRecovery = true;
+        if (navigator.serviceWorker) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            Promise.all(regs.map(function(r) { return r.unregister() })).then(function() {
+              if (caches) caches.keys().then(function(k) { k.forEach(function(n) { caches.delete(n) }) });
+              window.location.reload();
+            });
+          });
+        } else { window.location.reload(); }
+      }
+    }, true);
+    window.addEventListener('unhandledrejection', function(e) {
+      var msg = e.reason && (e.reason.message || String(e.reason)) || '';
+      if ((msg.indexOf('Failed to fetch dynamically imported module') !== -1 || msg.indexOf('Importing a module script failed') !== -1) && !window.__swRecovery) {
+        window.__swRecovery = true;
+        if (navigator.serviceWorker) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            Promise.all(regs.map(function(r) { return r.unregister() })).then(function() {
+              if (caches) caches.keys().then(function(k) { k.forEach(function(n) { caches.delete(n) }) });
+              window.location.reload();
+            });
+          });
+        } else { window.location.reload(); }
+      }
+    });
+    </script>
     <meta name="theme-color" content="#f59e0b">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1520">
     <meta name="color-scheme" content="dark light">
