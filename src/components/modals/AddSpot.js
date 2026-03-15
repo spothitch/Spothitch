@@ -1672,10 +1672,22 @@ export function initAddSpotAfterRender() {
 // Show summary overlay before publishing — user must confirm
 window.showSpotSummary = async () => {
   const fd = window.spotFormData
-  const { getState } = await import('../../stores/state.js')
+  const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
   const spotType = state.addSpotType || 'custom'
   const description = document.getElementById('spot-description')?.value.trim() || ''
+
+  // Auth check — must be logged in to publish
+  if (!state.isLoggedIn) {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('authRequiredAddSpot'))
+    setState({
+      showAuth: true,
+      authPendingAction: 'submitSpot',
+      showAuthReason: t('authRequiredAddSpot'),
+    })
+    return
+  }
 
   // Quick validation first (same checks as handleAddSpot)
   const { showError } = await import('../../services/notifications.js')
@@ -1781,8 +1793,21 @@ window.closeSpotSummary = () => {
 window.handleAddSpot = async (event) => {
   event.preventDefault()
 
-  const { getState } = await import('../../stores/state.js')
+  const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
+
+  // Auth check — must be logged in to publish
+  if (!state.isLoggedIn) {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('authRequiredAddSpot'))
+    setState({
+      showAuth: true,
+      authPendingAction: 'submitSpot',
+      showAuthReason: t('authRequiredAddSpot'),
+    })
+    return
+  }
+
   let spotType = state.addSpotType || 'custom'
   const description = document.getElementById('spot-description')?.value.trim()
   const submitBtn = document.getElementById('submit-spot-btn')
