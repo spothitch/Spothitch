@@ -926,3 +926,23 @@ Chaque erreur suit ce format :
 - **Leçon** : Quand un nouveau mécanisme de gating est ajouté (alpha code, beta guard, feature flag), TOUJOURS mettre à jour e2e/helpers.js skipOnboarding en même temps.
 - **Fichiers** : e2e/helpers.js
 - **Statut** : CORRIGÉ
+
+### ERR-078 — innerHTML avec données API Nominatim non échappées (XSS potentiel)
+- **Date** : 2026-03-16
+- **Gravité** : MAJEUR
+- **Description** : Dans main.js, les champs `loc.road` et `loc.city` retournés par l'API Nominatim étaient insérés dans innerHTML sans escapeHTML(). Un nom de rue contenant du HTML malicieux aurait pu être injecté.
+- **Cause racine** : Manque de rigueur lors de l'écriture du DOM update direct (optimisation pour éviter un re-render).
+- **Correction** : Ajout de `escapeHTML()` autour de `loc.road || loc.city` dans main.js. Même fix dans profileCustomization.js pour les URLs Firebase Storage.
+- **Leçon** : TOUTE donnée provenant d'une API externe (Nominatim, Firebase, Photon, etc.) DOIT être échappée avec `escapeHTML()` avant insertion dans innerHTML. Les seules exceptions sont les valeurs numériques (.toFixed()) et les appels t() (traductions internes).
+- **Fichiers** : src/main.js, src/services/profileCustomization.js
+- **Statut** : CORRIGÉ
+
+### ERR-079 — Barre de recherche déborde avec texte très long (200+ chars)
+- **Date** : 2026-03-16
+- **Gravité** : MINEUR
+- **Description** : En tapant 200 caractères dans la barre de recherche, le texte débordait visuellement de l'input.
+- **Cause racine** : Pas de maxlength sur le composant renderSearchInput canonique.
+- **Correction** : Ajout de `maxlength="100"` dans renderSearchInput (src/utils/searchInput.js). Affecte les 6+ inputs de recherche de l'app.
+- **Leçon** : Toujours ajouter maxlength sur les inputs texte. 100 caractères est suffisant pour une recherche de lieu.
+- **Fichiers** : src/utils/searchInput.js
+- **Statut** : CORRIGÉ
