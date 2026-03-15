@@ -6,20 +6,20 @@
 
 import { Storage } from '../utils/storage.js'
 import { getCurrentUser } from './firebase.js'
+import { getState } from '../stores/state.js'
 
 const CACHE_KEY = 'my_guide_tips'
 
 // ==================== GUIDE CATEGORIES ====================
 
 export const GUIDE_CATEGORIES = [
-  { id: 'hitchhiking', labelKey: 'guideCatHitchhiking', fallback: "Facilité de l'auto-stop", icon: 'thumbs-up' },
-  { id: 'safety', labelKey: 'guideCatSafety', fallback: 'Sécurité', icon: 'shield' },
-  { id: 'laws', labelKey: 'guideCatLaws', fallback: 'Lois et légalité', icon: 'scale' },
-  { id: 'best_spots', labelKey: 'guideCatBestSpots', fallback: 'Meilleurs spots', icon: 'map-pin' },
-  { id: 'language', labelKey: 'guideCatLanguage', fallback: 'Langue et communication', icon: 'message-circle' },
-  { id: 'budget', labelKey: 'guideCatBudget', fallback: 'Budget et coûts', icon: 'coins' },
-  { id: 'culture', labelKey: 'guideCatCulture', fallback: 'Culture locale', icon: 'heart' },
-  { id: 'transport', labelKey: 'guideCatTransport', fallback: 'Transports alternatifs', icon: 'car' },
+  { id: 'hitchhiking', labelKey: 'guideCatHitchhiking', fallback: "Facilité de l'auto-stop", icon: 'thumbs-up', ratingEnabled: true },
+  { id: 'safety', labelKey: 'guideCatSafety', fallback: 'Sécurité', icon: 'shield', ratingEnabled: false },
+  { id: 'laws', labelKey: 'guideCatLaws', fallback: 'Lois et légalité', icon: 'scale', ratingEnabled: false },
+  { id: 'language', labelKey: 'guideCatLanguage', fallback: 'Langue et communication', icon: 'message-circle', ratingEnabled: false },
+  { id: 'budget', labelKey: 'guideCatBudget', fallback: 'Budget et coûts', icon: 'coins', ratingEnabled: false },
+  { id: 'culture', labelKey: 'guideCatCulture', fallback: 'Culture locale', icon: 'heart', ratingEnabled: false },
+  { id: 'transport', labelKey: 'guideCatTransport', fallback: 'Transports alternatifs', icon: 'car', ratingEnabled: false },
 ]
 
 // ==================== LOCAL CACHE ====================
@@ -55,10 +55,11 @@ export async function submitGuideTip({ countryCode, category, rating, text, cust
     username: user.displayName || 'Anonyme',
     countryCode,
     category: customCategory ? `custom_${customCategoryName}` : category,
-    rating: Math.min(5, Math.max(1, rating)),
+    rating: rating ? Math.min(5, Math.max(1, rating)) : 0,
     text: (text || '').slice(0, 500),
     customCategory: !!customCategory,
     customCategoryName: customCategory ? customCategoryName : null,
+    status: 'pending',
     createdAt: new Date().toISOString(),
   }
 
@@ -161,6 +162,94 @@ export function getUserContribCount(countryCode) {
   return getUserGuideTips(countryCode).length
 }
 
+/**
+ * Load approved tips for a country (visible to all users)
+ * The author's own tips are included regardless of status
+ */
+export async function loadPublicGuideTips(countryCode) {
+  const user = getCurrentUser()
+  try {
+    const db = await getDb()
+    if (!db) return []
+    const { collection, query, where, getDocs } = await import('firebase/firestore')
+    const q = query(
+      collection(db, 'guideTips'),
+      where('countryCode', '==', countryCode)
+    )
+    const snap = await getDocs(q)
+    if (snap.empty) return []
+
+    return snap.docs
+      .map(d => ({ ...d.data(), id: d.id }))
+      .filter(tip => tip.status === 'approved' || (user && tip.userId === user.uid))
+  } catch {
+    return []
+  }
+}
+
+// ==================== ADMIN FUNCTIONS ====================
+
+/**
+ * Check if current user is admin
+ */
+function isCurrentUserAdmin() {
+  const state = getState()
+  return !!state.isAdmin
+}
+
+/**
+ * Approve a guide tip (admin only)
+ */
+export async function approveGuideTip(tipId) {
+  if (!isCurrentUserAdmin()) return { success: false, error: 'not_admin' }
+  try {
+    const db = await getDb()
+    if (!db) return { success: false, error: 'no_db' }
+    const { doc, updateDoc } = await import('firebase/firestore')
+    await updateDoc(doc(db, 'guideTips', tipId), { status: 'approved' })
+    return { success: true }
+  } catch {
+    return { success: false, error: 'update_failed' }
+  }
+}
+
+/**
+ * Reject a guide tip (admin only)
+ */
+export async function rejectGuideTip(tipId) {
+  if (!isCurrentUserAdmin()) return { success: false, error: 'not_admin' }
+  try {
+    const db = await getDb()
+    if (!db) return { success: false, error: 'no_db' }
+    const { doc, updateDoc } = await import('firebase/firestore')
+    await updateDoc(doc(db, 'guideTips', tipId), { status: 'rejected' })
+    return { success: true }
+  } catch {
+    return { success: false, error: 'update_failed' }
+  }
+}
+
+/**
+ * Load all pending guide tips (admin only)
+ */
+export async function loadPendingGuideTips() {
+  if (!isCurrentUserAdmin()) return []
+  try {
+    const db = await getDb()
+    if (!db) return []
+    const { collection, query, where, getDocs } = await import('firebase/firestore')
+    const q = query(
+      collection(db, 'guideTips'),
+      where('status', '==', 'pending')
+    )
+    const snap = await getDocs(q)
+    if (snap.empty) return []
+    return snap.docs.map(d => ({ ...d.data(), id: d.id }))
+  } catch {
+    return []
+  }
+}
+
 export default {
   GUIDE_CATEGORIES,
   submitGuideTip,
@@ -168,4 +257,8 @@ export default {
   loadUserGuideTips,
   deleteUserGuideTip,
   getUserContribCount,
+  loadPublicGuideTips,
+  approveGuideTip,
+  rejectGuideTip,
+  loadPendingGuideTips,
 }

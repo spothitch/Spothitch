@@ -369,7 +369,7 @@ function renderCountriesSection() {
               <div>
                 <div class="font-bold">${guide.name}</div>
                 ${contribCount > 0
-                  ? `<div class="text-xs text-emerald-400">${contribCount}/8 ${icon('check', 'w-3 h-3 inline')}</div>`
+                  ? `<div class="text-xs text-emerald-400">${contribCount}/7 ${icon('check', 'w-3 h-3 inline')}</div>`
                   : `<div class="text-xs text-slate-500">${t('guideNoContribution') || 'Pas encore de contribution'}</div>`
                 }
               </div>
@@ -638,7 +638,7 @@ export function renderCountryDetail(guideOrCode) {
         <h2 class="text-xl font-bold mb-1">${escapeHTML(guide.name)}</h2>
         <p class="text-sm text-slate-400">
           ${contribCount > 0
-            ? `${contribCount}/8 ${t('guideContribCount') || 'catégories contribuées'}`
+            ? `${contribCount}/7 ${t('guideContribCount') || 'catégories contribuées'}`
             : (t('guideNoContribution') || 'Aucune contribution. Sois le premier !')
           }
         </p>
@@ -661,12 +661,13 @@ export function renderCountryDetail(guideOrCode) {
                 <span class="text-xs font-medium leading-tight">${t(cat.labelKey) || cat.fallback}</span>
               </div>
               ${userTip ? `
-                <div class="flex items-center gap-0.5 mb-1">
+                ${cat.ratingEnabled ? `<div class="flex items-center gap-0.5 mb-1">
                   ${renderStarsStatic(userTip.rating)}
-                </div>
+                </div>` : ''}
                 <p class="text-xs text-slate-400 line-clamp-2">${escapeHTML(userTip.text)}</p>
+                ${userTip.status === 'pending' ? `<span class="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-500/20 text-amber-400">${t('guideTipPending') || 'En attente de validation'}</span>` : ''}
               ` : `
-                <p class="text-xs text-slate-500">${t('guideYourRating') || 'Tap pour noter'}</p>
+                <p class="text-xs text-slate-500">${cat.ratingEnabled ? (t('guideYourRating') || 'Tap pour noter') : (t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...')}</p>
               `}
             </button>
           `
@@ -693,6 +694,7 @@ export function renderCountryDetail(guideOrCode) {
           </div>
           <div class="flex items-center gap-0.5 mb-1">${renderStarsStatic(tip.rating)}</div>
           <p class="text-xs text-slate-400">${escapeHTML(tip.text)}</p>
+          ${tip.status === 'pending' ? `<span class="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-500/20 text-amber-400">${t('guideTipPending') || 'En attente de validation'}</span>` : ''}
         </div>
       `).join('')}
 
@@ -759,8 +761,8 @@ function renderGuideCategoryForm(countryCode, categoryId, userTips) {
         </button>
       </div>
 
-      <!-- Star rating -->
-      ${renderStarRating(rating, categoryId)}
+      <!-- Star rating (only for categories with ratingEnabled) -->
+      ${cat.ratingEnabled ? renderStarRating(rating, categoryId) : ''}
 
       <!-- Text -->
       <div>
@@ -887,15 +889,17 @@ window.submitGuideContribution = async () => {
   const category = state.guideOpenCategory
   if (!countryCode || !category) return
 
+  // Check if this category requires a star rating
+  const cat = GUIDE_CATEGORIES.find(c => c.id === category)
   const rating = window._guideFormRating
-  if (!rating || rating < 1) {
+  if (cat?.ratingEnabled && (!rating || rating < 1)) {
     showError(t('guideYourRating') || 'Choisis une note')
     return
   }
 
   const text = document.getElementById('guide-contrib-text')?.value?.trim() || ''
 
-  const result = await submitGuideTip({ countryCode, category, rating, text })
+  const result = await submitGuideTip({ countryCode, category, rating: cat?.ratingEnabled ? rating : 0, text })
   if (result.success) {
     showSuccess(t('guideContribSaved') || 'Contribution enregistrée !')
     window._guideFormRating = 0
