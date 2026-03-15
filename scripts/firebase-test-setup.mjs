@@ -1,22 +1,38 @@
 #!/usr/bin/env node
 /**
- * Firebase Test Account Setup
+ * Firebase Test Account Setup — Node.js only (no browser needed)
  *
- * Creates 5 test accounts in Firebase Auth via Playwright browser.
- * Also creates their Firestore profiles and reserves usernames.
- * Works with both dev server and production build (uses window.__fb).
+ * Creates 5 test accounts in Firebase Auth + Firestore profiles.
+ * Uses Firebase SDK directly, works reliably in CI.
  *
- * Usage:
- *   E2E_TEST_PASSWORD=xxx node scripts/firebase-test-setup.mjs
- *
- * In CI, runs automatically before Firebase E2E tests.
+ * Usage: E2E_TEST_PASSWORD=xxx node scripts/firebase-test-setup.mjs
+ * Requires: VITE_FIREBASE_* env vars
  */
 
-import { chromium } from 'playwright'
+import { initializeApp } from 'firebase/app'
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth'
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
+import { config } from 'dotenv'
+
+config({ path: '.env.local' })
 
 const TEST_PASSWORD = process.env.E2E_TEST_PASSWORD
 if (!TEST_PASSWORD) {
   console.error('E2E_TEST_PASSWORD environment variable is required')
+  process.exit(1)
+}
+
+const firebaseConfig = {
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VITE_FIREBASE_APP_ID,
+}
+
+if (!firebaseConfig.apiKey) {
+  console.error('VITE_FIREBASE_API_KEY not set. Set Firebase env vars or create .env.local')
   process.exit(1)
 }
 
@@ -28,159 +44,84 @@ const ACCOUNTS = [
   { email: 'ci-admin@spothitch.com', displayName: 'Admin Test', username: 'ci-admin' },
 ]
 
-const BASE_URL = process.env.APP_URL || 'http://localhost:5173'
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
+const db = getFirestore(app)
 
-async function setupAccounts() {
-  console.log('Starting Firebase test account setup...')
-  console.log(`Base URL: ${BASE_URL}`)
+async function setupAccount(account) {
+  const { email, displayName, username } = account
 
-  const browser = await chromium.launch({ headless: true })
-  const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-  })
-  const page = await context.newPage()
+  // Try to create account
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, TEST_PASSWORD)
+    await updateProfile(cred.user, { displayName })
+    const uid = cred.user.uid
 
-  // Skip onboarding
-  await page.addInitScript(() => {
-    localStorage.setItem('spothitch_v4_state', JSON.stringify({
-      showWelcome: false, username: 'Setup', avatar: '🤙',
-      activeTab: 'map', theme: 'dark', lang: 'en',
+    // Create Firestore profile
+    await setDoc(doc(db, 'users', uid), {
+      email, displayName, username,
       points: 0, level: 1, badges: [], rewards: [],
-      savedTrips: [], emergencyContacts: [],
-    }))
-    localStorage.setItem('spothitch_v4_cookie_consent', JSON.stringify({
-      preferences: { necessary: true, analytics: false, marketing: false, personalization: false },
-      timestamp: Date.now(), version: '1.0',
-    }))
-    localStorage.setItem('spothitch_age_verified', 'true')
-    localStorage.setItem('spothitch_landing_v2', '1')
-    localStorage.setItem('spothitch_beta_seen', '1')
-    const featureSeen = {}
-    ;['carte','stations','add-spot','profil','amis','chat','carnet','stats','classements','niveaux','conseils','dons','hors-ligne','sos','compagnon','notif-spot','activite-amis','defis','score-confiance','avis-profils','itineraire','radar','quiz','guides','gardien','evenements','auberges'].forEach(id => { featureSeen[id] = Date.now() })
-    localStorage.setItem('spothitch_feature_seen', JSON.stringify(featureSeen))
-  })
+      createdAt: serverTimestamp(),
+    })
 
-  await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' })
-  await Promise.race([
-    page.waitForSelector('#app.loaded', { timeout: 15000 }).catch(() => null),
-    page.waitForSelector('nav[role="navigation"]', { timeout: 15000 }).catch(() => null),
-  ])
-  await page.evaluate(() => {
-    const app = document.getElementById('app')
-    if (app && !app.classList.contains('loaded')) app.classList.add('loaded')
-    const splash = document.getElementById('splash-screen')
-    if (splash) splash.remove()
-  })
+    // Reserve username
+    await setDoc(doc(db, 'usernames', username), { uid, reserved: true })
 
-  // Trigger Firebase module loading — open auth, wait for GIS overlay init
-  // which imports firebase.js and sets window.__fb
-  await page.evaluate(() => window.openAuth?.('email'))
-  await page.waitForTimeout(5000)
-
-  // If __fb not set yet, try forcing the import directly
-  await page.evaluate(async () => {
-    if (!window.__fb) {
-      try {
-        const fb = await import('/src/services/firebase.js')
-        fb.initializeFirebase()
-      } catch { /* built app won't resolve bare specifier — __fb should already be set */ }
+    await signOut(auth)
+    return { success: true, uid, action: 'created' }
+  } catch (err) {
+    if (err.code !== 'auth/email-already-in-use') {
+      return { success: false, error: err.code || err.message, action: 'signup-failed' }
     }
-  })
-  await page.waitForTimeout(2000)
+  }
 
-  await page.evaluate(() => window.closeAuth?.())
-  await page.waitForTimeout(500)
+  // Account exists, sign in to verify
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, TEST_PASSWORD)
+    const uid = cred.user.uid
 
-  // Wait for window.__fb with longer timeout
-  await page.waitForFunction(() => !!window.__fb, { timeout: 30000 })
-  console.log('Firebase loaded via window.__fb')
+    // Ensure Firestore profile exists
+    const snap = await getDoc(doc(db, 'users', uid))
+    if (!snap.exists()) {
+      await setDoc(doc(db, 'users', uid), {
+        email, displayName, username,
+        points: 0, level: 1, badges: [], rewards: [],
+        createdAt: serverTimestamp(),
+      })
+    }
 
+    await signOut(auth)
+    return { success: true, uid, action: 'exists' }
+  } catch (err) {
+    return { success: false, error: err.code || err.message, action: 'login-failed' }
+  }
+}
+
+async function main() {
+  console.log('=== Firebase Test Account Setup (Node.js) ===')
   let allSuccess = true
 
   for (const account of ACCOUNTS) {
-    console.log(`\nSetting up ${account.email}...`)
-
-    // Add delay between accounts to avoid rate limiting
-    await page.waitForTimeout(2000)
-
-    const result = await page.evaluate(async ({ email, password, displayName, username }) => {
-      try {
-        const fb = window.__fb
-        fb.initializeFirebase()
-
-        // Try to sign up
-        const signUpResult = await fb.signUp(email, password, displayName)
-
-        if (signUpResult.success) {
-          const uid = signUpResult.user.uid
-          // Create Firestore profile
-          try {
-            await fb.setDoc(fb.doc(fb.getDb(), 'users', uid), {
-              email, displayName, username,
-              points: 0, level: 1, badges: [], rewards: [],
-              createdAt: fb.serverTimestamp(),
-            })
-          } catch (e) { /* profile might already exist */ }
-          // Reserve username
-          try {
-            await fb.setDoc(fb.doc(fb.getDb(), 'usernames', username), {
-              uid, reserved: true,
-            })
-          } catch (e) { /* username might already be reserved */ }
-          // Sign out so next account can be created
-          try { await fb.getAuth().signOut() } catch {}
-          return { success: true, uid, action: 'created' }
-        }
-
-        if (signUpResult.error === 'auth/email-already-in-use') {
-          // Account exists, try to sign in to verify password
-          const signInResult = await fb.signIn(email, password)
-          if (signInResult.success) {
-            const uid = signInResult.user.uid
-            // Ensure profile exists
-            try {
-              const { getDoc, doc, getDb, setDoc, serverTimestamp } = fb
-              const snap = await getDoc(doc(getDb(), 'users', uid))
-              if (!snap.exists()) {
-                await setDoc(doc(getDb(), 'users', uid), {
-                  email, displayName, username,
-                  points: 0, level: 1, badges: [], rewards: [],
-                  createdAt: serverTimestamp(),
-                })
-              }
-            } catch {}
-            try { await fb.getAuth().signOut() } catch {}
-            return { success: true, uid, action: 'exists' }
-          }
-          return { success: false, error: signInResult.error, action: 'login-failed' }
-        }
-
-        return { success: false, error: signUpResult.error, action: 'signup-failed' }
-      } catch (err) {
-        return { success: false, error: err.message, action: 'error' }
-      }
-    }, { email: account.email, password: TEST_PASSWORD, displayName: account.displayName, username: account.username })
-
+    const result = await setupAccount(account)
     if (result.success) {
-      console.log(`  ${result.action === 'created' ? '✅ Created' : '✅ Already exists'}: ${account.email} (uid: ${result.uid})`)
+      console.log(`  ${result.action === 'created' ? 'Created' : 'Ready'}: ${account.email} (uid: ${result.uid})`)
     } else {
-      console.error(`  ❌ FAILED: ${account.email} — ${result.error} (${result.action})`)
+      console.error(`  FAILED: ${account.email} — ${result.error} (${result.action})`)
       allSuccess = false
     }
   }
 
-  await context.close()
-  await browser.close()
-
   if (allSuccess) {
-    console.log('\n✅ All accounts ready!')
+    console.log('\nAll 5 accounts ready!')
   } else {
-    console.error('\n⚠️ Some accounts failed — tests may not work')
+    console.error('\nSome accounts failed')
     process.exit(1)
   }
+
+  process.exit(0)
 }
 
-setupAccounts().catch(err => {
-  console.error('Setup failed:', err)
+main().catch(err => {
+  console.error('Setup failed:', err.message)
   process.exit(1)
 })

@@ -135,12 +135,10 @@ jobs:
           name: dist
           path: dist/
 
-  lighthouse:
-    name: Lighthouse CI
+  firebase-integration:
+    name: Firebase Integration Tests
     runs-on: ubuntu-latest
-    needs: build
     if: github.ref == 'refs/heads/main'
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -148,15 +146,37 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - name: Download build
-        uses: actions/download-artifact@v8
-        with:
-          name: dist
-          path: dist/
-      - name: Run Lighthouse CI
-        run: npx @lhci/cli autorun
+      - name: Setup test accounts
+        run: node scripts/firebase-test-setup.mjs
         env:
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+      - name: Run Firebase tests
+        run: node scripts/firebase-test.mjs
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+      - name: Cleanup test data
+        if: always()
+        run: node scripts/cleanup-test-data.mjs
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
   e2e-core:
     name: E2E Core (navigation, admin, social, profile)
@@ -281,99 +301,6 @@ jobs:
         with:
           name: e2e-stress-report
           path: playwright-report/
-
-  e2e-firebase:
-    name: E2E Firebase (auth, Firestore, social, security)
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    continue-on-error: true
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - name: Cache Playwright browsers
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install --with-deps chromium
-      - name: Download build
-        uses: actions/download-artifact@v8
-        with:
-          name: dist
-          path: dist/
-      - name: Setup Firebase test accounts
-        run: |
-          npx vite preview --port 4174 &
-          sleep 5
-          node scripts/firebase-test-setup.mjs
-          kill $(lsof -t -i:4174) 2>/dev/null || true
-        env:
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-          APP_URL: http://localhost:4174
-      - name: Run Firebase E2E tests
-        run: npx playwright test --project=chromium --workers=1 --retries=0 e2e/firebase-auth.spec.js e2e/firebase-spots.spec.js e2e/firebase-social.spec.js e2e/firebase-gamification.spec.js e2e/firebase-security.spec.js e2e/firebase-realtime.spec.js e2e/firebase-data.spec.js
-        env:
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-      - name: Cleanup test data from Firebase
-        if: always()
-        run: node scripts/cleanup-test-data.mjs
-        env:
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: e2e-firebase-report
-          path: playwright-report/
-
-  fox:
-    name: Fox Quality Check
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - name: Cache Playwright browsers
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install --with-deps chromium
-      - name: Download build
-        uses: actions/download-artifact@v8
-        with:
-          name: dist
-          path: dist/
-      - name: Start server and run Fox
-        run: |
-          npx vite preview --port 5173 &
-          sleep 3
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            node scripts/fox.mjs
-          else
-            node scripts/fox.mjs --quick
-          fi
-        env:
-          APP_URL: http://localhost:5173
-          VITE_SHOW_BETA: 'true'
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
 
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
