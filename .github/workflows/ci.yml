@@ -320,7 +320,11 @@ jobs:
         run: npx playwright test --project=chromium --workers=1 --retries=0 e2e/firebase-auth.spec.js e2e/firebase-spots.spec.js e2e/firebase-social.spec.js e2e/firebase-gamification.spec.js e2e/firebase-security.spec.js e2e/firebase-realtime.spec.js e2e/firebase-data.spec.js
         env:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-      # Cleanup removed — each test cleans its own data to minimize Firebase login count
+      - name: Cleanup test data from Firebase
+        if: always()
+        run: node scripts/cleanup-test-data.mjs
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:

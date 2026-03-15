@@ -77,7 +77,7 @@ export function renderDashboard() {
     <div class="cleanup-bar" id="cleanup-section">
       <span class="cleanup-text" id="cleanup-summary"><span class="spinner"></span></span>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-reject" id="cleanup-all-btn" disabled>Tout nettoyer</button>
+        <button class="btn btn-reject" id="cleanup-all-btn" disabled>Nettoyer spots et signalements test</button>
       </div>
     </div>
   `
@@ -159,7 +159,7 @@ async function runCleanupAll() {
       return
     }
 
-    if (!confirm(`Tout nettoyer ?\n\nSupprime :\n· ${testSpots.length} spots de test\n· ${testUsers.length} comptes de test\n· ${testReports.length} signalements de test\n\nAucune donnée de vrai utilisateur ne sera touchée.\nCette action est irréversible.`)) return
+    if (!confirm(`Nettoyer les données de test ?\n\nSupprime :\n· ${testSpots.length} spots de test\n· ${testReports.length} signalements de test\n\nLes comptes test (ci-*@spothitch.com) sont gardés pour les tests futurs.\nAucune donnée de vrai utilisateur ne sera touchée.`)) return
 
     btn.disabled = true
     btn.textContent = 'Nettoyage en cours...'
@@ -168,17 +168,14 @@ async function runCleanupAll() {
     for (const s of testSpots) {
       try { await deleteDocument('spots', s.id); deleted++ } catch (err) { console.error('Failed:', err) }
     }
-    for (const u of testUsers) {
-      try { await deleteDocument('users', u.id); deleted++ } catch (err) { console.error('Failed:', err) }
-    }
     for (const r of testReports) {
       try { await deleteDocument('reports', r.id); deleted++ } catch (err) { console.error('Failed:', err) }
     }
 
     btn.disabled = true
-    btn.textContent = 'Tout nettoyer'
+    btn.textContent = 'Nettoyer spots et signalements test'
     const summaryEl = document.getElementById('cleanup-summary')
-    if (summaryEl) summaryEl.textContent = '🧹 0 comptes · 0 spots · 0 signalements de test'
+    if (summaryEl) summaryEl.textContent = `🧹 ${testUsers.length} comptes test (gardés) · 0 spots · 0 signalements`
 
     window.__showToast?.(`${deleted} éléments de test supprimés`, 'success')
   } catch (err) {
