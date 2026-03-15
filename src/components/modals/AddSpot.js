@@ -1390,7 +1390,7 @@ window.autoDetectRoad = async () => {
   try {
     const btn = document.querySelector('[onclick*="autoDetectRoad"]')
     if (btn) btn.disabled = true
-    const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=16`)
+    const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=16&accept-language=${document.documentElement.lang || 'en'}`)
     const data = await resp.json()
     const road = (data.address?.road || '').toLowerCase()
     const roadType = data.address?.highway || ''

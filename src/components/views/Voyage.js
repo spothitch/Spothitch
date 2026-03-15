@@ -1754,7 +1754,7 @@ if (!window.tripSearchSuggestions) {
     voyageDebounce = setTimeout(async () => {
       try {
         const trimQ = query.trim()
-        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(trimQ)}&limit=5&lang=fr&layer=city&layer=locality`)
+        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(trimQ)}&limit=5&lang=${document.documentElement.lang || 'en'}&layer=city&layer=locality`)
         const data = await res.json()
         const currentInput = document.getElementById(`trip-${field}`)
         if (!currentInput || currentInput.value.trim() !== trimQ) return

@@ -209,7 +209,7 @@ async function tryGeocode(query) {
   // Photon API (Komoot, fast, no rate limit)
   try {
     const res = await fetch(
-      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1`,
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=${document.documentElement.lang || 'en'}`,
       { signal: AbortSignal.timeout(3000) }
     )
     const data = await res.json()
@@ -223,7 +223,7 @@ async function tryGeocode(query) {
   // Nominatim (OpenStreetMap, more reliable, 1 req/s limit)
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&accept-language=${document.documentElement.lang || 'en'}`,
       { signal: AbortSignal.timeout(5000), headers: { 'User-Agent': 'SpotHitch/2.0' } }
     )
     const data = await res.json()

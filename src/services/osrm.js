@@ -207,7 +207,8 @@ export async function searchLocation(query) {
  * @returns {Promise<Object>} Location info
  */
 export async function reverseGeocode(lat, lng) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+  const lang = document.documentElement.lang || 'en'
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${lang}`;
 
   try {
     const response = await fetch(url, {

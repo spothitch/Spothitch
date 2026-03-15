@@ -178,7 +178,7 @@ window.searchMapSuggestions = (query) => {
   searchDebounce = setTimeout(async () => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5`,
+        `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5&accept-language=${document.documentElement.lang || 'en'}`,
         { headers: { 'User-Agent': 'SpotHitch/2.0' } }
       )
       let results = await response.json()
@@ -262,7 +262,7 @@ window.searchLocation = async (query) => {
   try {
     // Use Nominatim for geocoding
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&accept-language=${document.documentElement.lang || 'en'}`
     );
     const results = await response.json();
 
