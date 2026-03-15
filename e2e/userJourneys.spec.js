@@ -183,8 +183,10 @@ test.describe('Journey: Profile & Settings', () => {
   })
 
   test('should have language settings', async ({ page }) => {
-    // Language is in the Réglages sub-tab
+    // Language is in the Réglages sub-tab, inside the Appearance collapsible section
     await page.evaluate(() => window.setProfileSubTab?.('reglages'))
+    await page.waitForTimeout(300)
+    await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
     await page.waitForTimeout(300)
     const langSection = page.locator('text=Langue').or(page.locator('[role="radiogroup"]'))
     await expect(langSection.first()).toBeVisible({ timeout: 5000 })

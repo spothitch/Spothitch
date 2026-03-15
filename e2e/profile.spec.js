@@ -50,16 +50,23 @@ test.describe('Profile - Settings', () => {
   })
 
   test('should have theme toggle', async ({ page }) => {
+    // V5-A: settings are collapsible, open Appearance section first
+    await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
+    await page.waitForTimeout(300)
     const themeSection = page.locator('text=Mode sombre').or(page.locator('[role="switch"]'))
     await expect(themeSection.first()).toBeVisible({ timeout: 5000 })
   })
 
   test('should have theme switch control', async ({ page }) => {
+    await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
+    await page.waitForTimeout(300)
     const themeToggle = page.locator('[role="switch"]').first()
     await expect(themeToggle).toBeVisible({ timeout: 5000 })
   })
 
   test('should toggle theme and change visual appearance', async ({ page }) => {
+    await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
+    await page.waitForTimeout(300)
     const themeToggle = page.locator('[role="switch"]').first()
     await expect(themeToggle).toBeVisible({ timeout: 5000 })
 
@@ -88,6 +95,9 @@ test.describe('Profile - Settings', () => {
   })
 
   test('should have language selector', async ({ page }) => {
+    // V5-A: open Appearance section to find language selector
+    await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
+    await page.waitForTimeout(300)
     await expect(page.locator('text=Langue').first()).toBeVisible({ timeout: 5000 })
     // Language is now a radiogroup, not a select
     const langSelector = page.locator('[role="radiogroup"]').or(page.locator('text=FR'))
@@ -95,6 +105,9 @@ test.describe('Profile - Settings', () => {
   })
 
   test('should have notification toggle', async ({ page }) => {
+    // V5-A: open Notifications section
+    await page.evaluate(() => window.toggleSettingsSection?.('notifications'))
+    await page.waitForTimeout(300)
     await expect(page.locator('text=Notifications').first()).toBeVisible({ timeout: 5000 })
   })
 
