@@ -219,6 +219,7 @@ function renderUserDetail(el, uid, data) {
   // Bind ban button
   el.querySelector('[data-ban-user]')?.addEventListener('click', (e) => {
     e.stopPropagation()
+    if (!confirm('Bannir cet utilisateur ?\n\nIl ne pourra plus se connecter ni créer de contenu. Ses spots existants restent visibles sur la carte. Tu peux annuler le ban plus tard.')) return
     window.__showToast?.('Fonction de bannissement pas encore implémentée', 'info')
   })
 }

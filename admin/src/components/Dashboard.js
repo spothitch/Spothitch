@@ -41,27 +41,27 @@ export function renderDashboard() {
     <div class="kpi-grid" id="kpi-cards">
       <div class="kpi">
         <div class="kpi-value green" id="kpi-users"><span class="spinner"></span></div>
-        <div class="kpi-label">Utilisateurs réels</div>
+        <div class="kpi-label">Utilisateurs réels <span class="help-tip" title="Comptes créés par de vrais utilisateurs via l'app. Les comptes de test automatisés ne sont pas comptés.">?</span></div>
       </div>
       <div class="kpi">
         <div class="kpi-value slate" id="kpi-hitchwiki"><span class="spinner"></span></div>
-        <div class="kpi-label">Spots Hitchwiki</div>
+        <div class="kpi-label">Spots Hitchwiki <span class="help-tip" title="Spots importés de la base Hitchwiki (ancienne communauté d'auto-stoppeurs). Ce sont des données historiques, pas créées par tes utilisateurs.">?</span></div>
         <div class="kpi-sub" id="kpi-hitchwiki-countries"></div>
       </div>
       <div class="kpi">
         <div class="kpi-value blue" id="kpi-spots"><span class="spinner"></span></div>
-        <div class="kpi-label">Spots communautaires</div>
+        <div class="kpi-label">Spots communautaires <span class="help-tip" title="Spots créés par les utilisateurs de SpotHitch via le bouton Ajouter un spot dans l'app.">?</span></div>
       </div>
       <div class="kpi">
         <div class="kpi-value amber" id="kpi-pending"><span class="spinner"></span></div>
-        <div class="kpi-label">En attente de modération</div>
+        <div class="kpi-label">En attente de modération <span class="help-tip" title="Conseils de guides et signalements qui attendent ta décision avant d'être visibles ou traités.">?</span></div>
       </div>
     </div>
 
     <!-- Two-column: Sentry + Activity -->
     <div class="two-col">
       <div class="card">
-        <div class="card-title red">Erreurs Sentry</div>
+        <div class="card-title red">Erreurs Sentry <span class="help-tip" title="Bugs détectés automatiquement quand un utilisateur rencontre un problème dans l'app. Les erreurs critiques doivent être corrigées rapidement.">?</span></div>
         <div id="sentry-list">
           <div style="text-align:center;padding:16px;"><span class="spinner"></span></div>
         </div>
@@ -152,7 +152,7 @@ async function runCleanup() {
       return
     }
 
-    if (!confirm(`Supprimer ${testUsers.length} compte(s) de test et ${testSpots.length} spot(s) de test ?`)) return
+    if (!confirm(`Nettoyer les données de test ?\n\nSupprime ${testUsers.length} compte(s) de test (ci-*@spothitch.com) et ${testSpots.length} spot(s) créés par ces comptes.\n\nAucun vrai utilisateur ne sera touché. Cette action est irréversible.`)) return
 
     btn.disabled = true
     btn.textContent = '...'

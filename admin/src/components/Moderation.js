@@ -298,13 +298,14 @@ function bindActionButtons(container) {
   // Approve guide tip
   container.querySelectorAll('[data-action="approve-tip"]').forEach((btn) => {
     btn.addEventListener('click', async () => {
+      if (!confirm('Approuver ce conseil ?\n\nCe conseil sera visible par tous les utilisateurs sur la page du pays concerné.')) return
       const tipId = btn.dataset.id
       btn.disabled = true
       btn.textContent = '...'
       try {
         await approveTip(tipId)
         guideTips = (guideTips || []).filter((t) => t.id !== tipId)
-        window.__showToast?.('Conseil approuvé', 'success')
+        window.__showToast?.('Conseil approuvé et publié', 'success')
         refreshCounts()
         renderItems()
       } catch (err) {
@@ -319,6 +320,7 @@ function bindActionButtons(container) {
   // Reject guide tip
   container.querySelectorAll('[data-action="reject-tip"]').forEach((btn) => {
     btn.addEventListener('click', async () => {
+      if (!confirm('Rejeter ce conseil ?\n\nCe conseil ne sera pas publié. L\'auteur ne recevra pas de notification.')) return
       const tipId = btn.dataset.id
       btn.disabled = true
       btn.textContent = '...'
@@ -340,6 +342,7 @@ function bindActionButtons(container) {
   // Confirm spot report
   container.querySelectorAll('[data-action="confirm-report"]').forEach((btn) => {
     btn.addEventListener('click', async () => {
+      if (!confirm('Confirmer ce signalement ?\n\nLe spot sera masqué de la carte. Plus personne ne le verra. Les données ne sont pas supprimées, tu peux annuler plus tard.')) return
       const reportId = btn.dataset.id
       btn.disabled = true
       btn.textContent = '...'
@@ -349,7 +352,7 @@ function bindActionButtons(container) {
           moderatedAt: new Date().toISOString(),
         })
         reports = (reports || []).map((r) => r.id === reportId ? { ...r, status: 'confirmed' } : r)
-        window.__showToast?.('Signalement confirmé', 'success')
+        window.__showToast?.('Signalement confirmé, spot masqué', 'success')
         refreshCounts()
         renderItems()
       } catch (err) {
@@ -364,6 +367,7 @@ function bindActionButtons(container) {
   // Reject report
   container.querySelectorAll('[data-action="reject-report"]').forEach((btn) => {
     btn.addEventListener('click', async () => {
+      if (!confirm('Rejeter ce signalement ?\n\nLe signalement sera ignoré. Le spot ou l\'utilisateur reste inchangé.')) return
       const reportId = btn.dataset.id
       btn.disabled = true
       btn.textContent = '...'
@@ -388,6 +392,7 @@ function bindActionButtons(container) {
   // Ban user
   container.querySelectorAll('[data-action="ban-user"]').forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (!confirm('Bannir cet utilisateur ?\n\nIl ne pourra plus se connecter ni créer de contenu. Ses spots existants restent visibles. Tu peux annuler le ban plus tard.')) return
       window.__showToast?.('Fonction de bannissement pas encore implémentée', 'info')
     })
   })

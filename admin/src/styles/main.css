@@ -363,6 +363,60 @@ body { background: #0f1520; color: #e2e8f0; font-family: 'Segoe UI', system-ui, 
 }
 .cleanup-text { font-size: 13px; color: #f87171; }
 
+/* ===== HELP TOOLTIPS ===== */
+.help-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: help;
+  vertical-align: middle;
+  margin-left: 4px;
+  position: relative;
+}
+.help-tip:hover {
+  background: rgba(245,158,11,0.2);
+  color: #fbbf24;
+}
+.help-tip:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: normal;
+  width: 220px;
+  text-align: left;
+  z-index: 100;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.help-tip:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1e293b;
+  margin-bottom: 1px;
+  z-index: 101;
+}
+
 /* ===== COLOR UTILITIES ===== */
 .green { color: #34d399; }
 .amber { color: #fbbf24; }
