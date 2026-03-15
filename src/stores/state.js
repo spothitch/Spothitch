@@ -491,6 +491,10 @@ export function getState() {
  * @param {Partial<typeof initialState>} updates - State updates
  */
 export function setState(updates) {
+  // Skip render if caller already updated the DOM (fast step swap)
+  const skipRender = updates._skipRender
+  if (skipRender) delete updates._skipRender
+
   // Dirty-checking: skip if nothing actually changed
   let changed = false
   for (const key in updates) {
@@ -502,7 +506,7 @@ export function setState(updates) {
   if (!changed) return
 
   state = { ...state, ...updates }
-  notifySubscribers()
+  if (!skipRender) notifySubscribers()
   debouncedPersist()
 }
 

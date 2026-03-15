@@ -866,6 +866,44 @@ window.setSpotTag = (tagName, value) => {
 // Alias for wiring compatibility
 window.onSpotTypeChange = (spotType) => { window.selectSpotType(spotType) }
 
+// Fast step swap — updates only the form content instead of re-rendering the entire page
+function swapStepContent(newStep, state) {
+  const form = document.getElementById('add-spot-form')
+  if (!form) return false
+  const stepHtml =
+    newStep === 1 ? renderStep1(state) :
+    newStep === 2 ? renderStep2(state) :
+    newStep === 3 ? renderStep3(state) + (renderOfflineDraftButton() || '') : ''
+  if (!stepHtml) return false
+  form.innerHTML = stepHtml
+  // Update step progress (find the container above the form)
+  const formParent = form.parentElement
+  if (formParent) {
+    const progressEl = formParent.querySelector('[style*="display:flex"][style*="align-items:center"][style*="gap:12px"]')
+    const titleEl = formParent.querySelector('[style*="font-size:22px"]')
+    if (titleEl) {
+      const stepTitles = [
+        t('stepWhereIsSpot') || 'Où est le spot ?',
+        t('stepExperience') || 'Ton expérience',
+        t('stepDetails') || 'Derniers détails',
+      ]
+      titleEl.textContent = stepTitles[newStep - 1]
+    }
+    if (progressEl) {
+      progressEl.outerHTML = renderStepProgress(newStep)
+    }
+  }
+  // Scroll to top
+  formParent?.scrollTo?.({ top: 0 })
+  // Re-init autocomplete for the new step
+  requestAnimationFrame(() => {
+    cleanupAutocompletes()
+    if (newStep === 1) { initStep1Autocomplete(); initMiniMapPreview() }
+    else if (newStep === 2) initStep2Autocomplete()
+  })
+  return true
+}
+
 // Step navigation
 window.addSpotNextStep = async () => {
   const { getState, setState } = await import('../../stores/state.js')
@@ -888,9 +926,14 @@ window.addSpotNextStep = async () => {
       showError(t('departureRequired') || 'Ville de départ obligatoire')
       return
     }
-    // Blur focused input so render() is not blocked by the typing guard
     document.activeElement?.blur()
-    setState({ addSpotStep: 2, addSpotType: spotType })
+    // Fast DOM swap first, then sync state silently
+    const newState = { ...state, addSpotStep: 2, addSpotType: spotType }
+    if (swapStepContent(2, newState)) {
+      setState({ addSpotStep: 2, addSpotType: spotType, _skipRender: true })
+    } else {
+      setState({ addSpotStep: 2, addSpotType: spotType })
+    }
   } else if (currentStep === 2) {
     // Validate direction + experience fields (all mandatory)
     if (!window.spotFormData.directionCity) {
@@ -913,9 +956,13 @@ window.addSpotNextStep = async () => {
       showError(t('rideResultRequired'))
       return
     }
-    // Blur focused input so render() is not blocked by the typing guard
     document.activeElement?.blur()
-    setState({ addSpotStep: 3 })
+    const newState = { ...state, addSpotStep: 3 }
+    if (swapStepContent(3, newState)) {
+      setState({ addSpotStep: 3, _skipRender: true })
+    } else {
+      setState({ addSpotStep: 3 })
+    }
   }
 }
 
@@ -925,7 +972,13 @@ window.addSpotPrevStep = async () => {
   const currentStep = state.addSpotStep || 1
   if (currentStep > 1) {
     document.activeElement?.blur()
-    setState({ addSpotStep: currentStep - 1 })
+    const newStep = currentStep - 1
+    const newState = { ...state, addSpotStep: newStep }
+    if (swapStepContent(newStep, newState)) {
+      setState({ addSpotStep: newStep, _skipRender: true })
+    } else {
+      setState({ addSpotStep: newStep })
+    }
   }
 }
 
