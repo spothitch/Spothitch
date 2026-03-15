@@ -72,14 +72,27 @@ async function setupAccounts() {
     if (splash) splash.remove()
   })
 
-  // Trigger Firebase module loading
+  // Trigger Firebase module loading — open auth, wait for GIS overlay init
+  // which imports firebase.js and sets window.__fb
   await page.evaluate(() => window.openAuth?.('email'))
-  await page.waitForTimeout(3000)
+  await page.waitForTimeout(5000)
+
+  // If __fb not set yet, try forcing the import directly
+  await page.evaluate(async () => {
+    if (!window.__fb) {
+      try {
+        const fb = await import('/src/services/firebase.js')
+        fb.initializeFirebase()
+      } catch { /* built app won't resolve bare specifier — __fb should already be set */ }
+    }
+  })
+  await page.waitForTimeout(2000)
+
   await page.evaluate(() => window.closeAuth?.())
   await page.waitForTimeout(500)
 
-  // Wait for window.__fb
-  await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
+  // Wait for window.__fb with longer timeout
+  await page.waitForFunction(() => !!window.__fb, { timeout: 30000 })
   console.log('Firebase loaded via window.__fb')
 
   let allSuccess = true
