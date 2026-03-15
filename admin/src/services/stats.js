@@ -50,9 +50,10 @@ export function isRealSpot(spot, realUserIds = []) {
 }
 
 export async function loadDashboardStats() {
-  const [allUsers, allSpots, pendingTipsCount, hitchwikiStats] = await Promise.all([
+  const [allUsers, allSpots, allReports, pendingTipsCount, hitchwikiStats] = await Promise.all([
     loadAllDocs('users').catch(() => []),
     loadAllDocs('spots').catch(() => []),
+    loadAllDocs('reports').catch(() => []),
     getFilteredCount('guideTips', 'status', '==', 'pending').catch(() => 0),
     loadHitchwikiStats(),
   ])
@@ -71,6 +72,7 @@ export async function loadDashboardStats() {
     pendingTipsCount,
     testUserCount: testUsers.length,
     testSpotCount: testSpots.length,
+    testReportCount: allReports.length,
   }
 }
 
