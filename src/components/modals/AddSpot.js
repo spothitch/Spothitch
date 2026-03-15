@@ -932,6 +932,7 @@ window.addSpotNextStep = async () => {
     if (swapStepContent(2, newState)) {
       setState({ addSpotStep: 2, addSpotType: spotType, _skipRender: true })
     } else {
+      document.activeElement?.blur()
       setState({ addSpotStep: 2, addSpotType: spotType })
     }
   } else if (currentStep === 2) {
@@ -977,6 +978,7 @@ window.addSpotPrevStep = async () => {
     if (swapStepContent(newStep, newState)) {
       setState({ addSpotStep: newStep, _skipRender: true })
     } else {
+      document.activeElement?.blur()
       setState({ addSpotStep: newStep })
     }
   }
@@ -1449,7 +1451,6 @@ window.autoDetectRoad = async () => {
     const roadType = data.address?.highway || ''
     const isHighway = /autoroute|motorway|highway|autobahn|autopista/i.test(road) ||
       /motorway|trunk/i.test(roadType)
-    const isCity = data.address?.city || data.address?.town || data.address?.village
     if (isHighway) {
       window.selectSpotType('on_ramp')
       showSuccess(t('highwayDetected') || 'Autoroute/voie rapide detectee !')

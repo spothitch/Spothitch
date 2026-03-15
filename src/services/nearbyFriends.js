@@ -7,7 +7,7 @@ import { getState, setState } from '../stores/state.js';
 import { showToast } from './notifications.js';
 import { t } from '../i18n/index.js';
 import { icon } from '../utils/icons.js'
-import { getDistanceKm } from './location.js'
+import { haversineKm as getDistanceKm } from '../utils/geo.js'
 
 // Configuration
 const CONFIG = {

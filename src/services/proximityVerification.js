@@ -5,7 +5,7 @@
  */
 
 import { Storage } from '../utils/storage.js'
-import { getDistanceKm } from './location.js'
+import { haversineKm as getDistanceKm } from '../utils/geo.js'
 
 const LOCATION_HISTORY_KEY = 'spothitch_location_history'
 const MAX_HISTORY_ENTRIES = 200

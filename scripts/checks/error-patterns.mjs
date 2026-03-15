@@ -500,6 +500,12 @@ const PATTERN_CHECKS = [
             content.includes(` ${className} `) ||
             content.includes(` ${className}"`) ||
             content.includes(` ${className}'`) ||
+            // Class at start of multi-class attribute
+            content.includes(`class="${className} `) ||
+            content.includes(`class='${className} `) ||
+            // className assignment (e.g. el.className = 'xxx')
+            content.includes(`className = '${className}'`) ||
+            content.includes(`className = "${className}"`) ||
             // Tailwind dynamic
             content.includes(`${className}\``) ||
             // Also check CSS-related patterns (main.css would define it)

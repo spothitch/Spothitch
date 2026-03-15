@@ -207,7 +207,6 @@ function renderProfilTab(state) {
 
   const svgBio = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'
   const svgLang = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>'
-  const svgSocial = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a855f7" stroke-width="1.8"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>'
   const svgPhotos = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
   const svgReviews = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ef4444" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
   const svgTrips = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0ea5e9" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>'
@@ -215,9 +214,7 @@ function renderProfilTab(state) {
 
   const bio = state.bio || ''
   const langs = (() => { try { return JSON.parse(localStorage.getItem('spothitch_languages') || '[]') } catch { return [] } })()
-  const socials = (() => { try { return JSON.parse(localStorage.getItem('spothitch_social_links') || '{}') } catch { return {} } })()
   const photos = (() => { try { return JSON.parse(localStorage.getItem('spothitch_gallery') || '[]') } catch { return [] } })()
-  const socialCount = Object.values(socials).filter(v => v).length
   const tripCount = state.pastTrips?.length || 0
   const reviewCount = state.myReviews?.length || 0
   const badgeCount = state.earnedBadges?.length || 0
@@ -816,9 +813,18 @@ function renderMySpotsList(state) {
                 reverseGeocode(spot.lat, spot.lng).then(loc => {
                   if (loc) {
                     const fixes = {}
-                    if (!spot.country && loc.countryCode) { spot.country = loc.countryCode; fixes.country = loc.countryCode }
-                    if (!spot.countryName && loc.country) { spot.countryName = loc.country; fixes.countryName = loc.country }
-                    if (spot.departureCity === 'undefined' && loc.city) { spot.departureCity = loc.city; fixes.departureCity = loc.city }
+                    if (!spot.country && loc.countryCode) {
+                      spot.country = loc.countryCode
+                      fixes.country = loc.countryCode
+                    }
+                    if (!spot.countryName && loc.country) {
+                      spot.countryName = loc.country
+                      fixes.countryName = loc.country
+                    }
+                    if (spot.departureCity === 'undefined' && loc.city) {
+                      spot.departureCity = loc.city
+                      fixes.departureCity = loc.city
+                    }
                     if (Object.keys(fixes).length > 0) {
                       updateSpot(spot.id, fixes).catch(() => {})
                       import('../../stores/state.js').then(({ setState }) => setState({ _userSpots: [...results] }))
@@ -860,7 +866,7 @@ function renderMySpotsList(state) {
                   const location = [typeLabels[s.spotType] || '', s.countryName || s.country || ''].filter(Boolean).join(' · ')
                   const validations = s.validationCount || s.totalReviews || 0
                   return `
-                    <div class="card p-3 flex items-center gap-3" onclick="window.selectSpot?.({id:'${s.id}',coordinates:{lat:${s.lat || s.coordinates?.lat || 0},lng:${s.lng || s.coordinates?.lng || 0}}})" style="cursor:pointer">
+                    <div class="card p-3 flex items-center gap-3" role="button" tabindex="0" onclick="window.selectSpot?.({id:'${s.id}',coordinates:{lat:${s.lat || s.coordinates?.lat || 0},lng:${s.lng || s.coordinates?.lng || 0}}})" style="cursor:pointer">
                       <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                         ${icon('map-pin', 'w-5 h-5 text-emerald-400')}
                       </div>
@@ -1085,33 +1091,6 @@ function renderRoadmapTab(_state) {
 }
 
 // ==================== TAB 3: RÉGLAGES ====================
-
-function renderInstallCard() {
-  const isInstalled = typeof localStorage !== 'undefined' && localStorage.getItem('pwa_installed') === 'true'
-  if (isInstalled) return ''
-  return `
-    <div class="card p-4 space-y-3">
-      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-        ${icon('download', 'w-4 h-4')}
-        ${t('installSpotHitch') || 'Installer SpotHitch'}
-      </h3>
-      <button
-        onclick="installPWA()"
-        class="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:from-amber-500/20 hover:to-orange-500/20 transition-colors"
-        type="button"
-      >
-        <div class="flex items-center gap-3">
-          <span class="text-2xl">📲</span>
-          <div class="text-left">
-            <span class="text-sm font-semibold block">${t('installBtn') || 'Installer gratuitement'}</span>
-            <span class="text-xs text-slate-400">${t('installDescription') || 'Accès rapide et mode hors-ligne'}</span>
-          </div>
-        </div>
-        ${icon('chevron-right', 'w-5 h-5 text-amber-400')}
-      </button>
-    </div>
-  `
-}
 
 function renderReglagesTab(state) {
   const openSection = state.settingsOpenSection || null
@@ -1493,59 +1472,6 @@ function renderActionsCard(state) {
   `
 }
 
-// ==================== FOOTER (always visible) ====================
-
-function renderProfileFooter() {
-  return `
-    <div class="space-y-3 mt-4">
-      <div class="card p-4">
-        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">${t('footerHelp') || 'Aide'}</h4>
-        ${''}<!-- FAQ: disabled for alpha, enable in beta -->
-        <button onclick="openContactForm()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-          ${icon('mail', 'w-4 h-4 text-blue-400')}
-          <span class="text-sm text-slate-300">${t('contactUs') || 'Nous contacter'}</span>
-          ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
-        </button>
-        <button onclick="openBugReport()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-          ${icon('bug', 'w-4 h-4 text-red-400')}
-          <span class="text-sm text-slate-300">${t('reportBug') || 'Signaler un bug'}</span>
-          ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
-        </button>
-      </div>
-      <div class="card p-4">
-        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">${t('footerLegal') || 'Légal'}</h4>
-        <button onclick="showLegalPage('privacy')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-          ${icon('shield', 'w-4 h-4 text-emerald-400')}
-          <span class="text-sm text-slate-300">${t('privacyPolicy') || 'Politique de confidentialité'}</span>
-          ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
-        </button>
-        <button onclick="showLegalPage('cgu')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-          ${icon('file-text', 'w-4 h-4 text-slate-400')}
-          <span class="text-sm text-slate-300">${t('termsOfService') || "Conditions d'utilisation"}</span>
-          ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
-        </button>
-        <button onclick="showLegalPage('guidelines')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-          ${icon('scroll-text', 'w-4 h-4 text-amber-400')}
-          <span class="text-sm text-slate-300">${t('communityGuidelines') || 'Règles de la communauté'}</span>
-          ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
-        </button>
-      </div>
-      <div class="card p-4">
-        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">${t('footerAbout') || 'À propos'}</h4>
-        ${''}<!-- Quoi de neuf: disabled for alpha, enable in beta -->
-        <button onclick="shareApp()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
-          ${icon('share-2', 'w-4 h-4 text-primary-400')}
-          <span class="text-sm text-slate-300">${t('inviteFriends') || 'Inviter des amis'}</span>
-          ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
-        </button>
-        ${''}<!-- Social links: disabled for alpha (no pages yet), enable in beta -->
-        <div class="p-3 pt-2 border-t border-white/5">
-          <p class="text-xs text-slate-500">${t('creditsText') || 'Cartes : OpenFreeMap'}</p>
-        </div>
-      </div>
-    </div>
-  `
-}
 
 function renderVersionReset() {
   return `

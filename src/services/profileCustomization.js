@@ -497,7 +497,7 @@ export function renderCustomizationModal(state) {
                 `).join('')}
               </div>
             ` : ''}
-            <button type="button" onclick="openLanguagePicker()"
+            <button type="button" onclick="editLanguages()"
               style="font-size:12px;color:#a855f7;background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
               ${icon('plus', 'w-3.5 h-3.5')} ${t('addLanguage') || 'Ajouter une langue'}
             </button>
@@ -512,28 +512,6 @@ export function renderCustomizationModal(state) {
       </div>
     </div>
   `
-}
-
-/**
- * Get human-readable unlock condition for a frame
- */
-function getFrameUnlockText(method) {
-  const texts = {
-    default: () => t('profileUnlockDefault') || 'Disponible',
-    level_5: () => t('profileUnlockLevel5') || 'Niveau 5',
-    level_10: () => t('profileUnlockLevel10') || 'Niveau 10',
-    level_20: () => t('profileUnlockLevel20') || 'Niveau 20',
-    friends_10: () => t('profileUnlockFriends10') || '10 amis',
-    trust_score_80: () => t('profileUnlockTrust80') || 'Score confiance 80+',
-    countries_5: () => t('profileUnlockCountries5') || '5 pays visites',
-    account_age_365: () => t('profileUnlockAge365') || '1 an de compte',
-    reviews_100: () => t('profileUnlockReviews100') || '100 avis',
-    leaderboard_top10: () => t('profileUnlockTop10') || 'Top 10 classement',
-    level_50: () => t('profileUnlockLevel50') || 'Niveau 50',
-    all_badges: () => t('profileUnlockAllBadges') || 'Tous les badges',
-  }
-  const textFunc = texts[method];
-  return textFunc ? textFunc() : (method?.replace(/_/g, ' ') || '?')
 }
 
 // Lazy-load escapeHTML for the modal

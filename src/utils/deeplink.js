@@ -4,7 +4,6 @@
  */
 
 import { setState, getState } from '../stores/state.js';
-import { showToast } from '../services/notifications.js';
 import { extractCoordsFromShare, resolveShortMapUrl, geocodePlace } from './mapsUrlParser.js';
 
 // Base path for the app (e.g., '/' for deployed app)

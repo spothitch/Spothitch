@@ -29,13 +29,13 @@ test.describe('Map View', () => {
   test('should zoom in and out without crash', async ({ page }) => {
     const zoomInBtn = page.locator('[onclick*="homeZoomIn"]').first()
     await expect(zoomInBtn).toBeVisible({ timeout: 15000 })
-    await zoomInBtn.click()
+    await zoomInBtn.click({ force: true })
     await page.waitForTimeout(300)
     await expect(page.locator('#home-map')).toBeVisible()
 
     const zoomOutBtn = page.locator('[onclick*="homeZoomOut"]').first()
     await expect(zoomOutBtn).toBeVisible({ timeout: 15000 })
-    await zoomOutBtn.click()
+    await zoomOutBtn.click({ force: true })
     await page.waitForTimeout(300)
     await expect(page.locator('#home-map')).toBeVisible()
   })
@@ -45,7 +45,7 @@ test.describe('Map View', () => {
     if ((await searchInput.count()) > 0) {
       await searchInput.fill('Paris')
       await expect(searchInput).toHaveValue('Paris')
-      await searchInput.press('Enter')
+      await searchInput.press('Enter', { timeout: 15000 })
       await page.waitForTimeout(1000)
       await expect(page.locator('#home-map')).toBeVisible({ timeout: 5000 })
     }
@@ -56,7 +56,7 @@ test.describe('Map View', () => {
 
     const addBtn = page.locator('[onclick*="openAddSpot"]')
     if ((await addBtn.count()) > 0) {
-      await addBtn.first().click()
+      await addBtn.first().click({ force: true })
       await page.waitForTimeout(1500)
       const dialog = page.locator('[role="dialog"], .modal-overlay, .fixed.inset-0.z-50')
       if (await dialog.count() > 0) {

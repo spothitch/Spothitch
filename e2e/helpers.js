@@ -65,6 +65,7 @@ export async function skipOnboarding(page, opts = {}) {
     localStorage.setItem('spothitch_age_verified', 'true')
     localStorage.setItem('spothitch_landing_v2', '1')
     localStorage.setItem('spothitch_beta_seen', '1')
+    localStorage.setItem('spothitch_alpha_code', 'ok')
     // Mark all feature intros as seen so intro modals never appear in E2E tests
     const featureSeen = {}
     ;['carte','stations','add-spot','profil','amis','chat','carnet','stats','classements','niveaux','conseils','dons','hors-ligne','sos','compagnon','notif-spot','activite-amis','defis','score-confiance','avis-profils','itineraire','radar','quiz','guides','gardien','evenements','auberges'].forEach(id => { featureSeen[id] = Date.now() })

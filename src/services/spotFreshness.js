@@ -44,7 +44,6 @@ export function getSpotFreshness(spot) {
 
   const validationCount = spot.validationCount || spot.userValidations || 0
   const liveTestCount = spot.liveTestCount || 0
-  const testCount = spot.testCount || 0
   const isCertified = spot.ambassadorVerified === true
   const isStation = spot.spotType === 'gas_station'
   const isHitchwiki = spot.source === 'hitchwiki'

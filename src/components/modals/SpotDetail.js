@@ -78,12 +78,6 @@ export function renderSpotDetail(state) {
   const groupLabels = {
     solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+',
   }
-  const timeLabels = {
-    morning: t('timeMorning') || 'Matin',
-    afternoon: t('timeAfternoon') || 'Apres-midi',
-    evening: t('timeEvening') || 'Soir',
-    night: t('timeNight') || 'Nuit',
-  }
   const methodLabel = spot.method ? methodLabels[spot.method] || null : null
   const groupLabel = spot.groupSize ? groupLabels[spot.groupSize] || null : null
 
