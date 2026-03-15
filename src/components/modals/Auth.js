@@ -133,21 +133,7 @@ export function renderAuth(state) {
               </div>
             ` : ''}
 
-            <!-- Display Name (Register only) -->
-            ${isSignUp ? `
-              <div>
-                <label for="auth-username" class="text-sm text-slate-400 block mb-1.5">${t('displayNamePlaceholder')}</label>
-                <input
-                  type="text"
-                  id="auth-username"
-                  name="username"
-                  class="input-modern"
-                  placeholder="${t('displayNamePlaceholder')}"
-                  maxlength="30"
-                  autocomplete="name"
-                />
-              </div>
-            ` : ''}
+            <!-- Display Name removed: was confusing users (two fields both asking for "pseudo") -->
 
             <!-- Email -->
             <div>
@@ -422,7 +408,7 @@ window.handleAuth = async (event) => {
 
     if (authMode === 'register') {
       const confirmPassword = document.getElementById('auth-password-confirm')?.value
-      const displayName = document.getElementById('auth-username')?.value.trim() || 'Hitchhiker'
+      const displayName = 'Hitchhiker'
       const pseudo = document.getElementById('auth-pseudo')?.value?.toLowerCase().trim()
       const birthYearStr = document.getElementById('auth-birthyear')?.value
       const gender = document.getElementById('auth-gender')?.value || ''
