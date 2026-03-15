@@ -2,22 +2,25 @@
  * Map Marker Generator — Style 4
  * "Split net + couronne 3 pointes + anneau fin doré"
  *
- * 8 marker types:
- *   marker-gray            — Nouveau (0 validations)
- *   marker-gray-station    — Nouveau + station-service (split gris/rouge)
- *   marker-gray-gold       — Certifié ambassadeur (nouveau)
- *   marker-green           — Fiable (3+ validations)
- *   marker-green-station   — Fiable + station-service (split vert/rouge)
- *   marker-green-gold      — Certifié ambassadeur + fiable
- *   marker-green-gold-station — Certifié + fiable + station
- *   marker-fav             — Favori utilisateur (coeur rose)
+ * 4 tiers:
+ *   Grey (#94a3b8)  — Hitchwiki importé, pas encore utilisé par la communauté ("à vérifier")
+ *   Blue (#3b82f6)  — Spot SpotHitch communauté (créé ou utilisé par nos users)
+ *   Green (#22c55e) — Fiable (3+ tests communauté AND 3+ validations)
+ *   Gold overlay    — Certifié ambassadeur (couronne + anneau doré)
+ *
+ * Modifiers:
+ *   -station        — Split vertical gauche=couleur / droite=rouge (station-service)
+ *   -gold           — Couronne 3 pointes + anneau doré (ambassadeur certifié)
+ *
+ * Transition grey→blue : UNIQUEMENT quand quelqu'un a UTILISÉ le spot (type='test'),
+ * pas juste validé en passant.
  *
  * NOTE: Le rouge = station-service, PAS dangereux.
- * Les spots dangereux sont vérifiés par admin et supprimés.
  */
 
 const C = {
   gray: '#94a3b8',
+  blue: '#3b82f6',
   green: '#22c55e',
   red: '#ef4444',
   gold: '#fbbf24',
@@ -81,6 +84,10 @@ const MARKERS = {
   'marker-gray': () => circleSvg(C.gray),
   'marker-gray-station': () => splitSvg(C.gray, C.red),
   'marker-gray-gold': () => goldSvg(C.gray),
+  'marker-blue': () => circleSvg(C.blue),
+  'marker-blue-station': () => splitSvg(C.blue, C.red),
+  'marker-blue-gold': () => goldSvg(C.blue),
+  'marker-blue-gold-station': () => goldStationSvg(C.blue, C.red),
   'marker-green': () => circleSvg(C.green),
   'marker-green-station': () => splitSvg(C.green, C.red),
   'marker-green-gold': () => goldSvg(C.green),
@@ -118,22 +125,45 @@ export async function registerMarkerImages(map) {
 
 /**
  * Determine the marker image name for a spot.
+ * Tier logic:
+ *   - Grey: Hitchwiki imported, not yet USED by SpotHitch community
+ *   - Blue: SpotHitch community spot (created or used by our users)
+ *   - Green: Reliable (3+ community tests AND 3+ validations)
+ *   - Gold overlay: ambassadorVerified = true
+ *
+ * Transition grey→blue happens ONLY when someone actually USED the spot
+ * (type='test' validation), NOT just validated/passed by.
+ *
  * @param {Object} spot — Spot data object
  * @param {boolean} isFav — Is this a user favorite?
- * @returns {string} Marker image name (e.g. 'marker-gray', 'marker-green-gold')
+ * @returns {string} Marker image name (e.g. 'marker-gray', 'marker-blue-station')
  */
 export function getMarkerType(spot, isFav) {
   if (isFav) return 'marker-fav'
 
-  const validated = (spot.userValidations || 0) >= 3
   const isStation = spot.spotType === 'gas_station'
   const isGold = spot.ambassadorVerified === true
+  const isHitchwiki = spot.source === 'hitchwiki'
+  const liveTestCount = spot.liveTestCount || 0
+  const validationCount = spot.validationCount || spot.userValidations || 0
 
-  if (validated && isGold && isStation) return 'marker-green-gold-station'
-  if (validated && isGold) return 'marker-green-gold'
-  if (validated && isStation) return 'marker-green-station'
-  if (validated) return 'marker-green'
-  if (isGold && isStation) return 'marker-gray-gold'
+  // GREEN: 3+ community tests AND 3+ validations (never for pure Hitchwiki)
+  if (!isHitchwiki && liveTestCount >= 3 && validationCount >= 3) {
+    if (isGold && isStation) return 'marker-green-gold-station'
+    if (isGold) return 'marker-green-gold'
+    if (isStation) return 'marker-green-station'
+    return 'marker-green'
+  }
+
+  // BLUE: SpotHitch community spot (not Hitchwiki, or Hitchwiki with community usage)
+  if (!isHitchwiki || liveTestCount > 0) {
+    if (isGold && isStation) return 'marker-blue-gold-station'
+    if (isGold) return 'marker-blue-gold'
+    if (isStation) return 'marker-blue-station'
+    return 'marker-blue'
+  }
+
+  // GREY: Hitchwiki imported, not yet used by community
   if (isGold) return 'marker-gray-gold'
   if (isStation) return 'marker-gray-station'
   return 'marker-gray'
@@ -161,8 +191,10 @@ export function buildLegendHTML(t) {
 
   return `
 <div class="text-xs font-bold mb-1.5">${t('mapLegend') || 'Légende'}</div>
-${row(c('#94a3b8'), t('legendNew') || 'Nouveau')}
-${row(sp('#94a3b8', '#ef4444'), t('legendSpotStation') || 'Spot + station')}
+${row(c('#94a3b8'), t('spotStatusToVerify') || 'À vérifier')}
+${row(sp('#94a3b8', '#ef4444'), (t('spotStatusToVerify') || 'À vérifier') + ' + ⛽')}
+${row(c('#3b82f6'), t('spotStatusSpotHitch') || 'SpotHitch')}
+${row(sp('#3b82f6', '#ef4444'), 'SpotHitch + ⛽')}
 ${row(c('#22c55e'), t('reliableSpot') || 'Fiable')}
 ${row(g('#94a3b8'), t('legendCertified') || 'Certifié')}
 ${row(heart(), t('favorite') || 'Favori')}

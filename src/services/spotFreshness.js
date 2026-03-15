@@ -51,7 +51,8 @@ export function getSpotFreshness(spot) {
   const hasCommunityTests = liveTestCount > 0
 
   // GOLD: 10+ community tests AND 10+ validations — always certified
-  if (liveTestCount >= 10 && validationCount >= 10) {
+  // Never for Hitchwiki spots (must be converted to community via actual usage first)
+  if (!isHitchwiki && liveTestCount >= 10 && validationCount >= 10) {
     return {
       tier: 'gold',
       color: 'amber',
@@ -67,7 +68,8 @@ export function getSpotFreshness(spot) {
   }
 
   // GREEN: 3+ community tests AND 3+ validations
-  if (liveTestCount >= 3 && validationCount >= 3) {
+  // Never for Hitchwiki spots (must be converted to community via actual usage first)
+  if (!isHitchwiki && liveTestCount >= 3 && validationCount >= 3) {
     return {
       tier: 'green',
       color: 'emerald',
@@ -82,7 +84,7 @@ export function getSpotFreshness(spot) {
     }
   }
 
-  // BLUE: SpotHitch community spot (has at least 1 community test, or was created by community)
+  // BLUE: SpotHitch community spot (created by community, or Hitchwiki spot actually USED by community)
   if (!isHitchwiki || hasCommunityTests) {
     return {
       tier: 'blue',
