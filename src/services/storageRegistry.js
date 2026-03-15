@@ -245,7 +245,8 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_feedback_data', category: DataCategory.ACTIVITY, description: 'Feedback data (reactions, comments) per feature' },
   { key: 'spothitch_feature_opinions', category: DataCategory.ACTIVITY, description: 'Quick opinions (love/like/meh/detail) per coming-soon feature' },
   { key: 'spothitch_feature_seen', category: DataCategory.SETTINGS, description: 'Timestamp map of feature intro windows already shown to user (one-time intro per feature)' },
-  { key: 'spothitch_guide_nudge_seen', category: DataCategory.SETTINGS, description: 'Flag — user has dismissed the guide tip nudge modal, do not show again' },
+  { key: 'spothitch_guide_nudge_seen', category: DataCategory.SETTINGS, description: 'Flag — user has dismissed the guide tip nudge modal globally, do not show again' },
+  { key: 'spothitch_guide_nudge_countries', category: DataCategory.SETTINGS, description: 'JSON array of country codes where user dismissed the guide nudge (per-country dismiss)' },
   { key: 'spothitch_last_position', category: DataCategory.CACHE, description: 'Last known GPS position for instant map centering on reload', sensitive: true },
 
   // === STATE (via Storage.js with spothitch_v4_ prefix) ===

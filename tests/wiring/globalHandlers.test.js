@@ -448,6 +448,8 @@ const MAIN_JS_HANDLERS = [
   // Guide Nudge (session 2026-03-04)
   'closeGuideNudge',
   'acceptGuideNudge',
+  'dismissGuideNudgeForCountry',
+  'dismissGuideNudgeGlobal',
   'submitGuideTip',
   'selectGuideTipCategory',
   // Feature Intro Modal (session 2026-03-04)
