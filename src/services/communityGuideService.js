@@ -201,7 +201,8 @@ function isCurrentUserAdmin() {
  * Approve a guide tip (admin only)
  */
 export async function approveGuideTip(tipId) {
-  if (!isCurrentUserAdmin()) return { success: false, error: 'not_admin' }
+  const user = getCurrentUser()
+  if (!user || !isCurrentUserAdmin()) return { success: false, error: 'not_admin' }
   try {
     const db = await getDb()
     if (!db) return { success: false, error: 'no_db' }
@@ -217,7 +218,8 @@ export async function approveGuideTip(tipId) {
  * Reject a guide tip (admin only)
  */
 export async function rejectGuideTip(tipId) {
-  if (!isCurrentUserAdmin()) return { success: false, error: 'not_admin' }
+  const user = getCurrentUser()
+  if (!user || !isCurrentUserAdmin()) return { success: false, error: 'not_admin' }
   try {
     const db = await getDb()
     if (!db) return { success: false, error: 'no_db' }
