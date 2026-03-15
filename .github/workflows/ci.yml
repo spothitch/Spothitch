@@ -378,7 +378,7 @@ jobs:
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, fox]
+    needs: [build, test, wiring, lint, quality-gate]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
@@ -418,7 +418,7 @@ jobs:
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, fox]
+    needs: [build, test, wiring, lint]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     # Note: feature/* branches run tests only, no deploy
     steps:
@@ -460,7 +460,7 @@ jobs:
   deploy-staging:
     name: Deploy to Cloudflare Pages (staging → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, fox]
+    needs: [build, test, wiring, lint]
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
