@@ -203,18 +203,75 @@ function renderProfilTab(state) {
   if (state.profileDetailView === 'validations') return renderMyValidationsList(state)
   if (state.profileDetailView === 'countries') return renderMyCountriesList(state)
 
+  const openSection = state.profileOpenSection || null
+
+  const svgBio = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'
+  const svgLang = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>'
+  const svgSocial = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a855f7" stroke-width="1.8"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>'
+  const svgPhotos = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
+  const svgReviews = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ef4444" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+  const svgTrips = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0ea5e9" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>'
+  const svgBadges = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>'
+
+  const bio = state.bio || ''
+  const langs = (() => { try { return JSON.parse(localStorage.getItem('spothitch_languages') || '[]') } catch { return [] } })()
+  const socials = (() => { try { return JSON.parse(localStorage.getItem('spothitch_social_links') || '{}') } catch { return {} } })()
+  const photos = (() => { try { return JSON.parse(localStorage.getItem('spothitch_gallery') || '[]') } catch { return [] } })()
+  const socialCount = Object.values(socials).filter(v => v).length
+  const tripCount = state.pastTrips?.length || 0
+  const reviewCount = state.myReviews?.length || 0
+  const badgeCount = state.earnedBadges?.length || 0
+
+  function profileRow(id, svgIcon, bgColor, label, sub) {
+    const isOpen = openSection === id
+    return `
+      <div class="border-b border-white/[0.04] last:border-b-0">
+        <button type="button" onclick="toggleProfileSection('${id}')"
+          class="w-full flex items-center justify-between px-4 py-[14px] hover:bg-white/[0.02] transition-colors">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-[10px] flex items-center justify-center" style="background:${bgColor}">${svgIcon}</div>
+            <div class="text-left">
+              <div class="text-[14px] font-medium">${label}</div>
+              <div class="text-[11px] text-slate-500">${sub}</div>
+            </div>
+          </div>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#475569" stroke-width="2"
+            style="transition:transform .2s;transform:rotate(${isOpen ? '90' : '0'}deg)"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        ${isOpen ? `<div class="px-3 pb-3">${renderProfileSection(id, state)}</div>` : ''}
+      </div>
+    `
+  }
+
   return `
     ${renderProfileHeader(state)}
     ${renderClickableStats(state)}
-    ${renderBioCard(state)}
-    ${renderLanguagesCard(state)}
-    ${renderSocialLinksCard(state)}
-    ${renderPhotoGalleryCard(state)}
-    ${renderMyReviewsCard(state)}
-    ${renderPublicTripsCard(state)}
-    ${renderBadgesGrid(state)}
+
+    <div class="card overflow-hidden" style="padding:0">
+      ${profileRow('bio', svgBio, 'rgba(59,130,246,0.1)', t('bio') || 'Bio', bio ? bio.substring(0, 40) + (bio.length > 40 ? '...' : '') : (t('noBio') || 'Add your bio...'))}
+      ${profileRow('languages', svgLang, 'rgba(34,197,94,0.1)', t('languages') || 'Languages', langs.length > 0 ? langs.map(l => l.name || l.code).join(', ') : (t('noLanguages') || 'Add languages...'))}
+      ${''}<!-- Social links: disabled for alpha, enable in beta -->
+      ${profileRow('photos', svgPhotos, 'rgba(245,158,11,0.1)', t('photoGallery') || 'Photos', photos.length > 0 ? `${photos.length} photos` : (t('noPhotos') || 'Add photos...'))}
+      ${profileRow('reviews', svgReviews, 'rgba(239,68,68,0.1)', t('myReviews') || 'My reviews', reviewCount > 0 ? `${reviewCount} ${t('reviewsGiven') || 'reviews'}` : (t('noReviews') || 'No reviews yet'))}
+      ${profileRow('trips', svgTrips, 'rgba(14,165,233,0.1)', t('myTrips') || 'Trips', tripCount > 0 ? `${tripCount} ${t('tripsRecorded') || 'trips'}` : (t('noTrips') || 'No trips yet'))}
+      ${profileRow('badges', svgBadges, 'rgba(245,158,11,0.08)', t('badges') || 'Badges', badgeCount > 0 ? `${badgeCount} ${t('badgesEarned') || 'earned'}` : (t('noBadges') || 'No badges yet'))}
+    </div>
+
     ${renderDonationCard()}
   `
+}
+
+function renderProfileSection(sectionId, state) {
+  switch (sectionId) {
+    case 'bio': return renderBioCard(state)
+    case 'languages': return renderLanguagesCard(state)
+    case 'social': return renderSocialLinksCard(state)
+    case 'photos': return renderPhotoGalleryCard(state)
+    case 'reviews': return renderMyReviewsCard(state)
+    case 'trips': return renderPublicTripsCard(state)
+    case 'badges': return renderBadgesGrid(state)
+    default: return ''
+  }
 }
 
 function renderProfileHeader(state) {
@@ -1465,6 +1522,12 @@ window.toggleSettingsSection = (sectionId) => {
   const state = window.getState?.() || {}
   const current = state.settingsOpenSection
   window.setState?.({ settingsOpenSection: current === sectionId ? null : sectionId })
+}
+
+window.toggleProfileSection = (sectionId) => {
+  const state = window.getState?.() || {}
+  const current = state.profileOpenSection
+  window.setState?.({ profileOpenSection: current === sectionId ? null : sectionId })
 }
 
 // startTutorial is defined in main.js (canonical owner — includes tab change + step action)
