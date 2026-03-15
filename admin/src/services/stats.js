@@ -6,6 +6,7 @@ import {
   getCollectionCount,
   getFilteredCount,
   getRecentDocs,
+  loadAllDocs,
 } from './firebase.js'
 
 export async function loadDashboardStats() {
@@ -25,4 +26,12 @@ export async function loadRecentActivity() {
   ])
 
   return { recentUsers, recentSpots }
+}
+
+export async function loadAllSpots() {
+  return loadAllDocs('spots')
+}
+
+export async function loadAllUsers() {
+  return loadAllDocs('users')
 }

@@ -18,6 +18,7 @@ import {
   getDocs,
   getDoc,
   updateDoc,
+  deleteDoc,
   query,
   orderBy,
   limit,
@@ -121,4 +122,15 @@ export async function getDocument(collectionName, docId) {
   const docRef = doc(db, collectionName, docId)
   const snap = await getDoc(docRef)
   return snap.exists() ? { id: snap.id, ...snap.data() } : null
+}
+
+export async function deleteDocument(collectionName, docId) {
+  const docRef = doc(db, collectionName, docId)
+  return deleteDoc(docRef)
+}
+
+export async function loadAllDocs(collectionName) {
+  const coll = collection(db, collectionName)
+  const snapshot = await getDocs(coll)
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }

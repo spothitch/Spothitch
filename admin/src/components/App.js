@@ -7,6 +7,7 @@ export function renderApp(currentPage) {
     { id: 'dashboard', label: 'Tableau de bord', icon: '📊' },
     { id: 'guides', label: 'Moderation Guides', icon: '📚' },
     { id: 'users', label: 'Utilisateurs', icon: '👤' },
+    { id: 'cleanup', label: 'Nettoyage', icon: '🧹' },
   ]
 
   const navHtml = navItems
