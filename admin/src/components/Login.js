@@ -34,6 +34,12 @@ export function bindLoginEvents() {
         console.error('Login error:', err)
         btn.disabled = false
         btn.innerHTML = 'Connexion avec Google'
+        window.__showToast?.('Erreur: ' + (err.code || err.message || err), 'error')
+        // Show error below button
+        const errDiv = document.createElement('div')
+        errDiv.className = 'bg-danger-500/15 text-danger-400 text-sm p-3 rounded-lg mt-4'
+        errDiv.textContent = err.code + ': ' + err.message
+        btn.parentNode.appendChild(errDiv)
       }
     })
   }
