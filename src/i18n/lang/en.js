@@ -2496,6 +2496,7 @@ export default {
 
   // moderation
   reportMisplaced: 'Wrong location',
+  reportMisplacedHint: 'Drag the blue pin to the correct spot',
   reportInaccurate: 'Inaccurate',
   reportDangerous: 'Dangerous',
   reportInappropriate: 'Inappropriate',

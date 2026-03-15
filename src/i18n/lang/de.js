@@ -2493,6 +2493,7 @@ export default {
 
   // moderation
   reportMisplaced: 'Falsch platziert',
+  reportMisplacedHint: 'Ziehe den blauen Pin an die richtige Stelle',
   reportInaccurate: 'Ungenau',
   reportDangerous: 'Gefaehrlich',
   reportInappropriate: 'Unangemessen',

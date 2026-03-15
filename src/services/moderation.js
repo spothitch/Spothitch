@@ -305,6 +305,15 @@ export function renderReportModal(state) {
             `).join('')}
           </div>
 
+          <!-- Misplaced: mini-map to suggest correct location -->
+          ${state.selectedReportReason === 'misplaced' ? `
+            <div class="mt-4">
+              <label class="block text-sm text-slate-400 mb-2">${t('reportMisplacedHint') || 'Place le pin au bon endroit'}</label>
+              <div id="report-misplaced-map" style="width:100%;height:200px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)"></div>
+              <div id="report-misplaced-coords" class="text-xs text-slate-500 mt-1"></div>
+            </div>
+          ` : ''}
+
           <!-- Additional details -->
           ${state.selectedReportReason ? `
             <div class="mt-4">
@@ -357,24 +366,100 @@ window.closeReport = () => {
 };
 
 window.selectReportReason = (reason) => {
-  setState({ selectedReportReason: reason });
-};
+  setState({ selectedReportReason: reason })
+  // Init mini-map for misplaced reports
+  if (reason === 'misplaced') {
+    setTimeout(() => initMisplacedMap(), 100)
+  }
+}
+
+// Mini-map for "misplaced" reports
+let _misplacedMarker = null
+let _suggestedCoords = null
+
+async function initMisplacedMap() {
+  const container = document.getElementById('report-misplaced-map')
+  if (!container || container.dataset.init) return
+  container.dataset.init = '1'
+
+  const maplibregl = (await import('maplibre-gl')).default
+
+  // Get current spot coordinates
+  const state = getState()
+  const spot = state.selectedSpot
+  const lat = spot?.coordinates?.lat || spot?.lat || 48.85
+  const lng = spot?.coordinates?.lng || spot?.lon || 2.35
+
+  const miniMap = new maplibregl.Map({
+    container,
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: [lng, lat],
+    zoom: 15,
+    attributionControl: false,
+  })
+
+  // Show current spot position (red, fixed)
+  const currentEl = document.createElement('div')
+  currentEl.style.cssText = 'width:14px;height:14px;background:#ef4444;border:2px solid white;border-radius:50%;opacity:0.6'
+  new maplibregl.Marker({ element: currentEl })
+    .setLngLat([lng, lat])
+    .addTo(miniMap)
+
+  // Draggable blue marker for suggested position
+  const suggestEl = document.createElement('div')
+  suggestEl.style.cssText = 'width:20px;height:20px;background:#3b82f6;border:3px solid white;border-radius:50%;cursor:grab;box-shadow:0 2px 8px rgba(0,0,0,0.3)'
+  _misplacedMarker = new maplibregl.Marker({ element: suggestEl, draggable: true })
+    .setLngLat([lng + 0.001, lat + 0.001])
+    .addTo(miniMap)
+
+  _suggestedCoords = { lat: lat + 0.001, lng: lng + 0.001 }
+
+  const coordsDiv = document.getElementById('report-misplaced-coords')
+
+  _misplacedMarker.on('dragend', () => {
+    const pos = _misplacedMarker.getLngLat()
+    _suggestedCoords = { lat: pos.lat, lng: pos.lng }
+    if (coordsDiv) {
+      coordsDiv.textContent = `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`
+    }
+  })
+
+  // Also allow click on map to move marker
+  miniMap.on('click', (e) => {
+    _misplacedMarker.setLngLat([e.lngLat.lng, e.lngLat.lat])
+    _suggestedCoords = { lat: e.lngLat.lat, lng: e.lngLat.lng }
+    if (coordsDiv) {
+      coordsDiv.textContent = `${e.lngLat.lat.toFixed(5)}, ${e.lngLat.lng.toFixed(5)}`
+    }
+  })
+}
 
 window.submitCurrentReport = async () => {
-  const state = getState();
-  const details = document.getElementById('report-details')?.value || '';
+  const state = getState()
+  const details = document.getElementById('report-details')?.value || ''
+
+  const reportDetails = { description: details }
+
+  // Include suggested coordinates for misplaced reports
+  if (state.selectedReportReason === 'misplaced' && _suggestedCoords) {
+    reportDetails.suggestedLat = _suggestedCoords.lat
+    reportDetails.suggestedLng = _suggestedCoords.lng
+    reportDetails.additionalInfo = `Suggested location: ${_suggestedCoords.lat.toFixed(5)}, ${_suggestedCoords.lng.toFixed(5)}`
+  }
 
   const result = await submitReport(
     state.reportType,
     state.reportTargetId,
     state.selectedReportReason,
-    { description: details }
-  );
+    reportDetails,
+  )
 
   if (result) {
-    window.closeReport();
+    _suggestedCoords = null
+    _misplacedMarker = null
+    window.closeReport()
   }
-};
+}
 
 export default {
   REPORT_TYPES,
