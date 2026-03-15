@@ -856,3 +856,43 @@ Chaque erreur suit ce format :
 - **Leçon** : TOUJOURS vérifier `gh run view` après chaque push. Ne JAMAIS dire "c'est déployé" sans avoir vu le CI passer. Quand on ajoute un nouveau handler window.* ou une clé localStorage, penser immédiatement à : (1) tests wiring (2) storageRegistry (3) quality gate.
 - **Fichiers** : src/services/storageRegistry.js, src/i18n/lang/*.js, tests/wiring/globalHandlers.test.js, src/components/views/Profile.js
 - **Statut** : CORRIGÉ
+
+### ERR-071 — Formulaire inscription : deux champs pseudo confus
+- **Date** : 2026-03-15
+- **Gravité** : MAJEUR
+- **Description** : Le formulaire d'inscription avait DEUX champs qui demandaient le pseudo : `@username *` (pseudo unique Firebase) et `Your username` (nom d'affichage). En français, les labels étaient "@pseudo" et "Ton pseudo". Les utilisateurs ne comprenaient pas la différence et pensaient que le formulaire buggait.
+- **Cause racine** : Le champ "Display Name" (id=auth-username) avait un label i18n `displayNamePlaceholder` qui en FR disait "Ton pseudo", quasi identique au vrai champ pseudo. Le champ était optionnel et servait juste de displayName Firebase (défaut "Hitchhiker").
+- **Correction** : Suppression du champ Display Name du formulaire. Le displayName est maintenant toujours "Hitchhiker" par défaut. Le @pseudo est le seul identifiant demandé.
+- **Leçon** : Ne JAMAIS mettre deux champs visuellement similaires côte à côte dans un formulaire. Tester l'UX comme un utilisateur qui ne connaît pas la différence technique entre "pseudo" et "nom d'affichage". Quand un champ est optionnel et a un défaut, ne pas le montrer dans le formulaire.
+- **Fichiers** : src/components/modals/Auth.js
+- **Statut** : CORRIGÉ
+
+### ERR-072 — Messages d'erreur auth non guidants
+- **Date** : 2026-03-15
+- **Gravité** : MINEUR
+- **Description** : Quand un utilisateur essayait de se connecter sans avoir de compte, le message disait juste "Email ou mot de passe incorrect" sans guider vers l'inscription. Résultat : l'utilisatrice restait bloquée, pensait que le site buggait.
+- **Cause racine** : Les messages d'erreur Firebase (auth/invalid-credential, auth/user-not-found) étaient traduits littéralement sans action suggérée.
+- **Correction** : Messages d'erreur modifiés dans 4 langues pour guider vers "S'inscrire". Ex: "Email ou mot de passe incorrect. Pas encore de compte ? Clique sur S'inscrire."
+- **Leçon** : Chaque message d'erreur doit proposer une ACTION (pas juste décrire le problème). Se demander "et maintenant, l'utilisateur fait quoi ?" pour chaque message.
+- **Fichiers** : src/i18n/lang/fr.js, en.js, es.js, de.js
+- **Statut** : CORRIGÉ
+
+### ERR-073 — Share target Google Maps ne remplissait pas le pays du spot
+- **Date** : 2026-03-15
+- **Gravité** : MAJEUR
+- **Description** : Quand un utilisateur partageait un lieu depuis Google Maps, le reverse geocode récupérait la ville (departureCity) et le nom de lieu (locationName) mais PAS le country/countryName. Résultat : spots créés sans pays dans Firestore, guide nudge absent, profil affichant des spots sans pays.
+- **Cause racine** : Dans main.js openAddSpot, le flux share target faisait if (loc?.city) mais ne vérifiait pas loc.countryCode pour remplir window.spotFormData.country.
+- **Correction** : 3 fixes. (1) main.js share target ajoute country+countryName, (2) AddSpot.js safety net reverse geocode avant soumission si country vide, (3) Profile.js auto-fix des spots existants sans pays.
+- **Leçon** : Quand on extrait des données d'un reverse geocode, TOUJOURS extraire TOUS les champs utiles (city, country, road, countryCode). Comparer avec les autres flux qui font la même opération (GPS, map picker) pour ne rien oublier.
+- **Fichiers** : src/main.js, src/components/modals/AddSpot.js, src/components/views/Profile.js
+- **Statut** : CORRIGÉ
+
+### ERR-074 — Tests Firebase CI échouaient systématiquement (Playwright + window.__fb)
+- **Date** : 2026-03-15
+- **Gravité** : MAJEUR
+- **Description** : Les tests Firebase E2E (Playwright) échouaient à CHAQUE run CI depuis leur création. Le job `E2E Firebase` n'a JAMAIS passé en CI. Résultat : le CI affichait toujours du rouge, le deploy était bloqué par des dépendances sur ces jobs.
+- **Cause racine** : 3 problèmes cumulés. (1) `firebase-test-setup.mjs` utilisait Playwright pour charger le site et attendait `window.__fb`, mais Firebase ne chargeait pas dans le navigateur headless de GitHub. (2) `cleanup-test-data.mjs` utilisait `dotenv .env.local` qui n'existe pas en CI. (3) La clé API Firebase principale avait une restriction de referer qui bloquait les requêtes Node.js (pas de referer = bloqué).
+- **Correction** : Tout réécrit en Node.js direct (pas de Playwright). Créé une clé API CI séparée (`VITE_FIREBASE_API_KEY_CI`) sans restriction de referer, restreinte aux APIs Identity Toolkit + Firestore. Supprimé les jobs cassés (Lighthouse, Fox, E2E Firebase Playwright). 16 tests passent maintenant.
+- **Leçon** : Ne JAMAIS laisser un job CI cassé "en attendant de le corriger". Si un test ne peut pas marcher dans l'environnement CI, le réécrire pour qu'il marche, ou le supprimer. Un test qui échoue toujours est pire qu'un test absent : il cache les vrais problèmes. Pour Firebase en CI, utiliser le SDK Node.js directement, pas le navigateur.
+- **Fichiers** : .github/workflows/ci.yml, scripts/firebase-test-setup.mjs, scripts/firebase-test.mjs, scripts/cleanup-test-data.mjs
+- **Statut** : CORRIGÉ

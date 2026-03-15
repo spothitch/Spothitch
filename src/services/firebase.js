@@ -445,9 +445,17 @@ export async function getSpots() {
 export async function getUserSpots(userId) {
   try {
     const spotsRef = collection(db, 'spots')
-    const q = query(spotsRef, where('creatorId', '==', userId), orderBy('createdAt', 'desc'), limit(20))
+    // Simple query on creatorId only (no composite index needed), sort client-side
+    const q = query(spotsRef, where('creatorId', '==', userId), limit(50))
     const snapshot = await getDocs(q)
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    const spots = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    // Sort by createdAt desc client-side
+    spots.sort((a, b) => {
+      const ta = a.createdAt?.toDate?.() || a.createdAt || 0
+      const tb = b.createdAt?.toDate?.() || b.createdAt || 0
+      return tb - ta
+    })
+    return spots
   } catch (error) {
     console.error('Error fetching user spots:', error)
     return []
