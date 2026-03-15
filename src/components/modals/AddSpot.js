@@ -1845,20 +1845,8 @@ window.handleAddSpot = async (event) => {
     }
   }
 
-  // Proximity check
-  if (window.spotFormData.lat && window.spotFormData.lng) {
-    const { checkProximity } = await import('../../services/proximityVerification.js')
-    const proximity = checkProximity(
-      window.spotFormData.lat,
-      window.spotFormData.lng,
-      state.userLocation
-    )
-    if (!proximity.allowed) {
-      const { showError } = await import('../../services/notifications.js')
-      showError(t('proximityRequired') || `Tu dois être passé à moins de 5 km de ce spot dans les dernières 24h (${proximity.distanceKm} km)`)
-      return
-    }
-  }
+  // Proximity check disabled — users need to add spots from memory
+  // (places they hitchhiked from in the past without being there now)
 
   // Disable button
   if (submitBtn) {
