@@ -91,7 +91,7 @@ function renderStepProgress(currentStep) {
  * Render Step 1: Type + City + Position + Photo (v3 underline design)
  */
 function renderStep1(state) {
-  const spotType = state.addSpotType || ''
+  const spotType = state.addSpotType || window.spotFormData?.spotType || ''
   return `
     <div class="step-transition">
       <!-- Spot Type — 3x2 grid -->
@@ -647,9 +647,23 @@ window.handlePhotoSelect = async (event) => {
     const compressed = await compressImage(file, 1200, 0.75)
     window.spotFormData.photos.push(compressed)
 
-    // Re-render to update thumbnails and hide upload button if at max
-    const { setState } = await import('../../stores/state.js')
-    setState({ _photoRefresh: Date.now() })
+    // Update photo thumbnails inline (avoid full re-render that resets type)
+    const photoZone = document.getElementById('spot-photo-zone')
+    if (photoZone) {
+      // Add thumbnail directly
+      const thumb = document.createElement('div')
+      thumb.style.cssText = 'width:60px;height:60px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0'
+      thumb.innerHTML = `<img src="${compressed}" style="width:100%;height:100%;object-fit:cover" alt="Photo ${window.spotFormData.photos.length}">
+        <button type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);border-radius:50%;border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`
+      const uploadBtn = photoZone.querySelector('label, [for="spot-photo"]')?.parentElement
+      if (uploadBtn) photoZone.insertBefore(thumb, uploadBtn)
+      // Hide upload button if max reached
+      if (window.spotFormData.photos.length >= 5 && uploadBtn) uploadBtn.style.display = 'none'
+    } else {
+      // Fallback: full re-render
+      const { setState } = await import('../../stores/state.js')
+      setState({ _photoRefresh: Date.now() })
+    }
   } catch (error) {
     console.error('Photo processing failed:', error)
     const { showError } = await import('../../services/notifications.js')
@@ -704,10 +718,10 @@ window.selectSpotType = (type) => {
       btn.style.color = '#64748b'
     }
   })
-  // Store in state silently for persistence (without triggering render)
+  // Store in spotFormData AND state for persistence across re-renders
+  window.spotFormData.spotType = type
   import('../../stores/state.js').then(({ getState }) => {
-    const state = getState()
-    state.addSpotType = type
+    getState().addSpotType = type
   })
 }
 
