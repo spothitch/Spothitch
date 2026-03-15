@@ -2,7 +2,7 @@
  * Sentry Service — Fetch errors via GitHub Issues API
  */
 
-const GH_API = 'https://api.github.com/repos/Spothitch/spothitch.github.io/issues'
+const GH_API = 'https://api.github.com/repos/spothitch/Spothitch/issues'
 
 export async function loadSentryIssues() {
   try {

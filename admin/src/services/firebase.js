@@ -8,7 +8,7 @@ import {
   getAuth,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
   signOut,
 } from 'firebase/auth'
 import {
@@ -54,7 +54,7 @@ export { auth, db }
 export function signInWithGoogle() {
   if (!auth) return Promise.reject(new Error('Firebase non configure'))
   const provider = new GoogleAuthProvider()
-  return signInWithPopup(auth, provider)
+  return signInWithRedirect(auth, provider)
 }
 
 export function logOut() {
