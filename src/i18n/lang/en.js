@@ -118,9 +118,11 @@ export default {
   accessibilityDesc5: 'Direct : public transport stop right there',
 
   // Spot types
-  spotTypeCityExit: 'Leaving a city',
-  spotTypeGasStation: 'Gas station',
-  spotTypeHighway: 'Roadside',
+  spotTypeGasStation: 'Gas station / Rest area',
+  spotTypeToll: 'Toll booth',
+  spotTypeRoundabout: 'Roundabout',
+  spotTypeOnRamp: 'On-ramp',
+  spotTypeRoadside: 'Roadside',
   spotTypeCustom: 'Other',
   spotTypeLabel: 'Spot type',
   autoDetectType: 'Auto-detect type',

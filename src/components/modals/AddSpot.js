@@ -94,30 +94,16 @@ function renderStep1(state) {
   const spotType = state.addSpotType || ''
   return `
     <div class="step-transition">
-      <!-- Spot Type — 2x2 grid -->
+      <!-- Spot Type — 3x2 grid -->
       <div style="margin-bottom:24px">
         <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('spotTypeLabel')} <span style="color:#f59e0b">*</span></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <button type="button" onclick="selectSpotType('city_exit')"
-            class="spot-type-btn ${spotType === 'city_exit' ? 'active' : ''}"
-            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === 'city_exit' ? '#f59e0b' : '#1a1f2e'};background:${spotType === 'city_exit' ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === 'city_exit' ? '#f59e0b' : '#64748b'};cursor:pointer">
-            ${t('spotTypeCityExit')}
-          </button>
-          <button type="button" onclick="selectSpotType('gas_station')"
-            class="spot-type-btn ${spotType === 'gas_station' ? 'active' : ''}"
-            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === 'gas_station' ? '#f59e0b' : '#1a1f2e'};background:${spotType === 'gas_station' ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === 'gas_station' ? '#f59e0b' : '#64748b'};cursor:pointer">
-            ${t('spotTypeGasStation')}
-          </button>
-          <button type="button" onclick="selectSpotType('highway')"
-            class="spot-type-btn ${spotType === 'highway' ? 'active' : ''}"
-            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === 'highway' ? '#f59e0b' : '#1a1f2e'};background:${spotType === 'highway' ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === 'highway' ? '#f59e0b' : '#64748b'};cursor:pointer">
-            ${t('spotTypeHighway')}
-          </button>
-          <button type="button" onclick="selectSpotType('custom')"
-            class="spot-type-btn ${spotType === 'custom' ? 'active' : ''}"
-            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === 'custom' ? '#f59e0b' : '#1a1f2e'};background:${spotType === 'custom' ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === 'custom' ? '#f59e0b' : '#64748b'};cursor:pointer">
-            ${t('spotTypeCustom')}
-          </button>
+          ${['gas_station', 'toll', 'roundabout', 'on_ramp', 'roadside', 'custom'].map(type => `
+          <button type="button" onclick="selectSpotType('${type}')"
+            class="spot-type-btn ${spotType === type ? 'active' : ''}"
+            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === type ? '#f59e0b' : '#1a1f2e'};background:${spotType === type ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === type ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('spotType' + type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(''))}
+          </button>`).join('')}
         </div>
         <button type="button" onclick="autoDetectRoad()" style="width:100%;margin-top:8px;padding:8px 0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.1);font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
           ${icon('crosshair', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
@@ -162,7 +148,7 @@ function renderStep1(state) {
       <!-- Position summary (if set) -->
       ${window.spotFormData?.lat && window.spotFormData?.departureCity ? `
         <div style="padding:10px 0;border-bottom:1px solid #1a1f2e;margin-bottom:20px">
-          <span style="font-size:14px;color:#e2e8f0">${escapeHTML(spotType === 'city_exit' ? (t('leavingCity') || 'Sortir de') + ' ' + window.spotFormData.departureCity : window.spotFormData.departureCity)}</span>
+          <span style="font-size:14px;color:#e2e8f0">${escapeHTML(window.spotFormData.departureCity)}</span>
           <span style="color:#334155"> · </span>
           <span style="font-size:13px;color:#64748b">${t('position') || 'Position'}: ${window.spotFormData.locationName || window.spotFormData.departureCity}</span>
         </div>
@@ -1388,14 +1374,11 @@ window.autoDetectRoad = async () => {
       /motorway|trunk/i.test(roadType)
     const isCity = data.address?.city || data.address?.town || data.address?.village
     if (isHighway) {
-      window.selectSpotType('highway')
+      window.selectSpotType('on_ramp')
       showSuccess(t('highwayDetected') || 'Autoroute/voie rapide detectee !')
-    } else if (isCity) {
-      window.selectSpotType('city_exit')
-      showSuccess(t('cityDetected') || `Sortie de ville detectee : ${isCity}`)
     } else {
-      window.selectSpotType('custom')
-      showSuccess(t('roadDetected') || 'Route detectee, type mis a "Autre"')
+      window.selectSpotType('roadside')
+      showSuccess(t('roadDetected') || 'Route detectee')
     }
     if (btn) btn.disabled = false
   } catch {
@@ -1684,9 +1667,11 @@ window.showSpotSummary = async () => {
 
   // Type labels
   const typeLabels = {
-    city_exit: t('spotTypeCityExit') || 'Sortie de ville',
-    gas_station: t('spotTypeGasStation') || 'Station-service',
-    highway: t('spotTypeHighway') || 'Autoroute',
+    gas_station: t('spotTypeGasStation') || 'Station / Aire',
+    toll: t('spotTypeToll') || 'Péage',
+    roundabout: t('spotTypeRoundabout') || 'Rond-point',
+    on_ramp: t('spotTypeOnRamp') || 'Bretelle',
+    roadside: t('spotTypeRoadside') || 'Bord de route',
     custom: t('spotTypeCustom') || 'Autre',
   }
   const methodLabels = {

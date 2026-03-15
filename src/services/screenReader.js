@@ -587,12 +587,12 @@ export function generateSpotDescription(spot) {
 
   if (spot.type) {
     const types = {
-      highway_entrance: t('sr.typeHighwayEntrance') || 'entrée d\'autoroute',
       gas_station: t('sr.typeGasStation') || 'station-service',
-      rest_area: t('sr.typeRestArea') || 'aire de repos',
-      city_exit: t('sr.typeCityExit') || 'sortie de ville',
+      toll: t('sr.typeToll') || 'péage',
       roundabout: t('sr.typeRoundabout') || 'rond-point',
-      other: t('sr.typeOther') || 'autre',
+      on_ramp: t('sr.typeOnRamp') || 'bretelle d\'accès',
+      roadside: t('sr.typeRoadside') || 'bord de route',
+      custom: t('sr.typeOther') || 'autre',
     };
     parts.push(`${t('sr.type') || 'type'}: ${types[spot.type] || spot.type}`);
   }

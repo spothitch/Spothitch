@@ -29,19 +29,38 @@ export function renderSpotDetail(state) {
       ? escapeHTML(spot.direction)
       : `${t('spotLocation') || 'Spot'} #${spot.id}`
 
-  // Destinations subtitle — merge static + live destinations
-  const dests = spot.destinations || []
+  // Destinations — merge static (from data) + live (from Firebase)
+  const staticDests = (spot.destinations || []).map(d => ({
+    name: d.name || d.city,
+    count: d.count || 1,
+    pct: d.pct || 0,
+  }))
   const mainDest = spot.to || spot.direction
-  const staticDests = dests.length > 0
-    ? dests.map(d => d.city)
-    : mainDest ? [mainDest] : []
-  // Add live destinations from Firebase validations (with counts)
-  const liveDests = spot.liveDestinations || []
-  const allDestsSet = new Set(staticDests.map(d => d.toLowerCase()))
-  const extraDests = liveDests.filter(ld => !allDestsSet.has(ld.city.toLowerCase())).map(ld => ld.city)
-  const allDests = [...staticDests, ...extraDests]
+  const baseDests = staticDests.length > 0
+    ? staticDests
+    : mainDest ? [{ name: mainDest, count: 1, pct: 100 }] : []
+  // Add live destinations from Firebase validations
+  const liveDests = (spot.liveDestinations || []).map(ld => ({
+    name: ld.city || ld.name,
+    count: ld.count || 1,
+    pct: ld.pct || 0,
+  }))
+  const allDestsMap = new Map()
+  for (const d of [...baseDests, ...liveDests]) {
+    const key = d.name.toLowerCase()
+    if (allDestsMap.has(key)) {
+      allDestsMap.get(key).count += d.count
+    } else {
+      allDestsMap.set(key, { ...d })
+    }
+  }
+  const totalDestVotes = [...allDestsMap.values()].reduce((a, d) => a + d.count, 0)
+  const allDests = [...allDestsMap.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+    .map(d => ({ ...d, pct: totalDestVotes > 0 ? Math.round(d.count / totalDestVotes * 100) : 0 }))
   const destsSubtitle = allDests.length > 0
-    ? allDests.map(d => escapeHTML(d)).join(', ')
+    ? allDests.map(d => escapeHTML(d.name)).join(', ')
     : ''
 
   // Ratings — prefer live aggregated ratings
@@ -65,23 +84,13 @@ export function renderSpotDetail(state) {
     evening: t('timeEvening') || 'Soir',
     night: t('timeNight') || 'Nuit',
   }
-  const seasonMap = {
-    spring: t('seasonSpring') || 'Printemps',
-    summer: t('seasonSummer') || 'Ete',
-    autumn: t('seasonAutumn') || 'Automne',
-    winter: t('seasonWinter') || 'Hiver',
-  }
   const methodLabel = spot.method ? methodLabels[spot.method] || null : null
   const groupLabel = spot.groupSize ? groupLabels[spot.groupSize] || null : null
-  const bestTime = spot.timeOfDay ? timeLabels[spot.timeOfDay] || null : null
-  const seasonLabel = spot.season ? seasonMap[spot.season] || null : null
 
   const methodEmoji = spot.method === 'thumb' ? '👍' : spot.method === 'sign' ? '📋' : spot.method === 'asking' ? '🗣' : ''
   const groupEmoji = spot.groupSize === 'solo' ? '👤' : spot.groupSize === 'duo' ? '👥' : spot.groupSize === 'group' ? '👥' : ''
-  const timeEmoji = spot.timeOfDay === 'morning' ? '🌅' : spot.timeOfDay === 'afternoon' ? '☀️' : spot.timeOfDay === 'evening' ? '🌇' : spot.timeOfDay === 'night' ? '🌙' : ''
-  const seasonEmoji = spot.season === 'spring' ? '🌸' : spot.season === 'summer' ? '☀️' : spot.season === 'autumn' ? '🍂' : spot.season === 'winter' ? '❄️' : ''
 
-  const hasTags = methodLabel || groupLabel || bestTime || seasonLabel
+  const hasTags = methodLabel || groupLabel
   const isFav = isFavorite(spot.id)
 
   // Active amenities only
@@ -173,9 +182,10 @@ export function renderSpotDetail(state) {
             </div>
           </div>
 
-          <!-- Title + destinations subtitle -->
+          <!-- Title + neighborhood + destinations subtitle -->
           <div style="padding:14px 16px 0">
             <h2 id="spotdetail-title" style="font-size:22px;font-weight:600;color:#e2e8f0;margin-bottom:2px">${spotTitle}</h2>
+            ${spot.neighborhood ? `<div style="font-size:12px;color:#64748b;margin-bottom:2px">${escapeHTML(spot.neighborhood)}</div>` : ''}
             ${destsSubtitle ? `<div style="font-size:13px;color:#64748b;margin-bottom:14px">\u2192 ${destsSubtitle}</div>` : '<div style="margin-bottom:14px"></div>'}
           </div>
 
@@ -234,8 +244,6 @@ export function renderSpotDetail(state) {
           <div style="padding:0 16px 4px;display:flex;flex-wrap:wrap;gap:5px">
             ${methodLabel ? `<span style="font-size:11px;color:#f59e0b;background:rgba(245,158,11,0.08);padding:4px 9px;border-radius:99px">${methodEmoji} ${escapeHTML(methodLabel)}</span>` : ''}
             ${groupLabel ? `<span style="font-size:11px;color:#3b82f6;background:rgba(59,130,246,0.08);padding:4px 9px;border-radius:99px">${groupEmoji} ${escapeHTML(groupLabel)}</span>` : ''}
-            ${bestTime ? `<span style="font-size:11px;color:#22c55e;background:rgba(34,197,94,0.08);padding:4px 9px;border-radius:99px">${timeEmoji} ${escapeHTML(bestTime)}</span>` : ''}
-            ${seasonLabel ? `<span style="font-size:11px;color:#a855f7;background:rgba(168,85,247,0.08);padding:4px 9px;border-radius:99px">${seasonEmoji} ${escapeHTML(seasonLabel)}</span>` : ''}
           </div>
           ` : ''}
 
@@ -261,10 +269,10 @@ export function renderSpotDetail(state) {
           </div>
           ` : ''}
 
-          <!-- Destinations (from user experiences only) -->
+          <!-- Destinations with percentages -->
           ${allDests.length > 0 ? `
           <div style="padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px">
-            ${allDests.map(d => `<span style="font-size:12px;color:#f59e0b;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.2);padding:5px 10px;border-radius:8px">\u2192 ${escapeHTML(d)}</span>`).join('')}
+            ${allDests.map(d => `<span style="font-size:12px;color:#f59e0b;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.2);padding:5px 10px;border-radius:8px">\u2192 ${escapeHTML(d.name)}${d.pct > 0 && allDests.length > 1 ? ` <span style="color:#64748b;font-size:10px">${d.pct}%</span>` : ''}</span>`).join('')}
           </div>
           ` : ''}
 
@@ -413,9 +421,19 @@ async function loadMapillaryForHero(lat, lng, spotId) {
  * Render spot type as short label for badge overlay
  */
 function renderSubtitleType(spot) {
-  if (spot.spotType === 'city_exit') return t('spotTypeCityExit') || 'Sortie de ville'
-  if (spot.spotType === 'gas_station') return t('spotTypeGasStation') || 'Station-service'
-  if (spot.spotType === 'highway') return t('spotTypeHighway') || 'Autoroute'
+  const typeMap = {
+    gas_station: 'spotTypeGasStation',
+    toll: 'spotTypeToll',
+    roundabout: 'spotTypeRoundabout',
+    on_ramp: 'spotTypeOnRamp',
+    roadside: 'spotTypeRoadside',
+    custom: 'spotTypeCustom',
+    // Legacy types (old data)
+    city_exit: 'spotTypeRoadside',
+    highway: 'spotTypeRoadside',
+  }
+  const key = typeMap[spot.spotType]
+  if (key) return t(key) || spot.spotType
   if (spot.spotType) return escapeHTML(spot.spotType)
   return t('spotLocation') || 'Spot'
 }

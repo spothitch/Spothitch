@@ -698,9 +698,11 @@ export default {
   accessibilityDesc5: 'Directo: parada de transporte público justo al lado',
 
   // Spot types
-  spotTypeCityExit: 'Salir de una ciudad',
-  spotTypeGasStation: 'Gasolinera',
-  spotTypeHighway: 'Borde de carretera',
+  spotTypeGasStation: 'Gasolinera / Área de descanso',
+  spotTypeToll: 'Peaje',
+  spotTypeRoundabout: 'Rotonda',
+  spotTypeOnRamp: 'Rampa de acceso',
+  spotTypeRoadside: 'Borde de carretera',
   spotTypeCustom: 'Otro',
   spotTypeLabel: 'Tipo de spot',
   autoDetectType: 'Auto-detectar tipo',

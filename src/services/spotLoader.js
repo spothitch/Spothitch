@@ -232,40 +232,18 @@ function convertToAppFormat(rawSpots, countryCode) {
       const id = `hm_${countryCode}_${i}`
       const legal = legalityByCountry[countryCode]
 
-      // Pick description by user language (enriched spots have descriptionEn/Fr/Es/De)
-      let userLang = 'en'
-      try {
-        const persisted = typeof localStorage !== 'undefined' && localStorage.getItem('spothitch_v4_state')
-        if (persisted) {
-          const parsed = JSON.parse(persisted)
-          if (parsed && parsed.lang) userLang = parsed.lang
-        }
-      } catch { /* default to en */ }
-      const langDescMap = { fr: s.descriptionFr, en: s.descriptionEn, es: s.descriptionEs, de: s.descriptionDe }
-      const rawDesc = langDescMap[userLang] || s.descriptionEn || s.comments?.[0]?.text || ''
-      // Clean "Tested by X hitchhikers." patterns in all 4 languages
-      const description = rawDesc
-        .replace(/\s*Tested by \d+ hitchhikers?\.\s*/gi, ' ')
-        .replace(/\s*Testé par \d+ auto-stoppeurs?\.\s*/gi, ' ')
-        .replace(/\s*Probado por \d+ autoestopistas?\.\s*/gi, ' ')
-        .replace(/\s*Getestet von \d+ Trampern?\.\s*/gi, ' ')
-        .replace(/\s*Average wait: \d+ min\.\s*/gi, ' ')
-        .replace(/\s*Attente moyenne : \d+ min\.\s*/gi, ' ')
-        .replace(/\s*Espera media: \d+ min\.\s*/gi, ' ')
-        .replace(/\s*Wartezeit: ca\. \d+ min\.\s*/gi, ' ')
-        .trim()
-
       const reviews = s.reviews || 0
+
+      // Map legacy types to new types
+      const typeMap = { city_exit: 'roadside', highway: 'roadside' }
+      const spotType = typeMap[s.spotType] || s.spotType || 'roadside'
 
       const spot = {
         id,
         from: s.from || '',
         to: '',
-        description,
-        descriptionEn: s.descriptionEn || '',
-        descriptionFr: s.descriptionFr || '',
-        descriptionEs: s.descriptionEs || '',
-        descriptionDe: s.descriptionDe || '',
+        neighborhood: s.neighborhood || null,
+        destinations: s.destinations || [],
         photoUrl: null,
         photos: [],
         creator: 'Hitchwiki',
@@ -279,7 +257,7 @@ function convertToAppFormat(rawSpots, countryCode) {
         globalRating: s.safetyRating && s.trafficRating && s.accessibilityRating
           ? Math.round((s.safetyRating + s.trafficRating + s.accessibilityRating) / 3 * 10) / 10
           : 0,
-        spotType: s.spotType || 'custom',
+        spotType,
         direction: '',
         fromCity: '',
         stationName: '',
@@ -298,8 +276,6 @@ function convertToAppFormat(rawSpots, countryCode) {
         rideResult: reviews > 0 ? 'yes' : null,
         method: s.method || null,
         groupSize: s.groupSize || null,
-        timeOfDay: s.timeOfDay || null,
-        season: s.season || null,
         // Legacy (kept for backward compat)
         userValidations: reviews,
         verified: reviews >= 3,
@@ -308,11 +284,7 @@ function convertToAppFormat(rawSpots, countryCode) {
         attribution: s.attribution || 'Hitchwiki (ODBL)',
         country: countryCode,
         signal: s.signal,
-        comments: (s.comments || []).map(c => {
-          // Use pre-translated comment text if available
-          const langKey = `text${userLang.charAt(0).toUpperCase() + userLang.slice(1)}`
-          return { ...c, text: c[langKey] || c.text || '' }
-        }),
+        comments: [],
         // Legal info from guides.js (for SpotDetail A4)
         _legality: legal?.legality || null,
         _legalityText: legal?.text || null,

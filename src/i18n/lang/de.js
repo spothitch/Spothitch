@@ -117,9 +117,11 @@ export default {
   accessibilityDesc5: 'Direkt: Haltestelle direkt nebenan',
 
   // Spot types
-  spotTypeCityExit: 'Stadt verlassen',
-  spotTypeGasStation: 'Tankstelle',
-  spotTypeHighway: 'Strassenrand',
+  spotTypeGasStation: 'Tankstelle / Raststätte',
+  spotTypeToll: 'Mautstelle',
+  spotTypeRoundabout: 'Kreisverkehr',
+  spotTypeOnRamp: 'Autobahnauffahrt',
+  spotTypeRoadside: 'Strassenrand',
   spotTypeCustom: 'Andere',
   spotTypeLabel: 'Spot-Typ',
   autoDetectType: 'Typ automatisch erkennen',

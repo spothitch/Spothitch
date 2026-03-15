@@ -117,9 +117,11 @@ export default {
   accessibilityDesc5: 'Direct : arrêt de transport en commun juste à côté',
 
   // Spot types
-  spotTypeCityExit: 'Sortir d\'une ville',
-  spotTypeGasStation: 'Station-service',
-  spotTypeHighway: 'Bord de route',
+  spotTypeGasStation: 'Station / Aire',
+  spotTypeToll: 'Péage',
+  spotTypeRoundabout: 'Rond-point',
+  spotTypeOnRamp: 'Bretelle d\'accès',
+  spotTypeRoadside: 'Bord de route',
   spotTypeCustom: 'Autre',
   spotTypeLabel: 'Type de spot',
   autoDetectType: 'Auto-détecter le type',
