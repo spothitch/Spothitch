@@ -33,14 +33,19 @@ export function renderDashboard() {
       <h1 class="font-display text-2xl font-bold mb-6 text-primary-400">Tableau de bord</h1>
 
       <!-- KPI Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" id="kpi-cards">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" id="kpi-cards">
         <div class="card p-5 text-center">
           <div class="text-3xl font-bold text-primary-400" id="kpi-users"><span class="spinner"></span></div>
           <div class="text-sm text-slate-400 mt-1">Utilisateurs</div>
         </div>
         <div class="card p-5 text-center">
+          <div class="text-3xl font-bold text-slate-400" id="kpi-hitchwiki"><span class="spinner"></span></div>
+          <div class="text-sm text-slate-400 mt-1">Spots Hitchwiki</div>
+          <div class="text-xs text-slate-500 mt-0.5" id="kpi-hitchwiki-countries"></div>
+        </div>
+        <div class="card p-5 text-center">
           <div class="text-3xl font-bold text-emerald-400" id="kpi-spots"><span class="spinner"></span></div>
-          <div class="text-sm text-slate-400 mt-1">Spots</div>
+          <div class="text-sm text-slate-400 mt-1">Spots SpotHitch</div>
         </div>
         <div class="card p-5 text-center">
           <div class="text-3xl font-bold text-amber-400" id="kpi-pending"><span class="spinner"></span></div>
@@ -86,12 +91,16 @@ export async function bindDashboardEvents() {
   loadDashboardStats()
     .then((stats) => {
       document.getElementById('kpi-users').textContent = stats.userCount.toLocaleString('fr-FR')
-      document.getElementById('kpi-spots').textContent = stats.spotCount.toLocaleString('fr-FR')
+      document.getElementById('kpi-hitchwiki').textContent = stats.spotCountHitchwiki.toLocaleString('fr-FR')
+      const countriesEl = document.getElementById('kpi-hitchwiki-countries')
+      if (countriesEl) countriesEl.textContent = stats.hitchwikiCountries + ' pays'
+      document.getElementById('kpi-spots').textContent = stats.spotCountFirebase.toLocaleString('fr-FR')
       document.getElementById('kpi-pending').textContent = stats.pendingTipsCount.toLocaleString('fr-FR')
     })
     .catch((err) => {
       console.error('Failed to load stats:', err)
       document.getElementById('kpi-users').textContent = '?'
+      document.getElementById('kpi-hitchwiki').textContent = '?'
       document.getElementById('kpi-spots').textContent = '?'
       document.getElementById('kpi-pending').textContent = '?'
     })
