@@ -382,12 +382,24 @@ export function renderTitleBadge(titleId = getCurrentTitle()) {
  * @returns {string}
  */
 export function renderCustomizationModal(state) {
-  if (!state.showProfileCustomization) return '';
+  if (!state.showProfileCustomization) return ''
 
-  const unlockedFrames = getUnlockedFrames();
-  const unlockedTitles = getUnlockedTitles();
-  const currentFrame = getCurrentFrame();
-  const currentTitle = getCurrentTitle();
+  const { escapeHTML } = window._sanitize || { escapeHTML: s => s }
+  const bio = state.bio || ''
+  const username = state.username || ''
+  const photoURL = state.user?.photoURL || state.userProfile?.photoURL || ''
+  const gallery = (() => { try { return JSON.parse(localStorage.getItem('spothitch_gallery') || '[]') } catch { return [] } })()
+  const langs = (() => { try { return JSON.parse(localStorage.getItem('spothitch_languages') || '[]') } catch { return [] } })()
+
+  // Available avatars from gallery + Google photo
+  const availablePhotos = []
+  if (photoURL) availablePhotos.push(photoURL)
+  gallery.forEach(url => { if (url && !availablePhotos.includes(url)) availablePhotos.push(url) })
+
+  const svgUser = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+  const svgCamera = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="1.8"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>'
+  const svgPen = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#22c55e" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'
+  const svgGlobe = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a855f7" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>'
 
   return `
     <div
@@ -399,96 +411,107 @@ export function renderCustomizationModal(state) {
     >
       <div class="bg-dark-card w-full sm:max-w-lg max-h-[90vh] rounded-t-3xl sm:rounded-2xl overflow-hidden">
         <!-- Header -->
-        <div class="p-6 border-b border-white/10">
-          <div class="flex justify-between items-center">
-            <h2 id="profile-customization-title" class="text-xl font-bold">${t('profileCustomization') || 'Personnalisation'}</h2>
-            <button
-              onclick="closeProfileCustomization()"
-              class="p-2 rounded-full hover:bg-white/10 transition-colors"
-              aria-label="${t('close') || 'Fermer'}"
-            >
-              ${icon('x', 'w-5 h-5')}
-            </button>
-          </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06)">
+          <h2 id="profile-customization-title" style="font-size:16px;font-weight:600;color:#e2e8f0">${t('editProfile') || 'Modifier le profil'}</h2>
+          <button
+            onclick="closeProfileCustomization()"
+            style="width:32px;height:32px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:#64748b;border-radius:50%"
+            aria-label="${t('close') || 'Fermer'}"
+          >
+            ${icon('x', 'w-5 h-5')}
+          </button>
         </div>
 
-        <div class="overflow-y-auto max-h-[70vh]">
-          <!-- Preview -->
-          <div class="p-6 text-center border-b border-white/10">
-            ${renderAvatarWithFrame({ avatar: state.avatar || '🤙', size: 'xl' })}
-            <div class="mt-3 font-bold text-lg">${state.username || (t('profileUser') || 'Utilisateur')}</div>
-            ${renderTitleBadge()}
+        <div style="overflow-y:auto;max-height:calc(90vh - 60px);padding:20px">
+
+          <!-- Photo de profil -->
+          <div style="text-align:center;margin-bottom:24px">
+            <div style="width:80px;height:80px;border-radius:50%;margin:0 auto 12px;background:linear-gradient(135deg,#f59e0b,#d97706);padding:3px">
+              <div id="edit-avatar-preview" style="width:100%;height:100%;border-radius:50%;background:#0f1520;display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden">
+                ${photoURL ? `<img src="${photoURL}" style="width:100%;height:100%;object-fit:cover" alt="">` : (state.avatar || '🤙')}
+              </div>
+            </div>
+            ${availablePhotos.length > 0 ? `
+              <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
+                ${availablePhotos.map((url, i) => `
+                  <button type="button" onclick="selectProfilePhoto(${i})"
+                    style="width:44px;height:44px;border-radius:50%;border:2px solid ${url === photoURL ? '#f59e0b' : 'rgba(255,255,255,0.1)'};overflow:hidden;cursor:pointer;padding:0;background:none">
+                    <img src="${url}" style="width:100%;height:100%;object-fit:cover" alt="">
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
+            <button type="button" onclick="uploadProfilePhoto()"
+              style="font-size:12px;color:#f59e0b;background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+              ${svgCamera} ${t('changePhoto') || 'Changer la photo'}
+            </button>
           </div>
 
-          <!-- Frames Section -->
-          <div class="p-4">
-            <h3 class="font-semibold mb-3">${t('profileFrames') || 'Cadres'}</h3>
-            <div class="grid grid-cols-3 gap-3">
-              ${Object.values(PROFILE_FRAMES)
-    .map((frame) => {
-      const isUnlocked = unlockedFrames.includes(frame.id);
-      const isEquipped = currentFrame === frame.id;
-      const rarity = RARITY_COLORS[frame.rarity] || RARITY_COLORS.common;
+          <!-- Pseudo -->
+          <div style="margin-bottom:20px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              ${svgUser}
+              <span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">${t('username') || 'Pseudo'}</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span style="color:#475569;font-size:16px">@</span>
+              <input type="text" id="edit-username" value="${escapeHTML(username)}"
+                style="flex:1;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:15px;outline:none"
+                placeholder="${t('usernamePlaceholder') || 'ton_pseudo'}"
+                maxlength="20"
+              />
+            </div>
+            <p style="font-size:10px;color:#475569;margin-top:4px">${t('usernameHint') || '3 à 20 caractères, lettres et chiffres'}</p>
+          </div>
 
-      return `
-                  <button
-                    onclick="${isUnlocked ? `equipFrame('${frame.id}')` : ''}"
-                    class="relative p-3 rounded-xl border-2 transition-colors ${
-  isEquipped
-    ? 'border-primary-500 bg-primary-500/10'
-    : isUnlocked
-      ? 'border-white/10 hover:border-white/30 bg-white/5'
-      : 'border-slate-700 bg-white/5 opacity-50'
-}"
-                    ${!isUnlocked ? 'disabled' : ''}
-                  >
-                    <div class="w-12 h-12 mx-auto rounded-full ${frame.gradient ? `bg-gradient-to-br ${frame.gradient}` : 'bg-slate-600'} flex items-center justify-center mb-2">
-                      ${isEquipped ? icon('check', 'w-5 h-5 text-white') : ''}
-                    </div>
-                    <div class="text-xs font-medium truncate">${typeof frame.name === 'function' ? frame.name() : frame.name}</div>
-                    <div class="text-[10px] ${rarity.text}">${typeof rarity.label === 'function' ? rarity.label() : rarity.label}</div>
-                    ${!isUnlocked ? `${icon('lock', 'w-5 h-5 absolute top-2 right-2 text-slate-400')}<div class="text-[10px] text-slate-400 mt-1">${getFrameUnlockText(frame.unlockMethod)}</div>` : ''}
-                  </button>
-                `;
-    })
-    .join('')}
+          <!-- Bio -->
+          <div style="margin-bottom:20px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              ${svgPen}
+              <span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">${t('bio') || 'Bio'}</span>
+            </div>
+            <textarea id="edit-bio"
+              style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;resize:none;min-height:60px;font-family:inherit"
+              placeholder="${t('bioPlaceholder') || 'Quelques mots sur toi...'}"
+              maxlength="200"
+            >${escapeHTML(bio)}</textarea>
+            <div style="text-align:right;font-size:10px;color:#475569;margin-top:2px">
+              <span id="edit-bio-count">${bio.length}</span>/200
             </div>
           </div>
 
-          <!-- Titles Section -->
-          <div class="p-4 border-t border-white/10">
-            <h3 class="font-semibold mb-3">${t('profileTitles') || 'Titres'}</h3>
-            <div class="space-y-2">
-              ${Object.values(PROFILE_TITLES)
-    .map((title) => {
-      const isUnlocked = unlockedTitles.includes(title.id);
-      const isEquipped = currentTitle === title.id;
-
-      return `
-                  <button
-                    onclick="${isUnlocked ? `equipTitle('${title.id}')` : ''}"
-                    class="w-full p-3 rounded-xl flex items-center gap-3 transition-colors ${
-  isEquipped
-    ? 'bg-primary-500/10 border-2 border-primary-500'
-    : isUnlocked
-      ? 'bg-white/5 border-2 border-transparent hover:border-white/20'
-      : 'bg-white/5 border-2 border-transparent opacity-50'
-}"
-                    ${!isUnlocked ? 'disabled' : ''}
-                  >
-                    <span class="${title.color} font-medium">${typeof title.name === 'function' ? title.name() : title.name}</span>
-                    ${isEquipped ? icon('check', 'w-5 h-5 text-primary-400 ml-auto') : ''}
-                    ${!isUnlocked ? icon('lock', 'w-5 h-5 text-slate-400 ml-auto') : ''}
-                  </button>
-                `;
-    })
-    .join('')}
+          <!-- Langues -->
+          <div style="margin-bottom:20px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              ${svgGlobe}
+              <span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">${t('languages') || 'Langues'}</span>
             </div>
+            ${langs.length > 0 ? `
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+                ${langs.map((l, i) => `
+                  <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;font-size:12px;background:rgba(255,255,255,0.05);border-radius:20px;color:#94a3b8">
+                    ${l.flag || ''} ${escapeHTML(l.name || '')}
+                    <button type="button" onclick="removeEditLanguage(${i})"
+                      style="background:none;border:none;color:#64748b;cursor:pointer;padding:0;font-size:14px;line-height:1">×</button>
+                  </span>
+                `).join('')}
+              </div>
+            ` : ''}
+            <button type="button" onclick="openLanguagePicker()"
+              style="font-size:12px;color:#a855f7;background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+              ${icon('plus', 'w-3.5 h-3.5')} ${t('addLanguage') || 'Ajouter une langue'}
+            </button>
           </div>
+
+          <!-- Save button -->
+          <button type="button" onclick="saveProfileEdits()"
+            style="width:100%;padding:14px;background:#f59e0b;border:none;color:#0f1520;font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;margin-top:8px">
+            ${t('save') || 'Enregistrer'}
+          </button>
         </div>
       </div>
     </div>
-  `;
+  `
 }
 
 /**
@@ -512,6 +535,117 @@ function getFrameUnlockText(method) {
   const textFunc = texts[method];
   return textFunc ? textFunc() : (method?.replace(/_/g, ' ') || '?')
 }
+
+// Lazy-load escapeHTML for the modal
+import('../utils/sanitize.js').then(m => { window._sanitize = m }).catch(() => {})
+
+// ==================== PROFILE EDIT HANDLERS ====================
+
+window.saveProfileEdits = async () => {
+  const username = document.getElementById('edit-username')?.value.trim()
+  const bio = document.getElementById('edit-bio')?.value.trim() || ''
+
+  if (username && username.length >= 3 && username.length <= 20) {
+    const { setState: setStateFn, getState: getStateFn } = await import('../stores/state.js')
+    const currentUsername = getStateFn().username
+    if (username !== currentUsername) {
+      // Check availability + reserve
+      try {
+        const { updateUserProfile, getCurrentUser } = await import('./firebase.js')
+        const user = getCurrentUser()
+        if (user) {
+          await updateUserProfile(user.uid, { username, displayName: username })
+        }
+        setStateFn({ username })
+        try { localStorage.setItem('spothitch_username', username) } catch { /* no-op */ }
+      } catch (e) {
+        const { showError } = await import('./notifications.js')
+        showError(t('usernameError') || 'Erreur lors du changement de pseudo')
+        return
+      }
+    }
+    // Save bio
+    try { localStorage.setItem('spothitch_bio', bio) } catch { /* no-op */ }
+    setStateFn({ bio })
+    try {
+      const { updateUserProfile, getCurrentUser } = await import('./firebase.js')
+      const user = getCurrentUser()
+      if (user) await updateUserProfile(user.uid, { bio })
+    } catch { /* offline */ }
+
+    setStateFn({ showProfileCustomization: false })
+    const { showSuccess } = await import('./notifications.js')
+    showSuccess(t('profileSaved') || 'Profil enregistré')
+  } else {
+    const { showError } = await import('./notifications.js')
+    showError(t('usernameInvalid') || 'Pseudo : 3 à 20 caractères')
+  }
+}
+
+window.selectProfilePhoto = async (index) => {
+  const gallery = (() => { try { return JSON.parse(localStorage.getItem('spothitch_gallery') || '[]') } catch { return [] } })()
+  const photoURL = getState().user?.photoURL
+  const all = []
+  if (photoURL) all.push(photoURL)
+  gallery.forEach(url => { if (url && !all.includes(url)) all.push(url) })
+  const selected = all[index]
+  if (!selected) return
+  try {
+    const { updateUserProfile, getCurrentUser } = await import('./firebase.js')
+    const user = getCurrentUser()
+    if (user) await updateUserProfile(user.uid, { photoURL: selected })
+    setState({ userProfile: { ...getState().userProfile, photoURL: selected } })
+    // Update preview
+    const preview = document.getElementById('edit-avatar-preview')
+    if (preview) preview.innerHTML = `<img src="${selected}" style="width:100%;height:100%;object-fit:cover" alt="">`
+    showToast(t('photoUpdated') || 'Photo mise à jour', 'success')
+  } catch { /* offline */ }
+}
+
+window.uploadProfilePhoto = () => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*'
+  input.onchange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const { uploadImage, getCurrentUser } = await import('./firebase.js')
+      const user = getCurrentUser()
+      if (!user) return
+      const path = `avatars/${user.uid}_${Date.now()}.jpg`
+      const result = await uploadImage(file, path)
+      if (result.success) {
+        const { updateUserProfile } = await import('./firebase.js')
+        await updateUserProfile(user.uid, { photoURL: result.url })
+        setState({ userProfile: { ...getState().userProfile, photoURL: result.url } })
+        const preview = document.getElementById('edit-avatar-preview')
+        if (preview) preview.innerHTML = `<img src="${result.url}" style="width:100%;height:100%;object-fit:cover" alt="">`
+        showToast(t('photoUpdated') || 'Photo mise à jour', 'success')
+      }
+    } catch {
+      showToast(t('photoError') || 'Erreur photo', 'error')
+    }
+  }
+  input.click()
+}
+
+window.removeEditLanguage = (index) => {
+  try {
+    const langs = JSON.parse(localStorage.getItem('spothitch_languages') || '[]')
+    langs.splice(index, 1)
+    localStorage.setItem('spothitch_languages', JSON.stringify(langs))
+    setState({ showProfileCustomization: getState().showProfileCustomization }) // re-render
+  } catch { /* no-op */ }
+}
+
+// Bio character counter
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'edit-bio') {
+    const count = document.getElementById('edit-bio-count')
+    if (count) count.textContent = e.target.value.length
+  }
+})
 
 // openProfileCustomization/closeProfileCustomization defined in main.js (canonical STUB)
 window.equipFrame = equipFrame;

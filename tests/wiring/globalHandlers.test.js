@@ -65,6 +65,7 @@ const MAIN_JS_HANDLERS = [
   'openShop', 'closeShop', 'setShopCategory', 'redeemReward',
   'showMyRewards', 'openMyRewards', 'closeMyRewards',
   'equipAvatar', 'equipFrame', 'equipTitle', 'activateBooster',
+  'saveProfileEdits', 'selectProfilePhoto', 'uploadProfilePhoto', 'removeEditLanguage',
   // Stats
   'openStats', 'closeStats',
   // Sub-tab

@@ -3280,9 +3280,8 @@ if (!window.syncTripFieldsAndCalculate) {
   window.addMemberToGroupConversation = noop
   window.sendGroupConversationMessage = noop
 
-  // — PERSONNALISATION PROFIL (beta) —
-  window.openProfileCustomization = guard('niveaux')
-  window.closeProfileCustomization = noop
+  // — PERSONNALISATION PROFIL — edit is live, customization (frames/titles) is beta
+  // openProfileCustomization NOT guarded — profile editing works
 
   // — RÉFÉRENCES DE VOYAGE (beta) —
   window.openReferences = guard('score-confiance')
