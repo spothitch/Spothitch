@@ -123,11 +123,22 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        navigateFallback: '/index.html',
-        globPatterns: ['index.html', 'assets/index-*.js', 'assets/vendor-utils-*.js', 'assets/*.css', 'fonts/*.woff2'],
+        navigateFallback: null, // index.html handled by NetworkFirst runtime cache
+        globPatterns: ['assets/index-*.js', 'assets/vendor-utils-*.js', 'assets/*.css', 'fonts/*.woff2'],
       globIgnores: ['**/*.map', '**/*legacy*', '**/gamification-*', '**/vendor-maplibre-*', '**/vendor-firebase-*', '**/vendor-sentry-*', '**/social-*', '**/guides-*', '**/admin-*'],
         navigateFallbackDenylist: [/^\/design-/, /^\/debug-/, /^\/guides\//],
         runtimeCaching: [
+          {
+            // index.html: ALWAYS try network first (1s timeout).
+            // Prevents serving stale HTML that references old JS hashes after deploy.
+            urlPattern: /^\/($|\?|index\.html)/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'app-html',
+              expiration: { maxEntries: 1, maxAgeSeconds: 60 * 60 * 24 },
+              networkTimeoutSeconds: 1,
+            }
+          },
           {
             // Local JS/CSS assets: network first so stale hashes don't break the app
             urlPattern: /\/assets\/.*\.(js|css)$/i,
