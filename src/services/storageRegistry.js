@@ -231,6 +231,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_social_links', category: DataCategory.PERSONAL, description: 'Social media links (Instagram, TikTok, Facebook)' },
   { key: 'spothitch_profile_photos', category: DataCategory.PERSONAL, description: 'Profile photo gallery (base64 WebP images)', sensitive: true },
   { key: 'spothitch_gallery', category: DataCategory.PERSONAL, description: 'Profile photo gallery (compact format)', sensitive: true },
+  { key: 'spothitch_guide_nudge_countries', category: DataCategory.ACTIVITY, description: 'Countries for which guide nudge was shown after spot submission' },
   { key: 'spothitch_shared_trips', category: DataCategory.SOCIAL, description: 'Trips shared on profile' },
   { key: 'spothitch_references', category: DataCategory.SOCIAL, description: 'Community references received from travel companions', sensitive: true },
   { key: 'spothitch_active_trip', category: DataCategory.ACTIVITY, description: 'Currently active hitchhiking trip with progress tracking' },
