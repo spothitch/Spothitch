@@ -105,7 +105,7 @@ export function renderProfile(state) {
       <div class="p-4 space-y-4 flex-1">
         ${subTab === 'profil' ? renderProfilTab(state) : ''}
         ${subTab === 'progression' ? renderRoadmapTab(state) : ''}
-        ${subTab === 'reglages' ? `${renderReglagesTab(state)}${renderProfileFooter()}${renderVersionReset()}` : ''}
+        ${subTab === 'reglages' ? `${renderReglagesTab(state)}${renderVersionReset()}` : ''}
       </div>
     </div>
     ${state.showLanguagePicker ? renderLanguagePickerModal(state) : ''}
@@ -1008,16 +1008,107 @@ function renderInstallCard() {
 }
 
 function renderReglagesTab(state) {
+  const openSection = state.settingsOpenSection || null
+
+  // SVG icons (inline, no emoji)
+  const svgAppearance = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a78bfa" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>'
+  const svgNotif = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>'
+  const svgOffline = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+  const svgAccount = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+  const svgHelp = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#94a3b8" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+
+  const langName = { fr: 'Français', en: 'English', es: 'Español', de: 'Deutsch' }[state.lang] || 'English'
+  const themeName = state.theme === 'dark' ? (t('darkMode') || 'Dark') : (t('lightMode') || 'Light')
+
+  const offlineCount = (() => {
+    try { return JSON.parse(localStorage.getItem('spothitch_offline_countries') || '[]').length } catch { return 0 }
+  })()
+
+  function sectionRow(id, svgIcon, bgColor, label, sub) {
+    const isOpen = openSection === id
+    return `
+      <div class="border-b border-white/[0.04] last:border-b-0">
+        <button type="button" onclick="toggleSettingsSection('${id}')"
+          class="w-full flex items-center justify-between px-4 py-[14px] hover:bg-white/[0.02] transition-colors">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-[10px] flex items-center justify-center" style="background:${bgColor}">${svgIcon}</div>
+            <div class="text-left">
+              <div class="text-[14px] font-medium">${label}</div>
+              <div class="text-[11px] text-slate-500">${sub}</div>
+            </div>
+          </div>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#475569" stroke-width="2"
+            style="transition:transform .2s;transform:rotate(${isOpen ? '90' : '0'}deg)"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        ${isOpen ? `<div class="px-3 pb-3" id="settings-section-${id}">${renderSettingsSection(id, state)}</div>` : ''}
+      </div>
+    `
+  }
+
   return `
     ${renderSettingsMiniHeader(state)}
-    ${renderInstallCard()}
-    ${renderVerificationCard(state)}
-    ${renderAppearanceCard(state)}
-    ${renderOfflineManagerCard(state)}
-    ${renderNotificationsCard(state)}
-    ${renderPrivacyCard(state)}
-    ${renderActionsCard(state)}
+
+    <div class="card overflow-hidden" style="padding:0">
+      ${sectionRow('appearance', svgAppearance, 'rgba(139,92,246,0.1)', t('settingsAppearance') || 'Appearance', `${langName} · ${themeName}`)}
+      ${sectionRow('notifications', svgNotif, 'rgba(245,158,11,0.1)', t('settingsNotifications') || 'Notifications', state.notifications !== false ? (t('enabled') || 'Enabled') : (t('disabled') || 'Disabled'))}
+      ${sectionRow('offline', svgOffline, 'rgba(59,130,246,0.1)', t('offlineManager') || 'Offline data', offlineCount > 0 ? `${offlineCount} ${t('countries') || 'countries'}` : (t('noneDownloaded') || 'None downloaded'))}
+      ${sectionRow('account', svgAccount, 'rgba(34,197,94,0.1)', t('accountPrivacy') || 'Account & privacy', t('accountPrivacySub') || 'Verification, data, blocked')}
+      ${sectionRow('help', svgHelp, 'rgba(148,163,184,0.06)', t('helpLegal') || 'Help & legal', t('helpLegalSub') || 'Contact, terms, guidelines')}
+    </div>
+
     ${renderDonationCard({ variant: 'full' })}
+    ${renderActionsCard(state)}
+  `
+}
+
+function renderSettingsSection(sectionId, state) {
+  switch (sectionId) {
+    case 'appearance': return renderAppearanceCard(state)
+    case 'notifications': return renderNotificationsCard(state)
+    case 'offline': return renderOfflineManagerCard(state)
+    case 'account': return `
+      ${renderVerificationCard(state)}
+      ${renderPrivacyCard(state)}
+    `
+    case 'help': return renderHelpLegalSection()
+    default: return ''
+  }
+}
+
+function renderHelpLegalSection() {
+  return `
+    <div class="space-y-1">
+      <button onclick="openContactForm()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+        ${icon('mail', 'w-4 h-4 text-blue-400')}
+        <span class="text-sm text-slate-300">${t('contactUs') || 'Contact us'}</span>
+        ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
+      </button>
+      <button onclick="openBugReport()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+        ${icon('bug', 'w-4 h-4 text-red-400')}
+        <span class="text-sm text-slate-300">${t('reportBug') || 'Report a bug'}</span>
+        ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
+      </button>
+      <button onclick="showLegalPage('privacy')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+        ${icon('shield', 'w-4 h-4 text-emerald-400')}
+        <span class="text-sm text-slate-300">${t('privacyPolicy') || 'Privacy policy'}</span>
+        ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
+      </button>
+      <button onclick="showLegalPage('cgu')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+        ${icon('file-text', 'w-4 h-4 text-slate-400')}
+        <span class="text-sm text-slate-300">${t('termsOfService') || 'Terms of service'}</span>
+        ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
+      </button>
+      <button onclick="showLegalPage('guidelines')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+        ${icon('scroll-text', 'w-4 h-4 text-amber-400')}
+        <span class="text-sm text-slate-300">${t('communityGuidelines') || 'Community guidelines'}</span>
+        ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
+      </button>
+      <button onclick="shareApp()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+        ${icon('share-2', 'w-4 h-4 text-primary-400')}
+        <span class="text-sm text-slate-300">${t('inviteFriends') || 'Invite friends'}</span>
+        ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
+      </button>
+    </div>
   `
 }
 
@@ -1368,6 +1459,12 @@ function renderVersionReset() {
 
 window.setProfileSubTab = (tab) => {
   window.setState?.({ profileSubTab: tab })
+}
+
+window.toggleSettingsSection = (sectionId) => {
+  const state = window.getState?.() || {}
+  const current = state.settingsOpenSection
+  window.setState?.({ settingsOpenSection: current === sectionId ? null : sectionId })
 }
 
 // startTutorial is defined in main.js (canonical owner — includes tab change + step action)
