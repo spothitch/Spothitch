@@ -4,7 +4,7 @@
  * Shows ONLY real users (filters out ci-*@spothitch.com test accounts)
  */
 
-import { getAllDocs, getDocsByField } from '../services/firebase.js'
+import { loadAllDocs, getDocsByField } from '../services/firebase.js'
 import { isTestEmail } from '../services/stats.js'
 import { isAdmin as checkAdmin } from '../services/auth.js'
 
@@ -249,8 +249,14 @@ export async function bindUserListEvents() {
 
   // Load users (filter out test accounts)
   try {
-    const rawUsers = await getAllDocs('users', 'lastLogin', 500)
-    allUsers = rawUsers.filter((u) => !isTestEmail(u.email))
+    const rawUsers = await loadAllDocs('users')
+    allUsers = rawUsers
+      .filter((u) => !isTestEmail(u.email))
+      .sort((a, b) => {
+        const da = a.lastLogin?.toDate ? a.lastLogin.toDate().getTime() : new Date(a.lastLogin || 0).getTime()
+        const db2 = b.lastLogin?.toDate ? b.lastLogin.toDate().getTime() : new Date(b.lastLogin || 0).getTime()
+        return db2 - da
+      })
     renderUserCards(filterUsers())
   } catch (err) {
     console.error('Failed to load users:', err)

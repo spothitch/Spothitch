@@ -17,19 +17,23 @@ export function isTestEmail(email) {
 }
 
 /** Check if a spot is test data (created by test account or contains test markers) */
-export function isTestSpot(spot) {
+export function isTestSpot(spot, testUserIds = []) {
   const creatorEmail = (spot.creatorEmail || spot.userEmail || '').toLowerCase()
   if (isTestEmail(creatorEmail)) return true
   const desc = (spot.description || '').toLowerCase()
-  if (desc.includes('e2e') || desc.includes('test spot')) return true
-  const creator = (spot.creator || spot.creatorId || '').toLowerCase()
+  if (desc.includes('e2e') || desc.includes('test spot') || desc.includes('e2e test') || desc.includes('multi spot') || desc.includes('valid ratings test') || desc.includes('e2e delete') || desc.includes('after update')) return true
+  const creator = (spot.creator || '').toLowerCase()
   if (
     creator.includes('alice test') ||
     creator.includes('bob test') ||
     creator.includes('charlie test') ||
-    creator.includes('diana test')
+    creator.includes('diana test') ||
+    creator.includes('admin test') ||
+    creator === 'anonyme'
   )
     return true
+  // Check if creatorId matches a known test user
+  if (spot.creatorId && testUserIds.length > 0 && testUserIds.includes(spot.creatorId)) return true
   return false
 }
 
@@ -48,8 +52,10 @@ export async function loadDashboardStats() {
 
   const realUsers = allUsers.filter((u) => !isTestUser(u))
   const testUsers = allUsers.filter((u) => isTestUser(u))
-  const realSpots = allSpots.filter((s) => !isTestSpot(s))
-  const testSpots = allSpots.filter((s) => isTestSpot(s))
+  // Collect test user IDs to cross-reference with spots
+  const testUserIds = testUsers.map((u) => u.id)
+  const realSpots = allSpots.filter((s) => !isTestSpot(s, testUserIds))
+  const testSpots = allSpots.filter((s) => isTestSpot(s, testUserIds))
 
   return {
     userCount: realUsers.length,
