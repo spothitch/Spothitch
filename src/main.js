@@ -191,21 +191,61 @@ function startVersionCheck() {
       pendingReload = true
       return
     }
-    // Clear all runtime caches so the user gets fresh assets
+
+    // If app is in background, reload silently
+    if (document.visibilityState === 'hidden') {
+      await clearCachesAndReload()
+      return
+    }
+
+    // App is visible: show update banner instead of auto-reloading
+    showUpdateBanner()
+  }
+
+  function showUpdateBanner() {
+    if (document.getElementById('update-banner')) return
+    const overlay = document.createElement('div')
+    overlay.id = 'update-banner'
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#0f1520;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center'
+    overlay.innerHTML = `
+      <div style="width:80px;height:80px;background:rgba(245,158,11,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:24px">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 2v10l4 4"/><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <h2 style="font-size:22px;font-weight:700;color:#e2e8f0;margin-bottom:8px">${t('updateAvailable') || 'Mise à jour disponible'}</h2>
+      <p style="font-size:14px;color:#94a3b8;margin-bottom:32px;max-width:280px;line-height:1.5">
+        ${t('updateDescription') || 'Une nouvelle version de SpotHitch est prête. Mets à jour pour profiter des dernières améliorations.'}
+      </p>
+      <button onclick="window.__forceUpdate()" id="update-btn" style="background:#f59e0b;color:#0f1520;border:none;padding:14px 32px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;width:100%;max-width:280px">
+        ${t('updateNow') || 'Mettre à jour'}
+      </button>
+      <p style="font-size:11px;color:#475569;margin-top:16px">${t('updateAutomatic') || 'Ça ne prend qu\'une seconde'}</p>
+    `
+    document.body.appendChild(overlay)
+  }
+
+  window.__forceUpdate = async () => {
+    const btn = document.querySelector('#update-banner button')
+    if (btn) btn.textContent = '...'
+    await clearCachesAndReload()
+  }
+
+  async function clearCachesAndReload() {
+    // Clear precache so fresh assets are fetched
     if (window.caches) {
       try {
         const keys = await caches.keys()
-        await Promise.all(keys.map(k => caches.delete(k)))
+        await Promise.all(keys.filter(k => k.includes('precache')).map(k => caches.delete(k)))
       } catch { /* ignore */ }
     }
-    // Reload even if user is active — show brief toast then reload
-    isReloading = true
-    if (document.visibilityState !== 'hidden' && window.showToast) {
-      window.showToast(t('updatingApp') || 'Mise à jour...', 'info')
-      setTimeout(() => window.location.reload(), 800)
-    } else {
-      window.location.reload()
+    // Force SW update
+    if (navigator.serviceWorker) {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations()
+        await Promise.all(regs.map(r => r.update()))
+      } catch { /* ignore */ }
     }
+    isReloading = true
+    window.location.reload()
   }
 
   // When user backgrounds the app, apply pending reload
