@@ -3,10 +3,19 @@
  * Handles geolocation with explanation before permission request
  */
 
-// NOTE: Do NOT import from state.js here — it causes circular imports.
+// NOTE: Do NOT import from state.js or i18n here — it causes circular imports
+// that crash the production build ("Cannot access 'M' before initialization").
 // Use window.setState / window.getState instead (exposed by main.js).
 import { Storage } from '../utils/storage.js';
-import { t } from '../i18n/index.js';
+
+// Lazy t() to break circular: location → i18n → state → proximityVerification → location
+let _tFn = null
+function t(key) {
+  if (!_tFn) {
+    try { _tFn = globalThis.__spothitch_t } catch { /* no-op */ }
+  }
+  return _tFn ? _tFn(key) : key
+}
 
 // Lazy-load showToast to avoid circular: location -> notifications -> state -> location
 let _showToast = null

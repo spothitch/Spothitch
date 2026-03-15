@@ -188,6 +188,8 @@ export function t(key, params = {}) {
   const langTranslations = translations[lang] || translations[FALLBACK] || {};
   const fallback = translations[FALLBACK] || {};
   let text = langTranslations[key] || fallback[key] || key;
+  // Expose t globally for modules that can't import i18n (circular dep)
+  if (!globalThis.__spothitch_t) globalThis.__spothitch_t = t;
 
   Object.entries(params).forEach(([k, v]) => {
     text = text.replace(`{${k}}`, v);

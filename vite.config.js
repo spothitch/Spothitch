@@ -234,14 +234,13 @@ export default defineConfig({
           'vendor-maplibre': ['maplibre-gl'],
           'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
           'vendor-utils': ['dompurify'],
+          // gamification + social merged — they import each other, separate chunks cause TDZ errors
           'gamification': [
             './src/services/gamification.js',
             './src/services/quiz.js',
             './src/services/teamChallenges.js',
             './src/services/friendChallenges.js',
             './src/services/dailyReward.js',
-          ],
-          'social': [
             './src/services/nearbyFriends.js',
             './src/services/profileCustomization.js',
           ],
