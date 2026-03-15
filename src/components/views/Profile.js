@@ -1048,7 +1048,7 @@ function renderOfflineManagerCard(_state) {
           aria-label="${t('delete') || 'Supprimer'} ${info.name}"
           type="button"
         >
-          ${icon('trash-2', 'w-4 h-4 text-red-400')}
+          ${icon('trash', 'w-4 h-4 text-red-400')}
         </button>
       </div>
     `
@@ -1119,7 +1119,7 @@ function renderOfflineManagerCard(_state) {
           class="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 transition-colors text-red-400 text-sm"
           type="button"
         >
-          ${icon('trash-2', 'w-4 h-4')}
+          ${icon('trash', 'w-4 h-4')}
           ${t('clearAllOffline') || 'Tout supprimer'}
         </button>
       ` : ''}
@@ -1280,7 +1280,7 @@ function renderActionsCard(state) {
           onclick="openDeleteAccount()"
           class="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-red-500/10 transition-colors text-red-400"
         >
-          ${icon('trash-2', 'w-4 h-4')}
+          ${icon('trash', 'w-4 h-4')}
           <span class="text-sm">${t('deleteAccount') || 'Supprimer le compte'}</span>
         </button>
       ` : `

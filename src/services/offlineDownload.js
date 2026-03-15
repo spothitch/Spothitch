@@ -10,6 +10,7 @@
 import { getByIndex, count, remove as idbRemove } from '../utils/idb.js'
 
 const STORAGE_KEY = 'spothitch_offline_countries'
+const DISMISSED_KEY = 'spothitch_offline_dismissed'
 const BASE = import.meta.env.BASE_URL || '/'
 
 /**
@@ -24,6 +25,9 @@ export async function downloadCountrySpots(countryCode, onProgress) {
   let tileSizeMB = 0
 
   try {
+    // User explicitly downloading → remove from dismissed list
+    undismissCountry(code)
+
     // === Phase 1 (0-30%): Spots + cities ===
     if (onProgress) onProgress(5)
 
@@ -155,6 +159,9 @@ export async function deleteOfflineCountry(countryCode) {
     const countries = getDownloadedCountries().filter(c => c.code.toUpperCase() !== code)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(countries))
 
+    // 5. Mark as dismissed so auto-sync won't re-download
+    dismissCountry(code)
+
     return true
   } catch (error) {
     console.error(`[OfflineDownload] Failed to delete ${code}:`, error)
@@ -215,6 +222,44 @@ export async function getOfflineStorageInfo() {
   }
 }
 
+/**
+ * Mark a country as dismissed (user manually deleted it)
+ * Auto-sync will not re-download dismissed countries
+ */
+function dismissCountry(code) {
+  const dismissed = getDismissedCountries()
+  if (!dismissed.includes(code)) {
+    dismissed.push(code)
+    localStorage.setItem(DISMISSED_KEY, JSON.stringify(dismissed))
+  }
+}
+
+/**
+ * Remove a country from the dismissed list (user manually re-downloads)
+ */
+export function undismissCountry(code) {
+  const dismissed = getDismissedCountries().filter(c => c !== code.toUpperCase())
+  localStorage.setItem(DISMISSED_KEY, JSON.stringify(dismissed))
+}
+
+/**
+ * Get list of dismissed country codes
+ */
+export function getDismissedCountries() {
+  try {
+    return JSON.parse(localStorage.getItem(DISMISSED_KEY) || '[]')
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Check if a country was manually dismissed
+ */
+export function isCountryDismissed(code) {
+  return getDismissedCountries().includes(code.toUpperCase())
+}
+
 export default {
   downloadCountrySpots,
   getDownloadedCountries,
@@ -224,4 +269,7 @@ export default {
   getAllOfflineSpots,
   getOfflineStorageInfo,
   markCountryDownloaded,
+  undismissCountry,
+  getDismissedCountries,
+  isCountryDismissed,
 }

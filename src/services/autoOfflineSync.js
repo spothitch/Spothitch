@@ -136,9 +136,17 @@ export async function performAutoSync() {
 
     // Download spot data via spotLoader (auto-caches in IDB)
     const { loadCountrySpots } = await import('./spotLoader.js')
-    const { markCountryDownloaded } = await import('./offlineDownload.js')
+    const { markCountryDownloaded, getDismissedCountries } = await import('./offlineDownload.js')
 
-    for (const countryCode of countries) {
+    // Skip countries the user manually deleted
+    const dismissed = getDismissedCountries()
+    const filteredCountries = countries.filter(c => !dismissed.includes(c))
+
+    if (filteredCountries.length === 0) {
+      return { success: true, synced: syncedData }
+    }
+
+    for (const countryCode of filteredCountries) {
       try {
         const spots = await loadCountrySpots(countryCode)
         syncedData.countries.push(countryCode)
@@ -150,7 +158,7 @@ export async function performAutoSync() {
     }
 
     // Download guide data
-    for (const countryCode of countries) {
+    for (const countryCode of filteredCountries) {
       try {
         await downloadCountryGuide(countryCode)
         syncedData.guidesCount++
@@ -339,8 +347,9 @@ export async function clearOfflineData() {
     await caches.delete('openfreemap-tiles')
   } catch { /* optional */ }
 
-  // Clear downloaded countries tracking
+  // Clear downloaded countries tracking + dismissed list
   localStorage.removeItem('spothitch_offline_countries')
+  localStorage.removeItem('spothitch_offline_dismissed')
 
   lastSyncTime = null
 }

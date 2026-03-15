@@ -689,7 +689,7 @@ export function renderCountryDetail(guideOrCode) {
           <div class="flex items-center justify-between mb-1">
             <span class="text-sm font-medium">${escapeHTML(tip.customCategoryName || tip.category)}</span>
             <button onclick="deleteGuideContribution('${escapeJSString(tip.id)}')" class="text-xs text-danger-400 hover:text-danger-300">
-              ${icon('trash-2', 'w-3.5 h-3.5')}
+              ${icon('trash', 'w-3.5 h-3.5')}
             </button>
           </div>
           <div class="flex items-center gap-0.5 mb-1">${renderStarsStatic(tip.rating)}</div>
@@ -790,7 +790,7 @@ function renderGuideCategoryForm(countryCode, categoryId, userTips) {
             onclick="deleteGuideContribution('${escapeJSString(existing.id)}')"
             class="px-4 py-2.5 rounded-xl bg-danger-500/20 text-danger-400 hover:bg-danger-500/30 text-sm transition-colors"
           >
-            ${icon('trash-2', 'w-4 h-4')}
+            ${icon('trash', 'w-4 h-4')}
           </button>
         ` : ''}
       </div>
