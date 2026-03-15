@@ -1203,19 +1203,21 @@ window.openAddSpot = () => {
     window.spotFormData.lng = coords.lng
     window.spotFormData.positionSource = 'share'
     window._pendingShareCoords = null
-    // Reverse geocode to get city name
+    // Reverse geocode to get city name — update DOM directly (no full re-render)
     import('./services/osrm.js').then(({ reverseGeocode }) => {
       reverseGeocode(coords.lat, coords.lng).then(loc => {
         if (loc?.city) {
           window.spotFormData.departureCity = loc.city
           window.spotFormData.locationName = loc.road || loc.city
-          // Re-render to show the position
-          setState({ addSpotStep: getState().addSpotStep })
+          // Update departure input + location display without re-rendering
+          const depInput = document.getElementById('spot-departure-city')
+          if (depInput) depInput.value = loc.city
+          const locDisplay = document.querySelector('#addspot-modal [style*="font-size:13px"][style*="color:#e2e8f0"]')
+          if (locDisplay) locDisplay.innerHTML = `${loc.road || loc.city} <span style="color:#475569;font-size:11px">${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}</span>`
         }
       }).catch(() => {})
     }).catch(() => {})
     setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
-    showToast(t('sharePositionImported') || 'Position importée', 'success')
   } else {
     setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
     if (window._pendingShareText) {

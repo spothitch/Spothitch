@@ -148,8 +148,7 @@ async function processShare() {
     setTimeout(() => obs.disconnect(), 10000)
   } catch { /* no-op */ }
 
-  // Show immediate feedback so user knows something is happening
-  try { showToast('📍 Resolving shared location...', 'info') } catch { /* notifications not loaded yet */ }
+  // Share processing happens silently — no toast needed here
 
   const { url, text, title } = share
 
