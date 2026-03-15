@@ -1,11 +1,21 @@
 /**
- * Cleanup Component — Delete test users and spots from Firestore
+ * Cleanup Component — Delete ONLY test data (CI/E2E accounts and their spots)
+ * Real users are never shown, never touchable.
  */
 
 import { loadAllSpots, loadAllUsers } from '../services/stats.js'
 import { deleteDocument } from '../services/firebase.js'
 
 const ADMIN_EMAIL = 'antoine.v.ville@gmail.com'
+
+// Test account emails used by CI/E2E
+const TEST_EMAILS = [
+  'ci-alice@spothitch.com',
+  'ci-bob@spothitch.com',
+  'ci-charlie@spothitch.com',
+  'ci-diana@spothitch.com',
+  'ci-admin@spothitch.com',
+]
 
 function escapeHTML(str) {
   const div = document.createElement('div')
@@ -17,59 +27,80 @@ function formatDate(dateStr) {
   if (!dateStr) return ''
   try {
     const d = dateStr.toDate ? dateStr.toDate() : new Date(dateStr)
-    return d.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
   } catch {
     return String(dateStr).slice(0, 10)
   }
 }
 
-function truncate(str, maxLen = 60) {
-  if (!str) return ''
-  return str.length > maxLen ? str.slice(0, maxLen) + '...' : str
+function isTestUser(user) {
+  const email = (user.email || '').toLowerCase()
+  return TEST_EMAILS.includes(email)
 }
 
-let cachedUsers = null
-let cachedSpots = null
+function isTestSpot(spot) {
+  const creatorEmail = (spot.creatorEmail || spot.userEmail || '').toLowerCase()
+  const desc = (spot.description || '').toLowerCase()
+  const creator = (spot.creator || spot.creatorId || '').toLowerCase()
+  // Spot created by a test account
+  if (TEST_EMAILS.includes(creatorEmail)) return true
+  // Spot with E2E/test markers
+  if (desc.includes('e2e') || desc.includes('test spot')) return true
+  if (creator.includes('alice test') || creator.includes('bob test') || creator.includes('charlie test') || creator.includes('diana test')) return true
+  return false
+}
+
+let testUsers = null
+let testSpots = null
+let realUserCount = 0
+let realSpotCount = 0
 
 export function renderCleanup() {
   return `
     <div class="p-6 max-w-6xl mx-auto">
-      <h1 class="font-display text-2xl font-bold mb-6 text-primary-400">Nettoyage des donnees</h1>
+      <h1 class="font-display text-2xl font-bold mb-6 text-primary-400">Nettoyage des donnees de test</h1>
+      <p class="text-slate-400 text-sm mb-6">Supprime uniquement les comptes et spots crees par les tests automatises (CI/E2E). Les vrais utilisateurs ne sont jamais affiches ici.</p>
 
-      <!-- Counts -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-        <div class="card p-5 text-center">
-          <div class="text-3xl font-bold text-purple-400" id="cleanup-user-count"><span class="spinner"></span></div>
-          <div class="text-sm text-slate-400 mt-1">Utilisateurs</div>
+      <!-- Summary -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div class="card p-4 text-center">
+          <div class="text-2xl font-bold text-emerald-400" id="real-user-count"><span class="spinner"></span></div>
+          <div class="text-xs text-slate-400 mt-1">Vrais utilisateurs</div>
         </div>
-        <div class="card p-5 text-center">
-          <div class="text-3xl font-bold text-emerald-400" id="cleanup-spot-count"><span class="spinner"></span></div>
-          <div class="text-sm text-slate-400 mt-1">Spots</div>
+        <div class="card p-4 text-center">
+          <div class="text-2xl font-bold text-danger-400" id="test-user-count"><span class="spinner"></span></div>
+          <div class="text-xs text-slate-400 mt-1">Comptes de test</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-2xl font-bold text-emerald-400" id="real-spot-count"><span class="spinner"></span></div>
+          <div class="text-xs text-slate-400 mt-1">Vrais spots</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-2xl font-bold text-danger-400" id="test-spot-count"><span class="spinner"></span></div>
+          <div class="text-xs text-slate-400 mt-1">Spots de test</div>
         </div>
       </div>
 
-      <!-- Users Section -->
+      <!-- Cleanup button -->
+      <div class="card p-5 mb-8 text-center">
+        <button id="cleanup-all-btn" class="btn-danger py-3 px-8 text-base">
+          Nettoyer toutes les donnees de test
+        </button>
+        <p class="text-xs text-slate-500 mt-3">Supprime les comptes ci-*@spothitch.com et leurs spots. Aucun vrai utilisateur ne sera touche.</p>
+      </div>
+
+      <!-- Test accounts found -->
       <div class="card p-5 mb-8">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-display text-lg font-bold text-purple-400">Utilisateurs</h2>
-          <button id="delete-all-users-btn" class="btn-danger text-xs py-1.5 px-4">Tout supprimer sauf admin</button>
-        </div>
-        <div id="cleanup-users-list">
+        <h2 class="font-display text-lg font-bold text-danger-400 mb-4">Comptes de test trouves</h2>
+        <div id="test-users-list">
           <div class="text-center py-4"><span class="spinner"></span></div>
         </div>
       </div>
 
-      <!-- Spots Section -->
+      <!-- Test spots found -->
       <div class="card p-5">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-display text-lg font-bold text-emerald-400">Spots</h2>
-          <button id="delete-all-spots-btn" class="btn-danger text-xs py-1.5 px-4">Tout supprimer sauf admin</button>
-        </div>
-        <div id="cleanup-spots-list">
+        <h2 class="font-display text-lg font-bold text-danger-400 mb-4">Spots de test trouves</h2>
+        <div id="test-spots-list">
           <div class="text-center py-4"><span class="spinner"></span></div>
         </div>
       </div>
@@ -77,221 +108,146 @@ export function renderCleanup() {
   `
 }
 
-function isAdminUser(user) {
-  return (user.email || '').toLowerCase() === ADMIN_EMAIL
-}
+function renderTestUsers() {
+  const el = document.getElementById('test-users-list')
+  const countEl = document.getElementById('test-user-count')
+  const realCountEl = document.getElementById('real-user-count')
+  if (countEl) countEl.textContent = testUsers ? testUsers.length : '0'
+  if (realCountEl) realCountEl.textContent = realUserCount
+  if (!el) return
 
-function isAdminSpot(spot) {
-  return (spot.creatorEmail || '').toLowerCase() === ADMIN_EMAIL ||
-    (spot.userEmail || '').toLowerCase() === ADMIN_EMAIL
-}
-
-function renderUsersList(users) {
-  const listEl = document.getElementById('cleanup-users-list')
-  const countEl = document.getElementById('cleanup-user-count')
-  if (!listEl) return
-
-  if (countEl) countEl.textContent = users.length
-
-  if (users.length === 0) {
-    listEl.innerHTML = '<p class="text-slate-500 text-sm text-center py-4">Aucun utilisateur</p>'
+  if (!testUsers || testUsers.length === 0) {
+    el.innerHTML = '<p class="text-emerald-400 text-sm text-center py-4">Aucun compte de test. Tout est propre.</p>'
     return
   }
 
-  listEl.innerHTML = users
-    .map((u) => {
-      const email = escapeHTML(u.email || '')
-      const name = escapeHTML(u.username || u.displayName || '')
-      const date = formatDate(u.createdAt || u.joinedAt)
-      const admin = isAdminUser(u)
-      const borderClass = admin ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-white/5'
-      const adminBadge = admin ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full ml-2">Admin</span>' : ''
-
-      return `
-      <div class="flex items-center justify-between py-3 border-b ${borderClass} last:border-0">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center">
-            <span class="text-sm text-white font-medium">${name || '<span class="text-slate-500">Sans nom</span>'}</span>
-            ${adminBadge}
-          </div>
-          <p class="text-xs text-slate-400 mt-0.5">${email}</p>
-          ${date ? `<p class="text-xs text-slate-500 mt-0.5">${date}</p>` : ''}
-        </div>
-        ${admin ? '<span class="text-xs text-emerald-400 whitespace-nowrap">Protege</span>' : `<button class="btn-danger text-xs py-1 px-3 whitespace-nowrap" data-delete-user="${escapeHTML(u.id)}">Supprimer</button>`}
-      </div>`
-    })
-    .join('')
+  el.innerHTML = testUsers.map(u => {
+    const email = escapeHTML(u.email || '')
+    const name = escapeHTML(u.username || u.displayName || '')
+    const date = formatDate(u.createdAt || u.joinedAt)
+    return `
+    <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+      <div>
+        <span class="text-sm text-slate-200">${name || email}</span>
+        <span class="text-xs text-slate-500 ml-2">${email}</span>
+        ${date ? `<span class="text-xs text-slate-600 ml-2">${date}</span>` : ''}
+      </div>
+      <span class="text-xs text-danger-400">Test CI</span>
+    </div>`
+  }).join('')
 }
 
-function renderSpotsList(spots) {
-  const listEl = document.getElementById('cleanup-spots-list')
-  const countEl = document.getElementById('cleanup-spot-count')
-  if (!listEl) return
+function renderTestSpots() {
+  const el = document.getElementById('test-spots-list')
+  const countEl = document.getElementById('test-spot-count')
+  const realCountEl = document.getElementById('real-spot-count')
+  if (countEl) countEl.textContent = testSpots ? testSpots.length : '0'
+  if (realCountEl) realCountEl.textContent = realSpotCount
+  if (!el) return
 
-  if (countEl) countEl.textContent = spots.length
-
-  if (spots.length === 0) {
-    listEl.innerHTML = '<p class="text-slate-500 text-sm text-center py-4">Aucun spot</p>'
+  if (!testSpots || testSpots.length === 0) {
+    el.innerHTML = '<p class="text-emerald-400 text-sm text-center py-4">Aucun spot de test. Tout est propre.</p>'
     return
   }
 
-  listEl.innerHTML = spots
-    .map((s) => {
-      const title = escapeHTML(s.title || s.from || s.city || `${(s.lat || 0).toFixed(2)}, ${(s.lng || 0).toFixed(2)}`)
-      const creator = escapeHTML(s.creatorName || s.creatorEmail || s.userEmail || '')
-      const desc = escapeHTML(truncate(s.description || s.desc || ''))
-      const date = formatDate(s.createdAt)
-      const admin = isAdminSpot(s)
-      const borderClass = admin ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-white/5'
-      const adminBadge = admin ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full ml-2">Admin</span>' : ''
-
-      return `
-      <div class="flex items-center justify-between py-3 border-b ${borderClass} last:border-0">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center">
-            <span class="text-sm text-white font-medium">${title}</span>
-            ${adminBadge}
-          </div>
-          ${creator ? `<p class="text-xs text-slate-400 mt-0.5">${creator}</p>` : ''}
-          ${desc ? `<p class="text-xs text-slate-500 mt-0.5">${desc}</p>` : ''}
-          ${date ? `<p class="text-xs text-slate-500 mt-0.5">${date}</p>` : ''}
-        </div>
-        ${admin ? '<span class="text-xs text-emerald-400 whitespace-nowrap">Protege</span>' : `<button class="btn-danger text-xs py-1 px-3 whitespace-nowrap" data-delete-spot="${escapeHTML(s.id)}">Supprimer</button>`}
-      </div>`
-    })
-    .join('')
+  el.innerHTML = testSpots.map(s => {
+    const title = escapeHTML(s.title || s.from || s.city || `${(s.lat || 0).toFixed(2)}, ${(s.lng || 0).toFixed(2)}`)
+    const creator = escapeHTML(s.creator || s.creatorEmail || '')
+    const date = formatDate(s.createdAt)
+    return `
+    <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+      <div>
+        <span class="text-sm text-slate-200">${title}</span>
+        ${creator ? `<span class="text-xs text-slate-500 ml-2">${creator}</span>` : ''}
+        ${date ? `<span class="text-xs text-slate-600 ml-2">${date}</span>` : ''}
+      </div>
+      <span class="text-xs text-danger-400">Test</span>
+    </div>`
+  }).join('')
 }
 
-async function loadData() {
+async function loadAndFilterData() {
   try {
-    const [users, spots] = await Promise.all([
+    const [allUsers, allSpots] = await Promise.all([
       loadAllUsers(),
       loadAllSpots(),
     ])
-    cachedUsers = users
-    cachedSpots = spots
-    renderUsersList(cachedUsers)
-    renderSpotsList(cachedSpots)
+
+    testUsers = allUsers.filter(u => isTestUser(u))
+    testSpots = allSpots.filter(s => isTestSpot(s))
+    realUserCount = allUsers.length - testUsers.length
+    realSpotCount = allSpots.length - testSpots.length
+
+    renderTestUsers()
+    renderTestSpots()
   } catch (err) {
     console.error('Cleanup: failed to load data', err)
-    const usersEl = document.getElementById('cleanup-users-list')
-    const spotsEl = document.getElementById('cleanup-spots-list')
-    if (usersEl) usersEl.innerHTML = '<p class="text-danger-400 text-sm text-center py-4">Erreur de chargement</p>'
-    if (spotsEl) spotsEl.innerHTML = '<p class="text-danger-400 text-sm text-center py-4">Erreur de chargement</p>'
+    const el1 = document.getElementById('test-users-list')
+    const el2 = document.getElementById('test-spots-list')
+    if (el1) el1.innerHTML = '<p class="text-danger-400 text-sm text-center py-4">Erreur de chargement</p>'
+    if (el2) el2.innerHTML = '<p class="text-danger-400 text-sm text-center py-4">Erreur de chargement</p>'
   }
 }
 
-async function deleteSingleUser(docId) {
-  try {
-    await deleteDocument('users', docId)
-    cachedUsers = cachedUsers.filter((u) => u.id !== docId)
-    renderUsersList(cachedUsers)
-    window.__showToast('Utilisateur supprime', 'success')
-  } catch (err) {
-    console.error('Delete user failed:', err)
-    window.__showToast('Erreur de suppression', 'error')
-  }
-}
-
-async function deleteSingleSpot(docId) {
-  try {
-    await deleteDocument('spots', docId)
-    cachedSpots = cachedSpots.filter((s) => s.id !== docId)
-    renderSpotsList(cachedSpots)
-    window.__showToast('Spot supprime', 'success')
-  } catch (err) {
-    console.error('Delete spot failed:', err)
-    window.__showToast('Erreur de suppression', 'error')
-  }
-}
-
-async function deleteAllUsersExceptAdmin() {
-  if (!cachedUsers) return
-  const toDelete = cachedUsers.filter((u) => !isAdminUser(u))
-  if (toDelete.length === 0) {
-    window.__showToast('Aucun utilisateur a supprimer', 'info')
+async function cleanupAll() {
+  const totalTest = (testUsers ? testUsers.length : 0) + (testSpots ? testSpots.length : 0)
+  if (totalTest === 0) {
+    window.__showToast?.('Rien a nettoyer, tout est propre', 'info')
     return
   }
-  if (!confirm(`Supprimer ${toDelete.length} utilisateur(s) ? Cette action est irreversible.`)) return
 
-  const listEl = document.getElementById('cleanup-users-list')
-  if (listEl) listEl.innerHTML = '<div class="text-center py-4"><span class="spinner"></span> Suppression en cours...</div>'
+  if (!confirm(`Supprimer ${testUsers?.length || 0} compte(s) de test et ${testSpots?.length || 0} spot(s) de test ?`)) return
+
+  const btn = document.getElementById('cleanup-all-btn')
+  if (btn) {
+    btn.disabled = true
+    btn.textContent = 'Nettoyage en cours...'
+  }
 
   let deleted = 0
-  for (const u of toDelete) {
+
+  // Delete test users
+  for (const u of (testUsers || [])) {
     try {
       await deleteDocument('users', u.id)
       deleted++
     } catch (err) {
-      console.error(`Failed to delete user ${u.id}:`, err)
+      console.error('Failed to delete test user:', err)
     }
   }
 
-  cachedUsers = cachedUsers.filter((u) => isAdminUser(u))
-  renderUsersList(cachedUsers)
-  window.__showToast(`${deleted} utilisateur(s) supprime(s)`, 'success')
-}
-
-async function deleteAllSpotsExceptAdmin() {
-  if (!cachedSpots) return
-  const toDelete = cachedSpots.filter((s) => !isAdminSpot(s))
-  if (toDelete.length === 0) {
-    window.__showToast('Aucun spot a supprimer', 'info')
-    return
-  }
-  if (!confirm(`Supprimer ${toDelete.length} spot(s) ? Cette action est irreversible.`)) return
-
-  const listEl = document.getElementById('cleanup-spots-list')
-  if (listEl) listEl.innerHTML = '<div class="text-center py-4"><span class="spinner"></span> Suppression en cours...</div>'
-
-  let deleted = 0
-  for (const s of toDelete) {
+  // Delete test spots
+  for (const s of (testSpots || [])) {
     try {
       await deleteDocument('spots', s.id)
       deleted++
     } catch (err) {
-      console.error(`Failed to delete spot ${s.id}:`, err)
+      console.error('Failed to delete test spot:', err)
     }
   }
 
-  cachedSpots = cachedSpots.filter((s) => isAdminSpot(s))
-  renderSpotsList(cachedSpots)
-  window.__showToast(`${deleted} spot(s) supprime(s)`, 'success')
+  testUsers = []
+  testSpots = []
+  renderTestUsers()
+  renderTestSpots()
+
+  if (btn) {
+    btn.disabled = false
+    btn.textContent = 'Nettoyer toutes les donnees de test'
+  }
+
+  window.__showToast?.(`${deleted} element(s) de test supprime(s)`, 'success')
 }
 
 export async function bindCleanupEvents() {
-  // Load all data
-  await loadData()
+  await loadAndFilterData()
 
-  // Delegate click events for individual delete buttons
-  const mainContent = document.getElementById('main-content')
-  if (mainContent) {
-    mainContent.addEventListener('click', (e) => {
-      const userBtn = e.target.closest('[data-delete-user]')
-      if (userBtn) {
-        const docId = userBtn.dataset.deleteUser
-        if (confirm('Supprimer cet utilisateur ?')) {
-          deleteSingleUser(docId)
-        }
-        return
-      }
-
-      const spotBtn = e.target.closest('[data-delete-spot]')
-      if (spotBtn) {
-        const docId = spotBtn.dataset.deleteSpot
-        if (confirm('Supprimer ce spot ?')) {
-          deleteSingleSpot(docId)
-        }
-      }
-    })
-  }
-
-  // Bulk delete buttons
-  document.getElementById('delete-all-users-btn')?.addEventListener('click', deleteAllUsersExceptAdmin)
-  document.getElementById('delete-all-spots-btn')?.addEventListener('click', deleteAllSpotsExceptAdmin)
+  document.getElementById('cleanup-all-btn')?.addEventListener('click', cleanupAll)
 }
 
 export function resetCleanupCache() {
-  cachedUsers = null
-  cachedSpots = null
+  testUsers = null
+  testSpots = null
+  realUserCount = 0
+  realSpotCount = 0
 }
