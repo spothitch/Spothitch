@@ -34,24 +34,40 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-// Initialize Firebase
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
-const auth = getAuth(app)
-const db = getFirestore(app)
+// Check if Firebase is configured
+export const isFirebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId)
+
+// Initialize Firebase (only if configured)
+let app = null
+let auth = null
+let db = null
+
+if (isFirebaseConfigured) {
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
+  auth = getAuth(app)
+  db = getFirestore(app)
+}
 
 export { auth, db }
 
 // Auth helpers
 export function signInWithGoogle() {
+  if (!auth) return Promise.reject(new Error('Firebase non configure'))
   const provider = new GoogleAuthProvider()
   return signInWithPopup(auth, provider)
 }
 
 export function logOut() {
+  if (!auth) return Promise.resolve()
   return signOut(auth)
 }
 
 export function onAuthChange(callback) {
+  if (!auth) {
+    // Firebase not configured — call with null immediately
+    setTimeout(() => callback(null), 0)
+    return () => {}
+  }
   return onAuthStateChanged(auth, callback)
 }
 
