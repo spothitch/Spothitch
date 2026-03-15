@@ -77,7 +77,10 @@ export function renderDashboard() {
     <!-- Cleanup bar -->
     <div class="cleanup-bar" id="cleanup-section">
       <span class="cleanup-text" id="cleanup-summary"><span class="spinner"></span></span>
-      <button class="btn btn-reject" id="cleanup-btn" disabled>Nettoyer</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-reject" id="cleanup-spots-btn" disabled>Supprimer les spots test</button>
+        <button class="btn btn-reject" id="cleanup-users-btn" disabled>Supprimer les comptes test</button>
+      </div>
     </div>
   `
 }
@@ -100,13 +103,15 @@ export async function bindDashboardEvents() {
 
       // Update cleanup summary
       const summaryEl = document.getElementById('cleanup-summary')
-      const cleanBtn = document.getElementById('cleanup-btn')
       if (summaryEl) {
         summaryEl.textContent = `🧹 ${stats.testUserCount} compte${stats.testUserCount > 1 ? 's' : ''} de test · ${stats.testSpotCount} spot${stats.testSpotCount > 1 ? 's' : ''} de test`
       }
-      if (cleanBtn) {
-        cleanBtn.disabled = stats.testUserCount === 0 && stats.testSpotCount === 0
-      }
+      const spotsBtn = document.getElementById('cleanup-spots-btn')
+      const usersBtn = document.getElementById('cleanup-users-btn')
+      if (spotsBtn) spotsBtn.disabled = stats.testSpotCount === 0
+      if (usersBtn) usersBtn.disabled = stats.testUserCount === 0
+      // Store stats for cleanup
+      window.__cleanupStats = stats
     })
     .catch((err) => {
       console.error('Failed to load stats:', err)
@@ -132,61 +137,74 @@ export async function bindDashboardEvents() {
       if (el) el.innerHTML = '<div style="text-align:center;padding:8px;font-size:12px;color:#64748b;">Erreur de chargement</div>'
     })
 
-  // Cleanup button
-  const cleanBtn = document.getElementById('cleanup-btn')
-  if (cleanBtn) cleanBtn.addEventListener('click', runCleanup)
+  // Cleanup buttons
+  const spotsBtn = document.getElementById('cleanup-spots-btn')
+  const usersBtn = document.getElementById('cleanup-users-btn')
+  if (spotsBtn) spotsBtn.addEventListener('click', () => runCleanup('spots'))
+  if (usersBtn) usersBtn.addEventListener('click', () => runCleanup('users'))
 }
 
-async function runCleanup() {
-  const btn = document.getElementById('cleanup-btn')
+async function runCleanup(type) {
+  const btn = document.getElementById(type === 'spots' ? 'cleanup-spots-btn' : 'cleanup-users-btn')
   if (!btn) return
 
   try {
     const [allUsers, allSpots] = await Promise.all([loadAllUsers(), loadAllSpots()])
     const testUsers = allUsers.filter((u) => isTestUser(u))
-    const testSpots = allSpots.filter((s) => isTestSpot(s))
-    const total = testUsers.length + testSpots.length
+    const testUserIds = testUsers.map((u) => u.id)
+    const testSpots = allSpots.filter((s) => isTestSpot(s, testUserIds))
+    const total = type === 'spots' ? testSpots.length : testUsers.length
 
     if (total === 0) {
-      window.__showToast?.('Rien a nettoyer, tout est propre', 'info')
+      window.__showToast?.('Rien a nettoyer', 'info')
       return
     }
 
-    if (!confirm(`Nettoyer les données de test ?\n\nSupprime ${testUsers.length} compte(s) de test (ci-*@spothitch.com) et ${testSpots.length} spot(s) créés par ces comptes.\n\nAucun vrai utilisateur ne sera touché. Cette action est irréversible.`)) return
+    if (type === 'spots') {
+      if (!confirm(`Supprimer ${testSpots.length} spot(s) de test ?\n\nCe sont des spots créés par les tests automatisés (ci-*@spothitch.com). Aucun vrai spot d'utilisateur ne sera touché.\n\nCette action est irréversible.`)) return
+    } else {
+      if (!confirm(`Supprimer ${testUsers.length} compte(s) de test ?\n\nCe sont les comptes ci-alice, ci-bob, ci-charlie, ci-diana, ci-admin utilisés par les tests automatisés.\n\nCette action est irréversible.`)) return
+    }
 
     btn.disabled = true
     btn.textContent = '...'
 
     let deleted = 0
-    for (const u of testUsers) {
-      try {
-        await deleteDocument('users', u.id)
-        deleted++
-      } catch (err) {
-        console.error('Failed to delete test user:', err)
+    if (type === 'spots') {
+      for (const s of testSpots) {
+        try {
+          await deleteDocument('spots', s.id)
+          deleted++
+        } catch (err) {
+          console.error('Failed to delete test spot:', err)
+        }
       }
-    }
-    for (const s of testSpots) {
-      try {
-        await deleteDocument('spots', s.id)
-        deleted++
-      } catch (err) {
-        console.error('Failed to delete test spot:', err)
+    } else {
+      for (const u of testUsers) {
+        try {
+          await deleteDocument('users', u.id)
+          deleted++
+        } catch (err) {
+          console.error('Failed to delete test user:', err)
+        }
       }
     }
 
-    btn.disabled = false
-    btn.textContent = 'Nettoyer'
-
-    const summaryEl = document.getElementById('cleanup-summary')
-    if (summaryEl) summaryEl.textContent = '🧹 0 compte de test · 0 spot de test'
     btn.disabled = true
+    btn.textContent = type === 'spots' ? 'Supprimer les spots test' : 'Supprimer les comptes test'
 
-    window.__showToast?.(`${deleted} element(s) de test supprime(s)`, 'success')
+    // Refresh summary
+    const newUsers = allUsers.filter((u) => isTestUser(u))
+    const newSpots = allSpots.filter((s) => isTestSpot(s, newUsers.map(u => u.id)))
+    const remaining = type === 'spots' ? { users: newUsers.length, spots: 0 } : { users: 0, spots: newSpots.length }
+    const summaryEl = document.getElementById('cleanup-summary')
+    if (summaryEl) summaryEl.textContent = `🧹 ${type === 'users' ? 0 : newUsers.length} compte(s) de test · ${type === 'spots' ? 0 : newSpots.length} spot(s) de test`
+
+    window.__showToast?.(`${deleted} ${type === 'spots' ? 'spot(s)' : 'compte(s)'} de test supprimé(s)`, 'success')
   } catch (err) {
     console.error('Cleanup error:', err)
     btn.disabled = false
-    btn.textContent = 'Nettoyer'
+    btn.textContent = type === 'spots' ? 'Supprimer les spots test' : 'Supprimer les comptes test'
     window.__showToast?.('Erreur lors du nettoyage', 'error')
   }
 }
