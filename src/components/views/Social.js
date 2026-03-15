@@ -1132,10 +1132,10 @@ window.acceptFriendRequest = async (requestId) => {
         triggerFriendAddedTip()
       } catch { /* no-op */ }
     } else {
-      window.showToast?.(t('errorOccurred') || 'Error', 'error')
+      window.showToast?.(t('friendRequestError') || 'Impossible d\'accepter la demande.', 'error')
     }
   } catch {
-    window.showToast?.(t('errorOccurred') || 'Error', 'error')
+    window.showToast?.(t('friendRequestNetworkError') || 'Pas de connexion. Réessaie.', 'error')
   }
 }
 
@@ -1192,7 +1192,7 @@ window.addFriendByName = async () => {
     }
   } catch {
     setState({ friendSearchLoading: false, friendSearchResults: null })
-    window.showToast?.(t('errorOccurred') || 'Error', 'error')
+    window.showToast?.(t('searchError') || 'Recherche impossible. Vérifie ta connexion.', 'error')
   }
 }
 
@@ -1213,14 +1213,14 @@ window.sendFriendRequest = async (targetUserId) => {
     } else if (result.error === 'request_already_sent') {
       window.showToast?.(t('requestAlreadySent') || 'Demande déjà envoyée', 'warning')
     } else {
-      window.showToast?.(t('errorOccurred') || 'Error', 'error')
+      window.showToast?.(t('friendRequestError') || 'Impossible d\'envoyer la demande.', 'error')
     }
     setState({ friendSearchResults: null })
     const input = document.getElementById('friend-search')
     if (input) input.value = ''
   } catch (err) {
     console.error('Friend request failed:', err)
-    window.showToast?.(t('errorNetwork') || 'Erreur réseau. Réessaie.', 'error')
+    window.showToast?.(t('friendRequestNetworkError') || 'Pas de connexion. Réessaie.', 'error')
   }
 }
 

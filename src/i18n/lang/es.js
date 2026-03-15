@@ -957,6 +957,12 @@ export default {
   userNotFound: 'Usuario no encontrado',
   errorOccurred: 'Ha ocurrido un error',
   errorNetwork: 'Error de red. Inténtalo de nuevo.',
+  reviewNetworkError: 'Tu opinión no se envió. Verifica tu conexión.',
+  reportNetworkError: 'Reporte no enviado. Verifica tu conexión.',
+  friendRequestError: 'No se pudo aceptar la solicitud.',
+  friendRequestNetworkError: 'Sin conexión. Inténtalo de nuevo.',
+  conversationError: 'Acción imposible. Verifica tu conexión.',
+  downloadComplete: 'Descarga completada',
   messageSendFailed: 'Mensaje no enviado. Verifica tu conexión.',
 
   gdprFooter: 'De acuerdo con el RGPD, tienes derecho a acceder, rectificar y eliminar tus datos personales.',

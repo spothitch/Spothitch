@@ -286,7 +286,7 @@ function startVersionCheck() {
       }
       // New SW activated — reload NOW so user gets latest version immediately
       isReloading = true
-      try { showToast(t('updating') || 'Mise à jour...', 'info') } catch (_e) { /* ok */ }
+      /* silent update — no toast needed, page reloads immediately */
       setTimeout(() => window.location.reload(), 800)
     }
     hadController = true
@@ -532,7 +532,6 @@ async function init() {
                 updates.authPendingAction = null
                 updates.showAuthReason = null
                 fb.createOrUpdateUserProfile(user).catch(err => console.error('Profile sync failed:', err))
-                showToast(t('googleLoginSuccess') || 'Google login successful!', 'success')
                 // Execute pending action
                 const pendingAction = sessionStorage.getItem('spothitch_auth_pending_action')
                 sessionStorage.removeItem('spothitch_auth_pending_action')
@@ -599,8 +598,6 @@ async function init() {
                   photoURL: user.photoURL,
                 },
               })
-              showToast(t('googleLoginSuccess') || 'Google login successful!', 'success')
-
               // Execute pending action that was saved before the redirect
               const pendingAction = sessionStorage.getItem('spothitch_auth_pending_action')
               sessionStorage.removeItem('spothitch_auth_pending_action')
@@ -636,19 +633,6 @@ async function init() {
 
     // Trigger initial render
     scheduleRender(() => render(getState()));
-
-    // TEMPORARY DEBUG: small toast showing share params (auto-dismiss 5s)
-    setTimeout(() => {
-      try {
-        const q = window.location.search
-        const p = new URLSearchParams(q)
-        const hasShare = p.get('title') || p.get('text') || p.get('url') || p.get('action') === 'share'
-        if (hasShare) {
-          const info = [p.get('title'), p.get('text'), p.get('url')].filter(Boolean).join(' | ')
-          showToast('Share: ' + info.slice(0, 80), 'info', 5000)
-        }
-      } catch { /* no-op */ }
-    }, 1500)
 
     // Handle deep links from URL params
     try {
@@ -1260,7 +1244,6 @@ window.acceptLocationPermission = async () => {
         lng: position.coords.longitude
       }
     })
-    showToast(t('locationEnabled') || 'Localisation activée !', 'success')
   } catch (error) {
     console.error('Geolocation error:', error)
     showToast(t('locationFailed') || 'Impossible d\'obtenir la localisation', 'error')
@@ -1269,12 +1252,11 @@ window.acceptLocationPermission = async () => {
 }
 window.declineLocationPermission = () => {
   setState({ showLocationPermission: false, locationPermissionDenied: true })
-  showToast(t('locationLater') || 'Vous pouvez activer la localisation plus tard dans les paramètres', 'info')
+  /* silent — user can always enable location later from settings */
 }
 window.closeLocationPermission = () => setState({ showLocationPermission: false })
 window.openRating = (_spotId) => {
-  // Rating modal not yet implemented — show toast
-  showToast(t('comingSoon') || 'Coming soon', 'info')
+  // Rating modal not yet implemented — no-op
 };
 window.closeRating = () => setState({ showRating: false, ratingSpotId: null });
 window.openNavigation = (lat, lng) => {
@@ -1292,9 +1274,8 @@ window.getSpotLocation = () => {
         const lngInput = document.getElementById('spot-lng');
         if (latInput) latInput.value = lat;
         if (lngInput) lngInput.value = lng;
-        showToast(t('positionRetrieved') || 'Position récupérée !', 'success');
       },
-      () => showToast(t('positionFailed') || 'Impossible de récupérer la position', 'error'),
+      () => showToast(t('positionFailed') || 'GPS indisponible. Place le spot manuellement.', 'error'),
       { enableHighAccuracy: true }
     );
   }
@@ -1339,7 +1320,7 @@ window.submitReview = async (spotId) => {
       const { checkProximity } = await import('./services/proximityVerification.js')
       const proximity = checkProximity(spotLat, spotLng, getState().userLocation)
       if (!proximity.allowed) {
-        showToast(t('proximityRequired') || `Tu dois être passé à moins de 5 km de ce spot dans les dernières 24h (${proximity.distanceKm} km)`, 'error')
+        showToast(t('proximityRequired') || 'Tu es trop loin de ce spot pour valider.', 'error')
         return
       }
     }
@@ -1352,7 +1333,7 @@ window.submitReview = async (spotId) => {
       setState({ showRating: false })
     } catch (err) {
       console.error('Review submit failed:', err)
-      showToast(t('errorNetwork') || 'Erreur réseau. Réessaie.', 'error')
+      showToast(t('reviewNetworkError') || 'Ton avis n\'a pas été envoyé. Vérifie ta connexion.', 'error')
     }
   }
 };
@@ -1367,7 +1348,7 @@ window.reportSpotAction = async (spotId) => {
       showToast(t('reportSent') || 'Signalement envoyé', 'success');
     } catch (err) {
       console.error('Report failed:', err)
-      showToast(t('errorNetwork') || 'Erreur réseau. Réessaie.', 'error');
+      showToast(t('reportNetworkError') || 'Signalement non envoyé. Vérifie ta connexion.', 'error');
     }
   }
 };
@@ -1480,14 +1461,10 @@ if (!window.handleGoogleSignIn) {
 }
 // Facebook/Apple sign-in — hidden until configured (Facebook needs Dev App, Apple needs $99/yr account)
 if (!window.handleFacebookSignIn) {
-  window.handleFacebookSignIn = async () => {
-    showToast(t('featureComingSoon') || 'Coming soon', 'info')
-  }
+  window.handleFacebookSignIn = async () => { /* not yet configured */ }
 }
 if (!window.handleAppleSignIn) {
-  window.handleAppleSignIn = async () => {
-    showToast(t('featureComingSoon') || 'Coming soon', 'info')
-  }
+  window.handleAppleSignIn = async () => { /* not yet configured */ }
 }
 // Auth fallbacks — overridden by Auth.js/Profile.js when loaded
 if (!window.handleForgotPassword) {
@@ -1518,7 +1495,6 @@ if (!window.handleLogout) {
     await fb.logOut()
     actions.setUser(null)
     setState({ currentUser: null, userProfile: null, isAdmin: false })
-    showToast(t('logoutSuccess') || 'Logged out', 'success')
   }
 }
 // Progressive Auth Gate — exposed globally
@@ -1528,6 +1504,7 @@ window.requireAuth = (actionName) => {
 
   const reasonMap = {
     addSpot: t('authRequiredAddSpot'),
+    submitSpot: t('authRequiredAddSpot'),
     validateSpot: t('authRequiredAddSpot'),
     saveFavorite: t('authRequiredFavorite'),
     sos: t('authRequiredSOS'),
@@ -1629,7 +1606,6 @@ window.completeWelcome = () => {
     showWelcome: false,
     pendingProfileAction: null,
   })
-  showToast(`${t('welcome') || 'Welcome'} ${username} !`, 'success')
   // Resume the action that required a profile
   if (pendingProfileAction === 'addSpot') {
     setTimeout(() => window.openAddSpot?.(), 300)
@@ -1833,13 +1809,11 @@ window.openMyRewards = () => setState({ showShop: false, showMyRewards: true });
 window.closeMyRewards = () => setState({ showMyRewards: false });
 window.equipAvatar = (avatar) => {
   setState({ avatar });
-  showToast(t('avatarEquipped') || 'Avatar équipé !', 'success');
 };
 // equipFrame — canonical in profileCustomization.js
 // equipTitle — canonical in profileCustomization.js
 window.activateBooster = (_boosterId) => {
   // Activate booster logic
-  showToast(t('boosterActivated') || 'Booster activé !', 'success');
 };
 
 // Stats handlers
@@ -2009,7 +1983,6 @@ window.closeAddFriend = () => setState({ showAddFriend: false });
 // sendPrivateMessage — canonical in Social.js
 window.copyFriendLink = () => {
   navigator.clipboard?.writeText('spothitch.app/add/user123').catch(() => {});
-  showToast(t('linkCopied') || 'Lien copié !', 'success');
 };
 
 // Friend Challenges handlers (#157) — lazy-loaded
@@ -2077,7 +2050,7 @@ window.closeLegal = () => setState({ showLegal: false });
 
 // Side menu handlers (no render function yet — stub with toast)
 window.openSideMenu = () => {
-  showToast(t('comingSoon') || 'Coming soon', 'info')
+  /* not yet implemented */
 };
 window.closeSideMenu = () => setState({ showSideMenu: false });
 
@@ -2308,14 +2281,13 @@ window.openHelpCenter = () => {
   setState({ showFAQ: true, faqSearchQuery: '' });
 };
 window.openChangelog = () => {
-  showToast(t('changelogToast') || 'SpotHitch v2.0 · Février 2026', 'info');
+  setState({ showFeedbackPanel: true });
 };
 window.openRoadmap = () => {
-  showToast(t('roadmap') || 'Roadmap SpotHitch 2026\n\n✅ Chat temps réel\n✅ Messages privés\n✅ Vérification identité\n🔄 Guerres de guildes\n🔄 Événements saisonniers\n🔄 Intégration natives (iOS/Android)', 'info');
+  setState({ showFeedbackPanel: true });
 };
 window.openBugReport = () => {
   setState({ showContactForm: true });
-  showToast(t('bugReportHint') || 'Décris le problème rencontré', 'info');
 };
 
 // Feedback Panel
@@ -2701,7 +2673,6 @@ window.openAddWebhook = async () => {
     : url.includes('slack') ? WEBHOOK_TYPES.SLACK
     : WEBHOOK_TYPES.CUSTOM;
   addWebhook({ type, url, name: type.charAt(0).toUpperCase() + type.slice(1) + ' Webhook' });
-  showToast(t('webhookAdded') || 'Webhook ajoute !', 'success');
   scheduleRender(() => render(getState()));
 };
 window.toggleWebhookAction = async (id) => {
@@ -2712,7 +2683,6 @@ window.toggleWebhookAction = async (id) => {
 window.removeWebhookAction = async (id) => {
   const { removeWebhook } = await import('./services/webhooks.js');
   removeWebhook(id);
-  showToast(t('webhookRemoved') || 'Webhook supprime', 'success');
   scheduleRender(() => render(getState()));
 };
 
@@ -2720,7 +2690,6 @@ window.removeWebhookAction = async (id) => {
 window.clearFormDraft = async (formId) => {
   const { clearDraft } = await import('./utils/formPersistence.js');
   clearDraft(formId);
-  showToast(t('draftCleared') || 'Brouillon efface', 'info');
   scheduleRender(() => render(getState()));
 };
 
@@ -2748,7 +2717,6 @@ window.loadCountryOnMap = async (code) => {
   try {
     const { loadCountrySpots } = await import('./services/spotLoader.js')
     await loadCountrySpots(code)
-    showToast(`${t('countryLoaded') || 'Pays chargé'} (${code})`, 'success')
     // Refresh map spots source if map is active
     if (window.homeMapInstance) {
       const source = window.homeMapInstance.getSource('home-spots')
@@ -2790,7 +2758,7 @@ window.downloadCountryFromBubble = async (code, name) => {
       if (ring) ring.style.strokeDashoffset = '0'
       if (pctLabel) pctLabel.textContent = '\u2713'
       if (flagEl) flagEl.style.opacity = '1'
-      showToast(`${name}: ${result.count} ${t('countryDownloaded') || 'Téléchargé'}`, 'success')
+      showToast(`${name} ${t('countryDownloaded') || 'téléchargé'}`, 'success')
       if (window._refreshCountryBubbles) window._refreshCountryBubbles()
       // Update button to "downloaded" state
       if (btn) {
@@ -2854,7 +2822,7 @@ window.downloadCountryOffline = async (code, name) => {
       }
     })
     if (result.success) {
-      showToast(`${name}: ${result.count} spots · ${result.stationCount} ⛽ · ${Math.round(result.tileSizeMB)} Mo`, 'success')
+      showToast(`${name} ${t('countryDownloaded') || 'téléchargé'}`, 'success')
       // Refresh the settings view to show new country in list
       setState({ profileSubTab: 'reglages' })
     } else {
@@ -2891,7 +2859,7 @@ window.downloadCountryForOffline = async (code) => {
     })
     setState({ offlineDownloadingCountry: null, offlineDownloadProgress: 0 })
     if (result.success) {
-      showToast(`${result.count} ${t('spotsDownloaded') || 'spots téléchargés'}`, 'success')
+      showToast(t('downloadComplete') || 'Téléchargement terminé', 'success')
       if (window._refreshCountryBubbles) window._refreshCountryBubbles()
     } else {
       showToast(t('downloadFailed') || 'Échec du téléchargement', 'error')
@@ -2922,12 +2890,6 @@ window.clearAllOfflineData = async () => {
 window.toggleAutoOfflineDownload = () => {
   const current = getState().offlineAutoDownloadEnabled
   setState({ offlineAutoDownloadEnabled: !current })
-  showToast(
-    !current
-      ? (t('autoOfflineEnabled') || 'Téléchargement auto activé')
-      : (t('autoOfflineDisabled') || 'Téléchargement auto désactivé'),
-    'info'
-  )
 }
 
 // ==================== HOME HANDLERS ====================
@@ -3028,7 +2990,6 @@ window.homeCenterOnUser = () => {
     window.homeMapInstance.setView([userLocation.lat, userLocation.lng], 13)
   } else if (navigator.geolocation) {
     // Request GPS permission and center when available
-    showToast(t('locating') || 'Localisation en cours...', 'info')
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
@@ -3118,10 +3079,8 @@ if (!window.toggleFavorite) {
     const currently = isFavorite(spotId)
     if (currently) {
       await removeFavorite(spotId)
-      window.showToast?.(t('removeFromFavorites') || 'Retiré des favoris', 'success')
     } else {
       await addFavorite(spotId)
-      window.showToast?.(t('addToFavorites') || 'Ajouté aux favoris', 'success')
     }
     // Update heart icon in SpotDetail
     const heartBtn = document.querySelector('[data-favorite-btn]')
@@ -3150,8 +3109,8 @@ if (!window.openFeedbackOnFeature) {
 // Profile view handlers — lazy-loaded with Profile.js
 if (!window.openAddPastTrip) window.openAddPastTrip = () => setState({ showAddPastTrip: true })
 if (!window.openBlockedUsers) window.openBlockedUsers = () => setState({ showBlockedUsers: true })
-if (!window.openComingSoonProximity) window.openComingSoonProximity = () => import('./services/notifications.js').then(m => m.showToast('Coming soon!', 'info'))
-if (!window.openReferences) window.openReferences = () => window.showToast?.('Fonctionnalité à venir', 'info')
+if (!window.openComingSoonProximity) window.openComingSoonProximity = () => { /* not yet implemented */ }
+if (!window.openReferences) window.openReferences = () => { /* not yet implemented */ }
 if (!window.openMySpots) window.openMySpots = () => setState({ profileDetailView: 'spots' })
 if (!window.openMyValidations) window.openMyValidations = () => setState({ profileDetailView: 'validations' })
 if (!window.openMyCountries) window.openMyCountries = () => setState({ profileDetailView: 'countries' })
@@ -3165,7 +3124,7 @@ if (!window.openCountryGuide) {
   window.openCountryGuide = (code) => setState({ selectedCountryGuide: code, activeSubTab: 'guides' })
 }
 // MyData modal handlers — lazy-loaded
-if (!window.openConsentSettings) window.openConsentSettings = () => window.showToast?.('Paramètres de consentement à venir', 'info')
+if (!window.openConsentSettings) window.openConsentSettings = () => { /* not yet implemented */ }
 // Voyage view handlers — lazy-loaded with Voyage.js
 if (!window.openTripDetail) window.openTripDetail = (i) => setState({ tripDetailIndex: i })
 if (!window.openEditTrip) window.openEditTrip = (i) => setState({ editTripIndex: i })
@@ -3186,7 +3145,7 @@ window.submitNewSpot = () => window.openAddSpot?.()
 // Early stub: prevents ReferenceError if user clicks before Voyage.js/Travel.js load (Sentry issue #41)
 if (!window.syncTripFieldsAndCalculate) {
   window.syncTripFieldsAndCalculate = () => {
-    window.showToast?.('Chargement...', 'info')
+    /* loading — Travel.js will override this handler */
   }
 }
 

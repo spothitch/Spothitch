@@ -458,7 +458,6 @@ export function requestAccountDeletion() {
 export function openConsentSettings() {
   // Show a simple consent management modal
   setState({ showConsentSettings: true });
-  window.showToast?.((t('consentSettingsComingSoon') || 'Paramètres de consentement. Fonctionnalité à venir'), 'info');
 }
 
 // Global handlers

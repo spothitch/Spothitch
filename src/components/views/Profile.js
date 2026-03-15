@@ -1396,11 +1396,11 @@ window.toggleNotifications = () => {
 }
 
 window.toggleProximityAlertsSetting = () => {
-  import('../../services/notifications.js').then(m => m.showToast(t('comingSoon') || 'Coming soon!', 'info'))
+  /* not yet implemented */
 }
 
 window.openComingSoonProximity = () => {
-  import('../../services/notifications.js').then(m => m.showToast(t('comingSoon') || 'Coming soon!', 'info'))
+  /* not yet implemented */
 }
 
 window.closeComingSoonProximity = () => {
@@ -1549,7 +1549,7 @@ window.removeProfilePhoto = (idx) => {
 
 // --- References handlers (#58) --- feature not yet implemented
 window.openReferences = () => {
-  window.showToast?.('Fonctionnalité à venir', 'info')
+  /* not yet implemented */
 }
 
 window.closeReferences = () => { /* not yet implemented */ }

@@ -1306,6 +1306,12 @@ export default {
   userNotFound: 'Benutzer nicht gefunden',
   errorOccurred: 'Ein Fehler ist aufgetreten',
   errorNetwork: 'Netzwerkfehler. Bitte erneut versuchen.',
+  reviewNetworkError: 'Deine Bewertung wurde nicht gesendet. Überprüfe deine Verbindung.',
+  reportNetworkError: 'Meldung nicht gesendet. Überprüfe deine Verbindung.',
+  friendRequestError: 'Anfrage konnte nicht angenommen werden.',
+  friendRequestNetworkError: 'Keine Verbindung. Versuche es erneut.',
+  conversationError: 'Aktion nicht möglich. Überprüfe deine Verbindung.',
+  downloadComplete: 'Download abgeschlossen',
   messageSendFailed: 'Nachricht nicht gesendet. Überprüfe deine Verbindung.',
 
 

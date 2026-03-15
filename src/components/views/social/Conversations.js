@@ -562,7 +562,7 @@ window.sendGroupConversationMessage = async (groupId) => {
       if (el) el.scrollTop = el.scrollHeight
     }, 50)
   } catch {
-    window.showToast?.((await import('../../../i18n/index.js')).t('errorOccurred') || 'Error', 'error')
+    window.showToast?.((await import('../../../i18n/index.js')).t('conversationError') || 'Action impossible. Vérifie ta connexion.', 'error')
   }
 }
 
@@ -576,7 +576,7 @@ window.leaveGroupConversation = async (groupId) => {
       window.showToast?.((await import('../../../i18n/index.js')).t('leftGroup'), 'info')
     }
   } catch {
-    window.showToast?.((await import('../../../i18n/index.js')).t('errorOccurred') || 'Error', 'error')
+    window.showToast?.((await import('../../../i18n/index.js')).t('conversationError') || 'Action impossible. Vérifie ta connexion.', 'error')
   }
 }
 
@@ -585,9 +585,9 @@ window.addMemberToGroupConversation = async (groupId, userId) => {
     const { addMemberToGroupConversation: add } = await import('../../../services/groupConversations.js')
     const { t: tFn } = await import('../../../i18n/index.js')
     const result = await add(groupId, userId)
-    window.showToast?.(result.success ? tFn('memberAdded') : tFn('errorOccurred') || 'Error', result.success ? 'success' : 'error')
+    window.showToast?.(result.success ? tFn('memberAdded') : (tFn('conversationError') || 'Action impossible.'), result.success ? 'success' : 'error')
   } catch {
-    window.showToast?.((await import('../../../i18n/index.js')).t('errorOccurred') || 'Error', 'error')
+    window.showToast?.((await import('../../../i18n/index.js')).t('conversationError') || 'Action impossible. Vérifie ta connexion.', 'error')
   }
 }
 

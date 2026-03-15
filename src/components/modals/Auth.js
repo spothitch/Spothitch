@@ -623,11 +623,10 @@ async function _handleGoogleResult(result) {
       if (needsProfile) {
         setState({ showCompleteProfile: true })
       } else {
-        const { showToast } = await import('../../services/notifications.js')
-        showToast(t('googleLoginSuccess') || 'Connexion réussie !', 'success')
         import('../../services/gamification.js').then(m => m.loadPointsFromFirestore?.(user.uid)).catch(() => {})
         const { authPendingAction } = getState()
         if (authPendingAction === 'addSpot') setTimeout(() => window.openAddSpot?.(), 300)
+        else if (authPendingAction === 'submitSpot') setTimeout(() => window.showSpotSummary?.(), 300)
         else if (authPendingAction === 'sos') setTimeout(() => window.openSOS?.(), 300)
         else if (authPendingAction === 'companion') setTimeout(() => window.showCompanionModal?.(), 300)
         else if (authPendingAction === 'social') setTimeout(() => setState({ activeTab: 'social' }), 300)
@@ -846,13 +845,11 @@ window.closeCompleteProfile = async () => {
 // To re-enable: create Facebook App at developers.facebook.com, add App ID/Secret in Firebase Console
 
 window.handleAppleSignIn = async () => {
-  const { showError } = await import('../../services/notifications.js')
-  showError(t('featureComingSoon') || 'Coming soon')
+  /* not yet configured — requires Apple Developer account */
 }
 
 window.handleFacebookSignIn = async () => {
-  const { showError } = await import('../../services/notifications.js')
-  showError(t('featureComingSoon') || 'Coming soon')
+  /* not yet configured — requires Facebook Developer App */
 }
 
 window.handleForgotPassword = async () => {
@@ -962,6 +959,7 @@ function executePendingAction(actionName) {
   setTimeout(() => {
     const actionMap = {
       addSpot: () => window.openAddSpot?.(),
+      submitSpot: () => window.showSpotSummary?.(),
       validateSpot: () => window.openValidateSpot?.(),
       saveFavorite: () => {}, // handled by the calling code
       sos: () => window.openSOS?.(),

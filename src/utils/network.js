@@ -113,7 +113,7 @@ export async function syncOfflineQueue() {
 
   if (queue.length === 0) return;
 
-  showToast(t('syncingActions') || `Synchronisation de ${queue.length} action(s)...`, 'info');
+  /* silent sync — no toast needed, runs in background */
 
   const failedActions = [];
 
