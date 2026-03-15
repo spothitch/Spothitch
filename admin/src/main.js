@@ -15,7 +15,7 @@ import {
   resetGuideModerationCache,
 } from './components/GuideModeration.js'
 import { renderUserList, bindUserListEvents, resetUserListCache } from './components/UserList.js'
-import { renderCleanup, bindCleanupEvents, resetCleanupCache } from './components/Cleanup.js'
+import { resetCleanupCache } from './components/Cleanup.js'
 
 const appEl = document.getElementById('app')
 let currentPage = 'dashboard'
@@ -90,10 +90,6 @@ function renderPage() {
       case 'users':
         mainContent.innerHTML = renderUserList()
         bindUserListEvents()
-        break
-      case 'cleanup':
-        mainContent.innerHTML = renderCleanup()
-        bindCleanupEvents()
         break
       default:
         mainContent.innerHTML = renderDashboard()

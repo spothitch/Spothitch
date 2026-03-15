@@ -5,9 +5,8 @@
 export function renderApp(currentPage) {
   const navItems = [
     { id: 'dashboard', label: 'Tableau de bord', icon: '📊' },
-    { id: 'guides', label: 'Moderation Guides', icon: '📚' },
+    { id: 'guides', label: 'Moderation', icon: '📚' },
     { id: 'users', label: 'Utilisateurs', icon: '👤' },
-    { id: 'cleanup', label: 'Nettoyage', icon: '🧹' },
   ]
 
   const navHtml = navItems

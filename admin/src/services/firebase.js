@@ -134,3 +134,10 @@ export async function loadAllDocs(collectionName) {
   const snapshot = await getDocs(coll)
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
+
+export async function getDocsByField(collectionName, field, value) {
+  const coll = collection(db, collectionName)
+  const q = query(coll, where(field, '==', value))
+  const snapshot = await getDocs(q)
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+}

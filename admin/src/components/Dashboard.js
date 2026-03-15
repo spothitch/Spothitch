@@ -1,9 +1,11 @@
 /**
- * Dashboard Component — KPIs, Sentry errors, recent activity
+ * Dashboard Component — KPIs, Sentry errors, recent activity, cleanup card
  */
 
-import { loadDashboardStats, loadRecentActivity } from '../services/stats.js'
+import { loadDashboardStats, loadRecentActivity, isTestUser, isTestSpot } from '../services/stats.js'
 import { loadSentryIssues } from '../services/sentry.js'
+import { loadAllSpots, loadAllUsers } from '../services/stats.js'
+import { deleteDocument } from '../services/firebase.js'
 
 function escapeHTML(str) {
   const div = document.createElement('div')
@@ -36,7 +38,7 @@ export function renderDashboard() {
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" id="kpi-cards">
         <div class="card p-5 text-center">
           <div class="text-3xl font-bold text-primary-400" id="kpi-users"><span class="spinner"></span></div>
-          <div class="text-sm text-slate-400 mt-1">Utilisateurs</div>
+          <div class="text-sm text-slate-400 mt-1">Utilisateurs reels</div>
         </div>
         <div class="card p-5 text-center">
           <div class="text-3xl font-bold text-slate-400" id="kpi-hitchwiki"><span class="spinner"></span></div>
@@ -45,7 +47,7 @@ export function renderDashboard() {
         </div>
         <div class="card p-5 text-center">
           <div class="text-3xl font-bold text-emerald-400" id="kpi-spots"><span class="spinner"></span></div>
-          <div class="text-sm text-slate-400 mt-1">Spots SpotHitch</div>
+          <div class="text-sm text-slate-400 mt-1">Spots communautaires</div>
         </div>
         <div class="card p-5 text-center">
           <div class="text-3xl font-bold text-amber-400" id="kpi-pending"><span class="spinner"></span></div>
@@ -65,7 +67,7 @@ export function renderDashboard() {
       </div>
 
       <!-- Recent Activity -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Recent Users -->
         <div class="card p-5">
           <h2 class="font-display text-lg font-bold text-purple-400 mb-4">Derniers utilisateurs</h2>
@@ -82,6 +84,18 @@ export function renderDashboard() {
           </div>
         </div>
       </div>
+
+      <!-- Cleanup section -->
+      <div class="card p-5" id="cleanup-section">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-display text-base font-bold text-slate-400">Donnees de test</h2>
+          <span class="text-xs text-slate-500">CI/E2E</span>
+        </div>
+        <div class="flex items-center gap-4 flex-wrap">
+          <span class="text-sm text-slate-300" id="cleanup-summary"><span class="spinner"></span></span>
+          <button id="cleanup-btn" class="btn-danger text-xs py-1.5 px-4" disabled>Nettoyer</button>
+        </div>
+      </div>
     </div>
   `
 }
@@ -96,6 +110,16 @@ export async function bindDashboardEvents() {
       if (countriesEl) countriesEl.textContent = stats.hitchwikiCountries + ' pays'
       document.getElementById('kpi-spots').textContent = stats.spotCountFirebase.toLocaleString('fr-FR')
       document.getElementById('kpi-pending').textContent = stats.pendingTipsCount.toLocaleString('fr-FR')
+
+      // Update cleanup summary
+      const summaryEl = document.getElementById('cleanup-summary')
+      const cleanBtn = document.getElementById('cleanup-btn')
+      if (summaryEl) {
+        summaryEl.textContent = `${stats.testUserCount} compte${stats.testUserCount > 1 ? 's' : ''} de test, ${stats.testSpotCount} spot${stats.testSpotCount > 1 ? 's' : ''} de test`
+      }
+      if (cleanBtn) {
+        cleanBtn.disabled = stats.testUserCount === 0 && stats.testSpotCount === 0
+      }
     })
     .catch((err) => {
       console.error('Failed to load stats:', err)
@@ -103,6 +127,8 @@ export async function bindDashboardEvents() {
       document.getElementById('kpi-hitchwiki').textContent = '?'
       document.getElementById('kpi-spots').textContent = '?'
       document.getElementById('kpi-pending').textContent = '?'
+      const summaryEl = document.getElementById('cleanup-summary')
+      if (summaryEl) summaryEl.textContent = 'Erreur de chargement'
     })
 
   // Load Sentry
@@ -125,6 +151,64 @@ export async function bindDashboardEvents() {
   // Refresh sentry button
   const btn = document.getElementById('refresh-sentry')
   if (btn) btn.addEventListener('click', loadAndRenderSentry)
+
+  // Cleanup button
+  const cleanBtn = document.getElementById('cleanup-btn')
+  if (cleanBtn) cleanBtn.addEventListener('click', runCleanup)
+}
+
+async function runCleanup() {
+  const btn = document.getElementById('cleanup-btn')
+  if (!btn) return
+
+  try {
+    const [allUsers, allSpots] = await Promise.all([loadAllUsers(), loadAllSpots()])
+    const testUsers = allUsers.filter((u) => isTestUser(u))
+    const testSpots = allSpots.filter((s) => isTestSpot(s))
+    const total = testUsers.length + testSpots.length
+
+    if (total === 0) {
+      window.__showToast?.('Rien a nettoyer, tout est propre', 'info')
+      return
+    }
+
+    if (!confirm(`Supprimer ${testUsers.length} compte(s) de test et ${testSpots.length} spot(s) de test ?`)) return
+
+    btn.disabled = true
+    btn.textContent = '...'
+
+    let deleted = 0
+    for (const u of testUsers) {
+      try {
+        await deleteDocument('users', u.id)
+        deleted++
+      } catch (err) {
+        console.error('Failed to delete test user:', err)
+      }
+    }
+    for (const s of testSpots) {
+      try {
+        await deleteDocument('spots', s.id)
+        deleted++
+      } catch (err) {
+        console.error('Failed to delete test spot:', err)
+      }
+    }
+
+    btn.disabled = false
+    btn.textContent = 'Nettoyer'
+
+    const summaryEl = document.getElementById('cleanup-summary')
+    if (summaryEl) summaryEl.textContent = '0 compte de test, 0 spot de test'
+    btn.disabled = true
+
+    window.__showToast?.(`${deleted} element(s) de test supprime(s)`, 'success')
+  } catch (err) {
+    console.error('Cleanup error:', err)
+    btn.disabled = false
+    btn.textContent = 'Nettoyer'
+    window.__showToast?.('Erreur lors du nettoyage', 'error')
+  }
 }
 
 async function loadAndRenderSentry() {
