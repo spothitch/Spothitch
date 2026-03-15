@@ -1,13 +1,13 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-15 11:18
+Date : 2026-03-15 15:01
 
 ## Derniers commits
-ad05773 fix: admin dashboard — correct GitHub API URL, use signInWithRedirect
-ca1186b fix: offline country deletion now respected by auto-sync + fix invisible trash icon
-e236598 fix: misplaced report map stays open (no re-render on reason select)
-d3ca1c2 fix: update spotFreshness tests for new 4-tier color system (grey/blue/green/gold)
-2e063ed fix: show login error details in admin dashboard
+a3cd579 fix: cleanup notifications — remove useless toasts, improve error messages
+1a70e1a feat: fullscreen mandatory update screen (replaces auto-reload)
+1c58d56 feat: auto-cleanup test data after CI + safe cleanup button
+8a37e14 fix: force geocoding results in user's language (no Thai/Arabic/Chinese script)
+52c59dd fix(admin): single cleanup button for all test data (spots + users + reports)
 
 ## Note
 Reprendre avec : claude --continue
