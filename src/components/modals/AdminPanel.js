@@ -475,6 +475,16 @@ function renderSentryTab(state) {
 
 function renderToolsTab(state) {
   return `
+    <!-- Admin Dashboard Link -->
+    <a href="https://admin.spothitch.com" target="_blank" rel="noopener"
+      class="card p-4 mb-4 flex items-center gap-3 bg-gradient-to-r from-primary-500/10 to-amber-500/10 border-primary-500/30 hover:border-primary-500/50 transition-colors cursor-pointer block no-underline">
+      ${icon('external-link', 'w-5 h-5 text-primary-400 shrink-0')}
+      <div>
+        <div class="font-bold text-sm text-primary-400">${t('adminDashboard') || 'Admin Dashboard'}</div>
+        <div class="text-xs text-slate-400">admin.spothitch.com</div>
+      </div>
+    </a>
+
     <!-- Quick Stats -->
     <div class="card p-4 mb-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30">
       <div class="grid grid-cols-4 gap-2 text-center text-sm">
