@@ -113,21 +113,31 @@ test.describe('Deep Links & URL Routing', () => {
     expect(count).toBeGreaterThan(0)
   })
 
-  test('?action=share with Google Maps URL extracts coords', async ({ page }) => {
+  test('?action=share with Google Maps URL extracts coords and skips map picker', async ({ page }) => {
     const mapsUrl = encodeURIComponent('https://maps.google.com/@48.8566,2.3522,15z')
     await page.goto(`/?action=share&url=${mapsUrl}`, { waitUntil: 'domcontentloaded' })
-    await page.waitForTimeout(3000)
+    await page.waitForTimeout(5000)
     await dismissOverlays(page)
-    // Should have pending coords or AddSpot should be open
     const result = await page.evaluate(() => {
       return {
-        pendingCoords: window._pendingShareCoords || null,
-        hasAddSpot: !!document.querySelector('[class*="addspot"], [class*="add-spot"], #addspot-modal, #add-spot-modal'),
+        hasAddSpot: !!document.querySelector('[class*="addspot"], [class*="add-spot"], #addspot-modal, #add-spot-modal')
+          || document.body.innerHTML.includes('SPOT TYPE') || document.body.innerHTML.includes('spot-type-btn'),
         hasAuth: !!document.querySelector('#auth-form, #auth-modal'),
+        hasMapPicker: !!document.getElementById('fullscreen-map-picker'),
+        formLat: window.spotFormData?.lat,
+        formLng: window.spotFormData?.lng,
+        formCity: window.spotFormData?.departureCity,
       }
     })
-    // Either AddSpot opens with coords, or Auth modal opens first (not logged in)
-    expect(result.hasAddSpot || result.hasAuth || result.pendingCoords).toBeTruthy()
+    // AddSpot or Auth should be open (not map picker)
+    expect(result.hasAddSpot || result.hasAuth).toBeTruthy()
+    // Map picker should NOT be open (coords already resolved)
+    expect(result.hasMapPicker).toBeFalsy()
+    // Coords should be pre-filled in form
+    if (result.hasAddSpot) {
+      expect(result.formLat).toBeCloseTo(48.8566, 2)
+      expect(result.formLng).toBeCloseTo(2.3522, 2)
+    }
   })
 
   test('?action=share with Apple Maps URL extracts coords', async ({ page }) => {
