@@ -1170,14 +1170,15 @@ window.selectSpot = async (idOrSpot) => {
       spot = allLoaded.find(s => s.id === spotId || s.id == spotId);
     } catch (e) { /* spotLoader not available */ }
   }
-  // Also check Firestore community spots
-  if (!spot && spotId) {
+  // For community spots: always refresh from Firestore (ratings may have been updated by other users)
+  if (spotId && (spot?.dataSource === 'community' || !spot)) {
     try {
       const { getSpotById } = await import('./services/firebase.js');
       if (typeof getSpotById === 'function') {
-        spot = await getSpotById(spotId)
+        const fresh = await getSpotById(spotId)
+        if (fresh) spot = fresh
       }
-    } catch { /* no-op */ }
+    } catch { /* no-op — use cached version */ }
   }
   // Fallback: build minimal spot from passed coordinates
   if (!spot && coords?.lat && coords?.lng) {

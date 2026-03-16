@@ -530,8 +530,8 @@ export async function addSpot(spotData) {
       testCount: 1,
       lastValidated: new Date().toISOString(),
       lastTested: new Date().toISOString(),
-      lastValidatedBy: user?.uid || 'anonymous',
-      lastTestedBy: user?.uid || 'anonymous',
+      lastValidatedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
+      lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
     });
     return { success: true, id: docRef.id };
   } catch (error) {
@@ -927,7 +927,7 @@ export async function quickValidateSpot(spotId) {
     await updateDoc(spotRef, {
       validationCount: increment(1),
       lastValidated: new Date().toISOString(),
-      lastValidatedBy: user.uid,
+      lastValidatedBy: user.displayName || user.email?.split('@')[0] || 'Anonyme',
     }).catch(() => {}) // May fail if spot is imported (not in Firestore)
 
     // Log the validation
@@ -1041,7 +1041,7 @@ export async function saveValidationToFirebase(spotId, userId) {
       validationCount: increment(1),
       checkins: increment(1),
       lastValidated: new Date().toISOString(),
-      lastValidatedBy: user?.uid || userId || 'anonymous',
+      lastValidatedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
       lastUsed: new Date().toISOString().split('T')[0],
     });
 
