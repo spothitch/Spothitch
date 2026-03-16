@@ -11,6 +11,36 @@
  * @returns {Promise<string>} Base64 data URL
  */
 export async function compressImage(file, maxWidth = 1200, quality = 0.75) {
+  // Use createImageBitmap when available (async, doesn't freeze UI)
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file)
+      let { width, height } = bitmap
+
+      if (width > maxWidth) {
+        height = Math.round(height * (maxWidth / width))
+        width = maxWidth
+      }
+
+      const canvas = new OffscreenCanvas(width, height)
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(bitmap, 0, 0, width, height)
+      bitmap.close()
+
+      // Try WebP first, fallback to JPEG
+      try {
+        const blob = await canvas.convertToBlob({ type: 'image/webp', quality })
+        return await blobToDataURL(blob)
+      } catch {
+        const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality })
+        return await blobToDataURL(blob)
+      }
+    } catch {
+      // Fallback to traditional method below
+    }
+  }
+
+  // Fallback: FileReader + Image (older browsers)
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -20,13 +50,11 @@ export async function compressImage(file, maxWidth = 1200, quality = 0.75) {
       img.onload = () => {
         let { width, height } = img;
 
-        // Calculate new dimensions
         if (width > maxWidth) {
           height = Math.round(height * (maxWidth / width));
           width = maxWidth;
         }
 
-        // Create canvas
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
@@ -34,7 +62,6 @@ export async function compressImage(file, maxWidth = 1200, quality = 0.75) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Try WebP first (50% smaller), fallback to JPEG
         const webp = canvas.toDataURL('image/webp', quality);
         if (webp.startsWith('data:image/webp')) {
           resolve(webp);
@@ -50,6 +77,15 @@ export async function compressImage(file, maxWidth = 1200, quality = 0.75) {
     reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsDataURL(file);
   });
+}
+
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
 }
 
 /**

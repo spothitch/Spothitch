@@ -129,6 +129,12 @@ async function processShare() {
   // Clear sessionStorage so this share isn't re-processed on next focus
   try { sessionStorage.removeItem('spothitch_pending_share') } catch { /* no-op */ }
 
+  // Clean share params from URL so focus/visibility events don't re-trigger
+  try {
+    const cleanUrl = window.location.pathname
+    window.history.replaceState({}, '', cleanUrl)
+  } catch { /* no-op */ }
+
   // Dismiss ALL blocking popups immediately
   setState({ showLanding: false, showWelcome: false })
   try { localStorage.setItem('spothitch_landing_v2', '1') } catch { /* no-op */ }
@@ -439,6 +445,9 @@ export function initDeepLinkListener() {
   // processShare() checks both URL and sessionStorage, so it works
   // even if the URL wasn't updated.
   const checkForShare = () => {
+    // Don't re-trigger if AddSpot is already open
+    if (window.getState?.()?.showAddSpot) return
+
     const search = window.location.search
     const params = new URLSearchParams(search)
     // Check URL: action=share OR title/text/url params from share_target
