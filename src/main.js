@@ -880,8 +880,6 @@ function getRenderFingerprint(state) {
  */
 let _appInitialized = false
 const _renderedTabs = new Set() // tracks which tab panels have been rendered at least once
-let _prevModalState = null // cache for modal state comparison
-let _prevOverlayState = null // cache for overlay state comparison
 
 function render(state) {
   const app = document.getElementById('app')
@@ -986,38 +984,24 @@ function render(state) {
     }
   }
 
-  // 6. Update modals container (only when a modal state changed)
-  const modalKeys = ['showAddSpot', 'showSpotDetail', 'showRating', 'showSOS', 'showCompanion',
-    'showDailyReward', 'showAuth', 'showShop', 'showStats', 'showQuiz', 'showLeaderboard',
-    'showBadges', 'showAgeVerification', 'showLocationPermission', 'showLanguageSelector',
-    'showCheckin', 'showDeleteAccount', 'showMyData', 'showIdentityVerification',
-    'showFAQ', 'showLegal', 'showContactForm', 'showTitles', 'showWelcome', 'showAdmin']
-  const modalsChanged = !_prevModalState || modalKeys.some(k => state[k] !== _prevModalState[k])
-  if (modalsChanged) {
-    const modalsEl = document.getElementById('app-modals')
-    if (modalsEl) {
-      modalsEl.innerHTML = renderModals(state)
-    }
-    _prevModalState = Object.fromEntries(modalKeys.map(k => [k, state[k]]))
+  // 6. Update modals container
+  const modalsEl = document.getElementById('app-modals')
+  if (modalsEl) {
+    modalsEl.innerHTML = renderModals(state)
   }
 
-  // 7. Update overlays container (only when overlay state changed)
-  const overlayKeys = ['showSOS', 'showLanding', 'showFeedbackPanel']
-  const overlaysChanged = !_prevOverlayState || overlayKeys.some(k => state[k] !== _prevOverlayState[k])
-  if (overlaysChanged) {
-    const overlaysEl = document.getElementById('app-overlays')
-    if (overlaysEl) {
-      const landingEl = document.getElementById('landing-page')
-      const savedLanding = (landingEl && state.showLanding) ? landingEl : null
+  // 7. Update overlays container
+  const overlaysEl = document.getElementById('app-overlays')
+  if (overlaysEl) {
+    const landingEl = document.getElementById('landing-page')
+    const savedLanding = (landingEl && state.showLanding) ? landingEl : null
 
-      overlaysEl.innerHTML = renderOverlays(state)
+    overlaysEl.innerHTML = renderOverlays(state)
 
-      if (savedLanding) {
-        const slot = document.getElementById('landing-page')
-        if (slot) slot.replaceWith(savedLanding)
-      }
+    if (savedLanding) {
+      const slot = document.getElementById('landing-page')
+      if (slot) slot.replaceWith(savedLanding)
     }
-    _prevOverlayState = Object.fromEntries(overlayKeys.map(k => [k, state[k]]))
   }
 
   // Post-render hooks
