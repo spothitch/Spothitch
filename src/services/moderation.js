@@ -119,10 +119,11 @@ export async function submitReport(type, targetId, reason, details = {}) {
     userReports,
   });
 
-  // Persist to Firebase
+  // Persist to Firebase (auth required)
   try {
     const { addDoc, collection, serverTimestamp } = await import('firebase/firestore')
-    const { db } = await import('./firebase.js')
+    const { db, auth } = await import('./firebase.js')
+    if (!auth.currentUser) throw new Error('Not authenticated')
 
     const firestoreReport = {
       type: type,
