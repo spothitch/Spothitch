@@ -171,8 +171,14 @@ export function resetFilters() {
 
 /**
  * Filter spots based on current filter state
+ * Cached: returns same reference if inputs haven't changed
  */
+let _filterCache = { key: '', result: [] }
 export function getFilteredSpots(spots, state) {
+  // Cache key from filter-relevant state
+  const key = `${spots.length}|${state.filterCountry || ''}|${state.filterMinRating || 0}|${state.filterMaxWait || 999}|${state.filterVerifiedOnly || ''}|${state.searchQuery || ''}|${state.sortBy || ''}`
+  if (key === _filterCache.key) return _filterCache.result
+
   let filtered = [...spots];
 
   // Filter by country
@@ -229,6 +235,7 @@ export function getFilteredSpots(spots, state) {
       filtered.sort((a, b) => (b.globalRating || 0) - (a.globalRating || 0));
   }
 
+  _filterCache = { key, result: filtered }
   return filtered;
 }
 
