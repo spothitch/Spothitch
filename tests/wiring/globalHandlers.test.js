@@ -22,7 +22,7 @@ const MAIN_JS_HANDLERS = [
   // Spots
   'selectSpot', 'closeSpotDetail', 'openAddSpot', 'openAddSpotPreview', 'closeAddSpot',
   'openRating', 'closeRating', 'openNavigation', 'getSpotLocation',
-  'doCheckin', 'submitReview', 'setRating', 'reportSpotAction',
+  'doCheckin', 'submitReview', 'setRating', 'reportSpotAction', 'translateSpotText',
   // Navigation GPS
   'startSpotNavigation', 'stopNavigation', 'openExternalNavigation',
   // SOS

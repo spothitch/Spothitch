@@ -4,6 +4,7 @@
  */
 
 import { t } from '../../i18n/index.js'
+import { icon } from '../../utils/icons.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { renderMiniTrustBadge } from '../../services/trustScore.js'
 import { isFavorite } from '../../services/favorites.js'
@@ -384,7 +385,11 @@ export function renderSpotDetail(state) {
           <!-- Description -->
           ${spot.description ? `
           <div style="padding:0 16px 12px">
-            <div id="spot-desc-${escapeHTML(String(spot.id))}" style="font-size:13px;color:#94a3b8;line-height:1.5">${escapeHTML(spot.description)}</div>
+            <div id="spot-desc-${escapeHTML(String(spot.id))}" style="font-size:13px;color:#94a3b8;line-height:1.5" data-original-text="${escapeHTML(spot.description)}">${escapeHTML(spot.description)}</div>
+            <button onclick="translateSpotText('spot-desc-${escapeJSString(String(spot.id))}')" type="button"
+              style="font-size:11px;color:#3b82f6;background:none;border:none;cursor:pointer;padding:4px 0;margin-top:4px;display:flex;align-items:center;gap:4px">
+              ${icon('languages', 'w-3.5 h-3.5')} ${t('translate') || 'Traduire'}
+            </button>
           </div>
           ` : ''}
 
@@ -432,7 +437,11 @@ export function renderSpotDetail(state) {
                 </div>
                 ${review.text ? (() => {
                   const commentId = 'spot-comment-' + spot.id + '-' + displayReviews.indexOf(review)
-                  return `<div id="${commentId}" style="font-size:12px;color:#94a3b8" data-original-text="${escapeHTML(review.text)}">"${escapeHTML(review.text)}"</div>`
+                  return `<div id="${commentId}" style="font-size:12px;color:#94a3b8" data-original-text="${escapeHTML(review.text)}">"${escapeHTML(review.text)}"</div>
+                  <button onclick="translateSpotText('${commentId}')" type="button"
+                    style="font-size:10px;color:#3b82f6;background:none;border:none;cursor:pointer;padding:2px 0;display:flex;align-items:center;gap:3px">
+                    ${icon('languages', 'w-3 h-3')} ${t('translate') || 'Traduire'}
+                  </button>`
                 })() : ''}
               </div>
               `

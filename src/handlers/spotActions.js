@@ -303,3 +303,63 @@ window.startSpotNavigation = async (lat, lng, name) => {
   await startNavigation(lat, lng, name || t('hitchhikingSpot') || 'Spot d\'autostop');
 };
 // stopNavigation and openExternalNavigation registered by navigation.js (static import above)
+
+// Translate a spot text element (description or comment)
+window.translateSpotText = async (elementId) => {
+  const el = document.getElementById(elementId)
+  if (!el) return
+
+  const originalText = el.dataset.originalText
+  if (!originalText) return
+
+  // If already translated, show original
+  if (el.dataset.translated === 'true') {
+    el.textContent = el.dataset.isComment === 'true' ? `"${originalText}"` : originalText
+    el.dataset.translated = 'false'
+    const btn = el.nextElementSibling
+    if (btn?.tagName === 'BUTTON') btn.textContent = window.t?.('translate') || 'Traduire'
+    return
+  }
+
+  // Get user's language
+  const userLang = window.getState?.()?.lang || 'fr'
+
+  // Check cache
+  const cacheKey = `spothitch_tr_${userLang}_${originalText.substring(0, 40)}`
+  const cached = localStorage.getItem(cacheKey)
+  if (cached) {
+    el.textContent = el.dataset.isComment === 'true' ? `"${cached}"` : cached
+    el.dataset.translated = 'true'
+    const btn = el.nextElementSibling
+    if (btn?.tagName === 'BUTTON') btn.textContent = window.t?.('showOriginal') || 'Original'
+    return
+  }
+
+  // Show loading
+  const btn = el.nextElementSibling
+  if (btn?.tagName === 'BUTTON') btn.textContent = '⏳...'
+
+  try {
+    // Auto-detect source language using MyMemory's autodetect
+    const langPair = `autodetect|${userLang}`
+    const res = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(originalText.slice(0, 500))}&langpair=${langPair}`,
+      { signal: AbortSignal.timeout(8000) }
+    )
+    const data = await res.json()
+    const translated = data?.responseData?.translatedText
+
+    if (translated && translated.toLowerCase() !== originalText.toLowerCase()) {
+      el.textContent = el.dataset.isComment === 'true' ? `"${translated}"` : translated
+      el.dataset.translated = 'true'
+      if (btn?.tagName === 'BUTTON') btn.textContent = window.t?.('showOriginal') || 'Original'
+      try { localStorage.setItem(cacheKey, translated) } catch { /* quota */ }
+    } else {
+      if (btn?.tagName === 'BUTTON') btn.textContent = window.t?.('sameLanguage') || 'Même langue'
+      setTimeout(() => { if (btn?.tagName === 'BUTTON') btn.textContent = window.t?.('translate') || 'Traduire' }, 2000)
+    }
+  } catch {
+    if (btn?.tagName === 'BUTTON') btn.textContent = window.t?.('translationFailed') || 'Erreur'
+    setTimeout(() => { if (btn?.tagName === 'BUTTON') btn.textContent = window.t?.('translate') || 'Traduire' }, 2000)
+  }
+}

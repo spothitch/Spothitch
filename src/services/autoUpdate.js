@@ -87,11 +87,24 @@ export function startVersionCheck() {
   }
 
   async function clearCachesAndReload() {
-    // Clear precache so fresh assets are fetched
+    // Anti-loop: if we've reloaded more than 2 times in 30 seconds, stop
+    const reloadKey = 'spothitch_reload_count'
+    const reloadTimeKey = 'spothitch_reload_time'
+    const now = Date.now()
+    const lastReloadTime = parseInt(sessionStorage.getItem(reloadTimeKey) || '0', 10)
+    const reloadCount = parseInt(sessionStorage.getItem(reloadKey) || '0', 10)
+    if (now - lastReloadTime < 30000 && reloadCount >= 2) {
+      console.warn('[AutoUpdate] Reload loop detected, stopping')
+      return // Stop the loop
+    }
+    sessionStorage.setItem(reloadKey, String(now - lastReloadTime < 30000 ? reloadCount + 1 : 1))
+    sessionStorage.setItem(reloadTimeKey, String(now))
+
+    // Clear ALL caches (precache + runtime) so fresh assets are fetched
     if (window.caches) {
       try {
         const keys = await caches.keys()
-        await Promise.all(keys.filter(k => k.includes('precache')).map(k => caches.delete(k)))
+        await Promise.all(keys.map(k => caches.delete(k)))
       } catch { /* ignore */ }
     }
     // Force SW update
