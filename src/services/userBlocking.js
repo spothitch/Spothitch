@@ -52,6 +52,7 @@ function saveBlockedUsersToStorage(blockedUsers) {
   try {
     Storage.set(BLOCKED_USERS_KEY, blockedUsers);
     setState({ blockedUsers });
+    import('./firebaseSync.js').then(m => m.syncAllToFirestore()).catch(() => {})
   } catch (error) {
     console.error('Error saving blocked users:', error);
   }

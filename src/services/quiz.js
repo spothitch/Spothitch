@@ -479,6 +479,7 @@ function saveCountryScore(countryCode, percentage, points) {
     }
 
     localStorage.setItem('spothitch_country_quiz_scores', JSON.stringify(scores))
+    import('./firebaseSync.js').then(m => m.syncAllToFirestore()).catch(() => {})
   } catch {
     // localStorage not available, ignore
   }

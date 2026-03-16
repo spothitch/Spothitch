@@ -1958,6 +1958,7 @@ window.togglePrivacy = (key) => {
   const privacy = JSON.parse(localStorage.getItem('spothitch_privacy') || JSON.stringify(defaults))
   privacy[key] = !privacy[key]
   localStorage.setItem('spothitch_privacy', JSON.stringify(privacy))
+  import('../../services/firebaseSync.js').then(m => m.syncAllToFirestore()).catch(() => {})
   window._forceRender?.()
 }
 

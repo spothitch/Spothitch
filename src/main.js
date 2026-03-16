@@ -554,6 +554,8 @@ async function init() {
               fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
               // Sync points/badges from Firestore (multi-device sync)
               import('./services/gamification.js').then(m => m.loadPointsFromFirestore(user.uid)).catch(() => {})
+              // Hydrate ALL local data from Firestore (checkins, streaks, achievements, etc.)
+              import('./services/firebaseSync.js').then(m => m.hydrateAllFromFirestore(user.uid)).catch(() => {})
               // Sync trips from Firestore (merge with localStorage, Firebase wins)
               import('./services/firebase.js').then(async fbModule => {
                 try {
@@ -591,6 +593,7 @@ async function init() {
               const user = redirectResult.user
               await fb.createOrUpdateUserProfile(user)
               fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
+              import('./services/firebaseSync.js').then(m => m.hydrateAllFromFirestore(user.uid)).catch(() => {})
               const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
               actions.setUser(user)
               setState({

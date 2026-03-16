@@ -453,6 +453,9 @@ function persistState() {
     proximityAlerts: state.proximityAlerts,
   };
   Storage.set('state', stateToPersist);
+
+  // Sync all local data to Firebase (debounced, won't fire on every call)
+  import('../services/firebaseSync.js').then(m => m.syncAllToFirestore()).catch(() => {})
 }
 
 // Debounced persist — batch rapid setState calls into one localStorage write

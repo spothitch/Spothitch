@@ -577,6 +577,7 @@ window.selectFeatureOpinion = (featureId, opinion) => {
     const existing = opinions[featureId] || {}
     opinions[featureId] = { ...existing, opinion, ts: new Date().toISOString() }
     localStorage.setItem('spothitch_feature_opinions', JSON.stringify(opinions))
+    import('../../services/firebaseSync.js').then(m => m.syncAllToFirestore()).catch(() => {})
   } catch { /* ignore */ }
 
   // Show textarea if 'detail' opinion selected
@@ -601,6 +602,7 @@ window.submitFeatureOpinion = async (featureId) => {
     const existing = opinions[featureId] || {}
     opinions[featureId] = { ...existing, comment, ts: new Date().toISOString() }
     localStorage.setItem('spothitch_feature_opinions', JSON.stringify(opinions))
+    import('../../services/firebaseSync.js').then(m => m.syncAllToFirestore()).catch(() => {})
 
     // Try to save to Firebase (requires auth)
     if (existing.opinion) {
