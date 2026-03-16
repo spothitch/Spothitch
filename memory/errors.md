@@ -946,3 +946,13 @@ Chaque erreur suit ce format :
 - **Leçon** : Toujours ajouter maxlength sur les inputs texte. 100 caractères est suffisant pour une recherche de lieu.
 - **Fichiers** : src/utils/searchInput.js
 - **Statut** : CORRIGÉ
+
+### ERR-080 — Recherche de ville ne trouvait pas Bristol UK, Aurillac, et beaucoup d'autres
+- **Date** : 2026-03-16
+- **Gravité** : CRITIQUE
+- **Description** : La recherche de ville utilisait uniquement l'API Photon (Komoot) qui est rapide (~100ms) mais très incomplète. Bristol (460 000 habitants, UK) n'apparaissait pas du tout. Aurillac, Ljubljana, Valencia et d'autres villes moyennes étaient absentes. Les résultats montraient 3 Bristol en Australie au lieu du Bristol en Angleterre.
+- **Cause racine** : L'API Photon avec les filtres `layer=city&layer=locality` ne contient pas toutes les villes dans son index. C'est un problème connu de Photon pour les villes en dehors de l'Europe centrale.
+- **Correction** : Recherche en parallèle sur Photon ET Nominatim (OpenStreetMap). Les résultats sont fusionnés, dédupliqués par nom+pays, et triés par importance. Ajout de drapeaux pays + nom du pays dans les suggestions. Loader "Recherche..." pendant la requête (~1s). Voyage.js utilise aussi la recherche centralisée au lieu d'un appel direct.
+- **Leçon** : Ne JAMAIS dépendre d'une seule API pour une fonction critique. Toujours avoir un fallback ou combiner plusieurs sources. Pour la recherche géographique, Nominatim (OSM) est la référence en termes de couverture, même s'il est plus lent. Photon est un bon complément pour la vitesse mais ne suffit pas seul. Tester TOUJOURS avec des villes de tailles variées (capitale, ville moyenne, village) ET dans plusieurs pays.
+- **Fichiers** : src/services/osrm.js, src/main.js, src/components/views/Voyage.js
+- **Statut** : CORRIGÉ
