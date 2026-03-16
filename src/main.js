@@ -1191,6 +1191,26 @@ window.selectSpot = async (idOrSpot) => {
     if (lat && lng && window.homeMapInstance) {
       window.homeMapInstance.flyTo({ center: [lng, lat], zoom: 14, duration: 800 })
     }
+    // Auto-fix: if community spot has no lastValidated, set it to createdAt
+    if (spot.dataSource === 'community' && !spot.lastValidated && spot.createdAt) {
+      const createdAt = typeof spot.createdAt === 'string' ? spot.createdAt : new Date().toISOString()
+      spot.lastValidated = createdAt
+      spot.lastTested = createdAt
+      spot.validationCount = Math.max(spot.validationCount || 0, 1)
+      spot.testCount = Math.max(spot.testCount || 0, 1)
+      actions.selectSpot({ ...spot }) // Re-render with fixed data
+      // Persist fix to Firestore (fire-and-forget)
+      import('./services/firebase.js').then(({ updateSpot }) => {
+        updateSpot(spot.id, {
+          lastValidated: createdAt,
+          lastTested: createdAt,
+          lastValidatedBy: spot.creatorId || 'anonymous',
+          lastTestedBy: spot.creatorId || 'anonymous',
+          validationCount: Math.max(spot.validationCount || 0, 1),
+          testCount: Math.max(spot.testCount || 0, 1),
+        }).catch(() => {})
+      }).catch(() => {})
+    }
   }
 };
 window.openSpotDetail = window.selectSpot; // alias for services that use openSpotDetail

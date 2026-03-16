@@ -488,24 +488,30 @@ function renderLegalModal(state) {
  * Update the spot counter (Hitchwiki vs SpotHitch) displayed on the map.
  * Reads from spotLoader and writes to #hw-count / #sh-count DOM elements.
  */
-let _spotCounterDone = false
 function updateSpotCounter() {
-  if (_spotCounterDone) return
   const hwEl = document.getElementById('hw-count')
   const shEl = document.getElementById('sh-count')
   if (!hwEl && !shEl) return
   import('../services/spotLoader.js').then(({ loadSpotIndex, getAllLoadedSpots }) => {
     loadSpotIndex?.().then(index => {
       const totalHW = index?.totalSpots || 0
-      const all = getAllLoadedSpots?.() || []
-      const community = all.filter(s => s.source !== 'hitchwiki').length
+      const loaderSpots = getAllLoadedSpots?.() || []
+      const stateSpots = getState().spots || []
+      // Count community spots from both spotLoader and state (Firestore)
+      const communityFromLoader = loaderSpots.filter(s => s.source !== 'hitchwiki').length
+      const communityFromState = stateSpots.filter(s => s.dataSource === 'community').length
+      const community = Math.max(communityFromLoader, communityFromState)
       if (hwEl) hwEl.textContent = totalHW
       if (shEl) shEl.textContent = community
-      if (totalHW > 0) _spotCounterDone = true
+      // Counter updates on each call (community spots may arrive later from Firestore)
     }).catch(() => {
       const all = getAllLoadedSpots?.() || []
+      const stateSpots = getState().spots || []
       if (hwEl) hwEl.textContent = all.filter(s => s.source === 'hitchwiki').length
-      if (shEl) shEl.textContent = all.filter(s => s.source !== 'hitchwiki').length
+      if (shEl) shEl.textContent = Math.max(
+        all.filter(s => s.source !== 'hitchwiki').length,
+        stateSpots.filter(s => s.dataSource === 'community').length
+      )
     })
   }).catch(() => {})
 }
