@@ -9,6 +9,7 @@ import { startNavigation } from '../services/navigation.js'
 
 // Spot handlers
 window.selectSpot = async (idOrSpot) => {
+  _ensureSelectSpotOverride()
   const { actions } = window._appInternals
   // Accept either a plain ID string or an object {id, coordinates}
   const spotId = typeof idOrSpot === 'object' ? idOrSpot?.id : idOrSpot
@@ -77,13 +78,18 @@ window.openSpotDetail = window.selectSpot; // alias for services that use openSp
 // backdrop's onclick="closeSpotDetail()" if the modal renders under the finger.
 // Ignore close calls within 600ms of opening to prevent the open→close→reopen flicker.
 let _spotDetailOpenedAt = 0
-;(() => {
-  const { actions } = window._appInternals
-  const _origSelectSpot = actions.selectSpot.bind(actions)
-  actions.selectSpot = async (spot) => {
+let _origSelectSpot = null
+
+// Deferred setup: runs when _appInternals is available (after main.js init)
+function _ensureSelectSpotOverride() {
+  if (_origSelectSpot) return
+  const internals = window._appInternals
+  if (!internals) return
+  _origSelectSpot = internals.actions.selectSpot.bind(internals.actions)
+  internals.actions.selectSpot = async (spot) => {
     if (spot) {
       _spotDetailOpenedAt = Date.now()
-      // Load live Firebase data BEFORE showing the modal (so ratings/comments are immediate)
+      // Load live Firebase data BEFORE showing the modal
       try {
         const { fetchSpotValidations, mergeSpotData } = await import('../services/spotLiveData.js')
         const validations = await fetchSpotValidations(spot.id)
@@ -93,11 +99,15 @@ let _spotDetailOpenedAt = 0
     }
     _origSelectSpot(spot)
   }
-})()
+}
+// Try immediately, and retry on first selectSpot call
+setTimeout(_ensureSelectSpotOverride, 0)
 
 window.closeSpotDetail = () => {
   if (Date.now() - _spotDetailOpenedAt < 600) return // ignore immediate close
-  window._appInternals.actions.selectSpot(null)
+  _ensureSelectSpotOverride()
+  if (_origSelectSpot) _origSelectSpot(null)
+  else window._appInternals?.actions?.selectSpot?.(null)
 };
 
 window.openAddSpot = () => {
