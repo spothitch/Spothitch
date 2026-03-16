@@ -8,7 +8,7 @@ window.openAuth = (reason) => {
   if (reason) updates.showAuthReason = reason
   window.setState(updates)
 }
-window.closeAuth = () => window.setState({ showAuth: false, authPendingAction: null, showAuthReason: null })
+if (!window.closeAuth) window.closeAuth = () => window.setState({ showAuth: false, authPendingAction: null, showAuthReason: null })
 // setAuthMode — canonical in Auth.js
 // Email login/signup is handled by Auth.js via window.handleAuth (with executePendingAction)
 // Social auth handlers are defined in Auth.js (handleGoogleSignIn, handleAppleSignIn, handleFacebookSignIn)

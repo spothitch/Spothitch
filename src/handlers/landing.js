@@ -78,7 +78,7 @@ window.changeLandingLanguage = async (langCode) => {
 
 // Landing carousel next slide — stub until initLandingCarousel() overrides with real implementation.
 // Must exist early so onclick="landingNext()" in landing HTML doesn't throw before carousel init.
-window.landingNext = () => {}
+if (!window.landingNext) window.landingNext = () => {}
 
 window.installFromLanding = async () => {
   const t = window.t

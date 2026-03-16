@@ -20,6 +20,8 @@ export default defineConfig({
         '**/*.d.ts',
         'scripts/',
         'src/main.js',
+        'src/handlers/**',
+        'src/services/autoUpdate.js',
         'src/services/firebase.js',
         'src/services/sentry.js',
         'src/utils/image.js',

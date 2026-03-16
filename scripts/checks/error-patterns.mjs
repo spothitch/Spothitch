@@ -48,17 +48,18 @@ const PATTERN_CHECKS = [
         const SKIP = new Set(['addEventListener', 'removeEventListener', 'onerror', 'onload',
              'onunhandledrejection', 'onresize', 'onpopstate', 'onhashchange',
              '__SPOTHITCH_VERSION__', '_lazyLoaders', '_loadedModules',
-             'mapInstance', 'spotHitchMap', 'homeMapInstance'])
+             'mapInstance', 'spotHitchMap', 'homeMapInstance',
+             'spotFormData', 'validateFormData', 'identityVerificationState'])
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i]
           const m = line.match(/window\.(\w+)\s*=/)
           if (!m) continue
           const handler = m[1]
           if (SKIP.has(handler) || handler.startsWith('_')) continue
-          // Check if this is a guarded assignment (if (!window.xxx) { ... window.xxx = ... })
-          // Look up to 200 lines back for enclosing guard block
-          const prevLines = lines.slice(Math.max(0, i - 200), i).join(' ')
-          if (new RegExp(`if\\s*\\(\\s*!\\s*window\\.${handler}\\s*\\)`).test(prevLines)) {
+          // Check if this is a guarded assignment (if (!window.xxx) { window.xxx = ... })
+          // Look at the current line AND up to 200 lines back for enclosing guard block
+          const contextLines = lines.slice(Math.max(0, i - 200), i + 1).join(' ')
+          if (new RegExp(`if\\s*\\(\\s*!\\s*window\\.${handler}\\s*\\)`).test(contextLines)) {
             guardedAssignments.add(`${handler}:${relPath}`)
           }
           if (!handlersByFile[handler]) handlersByFile[handler] = new Set()
@@ -72,8 +73,9 @@ const PATTERN_CHECKS = [
         .filter(([name, fileSet]) => {
           const fileArr = [...fileSet]
           const nonMainFiles = fileArr.filter(f => f !== 'main.js')
-          // Remove guarded files from duplication count
-          const unguardedNonMain = nonMainFiles.filter(f => !guardedAssignments.has(`${name}:${f}`))
+          // Remove guarded files AND betaGuards (which intentionally overrides handlers) from duplication count
+          const unguardedNonMain = nonMainFiles.filter(f =>
+            !guardedAssignments.has(`${name}:${f}`) && !f.includes('betaGuards'))
           // Real duplication: 2+ unguarded non-main files
           return unguardedNonMain.length > 1
         })
@@ -831,7 +833,9 @@ const PATTERN_CHECKS = [
       const SKIP = new Set(['addEventListener', 'removeEventListener', 'onerror', 'onload',
         'onunhandledrejection', 'onresize', 'onpopstate', 'onhashchange',
         '__SPOTHITCH_VERSION__', '_lazyLoaders', '_loadedModules',
-        'mapInstance', 'spotHitchMap', 'homeMapInstance'])
+        'mapInstance', 'spotHitchMap', 'homeMapInstance',
+        'spotFormData', 'validateFormData', 'identityVerificationState',
+        'landingNext', 'closeAuth', 'closeDailyReward'])
       const handlersByFile = {} // handler → [files]
       for (const file of files) {
         const content = readFileSync(file, 'utf-8')

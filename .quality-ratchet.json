@@ -1,6 +1,6 @@
 {
-  "totalScore": 100,
-  "updatedAt": "2026-03-16T09:28:15.664Z",
+  "totalScore": 99,
+  "updatedAt": "2026-03-16T13:22:05.671Z",
   "checks": {
     "Handlers Wiring": {
       "score": 100,
@@ -28,14 +28,14 @@
       "warnings": 11
     },
     "Error Patterns": {
-      "score": 100,
-      "errors": 0,
+      "score": 95,
+      "errors": 5,
       "warnings": 0
     },
     "Duplicate Handlers": {
       "score": 100,
       "errors": 0,
-      "warnings": 2
+      "warnings": 1
     },
     "Accessibility": {
       "score": 100,
@@ -43,9 +43,9 @@
       "warnings": 0
     },
     "Bundle Size": {
-      "score": 100,
+      "score": 95,
       "errors": 0,
-      "warnings": 0
+      "warnings": 1
     },
     "Import Cycles": {
       "score": 100,
