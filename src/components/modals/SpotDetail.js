@@ -150,7 +150,14 @@ export function renderSpotDetail(state) {
   ].filter(a => a.has)
 
   // Reviews — use comments array or liveComments from Firebase
-  const reviews = spot.liveComments || spot.comments || []
+  // Sort: successes first (shortest wait time first), then fails last
+  const reviews = (spot.liveComments || spot.comments || []).slice()
+  reviews.sort((a, b) => {
+    const aFail = a.rideResult === 'no' || a.rideResult === 'gaveUp' ? 1 : 0
+    const bFail = b.rideResult === 'no' || b.rideResult === 'gaveUp' ? 1 : 0
+    if (aFail !== bFail) return aFail - bFail // successes first
+    return (a.waitTime || 999) - (b.waitTime || 999) // shortest wait first
+  })
   const displayReviews = reviews.slice(0, 10)
 
   // Auto-translate comments after render
@@ -210,12 +217,12 @@ export function renderSpotDetail(state) {
         <!-- ========== SCROLLABLE CONTENT ========== -->
         <div class="overflow-y-auto" style="max-height:calc(90vh - 200px)">
 
-          <!-- Stats glassmorphism bar -->
+          <!-- Stats glassmorphism bar (clickable) -->
           <div style="margin:10px 12px 0;background:rgba(22,27,40,0.9);backdrop-filter:blur(12px);border-radius:14px;padding:14px;display:flex;justify-content:space-around;border:1px solid #1e293b">
-            <div style="text-align:center">
+            <div style="text-align:center;cursor:pointer" onclick="document.getElementById('spot-detail-panel')?.classList.toggle('hidden')" role="button" tabindex="0">
               <div style="font-size:22px;font-weight:700;color:${successRate != null ? (successRate >= 50 ? '#22c55e' : '#ef4444') : '#e2e8f0'}">${successRate != null ? successRate + '%' : '—'}</div>
               <div style="font-size:9px;color:#64748b">${t('successRate') || 'Réussite'}</div>
-              ${successRate != null && successRate < 100 ? `<div style="font-size:8px;color:#ef4444;margin-top:1px">${100 - successRate}% ${t('failRate') || 'échec'}</div>` : ''}
+              ${successRate != null && successRate < 100 ? `<div style="font-size:8px;color:#ef4444;margin-top:1px;cursor:pointer">${100 - successRate}% ${t('failRate') || 'échec'} ↓</div>` : ''}
             </div>
             <div style="width:1px;background:#1e293b"></div>
             <div style="text-align:center">
@@ -223,11 +230,81 @@ export function renderSpotDetail(state) {
               <div style="font-size:9px;color:#64748b">${t('waitTimeLabel') || 'Attente'}</div>
             </div>
             <div style="width:1px;background:#1e293b"></div>
-            <div style="text-align:center">
+            <div style="text-align:center;cursor:pointer" onclick="document.getElementById('spot-people-panel')?.classList.toggle('hidden')" role="button" tabindex="0">
               <div style="font-size:22px;font-weight:700;color:#f59e0b">${validatedCount || '—'}</div>
               <div style="font-size:9px;color:#64748b">${t('usageCount') || 'Validations'}</div>
-              ${availableCount > 0 ? `<div style="font-size:8px;color:#475569;margin-top:1px">+ ${availableCount} ${t('availabilityCount') || 'dispo.'}</div>` : ''}
+              ${availableCount > 0 ? `<div style="font-size:8px;color:#f59e0b;margin-top:1px;cursor:pointer">+ ${availableCount} ${t('availabilityCount') || 'dispo.'} ↓</div>` : ''}
             </div>
+          </div>
+
+          <!-- Detail panel: success/fail breakdown (hidden by default) -->
+          <div id="spot-detail-panel" class="hidden" style="background:#0c1018;border-top:1px solid #1e293b;margin:0 12px;padding:12px;border-radius:0 0 12px 12px">
+            ${(() => {
+              const successes = displayReviews.filter(r => r.rideResult === 'yes')
+              const fails = displayReviews.filter(r => r.rideResult === 'no' || r.rideResult === 'gaveUp')
+              // Method breakdown
+              const methodBreakdown = {}
+              for (const r of displayReviews) {
+                if (!r.method) continue
+                const label = r.method === 'thumb' ? '👍 ' + (t('methodThumb') || 'Pouce') : r.method === 'sign' ? '📋 ' + (t('methodSign') || 'Panneau') : '🗣 ' + (t('methodAsking') || 'En demandant')
+                if (!methodBreakdown[label]) methodBreakdown[label] = { ok: 0, fail: 0 }
+                if (r.rideResult === 'yes') methodBreakdown[label].ok++
+                else if (r.rideResult === 'no' || r.rideResult === 'gaveUp') methodBreakdown[label].fail++
+              }
+              // Time breakdown
+              const timeBreakdown = {}
+              const tLabels = { dawn: '🌅 ' + (t('timeDawn') || 'Aube'), morning: '☀️ ' + (t('timeMorning') || 'Matin'), noon: '🌤 Midi', afternoon: '🌆 ' + (t('timeAfternoon') || 'Après-midi'), evening: '🌇 ' + (t('timeEvening') || 'Soir'), night: '🌙 ' + (t('timeNight') || 'Nuit') }
+              for (const r of displayReviews) {
+                if (!r.timeOfDay) continue
+                const label = tLabels[r.timeOfDay] || r.timeOfDay
+                if (!timeBreakdown[label]) timeBreakdown[label] = { ok: 0, fail: 0 }
+                if (r.rideResult === 'yes') timeBreakdown[label].ok++
+                else if (r.rideResult === 'no' || r.rideResult === 'gaveUp') timeBreakdown[label].fail++
+              }
+              return `
+                <div style="display:flex;gap:8px;margin-bottom:10px">
+                  <div style="flex:1;background:#161b28;border-radius:8px;padding:8px;text-align:center;border-left:3px solid #22c55e">
+                    <div style="font-size:18px;font-weight:700;color:#22c55e">${successes.length}</div>
+                    <div style="font-size:9px;color:#64748b">${t('successes') || 'Réussites'}</div>
+                  </div>
+                  <div style="flex:1;background:#161b28;border-radius:8px;padding:8px;text-align:center;border-left:3px solid #ef4444">
+                    <div style="font-size:18px;font-weight:700;color:#ef4444">${fails.length}</div>
+                    <div style="font-size:9px;color:#64748b">${t('failures') || 'Échecs'}</div>
+                  </div>
+                </div>
+                ${Object.entries(methodBreakdown).map(([label, v]) => `
+                  <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px">
+                    <span>${label}</span>
+                    <span style="color:${v.fail > 0 ? '#ef4444' : '#22c55e'}">${v.ok > 0 ? v.ok + ' ✓' : ''}${v.ok > 0 && v.fail > 0 ? ' · ' : ''}${v.fail > 0 ? v.fail + ' ✗' : ''}</span>
+                  </div>
+                `).join('')}
+                ${Object.entries(timeBreakdown).map(([label, v]) => `
+                  <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px">
+                    <span>${label}</span>
+                    <span style="color:${v.fail > 0 ? '#ef4444' : '#22c55e'}">${v.ok > 0 ? v.ok + ' ✓' : ''}${v.ok > 0 && v.fail > 0 ? ' · ' : ''}${v.fail > 0 ? v.fail + ' ✗' : ''}</span>
+                  </div>
+                `).join('')}
+                <div style="text-align:center;font-size:9px;color:#475569;padding-top:6px;cursor:pointer" onclick="this.parentElement.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ▲</div>
+              `
+            })()}
+          </div>
+
+          <!-- People panel: who validated/confirmed (hidden by default) -->
+          <div id="spot-people-panel" class="hidden" style="background:#0c1018;border-top:1px solid #1e293b;margin:0 12px;padding:12px;border-radius:0 0 12px 12px">
+            ${displayReviews.length > 0 ? `
+              <div style="font-size:10px;color:#22c55e;font-weight:600;text-transform:uppercase;margin-bottom:8px">${t('usageCount') || 'Validations'} (${displayReviews.length})</div>
+              ${displayReviews.map(r => `
+                <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+                  <div style="width:24px;height:24px;border-radius:50%;background:${r.rideResult === 'yes' ? '#22c55e' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '#ef4444' : '#64748b'};display:flex;align-items:center;justify-content:center;font-size:9px;color:white;flex-shrink:0">${(r.userName || '?')[0]}</div>
+                  <div style="flex:1;min-width:0">
+                    <span style="font-size:12px;font-weight:500;${r.userId ? 'color:#f59e0b;cursor:pointer' : ''}" ${r.userId ? `onclick="showFriendProfile('${escapeJSString(r.userId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(r.userName || 'Anonyme')}</span>
+                    ${r.rideResult === 'yes' ? '<span style="font-size:10px;color:#22c55e;margin-left:4px">✓</span>' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '<span style="font-size:10px;color:#ef4444;margin-left:4px">✗</span>' : ''}
+                  </div>
+                  <span style="font-size:10px;color:#64748b">${r.date ? formatRelativeDate(r.date) : ''}</span>
+                </div>
+              `).join('')}
+            ` : ''}
+            <div style="text-align:center;font-size:9px;color:#475569;padding-top:6px;cursor:pointer" onclick="this.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ▲</div>
           </div>
 
           <!-- Title + neighborhood + destinations subtitle -->

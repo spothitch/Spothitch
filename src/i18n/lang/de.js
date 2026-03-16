@@ -4831,6 +4831,8 @@ export default {
   availabilityCount: 'Verfügbarkeiten',
   whatWorks: 'Was hier funktioniert',
   failRate: 'Misserfolg',
+  successes: 'Erfolge',
+  failures: 'Misserfolge',
   location: 'Standort',
   statistics: 'Statistiken',
   ratings: 'Bewertungen',

@@ -4776,6 +4776,8 @@ export default {
   availabilityCount: 'Availabilities',
   whatWorks: 'What works here',
   failRate: 'fail',
+  successes: 'Successes',
+  failures: 'Failures',
   location: 'Location',
   statistics: 'Statistics',
   ratings: 'Ratings',

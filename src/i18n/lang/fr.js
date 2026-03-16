@@ -4777,6 +4777,8 @@ export default {
   availabilityCount: 'Disponibilités',
   whatWorks: 'Ce qui marche ici',
   failRate: 'échec',
+  successes: 'Réussites',
+  failures: 'Échecs',
   location: 'Localisation',
   statistics: 'Statistiques',
   ratings: 'Évaluations',

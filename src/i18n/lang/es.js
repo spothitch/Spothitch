@@ -4773,6 +4773,8 @@ export default {
   availabilityCount: 'Disponibilidades',
   whatWorks: 'Lo que funciona aqui',
   failRate: 'fracaso',
+  successes: 'Éxitos',
+  failures: 'Fracasos',
   location: 'Ubicación',
   statistics: 'Estadísticas',
   ratings: 'Valoraciones',
