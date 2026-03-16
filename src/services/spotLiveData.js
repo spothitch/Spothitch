@@ -133,9 +133,13 @@ export function mergeSpotData(staticSpot, validations) {
     accessibility: avg(ratingVotes.accessibility),
   }
 
-  // Live last tested
+  // Live last tested + who tested/validated
   const dates = allValidations.map(v => v.date).filter(Boolean)
   const liveLastTested = dates.length > 0 ? dates[0] : staticSpot.lastTested
+  const mostRecentTest = testValidations[0]
+  const mostRecentValidation = allValidations[0]
+  const liveLastTestedBy = mostRecentTest?.userName || staticSpot.lastTestedBy || ''
+  const liveLastValidatedBy = mostRecentValidation?.userName || staticSpot.lastValidatedBy || ''
 
   // Live comments: community only for imported spots, merged for others
   const firebaseComments = allValidations
@@ -187,6 +191,8 @@ export function mergeSpotData(staticSpot, validations) {
     liveSuccessRate,
     liveRatings,
     liveLastTested,
+    liveLastTestedBy,
+    liveLastValidatedBy,
     liveComments,
     liveDestinations,
     _liveLoaded: true,

@@ -1185,32 +1185,33 @@ window.selectSpot = async (idOrSpot) => {
     spot = { id: spotId, coordinates: coords, lat: coords.lat, lng: coords.lng }
   }
   if (spot) {
-    actions.selectSpot(spot);
-    // Center map on spot using home map
-    const lat = spot.coordinates?.lat || spot.lat
-    const lng = spot.coordinates?.lng || spot.lng
-    if (lat && lng && window.homeMapInstance) {
-      window.homeMapInstance.flyTo({ center: [lng, lat], zoom: 14, duration: 800 })
-    }
-    // Auto-fix: if community spot has no lastValidated, set it to createdAt
+    // Auto-fix BEFORE showing: if community spot has no lastValidated, set it to createdAt
     if (spot.dataSource === 'community' && !spot.lastValidated && spot.createdAt) {
-      const createdAt = typeof spot.createdAt === 'string' ? spot.createdAt : new Date().toISOString()
+      const createdAt = typeof spot.createdAt === 'string' ? spot.createdAt
+        : (spot.createdAt?.toDate ? spot.createdAt.toDate().toISOString() : new Date().toISOString())
       spot.lastValidated = createdAt
       spot.lastTested = createdAt
       spot.validationCount = Math.max(spot.validationCount || 0, 1)
       spot.testCount = Math.max(spot.testCount || 0, 1)
-      actions.selectSpot({ ...spot }) // Re-render with fixed data
       // Persist fix to Firestore (fire-and-forget)
       import('./services/firebase.js').then(({ updateSpot }) => {
         updateSpot(spot.id, {
           lastValidated: createdAt,
           lastTested: createdAt,
-          lastValidatedBy: spot.creatorId || 'anonymous',
-          lastTestedBy: spot.creatorId || 'anonymous',
+          lastValidatedBy: spot.creator || 'Anonyme',
+          lastTestedBy: spot.creator || 'Anonyme',
           validationCount: Math.max(spot.validationCount || 0, 1),
           testCount: Math.max(spot.testCount || 0, 1),
         }).catch(() => {})
       }).catch(() => {})
+    }
+    // Show spot detail (awaits live data before rendering)
+    await actions.selectSpot(spot)
+    // Center map
+    const lat = spot.coordinates?.lat || spot.lat
+    const lng = spot.coordinates?.lng || spot.lng
+    if (lat && lng && window.homeMapInstance) {
+      window.homeMapInstance.flyTo({ center: [lng, lat], zoom: 14, duration: 800 })
     }
   }
 };

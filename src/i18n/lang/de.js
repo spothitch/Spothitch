@@ -3452,7 +3452,9 @@ export default {
   groupSizeLabel: "Wie viele wart ihr?",
 
   // AddSpot v2 - Time of day
+  timeDawn: "Morgendämmerung",
   timeMorning: "Morgens",
+  timeNoon: "Mittags",
   timeAfternoon: "Nachmittags",
   timeEvening: "Abends",
   timeNight: "Nachts",

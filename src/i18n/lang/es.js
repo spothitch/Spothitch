@@ -3452,7 +3452,9 @@ export default {
   groupSizeLabel: "¿Cuántos erais?",
 
   // AddSpot v2 - Time of day
+  timeDawn: "Amanecer",
   timeMorning: "Mañana",
+  timeNoon: "Mediodía",
   timeAfternoon: "Tarde",
   timeEvening: "Noche temprana",
   timeNight: "Noche",

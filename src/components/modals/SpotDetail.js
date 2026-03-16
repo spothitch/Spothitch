@@ -23,11 +23,12 @@ export function renderSpotDetail(state) {
     : spot.successRate != null ? spot.successRate
       : (spot.rideResult === 'yes' ? 100 : spot.rideResult === 'gaveUp' ? 0 : null)
 
-  const spotTitle = spot.from
-    ? escapeHTML(spot.from)
-    : spot.direction
-      ? escapeHTML(spot.direction)
-      : `${t('spotLocation') || 'Spot'} #${spot.id}`
+  const spotName = spot.from || spot.departureCity || spot.fromCity || spot.city || spot.locationName
+  const spotTitle = spotName
+    ? escapeHTML(spotName)
+    : spot.direction || spot.directionCity
+      ? escapeHTML(spot.direction || spot.directionCity)
+      : `${t('spotLocation') || 'Spot'}`
 
   // Destinations — merge static (from data) + live (from Firebase)
   const staticDests = (spot.destinations || []).map(d => ({
@@ -93,18 +94,46 @@ export function renderSpotDetail(state) {
     arr.forEach(v => { counts[v] = (counts[v] || 0) + 1 })
     return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k]) => k)
   }
+  // Also aggregate timeOfDay
+  const allTimes = []
+  if (spot.timeOfDay) allTimes.push(spot.timeOfDay)
+  for (const c of (spot.liveComments || [])) {
+    if (c.timeOfDay) allTimes.push(c.timeOfDay)
+  }
   const topMethods = mostCommon(allMethods)
   const topGroups = mostCommon(allGroups)
+  const topTimes = mostCommon(allTimes)
 
-  const methodLabel = topMethods?.[0] ? methodLabels[topMethods[0]] || null : null
-  const groupLabel = topGroups?.[0] ? groupLabels[topGroups[0]] || null : null
+  const timeLabels = {
+    dawn: t('timeDawn') || 'Aube',
+    morning: t('timeMorning') || 'Matin',
+    noon: t('timeNoon') || 'Midi',
+    afternoon: t('timeAfternoon') || 'Apres-midi',
+    evening: t('timeEvening') || 'Soir',
+    night: t('timeNight') || 'Nuit',
+  }
+  const timeEmojis = { dawn: '🌅', morning: '☀️', noon: '🌤', afternoon: '🌆', evening: '🌇', night: '🌙' }
 
-  const methodEmoji = topMethods?.[0] === 'thumb' ? '👍' : topMethods?.[0] === 'sign' ? '📋' : topMethods?.[0] === 'asking' ? '🗣' : ''
-  const groupEmoji = topGroups?.[0] === 'solo' ? '👤' : topGroups?.[0] === 'duo' ? '👥' : topGroups?.[0] === 'group' ? '👥' : ''
+  // Build distribution with counts for display
+  const countItems = (arr, labels, emojis) => {
+    const total = arr.length
+    if (total === 0) return []
+    const counts = {}
+    arr.forEach(v => { counts[v] = (counts[v] || 0) + 1 })
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, c]) => ({
+        key: k,
+        label: labels[k] || k,
+        emoji: emojis?.[k] || '',
+        pct: total > 1 ? Math.round(c / total * 100) : 0,
+      }))
+  }
+  const methodStats = countItems(allMethods, methodLabels, { thumb: '👍', sign: '📋', asking: '🗣' })
+  const groupStats = countItems(allGroups, groupLabels, { solo: '👤', duo: '👥', group: '👥' })
+  const timeStats = countItems(allTimes, timeLabels, timeEmojis)
 
-  // Show all unique methods if there are multiple
-  const uniqueMethods = topMethods?.filter((m, i) => i === 0 || topMethods.indexOf(m) === i) || []
-  const hasTags = methodLabel || groupLabel
+  const hasTags = methodStats.length > 0 || groupStats.length > 0 || timeStats.length > 0
   const isFav = isFavorite(spot.id)
 
   // Active amenities only
@@ -227,11 +256,11 @@ export function renderSpotDetail(state) {
           <div style="padding:0 16px 12px;display:flex;gap:8px">
             <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
               <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastValidation') || 'Dernière validation'}</div>
-              <div style="font-size:12px;color:#e2e8f0">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}${spot.lastValidatedBy ? ' · ' + escapeHTML(spot.lastValidatedBy) : ''}</div>
+              <div style="font-size:12px;color:#e2e8f0">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}${displayName(spot.liveLastValidatedBy || spot.lastValidatedBy)}</div>
             </div>
             <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
               <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastTest') || 'Dernière utilisation'}</div>
-              <div style="font-size:12px;color:#e2e8f0">${(spot.liveLastTested || spot.lastTested) ? formatRelativeDate(spot.liveLastTested || spot.lastTested) : '—'}${spot.lastTestedBy ? ' · ' + escapeHTML(spot.lastTestedBy) : ''}</div>
+              <div style="font-size:12px;color:#e2e8f0">${(spot.liveLastTested || spot.lastTested) ? formatRelativeDate(spot.liveLastTested || spot.lastTested) : '—'}${displayName(spot.liveLastTestedBy || spot.lastTestedBy)}</div>
             </div>
           </div>
 
@@ -253,15 +282,12 @@ export function renderSpotDetail(state) {
           </div>
           ` : ''}
 
-          <!-- Practical tags (colored pills) -->
+          <!-- Practical tags (colored pills with distribution) -->
           ${hasTags ? `
           <div style="padding:0 16px 4px;display:flex;flex-wrap:wrap;gap:5px">
-            ${uniqueMethods.map(m => {
-              const label = methodLabels[m]
-              const emoji = m === 'thumb' ? '👍' : m === 'sign' ? '📋' : m === 'asking' ? '🗣' : ''
-              return label ? `<span style="font-size:11px;color:#f59e0b;background:rgba(245,158,11,0.08);padding:4px 9px;border-radius:99px">${emoji} ${escapeHTML(label)}</span>` : ''
-            }).join('')}
-            ${groupLabel ? `<span style="font-size:11px;color:#3b82f6;background:rgba(59,130,246,0.08);padding:4px 9px;border-radius:99px">${groupEmoji} ${escapeHTML(groupLabel)}</span>` : ''}
+            ${methodStats.map(s => `<span style="font-size:11px;color:#f59e0b;background:rgba(245,158,11,0.08);padding:4px 9px;border-radius:99px">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span style="color:#64748b;font-size:9px">${s.pct}%</span>` : ''}</span>`).join('')}
+            ${groupStats.map(s => `<span style="font-size:11px;color:#3b82f6;background:rgba(59,130,246,0.08);padding:4px 9px;border-radius:99px">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span style="color:#64748b;font-size:9px">${s.pct}%</span>` : ''}</span>`).join('')}
+            ${timeStats.map(s => `<span style="font-size:11px;color:#22c55e;background:rgba(34,197,94,0.08);padding:4px 9px;border-radius:99px">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span style="color:#64748b;font-size:9px">${s.pct}%</span>` : ''}</span>`).join('')}
           </div>
           ` : ''}
 
@@ -457,13 +483,22 @@ function renderSubtitleType(spot) {
 }
 
 
+/** Filter out UIDs from display — show name or nothing */
+function displayName(name) {
+  if (!name) return ''
+  // Firebase UIDs are 20+ chars, all alphanumeric — don't display these
+  if (name.length >= 20 && /^[a-zA-Z0-9]+$/.test(name)) return ''
+  return ' · ' + escapeHTML(name)
+}
+
 /**
  * Format date as relative time (il y a X jours/semaines/mois)
  */
-function formatRelativeDate(dateStr) {
-  if (!dateStr) return ''
+function formatRelativeDate(dateInput) {
+  if (!dateInput) return ''
   try {
-    const d = new Date(dateStr)
+    // Handle Firestore Timestamps (have .toDate()), ISO strings, and Date objects
+    const d = dateInput.toDate ? dateInput.toDate() : new Date(dateInput)
     if (isNaN(d.getTime())) return ''
     const now = new Date()
     const diffMs = now - d

@@ -1077,7 +1077,7 @@ export async function addValidation(data) {
       testCount: increment(1),
       checkins: increment(1),
       lastTested: new Date().toISOString(),
-      lastTestedBy: user?.uid || 'anonymous',
+      lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
       lastUsed: new Date().toISOString().split('T')[0],
     }).catch(() => {}) // May fail if spot is imported (not in Firestore)
 
