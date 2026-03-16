@@ -100,18 +100,18 @@ export function startVersionCheck() {
     sessionStorage.setItem(reloadKey, String(now - lastReloadTime < 30000 ? reloadCount + 1 : 1))
     sessionStorage.setItem(reloadTimeKey, String(now))
 
-    // Clear ALL caches (precache + runtime) so fresh assets are fetched
+    // 1. Clear ALL caches (precache + runtime)
     if (window.caches) {
       try {
         const keys = await caches.keys()
         await Promise.all(keys.map(k => caches.delete(k)))
       } catch { /* ignore */ }
     }
-    // Force SW update
+    // 2. Unregister ALL service workers so the browser fetches fresh from server
     if (navigator.serviceWorker) {
       try {
         const regs = await navigator.serviceWorker.getRegistrations()
-        await Promise.all(regs.map(r => r.update()))
+        await Promise.all(regs.map(r => r.unregister()))
       } catch { /* ignore */ }
     }
     isReloading = true
