@@ -126,8 +126,8 @@ describe('Impact Analysis: main.js window handlers', () => {
     expect(content).toMatch(/function render\b/)
   })
 
-  it('main.js has version check (auto-update)', () => {
-    const content = readFileSync(join(SRC_PATH, 'main.js'), 'utf-8')
+  it('auto-update code exists (version check)', () => {
+    const content = readFileSync(join(SRC_PATH, 'services', 'autoUpdate.js'), 'utf-8')
     expect(content).toContain('version.json')
   })
 })
