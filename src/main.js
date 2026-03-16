@@ -727,8 +727,9 @@ async function init() {
       })
     }
 
-    // Register cleanup on page unload
+    // Register cleanup on page unload (pagehide = iOS fallback, beforeunload unreliable on iOS)
     window.addEventListener('beforeunload', runAllCleanup);
+    window.addEventListener('pagehide', runAllCleanup);
 
     // Auto-update check: reload if a new version is deployed
     startVersionCheck()
@@ -958,16 +959,13 @@ function render(state) {
     panel.style.display = isActive ? '' : 'none'
   }
 
-  // 4. Render the active tab content (only if it needs updating)
+  // 4. Render the active tab content
+  // Always re-render non-map tabs to ensure fresh data (cost: ~5ms)
   if (activePanel !== 'map') {
     const panel = document.getElementById(`panel-${activePanel}`)
     if (panel) {
-      // If this tab was never rendered, OR if it's currently active and state changed, re-render
-      if (!_renderedTabs.has(activePanel) || !tabChanged) {
-        panel.innerHTML = renderActiveView(state)
-        _renderedTabs.add(activePanel)
-      }
-      // If tab just switched back to a previously rendered tab, keep cached content
+      panel.innerHTML = renderActiveView(state)
+      _renderedTabs.add(activePanel)
     }
   }
 
@@ -1600,7 +1598,14 @@ window.showAgeVerification = () => window.openAgeVerification();
 // Identity Verification handlers (Security - Progressive Trust System 0-5)
 window.openIdentityVerification = () => {
   // Reset modal state
-  window.identityVerificationState = {
+  // Use a non-enumerable, non-configurable property to reduce exposure
+  // (extensions can still access it via Object.getOwnPropertyDescriptor, but casual window.X won't list it)
+  if (!window._ivState) {
+    Object.defineProperty(window, '_ivState', {
+      value: {}, writable: true, enumerable: false, configurable: false,
+    })
+  }
+  window._ivState = {
     currentStep: 'overview',
     phoneNumber: '',
     verificationCode: '',
@@ -1614,6 +1619,8 @@ window.openIdentityVerification = () => {
     isLoading: false,
     error: null,
   };
+  // Keep alias for backward compat but clear photos after submission
+  window.identityVerificationState = window._ivState;
   setState({ showIdentityVerification: true });
 };
 // closeIdentityVerification — canonical in IdentityVerification.js
@@ -1637,6 +1644,13 @@ window.submitVerificationPhotos = async () => {
     idCard: state.idCardPhoto,
     selfieWithId: state.selfieWithIdPhoto,
   });
+
+  // Clear sensitive photos from memory immediately after upload
+  state.selfiePhoto = null
+  state.idCardPhoto = null
+  state.selfieWithIdPhoto = null
+  state.photoPreview = null
+  state.documentPreview = null
 
   if (result.success) {
     showToast(t('photosSubmitted') || 'Photos soumises avec succes !', 'success');

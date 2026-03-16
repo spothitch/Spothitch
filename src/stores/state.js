@@ -438,7 +438,7 @@ function persistState() {
     badges: state.badges,
     rewards: state.rewards,
     savedTrips: state.savedTrips,
-    emergencyContacts: state.emergencyContacts,
+    emergencyContacts: state.emergencyContacts, // RGPD: third-party data, included in GDPR export
     favorites: state.favorites,
     favoritesSort: state.favoritesSort,
     checkinHistory: state.checkinHistory,
