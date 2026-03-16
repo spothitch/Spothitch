@@ -1096,7 +1096,7 @@ function initHomeMap(state) {
             const spotsMap = new Map()
             existingSpots.forEach(s => spotsMap.set(s.id, s))
             communitySpots.forEach(s => spotsMap.set(s.id, s))
-            setState({ spots: Array.from(spotsMap.values()) })
+            if (window.setState) window.setState({ spots: Array.from(spotsMap.values()) })
             updateSpotsOnMap(Array.from(spotsMap.values()))
           }
         }
