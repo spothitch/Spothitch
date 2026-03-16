@@ -119,6 +119,43 @@ export async function submitReport(type, targetId, reason, details = {}) {
     userReports,
   });
 
+  // Persist to Firebase
+  try {
+    const { addDoc, collection, serverTimestamp } = await import('firebase/firestore')
+    const { db } = await import('./firebase.js')
+
+    const firestoreReport = {
+      type: type,
+      targetId: targetId,
+      reason: reason,
+      severity: reasonInfo.severity,
+      description: details.description || '',
+      reporterId: userId,
+      reporterName: state.username || 'Anonyme',
+      status: 'pending',
+      createdAt: serverTimestamp(),
+    }
+
+    // Include suggested coordinates for misplaced reports
+    if (reason === 'misplaced' && details.suggestedLat && details.suggestedLng) {
+      firestoreReport.suggestedLat = details.suggestedLat
+      firestoreReport.suggestedLng = details.suggestedLng
+    }
+
+    await addDoc(collection(db, 'reports'), firestoreReport)
+
+    // If spot report, increment report counter on the spot
+    if (type === 'spot' || type === 'SPOT') {
+      const { updateDoc, doc, increment } = await import('firebase/firestore')
+      await updateDoc(doc(db, 'spots', targetId), {
+        reports: increment(1),
+      }).catch(() => {}) // Spot may not exist in Firestore (Hitchwiki import)
+    }
+  } catch (err) {
+    console.error('Failed to persist report to Firebase:', err)
+    // Don't block — local state is saved, Firebase is best-effort
+  }
+
   // Apply automatic actions for high severity
   if (reasonInfo.severity === 'critical' || reasonInfo.severity === 'high') {
     await handleHighSeverityReport(report);

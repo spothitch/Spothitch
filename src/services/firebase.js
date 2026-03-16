@@ -1130,32 +1130,47 @@ export async function saveCommentToFirebase(comment) {
  * @param {string} reason - Report reason
  * @param {string} details - Additional details
  */
-export async function reportSpot(spotId, reason, details = '') {
+export async function reportSpot(
+  spotId,
+  reason,
+  details = '',
+  suggestedCoords = null,
+) {
   try {
-    const user = getCurrentUser();
-    const reportsRef = collection(db, 'reports');
+    const user = getCurrentUser()
+    const reportsRef = collection(db, 'reports')
 
-    await addDoc(reportsRef, {
+    const reportData = {
+      type: 'spot',
       spotId,
+      targetId: spotId,
       reason,
-      details,
+      description:
+        typeof details === 'string' ? details : (details.description || ''),
       reporterId: user?.uid || 'anonymous',
       reporterName: user?.displayName || 'Anonyme',
       status: 'pending',
       createdAt: serverTimestamp(),
-    });
+    }
+
+    // Include suggested coordinates for misplaced reports
+    if (suggestedCoords) {
+      reportData.suggestedLat = suggestedCoords.lat
+      reportData.suggestedLng = suggestedCoords.lng
+    }
+
+    await addDoc(reportsRef, reportData)
 
     // Increment spot report count
-    const spotRef = doc(db, 'spots', spotId);
-    const { increment } = await import('firebase/firestore');
+    const spotRef = doc(db, 'spots', spotId)
     await updateDoc(spotRef, {
       reports: increment(1),
-    });
+    })
 
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    console.error('Error reporting spot:', error);
-    return { success: false, error };
+    console.error('Error reporting spot:', error)
+    return { success: false, error }
   }
 }
 
