@@ -4783,4 +4783,18 @@ export default {
   confirmPublish: 'Confirm and publish',
   confirmSubmit: 'Confirm and submit',
   noPhoto: 'No photo',
+
+  // My Spots Enriched
+  mySpotsStats: 'Summary',
+  totalValidations: 'validations received',
+  bestSpot: 'Best spot',
+  sortValidated: 'Most validated',
+  sortCountry: 'By country',
+  towardsVerified: 'to Verified',
+  towardsCertified: 'to Certified',
+  lastValidatedDate: 'Last validated',
+  daysAgoShort: 'd',
+  weeksAgoShort: 'w',
+  monthsAgoShort: 'mo',
+  yearsAgoShort: 'y',
 }

@@ -234,8 +234,8 @@ let quizStartTime = null
  * @param {string} countryCode - ISO 2-letter country code
  * @returns {Array} Array of quiz questions in internal format
  */
-export function getQuizForCountry(countryCode) {
-  const quizData = getCountryQuizData(countryCode)
+export async function getQuizForCountry(countryCode) {
+  const quizData = await getCountryQuizData(countryCode)
   if (!quizData) return null
 
   const { lang } = getState()
@@ -260,11 +260,11 @@ export function getQuizForCountry(countryCode) {
  * Start a new quiz (general or country-specific)
  * @param {string} [countryCode] - Optional country code for country quiz
  */
-export function startQuiz(countryCode) {
+export async function startQuiz(countryCode) {
   let questions
 
   if (countryCode) {
-    const countryQuestions = getQuizForCountry(countryCode)
+    const countryQuestions = await getQuizForCountry(countryCode)
     if (countryQuestions) {
       questions = [...countryQuestions].sort(() => Math.random() - 0.5)
     } else {

@@ -1,39 +1,45 @@
 /**
  * Country Quizzes Index
- * Central export for all country-specific quiz data
+ * Quiz data is lazy-loaded per country to reduce chunk size
  */
 
-import { franceQuiz } from './france.js'
-import { germanyQuiz } from './germany.js'
-import { spainQuiz } from './spain.js'
-import { ukQuiz } from './uk.js'
-import { netherlandsQuiz } from './netherlands.js'
-
-/**
- * All available country quizzes indexed by country code
- */
-export const countryQuizzes = {
-  FR: franceQuiz,
-  DE: germanyQuiz,
-  ES: spainQuiz,
-  GB: ukQuiz,
-  NL: netherlandsQuiz,
+// Lazy loaders — quiz data (~12KB each) loaded only when needed
+const quizLoaders = {
+  FR: () => import('./france.js').then(m => m.franceQuiz),
+  DE: () => import('./germany.js').then(m => m.germanyQuiz),
+  ES: () => import('./spain.js').then(m => m.spainQuiz),
+  GB: () => import('./uk.js').then(m => m.ukQuiz),
+  NL: () => import('./netherlands.js').then(m => m.netherlandsQuiz),
 }
+
+// Cache loaded quizzes
+const _cache = {}
 
 /**
  * Get list of available country codes that have quizzes
  */
 export function getAvailableQuizCountries() {
-  return Object.keys(countryQuizzes)
+  return Object.keys(quizLoaders)
 }
 
 /**
- * Get quiz data for a specific country code
+ * Get quiz data for a specific country code (async, lazy-loaded)
  * @param {string} countryCode - ISO 2-letter country code (e.g. 'FR', 'DE')
- * @returns {object|null} Quiz data or null if not found
+ * @returns {Promise<object|null>} Quiz data or null if not found
  */
-export function getCountryQuizData(countryCode) {
-  return countryQuizzes[countryCode?.toUpperCase()] || null
+export async function getCountryQuizData(countryCode) {
+  const code = countryCode?.toUpperCase()
+  if (!code || !quizLoaders[code]) return null
+  if (_cache[code]) return _cache[code]
+  _cache[code] = await quizLoaders[code]()
+  return _cache[code]
+}
+
+/**
+ * Synchronous access for backward compat (returns cached or null)
+ */
+export function getCountryQuizDataSync(countryCode) {
+  return _cache[countryCode?.toUpperCase()] || null
 }
 
 /**

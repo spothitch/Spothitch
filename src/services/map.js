@@ -310,6 +310,7 @@ export async function initMap(containerId = 'map') {
       center,
       zoom: state.userLocation ? 13 : DEFAULT_ZOOM,
       attributionControl: true,
+      maxTileCacheSize: 50,
     })
 
     addCompatMethods(mainMap)

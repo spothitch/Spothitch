@@ -38,6 +38,20 @@ function preloadMap() {
     setTimeout(doPreload, 2000)
   }
 }
+
+// Preload tab chunks during idle so first switch is instant
+function preloadTabChunks() {
+  const preload = () => {
+    import('./components/views/Voyage.js').catch(() => {})
+    import('./components/views/Social.js').catch(() => {})
+    import('./components/views/Profile.js').catch(() => {})
+  }
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(preload, { timeout: 5000 })
+  } else {
+    setTimeout(preload, 4000)
+  }
+}
 // Heavy modules — lazy-loaded via dynamic import() to reduce initial bundle
 // gamification.js, quiz.js, planner.js, friendChallenges.js loaded on demand
 // i18n
@@ -366,6 +380,8 @@ async function init() {
   // Always preload map module during initial loading (onboarding or splash)
   // so MapLibre is ready when user opens the map tab
   preloadMap()
+  // Preload other tab chunks during idle for instant first switch
+  preloadTabChunks()
 
   // Check for reset parameter in URL
   if (window.location.search.includes('reset')) {
@@ -1747,11 +1763,11 @@ window.closeQuiz = () => setState({
 })
 window.startQuizGame = async () => {
   const { startQuiz } = await import('./services/quiz.js')
-  startQuiz()
+  await startQuiz()
 }
 window.startCountryQuiz = async (countryCode) => {
   const { startQuiz } = await import('./services/quiz.js')
-  startQuiz(countryCode)
+  await startQuiz(countryCode)
 }
 window.answerQuizQuestion = async (answerIndex) => {
   const { answerQuestion } = await import('./services/quiz.js')
@@ -1763,7 +1779,7 @@ window.nextQuizQuestion = async () => {
 }
 window.retryQuiz = async () => {
   const { startQuiz } = await import('./services/quiz.js')
-  startQuiz()
+  await startQuiz()
 }
 window.showCountryQuizSelection = () => {
   setState({ quizActive: false, quizResult: null, quizCountryCode: null, quizShowExplanation: false });
