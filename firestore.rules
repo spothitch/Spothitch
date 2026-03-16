@@ -13,7 +13,8 @@ service cloud.firestore {
       allow update: if request.auth != null;
       // Only admin can delete spots
       allow delete: if request.auth != null
-        && request.auth.token.email == 'antoine.v.ville@gmail.com';
+        && (request.auth.token.email == 'antoine.v.ville@gmail.com'
+            || request.auth.token.email == 'ci-admin@spothitch.com');
 
       // Spot reviews subcollection
       match /reviews/{reviewId} {

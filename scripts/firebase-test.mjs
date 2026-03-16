@@ -154,10 +154,13 @@ async function firestoreTests() {
     assert(snap.data().name === 'CI Updated Spot', 'Spot was not updated')
   })
 
-  await test('Alice can delete her spot', async () => {
-    await deleteDoc(doc(db, 'spots', testSpotId))
-    const snap = await getDoc(doc(db, 'spots', testSpotId))
-    assert(!snap.exists(), 'Spot was not deleted')
+  await test('Alice cannot delete her spot (admin-only)', async () => {
+    try {
+      await deleteDoc(doc(db, 'spots', testSpotId))
+      throw new Error('Delete should have been denied')
+    } catch (e) {
+      assert(e.code === 'permission-denied' || e.message.includes('PERMISSION_DENIED'), 'Expected permission denied')
+    }
   })
 
   await signOut(auth)

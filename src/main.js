@@ -1220,16 +1220,16 @@ window.openSpotDetail = window.selectSpot; // alias for services that use openSp
 // Ignore close calls within 600ms of opening to prevent the open→close→reopen flicker.
 let _spotDetailOpenedAt = 0
 const _origSelectSpot = actions.selectSpot.bind(actions)
-actions.selectSpot = (spot) => {
+actions.selectSpot = async (spot) => {
   if (spot) {
     _spotDetailOpenedAt = Date.now()
-    // Always load fresh live Firebase data (ratings, comments, success rate may have changed)
-    import('./services/spotLiveData.js').then(({ fetchSpotValidations, mergeSpotData }) => {
-      fetchSpotValidations(spot.id).then(validations => {
-        const enriched = mergeSpotData({ ...spot, _liveLoaded: false }, validations)
-        if (enriched) setState({ selectedSpot: enriched })
-      })
-    }).catch(() => {})
+    // Load live Firebase data BEFORE showing the modal (so ratings/comments are immediate)
+    try {
+      const { fetchSpotValidations, mergeSpotData } = await import('./services/spotLiveData.js')
+      const validations = await fetchSpotValidations(spot.id)
+      const enriched = mergeSpotData({ ...spot, _liveLoaded: false }, validations)
+      if (enriched) spot = enriched
+    } catch { /* offline — show static data */ }
   }
   _origSelectSpot(spot)
 }
