@@ -5,6 +5,7 @@
 export function renderApp(currentPage, pendingCount = 0) {
   const navItems = [
     { id: 'dashboard', label: 'Tableau de bord', icon: '📊' },
+    { id: 'spots', label: 'Spots', icon: '📍' },
     { id: 'moderation', label: 'Modération', icon: '⚖️', badge: pendingCount },
     { id: 'users', label: 'Utilisateurs', icon: '👤' },
   ]

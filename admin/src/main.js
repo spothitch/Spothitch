@@ -16,6 +16,7 @@ import {
   resetModerationCache,
 } from './components/Moderation.js'
 import { renderUserList, bindUserListEvents, resetUserListCache } from './components/UserList.js'
+import { renderSpotList, bindSpotListEvents, resetSpotListCache } from './components/SpotList.js'
 
 const appEl = document.getElementById('app')
 let currentPage = 'dashboard'
@@ -49,6 +50,7 @@ function navigate(page) {
   currentPage = page
   resetModerationCache()
   resetUserListCache()
+  resetSpotListCache()
   renderPage()
 }
 
@@ -92,6 +94,10 @@ function renderPage() {
       case 'dashboard':
         mainContent.innerHTML = renderDashboard()
         bindDashboardEvents()
+        break
+      case 'spots':
+        mainContent.innerHTML = renderSpotList()
+        bindSpotListEvents()
         break
       case 'moderation':
         mainContent.innerHTML = renderModeration()
