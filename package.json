@@ -52,7 +52,7 @@
     "@tailwindcss/vite": "^4.2.1",
     "@vitejs/plugin-legacy": "^7.2.1",
     "@vitest/coverage-v8": "^4.1.0",
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^12.8.0",
     "eslint": "^10.0.3",
     "fast-check": "^4.6.0",
     "firebase-admin": "^13.7.0",
