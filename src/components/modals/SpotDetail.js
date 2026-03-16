@@ -15,9 +15,12 @@ export function renderSpotDetail(state) {
 
   const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
   const navName = escapeJSString((spot.from || '') + ' - ' + (spot.to || ''))
-  const validationCount = spot.validationCount || spot.userValidations || 0
+  const totalValidations = spot.validationCount || spot.userValidations || 0
   const testCount = spot.liveTestCount || spot.testCount || 0
-  const usageCount = testCount || validationCount
+  const checkins = spot.checkins || 0
+  // Validations = full experiences (with ratings/comments). Disponibilités = quick confirms
+  const validatedCount = Math.max(testCount, checkins)
+  const availableCount = Math.max(0, totalValidations - validatedCount)
 
   const successRate = spot.liveSuccessRate != null ? spot.liveSuccessRate
     : spot.successRate != null ? spot.successRate
@@ -211,7 +214,8 @@ export function renderSpotDetail(state) {
           <div style="margin:10px 12px 0;background:rgba(22,27,40,0.9);backdrop-filter:blur(12px);border-radius:14px;padding:14px;display:flex;justify-content:space-around;border:1px solid #1e293b">
             <div style="text-align:center">
               <div style="font-size:22px;font-weight:700;color:${successRate != null ? (successRate >= 50 ? '#22c55e' : '#ef4444') : '#e2e8f0'}">${successRate != null ? successRate + '%' : '—'}</div>
-              <div style="font-size:9px;color:#64748b">${t('successRate') || 'Succes'}</div>
+              <div style="font-size:9px;color:#64748b">${t('successRate') || 'Réussite'}</div>
+              ${successRate != null && successRate < 100 ? `<div style="font-size:8px;color:#ef4444;margin-top:1px">${100 - successRate}% ${t('failRate') || 'échec'}</div>` : ''}
             </div>
             <div style="width:1px;background:#1e293b"></div>
             <div style="text-align:center">
@@ -220,8 +224,9 @@ export function renderSpotDetail(state) {
             </div>
             <div style="width:1px;background:#1e293b"></div>
             <div style="text-align:center">
-              <div style="font-size:22px;font-weight:700;color:#f59e0b">${usageCount || '—'}</div>
-              <div style="font-size:9px;color:#64748b">${t('usageCount') || 'Utilisations'}</div>
+              <div style="font-size:22px;font-weight:700;color:#f59e0b">${validatedCount || '—'}</div>
+              <div style="font-size:9px;color:#64748b">${t('usageCount') || 'Validations'}</div>
+              ${availableCount > 0 ? `<div style="font-size:8px;color:#475569;margin-top:1px">+ ${availableCount} ${t('availabilityCount') || 'dispo.'}</div>` : ''}
             </div>
           </div>
 
@@ -284,6 +289,7 @@ export function renderSpotDetail(state) {
 
           <!-- Practical tags (colored pills with distribution) -->
           ${hasTags ? `
+          <div style="padding:0 16px 6px;font-size:10px;color:#22c55e;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">${t('whatWorks') || 'Ce qui marche ici'}</div>
           <div style="padding:0 16px 4px;display:flex;flex-wrap:wrap;gap:5px">
             ${methodStats.map(s => `<span style="font-size:11px;color:#f59e0b;background:rgba(245,158,11,0.08);padding:4px 9px;border-radius:99px">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span style="color:#64748b;font-size:9px">${s.pct}%</span>` : ''}</span>`).join('')}
             ${groupStats.map(s => `<span style="font-size:11px;color:#3b82f6;background:rgba(59,130,246,0.08);padding:4px 9px;border-radius:99px">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span style="color:#64748b;font-size:9px">${s.pct}%</span>` : ''}</span>`).join('')}
@@ -313,10 +319,11 @@ export function renderSpotDetail(state) {
           </div>
           ` : ''}
 
-          <!-- Destinations with percentages -->
+          <!-- Destinations with percentages — top ones highlighted -->
           ${allDests.length > 0 ? `
+          <div style="padding:0 16px 6px;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">${t('destinations') || 'Destinations'}</div>
           <div style="padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px">
-            ${allDests.map(d => `<span style="font-size:12px;color:#f59e0b;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.2);padding:5px 10px;border-radius:8px">\u2192 ${escapeHTML(d.name)}${d.pct > 0 && allDests.length > 1 ? ` <span style="color:#64748b;font-size:10px">${d.pct}%</span>` : ''}</span>`).join('')}
+            ${allDests.map((d, i) => `<span style="font-size:12px;color:#f59e0b;${i < 2 ? 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3)' : 'background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.1)'};padding:5px 10px;border-radius:8px">\u2192 ${escapeHTML(d.name)}${d.pct > 0 && allDests.length > 1 ? ` <span style="color:#64748b;font-size:10px">${d.pct}%</span>` : ''}</span>`).join('')}
           </div>
           ` : ''}
 
@@ -332,13 +339,19 @@ export function renderSpotDetail(state) {
                 : review.groupSize === 'duo' ? 'Duo'
                   : review.groupSize === 'group' ? 'Groupe'
                     : ''
+              const isSuccess = review.rideResult === 'yes'
+              const isFail = review.rideResult === 'no' || review.rideResult === 'gaveUp'
+              const borderColor = isFail ? 'border-left:3px solid #ef4444' : isSuccess ? 'border-left:3px solid #22c55e' : ''
+              const resultBadge = isSuccess ? `<span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.15);color:#22c55e;margin-left:4px">✓</span>`
+                : isFail ? `<span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:4px;background:rgba(239,68,68,0.15);color:#ef4444;margin-left:4px">✗</span>` : ''
               return `
-              <div style="background:#161b28;border-radius:10px;padding:12px;margin-bottom:6px">
+              <div style="background:#161b28;border-radius:10px;padding:12px;margin-bottom:6px;${borderColor}">
                 <div style="font-size:12px;margin-bottom:2px">
                   <span style="font-weight:500;${review.userId ? 'cursor:pointer;color:#f59e0b' : ''}" ${review.userId ? `onclick="showFriendProfile('${escapeJSString(review.userId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(review.userName || 'Hitchwiki')}</span>
                   ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
                   ${review.rating ? ` <span style="color:#f59e0b">${'\u2605'.repeat(review.rating)}${'\u2606'.repeat(5 - review.rating)}</span>` : ''}
-                  <span style="color:#64748b">${review.waitTime ? ' · ' + review.waitTime + ' min' : ''}${rMethod ? ' · ' + rMethod : ''}${rGroup ? ' · ' + rGroup : ''}${review.date ? ' · ' + formatReviewDate(review.date) : ''}</span>
+                  ${resultBadge}
+                  <br><span style="color:#64748b">${review.waitTime ? review.waitTime + ' min' : ''}${rMethod ? ' · ' + rMethod : ''}${rGroup ? ' · ' + rGroup : ''}${review.timeOfDay ? ' · ' + (review.timeOfDay === 'morning' ? '☀️' : review.timeOfDay === 'night' ? '🌙' : review.timeOfDay === 'evening' ? '🌇' : review.timeOfDay === 'afternoon' ? '🌆' : '') : ''}${review.date ? ' · ' + formatReviewDate(review.date) : ''}</span>
                 </div>
                 ${review.text ? (() => {
                   const commentId = 'spot-comment-' + spot.id + '-' + displayReviews.indexOf(review)
