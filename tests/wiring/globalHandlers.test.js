@@ -329,7 +329,7 @@ const MAIN_JS_HANDLERS = [
   'togglePrivacy',
   'setProfileSubTab',
   // Profile stats detail views + past trip form (defined in Profile.js)
-  'openMySpots', 'openMyValidations', 'openMyCountries', 'closeProfileDetail',
+  'sortMySpots', 'openMySpots', 'openMyValidations', 'openMyCountries', 'closeProfileDetail',
   'openAddPastTrip', 'closeAddPastTrip', 'submitPastTrip',
   'removeLanguage', 'cycleLanguageLevel',
   'saveSocialLink', 'addProfilePhoto', 'removeProfilePhoto',

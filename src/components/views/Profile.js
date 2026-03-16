@@ -14,6 +14,7 @@ import { allBadges } from '../../data/badges.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { FEATURES_DATA } from '../../data/featuresData.js'
 import { getVoteTotals, getFeatureComments } from '../../services/featureVotes.js'
+import { getSpotFreshness } from '../../services/spotFreshness.js'
 import './ProfileDemos.js' // Interactive demo overlays for Prochainement features
 
 // ==================== FIRESTORE PROFILE SYNC ====================
@@ -787,56 +788,124 @@ function renderDetailBackButton() {
   `
 }
 
+function countryToFlag(code) {
+  if (!code || code.length !== 2) return '📍'
+  return String.fromCodePoint(
+    ...[...code.toUpperCase()].map((c) => 0x1f1e5 + c.charCodeAt(0)),
+  )
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return ''
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const days = Math.floor(diff / 86400000)
+  if (days < 1) return t('today') || "aujourd'hui"
+  if (days < 7) return `${days}${t('daysAgoShort') || 'j'}`
+  if (days < 30) return `${Math.floor(days / 7)}${t('weeksAgoShort') || ' sem'}`
+  if (days < 365) return `${Math.floor(days / 30)}${t('monthsAgoShort') || ' mois'}`
+  return `${Math.floor(days / 365)}${t('yearsAgoShort') || ' an(s)'}`
+}
+
+function renderValidationProgress(validations) {
+  if (validations >= 10) {
+    return `<span class="text-amber-400 font-semibold">${t('certified') || 'Certifié'} ✓</span>`
+  }
+  if (validations >= 3) {
+    return `<span class="text-emerald-400">${validations}/10 ${t('towardsCertified') || 'vers Certifié'}</span>`
+  }
+  return `<span class="text-slate-400">${validations}/3 ${t('towardsVerified') || 'vers Vérifié'}</span>`
+}
+
+function renderSpotAvgRating(spot) {
+  const safety = spot.safety || spot.safetyRating || 0
+  const traffic = spot.traffic || spot.trafficRating || 0
+  const accessibility = spot.accessibility || spot.accessibilityRating || 0
+  const ratings = [safety, traffic, accessibility].filter((r) => r > 0)
+  if (ratings.length === 0) return ''
+  const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length
+  const full = Math.floor(avg)
+  const half = avg - full >= 0.5 ? 1 : 0
+  const empty = 5 - full - half
+  return `<span class="text-amber-400 text-[10px]">${'★'.repeat(full)}${half ? '½' : ''}${'☆'.repeat(empty)}</span>`
+}
+
 function renderMySpotsList(state) {
   const count = state.spotsCreated || 0
   const spots = state._userSpots || []
   const loading = state._userSpotsLoading
+  const sortMode = state._mySpotsSort || 'recent'
+
+  // Sort handler
+  window.sortMySpots = (mode) => {
+    import('../../stores/state.js').then(({ setState }) => {
+      setState({ _mySpotsSort: mode })
+    })
+  }
 
   // Fetch real spots from Firebase on first render
   if (!spots.length && !loading && state.isLoggedIn && count > 0) {
     import('../../stores/state.js').then(({ setState }) => {
       setState({ _userSpotsLoading: true })
     })
-    import('../../services/firebase.js').then(({ getUserSpots, getCurrentUser, updateSpot }) => {
-      const user = getCurrentUser()
-      if (user) {
-        getUserSpots(user.uid).then((results) => {
-          // Render spots immediately
-          import('../../stores/state.js').then(({ setState }) => {
-            setState({ _userSpots: results, _userSpotsLoading: false, spotsCreated: results.length || count })
-          })
-          // Auto-fix spots with missing country in background (non-blocking)
-          const spotsToFix = results.filter(s => (!s.country || !s.countryName || s.departureCity === 'undefined') && s.lat && s.lng)
-          if (spotsToFix.length > 0) {
-            import('../../services/osrm.js').then(({ reverseGeocode }) => {
-              spotsToFix.forEach(spot => {
-                reverseGeocode(spot.lat, spot.lng).then(loc => {
-                  if (loc) {
-                    const fixes = {}
-                    if (!spot.country && loc.countryCode) {
-                      spot.country = loc.countryCode
-                      fixes.country = loc.countryCode
-                    }
-                    if (!spot.countryName && loc.country) {
-                      spot.countryName = loc.country
-                      fixes.countryName = loc.country
-                    }
-                    if (spot.departureCity === 'undefined' && loc.city) {
-                      spot.departureCity = loc.city
-                      fixes.departureCity = loc.city
-                    }
-                    if (Object.keys(fixes).length > 0) {
-                      updateSpot(spot.id, fixes).catch(() => {})
-                      import('../../stores/state.js').then(({ setState }) => setState({ _userSpots: [...results] }))
-                    }
-                  }
-                }).catch(() => {})
+    import('../../services/firebase.js').then(
+      ({ getUserSpots, getCurrentUser, updateSpot }) => {
+        const user = getCurrentUser()
+        if (user) {
+          getUserSpots(user.uid).then((results) => {
+            import('../../stores/state.js').then(({ setState }) => {
+              setState({
+                _userSpots: results,
+                _userSpotsLoading: false,
+                spotsCreated: results.length || count,
               })
-            }).catch(() => {})
-          }
-        })
-      }
-    })
+            })
+            const spotsToFix = results.filter(
+              (s) =>
+                (!s.country ||
+                  !s.countryName ||
+                  s.departureCity === 'undefined') &&
+                s.lat &&
+                s.lng,
+            )
+            if (spotsToFix.length > 0) {
+              import('../../services/osrm.js').then(({ reverseGeocode }) => {
+                spotsToFix.forEach((spot) => {
+                  reverseGeocode(spot.lat, spot.lng)
+                    .then((loc) => {
+                      if (loc) {
+                        const fixes = {}
+                        if (!spot.country && loc.countryCode) {
+                          spot.country = loc.countryCode
+                          fixes.country = loc.countryCode
+                        }
+                        if (!spot.countryName && loc.country) {
+                          spot.countryName = loc.country
+                          fixes.countryName = loc.country
+                        }
+                        if (
+                          spot.departureCity === 'undefined' &&
+                          loc.city
+                        ) {
+                          spot.departureCity = loc.city
+                          fixes.departureCity = loc.city
+                        }
+                        if (Object.keys(fixes).length > 0) {
+                          updateSpot(spot.id, fixes).catch(() => {})
+                          import('../../stores/state.js').then(
+                            ({ setState }) =>
+                              setState({ _userSpots: [...results] }),
+                          )
+                        }
+                      }
+                    })
+                    .catch(() => {})
+                })
+              }).catch(() => {})
+            }
+          })
+        }
+      },
+    )
   }
 
   const typeLabels = {
@@ -848,42 +917,178 @@ function renderMySpotsList(state) {
     custom: t('spotTypeCustom') || 'Autre',
   }
 
+  // Compute stats
+  const totalValidations = spots.reduce(
+    (sum, s) => sum + (s.validationCount || s.totalReviews || 0),
+    0,
+  )
+  const uniqueCountries = new Set(
+    spots.map((s) => s.country || s.countryCode).filter(Boolean),
+  )
+  const bestSpot =
+    spots.length > 0
+      ? spots.reduce(
+          (best, s) =>
+            (s.validationCount || 0) > (best.validationCount || 0) ? s : best,
+          spots[0],
+        )
+      : null
+  const bestSpotName = bestSpot
+    ? bestSpot.locationName ||
+      bestSpot.departureCity ||
+      bestSpot.fromCity ||
+      bestSpot.name ||
+      '?'
+    : ''
+
+  // Sort spots
+  const sortedSpots = [...spots]
+  if (sortMode === 'validated') {
+    sortedSpots.sort(
+      (a, b) => (b.validationCount || 0) - (a.validationCount || 0),
+    )
+  } else if (sortMode !== 'country') {
+    // 'recent' (default)
+    sortedSpots.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
+  }
+
+  // Group by country for country view
+  let countryGroups = []
+  if (sortMode === 'country' && spots.length > 0) {
+    const groupMap = {}
+    spots.forEach((s) => {
+      const cc = s.country || s.countryCode || 'XX'
+      if (!groupMap[cc])
+        groupMap[cc] = { code: cc, name: s.countryName || cc, spots: [] }
+      groupMap[cc].spots.push(s)
+    })
+    countryGroups = Object.values(groupMap)
+    countryGroups.sort((a, b) => b.spots.length - a.spots.length)
+    countryGroups.forEach((g) =>
+      g.spots.sort(
+        (a, b) => (b.validationCount || 0) - (a.validationCount || 0),
+      ),
+    )
+  }
+
+  // Render a single spot card
+  function renderSpotCard(s) {
+    const name =
+      s.locationName || s.departureCity || s.fromCity || s.name || '?'
+    const cc = s.country || s.countryCode || ''
+    const flag = countryToFlag(cc)
+    const freshness = getSpotFreshness(s)
+    const validations = s.validationCount || s.totalReviews || 0
+    const lastVal = s.lastValidated || s.lastTested || ''
+    const spotId = escapeJSString(String(s.id))
+
+    return `
+      <div class="card p-3 flex items-center gap-3" role="button" tabindex="0" onclick="window.selectSpot?.({id:'${spotId}',coordinates:{lat:${s.lat || s.coordinates?.lat || 0},lng:${s.lng || s.coordinates?.lng || 0}}})" style="cursor:pointer">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background:${freshness.hexColor}20">
+          <div class="w-3 h-3 rounded-full" style="background:${freshness.hexColor}"></div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate">${escapeHTML(name)}</div>
+          <div class="text-[10px] text-slate-400 truncate">${flag} ${escapeHTML(s.countryName || cc)} · ${escapeHTML(typeLabels[s.spotType] || '')}</div>
+          <div class="text-[10px] mt-0.5">${renderValidationProgress(validations)}</div>
+          ${lastVal ? `<div class="text-[10px] text-slate-500 mt-0.5">${t('lastValidatedDate') || 'Dernière validation'}: ${timeAgo(lastVal)}</div>` : ''}
+        </div>
+        <div class="flex-shrink-0 text-right">
+          <div class="text-xs ${validations > 0 ? 'text-emerald-400' : 'text-slate-500'} font-semibold">
+            ${validations > 0 ? `✓ ${validations}` : '0'}
+          </div>
+          ${renderSpotAvgRating(s)}
+        </div>
+      </div>
+    `
+  }
+
+  // Render spots list based on sort mode
+  function renderSpotsList() {
+    if (sortMode === 'country') {
+      return countryGroups
+        .map(
+          (g) => `
+        <div class="mb-3">
+          <div class="flex items-center gap-2 mb-2 px-1">
+            <span class="text-base">${countryToFlag(g.code)}</span>
+            <span class="text-sm font-semibold">${escapeHTML(g.name)}</span>
+            <span class="text-xs text-slate-500">(${g.spots.length} ${t('spots') || 'spots'})</span>
+          </div>
+          <div class="space-y-2">
+            ${g.spots.map((s) => renderSpotCard(s)).join('')}
+          </div>
+        </div>
+      `,
+        )
+        .join('')
+    }
+    return `<div class="space-y-2">${sortedSpots.map((s) => renderSpotCard(s)).join('')}</div>`
+  }
+
+  // Active tab style helper
+  const tabClass = (mode) =>
+    sortMode === mode
+      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+      : 'bg-slate-800/50 text-slate-400 border-slate-700/50 hover:bg-slate-700/50'
+
   return `
     <div>
       ${renderDetailBackButton()}
-      <h2 class="text-base font-bold flex items-center gap-2 mb-4">
+      <h2 class="text-base font-bold flex items-center gap-2 mb-3">
         📍 ${t('myCreatedSpots') || 'Mes spots créés'} (${spots.length || count})
       </h2>
-      ${loading
-        ? `<div class="text-center text-slate-400 text-sm py-8">${t('loading') || 'Chargement...'}</div>`
-        : spots.length === 0 && count === 0
-          ? renderEmptyState('mySpots', { compact: true })
-          : spots.length === 0
-            ? `<div class="text-center text-slate-400 text-sm py-8">${t('loading') || 'Chargement...'}</div>`
-            : `<div class="space-y-2">
-                ${spots.map(s => {
-                  const name = s.locationName || s.departureCity || s.fromCity || s.name || '?'
-                  const location = [typeLabels[s.spotType] || '', s.countryName || s.country || ''].filter(Boolean).join(' · ')
-                  const validations = s.validationCount || s.totalReviews || 0
-                  return `
-                    <div class="card p-3 flex items-center gap-3" role="button" tabindex="0" onclick="window.selectSpot?.({id:'${s.id}',coordinates:{lat:${s.lat || s.coordinates?.lat || 0},lng:${s.lng || s.coordinates?.lng || 0}}})" style="cursor:pointer">
-                      <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                        ${icon('map-pin', 'w-5 h-5 text-emerald-400')}
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="text-sm font-semibold truncate">${escapeHTML(name)}</div>
-                        <div class="text-[10px] text-slate-400 truncate">${escapeHTML(location)}</div>
-                      </div>
-                      <div class="flex-shrink-0 text-right">
-                        <div class="text-xs ${validations > 0 ? 'text-emerald-400' : 'text-slate-500'} font-semibold">
-                          ${validations > 0 ? `✓ ${validations}` : '0'}
-                        </div>
-                        <div class="text-[10px] text-slate-600">${t('validations') || 'valid.'}</div>
-                      </div>
-                    </div>
-                  `
-                }).join('')}
-              </div>`
+      ${
+        loading
+          ? `<div class="text-center text-slate-400 text-sm py-8">${t('loading') || 'Chargement...'}</div>`
+          : spots.length === 0 && count === 0
+            ? renderEmptyState('mySpots', { compact: true })
+            : spots.length === 0
+              ? `<div class="text-center text-slate-400 text-sm py-8">${t('loading') || 'Chargement...'}</div>`
+              : `
+              <!-- Stats bar -->
+              <div class="card p-3 mb-3">
+                <div class="text-xs font-semibold text-slate-300 mb-2">${t('mySpotsStats') || 'Résumé'}</div>
+                <div class="grid grid-cols-2 gap-2 text-center">
+                  <div class="bg-slate-800/50 rounded-lg p-2">
+                    <div class="text-lg font-bold text-white">${spots.length}</div>
+                    <div class="text-[10px] text-slate-400">${t('spots') || 'spots'}</div>
+                  </div>
+                  <div class="bg-slate-800/50 rounded-lg p-2">
+                    <div class="text-lg font-bold text-white">${uniqueCountries.size}</div>
+                    <div class="text-[10px] text-slate-400">${t('countries') || 'pays'}</div>
+                  </div>
+                  <div class="bg-slate-800/50 rounded-lg p-2">
+                    <div class="text-lg font-bold text-emerald-400">${totalValidations}</div>
+                    <div class="text-[10px] text-slate-400">${t('totalValidations') || 'validations reçues'}</div>
+                  </div>
+                  <div class="bg-slate-800/50 rounded-lg p-2">
+                    <div class="text-sm font-bold text-amber-400 truncate">${bestSpotName ? escapeHTML(bestSpotName) : '...'}</div>
+                    <div class="text-[10px] text-slate-400">${t('bestSpot') || 'Meilleur spot'}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sort tabs -->
+              <div class="flex gap-2 mb-3">
+                <button onclick="sortMySpots('recent')" class="flex-1 text-xs font-medium py-1.5 px-2 rounded-lg border ${tabClass('recent')}">
+                  ${t('sortRecent') || 'Récents'}
+                </button>
+                <button onclick="sortMySpots('validated')" class="flex-1 text-xs font-medium py-1.5 px-2 rounded-lg border ${tabClass('validated')}">
+                  ${t('sortValidated') || 'Plus validés'}
+                </button>
+                <button onclick="sortMySpots('country')" class="flex-1 text-xs font-medium py-1.5 px-2 rounded-lg border ${tabClass('country')}">
+                  ${t('sortCountry') || 'Par pays'}
+                </button>
+              </div>
+
+              <!-- Spots list -->
+              ${renderSpotsList()}
+            `
       }
     </div>
   `
