@@ -1423,8 +1423,9 @@ if (!window.toggleFavorite) {
 if (!window.openAdminPanel) window.openAdminPanel = () => setState({ showAdminPanel: true })
 if (!window.openMyData) window.openMyData = () => setState({ showMyData: true })
 // openConsentSettings — canonical in MyData.js, rendered inside that modal
-if (!window.openValidateSpot) window.openValidateSpot = (id) => setState({ showValidateSpot: true, validateSpotId: id })
-if (!window.openTestSpot) window.openTestSpot = (id) => setState({ showValidateSpot: true, validateSpotId: id })
+// openTestSpot/openValidateSpot defined in spotActions.js — stubs open AddSpot in validation mode
+if (!window.openTestSpot) window.openTestSpot = (id) => setState({ showAddSpot: true, addSpotStep: 2, addSpotValidateId: id })
+if (!window.openValidateSpot) window.openValidateSpot = window.openTestSpot
 if (!window.openSpotDraft) window.openSpotDraft = (id) => setState({ showAddSpot: true, editDraftId: id })
 if (!window.openFeedbackDetail) {
   window.openFeedbackDetail = (id) => setState({ showFeedbackPanel: true, feedbackDetailId: id })
