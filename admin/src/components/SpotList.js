@@ -8,6 +8,7 @@ import {
   deleteSpot,
   getSpotReports,
   hideSpot,
+  relocateSpot,
   updateDocument,
 } from '../services/firebase.js'
 
@@ -533,6 +534,42 @@ function renderReportsInline(el, reports) {
           ? '<span style="color:#f87171;">Confirmé</span>'
           : '<span style="color:#94a3b8;">Rejeté</span>'
 
+        // Misplaced report: show suggested coordinates + relocate button
+        const isMisplaced = r.reason === 'misplaced' && (r.suggestedLat || r.details?.suggestedLat)
+        const sugLat = r.suggestedLat || r.details?.suggestedLat
+        const sugLng = r.suggestedLng || r.details?.suggestedLng
+        const spot = allSpots?.find((s) => s.id === expandedSpotId)
+        const currentLat = spot?.lat || spot?.coordinates?.lat || 0
+        const currentLng = spot?.lng || spot?.coordinates?.lng || 0
+
+        const misplacedHtml = isMisplaced && sugLat && sugLng
+          ? `<div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:10px;margin-top:8px;">
+              <div style="font-size:12px;font-weight:600;color:#60a5fa;margin-bottom:6px;">📍 Déplacement suggéré</div>
+              <div style="display:flex;gap:16px;font-size:11px;color:#94a3b8;">
+                <div>
+                  <div style="color:#f87171;font-weight:600;">Position actuelle</div>
+                  <div>${Number(currentLat).toFixed(5)}, ${Number(currentLng).toFixed(5)}</div>
+                </div>
+                <div style="display:flex;align-items:center;color:#64748b;">→</div>
+                <div>
+                  <div style="color:#34d399;font-weight:600;">Position suggérée</div>
+                  <div>${Number(sugLat).toFixed(5)}, ${Number(sugLng).toFixed(5)}</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <a href="https://www.google.com/maps?q=${sugLat},${sugLng}" target="_blank"
+                  style="font-size:11px;color:#60a5fa;text-decoration:none;">🗺 Voir sur Google Maps</a>
+              </div>
+              ${status === 'pending' ? `
+                <button class="btn" data-action="relocate-spot" data-spot-id="${escapeHTML(expandedSpotId)}" data-report-id="${escapeHTML(r.id)}"
+                  data-new-lat="${sugLat}" data-new-lng="${sugLng}"
+                  style="margin-top:8px;background:rgba(52,211,153,0.2);color:#34d399;font-size:11px;padding:4px 12px;">
+                  ✓ Déplacer le spot ici
+                </button>
+              ` : ''}
+            </div>`
+          : ''
+
         return `
           <div style="padding:8px 0;border-top:1px solid rgba(255,255,255,0.04);">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -540,6 +577,7 @@ function renderReportsInline(el, reports) {
               ${statusLabel}
             </div>
             ${details ? `<div style="font-size:12px;color:#cbd5e1;margin-top:4px;">${details}</div>` : ''}
+            ${misplacedHtml}
             <div style="font-size:11px;color:#64748b;margin-top:4px;">Signalé par ${reporter} · ${date}</div>
             ${
               status === 'pending'
@@ -553,6 +591,38 @@ function renderReportsInline(el, reports) {
       })
       .join('')}
   `
+
+  // Relocate spot buttons (for misplaced reports)
+  el.querySelectorAll('[data-action="relocate-spot"]').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation()
+      const spotId = btn.dataset.spotId
+      const reportId = btn.dataset.reportId
+      const newLat = parseFloat(btn.dataset.newLat)
+      const newLng = parseFloat(btn.dataset.newLng)
+      if (!confirm(`Déplacer le spot vers ${newLat.toFixed(5)}, ${newLng.toFixed(5)} ?\n\nLe spot sera immédiatement relocalisé sur la carte.`)) return
+      btn.disabled = true
+      btn.textContent = 'Déplacement...'
+      try {
+        await relocateSpot(spotId, newLat, newLng)
+        // Update local state
+        const spot = allSpots?.find((s) => s.id === spotId)
+        if (spot) {
+          spot.lat = newLat
+          spot.lng = newLng
+        }
+        // Clear reports cache and reload
+        delete expandedReports[spotId]
+        window.__showToast?.('Spot déplacé avec succès', 'success')
+        if (expandedSpotId) await loadSpotReportsInline(expandedSpotId)
+      } catch (err) {
+        console.error('Relocate spot failed:', err)
+        btn.disabled = false
+        btn.textContent = '✓ Déplacer le spot ici'
+        window.__showToast?.('Erreur : ' + (err.message || 'échec'), 'error')
+      }
+    })
+  })
 
   // Rebind reject buttons inside the reports detail
   el.querySelectorAll('[data-action="reject-spot-report"]').forEach((btn) => {

@@ -241,6 +241,34 @@ export async function hideSpot(spotId) {
 }
 
 /**
+ * Relocate a spot (update lat/lng coordinates)
+ * Used when admin approves a "misplaced" report
+ */
+export async function relocateSpot(spotId, newLat, newLng) {
+  await updateDoc(doc(db, 'spots', spotId), {
+    lat: newLat,
+    lng: newLng,
+    relocatedAt: serverTimestamp(),
+    relocatedBy: 'admin',
+  })
+  // Mark associated misplaced reports as confirmed
+  try {
+    const reports = await getSpotReports(spotId)
+    for (const r of reports) {
+      if (r.reason === 'misplaced' && (!r.status || r.status === 'pending')) {
+        await updateDoc(doc(db, 'reports', r.id), {
+          status: 'confirmed',
+          moderatedAt: new Date().toISOString(),
+          moderationAction: 'relocated',
+        })
+      }
+    }
+  } catch {
+    // Non-blocking
+  }
+}
+
+/**
  * Get spot statistics
  */
 export async function getSpotStats() {
