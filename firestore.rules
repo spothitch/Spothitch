@@ -130,10 +130,12 @@ service cloud.firestore {
         && resource.data.uid == request.auth.uid;
     }
 
-    // Feature Votes — aggregate counters
+    // Feature Votes — aggregate counters (admin-only write to prevent spam)
     match /featureVotes/{featureId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null
+        && request.auth.token.email == 'antoine.v.ville@gmail.com';
     }
 
     // Feature User Votes — individual votes
@@ -160,14 +162,16 @@ service cloud.firestore {
     match /guideVotes/{voteKey} {
       allow read: if true;
       allow create, update: if request.auth != null;
-      allow delete: if request.auth != null;
+      allow delete: if request.auth != null
+        && request.auth.token.email == 'antoine.v.ville@gmail.com';
     }
 
     // Hostel Recommendations
     match /hostel_recs/{recId} {
       allow read: if true;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
+      allow update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
     }
 
     // User Reviews
@@ -190,8 +194,10 @@ service cloud.firestore {
     // Roadmap votes
     match /roadmap_votes/{voteId} {
       allow read: if true;
-      allow create, update: if request.auth != null;
-      allow delete: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
     }
 
     // Roadmap comments

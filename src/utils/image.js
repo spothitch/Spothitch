@@ -14,7 +14,7 @@ export async function compressImage(file, maxWidth = 1200, quality = 0.75) {
   // Use createImageBitmap when available (async, doesn't freeze UI)
   if (typeof createImageBitmap === 'function') {
     try {
-      const bitmap = await createImageBitmap(file)
+      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
       let { width, height } = bitmap
 
       if (width > maxWidth) {

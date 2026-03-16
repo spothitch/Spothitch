@@ -14,7 +14,13 @@ function reportMetric(name, value, rating) {
   metrics[name] = { value, rating, timestamp: Date.now() }
   callbacks.forEach(cb => cb(name, value, rating))
 
-  // Dev mode logging removed for production
+  // Persist to localStorage for analytics
+  try {
+    const key = 'spothitch_web_vitals'
+    const stored = JSON.parse(localStorage.getItem(key) || '{}')
+    stored[name] = { value: Math.round(name === 'CLS' ? value : value), rating, ts: Date.now() }
+    localStorage.setItem(key, JSON.stringify(stored))
+  } catch { /* quota or private browsing */ }
 }
 
 /**

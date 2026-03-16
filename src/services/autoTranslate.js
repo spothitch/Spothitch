@@ -561,11 +561,7 @@ export async function translateElement(elementId) {
   }
 
   try {
-    const res = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(original.slice(0, 500))}&langpair=${langPair}`
-    )
-    const data = await res.json()
-    const translated = data?.responseData?.translatedText
+    const translated = await translateViaAPI(original, sourceLang === 'unknown' ? 'en' : sourceLang, targetLang)
 
     if (translated && translated !== original) {
       translationCache.set(cacheKey, translated)
@@ -648,6 +644,79 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+/**
+ * Translate text via API: tries DeepL first (if key configured), falls back to MyMemory
+ * @param {string} text - Text to translate (max 500 chars)
+ * @param {string} sourceLang - Source language code or 'autodetect'
+ * @param {string} targetLang - Target language code
+ * @param {number} [timeoutMs=8000] - Request timeout
+ * @returns {Promise<string|null>} Translated text or null on failure
+ */
+export async function translateViaAPI(text, sourceLang, targetLang, timeoutMs = 8000) {
+  if (!text) return null
+  const truncated = text.slice(0, 500)
+
+  // Try DeepL first if API key is available
+  const deepLKey = typeof import.meta !== 'undefined' && import.meta.env?.VITE_DEEPL_KEY
+  if (deepLKey) {
+    try {
+      const result = await translateWithDeepL(truncated, sourceLang, targetLang, deepLKey, timeoutMs)
+      if (result) return result
+    } catch { /* fall through to MyMemory */ }
+  }
+
+  // Fallback: MyMemory (free, no key needed)
+  return translateWithMyMemory(truncated, sourceLang, targetLang, timeoutMs)
+}
+
+/**
+ * Translate via DeepL Free API
+ * @private
+ */
+async function translateWithDeepL(text, sourceLang, targetLang, apiKey, timeoutMs) {
+  const deepLLangMap = { fr: 'FR', en: 'EN', es: 'ES', de: 'DE' }
+  const targetCode = deepLLangMap[targetLang] || targetLang.toUpperCase()
+
+  const params = new URLSearchParams({
+    text,
+    target_lang: targetCode,
+    auth_key: apiKey
+  })
+  if (sourceLang && sourceLang !== 'autodetect') {
+    const sourceCode = deepLLangMap[sourceLang] || sourceLang.toUpperCase()
+    params.set('source_lang', sourceCode)
+  }
+
+  const res = await fetch('https://api-free.deepl.com/v2/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params,
+    signal: AbortSignal.timeout(timeoutMs)
+  })
+
+  if (!res.ok) return null
+  const data = await res.json()
+  return data?.translations?.[0]?.text || null
+}
+
+/**
+ * Translate via MyMemory API (free, 5000 words/day)
+ * @private
+ */
+async function translateWithMyMemory(text, sourceLang, targetLang, timeoutMs) {
+  const langPair = `${sourceLang === 'autodetect' ? 'autodetect' : sourceLang}|${targetLang}`
+  const res = await fetch(
+    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`,
+    { signal: AbortSignal.timeout(timeoutMs) }
+  )
+  const data = await res.json()
+  const translated = data?.responseData?.translatedText
+  if (translated && translated.toLowerCase() !== text.toLowerCase()) {
+    return translated
+  }
+  return null
+}
+
 // Register global handlers
 if (typeof window !== 'undefined') {
   window.translateElement = translateElement;
@@ -656,6 +725,7 @@ if (typeof window !== 'undefined') {
 
 export default {
   translateText,
+  translateViaAPI,
   detectLanguage,
   renderTranslateButton,
   renderShowOriginalButton,

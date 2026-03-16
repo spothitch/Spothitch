@@ -117,7 +117,7 @@ export function getOrganizationSchema() {
     url: BASE_URL,
     logo: `${BASE_URL}/icon-512.png`,
     sameAs: [
-      'https://github.com/antoine626/Spothitch'
+      'https://github.com/spothitch/Spothitch'
     ],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -151,14 +151,7 @@ export function getWebAppSchema() {
       'Offline support',
       'Multi-language support'
     ],
-    screenshot: `${BASE_URL}/screenshot-mobile.png`,
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.5',
-      ratingCount: '156',
-      bestRating: '5',
-      worstRating: '1'
-    }
+    screenshot: `${BASE_URL}/screenshot-mobile.png`
   };
 }
 

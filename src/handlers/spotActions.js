@@ -163,7 +163,49 @@ window.openAddSpot = () => {
 window.openAddSpotPreview = () => window.setState({ showAddSpot: true, addSpotPreview: true });
 window.closeAddSpot = () => window.setState({
   showAddSpot: false, addSpotPreview: false, addSpotStep: 1, addSpotType: null,
+  addSpotValidateId: null,
 });
+
+// Open AddSpot in validation mode — "J'ai testé ce spot"
+// Reuses the same 3-step wizard but with position/type/city pre-filled from the existing spot
+window.openTestSpot = async (spotId) => {
+  const { getState, setState } = await import('../stores/state.js')
+  const state = getState()
+  const spot = (state.spots || []).find(s => String(s.id) === String(spotId)) || state.selectedSpot
+
+  // Pre-fill form from existing spot
+  const lat = spot?.coordinates?.lat ?? spot?.lat ?? null
+  const lng = spot?.coordinates?.lng ?? spot?.lng ?? null
+  window.spotFormData = {
+    photos: [],
+    lat, lng,
+    spotType: spot?.spotType || 'custom',
+    ratings: { safety: 0, traffic: 0, accessibility: 0 },
+    tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
+    country: spot?.country || null,
+    countryName: spot?.countryName || null,
+    departureCity: spot?.from || spot?.departureCity || spot?.fromCity || null,
+    departureCityCoords: spot?.departureCityCoords || null,
+    directionCity: null, // User fills their own direction
+    directionCityCoords: null,
+    locationName: spot?.locationName || spot?.from || null,
+    roadNumber: spot?.roadNumber || null,
+    positionSource: 'existing_spot',
+    method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
+    rideResult: null, stationName: spot?.stationName || '', extraDestinations: [],
+  }
+
+  setState({
+    showAddSpot: true,
+    addSpotPreview: false,
+    addSpotStep: 2, // Skip step 1 (position already set)
+    addSpotType: spot?.spotType || 'custom',
+    addSpotValidateId: spotId,
+  })
+}
+
+// Alias — both buttons use the same validation flow
+window.openValidateSpot = window.openTestSpot;
 
 // Location Permission handlers
 window.acceptLocationPermission = async () => {
@@ -350,14 +392,8 @@ window.translateSpotText = async (elementId) => {
   if (btn?.tagName === 'BUTTON') btn.textContent = '⏳...'
 
   try {
-    // Auto-detect source language using MyMemory's autodetect
-    const langPair = `autodetect|${userLang}`
-    const res = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(originalText.slice(0, 500))}&langpair=${langPair}`,
-      { signal: AbortSignal.timeout(8000) }
-    )
-    const data = await res.json()
-    const translated = data?.responseData?.translatedText
+    const { translateViaAPI } = await import('../services/autoTranslate.js')
+    const translated = await translateViaAPI(originalText, 'autodetect', userLang, 8000)
 
     if (translated && translated.toLowerCase() !== originalText.toLowerCase()) {
       el.textContent = el.dataset.isComment === 'true' ? `"${translated}"` : translated

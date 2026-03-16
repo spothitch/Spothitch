@@ -166,6 +166,13 @@ export function renderSpotDetail(state) {
     setTimeout(() => autoTranslateComments(spot.id, displayReviews), 300)
   }
 
+  // Inject Place structured data for SEO
+  setTimeout(() => {
+    import('../../utils/seo.js').then(({ getSpotSchema, injectSchema }) => {
+      injectSchema(getSpotSchema(spot), 'spot-schema')
+    }).catch(() => {})
+  }, 100)
+
   return `
     <div
       class="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
@@ -621,7 +628,7 @@ function formatRelativeDate(dateInput) {
 
 /**
  * Auto-translate comments to user's language when spot opens
- * Uses MyMemory API with localStorage cache to avoid repeated calls
+ * Uses DeepL API (if key configured) with MyMemory fallback + localStorage cache
  */
 async function autoTranslateComments(spotId, reviews) {
   try {
@@ -654,15 +661,10 @@ async function autoTranslateComments(spotId, reviews) {
         continue
       }
 
-      // Translate via MyMemory API (small delay between calls)
+      // Translate via DeepL (if key available) with MyMemory fallback
       if (i > 0) await new Promise(r => setTimeout(r, 300))
-      const langPair = `${detectedLang}|${userLang}`
-      const res = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(review.text.slice(0, 500))}&langpair=${langPair}`,
-        { signal: AbortSignal.timeout(5000) }
-      )
-      const data = await res.json()
-      const translated = data?.responseData?.translatedText
+      const { translateViaAPI } = await import('../../services/autoTranslate.js')
+      const translated = await translateViaAPI(review.text, detectedLang, userLang, 5000)
       if (translated && translated.toLowerCase() !== review.text.toLowerCase()) {
         el.textContent = `"${translated}"`
         try { localStorage.setItem(cacheKey, translated) } catch { /* quota */ }

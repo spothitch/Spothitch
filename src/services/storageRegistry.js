@@ -251,6 +251,9 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_username', category: DataCategory.PROFILE, description: 'Cached username for offline display' },
   { key: 'spothitch_last_position', category: DataCategory.CACHE, description: 'Last known GPS position for instant map centering on reload', sensitive: true },
 
+  // === ANALYTICS ===
+  { key: 'spothitch_web_vitals', category: DataCategory.ANALYTICS, description: 'Core Web Vitals metrics (LCP, CLS, INP, TTFB)' },
+
   // === STATE (via Storage.js with spothitch_v4_ prefix) ===
   { key: 'spothitch_v4_state', category: DataCategory.PERSONAL, description: 'Main app state (via Storage.js)', sensitive: true },
   { key: 'spothitch_state', category: DataCategory.PERSONAL, description: 'Legacy app state', sensitive: true },
