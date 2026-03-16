@@ -1227,7 +1227,7 @@ window.openFullscreenMapPicker = async () => {
     // Try to reuse the home map's already-loaded style for instant tiles
     let styleToUse = 'https://tiles.openfreemap.org/styles/liberty'
     try {
-      const homeMap = window.spotHitchMap || window.mapInstance
+      const homeMap = window.homeMapInstance
       if (homeMap && typeof homeMap.getStyle === 'function') {
         const s = homeMap.getStyle()
         if (s && s.sources) styleToUse = s
@@ -1644,7 +1644,7 @@ function initMiniMapPreview() {
   container.dataset.initialized = 'true'
 
   // Try to use existing home map for instant snapshot
-  const homeMap = window.spotHitchMap || window.mapInstance
+  const homeMap = window.homeMapInstance
   if (homeMap && typeof homeMap.getCanvas === 'function') {
     try {
       // Save current state, fly to spot, capture, restore

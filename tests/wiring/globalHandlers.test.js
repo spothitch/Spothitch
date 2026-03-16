@@ -156,8 +156,8 @@ const MAIN_JS_HANDLERS = [
   'setLeaderboardTab', 'setLeaderboardCountry',
   // Thumb History toggle
   'toggleThumbHistory',
-  // Map view (defined in Map.js / views)
-  'openCountryGuide', 'mapZoomIn', 'mapZoomOut',
+  // Map/guide handlers
+  'openCountryGuide',
   // Guide tips feedback (defined in feedbackService.js)
   'voteGuideTip', 'submitGuideSuggestion',
   // Voyage view (defined in Voyage.js)
@@ -224,8 +224,6 @@ const MAIN_JS_HANDLERS = [
   'addSpotDestination', 'removeSpotDestination',
   // SpotDetail destinations + street view (defined in SpotDetail.js)
   'addDestinationToExistingSpot', 'openSpotStreetView',
-  // Map (defined in Map.js)
-  'searchMapSuggestions',
   // AdminPanel (defined in AdminPanel.js)
   'adminAddPoints', 'adminAddSkillPoints', 'adminAddThumbs',
   'adminLevelUp', 'adminMaxStats', 'openAccessibilityHelp',
@@ -242,8 +240,6 @@ const MAIN_JS_HANDLERS = [
   'homeCenterOnUser', 'homeZoomIn', 'homeZoomOut',
   // Trip autocomplete
   'tripSearchSuggestions', 'tripSelectSuggestion', 'tripSelectFirst',
-  // Map search (defined in Map.js)
-  'selectSearchSuggestion', 'hideSearchSuggestions',
   // Country bubbles
   'loadCountryOnMap', 'downloadCountryFromBubble',
   // Offline download
@@ -354,8 +350,6 @@ const MAIN_JS_HANDLERS = [
   'showHostelsDemo', 'closeHostelsDemo', 'startHostelsDemo', 'switchHostelsDemoTab',
   // Spot Demo (defined in ProfileDemos.js)
   'showSpotDemo', 'closeSpotDemo', 'startSpotDemo', 'switchSpotDemoTab',
-  // Map extras (defined in Map.js)
-  'searchLocation',
   // Chat extras (defined in Chat.js)
   'handleChatKeypress',
   // FAQ (defined in FAQ.js)
@@ -601,7 +595,6 @@ const mockState = {
 
 // ---- Import render functions ----
 // Views
-import { renderMap } from '../../src/components/views/Map.js'
 import { renderTravel } from '../../src/components/views/Travel.js'
 import { renderChallengesHub } from '../../src/components/views/ChallengesHub.js'
 import { renderGuides } from '../../src/components/views/Guides.js'
@@ -687,7 +680,6 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
   }
 
   // --- Views ---
-  testHandlers('Map view', renderMap)
   testHandlers('Travel view', renderTravel)
   testHandlers('ChallengesHub view', renderChallengesHub)
   testHandlers('ChallengesHub view (thumb history)', renderChallengesHub, { showThumbHistory: true })
@@ -755,7 +747,6 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
       () => renderProfile({ ...mockState, profileSubTab: 'progression' }),
       () => renderProfile({ ...mockState, profileSubTab: 'reglages' }),
       () => renderFiltersModal(),
-      () => renderMap(mockState),
     ]
 
     const allInputHandlers = []

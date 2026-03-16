@@ -11,7 +11,6 @@ import { setState } from '../../src/stores/state.js'
 // Components with inputs
 import { renderTravel } from '../../src/components/views/Travel.js'
 import { renderSocial } from '../../src/components/views/Social.js'
-import { renderMap } from '../../src/components/views/Map.js'
 import { renderProfile } from '../../src/components/views/Profile.js'
 import { renderSOS } from '../../src/components/modals/SOS.js'
 import { renderAuth } from '../../src/components/modals/Auth.js'
@@ -141,16 +140,6 @@ describe('Input Handlers: critical inputs have event handlers', () => {
     }
   })
 
-  it('Map view: search input has handler', () => {
-    const html = renderMap(mockState)
-    expect(html).toBeTruthy()
-
-    if (html.includes('search') || html.includes('handleSearch')) {
-      const hasSearchHandler = html.includes('handleSearch') || html.includes('oninput') || html.includes('onkeydown')
-      expect(hasSearchHandler, 'Map search should have a handler').toBe(true)
-    }
-  })
-
   it('SOS modal: emergency-name and emergency-phone inputs exist', () => {
     const html = renderSOS(mockState)
     expect(html).toBeTruthy()
@@ -255,7 +244,6 @@ describe('Input Handlers: no orphaned inputs (inputs without any handler)', () =
   const components = [
     { name: 'Travel', html: renderTravel(mockState) },
     { name: 'Social', html: renderSocial(mockState) },
-    { name: 'Map', html: renderMap(mockState) },
     { name: 'SOS', html: renderSOS(mockState) },
     { name: 'Auth', html: renderAuth(mockState) },
     { name: 'AddSpot', html: renderAddSpot(mockState) },

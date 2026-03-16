@@ -191,7 +191,7 @@ export function toggleGasStations() {
 
   if (show) {
     // Get current map bounds
-    const map = window.homeMapInstance || window.mapInstance
+    const map = window.homeMapInstance
     if (!map) {
       setState({ showGasStationsOnMap: false })
       return
@@ -250,7 +250,7 @@ export function toggleGasStations() {
  * Show gas station markers on the home map
  */
 function showGasStationMarkers(stations) {
-  const map = window.homeMapInstance || window.mapInstance
+  const map = window.homeMapInstance
   if (!map || !stations?.length) return
 
   // Remove existing gas station layer
@@ -302,7 +302,7 @@ function showGasStationMarkers(stations) {
  * Hide gas station markers from map
  */
 function hideGasStationMarkers() {
-  const map = window.homeMapInstance || window.mapInstance
+  const map = window.homeMapInstance
   if (!map) return
   if (map.getLayer('gas-stations')) map.removeLayer('gas-stations')
   if (map.getSource('gas-stations')) map.removeSource('gas-stations')

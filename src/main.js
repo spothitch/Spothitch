@@ -18,18 +18,10 @@ async function getFirebase() {
 // Sentry — lazy-loaded (non-critical for FCP)
 import { initNotifications, showToast } from './services/notifications.js';
 import { initOfflineHandler } from './services/offline.js';
-// Map — lazy-loaded (MapLibre is 277KB gzip, defer until map tab)
-let _map = null
-async function getMap() {
-  if (!_map) _map = await import('./services/map.js')
-  return _map
-}
-// Preload map module AND MapLibre GL library during idle time
+// Preload MapLibre GL library during idle time
 // so the map is ready instantly when user opens the app
 function preloadMap() {
   const doPreload = () => {
-    getMap()
-    // Also preload the heavy MapLibre GL library (277KB gzip)
     import('maplibre-gl').catch(() => {})
   }
   if (typeof requestIdleCallback === 'function') {
@@ -1022,9 +1014,9 @@ function render(state) {
 
   previousTab = state.activeTab
 
-  // Initialize map service for spots view
+  // If switching to spots map view, navigate to home map instead
   if (state.activeTab === 'spots' && state.viewMode === 'map') {
-    getMap().then(m => m.initMap())
+    setState({ activeTab: 'map', viewMode: null })
   }
 }
 
@@ -1131,14 +1123,10 @@ window.changeTab = (tab) => {
   announceViewChange(tab);
 };
 
-// Open full map (from home)
+// Open full map — just navigate to home map tab
 window.openFullMap = () => {
-  setState({ activeTab: 'spots', viewMode: 'map' });
-  trackPageView('spots-map');
-  // Initialize map after DOM update
-  setTimeout(() => {
-    getMap().then(m => m.initMap());
-  }, 200);
+  setState({ activeTab: 'map' });
+  trackPageView('map');
 };
 window.toggleTheme = () => {
   const s = getState()
@@ -1149,10 +1137,11 @@ window.toggleTheme = () => {
   try { localStorage.setItem('spothitch_theme_override', newTheme) } catch { /* no-op */ }
 }
 window.setViewMode = (mode) => {
-  setState({ viewMode: mode });
-  // Initialize map after DOM update
   if (mode === 'map') {
-    setTimeout(() => getMap().then(m => m.initMap()), 100);
+    // Redirect to home map instead of old map service
+    setState({ activeTab: 'map' })
+  } else {
+    setState({ viewMode: mode })
   }
 };
 window.t = t;
@@ -1193,7 +1182,12 @@ window.selectSpot = async (idOrSpot) => {
   }
   if (spot) {
     actions.selectSpot(spot);
-    getMap().then(m => m.centerOnSpot(spot));
+    // Center map on spot using home map
+    const lat = spot.coordinates?.lat || spot.lat
+    const lng = spot.coordinates?.lng || spot.lng
+    if (lat && lng && window.homeMapInstance) {
+      window.homeMapInstance.flyTo({ center: [lng, lat], zoom: 14, duration: 800 })
+    }
   }
 };
 window.openSpotDetail = window.selectSpot; // alias for services that use openSpotDetail
@@ -2113,7 +2107,20 @@ window.dismissInstallBanner = dismissInstallBanner;
 window.installPWA = installPWA;
 
 // Map handlers
-window.centerOnUser = () => getMap().then(m => m.centerOnUser());
+window.centerOnUser = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords
+        if (window.homeMapInstance) {
+          window.homeMapInstance.flyTo({ center: [longitude, latitude], zoom: 13, duration: 800 })
+        }
+      },
+      () => { /* silently fail */ },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
+};
 
 // Titles modal handler
 window.openTitles = () => setState({ showTitles: true });
@@ -2604,8 +2611,8 @@ window.openCityPanel = async (citySlug, cityName, lat, lng, countryCode, country
     spots: [],
   }
   setState({ selectedCity: citySlug, cityData: panelData, selectedRoute: null })
-  if (window.mapInstance) {
-    window.mapInstance.flyTo({ center: [parsedLng, parsedLat], zoom: 11 })
+  if (window.homeMapInstance) {
+    window.homeMapInstance.flyTo({ center: [parsedLng, parsedLat], zoom: 11 })
   }
 }
 window.closeCityPanel = () => setState({ selectedCity: null, selectedRoute: null, cityData: null })
@@ -2614,15 +2621,15 @@ window.selectCityRoute = (citySlug, routeSlug) => {
   const { cityData } = getState()
   if (cityData) {
     const route = cityData.routesList?.find(r => r.slug === routeSlug)
-    if (route && window.mapInstance) {
-      window.mapInstance.flyTo({ center: [route.destLon, route.destLat], zoom: 12 })
+    if (route && window.homeMapInstance) {
+      window.homeMapInstance.flyTo({ center: [route.destLon, route.destLat], zoom: 12 })
     }
   }
 }
 window.viewCitySpotsOnMap = () => {
   const { cityData } = getState()
-  if (cityData && window.mapInstance) {
-    window.mapInstance.flyTo({ center: [cityData.lng, cityData.lat], zoom: 13 })
+  if (cityData && window.homeMapInstance) {
+    window.homeMapInstance.flyTo({ center: [cityData.lng, cityData.lat], zoom: 13 })
     setState({ selectedCity: null, selectedRoute: null, cityData: null })
   }
 }
@@ -3109,7 +3116,7 @@ window.toggleMapLegend = () => {
 
 // Navigation shortcuts
 window.flyToCity = (lat, lng, zoom = 12) => {
-  if (window.mapInstance) window.mapInstance.flyTo({ center: [lng, lat], zoom })
+  if (window.homeMapInstance) window.homeMapInstance.flyTo({ center: [lng, lat], zoom })
   else window.navigate?.('map')
 }
 

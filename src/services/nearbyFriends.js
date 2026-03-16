@@ -496,10 +496,11 @@ window.showFriendOnMap = (friendId) => {
   if (friend) {
     setState({
       showNearbyFriends: false,
-      activeTab: 'spots',
-      viewMode: 'map',
-      mapCenter: { lat: friend.lat, lng: friend.lng },
+      activeTab: 'map',
     });
+    if (window.homeMapInstance) {
+      window.homeMapInstance.flyTo({ center: [friend.lng, friend.lat], zoom: 13, duration: 800 })
+    }
   }
 };
 
