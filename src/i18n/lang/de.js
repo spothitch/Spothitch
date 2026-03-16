@@ -953,7 +953,7 @@ export default {
   reviewsGivenLabel: 'Abgegebene Bewertungen',
   friendsCount: 'Freunde',
   savedTrips: 'Gespeicherte Reisen',
-  badgesEarned: 'erhalten',
+  badgesEarned: 'Erhalten',
   unlocked: 'freigeschaltet',
   nextBadges: 'Nächste Abzeichen',
   noKnownSpots: 'Keine bekannten Spots auf diesem Abschnitt',

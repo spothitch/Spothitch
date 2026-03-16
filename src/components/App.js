@@ -695,7 +695,6 @@ function initHomeMap(state) {
     map.invalidateSize = function () { this.resize() }
 
     window.homeMapInstance = map
-    // mapInstance — canonical in map.js
 
     // User position marker + GPS centering
     let userMarker = null

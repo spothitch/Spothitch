@@ -318,7 +318,7 @@ const MAIN_JS_HANDLERS = [
   'showCookieCustomize', 'hideCookieCustomize', 'saveCustomCookiePreferences',
   // Profile extras (defined in Profile.js)
   'editAvatar', 'toggleProximityAlertsSetting',
-  'toggleProfileSection', 'toggleSettingsSection',
+  'toggleSettingsSection',
   // Profile new features (#57-#63) (defined in Profile.js)
   'editBio', 'saveBio', 'editLanguages',
   'openReferences', 'closeReferences',

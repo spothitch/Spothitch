@@ -455,7 +455,7 @@ export default {
 
   // Geographic Achievements (#169)
   achievementUnlocked: 'Logro desbloqueado',
-  countriesVisited: 'paises visitados',
+  countriesVisited: 'Países visitados',
   countriesShort: 'Países',
   regionComplete: 'Región completada!',
   remaining: 'Restantes',
@@ -816,7 +816,7 @@ export default {
 
   spotsShared: 'Spots',
   checkinsCount: 'Check-ins',
-  reviewsGiven: 'reseñas',
+  reviewsGiven: 'Reseñas',
   streak: 'Serie',
   leagueBronze: 'Bronce',
   leagueSilver: 'Plata',
@@ -908,7 +908,7 @@ export default {
   reviewsGivenLabel: 'Opiniones dadas',
   friendsCount: 'Amigos',
   savedTrips: 'Viajes guardados',
-  badgesEarned: 'obtenidas',
+  badgesEarned: 'Obtenidas',
   unlocked: 'desbloqueados',
   nextBadges: 'Próximas insignias',
   noKnownSpots: 'No hay spots conocidos en este tramo',
@@ -4463,7 +4463,7 @@ export default {
   expertTips: 'Tips de expertos',
   bestTimeSlots: 'Mejores horarios',
   avgWaitLabel: '~{time} min de espera',
-  photoGallery: 'fotos',
+  photoGallery: 'Fotos',
   markAsTip: 'Marcar como tip',
   tipCategory: 'Categoría del tip',
   details: 'Detalles',

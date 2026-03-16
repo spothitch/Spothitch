@@ -204,8 +204,6 @@ function renderProfilTab(state) {
   if (state.profileDetailView === 'validations') return renderMyValidationsList(state)
   if (state.profileDetailView === 'countries') return renderMyCountriesList(state)
 
-  const openSection = state.profileOpenSection || null
-
   const svgBio = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'
   const svgLang = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>'
   const svgPhotos = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
@@ -220,57 +218,116 @@ function renderProfilTab(state) {
   const reviewCount = state.myReviews?.length || 0
   const badgeCount = state.earnedBadges?.length || 0
 
-  function profileRow(id, svgIcon, bgColor, label, sub) {
-    const isOpen = openSection === id
-    return `
-      <div class="border-b border-white/[0.04] last:border-b-0">
-        <button type="button" onclick="toggleProfileSection('${id}')"
-          class="w-full flex items-center justify-between px-4 py-[14px] hover:bg-white/[0.02] transition-colors">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-[10px] flex items-center justify-center" style="background:${bgColor}">${svgIcon}</div>
-            <div class="text-left">
-              <div class="text-[14px] font-medium">${label}</div>
-              <div class="text-[11px] text-slate-500">${sub}</div>
-            </div>
-          </div>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#475569" stroke-width="2"
-            style="transition:transform .2s;transform:rotate(${isOpen ? '90' : '0'}deg)"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        ${isOpen ? `<div class="px-3 pb-3">${renderProfileSection(id, state)}</div>` : ''}
-      </div>
-    `
+  // Language level visual
+  const levelDot = (level) => {
+    const filled = { natif: 3, courant: 2, debutant: 1 }[level] || 2
+    return Array.from({ length: 3 }, (_, i) =>
+      `<span class="inline-block w-1.5 h-1.5 rounded-full ${i < filled ? 'bg-emerald-400' : 'bg-white/15'}"></span>`
+    ).join('')
   }
 
   return `
     ${renderProfileHeader(state)}
     ${renderClickableStats(state)}
 
-    <div class="card overflow-hidden" style="padding:0">
-      ${profileRow('bio', svgBio, 'rgba(59,130,246,0.1)', t('bio') || 'Bio', bio ? bio.substring(0, 40) + (bio.length > 40 ? '...' : '') : (t('noBio') || 'Add your bio...'))}
-      ${profileRow('languages', svgLang, 'rgba(34,197,94,0.1)', t('languages') || 'Languages', langs.length > 0 ? langs.map(l => l.name || l.code).join(', ') : (t('noLanguages') || 'Add languages...'))}
-      ${''}<!-- Social links: disabled for alpha, enable in beta -->
-      ${profileRow('photos', svgPhotos, 'rgba(245,158,11,0.1)', t('photoGallery') || 'Photos', photos.length > 0 ? `${photos.length} photos` : (t('noPhotos') || 'Add photos...'))}
-      ${profileRow('reviews', svgReviews, 'rgba(239,68,68,0.1)', t('myReviews') || 'My reviews', reviewCount > 0 ? `${reviewCount} ${t('reviewsGiven') || 'reviews'}` : (t('noReviews') || 'No reviews yet'))}
-      ${profileRow('trips', svgTrips, 'rgba(14,165,233,0.1)', t('myTrips') || 'Trips', tripCount > 0 ? `${tripCount} ${t('tripsRecorded') || 'trips'}` : (t('noTrips') || 'No trips yet'))}
-      ${profileRow('badges', svgBadges, 'rgba(245,158,11,0.08)', t('badges') || 'Badges', badgeCount > 0 ? `${badgeCount} ${t('badgesEarned') || 'earned'}` : (t('noBadges') || 'No badges yet'))}
+    <!-- Bio -->
+    <div class="card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        ${svgBio}
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('bio') || 'Bio'}</span>
+      </div>
+      ${bio
+        ? `<p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(bio)}</p>`
+        : `<p class="text-sm text-slate-600 italic">${t('noBio') || 'Ajoute ta bio...'}</p>`
+      }
     </div>
+
+    <!-- Languages -->
+    <div class="card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        ${svgLang}
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('languages') || 'Langues'}</span>
+      </div>
+      ${langs.length > 0
+        ? `<div class="flex flex-wrap gap-2">
+            ${langs.map(l => `
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-white/5 text-slate-300">
+                ${l.flag || '🌐'} ${escapeHTML(l.name || '')}
+                <span class="flex gap-0.5 ml-0.5">${levelDot(l.level)}</span>
+              </span>
+            `).join('')}
+          </div>`
+        : `<p class="text-sm text-slate-600 italic">${t('noLanguages') || 'Ajoute tes langues...'}</p>`
+      }
+    </div>
+
+    <!-- Photos -->
+    ${photos.length > 0 ? `
+    <div class="card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        ${svgPhotos}
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('photoGallery') || 'Photos'}</span>
+        <span class="text-xs text-slate-500">(${photos.length})</span>
+      </div>
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        ${photos.slice(0, 5).map(url => `
+          <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
+            <img src="${escapeHTML(url)}" class="w-full h-full object-cover" alt="" loading="lazy" />
+          </div>
+        `).join('')}
+        ${photos.length > 5 ? `<div class="w-16 h-16 rounded-lg flex-shrink-0 bg-white/5 flex items-center justify-center text-xs text-slate-400">+${photos.length - 5}</div>` : ''}
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Reviews -->
+    ${reviewCount > 0 ? `
+    <div class="card p-4">
+      <div class="flex items-center gap-2">
+        ${svgReviews}
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('myReviews') || 'Avis'}</span>
+        <span class="text-xs text-slate-500">(${reviewCount})</span>
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Trips -->
+    ${tripCount > 0 ? `
+    <div class="card p-4">
+      <button onclick="changeTab('challenges')" class="flex items-center gap-2 w-full text-left">
+        ${svgTrips}
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('myTrips') || 'Voyages'}</span>
+        <span class="text-xs text-slate-500">(${tripCount})</span>
+        <span class="ml-auto text-xs text-primary-400">${t('seeAll') || 'Voir tout'} →</span>
+      </button>
+    </div>
+    ` : ''}
+
+    <!-- Badges -->
+    ${badgeCount > 0 ? `
+    <div class="card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        ${svgBadges}
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('badges') || 'Badges'}</span>
+        <span class="text-xs text-slate-500">(${badgeCount})</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        ${(state.earnedBadges || []).slice(0, 8).map(id => {
+          const badge = allBadges.find(b => b.id === id)
+          return badge ? `<span class="text-2xl" title="${badge.name}">${badge.icon}</span>` : ''
+        }).join('')}
+        ${badgeCount > 8 ? `<span class="text-xs text-slate-500 self-center">+${badgeCount - 8}</span>` : ''}
+      </div>
+    </div>
+    ` : ''}
 
     ${renderDonationCard()}
   `
 }
 
-function renderProfileSection(sectionId, state) {
-  switch (sectionId) {
-    case 'bio': return renderBioCard(state)
-    case 'languages': return renderLanguagesCard(state)
-    case 'social': return renderSocialLinksCard(state)
-    case 'photos': return renderPhotoGalleryCard(state)
-    case 'reviews': return renderMyReviewsCard(state)
-    case 'trips': return renderPublicTripsCard(state)
-    case 'badges': return renderBadgesGrid(state)
-    default: return ''
-  }
-}
+// Inline render functions (renderBioCard, renderLanguagesCard, renderPhotoGalleryCard,
+// renderMyReviewsCard, renderPublicTripsCard, renderBadgesGrid, renderSocialLinksCard)
+// removed — profile info now displayed directly in renderProfilTab, editing only via modal
 
 function renderProfileHeader(state) {
   const level = state.level || 1
@@ -791,7 +848,7 @@ function renderDetailBackButton() {
 function countryToFlag(code) {
   if (!code || code.length !== 2) return '📍'
   return String.fromCodePoint(
-    ...[...code.toUpperCase()].map((c) => 0x1f1e5 + c.charCodeAt(0)),
+    ...[...code.toUpperCase()].map((c) => 0x1f1a5 + c.charCodeAt(0)),
   )
 }
 

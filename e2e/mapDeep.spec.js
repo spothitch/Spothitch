@@ -83,7 +83,7 @@ test.describe('Map Deep Interactions', () => {
     const result = await page.evaluate(() =>
       typeof window.displayFallbackSpots === 'function'
     )
-    // This may not be on window, it's internal to map.js
+    // displayFallbackSpots was removed with old map.js — test kept for regression
     expect(typeof result).toBe('boolean')
   })
 })
