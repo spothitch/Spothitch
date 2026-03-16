@@ -962,8 +962,9 @@ function renderMySpotsList(state) {
     const groupMap = {}
     spots.forEach((s) => {
       const cc = s.country || s.countryCode || 'XX'
-      if (!groupMap[cc])
+      if (!groupMap[cc]) {
         groupMap[cc] = { code: cc, name: s.countryName || cc, spots: [] }
+      }
       groupMap[cc].spots.push(s)
     })
     countryGroups = Object.values(groupMap)

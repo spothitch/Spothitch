@@ -4797,4 +4797,7 @@ export default {
   weeksAgoShort: 'w',
   monthsAgoShort: 'mo',
   yearsAgoShort: 'y',
+
+  // Auto-added by quality-gate --fix
+  certified: '[TODO] certified',
 }
