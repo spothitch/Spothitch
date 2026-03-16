@@ -1,37 +1,32 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-16 09:10
+Date : 2026-03-16 10:20
 
 ## Derniers commits (sur main)
+86446ca fix: nav only on tab change + filtered spots cache (perf)
+55446fe perf: eliminate render freezes — skip unchanged nav
 7c3cfcf fix: search now finds all cities (Photon + Nominatim dual search)
 52ad80c perf: idle preload tabs, lazy quiz data, reduce map tile cache
 ca5d6a5 fix: quality gate 95→100, eliminate circular deps, dead code cleanup
-c1094d3 fix: escape external API data in innerHTML (XSS hardening)
-32c310b fix: add maxlength=100 to search inputs (prevent overflow with long text)
 
-## Résumé session
-### Test Ultime (Phases 0-8)
-- Quality Gate: 95 → 100/100
-- ESLint: 11 warnings → 0
-- Circular deps: 3 → 0
-- i18n: 85 → 100/100
-- 1373/1373 tests, CI 11/11 green
-- ERR-075 à ERR-079 documentés
+## Résumé session complète
+### Test Ultime
+- QG 95→100, ESLint 0, 0 circular deps, 1373/1373 tests
+- ERR-075 à ERR-080 documentés et corrigés
 
-### Optimisations performance
-- Idle preload tabs Voyage/Social/Profile → switch instantané (11ms)
-- Quiz data lazy par pays → chunk gamification -21%
-- MapLibre maxTileCacheSize: 50
+### Optimisations performance (safe, mergées)
+- Idle preload tabs → switch instantané (11ms)
+- Quiz data lazy → chunk gamification -21%
+- MapLibre tile cache limité
+- Nav bar re-rendue uniquement au changement d'onglet
+- getFilteredSpots caché (3026 spots filtrés une seule fois)
+- NOTE: optimisation modales/overlays ABANDONNÉE (cassait deeplinks E2E)
 
-### Fix recherche (IMPORTANT)
-- AVANT: Photon seul, Bristol UK introuvable, Aurillac introuvable
-- APRÈS: Photon + Nominatim en parallèle, 15/15 villes trouvées
-- Drapeaux pays + nom pays dans suggestions
-- Loader "Recherche..." pendant la requête
-- Déduplication par nom+pays
-- Voyage.js utilise aussi la recherche centralisée
+### Fix recherche
+- Photon + Nominatim en parallèle, toutes les villes trouvées
+- Drapeaux pays + noms pays dans suggestions
 
-### Tout mergé sur main, déployé sur spothitch.com
+### Tout sur main, déployé
 
 ## Note
 Reprendre avec : claude --continue
