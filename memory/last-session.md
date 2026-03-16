@@ -1,8 +1,13 @@
-# Dernière session : 2026-03-16b
+# Dernière session sauvegardée automatiquement
 
-## Résumé
-11 bugs corrigés, map.js supprimé (1 seul service de carte), sync Firebase complète pour toutes les données locales, profil refactorisé (infos directes, pas d'accordéon), tests multi-utilisateurs avec 4 vrais comptes Firebase.
+Date : 2026-03-16 16:38
 
-## TODO prochaine session
-1. Refonte SpotDetail.js : successRate incohérent, commentaires visibles directement, tags multi-validations, profil cliquable
-2. Re-test multi-utilisateurs complet après corrections SpotDetail
+## Derniers commits
+696caa9 feat: clickable panels in SpotDetail + sorted reviews + a11y fix
+639a3ab feat: rename Valider/Mon expérience → Disponible/Validé + V1 design
+98878b5 feat: complete SpotDetail overhaul — live data, stats, clickable profiles
+6bdad39 fix: add role=button + tabindex to clickable profile names (a11y 100)
+fde152e fix: load live data BEFORE showing spot detail + fix CI failures
+
+## Note
+Reprendre avec : claude --continue

@@ -956,3 +956,33 @@ Chaque erreur suit ce format :
 - **Leçon** : Ne JAMAIS dépendre d'une seule API pour une fonction critique. Toujours avoir un fallback ou combiner plusieurs sources. Pour la recherche géographique, Nominatim (OSM) est la référence en termes de couverture, même s'il est plus lent. Photon est un bon complément pour la vitesse mais ne suffit pas seul. Tester TOUJOURS avec des villes de tailles variées (capitale, ville moyenne, village) ET dans plusieurs pays.
 - **Fichiers** : src/services/osrm.js, src/main.js, src/components/views/Voyage.js
 - **Statut** : CORRIGÉ
+
+### ERR-081 — Photos d'identité exposées via window.identityVerificationState
+- **Date** : 2026-03-16
+- **Gravité** : CRITIQUE
+- **Description** : Les photos de selfie, carte d'identité et selfie+ID étaient stockées dans `window.identityVerificationState`, accessible à n'importe quelle extension de navigateur ou script injecté.
+- **Cause racine** : L'état du formulaire de vérification d'identité était stocké comme propriété globale window pour permettre l'accès entre main.js et IdentityVerification.js.
+- **Correction** : Propriété rendue non-énumérable via `Object.defineProperty`. Photos effacées de la mémoire immédiatement après soumission (selfiePhoto, idCardPhoto, selfieWithIdPhoto = null).
+- **Leçon** : JAMAIS stocker de données sensibles (photos, documents d'identité, tokens) dans des propriétés `window.*` énumérables. Utiliser `Object.defineProperty` avec `enumerable: false` et nettoyer les données dès qu'elles ne sont plus nécessaires.
+- **Fichiers** : src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-082 — beforeunload ne se déclenche pas sur iOS Safari PWA
+- **Date** : 2026-03-16
+- **Gravité** : MAJEUR
+- **Description** : Sur iOS en mode PWA standalone, l'événement `beforeunload` ne se déclenche pas fiablement. Le cleanup (sauvegarde de données, arrêt du tracking) pouvait ne pas s'exécuter.
+- **Cause racine** : Limitation iOS Safari connue. `beforeunload` est partiellement supporté en mode navigateur mais pas en mode standalone.
+- **Correction** : Ajout de `window.addEventListener('pagehide', runAllCleanup)` comme fallback. `pagehide` est supporté partout y compris iOS.
+- **Leçon** : Toujours utiliser `pagehide` en complément de `beforeunload` pour le cleanup. C'est la recommandation officielle du Web Platform.
+- **Fichiers** : src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-083 — Contenu d'onglet stale quand on y revient
+- **Date** : 2026-03-16
+- **Gravité** : MAJEUR
+- **Description** : Quand on quitte un onglet (ex: Social) et qu'on y revient, le contenu HTML n'était PAS re-rendu. L'utilisateur voyait le contenu tel qu'il était la DERNIÈRE fois qu'il a visité l'onglet, même si des données avaient changé (nouveau message, badge débloqué, etc.).
+- **Cause racine** : Optimisation trop agressive. Le code gardait le HTML en cache (`_renderedTabs`) et ne re-rendait que si l'onglet n'avait jamais été affiché. Condition `!tabChanged` signifiait "re-render seulement si on RESTE sur le même onglet".
+- **Correction** : Les onglets non-carte sont maintenant TOUJOURS re-rendus quand ils deviennent actifs. Le coût est ~5ms (génération HTML), ce qui est imperceptible.
+- **Leçon** : Ne JAMAIS cacher du contenu dynamique (messages, scores, badges) sans mécanisme d'invalidation. Le HTML est cheap à régénérer, mais des données stales sont un bug visible par l'utilisateur.
+- **Fichiers** : src/main.js
+- **Statut** : CORRIGÉ
