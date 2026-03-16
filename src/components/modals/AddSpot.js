@@ -793,7 +793,14 @@ window.addSpotDestination = async () => {
         import('../../services/osrm.js').then(({ searchPhoton }) => {
           initAutocomplete({
             inputId: 'spot-extra-dest',
-            searchFn: (q) => searchPhoton(q, {}),
+            searchFn: (q) => {
+              const depCoords = window.spotFormData.departureCityCoords
+              const spotLat = window.spotFormData.lat
+              const spotLng = window.spotFormData.lng
+              const biasLat = depCoords?.lat || spotLat || null
+              const biasLng = depCoords?.lng || spotLng || null
+              return searchPhoton(q, { biasLat, biasLng })
+            },
             debounceMs: 100,
             forceSelection: true,
             onSelect: async (item) => {
@@ -1592,7 +1599,15 @@ function initStep2Autocomplete() {
       if (dirInput) {
         const ac = initAutocomplete({
           inputId: 'spot-direction-city',
-          searchFn: (q) => searchPhoton(q, {}),
+          searchFn: (q) => {
+            // Bias results toward departure city / spot location for relevant suggestions
+            const depCoords = window.spotFormData.departureCityCoords
+            const spotLat = window.spotFormData.lat
+            const spotLng = window.spotFormData.lng
+            const biasLat = depCoords?.lat || spotLat || null
+            const biasLng = depCoords?.lng || spotLng || null
+            return searchPhoton(q, { biasLat, biasLng })
+          },
           debounceMs: 100,
           forceSelection: true,
           onSelect: (item) => {
@@ -2067,6 +2082,19 @@ window.handleAddSpot = async (event) => {
         ? (t('spotShared') || 'Spot partagé !') + ` 📸 +50 pts (${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''})`
         : (t('spotShared') || 'Spot partagé avec succès !'))
       actions.incrementSpotsCreated()
+      // Add new spot to map immediately (so user sees it without reload)
+      try {
+        const { getState: getStateFn } = await import('../../stores/state.js')
+        const currentSpots = getStateFn().spots || []
+        const newSpot = {
+          ...spotData,
+          id: result.id,
+          creatorId: window.__firebaseUser?.uid || 'anonymous',
+          creator: window.__firebaseUser?.displayName || 'Anonyme',
+        }
+        setStateFn({ spots: [...currentSpots, newSpot] })
+        if (window._refreshMapSpots) window._refreshMapSpots()
+      } catch { /* map refresh is nice-to-have, not critical */ }
       // Record country visit for "Pays visités" in profile
       if (spotData.country) {
         try {

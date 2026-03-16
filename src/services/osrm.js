@@ -379,25 +379,34 @@ function _parsePhotonResponse(data) {
 function _parseNominatimResponse(data) {
   if (!data?.length) return []
   const seen = new Set()
-  return data.map(item => {
-    const addr = item.address || {}
-    const city = addr.city || addr.town || addr.village || item.display_name.split(',')[0]
-    const cc = (addr.country_code || '').toUpperCase()
-    return {
-      name: city,
-      fullName: addr.country ? `${city}, ${addr.country}` : city,
-      lat: parseFloat(item.lat),
-      lng: parseFloat(item.lon),
-      countryCode: cc,
-      countryName: addr.country || '',
-      importance: parseFloat(item.importance) || 0,
-    }
-  }).filter(r => {
-    const key = `${r.name.toLowerCase()}|${r.countryCode}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
+  // Filter out state/country-level results — keep only city-level (place_rank >= 12)
+  const cityLevel = new Set(['city', 'town', 'village', 'municipality', 'hamlet', 'suburb', 'borough', 'quarter', 'neighbourhood'])
+  return data
+    .filter(item => {
+      // Keep results that are city-level: either addresstype is a city type or place_rank >= 12
+      const at = item.addresstype || ''
+      const pr = item.place_rank || 0
+      return cityLevel.has(at) || pr >= 12
+    })
+    .map(item => {
+      const addr = item.address || {}
+      const city = addr.city || addr.town || addr.village || item.display_name.split(',')[0]
+      const cc = (addr.country_code || '').toUpperCase()
+      return {
+        name: city,
+        fullName: addr.country ? `${city}, ${addr.country}` : city,
+        lat: parseFloat(item.lat),
+        lng: parseFloat(item.lon),
+        countryCode: cc,
+        countryName: addr.country || '',
+        importance: parseFloat(item.importance) || 0,
+      }
+    }).filter(r => {
+      const key = `${r.name.toLowerCase()}|${r.countryCode}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
 }
 
 // Merge and deduplicate results from two sources
@@ -425,14 +434,17 @@ function _mergeResults(primary, secondary) {
  * @param {Object} [options]
  * @returns {Promise<Array>} Merged and deduplicated results (max 5)
  */
-export async function searchPhoton(query, { countryCode } = {}) {
+export async function searchPhoton(query, { countryCode, biasLat, biasLng } = {}) {
   if (!query || query.length < 2) return []
 
   const lang = getPhotonLang()
-  const cacheKey = `${query.toLowerCase()}|${lang}`
+  const biasKey = biasLat ? `|${biasLat.toFixed(1)},${biasLng.toFixed(1)}` : ''
+  const cacheKey = `${query.toLowerCase()}|${lang}${biasKey}`
   if (_photonCache.has(cacheKey)) return _photonCache.get(cacheKey)
 
-  const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lang=${lang}`
+  // Add location bias to Photon if coordinates provided (e.g. from departure city)
+  const biasSuffix = biasLat ? `&lat=${biasLat}&lon=${biasLng}` : ''
+  const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lang=${lang}${biasSuffix}`
   const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&accept-language=${lang}&featuretype=city&addressdetails=1`
 
   try {

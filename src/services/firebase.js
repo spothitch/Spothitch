@@ -526,12 +526,12 @@ export async function addSpot(spotData) {
       totalReviews: 0,
       checkins: 0,
       verified: false,
-      validationCount: 0,
-      testCount: 0,
-      lastValidated: null,
-      lastTested: null,
-      lastValidatedBy: null,
-      lastTestedBy: null,
+      validationCount: 1,
+      testCount: 1,
+      lastValidated: new Date().toISOString(),
+      lastTested: new Date().toISOString(),
+      lastValidatedBy: user?.uid || 'anonymous',
+      lastTestedBy: user?.uid || 'anonymous',
     });
     return { success: true, id: docRef.id };
   } catch (error) {

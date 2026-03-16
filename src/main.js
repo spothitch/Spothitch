@@ -1100,7 +1100,7 @@ function setupKeyboardShortcuts() {
 // Country code (ISO 2-letter) to flag emoji
 function countryCodeToFlag(cc) {
   if (!cc || cc.length !== 2) return ''
-  return String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1E5 + c.charCodeAt(0)))
+  return String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0)))
 }
 
 // ==================== GLOBAL HANDLERS ====================
@@ -3000,8 +3000,13 @@ window.homeSearchDestination = (query) => {
     </div>`
     try {
       // Search: Photon + Nominatim in parallel (~1s total)
+      // Bias toward user location if GPS is available
       const { searchPhoton } = await import('./services/osrm.js')
-      const results = await searchPhoton(query)
+      const userLoc = getState().userLocation
+      const results = await searchPhoton(query, {
+        biasLat: userLoc?.lat || null,
+        biasLng: userLoc?.lng || null,
+      })
       // Check input still matches (user may have typed more)
       const currentInput = document.getElementById('home-destination')
       if (currentInput && currentInput.value.trim() !== query.trim()) return

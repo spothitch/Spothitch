@@ -1081,6 +1081,26 @@ function initHomeMap(state) {
       }
 
       updateLayerVisibility()
+
+      // Load community spots from Firestore (user-created spots)
+      try {
+        const { loadSpotsFromFirebase } = await import('../services/firebase.js')
+        const result = await loadSpotsFromFirebase()
+        if (result.success && result.spots.length > 0) {
+          const communitySpots = result.spots.filter(s =>
+            s.dataSource === 'community' && (s.lat || s.coordinates?.lat) && (s.lng || s.coordinates?.lng)
+          )
+          if (communitySpots.length > 0) {
+            const currentState = getState()
+            const existingSpots = currentState.spots || []
+            const spotsMap = new Map()
+            existingSpots.forEach(s => spotsMap.set(s.id, s))
+            communitySpots.forEach(s => spotsMap.set(s.id, s))
+            setState({ spots: Array.from(spotsMap.values()) })
+            updateSpotsOnMap(Array.from(spotsMap.values()))
+          }
+        }
+      } catch { /* Firestore unavailable — static spots still work */ }
     })
 
     // Debounce spot loading on map move (1500ms to avoid excessive re-renders)
