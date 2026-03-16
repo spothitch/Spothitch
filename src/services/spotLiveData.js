@@ -142,11 +142,14 @@ export function mergeSpotData(staticSpot, validations) {
     .filter(v => v.comment)
     .map(v => ({
       text: v.comment,
-      userName: v.userName || v.userId || 'SpotHitch',
+      userName: v.userName || 'SpotHitch',
+      userId: v.userId || null,
       date: v.date,
       waitTime: v.waitTime,
       method: v.method,
       groupSize: v.groupSize,
+      timeOfDay: v.timeOfDay,
+      rideResult: v.rideResult,
       rating: v.ratings ? Math.round((
         (v.ratings.safety || 0) + (v.ratings.traffic || 0) + (v.ratings.accessibility || 0)
       ) / 3) : null,

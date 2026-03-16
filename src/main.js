@@ -1223,16 +1223,13 @@ const _origSelectSpot = actions.selectSpot.bind(actions)
 actions.selectSpot = (spot) => {
   if (spot) {
     _spotDetailOpenedAt = Date.now()
-    // Load live Firebase data in background (non-blocking)
-    if (!spot._liveLoaded) {
-      import('./services/spotLiveData.js').then(({ enrichSpotWithLiveData }) => {
-        enrichSpotWithLiveData(spot).then(enriched => {
-          if (enriched && enriched !== spot) {
-            setState({ selectedSpot: enriched })
-          }
-        })
-      }).catch(() => {})
-    }
+    // Always load fresh live Firebase data (ratings, comments, success rate may have changed)
+    import('./services/spotLiveData.js').then(({ fetchSpotValidations, mergeSpotData }) => {
+      fetchSpotValidations(spot.id).then(validations => {
+        const enriched = mergeSpotData({ ...spot, _liveLoaded: false }, validations)
+        if (enriched) setState({ selectedSpot: enriched })
+      })
+    }).catch(() => {})
   }
   _origSelectSpot(spot)
 }

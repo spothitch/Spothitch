@@ -63,11 +63,11 @@ export function renderSpotDetail(state) {
     ? allDests.map(d => escapeHTML(d.name)).join(', ')
     : ''
 
-  // Ratings — prefer live aggregated ratings
+  // Ratings — prefer live aggregated, then Firestore top-level, then nested
   const liveR = spot.liveRatings
-  const safety = liveR?.safety || spot.safetyRating || spot.ratings?.safety || 0
-  const traffic = liveR?.traffic || spot.trafficRating || spot.ratings?.traffic || 0
-  const access = liveR?.accessibility || spot.accessRating || spot.ratings?.accessibility || 0
+  const safety = liveR?.safety || spot.safety || spot.safetyRating || spot.ratings?.safety || 0
+  const traffic = liveR?.traffic || spot.traffic || spot.trafficRating || spot.ratings?.traffic || 0
+  const access = liveR?.accessibility || spot.accessibility || spot.accessRating || spot.ratings?.accessibility || 0
 
   // Practical tags
   const methodLabels = {
@@ -78,12 +78,32 @@ export function renderSpotDetail(state) {
   const groupLabels = {
     solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+',
   }
-  const methodLabel = spot.method ? methodLabels[spot.method] || null : null
-  const groupLabel = spot.groupSize ? groupLabels[spot.groupSize] || null : null
+  // Aggregate methods/groups from live comments (most common wins)
+  const allMethods = []
+  const allGroups = []
+  if (spot.method) allMethods.push(spot.method)
+  if (spot.groupSize) allGroups.push(spot.groupSize)
+  for (const c of (spot.liveComments || [])) {
+    if (c.method) allMethods.push(c.method)
+    if (c.groupSize) allGroups.push(c.groupSize)
+  }
+  const mostCommon = (arr) => {
+    if (arr.length === 0) return null
+    const counts = {}
+    arr.forEach(v => { counts[v] = (counts[v] || 0) + 1 })
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k]) => k)
+  }
+  const topMethods = mostCommon(allMethods)
+  const topGroups = mostCommon(allGroups)
 
-  const methodEmoji = spot.method === 'thumb' ? '👍' : spot.method === 'sign' ? '📋' : spot.method === 'asking' ? '🗣' : ''
-  const groupEmoji = spot.groupSize === 'solo' ? '👤' : spot.groupSize === 'duo' ? '👥' : spot.groupSize === 'group' ? '👥' : ''
+  const methodLabel = topMethods?.[0] ? methodLabels[topMethods[0]] || null : null
+  const groupLabel = topGroups?.[0] ? groupLabels[topGroups[0]] || null : null
 
+  const methodEmoji = topMethods?.[0] === 'thumb' ? '👍' : topMethods?.[0] === 'sign' ? '📋' : topMethods?.[0] === 'asking' ? '🗣' : ''
+  const groupEmoji = topGroups?.[0] === 'solo' ? '👤' : topGroups?.[0] === 'duo' ? '👥' : topGroups?.[0] === 'group' ? '👥' : ''
+
+  // Show all unique methods if there are multiple
+  const uniqueMethods = topMethods?.filter((m, i) => i === 0 || topMethods.indexOf(m) === i) || []
   const hasTags = methodLabel || groupLabel
   const isFav = isFavorite(spot.id)
 
@@ -203,15 +223,15 @@ export function renderSpotDetail(state) {
             </button>
           </div>
 
-          <!-- Dates (2 cards) -->
+          <!-- Dates (2 cards) — aligned with buttons above: Valider (left) / Mon expérience (right) -->
           <div style="padding:0 16px 12px;display:flex;gap:8px">
-            <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
-              <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastTest') || 'Dernière utilisation'}</div>
-              <div style="font-size:12px;color:#e2e8f0">${(spot.liveLastTested || spot.lastTested) ? formatRelativeDate(spot.liveLastTested || spot.lastTested) : '—'}${spot.lastTestedBy ? ' · ' + escapeHTML(spot.lastTestedBy) : ''}</div>
-            </div>
             <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
               <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastValidation') || 'Dernière validation'}</div>
               <div style="font-size:12px;color:#e2e8f0">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}${spot.lastValidatedBy ? ' · ' + escapeHTML(spot.lastValidatedBy) : ''}</div>
+            </div>
+            <div style="flex:1;background:#161b28;border-radius:8px;padding:8px 10px">
+              <div style="font-size:9px;color:#64748b;text-transform:uppercase">${t('lastTest') || 'Dernière utilisation'}</div>
+              <div style="font-size:12px;color:#e2e8f0">${(spot.liveLastTested || spot.lastTested) ? formatRelativeDate(spot.liveLastTested || spot.lastTested) : '—'}${spot.lastTestedBy ? ' · ' + escapeHTML(spot.lastTestedBy) : ''}</div>
             </div>
           </div>
 
@@ -236,7 +256,11 @@ export function renderSpotDetail(state) {
           <!-- Practical tags (colored pills) -->
           ${hasTags ? `
           <div style="padding:0 16px 4px;display:flex;flex-wrap:wrap;gap:5px">
-            ${methodLabel ? `<span style="font-size:11px;color:#f59e0b;background:rgba(245,158,11,0.08);padding:4px 9px;border-radius:99px">${methodEmoji} ${escapeHTML(methodLabel)}</span>` : ''}
+            ${uniqueMethods.map(m => {
+              const label = methodLabels[m]
+              const emoji = m === 'thumb' ? '👍' : m === 'sign' ? '📋' : m === 'asking' ? '🗣' : ''
+              return label ? `<span style="font-size:11px;color:#f59e0b;background:rgba(245,158,11,0.08);padding:4px 9px;border-radius:99px">${emoji} ${escapeHTML(label)}</span>` : ''
+            }).join('')}
             ${groupLabel ? `<span style="font-size:11px;color:#3b82f6;background:rgba(59,130,246,0.08);padding:4px 9px;border-radius:99px">${groupEmoji} ${escapeHTML(groupLabel)}</span>` : ''}
           </div>
           ` : ''}
@@ -285,7 +309,7 @@ export function renderSpotDetail(state) {
               return `
               <div style="background:#161b28;border-radius:10px;padding:12px;margin-bottom:6px">
                 <div style="font-size:12px;margin-bottom:2px">
-                  <span style="font-weight:500">${escapeHTML(review.userName || 'Hitchwiki')}</span>
+                  <span style="font-weight:500;${review.userId ? 'cursor:pointer;color:#f59e0b' : ''}" ${review.userId ? `onclick="showFriendProfile('${escapeJSString(review.userId)}')"` : ''}>${escapeHTML(review.userName || 'Hitchwiki')}</span>
                   ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
                   ${review.rating ? ` <span style="color:#f59e0b">${'\u2605'.repeat(review.rating)}${'\u2606'.repeat(5 - review.rating)}</span>` : ''}
                   <span style="color:#64748b">${review.waitTime ? ' · ' + review.waitTime + ' min' : ''}${rMethod ? ' · ' + rMethod : ''}${rGroup ? ' · ' + rGroup : ''}${review.date ? ' · ' + formatReviewDate(review.date) : ''}</span>
@@ -302,7 +326,7 @@ export function renderSpotDetail(state) {
 
           <!-- Meta + Maps + Street View -->
           <div style="padding:0 16px 12px;display:flex;justify-content:space-between;align-items:center">
-            <div style="font-size:11px;color:#475569">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · ${escapeHTML(spot.creator || 'HitchWiki')}${spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''}</div>
+            <div style="font-size:11px;color:#475569">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · <span style="${spot.creatorId ? 'cursor:pointer;color:#f59e0b' : ''}" ${spot.creatorId ? `onclick="showFriendProfile('${escapeJSString(spot.creatorId)}')"` : ''}>${escapeHTML(spot.creator || 'HitchWiki')}</span>${spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''}</div>
             <div style="display:flex;gap:6px">
               ${spot.coordinates?.lat ? `<button onclick="openSpotStreetView(${spot.coordinates.lat}, ${spot.coordinates.lng})" type="button"
                 style="background:#161b28;border:1px solid #334155;color:#94a3b8;padding:7px 12px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">
