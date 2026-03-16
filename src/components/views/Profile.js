@@ -1762,11 +1762,7 @@ window.toggleSettingsSection = (sectionId) => {
   window.setState?.({ settingsOpenSection: current === sectionId ? null : sectionId })
 }
 
-window.toggleProfileSection = (sectionId) => {
-  const state = window.getState?.() || {}
-  const current = state.profileOpenSection
-  window.setState?.({ profileOpenSection: current === sectionId ? null : sectionId })
-}
+// toggleProfileSection removed — profile info displayed directly, no accordion
 
 // startTutorial is defined in main.js (canonical owner — includes tab change + step action)
 
