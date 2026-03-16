@@ -355,6 +355,76 @@ function getPhotonLang() {
   return document.documentElement.lang || 'en'
 }
 
+// Parse Photon API response into normalized results
+function _parsePhotonResponse(data) {
+  if (!data?.features?.length) return []
+  const placeTypes = new Set(['city', 'town', 'village', 'locality', 'district', 'borough'])
+  return data.features
+    .filter(f => placeTypes.has(f.properties.type))
+    .map(f => {
+      const p = f.properties
+      return {
+        name: p.name || '',
+        fullName: p.country ? `${p.name}, ${p.country}` : p.name || '',
+        lat: f.geometry?.coordinates?.[1] || 0,
+        lng: f.geometry?.coordinates?.[0] || 0,
+        countryCode: (p.countrycode || '').toUpperCase(),
+        countryName: p.country || '',
+        importance: p.importance || 0,
+      }
+    })
+}
+
+// Parse Nominatim API response into normalized results
+function _parseNominatimResponse(data) {
+  if (!data?.length) return []
+  const seen = new Set()
+  return data.map(item => {
+    const addr = item.address || {}
+    const city = addr.city || addr.town || addr.village || item.display_name.split(',')[0]
+    const cc = (addr.country_code || '').toUpperCase()
+    return {
+      name: city,
+      fullName: addr.country ? `${city}, ${addr.country}` : city,
+      lat: parseFloat(item.lat),
+      lng: parseFloat(item.lon),
+      countryCode: cc,
+      countryName: addr.country || '',
+      importance: parseFloat(item.importance) || 0,
+    }
+  }).filter(r => {
+    const key = `${r.name.toLowerCase()}|${r.countryCode}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+// Merge and deduplicate results from two sources
+function _mergeResults(primary, secondary) {
+  const merged = [...primary]
+  const seenCoords = new Set(merged.map(r => `${r.lat.toFixed(0)},${r.lng.toFixed(0)}`))
+  const seenNameCountry = new Set(merged.map(r => `${r.name.toLowerCase()}|${r.countryCode}`))
+  for (const r of secondary) {
+    const coordKey = `${r.lat.toFixed(0)},${r.lng.toFixed(0)}`
+    const nameKey = `${r.name.toLowerCase()}|${r.countryCode}`
+    if (!seenCoords.has(coordKey) && !seenNameCountry.has(nameKey)) {
+      seenCoords.add(coordKey)
+      seenNameCountry.add(nameKey)
+      merged.push(r)
+    }
+  }
+  merged.sort((a, b) => (b.importance || 0) - (a.importance || 0))
+  return merged.slice(0, 5)
+}
+
+/**
+ * Search cities — Photon + Nominatim in parallel, merged results.
+ * Cached for instant repeat queries. Results sorted by importance.
+ * @param {string} query
+ * @param {Object} [options]
+ * @returns {Promise<Array>} Merged and deduplicated results (max 5)
+ */
 export async function searchPhoton(query, { countryCode } = {}) {
   if (!query || query.length < 2) return []
 
@@ -362,51 +432,31 @@ export async function searchPhoton(query, { countryCode } = {}) {
   const cacheKey = `${query.toLowerCase()}|${lang}`
   if (_photonCache.has(cacheKey)) return _photonCache.get(cacheKey)
 
-  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${lang}&layer=city&layer=locality`
+  const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lang=${lang}`
+  const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&accept-language=${lang}&featuretype=city&addressdetails=1`
 
   try {
-    const response = await fetch(url)
-    if (!response.ok) throw new Error(`Photon error: ${response.status}`)
+    // Fire both APIs in parallel — Photon (~100ms) + Nominatim (~800ms)
+    const [photonRes, nominatimRes] = await Promise.allSettled([
+      fetch(photonUrl).then(r => r.ok ? r.json() : null),
+      fetch(nominatimUrl, {
+        headers: { 'User-Agent': 'SpotHitch/2.0 (https://spothitch.com)' },
+      }).then(r => r.ok ? r.json() : null),
+    ])
 
-    const data = await response.json()
-    if (!data?.features?.length) return []
+    const photonResults = photonRes.status === 'fulfilled' ? _parsePhotonResponse(photonRes.value) : []
+    const nominatimResults = nominatimRes.status === 'fulfilled' ? _parseNominatimResponse(nominatimRes.value) : []
 
-    const results = data.features.map(f => {
-      const p = f.properties
-      const city = p.name || ''
-      const country = p.country || ''
-      const cc = (p.countrycode || '').toUpperCase()
-      const coords = f.geometry?.coordinates || [0, 0]
-      return {
-        name: city,
-        fullName: country ? `${city}, ${country}` : city,
-        lat: coords[1],
-        lng: coords[0],
-        countryCode: cc,
-        countryName: country,
-        importance: p.importance || 0,
-      }
-    })
+    // Merge: Nominatim first (better ranking), Photon extras
+    const final = _mergeResults(nominatimResults, photonResults)
 
-    // Deduplicate
-    const seen = new Set()
-    const deduplicated = results.filter(r => {
-      const key = `${r.name.toLowerCase()}|${r.lat.toFixed(1)},${r.lng.toFixed(1)}`
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    }).slice(0, 5)
-
-    // Store in cache (evict oldest if full)
+    // Cache
     if (_photonCache.size >= PHOTON_CACHE_MAX) {
-      const firstKey = _photonCache.keys().next().value
-      _photonCache.delete(firstKey)
+      _photonCache.delete(_photonCache.keys().next().value)
     }
-    _photonCache.set(cacheKey, deduplicated)
-
-    return deduplicated
+    _photonCache.set(cacheKey, final)
+    return final
   } catch {
-    // Fallback to Nominatim
     return searchCities(query, { countryCode })
   }
 }

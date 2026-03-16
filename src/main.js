@@ -1096,6 +1096,12 @@ function setupKeyboardShortcuts() {
   });
 }
 
+// Country code (ISO 2-letter) to flag emoji
+function countryCodeToFlag(cc) {
+  if (!cc || cc.length !== 2) return ''
+  return String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1E5 + c.charCodeAt(0)))
+}
+
 // ==================== GLOBAL HANDLERS ====================
 
 // Make functions available globally for onclick handlers
@@ -2938,6 +2944,43 @@ window.toggleAutoOfflineDownload = () => {
 // Home search with debounce — search a place, show city panel option, center map
 let homeDestDebounce = null
 
+function _buildSuggestionHTML(results) {
+  if (!results?.length) return ''
+  return `
+    <div class="bg-dark-secondary/95 backdrop-blur rounded-xl border border-white/10 overflow-hidden shadow-xl">
+      ${results.map((r, i) => {
+        const shortName = escapeHTML(r.fullName || r.name || '')
+        const cityName = escapeHTML(r.name || '')
+        const countryName = escapeHTML(r.countryName || '')
+        const cc = (r.countryCode || '').toUpperCase()
+        const slug = cityName.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+        return `
+        <div class="border-b border-white/5 last:border-0">
+          <button
+            onclick="homeSelectPlace(${Number(r.lat)}, ${Number(r.lng)}, '${escapeJSString(shortName)}')"
+            class="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors"
+            data-home-suggestion="${i}"
+          >
+            <div class="flex items-center gap-2">
+              ${cc ? `<span class="text-base flex-shrink-0">${countryCodeToFlag(cc)}</span>` : ''}
+              <div class="min-w-0">
+                <span class="font-medium text-sm truncate block">${cityName}</span>
+                ${countryName ? `<span class="text-xs text-slate-400">${countryName}</span>` : ''}
+              </div>
+            </div>
+          </button>
+          <button
+            onclick="openCityPanel('${slug}', '${escapeJSString(cityName)}', ${Number(r.lat)}, ${Number(r.lng)}, '${cc}', '${escapeJSString(countryName)}')"
+            class="w-full px-4 py-2 text-left text-primary-400 hover:bg-primary-500/10 transition-colors text-xs font-medium border-t border-white/5"
+          >
+            📍 ${t('hitchhikingFrom') || 'Hitchhiking from'} ${cityName}
+          </button>
+        </div>`
+      }).join('')}
+    </div>
+  `
+}
+
 window.homeSearchDestination = (query) => {
   clearTimeout(homeDestDebounce)
   const container = document.getElementById('home-dest-suggestions')
@@ -2947,39 +2990,23 @@ window.homeSearchDestination = (query) => {
     return
   }
   homeDestDebounce = setTimeout(async () => {
+    // Show loading indicator
+    container.classList.remove('hidden')
+    container.innerHTML = `<div class="bg-dark-secondary/95 backdrop-blur rounded-xl border border-white/10 px-4 py-3 shadow-xl">
+      <div class="flex items-center gap-2 text-slate-400 text-sm">
+        <span class="animate-spin">⏳</span> ${t('searching') || 'Recherche...'}
+      </div>
+    </div>`
     try {
-      // Use Photon API (faster: ~50-100ms vs Nominatim ~300-500ms)
+      // Search: Photon + Nominatim in parallel (~1s total)
       const { searchPhoton } = await import('./services/osrm.js')
       const results = await searchPhoton(query)
-      if (results && results.length > 0) {
+      // Check input still matches (user may have typed more)
+      const currentInput = document.getElementById('home-destination')
+      if (currentInput && currentInput.value.trim() !== query.trim()) return
+      if (results?.length > 0) {
         container.classList.remove('hidden')
-        container.innerHTML = `
-          <div class="bg-dark-secondary/95 backdrop-blur rounded-xl border border-white/10 overflow-hidden shadow-xl">
-            ${results.map((r, i) => {
-              const shortName = escapeHTML(r.fullName || r.name || '')
-              const cityName = escapeHTML(r.name || '')
-              const countryName = escapeHTML(r.countryName || '')
-              const cc = (r.countryCode || '').toUpperCase()
-              const slug = cityName.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-              return `
-              <div class="border-b border-white/5 last:border-0">
-                <button
-                  onclick="homeSelectPlace(${Number(r.lat)}, ${Number(r.lng)}, '${escapeJSString(shortName)}')"
-                  class="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors"
-                  data-home-suggestion="${i}"
-                >
-                  <div class="font-medium text-sm truncate">${shortName}</div>
-                </button>
-                <button
-                  onclick="openCityPanel('${slug}', '${escapeJSString(cityName)}', ${Number(r.lat)}, ${Number(r.lng)}, '${cc}', '${escapeJSString(countryName)}')"
-                  class="w-full px-4 py-2 text-left text-primary-400 hover:bg-primary-500/10 transition-colors text-xs font-medium border-t border-white/5"
-                >
-                  📍 ${t('hitchhikingFrom') || 'Hitchhiking from'} ${cityName}
-                </button>
-              </div>`
-            }).join('')}
-          </div>
-        `
+        container.innerHTML = _buildSuggestionHTML(results)
       } else {
         container.classList.add('hidden')
       }

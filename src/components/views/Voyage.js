@@ -1750,22 +1750,16 @@ if (!window.tripSearchSuggestions) {
       container.innerHTML = renderVoyageSuggestions(field, instantMatches)
     }
 
-    // Layer 4: API Photon (async), sauvegarde dans le cache
+    // Layer 4: API search (Photon + Nominatim in parallel), sauvegarde dans le cache
     voyageDebounce = setTimeout(async () => {
       try {
         const trimQ = query.trim()
-        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(trimQ)}&limit=5&lang=${document.documentElement.lang || 'en'}&layer=city&layer=locality`)
-        const data = await res.json()
+        const { searchPhoton } = await import('../../services/osrm.js')
+        const results = await searchPhoton(trimQ)
         const currentInput = document.getElementById(`trip-${field}`)
         if (!currentInput || currentInput.value.trim() !== trimQ) return
-        if (data?.features?.length > 0) {
-          const apiNames = data.features.map(f => {
-            const p = f.properties
-            const parts = [p.name]
-            if (p.state) parts.push(p.state)
-            if (p.country) parts.push(p.country)
-            return parts.join(', ')
-          })
+        if (results?.length > 0) {
+          const apiNames = results.map(r => r.fullName || r.name)
           _saveCityCache(q, apiNames.slice(0, 5))
           const merged = [...new Set([...localMatches, ...offlineMatches, ...apiNames])].slice(0, 5)
           container.classList.remove('hidden')
