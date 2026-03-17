@@ -220,6 +220,11 @@ export function mergeSpotData(staticSpot, validations) {
     result.signal = null
     result.attribution = 'SpotHitch'
     result.creator = 'SpotHitch'
+    result.destinations = [] // Erase old Hitchwiki destinations — only liveDestinations matter
+    result.method = null // Erase old method
+    result.groupSize = null
+    result.lastUsed = null
+    result.reviews = 0
     // Keep: from, neighborhood, coordinates, spotType, id, country
     // Keep: validationCount (our users' validations)
   }

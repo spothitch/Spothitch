@@ -198,7 +198,7 @@ window.openTestSpot = async (spotId) => {
   setState({
     showAddSpot: true,
     addSpotPreview: false,
-    addSpotStep: 2, // Skip step 1 (position already set)
+    addSpotStep: 1, // Start at step 1 so user can add photos
     addSpotType: spot?.spotType || 'custom',
     addSpotValidateId: spotId,
   })

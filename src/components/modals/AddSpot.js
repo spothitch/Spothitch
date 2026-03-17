@@ -353,13 +353,12 @@ function renderStep2(state) {
 
       <!-- RETOUR + SUIVANT buttons -->
       <div style="display:flex;gap:12px;margin-top:24px">
-        ${!state.addSpotValidateId ? `
         <button type="button" onclick="addSpotPrevStep()"
           style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;text-transform:uppercase">
           ${t('back') || 'RETOUR'}
-        </button>` : ''}
+        </button>
         <button type="button" onclick="addSpotNextStep()"
-          style="flex:${state.addSpotValidateId ? '1' : '2'};background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;text-transform:uppercase">
+          style="flex:2;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;text-transform:uppercase">
           ${t('next') || 'SUIVANT'}
         </button>
       </div>
@@ -891,16 +890,17 @@ function swapStepContent(newStep, state) {
   if (formParent) {
     const progressEl = formParent.querySelector('[style*="display:flex"][style*="align-items:center"][style*="gap:12px"]')
     const titleEl = formParent.querySelector('[style*="font-size:22px"]')
-    if (titleEl) {
+    if (progressEl) {
+      // renderStepProgress includes both circles and title — remove old title first
+      if (titleEl) titleEl.remove()
+      progressEl.outerHTML = renderStepProgress(newStep)
+    } else if (titleEl) {
       const stepTitles = [
         t('stepWhereIsSpot') || 'Où est le spot ?',
         t('stepExperience') || 'Ton expérience',
         t('stepDetails') || 'Derniers détails',
       ]
       titleEl.textContent = stepTitles[newStep - 1]
-    }
-    if (progressEl) {
-      progressEl.outerHTML = renderStepProgress(newStep)
     }
   }
   // Scroll to top
@@ -981,8 +981,7 @@ window.addSpotPrevStep = async () => {
   const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
   const currentStep = state.addSpotStep || 1
-  const minStep = state.addSpotValidateId ? 2 : 1
-  if (currentStep > minStep) {
+  if (currentStep > 1) {
     document.activeElement?.blur()
     const newStep = currentStep - 1
     const newState = { ...state, addSpotStep: newStep }
@@ -1764,10 +1763,8 @@ window.showSpotSummary = async () => {
 
   // Quick validation first (same checks as handleAddSpot)
   const { showError } = await import('../../services/notifications.js')
-  if (!state.addSpotValidateId) {
-    if (!fd.lat || !fd.lng) { showError(t('positionRequired') || 'Position obligatoire'); return }
-    if (!fd.departureCity) { showError(t('departureRequired') || 'Ville de départ obligatoire'); return }
-  }
+  if (!fd.lat || !fd.lng) { showError(t('positionRequired') || 'Position obligatoire'); return }
+  if (!fd.departureCity) { showError(t('departureRequired') || 'Ville de départ obligatoire'); return }
   if (!fd.directionCity) { showError(t('directionRequired')); return }
   if (!fd.method) { showError(t('methodRequired')); return }
   if (!fd.groupSize) { showError(t('groupSizeRequired')); return }
@@ -1895,15 +1892,13 @@ window.handleAddSpot = async (event) => {
   // Validation — ALL fields mandatory EXCEPT photo (bonus points)
   const { showError } = await import('../../services/notifications.js')
 
-  if (!state.addSpotValidateId) {
-    if (!window.spotFormData.lat || !window.spotFormData.lng) {
-      showError(t('positionRequired') || 'Position obligatoire')
-      return
-    }
-    if (!window.spotFormData.departureCity) {
-      showError(t('departureRequired') || 'Ville de départ obligatoire')
-      return
-    }
+  if (!window.spotFormData.lat || !window.spotFormData.lng) {
+    showError(t('positionRequired') || 'Position obligatoire')
+    return
+  }
+  if (!window.spotFormData.departureCity) {
+    showError(t('departureRequired') || 'Ville de départ obligatoire')
+    return
   }
   if (!direction) {
     showError(t('directionRequired'))
