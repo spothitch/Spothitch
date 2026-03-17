@@ -246,6 +246,7 @@ const MAIN_JS_HANDLERS = [
   'downloadCountryOffline', 'deleteOfflineCountry',
   'downloadCountryForOffline', 'getOfflineStorageInfo',
   'clearAllOfflineData', 'toggleAutoOfflineDownload',
+  'openOfflinePanel', 'closeOfflinePanel',
   // Push notifications
   'togglePushNotifications',
   // Companion Mode
