@@ -10,6 +10,7 @@ const initialState = {
   // User
   user: null,
   username: '',
+  bio: '',
   avatar: '🤙',
   isLoggedIn: false,
   currentUser: null,
@@ -424,6 +425,7 @@ function loadPersistedState() {
 function persistState() {
   const stateToPersist = {
     username: state.username,
+    bio: state.bio,
     avatar: state.avatar,
     theme: state.theme,
     lang: state.lang,

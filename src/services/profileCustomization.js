@@ -410,7 +410,7 @@ export function renderCustomizationModal(state) {
       aria-modal="true"
       aria-labelledby="profile-customization-title"
     >
-      <div class="bg-dark-card w-full sm:max-w-lg max-h-[90vh] rounded-t-3xl sm:rounded-2xl overflow-hidden">
+      <div class="w-full sm:max-w-lg max-h-[90vh] rounded-t-3xl sm:rounded-2xl overflow-hidden" style="background:#1a2332">
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06)">
           <h2 id="profile-customization-title" style="font-size:16px;font-weight:600;color:#e2e8f0">${t('editProfile') || 'Modifier le profil'}</h2>
