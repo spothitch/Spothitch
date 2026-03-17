@@ -549,6 +549,7 @@ export function renderAddSpot(_state) {
       id="addspot-modal"
       class="addspot-dialog fixed inset-0 z-50 flex items-end sm:items-center justify-center"
       onclick="closeAddSpot()"
+      tabindex="0"
       role="dialog"
       aria-modal="true"
       aria-labelledby="addspot-modal-title">

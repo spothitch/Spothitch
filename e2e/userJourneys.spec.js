@@ -618,7 +618,7 @@ test.describe('Journey: Performance', () => {
 
   test('should have acceptable CLS', async ({ page }) => {
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
     await page.waitForTimeout(300)
 
     const cls = await page.evaluate(() =>

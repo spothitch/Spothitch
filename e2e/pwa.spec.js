@@ -157,7 +157,7 @@ test.describe('PWA - Performance', () => {
 
   test('should have minimal layout shift', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Wait for any lazy-loaded content
     await page.waitForTimeout(1000);
