@@ -4866,4 +4866,14 @@ export default {
 
   // Auto-added by quality-gate --fix
   certified: '[TODO] certified',
+
+  // Offline panel
+  downloadedCountries: 'Heruntergeladen',
+  pendingSpots: 'Ausstehend',
+  validatedSpots: 'Validiert',
+  offlinePanelTitle: 'Offline Karten & Reiseführer',
+  americas: 'Amerika',
+  asia: 'Asien',
+  africa: 'Afrika',
+  oceania: 'Ozeanien',
 }

@@ -90,6 +90,7 @@ const initialState = {
   showIdentityVerification: false,
   showCompanionModal: false,
   showGuidesOverlay: false,
+  showOfflinePanel: false,
   guideSection: 'start',
 
   // Checkin Modal

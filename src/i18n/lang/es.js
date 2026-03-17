@@ -4808,4 +4808,14 @@ export default {
 
   // Auto-added by quality-gate --fix
   certified: '[TODO] certified',
+
+  // Offline panel
+  downloadedCountries: 'Descargados',
+  pendingSpots: 'Pendientes',
+  validatedSpots: 'Validados',
+  offlinePanelTitle: 'Mapas y guías sin conexión',
+  americas: 'Américas',
+  asia: 'Asia',
+  africa: 'África',
+  oceania: 'Oceanía',
 }

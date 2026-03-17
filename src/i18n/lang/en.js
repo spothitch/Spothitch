@@ -4811,4 +4811,14 @@ export default {
 
   // Auto-added by quality-gate --fix
   certified: '[TODO] certified',
+
+  // Offline panel
+  downloadedCountries: 'Downloaded',
+  pendingSpots: 'Pending',
+  validatedSpots: 'Validated',
+  offlinePanelTitle: 'Offline Maps & Guides',
+  americas: 'Americas',
+  asia: 'Asia',
+  africa: 'Africa',
+  oceania: 'Oceania',
 }

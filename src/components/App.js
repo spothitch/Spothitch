@@ -205,6 +205,151 @@ export function getActiveTabPanelId(state) {
 }
 
 /**
+ * Render full-screen offline panel (Guides + Offline downloads)
+ */
+function renderOfflinePanel(state) {
+  const offlineCountries = (() => {
+    try { return JSON.parse(localStorage.getItem('spothitch_offline_countries') || '[]') } catch { return [] }
+  })()
+  const downloadedCodes = new Set(offlineCountries.map(c => c.code))
+
+  // Country display names via Intl
+  const lang = state.lang || 'fr'
+  let displayNames
+  try { displayNames = new Intl.DisplayNames([lang], { type: 'region' }) } catch { displayNames = { of: c => c } }
+  const countryName = (code) => { try { return displayNames.of(code) || code } catch { return code } }
+
+  // Flag from country code
+  const countryFlag = (code) => {
+    try {
+      return String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65))
+    } catch { return '🌍' }
+  }
+
+  // Spot counts per country from spotIndex
+  const spotIndex = (() => {
+    try { return JSON.parse(localStorage.getItem('spothitch_spot_index') || 'null') } catch { return null }
+  })()
+
+  // Build country list from countryCenters (available countries)
+  const REGIONS = {
+    europe: ['AL','AT','BA','BE','BG','BY','CH','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LT','LV','ME','MK','NL','NO','PL','PT','RO','RS','SE','SI','SK','UA','XK'],
+    asia: ['AM','AZ','CN','GE','IL','IN','JP','KG','KR','KZ','MN','MY','NP','PH','TH','TR','TW','UZ','VN'],
+    americas: ['AR','BO','BR','CA','CL','CO','CR','CU','EC','MX','PA','PE','US','UY'],
+    africa: ['DZ','EG','ET','GH','KE','MA','MZ','NG','SN','TN','TZ','UG','ZA','ZW'],
+    oceania: ['AU','NZ'],
+  }
+
+  const renderCountryRow = (code) => {
+    const flag = countryFlag(code)
+    const name = countryName(code)
+    const dl = offlineCountries.find(c => c.code === code)
+    const spotCount = spotIndex?.countries?.[code]?.count || dl?.count || 0
+    const pending = spotIndex?.countries?.[code]?.pending || 0
+    const validated = spotIndex?.countries?.[code]?.validated || spotCount
+
+    if (dl) {
+      // Downloaded
+      return `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="text-lg">${flag}</span>
+            <div class="min-w-0">
+              <div class="text-sm font-medium truncate">${name} <span class="text-emerald-400 text-xs">✓</span></div>
+              <div class="text-[10px] text-slate-400">${dl.count || 0} spots · ${dl.stationCount || 0} ⛽</div>
+            </div>
+          </div>
+          <button onclick="deleteOfflineCountry('${code}')" class="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors flex-shrink-0" type="button">
+            ${icon('trash', 'w-4 h-4 text-red-400')}
+          </button>
+        </div>`
+    }
+    // Not downloaded
+    return `
+      <button id="dl-panel-${code}" onclick="downloadCountryOffline('${code}', '${name.replace(/'/g, '\\u0027')}')" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors w-full text-left" type="button">
+        <span class="text-lg">${flag}</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium truncate">${name}</div>
+          <div class="text-[10px] text-slate-500">${spotCount > 0 ? `${spotCount} spots` : ''}</div>
+        </div>
+        <span class="text-primary-400">${icon('download', 'w-4 h-4')}</span>
+      </button>`
+  }
+
+  const renderRegion = (title, codes) => {
+    const rows = codes.map(renderCountryRow).join('')
+    return `
+      <div class="mb-4">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">${title}</h3>
+        <div class="space-y-1.5">${rows}</div>
+      </div>`
+  }
+
+  return `
+    <div class="fixed inset-0 bg-dark-primary z-[60] flex flex-col" role="dialog" aria-modal="true">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-white/10 flex-shrink-0">
+        <h2 class="text-base font-bold flex items-center gap-2">
+          ${icon('download-cloud', 'w-5 h-5 text-primary-400')}
+          ${t('offlineManager') || 'Offline Maps & Guides'}
+        </h2>
+        <button onclick="closeOfflinePanel()" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center" type="button">
+          ${icon('x', 'w-5 h-5 text-slate-400')}
+        </button>
+      </div>
+
+      <!-- Progress indicator -->
+      <div id="offline-panel-progress" class="hidden px-4 py-2 bg-primary-500/5 border-b border-primary-500/10">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs text-primary-400 font-medium" id="offline-dl-label">${t('downloading') || 'Downloading...'}</span>
+          <span class="text-xs font-mono text-primary-300" id="offline-dl-pct">0%</span>
+        </div>
+        <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-primary-500 to-amber-400 rounded-full transition-all" id="offline-dl-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="px-4 py-3 border-b border-white/5 flex-shrink-0">
+        <div class="flex gap-3">
+          <div class="flex-1 p-2.5 rounded-xl bg-emerald-500/5 text-center">
+            <div class="text-lg font-bold text-emerald-400">${offlineCountries.length}</div>
+            <div class="text-[10px] text-slate-400">${t('downloaded') || 'Downloaded'}</div>
+          </div>
+          <div class="flex-1 p-2.5 rounded-xl bg-white/5 text-center">
+            <div class="text-lg font-bold text-slate-300">${Object.values(REGIONS).flat().length - offlineCountries.length}</div>
+            <div class="text-[10px] text-slate-400">${t('available') || 'Available'}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable country list -->
+      <div class="flex-1 overflow-y-auto px-4 py-3">
+        ${offlineCountries.length > 0 ? `
+          <div class="mb-4">
+            <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">${t('downloadedCountries') || 'Downloaded'}</h3>
+            <div class="space-y-1.5">${offlineCountries.map(c => renderCountryRow(c.code)).join('')}</div>
+          </div>
+        ` : ''}
+        ${renderRegion(t('europe') || 'Europe', REGIONS.europe)}
+        ${renderRegion(t('asia') || 'Asia', REGIONS.asia)}
+        ${renderRegion(t('americas') || 'Americas', REGIONS.americas)}
+        ${renderRegion(t('africa') || 'Africa', REGIONS.africa)}
+        ${renderRegion(t('oceania') || 'Oceania', REGIONS.oceania)}
+      </div>
+
+      <!-- Footer -->
+      ${offlineCountries.length > 0 ? `
+        <div class="px-4 py-3 border-t border-white/10 flex-shrink-0">
+          <button onclick="clearAllOfflineData()" class="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 transition-colors text-red-400 text-sm" type="button">
+            ${icon('trash', 'w-4 h-4')} ${t('clearAllOffline') || 'Delete all offline data'}
+          </button>
+        </div>
+      ` : ''}
+    </div>`
+}
+
+/**
  * Render modals section only (for selective rendering)
  */
 export function renderModals(state) {
@@ -263,6 +408,7 @@ export function renderModals(state) {
     ${state.showFeedbackPanel ? lazyRender('renderFeedbackPanel', state) : ''}
     ${state.showGuideNudge && state.pendingGuideCountry ? lazyRender('renderGuideNudge', state) : ''}
     ${state.showFeatureIntro ? lazyRender('renderFeatureIntro', state) : ''}
+    ${state.showOfflinePanel ? renderOfflinePanel(state) : ''}
   `
 }
 
@@ -535,6 +681,7 @@ function ensureMapControls(state) {
       <button onclick="homeZoomOut()" class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center hover:bg-dark-primary/80 transition-colors text-lg font-bold shadow-lg" aria-label="Zoom out">\u2212</button>
       <button onclick="homeCenterOnUser()" class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-primary-400 flex items-center justify-center hover:bg-dark-primary/80 transition-colors shadow-lg" aria-label="My location">${icon('locate', 'w-5 h-5')}</button>
       <button id="gas-toggle-btn" onclick="toggleGasStations()" class="w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Gas stations"><span class="text-lg">\u26FD</span></button>
+      <button id="offline-toggle-btn" onclick="openOfflinePanel()" class="w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Offline maps &amp; guides">${icon('download-cloud', 'w-5 h-5')}</button>
       <button id="legend-toggle-btn" onclick="toggleMapLegend()" class="w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Legend">${icon('info', 'w-5 h-5')}</button>
     `
     map.appendChild(ctrl)
@@ -672,7 +819,7 @@ function initHomeMap(state) {
     const {
       addCountryBubbleLayers, updateCountryBubbleData,
       createBubblePopup, handleClusterClick, setBubbleLayersVisibility,
-      setSpotLayersVisibility, createLoadingIndicatorHTML,
+      setSpotLayersVisibility,
     } = await import('../services/countryBubbles.js')
 
     const hasGps = !!state.userLocation
@@ -960,24 +1107,6 @@ function initHomeMap(state) {
       populateSplitView(spots)
     }
 
-    // Loading indicator (#17 notification sticky) — inject into the map div
-    const injectLoadingIndicator = () => {
-      if (document.getElementById('map-loading-indicator')) return
-      const target = document.getElementById('home-map') || document.getElementById('map')
-      if (target) {
-        target.insertAdjacentHTML('beforeend', createLoadingIndicatorHTML())
-      }
-    }
-    injectLoadingIndicator()
-    const showSpotsLoading = () => {
-      const el = document.getElementById('map-loading-indicator')
-      if (el) el.style.display = 'flex'
-    }
-    const hideSpotsLoading = () => {
-      const el = document.getElementById('map-loading-indicator')
-      if (el) el.style.display = 'none'
-    }
-
     // Load spots for visible area
     let isLoadingSpots = false
     const loadSpotsForView = async () => {
@@ -1000,7 +1129,6 @@ function initHomeMap(state) {
 
       if (isLoadingSpots) return
       isLoadingSpots = true
-      showSpotsLoading()
       try {
         const bounds = map.getBounds()
         await loader.loadSpotsInBounds({
@@ -1015,7 +1143,6 @@ function initHomeMap(state) {
         // silently fail
       } finally {
         isLoadingSpots = false
-        hideSpotsLoading()
       }
     }
 
@@ -1065,12 +1192,12 @@ function initHomeMap(state) {
       map.on('mouseenter', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = 'pointer' })
       map.on('mouseleave', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = '' })
 
-      // Click on individual country bubble → popup
+      // Click on individual country bubble → zoom into that country
       map.on('click', 'country-bubble-circles', (e) => {
         if (!e.features?.length) return
         if (activePopup) { activePopup.remove(); activePopup = null }
-        activePopup = createBubblePopup(maplibregl, e.features[0], e.lngLat)
-        activePopup.addTo(map)
+        const coords = e.features[0].geometry.coordinates
+        map.flyTo({ center: coords, zoom: 7, duration: 800 })
       })
       map.on('mouseenter', 'country-bubble-circles', () => { map.getCanvas().style.cursor = 'pointer' })
       map.on('mouseleave', 'country-bubble-circles', () => { map.getCanvas().style.cursor = '' })
@@ -1115,9 +1242,10 @@ function initHomeMap(state) {
       } catch { /* Firestore unavailable — static spots still work */ }
     })
 
-    // Debounce spot loading on map move (500ms for responsive loading)
+    // Debounce spot loading on map move
     let moveTimer = null
     let lastBounds = null
+    let lastZoom = map.getZoom()
     map.on('moveend', () => {
       updateLayerVisibility()
       clearTimeout(moveTimer)
@@ -1125,15 +1253,31 @@ function initHomeMap(state) {
       // Refresh bubbles at any zoom
       refreshBubbles()
 
-      // Skip reload if bounds barely changed
+      // Detect zoom change — instantly re-display cached spots
+      const currentZoom = map.getZoom()
+      const zoomChanged = Math.abs(currentZoom - lastZoom) > 0.3
+      lastZoom = currentZoom
+
+      if (zoomChanged) {
+        // Immediately show already-loaded spots (no debounce)
+        const existing = spotLoader ? spotLoader.getAllLoadedSpots() : []
+        const currentState = getState()
+        const stateSpots = currentState.spots || []
+        const spotsMap = new Map()
+        stateSpots.forEach(s => spotsMap.set(s.id, s))
+        existing.forEach(s => spotsMap.set(s.id, s))
+        if (spotsMap.size > 0) updateSpotsOnMap(Array.from(spotsMap.values()))
+      }
+
+      // Skip network reload if bounds barely changed
       const bounds = map.getBounds()
       if (lastBounds) {
         const dLat = Math.abs(bounds.getNorth() - lastBounds.getNorth())
         const dLng = Math.abs(bounds.getEast() - lastBounds.getEast())
-        if (dLat < 0.01 && dLng < 0.01) return // ignore micro-movements
+        if (dLat < 0.01 && dLng < 0.01) return
       }
       lastBounds = bounds
-      moveTimer = setTimeout(loadSpotsForView, 500)
+      moveTimer = setTimeout(loadSpotsForView, 300)
     })
 
     // Expose refreshBubbles for main.js handlers

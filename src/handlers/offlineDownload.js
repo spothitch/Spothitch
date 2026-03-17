@@ -192,3 +192,13 @@ window.toggleAutoOfflineDownload = () => {
   const current = window.getState().offlineAutoDownloadEnabled
   window.setState({ offlineAutoDownloadEnabled: !current })
 }
+
+// ==================== OFFLINE PANEL (FULL SCREEN) ====================
+
+window.openOfflinePanel = () => {
+  window.setState({ showOfflinePanel: true })
+}
+
+window.closeOfflinePanel = () => {
+  window.setState({ showOfflinePanel: false })
+}

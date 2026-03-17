@@ -314,20 +314,6 @@ export function setSpotLayersVisibility(map, visible) {
   })
 }
 
-/**
- * Create loading indicator HTML for the map
- */
-export function createLoadingIndicatorHTML() {
-  return `<div id="map-loading-indicator" class="map-loading-indicator" style="display:none">
-    <div class="mli-spinner"></div>
-    <div class="mli-info">
-      <div class="mli-title">${t('loadingSpots') || 'Chargement des spots...'}</div>
-      <div class="mli-detail" id="map-loading-detail"></div>
-      <div class="mli-bar"><div class="mli-bar-fill"></div></div>
-    </div>
-  </div>`
-}
-
 // --- Helpers ---
 
 function safeDisplayName(displayNames, code) {

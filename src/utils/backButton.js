@@ -58,6 +58,7 @@ const MODAL_KEYS = [
   'showIdentityVerification',
   'showCompanionModal',
   'showGuidesOverlay',
+  'showOfflinePanel',
   'showDailyReward',
   'showSafety',
   'showBlockedUsers',
