@@ -225,19 +225,25 @@ function renderOfflinePanel(state) {
     } catch { return '🌍' }
   }
 
-  // Spot counts per country from spotIndex
-  const spotIndex = (() => {
-    try { return JSON.parse(localStorage.getItem('spothitch_spot_index') || 'null') } catch { return null }
-  })()
+  // Spot counts per country from spotIndex (loaded by openOfflinePanel)
+  const spotIndex = state._spotIndex || null
+  // Build a code→count map from the array-based index
+  const spotCounts = {}
+  if (spotIndex?.countries) {
+    for (const c of spotIndex.countries) spotCounts[c.code] = c.count || 0
+  }
 
-  // All available country codes
-  const ALL_COUNTRIES = ['AL','AT','BA','BE','BG','BY','CH','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LT','LV','ME','MK','NL','NO','PL','PT','RO','RS','SE','SI','SK','UA','XK','AM','AZ','CN','GE','IL','IN','JP','KG','KR','KZ','MN','MY','NP','PH','TH','TR','TW','UZ','VN','AR','BO','BR','CA','CL','CO','CR','CU','EC','MX','PA','PE','US','UY','DZ','EG','ET','GH','KE','MA','MZ','NG','SN','TN','TZ','UG','ZA','ZW','AU','NZ']
+  // All available country codes (sorted by spot count descending for better UX)
+  const ALL_COUNTRIES = Object.keys(spotCounts).length > 0
+    ? spotIndex.countries.map(c => c.code)
+    : ['FR','DE','CZ','ES','NL','PL','AT','GB','DK','BE','CH','IT','HR','FI','AL','SE','HU','BA','BG','RO','EE','GR','RS','CA','LT','TR','NO','SI','AU','GE','SK','AR','US','LV','MA','PT','JP','MK','NZ','CL','ME','AM','BR','IE','UA','CO','IS','XK','KZ','MX']
   const downloadedCodes = new Set(offlineCountries.map(c => c.code))
   const availableCountries = ALL_COUNTRIES.filter(c => !downloadedCodes.has(c))
 
   // Estimate size per country (~0.15 KB per spot)
+  const getSpotCount = (code) => spotCounts[code] || 0
   const estimateSize = (code) => {
-    const count = spotIndex?.countries?.[code]?.count || 0
+    const count = getSpotCount(code)
     const kb = Math.round(count * 0.15)
     return kb > 0 ? `~${kb} KB` : ''
   }
@@ -254,14 +260,14 @@ function renderOfflinePanel(state) {
           <div class="text-sm font-medium">${name}</div>
           <div class="text-xs text-slate-400">${c.count || 0} spots · ~${Math.round((c.count || 0) * 0.15)} KB</div>
         </div>
-        <button onclick="deleteOfflineCountry('${c.code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.2)" type="button">✓ ${t('offlineAvailable') || 'Sauvé'}</button>
+        <button onclick="deleteOfflineCountry('${c.code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.2)" type="button">✓ ${t('offlineSaved') || 'Sauvé'}</button>
       </div>`
   }
 
   const renderAvailableRow = (code) => {
     const flag = countryFlag(code)
     const name = countryName(code)
-    const spotCount = spotIndex?.countries?.[code]?.count || 0
+    const spotCount = getSpotCount(code)
     const size = estimateSize(code)
     const downloading = state.offlineDownloadingCountry === code
     const progress = state.offlineDownloadProgress || 0

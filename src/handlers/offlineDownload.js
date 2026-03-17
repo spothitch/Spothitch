@@ -195,8 +195,14 @@ window.toggleAutoOfflineDownload = () => {
 
 // ==================== OFFLINE PANEL (FULL SCREEN) ====================
 
-window.openOfflinePanel = () => {
-  window.setState({ showOfflinePanel: true })
+window.openOfflinePanel = async () => {
+  // Pre-load spot index before showing panel so counts are visible immediately
+  let index = null
+  try {
+    const { loadSpotIndex } = await import('../services/spotLoader.js')
+    index = await loadSpotIndex()
+  } catch { /* optional */ }
+  window.setState({ showOfflinePanel: true, _spotIndex: index })
 }
 
 window.closeOfflinePanel = () => {
