@@ -129,9 +129,13 @@ function setupLandmarks() {
 function initFocusManagement() {
   // Track focus for modal management
   document.addEventListener('focusin', (e) => {
-    // If modal is open, trap focus inside
-    const activeModal = document.querySelector('.modal[aria-modal="true"], [role="dialog"][aria-modal="true"]');
-    if (activeModal && !activeModal.contains(e.target)) {
+    // If modal is open, trap focus inside the TOPMOST modal (last in DOM order)
+    const allModals = document.querySelectorAll('.modal[aria-modal="true"], [role="dialog"][aria-modal="true"]');
+    if (allModals.length === 0) return;
+    const activeModal = allModals[allModals.length - 1];
+    if (!activeModal.contains(e.target)) {
+      // Don't steal focus from form inputs in other modals that are visually on top
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
       const firstFocusable = getFirstFocusable(activeModal);
       if (firstFocusable) {
         firstFocusable.focus();
@@ -406,7 +410,12 @@ export function trapFocus(container) {
   };
 
   container.addEventListener('keydown', handleKeydown);
-  first.focus();
+  // Only focus first element if no input/textarea is already focused inside the container
+  const active = document.activeElement;
+  const activeIsInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+  if (!activeIsInput || !container.contains(active)) {
+    first.focus();
+  }
 
   return () => {
     container.removeEventListener('keydown', handleKeydown);

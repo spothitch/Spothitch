@@ -181,6 +181,9 @@ window.openTestSpot = async (spotId) => {
   // Pre-fill form from existing spot
   const lat = spot?.coordinates?.lat ?? spot?.lat ?? null
   const lng = spot?.coordinates?.lng ?? spot?.lng ?? null
+  // Strip "#N" suffix from Hitchwiki spot names (e.g. "Namur #1" → "Namur")
+  const rawFrom = spot?.from || spot?.departureCity || spot?.fromCity || null
+  const cleanCity = rawFrom ? rawFrom.replace(/\s*#\d+$/, '').trim() : null
   window.spotFormData = {
     photos: [],
     lat, lng,
@@ -189,7 +192,7 @@ window.openTestSpot = async (spotId) => {
     tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
     country: spot?.country || null,
     countryName: spot?.countryName || null,
-    departureCity: spot?.from || spot?.departureCity || spot?.fromCity || null,
+    departureCity: cleanCity,
     departureCityCoords: spot?.departureCityCoords || null,
     directionCity: null, // User fills their own direction
     directionCityCoords: null,

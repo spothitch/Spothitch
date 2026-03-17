@@ -727,13 +727,17 @@ export function afterRender(state) {
   }
 
   // Activate focus trap on the topmost open modal (role="dialog")
-  requestAnimationFrame(() => {
-    const dialogs = document.querySelectorAll('[role="dialog"], [role="alertdialog"]')
-    if (dialogs.length > 0) {
-      const topModal = dialogs[dialogs.length - 1]
-      _activeFocusTrapCleanup = trapFocus(topModal)
-    }
-  })
+  // Only apply to actual modal dialogs (aria-modal="true"), skip banners/overlays
+  // Skip entirely when AddSpot is open — it has its own focus management
+  if (!state.showAddSpot) {
+    requestAnimationFrame(() => {
+      const dialogs = document.querySelectorAll('[role="dialog"][aria-modal="true"]')
+      if (dialogs.length > 0) {
+        const topModal = dialogs[dialogs.length - 1]
+        _activeFocusTrapCleanup = trapFocus(topModal)
+      }
+    })
+  }
 }
 
 /**

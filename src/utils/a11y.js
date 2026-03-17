@@ -49,8 +49,13 @@ export function trapFocus(element) {
   const firstFocusable = focusableElements[0];
   const lastFocusable = focusableElements[focusableElements.length - 1];
 
-  // Focus first element
-  firstFocusable?.focus();
+  // Focus first element — but only if no input/textarea inside the modal is already focused
+  // (prevents stealing focus from direction input on re-render)
+  const active = document.activeElement;
+  const activeIsInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+  if (!activeIsInput || !element.contains(active)) {
+    firstFocusable?.focus();
+  }
 
   function handleKeyDown(e) {
     if (e.key !== 'Tab') return;

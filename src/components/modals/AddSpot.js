@@ -252,6 +252,7 @@ function renderStep2(state) {
           style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none"
           placeholder="${t('destinationCity') || 'Direction'}"
           value="${escapeHTML(window.spotFormData?.directionCity || '')}"
+          oninput="window.spotFormData.directionCity = this.value.trim() || null; window.spotFormData.directionCityCoords = null"
           required
           aria-required="true"
         />
@@ -1620,13 +1621,12 @@ function initStep2Autocomplete() {
             return searchPhoton(q, { biasLat, biasLng })
           },
           debounceMs: 100,
-          forceSelection: true,
+          forceSelection: false,
           onSelect: (item) => {
             window.spotFormData.directionCity = item.name
             window.spotFormData.directionCityCoords = { lat: item.lat, lng: item.lng }
           },
           onClear: () => {
-            window.spotFormData.directionCity = null
             window.spotFormData.directionCityCoords = null
           },
         })
