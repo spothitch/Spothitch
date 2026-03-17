@@ -981,28 +981,37 @@ function initHomeMap(state) {
     // Load spots for visible area
     let isLoadingSpots = false
     const loadSpotsForView = async () => {
+      // Always import spotLoader directly (don't rely on closure variable)
+      let loader = spotLoader
+      if (!loader) {
+        try {
+          loader = await import('../services/spotLoader.js')
+          spotLoader = loader
+        } catch { return }
+      }
+
       const currentState = getState()
       const stateSpots = currentState.spots || []
-      const existing = spotLoader ? spotLoader.getAllLoadedSpots() : []
+      const existing = loader.getAllLoadedSpots()
       const spotsMap = new Map()
       stateSpots.forEach(s => spotsMap.set(s.id, s))
       existing.forEach(s => spotsMap.set(s.id, s))
       updateSpotsOnMap(Array.from(spotsMap.values()))
 
-      if (!spotLoader || isLoadingSpots) return
+      if (isLoadingSpots) return
       isLoadingSpots = true
       showSpotsLoading()
       try {
         const bounds = map.getBounds()
-        await spotLoader.loadSpotsInBounds({
+        await loader.loadSpotsInBounds({
           north: bounds.getNorth(),
           south: bounds.getSouth(),
           east: bounds.getEast(),
           west: bounds.getWest(),
         })
-        const allLoaded = spotLoader.getAllLoadedSpots()
+        const allLoaded = loader.getAllLoadedSpots()
         updateSpotsOnMap(allLoaded)
-      } catch (e) {
+      } catch {
         // silently fail
       } finally {
         isLoadingSpots = false
@@ -1106,7 +1115,7 @@ function initHomeMap(state) {
       } catch { /* Firestore unavailable — static spots still work */ }
     })
 
-    // Debounce spot loading on map move (1500ms to avoid excessive re-renders)
+    // Debounce spot loading on map move (500ms for responsive loading)
     let moveTimer = null
     let lastBounds = null
     map.on('moveend', () => {
@@ -1124,7 +1133,7 @@ function initHomeMap(state) {
         if (dLat < 0.01 && dLng < 0.01) return // ignore micro-movements
       }
       lastBounds = bounds
-      moveTimer = setTimeout(loadSpotsForView, 1500)
+      moveTimer = setTimeout(loadSpotsForView, 500)
     })
 
     // Expose refreshBubbles for main.js handlers
