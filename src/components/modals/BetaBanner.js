@@ -101,8 +101,11 @@ export function renderBetaBanner() {
 
 window.closeBetaPopup = () => {
   localStorage.setItem(BETA_SEEN_KEY, '1')
+  // Remove overlay from DOM immediately
   const overlay = document.getElementById('alpha-welcome-overlay')
   if (overlay) overlay.remove()
+  // Force re-render so renderBetaBanner() sees hasSeen()=true and never recreates it
+  if (window._forceRender) window._forceRender()
 }
 
 export default { renderBetaBanner }
