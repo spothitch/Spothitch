@@ -86,7 +86,7 @@ const MODAL_KEYS = [
   'showFAQ',
   'showLegal',
   'showRating',
-  'showValidateSpot',
+  // showValidateSpot removed — validation uses AddSpot (showAddSpot)
   'showCheckinModal',
   'showCreateEvent',
   'showLanding',

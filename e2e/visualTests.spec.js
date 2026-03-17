@@ -133,7 +133,7 @@ test.describe('Visual Regression — Modals', () => {
     { name: 'legal', flag: 'showLegal' },
     { name: 'faq', flag: 'showFAQ' },
     { name: 'checkin', flag: 'showCheckin' },
-    { name: 'validate-spot', flag: 'showValidateSpot' },
+    // validate-spot removed — uses AddSpot validation mode
     { name: 'cookie-banner', flag: 'showCookieBanner' },
   ]
 

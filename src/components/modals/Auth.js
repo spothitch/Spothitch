@@ -946,7 +946,7 @@ function executePendingAction(actionName) {
     const actionMap = {
       addSpot: () => window.openAddSpot?.(),
       submitSpot: () => window.showSpotSummary?.(),
-      validateSpot: () => window.openValidateSpot?.(),
+      validateSpot: () => window.openTestSpot?.(),
       saveFavorite: () => {}, // handled by the calling code
       sos: () => window.openSOS?.(),
       companion: () => window.showCompanionModal?.(),

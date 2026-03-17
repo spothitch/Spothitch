@@ -353,12 +353,13 @@ function renderStep2(state) {
 
       <!-- RETOUR + SUIVANT buttons -->
       <div style="display:flex;gap:12px;margin-top:24px">
+        ${!state.addSpotValidateId ? `
         <button type="button" onclick="addSpotPrevStep()"
           style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;text-transform:uppercase">
           ${t('back') || 'RETOUR'}
-        </button>
+        </button>` : ''}
         <button type="button" onclick="addSpotNextStep()"
-          style="flex:2;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;text-transform:uppercase">
+          style="flex:${state.addSpotValidateId ? '1' : '2'};background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;text-transform:uppercase">
           ${t('next') || 'SUIVANT'}
         </button>
       </div>
@@ -371,6 +372,7 @@ function renderStep2(state) {
  */
 function renderStep3(state) {
   const isPreview = state.addSpotPreview === true
+  const isValidation = !!state.addSpotValidateId
   const tags = window.spotFormData.tags || {}
   return `
     <div class="step-transition">
@@ -443,7 +445,7 @@ function renderStep3(state) {
         ` : `
         <button type="button" onclick="showSpotSummary()"
           style="flex:2;background:#f59e0b;border:none;color:#0f1520;border-radius:0;padding:14px;font-size:14px;font-weight:600;cursor:pointer;text-transform:uppercase" id="submit-spot-btn">
-          ${t('reviewAndPublish') || 'VÉRIFIER ET PUBLIER'}
+          ${isValidation ? (t('reviewAndSubmit') || 'VÉRIFIER ET ENVOYER') : (t('reviewAndPublish') || 'VÉRIFIER ET PUBLIER')}
         </button>
         `}
       </div>
@@ -540,6 +542,7 @@ function renderGmapsTip() {
 
 export function renderAddSpot(_state) {
   const isPreview = _state.addSpotPreview === true
+  const isValidation = !!_state.addSpotValidateId
   const currentStep = _state.addSpotStep || 1
 
   return `
@@ -562,7 +565,7 @@ export function renderAddSpot(_state) {
       >
         <!-- Header — minimal -->
         <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1a1f2e">
-          <h2 id="addspot-modal-title" style="font-size:16px;font-weight:600;color:#e2e8f0">${t('addSpot')}${isPreview ? ` <span style="font-size:12px;font-weight:400;color:#f59e0b;margin-left:8px">${t('previewMode')}</span>` : ''}</h2>
+          <h2 id="addspot-modal-title" style="font-size:16px;font-weight:600;color:#e2e8f0">${isValidation ? (t('validateSpotTitle') || 'Valider ce spot') : t('addSpot')}${isPreview ? ` <span style="font-size:12px;font-weight:400;color:#f59e0b;margin-left:8px">${t('previewMode')}</span>` : ''}</h2>
           <button
             onclick="closeAddSpot()"
             style="width:32px;height:32px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:#64748b"
@@ -978,7 +981,8 @@ window.addSpotPrevStep = async () => {
   const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
   const currentStep = state.addSpotStep || 1
-  if (currentStep > 1) {
+  const minStep = state.addSpotValidateId ? 2 : 1
+  if (currentStep > minStep) {
     document.activeElement?.blur()
     const newStep = currentStep - 1
     const newState = { ...state, addSpotStep: newStep }
@@ -1760,9 +1764,11 @@ window.showSpotSummary = async () => {
 
   // Quick validation first (same checks as handleAddSpot)
   const { showError } = await import('../../services/notifications.js')
-  if (!fd.lat || !fd.lng) { showError(t('positionRequired') || 'Position obligatoire'); return }
+  if (!state.addSpotValidateId) {
+    if (!fd.lat || !fd.lng) { showError(t('positionRequired') || 'Position obligatoire'); return }
+    if (!fd.departureCity) { showError(t('departureRequired') || 'Ville de départ obligatoire'); return }
+  }
   if (!fd.directionCity) { showError(t('directionRequired')); return }
-  if (!fd.departureCity) { showError(t('departureRequired') || 'Ville de départ obligatoire'); return }
   if (!fd.method) { showError(t('methodRequired')); return }
   if (!fd.groupSize) { showError(t('groupSizeRequired')); return }
   if (!fd.timeOfDay) { showError(t('timeOfDayRequired')); return }
@@ -1819,10 +1825,10 @@ window.showSpotSummary = async () => {
   overlay.innerHTML = `
     <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)" onclick="closeSpotSummary()" role="button" tabindex="0"></div>
     <div style="position:relative;background:#0f1520;border:1px solid #1e293b;border-radius:12px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;padding:20px" onclick="event.stopPropagation()">
-      <h3 style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:16px;text-align:center">${t('summaryTitle') || 'Récapitulatif du spot'}</h3>
+      <h3 style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:16px;text-align:center">${state.addSpotValidateId ? (t('summaryTitle') || 'Récapitulatif') : (t('summaryTitle') || 'Récapitulatif du spot')}</h3>
 
-      ${row(t('spotTypeLabel') || 'Type', typeLabels[spotType] || spotType)}
-      ${row(t('departureCity') || 'Départ', fd.departureCity)}
+      ${!state.addSpotValidateId ? row(t('spotTypeLabel') || 'Type', typeLabels[spotType] || spotType) : ''}
+      ${!state.addSpotValidateId ? row(t('departureCity') || 'Départ', fd.departureCity) : ''}
       ${row(t('position') || 'Position', fd.locationName || (fd.lat?.toFixed(4) + ', ' + fd.lng?.toFixed(4)))}
       ${fd.stationName ? row(t('stationNameLabel') || 'Station', fd.stationName) : ''}
       ${row(t('destinationCity') || 'Direction', allDests.join(', '))}
@@ -1838,7 +1844,7 @@ window.showSpotSummary = async () => {
       ${description ? row(t('description') || 'Description', description.length > 80 ? description.slice(0, 80) + '...' : description) : ''}
       ${row(t('photoLabel') || 'Photos', photoCount > 0 ? photoCount + ' photo' + (photoCount > 1 ? 's' : '') : (t('noPhoto') || 'Aucune photo'))}
 
-      <p style="font-size:11px;color:#64748b;text-align:center;margin:16px 0 12px">${t('summaryWarning') || 'Une fois publié, ce spot ne pourra plus être modifié.'}</p>
+      ${!state.addSpotValidateId ? `<p style="font-size:11px;color:#64748b;text-align:center;margin:16px 0 12px">${t('summaryWarning') || 'Une fois publié, ce spot ne pourra plus être modifié.'}</p>` : '<div style="margin-top:16px"></div>'}
 
       <div style="display:flex;gap:10px">
         <button type="button" onclick="closeSpotSummary()"
@@ -1847,7 +1853,7 @@ window.showSpotSummary = async () => {
         </button>
         <button type="button" onclick="closeSpotSummary();document.getElementById('add-spot-form')?.dispatchEvent(new Event('submit',{cancelable:true}))"
           style="flex:2;background:#f59e0b;border:none;color:#0f1520;padding:12px;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px">
-          ${t('confirmPublish') || 'Confirmer et publier'}
+          ${state.addSpotValidateId ? (t('confirmSubmit') || 'Confirmer et envoyer') : (t('confirmPublish') || 'Confirmer et publier')}
         </button>
       </div>
     </div>
@@ -1889,16 +1895,18 @@ window.handleAddSpot = async (event) => {
   // Validation — ALL fields mandatory EXCEPT photo (bonus points)
   const { showError } = await import('../../services/notifications.js')
 
-  if (!window.spotFormData.lat || !window.spotFormData.lng) {
-    showError(t('positionRequired') || 'Position obligatoire')
-    return
+  if (!state.addSpotValidateId) {
+    if (!window.spotFormData.lat || !window.spotFormData.lng) {
+      showError(t('positionRequired') || 'Position obligatoire')
+      return
+    }
+    if (!window.spotFormData.departureCity) {
+      showError(t('departureRequired') || 'Ville de départ obligatoire')
+      return
+    }
   }
   if (!direction) {
     showError(t('directionRequired'))
-    return
-  }
-  if (!window.spotFormData.departureCity) {
-    showError(t('departureRequired') || 'Ville de départ obligatoire')
     return
   }
   if (!window.spotFormData.method) {
@@ -1983,6 +1991,89 @@ window.handleAddSpot = async (event) => {
       }
     }
     const photoUrl = uploadedUrls[0] || ''
+
+    // --- VALIDATION MODE: save as validation on existing spot ---
+    if (state.addSpotValidateId) {
+      const destinations = [{ city: to, coords: window.spotFormData.directionCityCoords || null }]
+      for (const extra of (window.spotFormData.extraDestinations || [])) {
+        destinations.push({ city: extra.city, coords: extra.coords || null })
+      }
+      const validationData = {
+        spotId: state.addSpotValidateId,
+        type: 'test',
+        waitTime: window.spotFormData.waitTime || 10,
+        method: window.spotFormData.method,
+        groupSize: window.spotFormData.groupSize,
+        timeOfDay: window.spotFormData.timeOfDay,
+        rideResult: window.spotFormData.rideResult,
+        directionCity: to,
+        destinations,
+        ratings: {
+          safety: ratings.safety || 0,
+          traffic: ratings.traffic || 0,
+          accessibility: ratings.accessibility || 0,
+        },
+        tags: window.spotFormData.tags || {},
+        comment: description,
+        season: detectSeason(),
+        timestamp: new Date().toISOString(),
+        dataSource: 'community',
+      }
+      if (uploadedUrls.length > 0) {
+        validationData.photoUrl = uploadedUrls[0]
+        validationData.photos = uploadedUrls
+      }
+
+      const { addValidation } = await import('../../services/firebase.js')
+      if (typeof addValidation === 'function') {
+        await addValidation(validationData)
+      }
+
+      // Local checkin history + points
+      const { actions } = await import('../../stores/state.js')
+      actions.addCheckinToHistory({
+        spotId: state.addSpotValidateId,
+        type: 'test',
+        ...validationData,
+      })
+      actions.incrementCheckins()
+      if (hasPhoto) actions.addPoints?.(50)
+
+      const { showSuccess } = await import('../../services/notifications.js')
+      const photoMsg = hasPhoto ? ' +50 pts' : ''
+      showSuccess((t('testSubmitted') || 'Test envoyé ! Merci') + photoMsg)
+      setState({
+        showAddSpot: false, addSpotStep: 1, addSpotType: null,
+        addSpotValidateId: null,
+      })
+
+      // Refresh live data so SpotDetail shows updated stats
+      try {
+        const { invalidateSpotCache, enrichSpotWithLiveData } = await import('../../services/spotLiveData.js')
+        invalidateSpotCache(state.addSpotValidateId)
+        const currentSpot = getState().selectedSpot
+        if (currentSpot && String(currentSpot.id) === String(state.addSpotValidateId)) {
+          const enriched = await enrichSpotWithLiveData({ ...currentSpot, _liveLoaded: false })
+          setState({ selectedSpot: enriched })
+        }
+      } catch { /* non-blocking */ }
+
+      // Reset form
+      window.spotFormData = {
+        photos: [], lat: null, lng: null,
+        ratings: { safety: 0, traffic: 0, accessibility: 0 },
+        tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
+        country: null, countryName: null,
+        departureCity: null, departureCityCoords: null,
+        directionCity: null, directionCityCoords: null,
+        locationName: null, roadNumber: null, positionSource: null,
+        method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
+        rideResult: null, stationName: '', extraDestinations: [],
+      }
+      return
+    }
+
+    // --- CREATION MODE: create new spot ---
 
     // Build destinations array (primary + extras)
     const destinations = [{
