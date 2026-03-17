@@ -14,7 +14,7 @@ test.describe('Alpha Welcome Popup', () => {
       localStorage.setItem('spothitch_landing_v2', '1')
       localStorage.setItem('spothitch_cookies_v2', 'all')
     })
-    await page.reload({ waitUntil: 'networkidle' })
+    await page.reload({ waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(3000)
 
     // Alpha popup should be visible (not dismissed yet)
@@ -32,7 +32,7 @@ test.describe('Alpha Welcome Popup', () => {
       localStorage.setItem('spothitch_landing_v2', '1')
       localStorage.setItem('spothitch_cookies_v2', 'all')
     })
-    await page.reload({ waitUntil: 'networkidle' })
+    await page.reload({ waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(3000)
 
     // Click CTA via handler (button text varies by language)
