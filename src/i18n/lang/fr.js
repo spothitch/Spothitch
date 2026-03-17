@@ -4822,7 +4822,9 @@ export default {
   // Offline panel
   downloadedCountries: 'Téléchargés',
   pendingSpots: 'En attente',
+  pendingShort: 'en att.',
   validatedSpots: 'Validés',
+  validatedShort: 'validés',
   offlinePanelTitle: 'Spots hors-ligne',
   offlineSaved: 'Sauvé',
   americas: 'Amériques',

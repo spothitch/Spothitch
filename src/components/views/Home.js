@@ -92,32 +92,29 @@ export function renderHome(state) {
       <!-- Map controls injected persistently inside #home-map by App.js afterRender -->
 
       <!-- Country Guide shortcut + Spot Counter -->
-      <div class="absolute bottom-[6.5rem] left-4 z-20 flex items-center gap-2">
-        <div class="flex items-center rounded-xl overflow-hidden shadow-lg" style="background:rgba(15,23,42,0.6);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1)">
-          <button
-            onclick="openOfflinePanel()"
-            class="flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:text-white transition-colors min-h-[44px]"
-            style="border-right:1px solid rgba(255,255,255,0.1)"
-            aria-label="${t('offline') || 'Hors-ligne'}"
-            tabindex="0"
-          >
-            ${icon('download', 'w-[18px] h-[18px]')}
-            <span>${t('offline') || 'Hors-ligne'}</span>
-          </button>
-          <button
-            onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
-            class="flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:text-white transition-colors min-h-[44px]"
-            aria-label="${t('countryGuides') || 'Guides pays'}"
-            tabindex="0"
-          >
-            ${icon('book-open', 'w-[18px] h-[18px]')}
-            <span>${t('guides') || 'Guides'}</span>
-          </button>
-        </div>
+      <div class="absolute bottom-[5rem] left-3 z-20 flex flex-col gap-2 items-start">
+        <button
+          onclick="openOfflinePanel()"
+          class="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg transition-colors hover:text-white"
+          style="background:rgba(15,23,42,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);color:#94a3b8"
+          aria-label="${t('offline') || 'Hors-ligne'}"
+          tabindex="0"
+        >
+          ${icon('download-cloud', 'w-[18px] h-[18px]')}
+        </button>
+        <button
+          onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
+          class="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg transition-colors hover:text-white"
+          style="background:rgba(15,23,42,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);color:#94a3b8"
+          aria-label="${t('countryGuides') || 'Guides pays'}"
+          tabindex="0"
+        >
+          ${icon('book-open', 'w-[18px] h-[18px]')}
+        </button>
         <div id="spot-counter" class="pointer-events-none">
-          <div class="flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-2 rounded-lg text-[11px]">
-            <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> ${t('pendingSpots') || 'En attente'}</span>
-            <span class="flex items-center gap-1 text-emerald-400"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> ${t('validatedSpots') || 'Validés'}</span>
+          <div class="px-2 py-1.5 rounded-lg text-[10px] leading-snug shadow-lg" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)">
+            <span class="flex items-center gap-1 text-slate-500"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> ${t('pendingShort') || 'en att.'}</span>
+            <span class="flex items-center gap-1 text-emerald-500 mt-0.5"><span class="w-[5px] h-[5px] bg-emerald-500 rounded-full inline-block"></span> <span id="sh-count">0</span> ${t('validatedShort') || 'validés'}</span>
           </div>
         </div>
       </div>

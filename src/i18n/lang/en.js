@@ -4821,7 +4821,9 @@ export default {
   // Offline panel
   downloadedCountries: 'Downloaded',
   pendingSpots: 'Pending',
+  pendingShort: 'pending',
   validatedSpots: 'Validated',
+  validatedShort: 'validated',
   offlinePanelTitle: 'Offline spots',
   offlineSaved: 'Saved',
   americas: 'Americas',

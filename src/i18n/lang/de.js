@@ -4876,7 +4876,9 @@ export default {
   // Offline panel
   downloadedCountries: 'Heruntergeladen',
   pendingSpots: 'Ausstehend',
+  pendingShort: 'ausst.',
   validatedSpots: 'Validiert',
+  validatedShort: 'valid.',
   offlinePanelTitle: 'Offline-Spots',
   offlineSaved: 'Gespeichert',
   americas: 'Amerika',
