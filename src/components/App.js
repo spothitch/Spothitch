@@ -37,7 +37,7 @@ const _lazyLoaders = {
   renderIdentityVerification: () => import('./modals/IdentityVerification.js'),
   renderSpotDetail: () => import('./modals/SpotDetail.js'),
   renderAddSpot: () => import('./modals/AddSpot.js'),
-  renderValidateSpot: () => import('./modals/ValidateSpot.js'),
+  // ValidateSpot removed — validation uses AddSpot in validation mode (addSpotValidateId)
   renderSOS: () => import('./modals/SOS.js'),
   renderAuth: () => import('./modals/Auth.js'),
   renderCompleteProfile: () => import('./modals/Auth.js'),
@@ -213,7 +213,7 @@ export function renderModals(state) {
     ${state.showIdentityVerification ? lazyRender('renderIdentityVerification') : ''}
     ${state.selectedSpot ? lazyRender('renderSpotDetail', state) : ''}
     ${state.showAddSpot ? lazyRender('renderAddSpot', state) : ''}
-    ${state.showValidateSpot ? lazyRender('renderValidateSpot', state) : ''}
+    ${''}<!-- ValidateSpot removed — uses AddSpot validation mode -->
     ${state.showSOS ? lazyRender('renderSOS', state) : ''}
     ${state.showAuth ? lazyRender('renderAuth', state) : ''}
     ${state.showCompleteProfile ? lazyRender('renderCompleteProfile', state) : ''}
@@ -613,9 +613,7 @@ export function afterRender(state) {
   if (state.showAddSpot) {
     import('./modals/AddSpot.js').then(mod => mod.initAddSpotAfterRender?.())
   }
-  if (state.showValidateSpot) {
-    import('./modals/ValidateSpot.js').then(mod => mod.initValidateSpotAfterRender?.())
-  }
+  // ValidateSpot afterRender removed — AddSpot's initAddSpotAfterRender handles both modes
   // Companion: pass visibility flag so it can reset when modal closes
   import('./modals/Companion.js').then(mod => mod.initCompanionAfterRender?.(!!state.showCompanionModal))
 

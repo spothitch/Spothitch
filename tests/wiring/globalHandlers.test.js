@@ -362,14 +362,8 @@ const MAIN_JS_HANDLERS = [
   'selectSpotType', 'setWaitTime', 'setMethod',
   'setGroupSize', 'setTimeOfDay', 'toggleAmenity',
   'saveDraftAndClose', 'setRideResult',
-  // ValidateSpot (defined in ValidateSpot.js)
-  'openValidateSpot', 'closeValidateSpot', 'submitValidation', 'openTestSpot',
-  'setValidationWaitTime', 'setValidationRideResult',
-  'setValidationMethod', 'setValidationGroupSize',
-  'setValidationTimeOfDay', 'setValidationRating',
-  'handleValidationPhoto', 'toggleValAmenity', 'removeValPhoto',
-  'addValDestination', 'removeValDestination',
-  'showValidationSummary', 'closeValSummary',
+  // Validation mode (openTestSpot/openValidateSpot defined in spotActions.js)
+  'openValidateSpot', 'openTestSpot',
   // Favorites (defined in favorites.js)
   // User Blocking (defined in userBlocking.js)
   'unblockUserById', 'openBlockModal', 'closeBlockModal', 'confirmBlockUser',

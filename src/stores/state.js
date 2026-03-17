@@ -307,9 +307,8 @@ const initialState = {
   addSpotGroupSize: null,
   addSpotTimeOfDay: null,
 
-  // ValidateSpot
-  showValidateSpot: false,
-  validateSpotId: null,
+  // Validation mode for AddSpot
+  addSpotValidateId: null,
 
   // Drafts
   spotDraftsBannerVisible: false,
