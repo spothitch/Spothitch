@@ -551,8 +551,7 @@ export function renderAddSpot(_state) {
       onclick="closeAddSpot()"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="addspot-modal-title"
-      tabindex="0">
+      aria-labelledby="addspot-modal-title">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true"></div>
 
@@ -579,7 +578,7 @@ export function renderAddSpot(_state) {
         <div style="padding:24px 20px;overflow-y:auto;max-height:calc(90vh - 70px)">
           ${renderStepProgress(currentStep)}
 
-          <form id="add-spot-form" onsubmit="handleAddSpot(event)" aria-label="${t('addSpotForm') || "Formulaire d'ajout de spot"}">
+          <form id="add-spot-form" onsubmit="handleAddSpot(event)" aria-label="${t('addSpotForm') || "Formulaire d'ajout de spot"}" style="touch-action:manipulation">
             ${currentStep === 1 ? renderStep1(_state) : ''}
             ${currentStep === 2 ? renderStep2(_state) : ''}
             ${currentStep === 3 ? renderStep3(_state) : ''}
@@ -909,7 +908,15 @@ function swapStepContent(newStep, state) {
   requestAnimationFrame(() => {
     cleanupAutocompletes()
     if (newStep === 1) { initStep1Autocomplete(); initMiniMapPreview() }
-    else if (newStep === 2) initStep2Autocomplete()
+    else if (newStep === 2) {
+      initStep2Autocomplete()
+      // Auto-focus destination input — fixes iOS touch/focus issues after step swap
+      const dirInput = document.getElementById('spot-direction-city')
+      if (dirInput) {
+        // Small delay to let iOS process the DOM change before focusing
+        setTimeout(() => dirInput.focus(), 150)
+      }
+    }
   })
   return true
 }

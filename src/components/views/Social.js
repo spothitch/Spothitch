@@ -1042,11 +1042,15 @@ window.sendMessage = async (room) => {
   const input = document.getElementById('chat-input')
   if (!input?.value.trim()) return
 
-  const text = input.value.trim()
-  input.value = ''
-
   const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
+  if (!state.isLoggedIn && !state.user) {
+    window.setState?.({ showAuth: true, authPendingAction: 'social', showAuthReason: window.t?.('loginToChat') || 'Connect to send messages' })
+    return
+  }
+
+  const text = input.value.trim()
+  input.value = ''
   const messages = state.messages || []
 
   const newMsg = {
@@ -1084,11 +1088,15 @@ window.sendPrivateMessage = async (friendId) => {
   const input = document.getElementById('private-chat-input')
   if (!input?.value.trim()) return
 
-  const text = input.value.trim()
-  input.value = ''
-
   const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
+  if (!state.isLoggedIn && !state.user) {
+    window.setState?.({ showAuth: true, authPendingAction: 'social', showAuthReason: window.t?.('loginToChat') || 'Connect to send messages' })
+    return
+  }
+
+  const text = input.value.trim()
+  input.value = ''
   const privateMessages = state.privateMessages || {}
   const friendMsgs = privateMessages[friendId] || []
 
@@ -1164,6 +1172,12 @@ window.showAddFriend = () => {
 }
 
 window.addFriendByName = async () => {
+  const { getState, setState } = await import('../../stores/state.js')
+  let state = getState()
+  if (!state.isLoggedIn && !state.user) {
+    window.setState?.({ showAuth: true, authPendingAction: 'social', showAuthReason: window.t?.('loginToAddFriend') || 'Connect to add friends' })
+    return
+  }
   const input = document.getElementById('friend-search') || document.getElementById('social-search')
   const name = input?.value?.trim()
   if (!name) {
@@ -1171,8 +1185,7 @@ window.addFriendByName = async () => {
     return
   }
 
-  const { getState, setState } = await import('../../stores/state.js')
-  const state = getState()
+  state = getState()
 
   if (!state.isLoggedIn) {
     window.requireAuth?.('social')
