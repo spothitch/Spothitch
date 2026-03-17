@@ -198,35 +198,51 @@ export function mergeSpotData(staticSpot, validations) {
     _liveLoaded: true,
   }
 
-  // Imported spot with community test → become SpotHitch spot, erase all Hitchwiki data
+  // Imported spot with community test → become SpotHitch spot, erase ALL Hitchwiki data
   // Only validations from our users + test data remain. GPS + name + neighborhood kept.
   if (ignoreStatic && testValidations.length > 0) {
     result.source = 'community'
-    // Erase Hitchwiki data
+    // Erase ALL Hitchwiki data — nothing from the old site should remain
     result.description = ''
     result.descriptionEn = ''
     result.descriptionFr = ''
     result.descriptionEs = ''
     result.descriptionDe = ''
-    result.ratings = liveRatings // only community ratings
+    result.ratings = liveRatings
     result.safetyRating = liveRatings.safety
     result.trafficRating = liveRatings.traffic
     result.accessRating = liveRatings.accessibility
-    result.avgWaitTime = liveAvgWaitTime // only community wait times
+    result.accessibilityRating = liveRatings.accessibility
+    result.avgWaitTime = liveAvgWaitTime
     result.totalReviews = testValidations.length
     result.testCount = liveTestCount
+    result.checkins = testValidations.length
     result._hitchwikiRating = null
     result._hitchwikiReviews = null
     result.signal = null
     result.attribution = 'SpotHitch'
     result.creator = 'SpotHitch'
     result.destinations = [] // Erase old Hitchwiki destinations — only liveDestinations matter
-    result.method = null // Erase old method
+    result.method = null
     result.groupSize = null
+    result.timeOfDay = null
     result.lastUsed = null
     result.reviews = 0
-    // Keep: from, neighborhood, coordinates, spotType, id, country
-    // Keep: validationCount (our users' validations)
+    result.rating = null // Erase old Hitchwiki overall rating
+    result.wait = null // Erase old Hitchwiki wait time
+    result.userValidations = 0 // Erase old Hitchwiki validation count
+    result.validationCount = allValidations.filter(v => v.type === 'quick_validate').length // Only community quick validates
+    result.successRate = liveSuccessRate // Only community success rate
+    result.rideResult = null
+    result.comments = [] // Erase old comments — only liveComments matter
+    result.to = null // Erase old "to" field — liveDestinations replaces it
+    result.direction = null
+    result.directionCity = null
+    result.destLat = null
+    result.destLon = null
+    // Clean "#N" suffix from Hitchwiki spot name (e.g. "Leuven #1" → "Leuven")
+    if (result.from) result.from = result.from.replace(/\s*#\d+$/, '').trim()
+    // Keep: from (cleaned), neighborhood, coordinates, spotType, id, country, countryName, lat, lng/lon
   }
 
   return result

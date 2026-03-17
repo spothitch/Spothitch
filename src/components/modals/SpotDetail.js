@@ -16,7 +16,11 @@ export function renderSpotDetail(state) {
 
   const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
   const navName = escapeJSString((spot.from || '') + ' - ' + (spot.to || ''))
-  const totalValidations = spot.validationCount || spot.userValidations || 0
+  // For converted spots (hitchwiki → community), only count community data
+  const isConverted = spot.source === 'community' && spot.attribution === 'SpotHitch'
+  const totalValidations = isConverted
+    ? (spot.validationCount || 0)
+    : (spot.validationCount || spot.userValidations || 0)
   const testCount = spot.liveTestCount || spot.testCount || 0
   const checkins = spot.checkins || 0
   // Validations = full experiences (with ratings/comments). Disponibilités = quick confirms
