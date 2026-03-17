@@ -130,13 +130,14 @@ describe('mergeSpotData', () => {
       expect(result.source).toBe('community')
     })
 
-    it('keeps GPS coordinates and city name', () => {
+    it('keeps GPS coordinates and cleans city name suffix', () => {
       const spot = makeHitchwikiSpot({ lat: 48.8, lon: 2.3, from: 'Paris #1' })
       const validations = [makeValidation()]
       const result = mergeSpotData(spot, validations)
       expect(result.lat).toBe(48.8)
       expect(result.lon).toBe(2.3)
-      expect(result.from).toBe('Paris #1')
+      // #N suffix is stripped from Hitchwiki spot names
+      expect(result.from).toBe('Paris')
     })
   })
 
