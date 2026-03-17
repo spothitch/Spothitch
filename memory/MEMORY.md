@@ -7,6 +7,7 @@
 ## Fichiers mémoire détaillés
 
 - `memory/app-state.md` — **ÉTAT DES LIEUX VISUEL** de chaque écran + décisions design. LIRE EN PREMIER pour ne pas signaler comme bug ce qui est voulu.
+- `memory/bug-destination-hitchwiki.md` — **BUG EN COURS** : champ destination inutilisable dans validation Hitchwiki (signalé 2026-03-17)
 - `memory/teasing-templates.md` — Guidelines templates teasing (style, ton, règles, templates existants)
 - `memory/funding.md` — Dossier financement
 - `memory/features.md` — Inventaire des 190+ features
@@ -31,7 +32,7 @@
 | Feature | Tests | Résultat | Notes |
 |---------|-------|----------|-------|
 | Carte | 10 | ✅ 10/10 | GPS, filtres, search, spot detail via setState mock |
-| Spots (AddSpot) | 9 | ✅ 9/9 | Form 3 étapes, photo optionnelle, 4 types, 3 critères |
+| Spots (AddSpot) | 9 | ✅ 9/9 | Form 3 étapes, photo optionnelle, 6 types, 3 critères |
 | Auth | 8 | ✅ 8/8 | Google/Facebook/email, reset, déconnexion |
 | Profil + RGPD | 9 | ✅ 9/9 | Bio, langues, export, suppression, cookies |
 | Guides | 5 | ✅ 5/8* | *3 échecs = artefacts test, pas bugs réels |
@@ -201,7 +202,7 @@
 - Scripts d'audit créés : `audit-carte-final.cjs`, `audit-spots.cjs`, `audit-auth.cjs`, `audit-profile.cjs`, `audit-guides.cjs`, `audit-voyage.cjs`, `audit-social.cjs`, `audit-legal.cjs`
 - Spot detail confirmé via `setState({ selectedSpot: mockSpot })` + polling 8s (lazyRender)
 - AddSpot form : 3 étapes confirmées visuellement (step 1 photo/type, step 2 position/direction, step 3 ratings)
-- Photo optionnelle ✅, direction obligatoire ✅, 4 types ✅, 3 critères notation ✅
+- Photo optionnelle ✅, direction obligatoire ✅, 6 types ✅, 3 critères notation ✅
 - Beta guards fonctionnels : Itinéraire, SOS, Compagnon, Niveaux → fenêtres intro glassmorphism
 
 ### Session 2026-02-26 (session 24 — OUTILS QUALITÉ + LA FOURMI 23 NIVEAUX)

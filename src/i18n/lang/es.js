@@ -4809,6 +4809,12 @@ export default {
   // Auto-added by quality-gate --fix
   certified: '[TODO] certified',
 
+  // Auth progressive
+  loginToAddSpot: 'Conéctate para añadir un spot',
+  loginToChat: 'Conéctate para enviar mensajes',
+  loginToAddFriend: 'Conéctate para añadir amigos',
+  skipBtn: 'Explorar el mapa',
+
   // Offline panel
   downloadedCountries: 'Descargados',
   pendingSpots: 'Pendientes',

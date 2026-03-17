@@ -4812,6 +4812,12 @@ export default {
   // Auto-added by quality-gate --fix
   certified: '[TODO] certified',
 
+  // Auth progressive
+  loginToAddSpot: 'Sign in to add a spot',
+  loginToChat: 'Sign in to send messages',
+  loginToAddFriend: 'Sign in to add friends',
+  skipBtn: 'Start exploring',
+
   // Offline panel
   downloadedCountries: 'Downloaded',
   pendingSpots: 'Pending',

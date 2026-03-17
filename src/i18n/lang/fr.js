@@ -4813,6 +4813,12 @@ export default {
   // Auto-added by quality-gate --fix
   certified: '[TODO] certified',
 
+  // Auth progressive
+  loginToAddSpot: 'Connecte-toi pour ajouter un spot',
+  loginToChat: 'Connecte-toi pour envoyer des messages',
+  loginToAddFriend: 'Connecte-toi pour ajouter des amis',
+  skipBtn: 'Explorer la carte',
+
   // Offline panel
   downloadedCountries: 'Téléchargés',
   pendingSpots: 'En attente',

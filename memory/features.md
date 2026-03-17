@@ -40,7 +40,7 @@
 - [x] Photos Mapillary automatiques (street-level, gratuites, quand pas de photo utilisateur)
 - [x] Bouton Street View dans SpotDetail (ouvre Google Maps, gratuit)
 - [x] Priorité photos : utilisateur > Mapillary > placeholder
-- [x] 4 types : sortie ville, station-service, bord de route, autre
+- [x] 6 types : station-service/aire de repos, péage, rond-point, bretelle d'accès, bord de route, autre
 - [x] Vérification station-service automatique à la création (Overpass API, rayon 300m, popup confirmation si aucune station détectée)
 - [x] 3 critères notation : sécurité, trafic, accessibilité (1-5 étoiles)
 - [x] Tags enrichis : abri, visibilité, parking, commodités, méthode signalisation

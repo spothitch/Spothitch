@@ -112,7 +112,12 @@ window.closeSpotDetail = () => {
 
 window.openAddSpot = () => {
   const t = window.t
-  // User is already authenticated from the landing carousel (login required to dismiss it)
+  // Auth progressive: require login before creating a spot
+  const state = window.getState?.() || {}
+  if (!state.isLoggedIn && !state.user && !localStorage.getItem('spothitch_test_mode')) {
+    window.setState?.({ showAuth: true, authPendingAction: 'addSpot', showAuthReason: t?.('loginToAddSpot') || 'Connect to add a spot' })
+    return
+  }
   // Reset form data for a fresh start (drafts use openSpotDraft instead)
   window.spotFormData = {
     photos: [], lat: null, lng: null, spotType: null,

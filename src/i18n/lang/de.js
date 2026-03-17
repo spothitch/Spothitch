@@ -4867,6 +4867,12 @@ export default {
   // Auto-added by quality-gate --fix
   certified: '[TODO] certified',
 
+  // Auth progressive
+  loginToAddSpot: 'Melde dich an, um einen Spot hinzuzufügen',
+  loginToChat: 'Melde dich an, um Nachrichten zu senden',
+  loginToAddFriend: 'Melde dich an, um Freunde hinzuzufügen',
+  skipBtn: 'Karte erkunden',
+
   // Offline panel
   downloadedCountries: 'Heruntergeladen',
   pendingSpots: 'Ausstehend',
