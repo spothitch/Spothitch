@@ -211,7 +211,6 @@ function renderOfflinePanel(state) {
   const offlineCountries = (() => {
     try { return JSON.parse(localStorage.getItem('spothitch_offline_countries') || '[]') } catch { return [] }
   })()
-  const downloadedCodes = new Set(offlineCountries.map(c => c.code))
 
   // Country display names via Intl
   const lang = state.lang || 'fr'
@@ -231,121 +230,79 @@ function renderOfflinePanel(state) {
     try { return JSON.parse(localStorage.getItem('spothitch_spot_index') || 'null') } catch { return null }
   })()
 
-  // Build country list from countryCenters (available countries)
-  const REGIONS = {
-    europe: ['AL','AT','BA','BE','BG','BY','CH','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LT','LV','ME','MK','NL','NO','PL','PT','RO','RS','SE','SI','SK','UA','XK'],
-    asia: ['AM','AZ','CN','GE','IL','IN','JP','KG','KR','KZ','MN','MY','NP','PH','TH','TR','TW','UZ','VN'],
-    americas: ['AR','BO','BR','CA','CL','CO','CR','CU','EC','MX','PA','PE','US','UY'],
-    africa: ['DZ','EG','ET','GH','KE','MA','MZ','NG','SN','TN','TZ','UG','ZA','ZW'],
-    oceania: ['AU','NZ'],
+  // All available country codes
+  const ALL_COUNTRIES = ['AL','AT','BA','BE','BG','BY','CH','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LT','LV','ME','MK','NL','NO','PL','PT','RO','RS','SE','SI','SK','UA','XK','AM','AZ','CN','GE','IL','IN','JP','KG','KR','KZ','MN','MY','NP','PH','TH','TR','TW','UZ','VN','AR','BO','BR','CA','CL','CO','CR','CU','EC','MX','PA','PE','US','UY','DZ','EG','ET','GH','KE','MA','MZ','NG','SN','TN','TZ','UG','ZA','ZW','AU','NZ']
+  const downloadedCodes = new Set(offlineCountries.map(c => c.code))
+  const availableCountries = ALL_COUNTRIES.filter(c => !downloadedCodes.has(c))
+
+  // Estimate size per country (~0.15 KB per spot)
+  const estimateSize = (code) => {
+    const count = spotIndex?.countries?.[code]?.count || 0
+    const kb = Math.round(count * 0.15)
+    return kb > 0 ? `~${kb} KB` : ''
   }
 
-  const renderCountryRow = (code) => {
+  const totalSize = offlineCountries.reduce((sum, c) => sum + Math.round((c.count || 0) * 0.15), 0)
+
+  const renderDownloadedRow = (c) => {
+    const flag = countryFlag(c.code)
+    const name = countryName(c.code)
+    return `
+      <div class="flex items-center gap-3 px-4 py-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+        <span class="text-2xl">${flag}</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium">${name}</div>
+          <div class="text-xs text-slate-400">${c.count || 0} spots · ~${Math.round((c.count || 0) * 0.15)} KB</div>
+        </div>
+        <button onclick="deleteOfflineCountry('${c.code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.2)" type="button">✓ ${t('offlineAvailable') || 'Sauvé'}</button>
+      </div>`
+  }
+
+  const renderAvailableRow = (code) => {
     const flag = countryFlag(code)
     const name = countryName(code)
-    const dl = offlineCountries.find(c => c.code === code)
-    const spotCount = spotIndex?.countries?.[code]?.count || dl?.count || 0
-    const pending = spotIndex?.countries?.[code]?.pending || 0
-    const validated = spotIndex?.countries?.[code]?.validated || spotCount
+    const spotCount = spotIndex?.countries?.[code]?.count || 0
+    const size = estimateSize(code)
+    const downloading = state.offlineDownloadingCountry === code
+    const progress = state.offlineDownloadProgress || 0
 
-    if (dl) {
-      // Downloaded
-      return `
-        <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="text-lg">${flag}</span>
-            <div class="min-w-0">
-              <div class="text-sm font-medium truncate">${name} <span class="text-emerald-400 text-xs">✓</span></div>
-              <div class="text-[10px] text-slate-400">${dl.count || 0} spots · ${dl.stationCount || 0} ⛽</div>
-            </div>
-          </div>
-          <button onclick="deleteOfflineCountry('${code}')" class="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors flex-shrink-0" type="button">
-            ${icon('trash', 'w-4 h-4 text-red-400')}
-          </button>
-        </div>`
-    }
-    // Not downloaded
     return `
-      <button id="dl-panel-${code}" onclick="downloadCountryOffline('${code}', '${name.replace(/'/g, '\\u0027')}')" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors w-full text-left" type="button">
-        <span class="text-lg">${flag}</span>
+      <div class="flex items-center gap-3 px-4 py-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+        <span class="text-2xl">${flag}</span>
         <div class="flex-1 min-w-0">
-          <div class="text-sm font-medium truncate">${name}</div>
-          <div class="text-[10px] text-slate-500">${spotCount > 0 ? `${spotCount} spots` : ''}</div>
+          <div class="text-sm font-medium">${name}</div>
+          <div class="text-xs text-slate-400">${spotCount > 0 ? `${spotCount} spots` : ''}${spotCount > 0 && size ? ' · ' : ''}${size}</div>
+          ${downloading ? `<div style="height:3px;background:#1e293b;border-radius:2px;overflow:hidden;margin-top:4px"><div style="height:100%;background:#f59e0b;border-radius:2px;width:${progress}%"></div></div>` : ''}
         </div>
-        <span class="text-primary-400">${icon('download', 'w-4 h-4')}</span>
-      </button>`
-  }
-
-  const renderRegion = (title, codes) => {
-    const rows = codes.map(renderCountryRow).join('')
-    return `
-      <div class="mb-4">
-        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">${title}</h3>
-        <div class="space-y-1.5">${rows}</div>
+        ${downloading
+          ? `<span class="text-xs text-amber-400 font-medium">${progress}%</span>`
+          : `<button id="dl-btn-${code}" onclick="downloadCountryForOffline('${code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)" type="button">${t('downloadOffline') || 'Télécharger'}</button>`
+        }
       </div>`
   }
 
   return `
-    <div class="fixed inset-0 bg-dark-primary z-[60] flex flex-col" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 z-[55]" style="background:rgba(0,0,0,0.5)" onclick="closeOfflinePanel()" tabindex="0" role="dialog" aria-modal="true"></div>
+    <!-- Bottom sheet -->
+    <div class="fixed bottom-[56px] left-0 right-0 z-[60]" style="max-height:70vh;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);border-radius:20px 20px 0 0;border-top:1px solid #334155">
+      <!-- Handle -->
+      <div class="flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-slate-600"></div></div>
       <!-- Header -->
-      <div class="flex items-center justify-between px-4 py-3 border-b border-white/10 flex-shrink-0">
-        <h2 class="text-base font-bold flex items-center gap-2">
-          ${icon('download-cloud', 'w-5 h-5 text-primary-400')}
-          ${t('offlineManager') || 'Offline Maps & Guides'}
-        </h2>
-        <button onclick="closeOfflinePanel()" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center" type="button">
-          ${icon('x', 'w-5 h-5 text-slate-400')}
-        </button>
+      <div class="px-4 pb-3">
+        <h2 class="text-base font-bold">${t('offlinePanelTitle') || 'Spots hors-ligne'}</h2>
+        <p class="text-xs text-slate-400 mt-0.5">${t('offlineHint') || 'Télécharge des pays pour les consulter sans internet'}</p>
       </div>
-
-      <!-- Progress indicator -->
-      <div id="offline-panel-progress" class="hidden px-4 py-2 bg-primary-500/5 border-b border-primary-500/10">
-        <div class="flex items-center justify-between mb-1">
-          <span class="text-xs text-primary-400 font-medium" id="offline-dl-label">${t('downloading') || 'Downloading...'}</span>
-          <span class="text-xs font-mono text-primary-300" id="offline-dl-pct">0%</span>
-        </div>
-        <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-primary-500 to-amber-400 rounded-full transition-all" id="offline-dl-bar" style="width:0%"></div>
-        </div>
+      <!-- Country list -->
+      <div style="overflow-y:auto;max-height:calc(70vh - 140px)">
+        ${offlineCountries.map(c => renderDownloadedRow(c)).join('')}
+        ${availableCountries.map(code => renderAvailableRow(code)).join('')}
       </div>
-
-      <!-- Summary -->
-      <div class="px-4 py-3 border-b border-white/5 flex-shrink-0">
-        <div class="flex gap-3">
-          <div class="flex-1 p-2.5 rounded-xl bg-emerald-500/5 text-center">
-            <div class="text-lg font-bold text-emerald-400">${offlineCountries.length}</div>
-            <div class="text-[10px] text-slate-400">${t('downloaded') || 'Downloaded'}</div>
-          </div>
-          <div class="flex-1 p-2.5 rounded-xl bg-white/5 text-center">
-            <div class="text-lg font-bold text-slate-300">${Object.values(REGIONS).flat().length - offlineCountries.length}</div>
-            <div class="text-[10px] text-slate-400">${t('available') || 'Available'}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Scrollable country list -->
-      <div class="flex-1 overflow-y-auto px-4 py-3">
-        ${offlineCountries.length > 0 ? `
-          <div class="mb-4">
-            <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">${t('downloadedCountries') || 'Downloaded'}</h3>
-            <div class="space-y-1.5">${offlineCountries.map(c => renderCountryRow(c.code)).join('')}</div>
-          </div>
-        ` : ''}
-        ${renderRegion(t('europe') || 'Europe', REGIONS.europe)}
-        ${renderRegion(t('asia') || 'Asia', REGIONS.asia)}
-        ${renderRegion(t('americas') || 'Americas', REGIONS.americas)}
-        ${renderRegion(t('africa') || 'Africa', REGIONS.africa)}
-        ${renderRegion(t('oceania') || 'Oceania', REGIONS.oceania)}
-      </div>
-
       <!-- Footer -->
-      ${offlineCountries.length > 0 ? `
-        <div class="px-4 py-3 border-t border-white/10 flex-shrink-0">
-          <button onclick="clearAllOfflineData()" class="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 transition-colors text-red-400 text-sm" type="button">
-            ${icon('trash', 'w-4 h-4')} ${t('clearAllOffline') || 'Delete all offline data'}
-          </button>
-        </div>
-      ` : ''}
+      <div class="px-4 py-3 flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,0.05)">
+        <span class="text-xs text-slate-400">${offlineCountries.length} ${t('autoOfflineSyncCountries') || 'pays'} · ${totalSize} KB</span>
+        ${offlineCountries.length > 0 ? `<button onclick="clearAllOfflineData()" class="text-xs text-red-400/60" type="button">${t('clearAllOffline') || 'Tout supprimer'}</button>` : ''}
+      </div>
     </div>`
 }
 
@@ -631,7 +588,7 @@ function renderLegalModal(state) {
 }
 
 /**
- * Update the spot counter (Hitchwiki vs SpotHitch) displayed on the map.
+ * Update the spot counter (En attente vs Validés) displayed on the map.
  * Reads from spotLoader and writes to #hw-count / #sh-count DOM elements.
  */
 function updateSpotCounter() {
@@ -681,7 +638,6 @@ function ensureMapControls(state) {
       <button onclick="homeZoomOut()" class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center hover:bg-dark-primary/80 transition-colors text-lg font-bold shadow-lg" aria-label="Zoom out">\u2212</button>
       <button onclick="homeCenterOnUser()" class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-primary-400 flex items-center justify-center hover:bg-dark-primary/80 transition-colors shadow-lg" aria-label="My location">${icon('locate', 'w-5 h-5')}</button>
       <button id="gas-toggle-btn" onclick="toggleGasStations()" class="w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Gas stations"><span class="text-lg">\u26FD</span></button>
-      <button id="offline-toggle-btn" onclick="openOfflinePanel()" class="w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Offline maps &amp; guides">${icon('download-cloud', 'w-5 h-5')}</button>
       <button id="legend-toggle-btn" onclick="toggleMapLegend()" class="w-11 h-11 rounded-xl bg-dark-primary/60 text-slate-400 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-dark-primary/80 hover:text-white transition-colors shadow-lg" aria-label="Legend">${icon('info', 'w-5 h-5')}</button>
     `
     map.appendChild(ctrl)

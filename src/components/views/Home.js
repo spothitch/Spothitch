@@ -93,19 +93,31 @@ export function renderHome(state) {
 
       <!-- Country Guide shortcut + Spot Counter -->
       <div class="absolute bottom-[6.5rem] left-4 z-20 flex items-center gap-2">
-        <button
-          onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
-          class="flex items-center gap-2 px-4 py-3 rounded-xl min-h-[44px] ${hasGuide ? 'bg-emerald-500/90 text-white hover:bg-emerald-600' : 'bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 hover:text-white hover:border-emerald-500/50'} transition-colors text-sm shadow-lg"
-          aria-label="${t('countryGuides') || 'Guides pays'}"
-        >
-          ${hasGuide ? `<span class="text-lg">${currentGuide?.flag || ''}</span>` : icon('book-open', 'w-5 h-5')}
-          <span>${t('guides') || 'Guides'}</span>
-          ${icon('chevron-right', 'w-3 h-3')}
-        </button>
+        <div class="flex items-center rounded-xl overflow-hidden shadow-lg" style="background:rgba(15,23,42,0.6);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1)">
+          <button
+            onclick="openOfflinePanel()"
+            class="flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:text-white transition-colors min-h-[44px]"
+            style="border-right:1px solid rgba(255,255,255,0.1)"
+            aria-label="${t('offline') || 'Hors-ligne'}"
+            tabindex="0"
+          >
+            ${icon('download', 'w-[18px] h-[18px]')}
+            <span>${t('offline') || 'Hors-ligne'}</span>
+          </button>
+          <button
+            onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
+            class="flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:text-white transition-colors min-h-[44px]"
+            aria-label="${t('countryGuides') || 'Guides pays'}"
+            tabindex="0"
+          >
+            ${icon('book-open', 'w-[18px] h-[18px]')}
+            <span>${t('guides') || 'Guides'}</span>
+          </button>
+        </div>
         <div id="spot-counter" class="pointer-events-none">
           <div class="flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-2 rounded-lg text-[11px]">
-            <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> Hitchwiki</span>
-            <span class="flex items-center gap-1 text-emerald-400"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> SpotHitch</span>
+            <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> ${t('pendingSpots') || 'En attente'}</span>
+            <span class="flex items-center gap-1 text-emerald-400"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> ${t('validatedSpots') || 'Validés'}</span>
           </div>
         </div>
       </div>
