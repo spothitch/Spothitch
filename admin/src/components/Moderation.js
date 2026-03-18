@@ -247,6 +247,16 @@ function renderSpotReport(report) {
   const reporter = escapeHTML(report.reporter?.username || report.reporterName || 'Anonyme')
   const time = timeAgo(report.createdAt || report.timestamp)
 
+  // Show suggested coordinates for misplaced reports
+  const hasSuggested = reason === 'misplaced' && report.suggestedLat && report.suggestedLng
+  const coordsInfo = hasSuggested
+    ? `<div style="margin:6px 0;padding:6px 10px;background:#1e293b;border-radius:6px;font-size:12px;color:#f59e0b">📍 Position suggérée: ${report.suggestedLat.toFixed(5)}, ${report.suggestedLng.toFixed(5)}</div>`
+    : ''
+
+  // Different confirm button for misplaced (applies coordinates) vs others (hides spot)
+  const confirmLabel = reason === 'misplaced' ? '📍 Déplacer le spot' : '🚫 Masquer le spot'
+  const confirmAction = reason === 'misplaced' ? 'relocate-spot' : 'confirm-report'
+
   return `
     <div class="mod-item">
       <div class="mod-icon report">${icon}</div>
@@ -256,9 +266,10 @@ function renderSpotReport(report) {
           <span class="tag tag-severity-${severity}">${reasonLabel}</span>
         </div>
         <div class="mod-text">${text || '<em style="color:#64748b;">Pas de détails</em>'}</div>
+        ${coordsInfo}
         <div class="mod-meta">Spot: ${spotName} · Signalé par ${reporter} · ${time}</div>
         <div class="mod-actions">
-          <button class="btn btn-approve" data-action="confirm-report" data-id="${escapeHTML(report.id)}">✓ Confirmer</button>
+          <button class="btn btn-approve" data-action="${confirmAction}" data-id="${escapeHTML(report.id)}" data-spot-id="${escapeHTML(report.spotId || '')}" data-lat="${report.suggestedLat || ''}" data-lng="${report.suggestedLng || ''}">${confirmLabel}</button>
           <button class="btn btn-reject" data-action="reject-report" data-id="${escapeHTML(report.id)}">✕ Rejeter</button>
           ${report.spotId ? `<button class="btn btn-detail" data-action="view-spot" data-spot-id="${escapeHTML(report.spotId)}">Voir le spot</button>` : ''}
         </div>
@@ -339,27 +350,86 @@ function bindActionButtons(container) {
     })
   })
 
-  // Confirm spot report
+  // Confirm spot report → HIDE the spot from the map
   container.querySelectorAll('[data-action="confirm-report"]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Confirmer ce signalement ?\n\nLe spot sera masqué de la carte. Plus personne ne le verra. Les données ne sont pas supprimées, tu peux annuler plus tard.')) return
+      if (!confirm('Masquer ce spot ?\n\nLe spot sera invisible sur la carte pour tous les utilisateurs. Tu peux le rendre visible plus tard.')) return
       const reportId = btn.dataset.id
+      const spotId = btn.dataset.spotId
       btn.disabled = true
       btn.textContent = '...'
       try {
+        // 1. Update report status
         await updateDocument('reports', reportId, {
           status: 'confirmed',
           moderatedAt: new Date().toISOString(),
+          action: 'hidden',
         })
+        // 2. Actually HIDE the spot in Firestore
+        if (spotId) {
+          await updateDocument('spots', spotId, {
+            hidden: true,
+            hiddenAt: new Date().toISOString(),
+            hiddenReason: 'report_confirmed',
+          })
+        }
         reports = (reports || []).map((r) => r.id === reportId ? { ...r, status: 'confirmed' } : r)
-        window.__showToast?.('Signalement confirmé, spot masqué', 'success')
+        window.__showToast?.('Spot masqué de la carte', 'success')
         refreshCounts()
         renderItems()
       } catch (err) {
         console.error('Confirm report error:', err)
-        window.__showToast?.('Erreur', 'error')
+        window.__showToast?.('Erreur: ' + err.message, 'error')
         btn.disabled = false
-        btn.textContent = '✓ Confirmer'
+        btn.textContent = '🚫 Masquer le spot'
+      }
+    })
+  })
+
+  // Relocate spot (misplaced report) → MOVE spot to suggested coordinates
+  container.querySelectorAll('[data-action="relocate-spot"]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const lat = parseFloat(btn.dataset.lat)
+      const lng = parseFloat(btn.dataset.lng)
+      if (!lat || !lng) {
+        window.__showToast?.('Pas de coordonnées suggérées', 'error')
+        return
+      }
+      if (!confirm(`Déplacer le spot vers ${lat.toFixed(5)}, ${lng.toFixed(5)} ?\n\nLa position sera mise à jour immédiatement pour tous les utilisateurs.`)) return
+      const reportId = btn.dataset.id
+      const spotId = btn.dataset.spotId
+      btn.disabled = true
+      btn.textContent = '...'
+      try {
+        // 1. Update report status
+        await updateDocument('reports', reportId, {
+          status: 'confirmed',
+          moderatedAt: new Date().toISOString(),
+          action: 'relocated',
+          appliedLat: lat,
+          appliedLng: lng,
+        })
+        // 2. Actually UPDATE the spot coordinates in Firestore
+        if (spotId) {
+          await updateDocument('spots', spotId, {
+            lat: lat,
+            lng: lng,
+            lon: lng,
+            'coordinates.lat': lat,
+            'coordinates.lng': lng,
+            relocatedAt: new Date().toISOString(),
+            relocatedFrom: 'misplaced_report',
+          })
+        }
+        reports = (reports || []).map((r) => r.id === reportId ? { ...r, status: 'confirmed' } : r)
+        window.__showToast?.('Spot déplacé avec succès', 'success')
+        refreshCounts()
+        renderItems()
+      } catch (err) {
+        console.error('Relocate spot error:', err)
+        window.__showToast?.('Erreur: ' + err.message, 'error')
+        btn.disabled = false
+        btn.textContent = '📍 Déplacer le spot'
       }
     })
   })

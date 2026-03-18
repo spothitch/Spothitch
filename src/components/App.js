@@ -890,8 +890,9 @@ function initHomeMap(state) {
       const minRating = s.filterMinRating || 0
       const maxWait = s.filterMaxWait || 999
       const verifiedOnly = s.filterVerifiedOnly || false
-      if (minRating === 0 && maxWait >= 999 && !verifiedOnly) return spots
       return spots.filter(spot => {
+        // Hidden spots (confirmed reports by admin) are never shown
+        if (spot.hidden) return false
         if (minRating > 0 && (spot.globalRating || 0) < minRating) return false
         if (maxWait < 999 && (spot.avgWaitTime || 999) > maxWait) return false
         if (verifiedOnly && !spot.verified) return false

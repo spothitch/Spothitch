@@ -2,7 +2,7 @@
  * Auth Service — Admin check
  */
 
-const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
+const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
 
 export function isAdmin(user) {
   if (!user || !user.email) return false

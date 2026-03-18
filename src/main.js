@@ -326,7 +326,7 @@ async function init() {
                 return
               }
               actions.setUser(user)
-              const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
+              const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
               const updates = {
                 currentUser: user,
                 isAdmin: ADMIN_EMAILS.includes(user.email?.toLowerCase()),
@@ -418,7 +418,7 @@ async function init() {
               await fb.createOrUpdateUserProfile(user)
               fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
               import('./services/firebaseSync.js').then(m => m.hydrateAllFromFirestore(user.uid)).catch(() => {})
-              const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
+              const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
               actions.setUser(user)
               setState({
                 showAuth: false,
