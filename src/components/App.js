@@ -1144,22 +1144,63 @@ function initHomeMap(state) {
       const z = map.getZoom()
       // Always show spots — clusters aggregate at low zoom automatically
       setSpotLayersVisibility(map, true)
-      // Country bubbles disabled (Hitchwiki removed)
-      setBubbleLayersVisibility(map, false)
+      // Country bubbles visible at low zoom (only for countries with community spots)
+      setBubbleLayersVisibility(map, z < 7)
     }
 
-    // Refresh bubble data — disabled (Hitchwiki data removed, bubbles no longer needed)
-    const refreshBubbles = () => {}
+    // Refresh bubble data from community spots (dynamic, no Hitchwiki index)
+    const refreshBubbles = () => {
+      if (!countryCenters) {
+        // Load country centers from spotLoader if not yet loaded
+        if (spotLoader) countryCenters = spotLoader.getCountryCenters()
+        if (!countryCenters) return
+      }
+      // Build index dynamically from actual spots in state
+      const currentState = getState()
+      const allSpots = currentState.spots || []
+      if (allSpots.length === 0) return
+      // Count spots per country
+      const countByCountry = {}
+      for (const s of allSpots) {
+        const cc = (s.country || s.countryCode || '').toUpperCase()
+        if (cc) countByCountry[cc] = (countByCountry[cc] || 0) + 1
+      }
+      // Build fake index from real data
+      const dynamicIndex = {
+        countries: Object.entries(countByCountry).map(([code, count]) => ({ code, count })),
+      }
+      const loadedCodes = new Set(Object.keys(countByCountry))
+      updateCountryBubbleData(map, dynamicIndex, countryCenters, loadedCodes, new Set())
+    }
 
     map.on('load', async () => {
-      // Country bubble layers disabled (Hitchwiki data removed)
-      // addCountryBubbleLayers(map)
+      // Country bubble layers (shows bubbles for countries with community spots)
+      addCountryBubbleLayers(map)
 
-      // Load spotLoader (no index needed — Hitchwiki removed)
+      // Load spotLoader for country centers
       try {
         const mod = await import('../services/spotLoader.js')
         spotLoader = mod
+        countryCenters = mod.getCountryCenters()
       } catch { /* no-op */ }
+
+      // Click on cluster bubble → zoom in
+      map.on('click', 'country-bubble-clusters', (e) => {
+        if (!e.features?.length) return
+        handleClusterClick(map, e.features[0])
+      })
+      map.on('mouseenter', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = 'pointer' })
+      map.on('mouseleave', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = '' })
+
+      // Click on individual country bubble → zoom into that country
+      map.on('click', 'country-bubble-circles', (e) => {
+        if (!e.features?.length) return
+        if (activePopup) { activePopup.remove(); activePopup = null }
+        const coords = e.features[0].geometry.coordinates
+        map.flyTo({ center: coords, zoom: 7, duration: 800 })
+      })
+      map.on('mouseenter', 'country-bubble-circles', () => { map.getCanvas().style.cursor = 'pointer' })
+      map.on('mouseleave', 'country-bubble-circles', () => { map.getCanvas().style.cursor = '' })
 
       // Initial load strategy
       const currentZoom = map.getZoom()
@@ -1196,6 +1237,7 @@ function initHomeMap(state) {
             communitySpots.forEach(s => spotsMap.set(s.id, s))
             if (window.setState) window.setState({ spots: Array.from(spotsMap.values()) })
             updateSpotsOnMap(Array.from(spotsMap.values()))
+            refreshBubbles()
           }
         }
       } catch { /* Firestore unavailable — static spots still work */ }
