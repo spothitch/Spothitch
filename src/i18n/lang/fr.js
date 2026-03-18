@@ -4543,6 +4543,8 @@ export default {
   better: 'Mieux !',
   today: "Aujourd'hui",
   yesterday: 'Hier',
+  experienceDateLabel: 'Quand as-tu fait du stop ici ?',
+  chooseDate: 'Choisir une date',
   daysAgo: 'jours',
   weekAgo: 'semaine',
   weeksAgo: 'semaines',

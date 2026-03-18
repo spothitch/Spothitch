@@ -4540,6 +4540,8 @@ export default {
   better: '¡Mejor!',
   today: 'Hoy',
   yesterday: 'Ayer',
+  experienceDateLabel: '¿Cuándo hiciste autostop aquí?',
+  chooseDate: 'Elegir una fecha',
   daysAgo: 'días',
   weekAgo: 'semana',
   weeksAgo: 'semanas',

@@ -431,6 +431,49 @@ function renderStep3(state) {
         </div>
       </div>
 
+      <!-- Experience date -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">${t('experienceDateLabel') || 'Quand as-tu fait du stop ici ?'}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" onclick="setExperienceDate('today')"
+            id="exp-date-today"
+            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${(!window.spotFormData._expCustom) ? '2px solid #f59e0b' : 'none'};color:${(!window.spotFormData._expCustom) ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('today') || "Aujourd'hui"}
+          </button>
+          <button type="button" onclick="setExperienceDate('custom')"
+            id="exp-date-custom"
+            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${window.spotFormData._expCustom ? '2px solid #f59e0b' : 'none'};color:${window.spotFormData._expCustom ? '#f59e0b' : '#64748b'};cursor:pointer">
+            ${t('chooseDate') || 'Choisir une date'}
+          </button>
+        </div>
+        <div id="exp-date-selectors" style="display:${window.spotFormData._expCustom ? 'flex' : 'none'};gap:12px;margin-top:10px">
+          <select id="exp-month" onchange="updateExperienceDate()"
+            style="flex:1;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;appearance:none;cursor:pointer">
+            ${(() => {
+              const now = new Date()
+              const months = [
+                t('monthJan') || 'Janvier', t('monthFeb') || 'Février', t('monthMar') || 'Mars',
+                t('monthApr') || 'Avril', t('monthMay') || 'Mai', t('monthJun') || 'Juin',
+                t('monthJul') || 'Juillet', t('monthAug') || 'Août', t('monthSep') || 'Septembre',
+                t('monthOct') || 'Octobre', t('monthNov') || 'Novembre', t('monthDec') || 'Décembre'
+              ]
+              const selMonth = window.spotFormData.experienceMonth ?? (now.getMonth() + 1)
+              return months.map((m, i) => `<option value="${i + 1}" ${(i + 1) === selMonth ? 'selected' : ''} style="background:#1e293b">${m}</option>`).join('')
+            })()}
+          </select>
+          <select id="exp-year" onchange="updateExperienceDate()"
+            style="flex:0.6;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;appearance:none;cursor:pointer">
+            ${(() => {
+              const now = new Date()
+              const selYear = window.spotFormData.experienceYear ?? now.getFullYear()
+              const years = []
+              for (let y = now.getFullYear(); y >= 2010; y--) years.push(`<option value="${y}" ${y === selYear ? 'selected' : ''} style="background:#1e293b">${y}</option>`)
+              return years.join('')
+            })()}
+          </select>
+        </div>
+      </div>
+
       <!-- RETOUR + PUBLIER buttons -->
       <div style="display:flex;gap:12px;margin-top:24px">
         <button type="button" onclick="addSpotPrevStep()"
@@ -858,6 +901,46 @@ window.toggleAmenity = (name) => {
     chip.style.borderBottom = isActive ? '2px solid #f59e0b' : 'none'
     chip.style.color = isActive ? '#f59e0b' : '#64748b'
   }
+}
+
+// Experience date handlers (Step 3)
+window.setExperienceDate = (mode) => {
+  const isCustom = mode === 'custom'
+  window.spotFormData._expCustom = isCustom
+
+  // Update button styles
+  const todayBtn = document.getElementById('exp-date-today')
+  const customBtn = document.getElementById('exp-date-custom')
+  const selectors = document.getElementById('exp-date-selectors')
+  if (todayBtn) {
+    todayBtn.style.borderBottom = !isCustom ? '2px solid #f59e0b' : 'none'
+    todayBtn.style.color = !isCustom ? '#f59e0b' : '#64748b'
+  }
+  if (customBtn) {
+    customBtn.style.borderBottom = isCustom ? '2px solid #f59e0b' : 'none'
+    customBtn.style.color = isCustom ? '#f59e0b' : '#64748b'
+  }
+  if (selectors) selectors.style.display = isCustom ? 'flex' : 'none'
+
+  if (!isCustom) {
+    // Today
+    const now = new Date()
+    window.spotFormData.experienceYear = now.getFullYear()
+    window.spotFormData.experienceMonth = now.getMonth() + 1
+    window.spotFormData.experienceDay = now.getDate()
+  } else {
+    // Custom — read from selectors
+    delete window.spotFormData.experienceDay
+    window.updateExperienceDate()
+  }
+}
+
+window.updateExperienceDate = () => {
+  const monthEl = document.getElementById('exp-month')
+  const yearEl = document.getElementById('exp-year')
+  if (monthEl) window.spotFormData.experienceMonth = parseInt(monthEl.value, 10)
+  if (yearEl) window.spotFormData.experienceYear = parseInt(yearEl.value, 10)
+  delete window.spotFormData.experienceDay
 }
 
 // Keep backward compat for setSpotTag — DOM-only, no re-render
@@ -1536,6 +1619,10 @@ window.openSpotDraft = async (draftId) => {
     waitTime: draft.waitTime,
     season: draft.season,
     stationName: draft.stationName || '',
+    experienceYear: draft.experienceYear || new Date().getFullYear(),
+    experienceMonth: draft.experienceMonth || (new Date().getMonth() + 1),
+    experienceDay: draft.experienceDay || new Date().getDate(),
+    _expCustom: draft._expCustom || false,
   }
 
   setState({
@@ -2039,6 +2126,11 @@ window.handleAddSpot = async (event) => {
         season: detectSeason(),
         timestamp: new Date().toISOString(),
         dataSource: 'community',
+        experienceDate: {
+          year: window.spotFormData.experienceYear || new Date().getFullYear(),
+          month: window.spotFormData.experienceMonth || (new Date().getMonth() + 1),
+          ...(window.spotFormData.experienceDay ? { day: window.spotFormData.experienceDay } : {}),
+        },
       }
       if (uploadedUrls.length > 0) {
         validationData.photoUrl = uploadedUrls[0]
@@ -2095,6 +2187,7 @@ window.handleAddSpot = async (event) => {
         locationName: null, roadNumber: null, positionSource: null,
         method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
         rideResult: null, stationName: '', extraDestinations: [],
+        experienceYear: new Date().getFullYear(), experienceMonth: new Date().getMonth() + 1, experienceDay: new Date().getDate(), _expCustom: false,
       }
       return
     }
@@ -2186,6 +2279,11 @@ window.handleAddSpot = async (event) => {
       stationName: window.spotFormData.stationName || '',
       dataSource: 'community',
       createdAt: new Date().toISOString(),
+      experienceDate: {
+        year: window.spotFormData.experienceYear || new Date().getFullYear(),
+        month: window.spotFormData.experienceMonth || (new Date().getMonth() + 1),
+        ...(window.spotFormData.experienceDay ? { day: window.spotFormData.experienceDay } : {}),
+      },
       destinations,
     }
 
