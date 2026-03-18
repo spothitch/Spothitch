@@ -92,29 +92,27 @@ export function renderHome(state) {
       <!-- Map controls injected persistently inside #home-map by App.js afterRender -->
 
       <!-- Country Guide shortcut + Spot Counter -->
-      <div class="absolute bottom-[5rem] left-3 z-20 flex flex-col gap-2 items-start">
+      <div class="absolute bottom-[5.5rem] left-3 z-30 flex flex-col gap-2 items-start">
         <button
           onclick="openOfflinePanel()"
-          class="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg transition-colors hover:text-white"
-          style="background:rgba(15,23,42,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);color:#94a3b8"
+          class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 flex items-center justify-center shadow-lg hover:bg-dark-primary/80 hover:text-white transition-colors"
           aria-label="${t('offline') || 'Hors-ligne'}"
           tabindex="0"
         >
-          ${icon('download-cloud', 'w-[18px] h-[18px]')}
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
         </button>
         <button
           onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
-          class="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg transition-colors hover:text-white"
-          style="background:rgba(15,23,42,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);color:#94a3b8"
+          class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 flex items-center justify-center shadow-lg hover:bg-dark-primary/80 hover:text-white transition-colors"
           aria-label="${t('countryGuides') || 'Guides pays'}"
           tabindex="0"
         >
-          ${icon('book-open', 'w-[18px] h-[18px]')}
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         </button>
         <div id="spot-counter" class="pointer-events-none">
-          <div class="px-2 py-1.5 rounded-lg text-[10px] leading-snug shadow-lg" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)">
-            <span class="flex items-center gap-1 text-slate-500"><span class="w-[5px] h-[5px] bg-slate-500 rounded-full inline-block"></span> <span id="hw-count">0</span> ${t('pendingShort') || 'en att.'}</span>
-            <span class="flex items-center gap-1 text-emerald-500 mt-0.5"><span class="w-[5px] h-[5px] bg-emerald-500 rounded-full inline-block"></span> <span id="sh-count">0</span> ${t('validatedShort') || 'validés'}</span>
+          <div class="px-2.5 py-1.5 rounded-lg text-[10px] leading-snug shadow-lg bg-black/60 backdrop-blur-sm">
+            <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-400 rounded-full inline-block"></span> <span id="hw-count">0</span> ${t('pendingShort') || 'en att.'}</span>
+            <span class="flex items-center gap-1 text-emerald-400 mt-0.5"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> ${t('validatedShort') || 'validés'}</span>
           </div>
         </div>
       </div>
