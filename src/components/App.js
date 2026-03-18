@@ -240,15 +240,22 @@ function renderOfflinePanel(state) {
   const downloadedCodes = new Set(offlineCountries.map(c => c.code))
   const availableCountries = ALL_COUNTRIES.filter(c => !downloadedCodes.has(c))
 
-  // Estimate size per country (~0.15 KB per spot)
+  // Estimate total size: spots JSON (~0.5 KB/spot) + map tiles (~1.5 MB base) + stations
   const getSpotCount = (code) => spotCounts[code] || 0
   const estimateSize = (code) => {
     const count = getSpotCount(code)
-    const kb = Math.round(count * 0.15)
-    return kb > 0 ? `~${kb} KB` : ''
+    if (count === 0) return ''
+    const spotKB = Math.round(count * 0.5)
+    const tilesKB = 1500 // ~1.5 MB base for map tiles
+    const totalKB = spotKB + tilesKB
+    return totalKB >= 1000 ? `~${(totalKB / 1024).toFixed(1)} MB` : `~${totalKB} KB`
   }
 
-  const totalSize = offlineCountries.reduce((sum, c) => sum + Math.round((c.count || 0) * 0.15), 0)
+  const estimateDownloadedSize = (c) => {
+    if (c.tileSizeMB) return (c.tileSizeMB + (c.count || 0) * 0.0005).toFixed(1)
+    return ((c.count || 0) * 0.5 / 1024 + 1.5).toFixed(1)
+  }
+  const totalSizeMB = offlineCountries.reduce((sum, c) => sum + parseFloat(estimateDownloadedSize(c)), 0).toFixed(1)
 
   const renderDownloadedRow = (c) => {
     const flag = countryFlag(c.code)
@@ -258,7 +265,7 @@ function renderOfflinePanel(state) {
         <span class="text-2xl">${flag}</span>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium">${name}</div>
-          <div class="text-xs text-slate-400">${c.count || 0} spots · ~${Math.round((c.count || 0) * 0.15)} KB</div>
+          <div class="text-xs text-slate-400">${c.count || 0} spots · ~${estimateDownloadedSize(c)} MB</div>
         </div>
         <button onclick="deleteOfflineCountry('${c.code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.2)" type="button">✓ ${t('offlineSaved') || 'Sauvé'}</button>
       </div>`
@@ -306,7 +313,7 @@ function renderOfflinePanel(state) {
       </div>
       <!-- Footer -->
       <div class="px-4 py-3 flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,0.05)">
-        <span class="text-xs text-slate-400">${offlineCountries.length} ${t('autoOfflineSyncCountries') || 'pays'} · ${totalSize} KB</span>
+        <span class="text-xs text-slate-400">${offlineCountries.length} ${t('autoOfflineSyncCountries') || 'pays'} · ${totalSizeMB} MB</span>
         ${offlineCountries.length > 0 ? `<button onclick="clearAllOfflineData()" class="text-xs text-red-400/60" type="button">${t('clearAllOffline') || 'Tout supprimer'}</button>` : ''}
       </div>
     </div>`
