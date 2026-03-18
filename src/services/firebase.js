@@ -79,6 +79,13 @@ export function initializeFirebase() {
     // Avoid re-initializing if already done
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
+    // Force Firebase Auth language to match the app's language (FR/EN/ES/DE)
+    try {
+      const savedState = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+      const lang = savedState.lang || navigator.language?.substring(0, 2) || 'en'
+      const supported = ['fr', 'en', 'es', 'de']
+      auth.languageCode = supported.includes(lang) ? lang : 'en'
+    } catch { auth.languageCode = 'en' }
     db = getFirestore(app);
     storage = getStorage(app);
 
@@ -182,8 +189,11 @@ const GOOGLE_CLIENT_ID = '314974309234-eh794g3edfe35h8r7eom2q0i092c5h35.apps.goo
 export function setupGISOverlay(overlayContainer, onResult) {
   if (!overlayContainer) return
   loadGIS().then(() => {
+    // Force GIS language to match app language
+    const gisLocale = auth?.languageCode || 'en'
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
+      locale: gisLocale,
       callback: async (response) => {
         if (!response.credential) {
           onResult({ success: false, error: 'no-credential' })

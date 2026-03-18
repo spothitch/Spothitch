@@ -655,6 +655,85 @@ function renderToolsTab(state) {
     </div>`
 }
 
+// ==================== RENDER: GUIDE TIPS TAB ====================
+
+function renderGuideTipsTab(state) {
+  const tips = state.adminGuideTipsData
+
+  if (!tips) {
+    return `
+      <div class="text-center py-12">
+        <div class="text-4xl mb-4">📝</div>
+        <p class="text-slate-300 mb-4">${t('adminGuideTipsLoadPrompt') || 'Charger les contributions guides en attente'}</p>
+        <button onclick="loadAdminGuideTips()" class="btn-primary px-6 py-2">
+          ${icon('download', 'w-4 h-4 mr-2')} ${t('adminGuideTipsLoad') || 'Charger les contributions'}
+        </button>
+      </div>`
+  }
+
+  if (tips.length === 0) {
+    return `
+      <div class="text-center py-12">
+        <div class="text-4xl mb-4">✅</div>
+        <p class="text-emerald-400 font-bold">${t('adminGuideTipsNone') || 'Aucune contribution en attente'}</p>
+        <button onclick="loadAdminGuideTips()" class="btn-secondary px-4 py-1 mt-4 text-sm">
+          ${t('adminSentryRefresh') || 'Rafraîchir'}
+        </button>
+      </div>`
+  }
+
+  const CATEGORY_ICONS = {
+    hitchhiking: '👍', safety: '🛡️', laws: '⚖️', language: '💬',
+    budget: '💰', culture: '❤️', transport: '🚌',
+  }
+
+  const tipsHtml = tips.map(tip => {
+    const catIcon = CATEGORY_ICONS[tip.category] || '📌'
+    const dateStr = tip.createdAt ? new Date(tip.createdAt).toLocaleDateString() : ''
+    const countryFlag = tip.countryCode ? String.fromCodePoint(...[...tip.countryCode.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65)) : ''
+
+    return `<div class="py-3 border-b border-slate-700/50">
+      <div class="flex items-start gap-2">
+        <div class="text-lg">${catIcon}</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-medium text-sm">${countryFlag} ${escapeHTML(tip.customCategoryName || tip.category)}</span>
+            ${tip.rating ? `<span class="text-xs text-amber-400">${'★'.repeat(tip.rating)}${'☆'.repeat(5 - tip.rating)}</span>` : ''}
+          </div>
+          <p class="text-xs text-slate-300 mt-1">${escapeHTML(tip.text || '')}</p>
+          <div class="text-xs text-slate-500 mt-0.5">
+            ${escapeHTML(tip.username || 'Anonyme')} · ${dateStr}
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button onclick="adminApproveGuideTipAction('${escapeJSString(tip.id)}')" class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30">✅ ${t('adminGuideTipApprove') || 'Approuver'}</button>
+            <button onclick="adminRejectGuideTipAction('${escapeJSString(tip.id)}')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30">❌ ${t('adminGuideTipReject') || 'Rejeter'}</button>
+          </div>
+        </div>
+      </div>
+    </div>`
+  }).join('')
+
+  return `
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <div class="card p-3 text-center">
+        <div class="text-2xl font-bold text-amber-400">${tips.length}</div>
+        <div class="text-xs text-slate-400">${t('adminReportsPending') || 'En attente'}</div>
+      </div>
+      <div class="card p-3 text-center">
+        <div class="text-2xl font-bold text-slate-400">${[...new Set(tips.map(t => t.countryCode))].length}</div>
+        <div class="text-xs text-slate-400">${t('adminGuideTipsCountries') || 'Pays'}</div>
+      </div>
+    </div>
+
+    <div class="card p-3 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="text-sm font-bold text-slate-200">${t('adminGuideTipsList') || 'Contributions en attente'} (${tips.length})</h4>
+        <button onclick="loadAdminGuideTips()" class="text-xs text-amber-400 hover:underline">${t('adminSentryRefresh') || 'Rafraîchir'}</button>
+      </div>
+      <div class="max-h-96 overflow-y-auto">${tipsHtml}</div>
+    </div>`
+}
+
 // ==================== RENDER: REPORTS TAB ====================
 
 function renderReportsTab(state) {
@@ -784,6 +863,7 @@ export function renderAdminPanel(state) {
   const tabs = [
     { key: 'feedback', label: t('adminTabFeedback') || 'Feedbacks', emoji: '📊' },
     { key: 'reports', label: t('adminTabReports') || 'Signalements', emoji: '🚩' },
+    { key: 'guideTips', label: t('adminTabGuideTips') || 'Guides', emoji: '📝' },
     { key: 'sentry', label: t('adminTabSentry') || 'Erreurs', emoji: '🐛' },
     { key: 'tools', label: t('adminTabTools') || 'Outils', emoji: '⚙️' },
   ]
@@ -799,6 +879,7 @@ export function renderAdminPanel(state) {
   let tabContent
   if (activeTab === 'feedback') tabContent = renderFeedbackTab(state)
   else if (activeTab === 'reports') tabContent = renderReportsTab(state)
+  else if (activeTab === 'guideTips') tabContent = renderGuideTipsTab(state)
   else if (activeTab === 'sentry') tabContent = renderSentryTab(state)
   else tabContent = renderToolsTab(state)
 
@@ -835,6 +916,53 @@ window.closeAdminPanel = () => setState({ showAdminPanel: false })
 window.setAdminTab = (tab) => setState({ adminActiveTab: tab })
 
 window.setAdminFeedbackPeriod = (period) => setState({ adminFeedbackPeriod: period })
+
+// Guide Tips admin handlers
+window.loadAdminGuideTips = async () => {
+  try {
+    window.showToast?.(t('loading') || 'Chargement...', 'info')
+    const { loadPendingGuideTips } = await import('../../services/communityGuideService.js')
+    const tips = await loadPendingGuideTips()
+    setState({ adminGuideTipsData: tips })
+    window.showToast?.(`${tips.length} ${t('adminGuideTipsCount') || 'contributions en attente'}`, 'success')
+  } catch (err) {
+    console.error('Error loading guide tips:', err)
+    window.showToast?.(t('loadingError') || 'Erreur de chargement', 'error')
+  }
+}
+
+window.adminApproveGuideTipAction = async (tipId) => {
+  try {
+    const { approveGuideTip } = await import('../../services/communityGuideService.js')
+    const result = await approveGuideTip(tipId)
+    if (result.success) {
+      // Remove from local list
+      const current = getState().adminGuideTipsData || []
+      setState({ adminGuideTipsData: current.filter(t => t.id !== tipId) })
+      window.showToast?.('✅ ' + (t('adminGuideTipApproved') || 'Contribution approuvée'), 'success')
+    } else {
+      window.showToast?.(result.error || 'Erreur', 'error')
+    }
+  } catch (err) {
+    window.showToast?.('Erreur: ' + err.message, 'error')
+  }
+}
+
+window.adminRejectGuideTipAction = async (tipId) => {
+  try {
+    const { rejectGuideTip } = await import('../../services/communityGuideService.js')
+    const result = await rejectGuideTip(tipId)
+    if (result.success) {
+      const current = getState().adminGuideTipsData || []
+      setState({ adminGuideTipsData: current.filter(t => t.id !== tipId) })
+      window.showToast?.('❌ ' + (t('adminGuideTipRejected') || 'Contribution rejetée'), 'success')
+    } else {
+      window.showToast?.(result.error || 'Erreur', 'error')
+    }
+  } catch (err) {
+    window.showToast?.('Erreur: ' + err.message, 'error')
+  }
+}
 
 window.loadAdminFeedback = async () => {
   try {
