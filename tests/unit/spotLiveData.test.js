@@ -62,7 +62,7 @@ describe('mergeSpotData', () => {
     const spot = makeHitchwikiSpot()
     const result = mergeSpotData(spot, [])
     expect(result._liveLoaded).toBe(true)
-    expect(result.liveTestCount).toBeUndefined()
+    expect(result.liveTestCount).toBe(0)
   })
 
   // ─── HITCHWIKI REPLACEMENT ───────────────────────────────────

@@ -64,7 +64,18 @@ export async function fetchSpotValidations(spotId) {
  */
 export function mergeSpotData(staticSpot, validations) {
   if (!validations || validations.length === 0) {
-    return { ...staticSpot, _liveLoaded: true }
+    return {
+      ...staticSpot,
+      _liveLoaded: true,
+      liveTestCount: 0,
+      liveSuccessRate: null,
+      liveAvgWaitTime: null,
+      liveRatings: null,
+      liveComments: [],
+      liveDestinations: [],
+      liveLastTested: null,
+      liveLastTestedBy: null,
+    }
   }
 
   const isHitchwiki = staticSpot.source === 'hitchwiki'

@@ -31,7 +31,18 @@ const SPOTS_VERSION_TTL = 30 * 24 * 60 * 60 * 1000 // 30 days for version tracki
 // Cache loaded country data (in-memory)
 const loadedCountries = new Map()
 let countryIndex = null
-let allLoadedSpots = []
+const allLoadedSpotsMap = new Map()
+
+// Getter that returns array from the dedup map
+function getAllLoadedSpotsArray() {
+  return [...allLoadedSpotsMap.values()]
+}
+
+function addSpotsToAll(spots) {
+  for (const s of spots) {
+    if (s.id != null) allLoadedSpotsMap.set(s.id, s)
+  }
+}
 
 /**
  * Load country index (list of available countries)
@@ -83,7 +94,7 @@ export async function loadCountrySpots(countryCode) {
     const idbSpots = await getByIndex('spots', 'country', code)
     if (idbSpots && idbSpots.length > 0) {
       loadedCountries.set(code, idbSpots)
-      allLoadedSpots = [...allLoadedSpots, ...idbSpots]
+      addSpotsToAll(idbSpots)
       // Check if we should refresh from network in background (version check)
       refreshFromNetworkIfNeeded(code).catch(() => {})
       return idbSpots
@@ -107,7 +118,7 @@ export async function loadCountrySpots(countryCode) {
     const spots = convertToAppFormat(data.spots, code)
 
     loadedCountries.set(code, spots)
-    allLoadedSpots = [...allLoadedSpots, ...spots]
+    addSpotsToAll(spots)
 
     // Save to IDB for offline use (fire-and-forget)
     saveCountrySpotsToIDB(spots, code).catch(() => {})
@@ -158,8 +169,12 @@ async function refreshFromNetworkIfNeeded(code) {
 
     // Update caches
     loadedCountries.set(code, spots)
-    // Rebuild allLoadedSpots (remove old spots for this country, add new ones)
-    allLoadedSpots = allLoadedSpots.filter(s => s.country !== code).concat(spots)
+    // Rebuild allLoadedSpots for this country (Map handles dedup automatically)
+    // Remove old spots for this country first
+    for (const [id, s] of allLoadedSpotsMap) {
+      if (s.country === code) allLoadedSpotsMap.delete(id)
+    }
+    addSpotsToAll(spots)
 
     await putAll('spots', spots)
     await cacheSet(`spots_version_${code}`, index.lastUpdated, SPOTS_VERSION_TTL)
@@ -466,7 +481,7 @@ const _countryCenters = {
  * Get all currently loaded spots
  */
 export function getAllLoadedSpots() {
-  return allLoadedSpots
+  return getAllLoadedSpotsArray()
 }
 
 /**
@@ -527,7 +542,7 @@ export function prefetchNearbyCountries(lat, lng, radiusKm = 800) {
  */
 export function clearSpotCache() {
   loadedCountries.clear()
-  allLoadedSpots = []
+  allLoadedSpotsMap.clear()
 }
 
 export default {

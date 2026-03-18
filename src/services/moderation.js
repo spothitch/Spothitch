@@ -392,8 +392,8 @@ let _selectedReportReason = null
 
 window.selectReportReason = (reason) => {
   _selectedReportReason = reason
-  // Update state for render consistency (but prevent re-render by setting silently)
-  getState().selectedReportReason = reason
+  // Update state for render consistency (silent — DOM is updated directly below)
+  setState({ selectedReportReason: reason })
 
   // Update UI directly without re-render
   const modal = document.querySelector('.report-modal')

@@ -723,8 +723,8 @@ window.selectSpotType = (type) => {
   })
   // Store in spotFormData AND state for persistence across re-renders
   window.spotFormData.spotType = type
-  import('../../stores/state.js').then(({ getState }) => {
-    getState().addSpotType = type
+  import('../../stores/state.js').then(({ setState }) => {
+    setState({ addSpotType: type })
   })
 }
 
@@ -2066,6 +2066,11 @@ window.handleAddSpot = async (event) => {
       setState({
         showAddSpot: false, addSpotStep: 1, addSpotType: null,
         addSpotValidateId: null,
+        addSpotMethod: null,
+        addSpotGroupSize: null,
+        addSpotTimeOfDay: null,
+        addSpotWaitTime: null,
+        addSpotRideResult: null,
       })
 
       // Refresh live data so SpotDetail shows updated stats

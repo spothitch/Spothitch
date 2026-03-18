@@ -489,7 +489,7 @@ window.handleAuth = async (event) => {
 
       // Set full user state directly (onAuthStateChanged listener in main.js
       // will also fire, but we set state here for immediate UI feedback)
-      const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
+      const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
       const { actions: stateActions } = await import('../../stores/state.js')
       stateActions.setUser(user)
 
@@ -579,7 +579,7 @@ async function _handleGoogleResult(result) {
     if (result?.success && result.user) {
       const user = result.user
       window._authJustCompleted = Date.now()
-      const ADMIN_EMAILS = ['antoine.v.ville@gmail.com']
+      const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
       const wasOnLanding = getState().showLanding
 
       setState({
