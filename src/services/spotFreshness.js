@@ -46,12 +46,9 @@ export function getSpotFreshness(spot) {
   const liveTestCount = spot.liveTestCount || 0
   const isCertified = spot.ambassadorVerified === true
   const isStation = spot.spotType === 'gas_station'
-  const isHitchwiki = spot.source === 'hitchwiki'
-  const hasCommunityTests = liveTestCount > 0
 
   // GOLD: 10+ community tests AND 10+ validations — always certified
-  // Never for Hitchwiki spots (must be converted to community via actual usage first)
-  if (!isHitchwiki && liveTestCount >= 10 && validationCount >= 10) {
+  if (liveTestCount >= 10 && validationCount >= 10) {
     return {
       tier: 'gold',
       color: 'amber',
@@ -67,8 +64,7 @@ export function getSpotFreshness(spot) {
   }
 
   // GREEN: 3+ community tests AND 3+ validations
-  // Never for Hitchwiki spots (must be converted to community via actual usage first)
-  if (!isHitchwiki && liveTestCount >= 3 && validationCount >= 3) {
+  if (liveTestCount >= 3 && validationCount >= 3) {
     return {
       tier: 'green',
       color: 'emerald',
@@ -83,33 +79,17 @@ export function getSpotFreshness(spot) {
     }
   }
 
-  // BLUE: SpotHitch community spot (created by community, or Hitchwiki spot actually USED by community)
-  if (!isHitchwiki || hasCommunityTests) {
-    return {
-      tier: 'blue',
-      color: 'blue',
-      hexColor: '#3b82f6',
-      labelKey: 'spotStatusSpotHitch',
-      icon: 'circle-check',
-      bgClass: 'bg-blue-500/20',
-      textClass: 'text-blue-400',
-      borderClass: 'border-blue-500/30',
-      isCertified,
-      isStation,
-    }
-  }
-
-  // GREY: Hitchwiki imported, not yet tested by SpotHitch community
+  // BLUE: default community spot
   return {
-    tier: 'grey',
-    color: 'slate',
-    hexColor: '#94a3b8',
-    labelKey: 'spotStatusToVerify',
-    icon: 'help-circle',
-    bgClass: 'bg-slate-500/20',
-    textClass: 'text-slate-400',
-    borderClass: 'border-slate-500/30',
-    isCertified: false,
+    tier: 'blue',
+    color: 'blue',
+    hexColor: '#3b82f6',
+    labelKey: 'spotStatusSpotHitch',
+    icon: 'circle-check',
+    bgClass: 'bg-blue-500/20',
+    textClass: 'text-blue-400',
+    borderClass: 'border-blue-500/30',
+    isCertified,
     isStation,
   }
 }

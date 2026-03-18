@@ -143,30 +143,22 @@ export function getMarkerType(spot, isFav) {
 
   const isStation = spot.spotType === 'gas_station'
   const isGold = spot.ambassadorVerified === true
-  const isHitchwiki = spot.source === 'hitchwiki'
   const liveTestCount = spot.liveTestCount || 0
   const validationCount = spot.validationCount || spot.userValidations || 0
 
-  // GREEN: 3+ community tests AND 3+ validations (never for pure Hitchwiki)
-  if (!isHitchwiki && liveTestCount >= 3 && validationCount >= 3) {
+  // GREEN: 3+ community tests AND 3+ validations
+  if (liveTestCount >= 3 && validationCount >= 3) {
     if (isGold && isStation) return 'marker-green-gold-station'
     if (isGold) return 'marker-green-gold'
     if (isStation) return 'marker-green-station'
     return 'marker-green'
   }
 
-  // BLUE: SpotHitch community spot (not Hitchwiki, or Hitchwiki with community usage)
-  if (!isHitchwiki || liveTestCount > 0) {
-    if (isGold && isStation) return 'marker-blue-gold-station'
-    if (isGold) return 'marker-blue-gold'
-    if (isStation) return 'marker-blue-station'
-    return 'marker-blue'
-  }
-
-  // GREY: Hitchwiki imported, not yet used by community
-  if (isGold) return 'marker-gray-gold'
-  if (isStation) return 'marker-gray-station'
-  return 'marker-gray'
+  // BLUE: default community spot
+  if (isGold && isStation) return 'marker-blue-gold-station'
+  if (isGold) return 'marker-blue-gold'
+  if (isStation) return 'marker-blue-station'
+  return 'marker-blue'
 }
 
 /**

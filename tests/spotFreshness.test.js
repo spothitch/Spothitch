@@ -21,13 +21,13 @@ describe('spotFreshness', () => {
       expect(result.icon).toBe('help-circle')
     })
 
-    it('should return GREY tier for hitchwiki spot (no community tests)', () => {
-      const spot = { validationCount: 0, testCount: 0, source: 'hitchwiki' }
+    it('should return BLUE tier for spot with no tests', () => {
+      const spot = { validationCount: 0, testCount: 0 }
       const result = getSpotFreshness(spot)
-      expect(result.tier).toBe('grey')
-      expect(result.color).toBe('slate')
-      expect(result.hexColor).toBe('#94a3b8')
-      expect(result.labelKey).toBe('spotStatusToVerify')
+      expect(result.tier).toBe('blue')
+      expect(result.color).toBe('blue')
+      expect(result.hexColor).toBe('#3b82f6')
+      expect(result.labelKey).toBe('spotStatusSpotHitch')
     })
 
     it('should return BLUE for community spot without enough tests', () => {
@@ -39,8 +39,8 @@ describe('spotFreshness', () => {
       expect(result.labelKey).toBe('spotStatusSpotHitch')
     })
 
-    it('should return BLUE for hitchwiki spot with 1 community test', () => {
-      const spot = { validationCount: 0, liveTestCount: 1, source: 'hitchwiki' }
+    it('should return BLUE for spot with 1 test', () => {
+      const spot = { validationCount: 0, liveTestCount: 1 }
       const result = getSpotFreshness(spot)
       expect(result.tier).toBe('blue')
     })
@@ -224,13 +224,7 @@ describe('spotFreshness', () => {
       expect(html).toContain('👑')
     })
 
-    it('should render badge for hitchwiki spot', () => {
-      const spot = { validationCount: 0, testCount: 0, source: 'hitchwiki' }
-      const html = renderFreshnessBadge(spot)
-      expect(html).toContain('bg-slate-500/20')
-    })
-
-    it('should render blue badge for community spot', () => {
+    it('should render blue badge for any spot', () => {
       const spot = { validationCount: 0, testCount: 0 }
       const html = renderFreshnessBadge(spot)
       expect(html).toContain('bg-blue-500/20')
@@ -285,9 +279,9 @@ describe('spotFreshness', () => {
   })
 
   describe('getFreshnessColor — hex colors for markers', () => {
-    it('should return slate hex for hitchwiki grey spots', () => {
-      const spot = { validationCount: 0, testCount: 0, source: 'hitchwiki' }
-      expect(getFreshnessColor(spot)).toBe('#94a3b8')
+    it('should return blue hex for spots without tests', () => {
+      const spot = { validationCount: 0, testCount: 0 }
+      expect(getFreshnessColor(spot)).toBe('#3b82f6')
     })
 
     it('should return blue hex for community spots', () => {
@@ -321,16 +315,8 @@ describe('spotFreshness', () => {
   })
 
   describe('getMarkerIcon', () => {
-    it('should return marker-grey for hitchwiki spot without tests', () => {
-      expect(getMarkerIcon({ validationCount: 0, testCount: 0, source: 'hitchwiki' })).toBe('marker-grey')
-    })
-
-    it('should return marker-blue for community spot without enough tests', () => {
+    it('should return marker-blue for spot without enough tests', () => {
       expect(getMarkerIcon({ validationCount: 0, testCount: 0 })).toBe('marker-blue')
-    })
-
-    it('should return marker-blue for hitchwiki spot with 1 community test', () => {
-      expect(getMarkerIcon({ validationCount: 0, liveTestCount: 1, source: 'hitchwiki' })).toBe('marker-blue')
     })
 
     it('should return marker-green for reliable spot', () => {
@@ -349,8 +335,8 @@ describe('spotFreshness', () => {
       expect(getMarkerIcon({ validationCount: 10, liveTestCount: 10, spotType: 'gas_station' })).toBe('marker-gold-station-certified')
     })
 
-    it('should return marker-grey-station for hitchwiki station', () => {
-      expect(getMarkerIcon({ validationCount: 0, testCount: 0, spotType: 'gas_station', source: 'hitchwiki' })).toBe('marker-grey-station')
+    it('should return marker-blue-station for station without tests', () => {
+      expect(getMarkerIcon({ validationCount: 0, testCount: 0, spotType: 'gas_station' })).toBe('marker-blue-station')
     })
   })
 })

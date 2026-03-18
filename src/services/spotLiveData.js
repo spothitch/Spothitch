@@ -78,22 +78,15 @@ export function mergeSpotData(staticSpot, validations) {
     }
   }
 
-  const isHitchwiki = staticSpot.source === 'hitchwiki'
   const testValidations = validations.filter(v => v.type === 'test')
   const allValidations = validations
 
-  // When community data exists for an imported spot → ignore imported data
-  // Community-created spots keep adding to their own data normally
-  const ignoreStatic = isHitchwiki
-
-  // Live test count
-  const liveTestCount = ignoreStatic
-    ? testValidations.length
-    : (staticSpot.testCount || 0) + testValidations.length
+  // Live test count (additive with static data)
+  const liveTestCount = (staticSpot.testCount || 0) + testValidations.length
 
   // Live average wait time
   const waitTimes = []
-  if (!ignoreStatic && staticSpot.avgWaitTime) waitTimes.push(staticSpot.avgWaitTime)
+  if (staticSpot.avgWaitTime) waitTimes.push(staticSpot.avgWaitTime)
   for (const v of allValidations) {
     if (v.waitTime && typeof v.waitTime === 'number') waitTimes.push(v.waitTime)
   }
@@ -108,27 +101,21 @@ export function mergeSpotData(staticSpot, validations) {
     const successes = rideResults.filter(v => v.rideResult === 'yes').length
     let totalEntries = rideResults.length
     let totalSuccesses = successes
-    // Only count static rideResult for non-imported spots
-    if (!ignoreStatic) {
-      if (staticSpot.rideResult === 'yes') {
-        totalEntries += 1
-        totalSuccesses += 1
-      } else if (staticSpot.rideResult === 'no' || staticSpot.rideResult === 'gaveUp') {
-        totalEntries += 1
-      }
+    if (staticSpot.rideResult === 'yes') {
+      totalEntries += 1
+      totalSuccesses += 1
+    } else if (staticSpot.rideResult === 'no' || staticSpot.rideResult === 'gaveUp') {
+      totalEntries += 1
     }
     liveSuccessRate = Math.round((totalSuccesses / totalEntries) * 100)
   }
 
   // Live ratings
   const ratingVotes = { safety: [], traffic: [], accessibility: [] }
-  // Only include static ratings for non-imported spots
-  if (!ignoreStatic) {
-    const staticRatings = staticSpot.ratings || {}
-    if (staticRatings.safety) ratingVotes.safety.push(staticRatings.safety)
-    if (staticRatings.traffic) ratingVotes.traffic.push(staticRatings.traffic)
-    if (staticRatings.accessibility) ratingVotes.accessibility.push(staticRatings.accessibility)
-  }
+  const staticRatings = staticSpot.ratings || {}
+  if (staticRatings.safety) ratingVotes.safety.push(staticRatings.safety)
+  if (staticRatings.traffic) ratingVotes.traffic.push(staticRatings.traffic)
+  if (staticRatings.accessibility) ratingVotes.accessibility.push(staticRatings.accessibility)
 
   for (const v of allValidations) {
     const r = v.ratings || {}
@@ -170,17 +157,11 @@ export function mergeSpotData(staticSpot, validations) {
       ) / 3) : null,
     }))
 
-  let liveComments
-  if (ignoreStatic) {
-    // Imported spot with community data → only community comments
-    liveComments = firebaseComments
-  } else {
-    const staticComments = (staticSpot.comments || []).map(c => ({
-      ...c,
-      userName: c.userName || 'Hitchwiki',
-    }))
-    liveComments = [...firebaseComments, ...staticComments]
-  }
+  const staticComments = (staticSpot.comments || []).map(c => ({
+    ...c,
+    userName: c.userName || 'SpotHitch',
+  }))
+  const liveComments = [...firebaseComments, ...staticComments]
 
   // Aggregated destinations from Firebase validations
   const liveDestinations = []
@@ -207,53 +188,6 @@ export function mergeSpotData(staticSpot, validations) {
     liveComments,
     liveDestinations,
     _liveLoaded: true,
-  }
-
-  // Imported spot with community test → become SpotHitch spot, erase ALL Hitchwiki data
-  // Only validations from our users + test data remain. GPS + name + neighborhood kept.
-  if (ignoreStatic && testValidations.length > 0) {
-    result.source = 'community'
-    // Erase ALL Hitchwiki data — nothing from the old site should remain
-    result.description = ''
-    result.descriptionEn = ''
-    result.descriptionFr = ''
-    result.descriptionEs = ''
-    result.descriptionDe = ''
-    result.ratings = liveRatings
-    result.safetyRating = liveRatings.safety
-    result.trafficRating = liveRatings.traffic
-    result.accessRating = liveRatings.accessibility
-    result.accessibilityRating = liveRatings.accessibility
-    result.avgWaitTime = liveAvgWaitTime
-    result.totalReviews = testValidations.length
-    result.testCount = liveTestCount
-    result.checkins = testValidations.length
-    result._hitchwikiRating = null
-    result._hitchwikiReviews = null
-    result.signal = null
-    result.attribution = 'SpotHitch'
-    result.creator = 'SpotHitch'
-    result.destinations = [] // Erase old Hitchwiki destinations — only liveDestinations matter
-    result.method = null
-    result.groupSize = null
-    result.timeOfDay = null
-    result.lastUsed = null
-    result.reviews = 0
-    result.rating = null // Erase old Hitchwiki overall rating
-    result.wait = null // Erase old Hitchwiki wait time
-    result.userValidations = 0 // Erase old Hitchwiki validation count
-    result.validationCount = allValidations.filter(v => v.type === 'quick_validate').length // Only community quick validates
-    result.successRate = liveSuccessRate // Only community success rate
-    result.rideResult = null
-    result.comments = [] // Erase old comments — only liveComments matter
-    result.to = null // Erase old "to" field — liveDestinations replaces it
-    result.direction = null
-    result.directionCity = null
-    result.destLat = null
-    result.destLon = null
-    // Clean "#N" suffix from Hitchwiki spot name (e.g. "Leuven #1" → "Leuven")
-    if (result.from) result.from = result.from.replace(/\s*#\d+$/, '').trim()
-    // Keep: from (cleaned), neighborhood, coordinates, spotType, id, country, countryName, lat, lng/lon
   }
 
   return result
