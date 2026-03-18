@@ -842,6 +842,8 @@ const PATTERN_CHECKS = [
         const relPath = relative(SRC_PATH, file)
         // Only check component/view/service files (not main.js)
         if (relPath === 'main.js') continue
+        // betaGuards.js intentionally overrides handlers — skip it
+        if (relPath.includes('betaGuards')) continue
         const lines = content.split('\n')
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i]

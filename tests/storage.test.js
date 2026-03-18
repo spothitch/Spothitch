@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Storage } from '../src/utils/storage.js';
+import { Storage, safeSetItem } from '../src/utils/storage.js';
 
 describe('Storage', () => {
   beforeEach(() => {
@@ -108,5 +108,69 @@ describe('Storage', () => {
       // Just verify clear doesn't throw
       expect(() => Storage.clear()).not.toThrow();
     });
+
+    it('should return false on error', () => {
+      const origKeys = Object.keys;
+      Object.keys = () => { throw new Error('fail') };
+      expect(Storage.clear()).toBe(false);
+      Object.keys = origKeys;
+    });
+  });
+});
+
+describe('safeSetItem', () => {
+  it('should set item and return true', () => {
+    localStorage.setItem.mockRestore?.();
+    const origSet = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = vi.fn(origSet);
+    expect(safeSetItem('safe_test_key', 'val')).toBe(true);
+    expect(localStorage.setItem).toHaveBeenCalledWith('safe_test_key', 'val');
+  });
+
+  it('should handle QuotaExceededError by clearing cache', () => {
+    let calls = 0;
+    localStorage.setItem.mockImplementation(() => {
+      calls++;
+      if (calls === 1) {
+        const err = new Error('quota');
+        err.name = 'QuotaExceededError';
+        throw err;
+      }
+    });
+    // Mock Object.keys to return cache keys
+    const origKeys = Object.keys;
+    Object.keys = (obj) => {
+      if (obj === localStorage) return ['some_cache_key', 'some_history_data'];
+      return origKeys(obj);
+    };
+    localStorage.removeItem = vi.fn();
+
+    expect(safeSetItem('key', 'val')).toBe(true);
+    Object.keys = origKeys;
+  });
+
+  it('should return false if quota still exceeded after cleanup', () => {
+    localStorage.setItem.mockImplementation(() => {
+      const err = new Error('quota');
+      err.name = 'QuotaExceededError';
+      throw err;
+    });
+    const origKeys = Object.keys;
+    Object.keys = (obj) => {
+      if (obj === localStorage) return [];
+      return origKeys(obj);
+    };
+    localStorage.removeItem = vi.fn();
+
+    expect(safeSetItem('key', 'val')).toBe(false);
+    Object.keys = origKeys;
+  });
+
+  it('should return false on non-quota error', () => {
+    localStorage.setItem.mockImplementation(() => {
+      throw new Error('other error');
+    });
+
+    expect(safeSetItem('key', 'val')).toBe(false);
   });
 });

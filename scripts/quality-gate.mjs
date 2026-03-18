@@ -196,6 +196,7 @@ if (JSON_OUTPUT) {
       weight: r.weight,
       weightedScore: r.weightedScore,
       errors: r.errors.length,
+      errorDetails: r.errors,
       warnings: r.warnings.length,
     })),
     totalErrors,

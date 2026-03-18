@@ -21,7 +21,7 @@ import { renderCityPanel } from './views/CityPanel.js';
 
 // Core UI — always visible
 import { renderCookieBanner } from './modals/CookieBanner.js';
-import { renderBetaBanner } from './modals/BetaBanner.js';
+// BetaBanner removed — carousel v4 slide 5 covers alpha messaging
 import { icon } from '../utils/icons.js'
 import { trapFocus } from '../utils/a11y.js'
 import { registerMarkerImages, getMarkerType } from '../utils/mapMarkers.js'
@@ -401,7 +401,7 @@ export function renderOverlays(state) {
   const isVoyageMapFirst = state.activeTab === 'challenges' && state.tripResults && state.tripFormCollapsed
   return `
     ${!state.showLanding && !isVoyageMapFirst ? renderCookieBanner() : ''}
-    ${!state.showLanding ? renderBetaBanner() : ''}
+    ${''}<!-- BetaBanner removed -->
     <div id="fb-side-btn-anchor"></div>
     ${state.nearbyFriendsEnabled ? lazyRender('renderNearbyFriendsWidget', state) : ''}
     ${state.sosActive && state.sosSession ? lazyRender('renderSOSTrackingWidget', state) : ''}
