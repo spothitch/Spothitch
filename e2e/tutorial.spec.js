@@ -16,8 +16,8 @@ test.describe('Alpha Welcome', () => {
     await page.reload({ waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(3000)
 
-    // Landing carousel should be visible for new users (no spothitch_landing_v2 key)
-    const landing = page.locator('#landing-carousel, [data-landing], .landing-track')
+    // Landing page should be visible for new users (no spothitch_landing_v2 key)
+    const landing = page.locator('#landing-page, #landing-track')
     const alphaOverlay = page.locator('#alpha-welcome-overlay')
     const hasLanding = await landing.first().isVisible({ timeout: 5000 }).catch(() => false)
       || await alphaOverlay.isVisible({ timeout: 3000 }).catch(() => false)
