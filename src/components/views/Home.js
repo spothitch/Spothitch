@@ -92,7 +92,7 @@ export function renderHome(state) {
       <!-- Map controls injected persistently inside #home-map by App.js afterRender -->
 
       <!-- Country Guide shortcut + Spot Counter -->
-      <div class="absolute bottom-[5.5rem] left-3 z-30 flex flex-col gap-2 items-start">
+      <div class="absolute bottom-[7.5rem] left-3 z-30 flex flex-col gap-2 items-start">
         <button
           onclick="openOfflinePanel()"
           class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 flex items-center justify-center shadow-lg hover:bg-dark-primary/80 hover:text-white transition-colors"
