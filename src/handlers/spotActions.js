@@ -112,12 +112,10 @@ window.closeSpotDetail = () => {
 
 window.openAddSpot = () => {
   const t = window.t
-  // Auth progressive: require login before creating a spot
-  const state = window.getState?.() || {}
-  if (!state.isLoggedIn && !state.user && !localStorage.getItem('spothitch_test_mode')) {
-    window.setState?.({ showAuth: true, authPendingAction: 'addSpot', showAuthReason: t?.('loginToAddSpot') || 'Connect to add a spot' })
-    return
-  }
+  // Auth is checked at submission (showSpotSummary), not here.
+  // Checking here caused a race condition: Firebase session loads ~1s after page load,
+  // so isLoggedIn is false at open → auth modal shown → Firebase resolves → openAddSpot
+  // called again → resets form to step 1. Users can fill the form without auth.
   // Reset form data for a fresh start (drafts use openSpotDraft instead)
   window.spotFormData = {
     photos: [], lat: null, lng: null, spotType: null,
