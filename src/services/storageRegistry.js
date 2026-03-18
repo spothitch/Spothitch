@@ -169,6 +169,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_city_cache', category: DataCategory.CACHE, description: 'City search suggestions cache (API results by prefix)' },
   { key: 'spothitch_cities_*', category: DataCategory.CACHE, description: 'Cities list per downloaded country (spothitch_cities_FR, etc.)' },
   { key: 'spothitch_cache_timestamp', category: DataCategory.CACHE, description: 'Cache timestamps' },
+  { key: 'spothitch_hw_purged', category: DataCategory.CACHE, description: 'Flag indicating Hitchwiki spots have been purged from local cache' },
   { key: 'spothitch_badge_count', category: DataCategory.CACHE, description: 'Notification badge count' },
   { key: 'spothitch_notification_badge_count', category: DataCategory.CACHE, description: 'Badge count display' },
   { key: 'spothitch_notification_history', category: DataCategory.CACHE, description: 'Notification history' },

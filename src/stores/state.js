@@ -301,6 +301,7 @@ const initialState = {
   adminFeedbackData: null,
   adminFeedbackPeriod: 'all',
   adminSentryIssues: null,
+  adminReportsData: null,
 
   // AddSpot wizard
   addSpotStep: 1,

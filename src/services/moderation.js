@@ -296,6 +296,7 @@ export function renderReportModal(state) {
   const { reportType } = state;
   const safeReportType = (reportType || 'spot').toUpperCase();
   const reportTypes = REPORT_TYPES[safeReportType] || REPORT_TYPES.SPOT;
+  const isMisplaced = state.selectedReportReason === 'misplaced'
 
   return `
     <div
@@ -320,7 +321,7 @@ export function renderReportModal(state) {
         </div>
 
         <!-- Report reasons -->
-        <div class="p-4 overflow-y-auto max-h-[60vh]">
+        <div class="p-4 overflow-y-auto max-h-[60vh]" id="report-scroll-area">
           <p class="text-sm text-slate-400 mb-4">${t('reportWhy') || 'Pourquoi signales-tu cet élément ?'}</p>
 
           <div class="space-y-2">
@@ -343,7 +344,23 @@ export function renderReportModal(state) {
             `).join('')}
           </div>
 
-          <!-- Misplaced map + details are injected by selectReportReason (no re-render) -->
+          ${isMisplaced ? `
+          <!-- Mini-map for misplaced reports -->
+          <div class="mt-4" id="report-misplaced-wrapper">
+            <label class="block text-sm text-slate-400 mb-2">${t('reportMisplacedHint') || 'Place le pin bleu au bon endroit'}</label>
+            <div id="report-misplaced-map" style="width:100%;height:200px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)"></div>
+            <div id="report-misplaced-coords" class="text-xs text-slate-500 mt-1"></div>
+          </div>
+          ` : ''}
+
+          ${state.selectedReportReason ? `
+          <!-- Details textarea -->
+          <div class="mt-4">
+            <label class="block text-sm text-slate-400 mb-2">${t('reportDetailsLabel') || 'Détails supplémentaires (optionnel)'}</label>
+            <textarea id="report-details" class="input-modern h-24 resize-none"
+              placeholder="${t('reportDetailsPlaceholder') || 'Décris le problème en détail...'}"></textarea>
+          </div>
+          ` : ''}
         </div>
 
         <!-- Submit button -->
@@ -379,6 +396,10 @@ window.closeReport = () => {
   _selectedReportReason = null
   _suggestedCoords = null
   _misplacedMarker = null
+  if (_misplacedMapInstance) {
+    _misplacedMapInstance.remove()
+    _misplacedMapInstance = null
+  }
   setState({
     showReport: false,
     reportType: null,
@@ -387,97 +408,48 @@ window.closeReport = () => {
   })
 }
 
-// Local state for report reason — avoids full re-render via setState
+// Local state for report reason
 let _selectedReportReason = null
 
 window.selectReportReason = (reason) => {
   _selectedReportReason = reason
-  // Update state for render consistency (silent — DOM is updated directly below)
+  // Destroy existing map instance before re-render
+  if (_misplacedMapInstance) {
+    _misplacedMapInstance.remove()
+    _misplacedMapInstance = null
+  }
+  _misplacedMarker = null
+  // setState triggers render → map container is in HTML when reason === 'misplaced'
   setState({ selectedReportReason: reason })
 
-  // Update UI directly without re-render
-  const modal = document.querySelector('.report-modal')
-  if (!modal) return
-
-  // Toggle active state on reason buttons
-  modal.querySelectorAll('button[onclick*="selectReportReason"]').forEach(btn => {
-    const btnReason = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1]
-    if (btnReason === reason) {
-      btn.classList.add('ring-2', 'ring-primary-500', 'bg-primary-500/10')
-      // Add check icon if not present
-      if (!btn.querySelector('.report-check-icon')) {
-        const checkHtml = document.createElement('span')
-        checkHtml.className = 'report-check-icon'
-        checkHtml.innerHTML = icon('check', 'w-5 h-5 text-primary-400')
-        btn.appendChild(checkHtml)
-      }
-    } else {
-      btn.classList.remove('ring-2', 'ring-primary-500', 'bg-primary-500/10')
-      btn.querySelector('.report-check-icon')?.remove()
-    }
-  })
-
-  // Show/hide misplaced map container
-  const existingMap = document.getElementById('report-misplaced-map')
-  const detailsSection = modal.querySelector('#report-details')?.parentElement
-
-  if (reason === 'misplaced' && !existingMap) {
-    // Insert mini-map before details
-    const mapWrapper = document.createElement('div')
-    mapWrapper.className = 'mt-4'
-    mapWrapper.id = 'report-misplaced-wrapper'
-    mapWrapper.innerHTML = `
-      <label class="block text-sm text-slate-400 mb-2">${t('reportMisplacedHint') || 'Place le pin bleu au bon endroit'}</label>
-      <div id="report-misplaced-map" style="width:100%;height:200px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)"></div>
-      <div id="report-misplaced-coords" class="text-xs text-slate-500 mt-1"></div>
-    `
-    const scrollArea = modal.querySelector('.overflow-y-auto')
-    if (detailsSection) {
-      detailsSection.parentElement.insertBefore(mapWrapper, detailsSection)
-    } else if (scrollArea) {
-      scrollArea.appendChild(mapWrapper)
-    }
-    setTimeout(() => initMisplacedMap(), 100)
-  } else if (reason !== 'misplaced' && document.getElementById('report-misplaced-wrapper')) {
-    document.getElementById('report-misplaced-wrapper').remove()
+  // Initialize misplaced map after render
+  if (reason === 'misplaced') {
+    setTimeout(() => initMisplacedMap(), 150)
   }
-
-  // Show details textarea if not present
-  if (!detailsSection) {
-    const scrollArea = modal.querySelector('.overflow-y-auto')
-    if (scrollArea) {
-      const detailsDiv = document.createElement('div')
-      detailsDiv.className = 'mt-4'
-      detailsDiv.innerHTML = `
-        <label class="block text-sm text-slate-400 mb-2">${t('reportDetailsLabel') || 'Détails supplémentaires (optionnel)'}</label>
-        <textarea id="report-details" class="input-modern h-24 resize-none"
-          placeholder="${t('reportDetailsPlaceholder') || 'Décris le problème en détail...'}"></textarea>
-      `
-      scrollArea.appendChild(detailsDiv)
-    }
-  }
-
-  // Enable submit button
-  const submitBtn = modal.querySelector('button[onclick*="submitCurrentReport"]')
-  if (submitBtn) submitBtn.disabled = false
 
   // Scroll to show the map/details
-  const scrollArea = modal.querySelector('.overflow-y-auto')
-  if (scrollArea) {
-    setTimeout(() => { scrollArea.scrollTop = scrollArea.scrollHeight }, 200)
-  }
+  setTimeout(() => {
+    const scrollArea = document.getElementById('report-scroll-area')
+    if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight
+  }, 200)
 }
 
 // Mini-map for "misplaced" reports
 let _misplacedMarker = null
 let _suggestedCoords = null
+let _misplacedMapInstance = null
 
 async function initMisplacedMap() {
   const container = document.getElementById('report-misplaced-map')
-  if (!container || container.dataset.init) return
+  if (!container) return
+  // Already initialized on this DOM element
+  if (container.dataset.init) return
   container.dataset.init = '1'
 
   const maplibregl = (await import('maplibre-gl')).default
+
+  // Verify container still exists after async import
+  if (!document.getElementById('report-misplaced-map')) return
 
   // Get current spot coordinates
   const state = getState()
@@ -485,7 +457,7 @@ async function initMisplacedMap() {
   const lat = spot?.coordinates?.lat || spot?.lat || 48.85
   const lng = spot?.coordinates?.lng || spot?.lon || 2.35
 
-  const miniMap = new maplibregl.Map({
+  _misplacedMapInstance = new maplibregl.Map({
     container,
     style: 'https://tiles.openfreemap.org/styles/liberty',
     center: [lng, lat],
@@ -498,34 +470,34 @@ async function initMisplacedMap() {
   currentEl.style.cssText = 'width:14px;height:14px;background:#ef4444;border:2px solid white;border-radius:50%;opacity:0.6'
   new maplibregl.Marker({ element: currentEl })
     .setLngLat([lng, lat])
-    .addTo(miniMap)
+    .addTo(_misplacedMapInstance)
 
   // Draggable blue marker for suggested position
   const suggestEl = document.createElement('div')
   suggestEl.style.cssText = 'width:20px;height:20px;background:#3b82f6;border:3px solid white;border-radius:50%;cursor:grab;box-shadow:0 2px 8px rgba(0,0,0,0.3)'
   _misplacedMarker = new maplibregl.Marker({ element: suggestEl, draggable: true })
     .setLngLat([lng + 0.001, lat + 0.001])
-    .addTo(miniMap)
+    .addTo(_misplacedMapInstance)
 
   _suggestedCoords = { lat: lat + 0.001, lng: lng + 0.001 }
 
-  const coordsDiv = document.getElementById('report-misplaced-coords')
+  const updateCoords = (lat, lng) => {
+    _suggestedCoords = { lat, lng }
+    const coordsDiv = document.getElementById('report-misplaced-coords')
+    if (coordsDiv) {
+      coordsDiv.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`
+    }
+  }
 
   _misplacedMarker.on('dragend', () => {
     const pos = _misplacedMarker.getLngLat()
-    _suggestedCoords = { lat: pos.lat, lng: pos.lng }
-    if (coordsDiv) {
-      coordsDiv.textContent = `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`
-    }
+    updateCoords(pos.lat, pos.lng)
   })
 
   // Also allow click on map to move marker
-  miniMap.on('click', (e) => {
+  _misplacedMapInstance.on('click', (e) => {
     _misplacedMarker.setLngLat([e.lngLat.lng, e.lngLat.lat])
-    _suggestedCoords = { lat: e.lngLat.lat, lng: e.lngLat.lng }
-    if (coordsDiv) {
-      coordsDiv.textContent = `${e.lngLat.lat.toFixed(5)}, ${e.lngLat.lng.toFixed(5)}`
-    }
+    updateCoords(e.lngLat.lat, e.lngLat.lng)
   })
 }
 

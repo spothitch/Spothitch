@@ -9,7 +9,7 @@ import { countryGuides, getGuideByCode, getUniversalPhrases } from '../../data/g
 import { icon } from '../../utils/icons.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
 import { renderTipVoteButtons, renderSuggestionForm } from '../../services/feedbackService.js'
-import { GUIDE_CATEGORIES, getUserGuideTips, submitGuideTip, deleteUserGuideTip } from '../../services/communityGuideService.js'
+import { GUIDE_CATEGORIES, getUserGuideTips, submitGuideTip, deleteUserGuideTip, loadCommunityPendingCounts, getCommunityPendingCounts } from '../../services/communityGuideService.js'
 import { getCurrentUser } from '../../services/firebase.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 
@@ -344,6 +344,18 @@ function renderStartSection() {
 // ==================== PAR PAYS ====================
 function renderCountriesSection() {
   const sortedGuides = [...countryGuides].sort((a, b) => a.difficulty - b.difficulty)
+  const pendingCounts = getCommunityPendingCounts()
+
+  // Trigger async load of community pending counts (re-renders when ready)
+  if (!Object.keys(pendingCounts).length) {
+    loadCommunityPendingCounts().then(counts => {
+      if (Object.keys(counts).length > 0) {
+        // Force re-render by toggling a dummy state value
+        const state = window.getState?.() || {}
+        window.setState?.({ _guidePendingLoaded: (state._guidePendingLoaded || 0) + 1 })
+      }
+    })
+  }
 
   return `
     <div class="space-y-3">
@@ -358,6 +370,7 @@ function renderCountriesSection() {
       <div id="guides-list" class="grid grid-cols-2 gap-3">
         ${sortedGuides.map(guide => {
           const contribCount = getUserGuideTips(guide.code).length
+          const communityPending = pendingCounts[guide.code] || 0
           return `
           <button
             onclick="selectGuide('${guide.code}')"
@@ -370,7 +383,12 @@ function renderCountriesSection() {
                 <div class="font-bold">${guide.name}</div>
                 ${contribCount > 0
                   ? `<div class="text-xs text-emerald-400">${contribCount}/7 ${icon('check', 'w-3 h-3 inline')}</div>`
-                  : `<div class="text-xs text-slate-500">${t('guideNoContribution') || 'Pas encore de contribution'}</div>`
+                  : communityPending > 0
+                    ? `<div class="text-xs text-amber-400">${icon('clock', 'w-3 h-3 inline mr-1')}${communityPending === 1
+                        ? (t('guideCommunityPending1') || '1 contribution en attente de validation')
+                        : (t('guideCommunityPending') || '{count} contribution(s) en attente de validation').replace('{count}', communityPending)
+                      }</div>`
+                    : `<div class="text-xs text-slate-500">${t('guideNoContribution') || 'Pas encore de contribution'}</div>`
                 }
               </div>
             </div>
@@ -621,6 +639,7 @@ export function renderCountryDetail(guideOrCode) {
   const openCategory = state.guideOpenCategory || null
   const userTips = getUserGuideTips(guide.code)
   const contribCount = userTips.length
+  const communityPending = (getCommunityPendingCounts()[guide.code]) || 0
 
   return `
     <div class="space-y-4">
@@ -642,6 +661,13 @@ export function renderCountryDetail(guideOrCode) {
             : (t('guideNoContribution') || 'Aucune contribution pour le moment')
           }
         </p>
+        ${communityPending > 0 ? `
+        <p class="text-xs text-amber-400 mt-1">
+          ${icon('clock', 'w-3 h-3 inline mr-1')}${communityPending === 1
+            ? (t('guideCommunityPending1') || '1 contribution en attente de validation')
+            : (t('guideCommunityPending') || '{count} contribution(s) en attente de validation').replace('{count}', communityPending)
+          }
+        </p>` : ''}
       </div>
 
       <!-- Category grid -->

@@ -425,6 +425,7 @@ const MAIN_JS_HANDLERS = [
   // Admin Dashboard (session 2026-02-28)
   'setAdminTab', 'loadAdminFeedback', 'setAdminFeedbackPeriod',
   'exportFeedbackCSV', 'loadAdminSentry',
+  'loadAdminReports', 'adminConfirmReport', 'adminDismissReport', 'adminRelocateSpot',
   // Beta Banner (session 2026-02-28)
   'closeBetaPopup',
   // Feature Slides (session 2026-03-03)
