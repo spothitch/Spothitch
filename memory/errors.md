@@ -409,6 +409,50 @@ Chaque erreur suit ce format :
 
 ---
 
+### ERR-037 — Modal validation HW reste ouvert (5 flags manquants)
+- **Date** : 2026-03-18
+- **Gravité** : MAJEUR
+- **Cause racine** : setState après validation ne nettoyait pas addSpotMethod/GroupSize/TimeOfDay/WaitTime/RideResult
+- **Correction** : Ajout des 5 flags dans setState
+- **Leçon** : **Quand un setState ferme un modal, comparer avec les AUTRES endroits qui ferment le même modal et vérifier que les mêmes flags sont nettoyés.**
+- **Fichiers** : `src/components/modals/AddSpot.js`
+- **Statut** : CORRIGÉ
+
+---
+
+### ERR-038 — getState().prop = value ne modifie pas le state
+- **Date** : 2026-03-18
+- **Gravité** : MAJEUR
+- **Cause racine** : `getState()` retourne `{ ...state }` (copie). Muter la copie n'a aucun effet.
+- **Correction** : Remplacé par `setState({ prop: value })` dans AddSpot.js et moderation.js
+- **Leçon** : **JAMAIS `getState().xxx = value`. Toujours `setState()`. Scanner le code pour ce pattern.**
+- **Fichiers** : `src/components/modals/AddSpot.js`, `src/services/moderation.js`
+- **Statut** : CORRIGÉ
+
+---
+
+### ERR-039 — Clusters spots disparaissent au zoom
+- **Date** : 2026-03-18
+- **Gravité** : CRITIQUE
+- **Cause racine** : `addedSpotIds` accumulait les IDs entre appels, empêchant les spots de réapparaître. Skip réseau bloquait le rechargement au zoom.
+- **Correction** : `addedSpotIds.clear()` à CHAQUE appel. Toujours recharger quand zoom change.
+- **Leçon** : **Ne JAMAIS accumuler un cache entre appels d'une fonction qui reconstruit des données complètes.**
+- **Fichiers** : `src/components/App.js`
+- **Statut** : CORRIGÉ
+
+---
+
+### ERR-040 — 301 doublons spots dans spotLoader
+- **Date** : 2026-03-18
+- **Gravité** : MAJEUR
+- **Cause racine** : `allLoadedSpots` était un tableau, chaque chargement concaténait sans dédup.
+- **Correction** : Remplacé par `Map<id, spot>`
+- **Leçon** : **Pour une collection multi-sources, utiliser Map(id) au lieu de tableau pour garantir l'unicité.**
+- **Fichiers** : `src/services/spotLoader.js`
+- **Statut** : CORRIGÉ
+
+---
+
 ### ERR-038 — CSP connect-src bloquait l'API Photon (suggestions de ville invisibles)
 
 - **Date** : 2026-02-24

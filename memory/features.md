@@ -1,6 +1,6 @@
 # features.md - Inventaire complet des fonctionnalités SpotHitch
 
-> Dernière mise à jour : 2026-03-14
+> Dernière mise à jour : 2026-03-18
 > IMPORTANT : Vérifier ce fichier AVANT de proposer une feature — elle existe peut-être déjà !
 
 ---
@@ -9,7 +9,7 @@
 
 - [x] Carte interactive MapLibre GL JS avec tuiles OpenFreeMap
 - [x] Clustering dynamique des spots (dé-cluster au zoom)
-- [x] Système 3 tiers spots : gris (basique) → vert (3+ tests ET validations) → or (10+) + couronne ambassadeur + anneau rouge station
+- [x] Système 2 tiers spots : bleu (communauté) → vert (3+ tests ET validations) → or (10+) + couronne ambassadeur + anneau rouge station (gris supprimé avec HW)
 - [x] Marqueurs carte couleurs combinées (tier + anneau rouge station-service)
 - [x] Centrage GPS sur position utilisateur (bouton visible sur tous les appareils, demande permission au clic)
 - [x] ~~Split view (carte + liste côte à côte)~~ (supprimé session 16 — bouton "nearby spots" retiré)

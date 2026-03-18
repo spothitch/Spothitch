@@ -126,6 +126,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_push_config', category: DataCategory.SETTINGS, description: 'Push notification opt-in config' },
   { key: 'spothitch_test_mode', category: DataCategory.SETTINGS, description: 'Developer test mode bypass for auth' },
   { key: 'spothitch_beta_seen', category: DataCategory.SETTINGS, description: 'Beta banner dismissed flag' },
+  { key: 'spothitch_hw_purged', category: DataCategory.CACHE, description: 'One-time flag: Hitchwiki spots purged from IDB/SW cache' },
   { key: 'spothitch_gmaps_tip_hidden', category: DataCategory.SETTINGS, description: 'Google Maps share tip dismissed' },
   { key: 'spothitch_v4_cookie_consent', category: DataCategory.SETTINGS, description: 'Cookie consent preferences (RGPD)' },
 
