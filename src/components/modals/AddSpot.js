@@ -764,10 +764,15 @@ window.selectSpotType = (type) => {
       btn.style.color = '#64748b'
     }
   })
-  // Store in spotFormData AND state for persistence across re-renders
+  // Toggle station name field visibility (gas_station only)
+  const stationField = document.getElementById('spot-station-name')?.parentElement
+  if (stationField) {
+    stationField.style.display = type === 'gas_station' ? '' : 'none'
+  }
+  // Store in spotFormData AND state for persistence (no re-render)
   window.spotFormData.spotType = type
   import('../../stores/state.js').then(({ setState }) => {
-    setState({ addSpotType: type })
+    setState({ addSpotType: type, _skipRender: true })
   })
 }
 
