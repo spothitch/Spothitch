@@ -4827,6 +4827,7 @@ export default {
   validatedShort: 'validés',
   offlinePanelTitle: 'Spots hors-ligne',
   offlineSaved: 'Sauvé',
+  popular: 'Populaires',
   americas: 'Amériques',
   asia: 'Asie',
   africa: 'Afrique',

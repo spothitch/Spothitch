@@ -233,12 +233,17 @@ function renderOfflinePanel(state) {
     for (const c of spotIndex.countries) spotCounts[c.code] = c.count || 0
   }
 
-  // All available country codes (sorted by spot count descending for better UX)
-  const ALL_COUNTRIES = Object.keys(spotCounts).length > 0
+  // Split: top 3 by spot count + rest alphabetically
+  const downloadedCodes = new Set(offlineCountries.map(c => c.code))
+  const allAvailable = (Object.keys(spotCounts).length > 0
     ? spotIndex.countries.map(c => c.code)
     : ['FR','DE','CZ','ES','NL','PL','AT','GB','DK','BE','CH','IT','HR','FI','AL','SE','HU','BA','BG','RO','EE','GR','RS','CA','LT','TR','NO','SI','AU','GE','SK','AR','US','LV','MA','PT','JP','MK','NZ','CL','ME','AM','BR','IE','UA','CO','IS','XK','KZ','MX']
-  const downloadedCodes = new Set(offlineCountries.map(c => c.code))
-  const availableCountries = ALL_COUNTRIES.filter(c => !downloadedCodes.has(c))
+  ).filter(c => !downloadedCodes.has(c))
+  // Top 3 by spot count
+  const top3 = [...allAvailable].sort((a, b) => (spotCounts[b] || 0) - (spotCounts[a] || 0)).slice(0, 3)
+  const top3Set = new Set(top3)
+  // Rest sorted alphabetically by localized name
+  const restCountries = allAvailable.filter(c => !top3Set.has(c)).sort((a, b) => countryName(a).localeCompare(countryName(b), lang))
 
   // Estimate total size: spots JSON (~0.5 KB/spot) + map tiles (~1.5 MB base) + stations
   const getSpotCount = (code) => spotCounts[code] || 0
@@ -279,18 +284,21 @@ function renderOfflinePanel(state) {
     const downloading = state.offlineDownloadingCountry === code
     const progress = state.offlineDownloadProgress || 0
 
+    const downloadBtn = downloading
+      ? `<button class="relative px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap overflow-hidden min-w-[90px]" style="background:rgba(245,158,11,0.1);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)" type="button" disabled>
+          <div style="position:absolute;inset:0;background:rgba(245,158,11,0.25);width:${progress}%;transition:width 0.3s ease;border-radius:7px"></div>
+          <span style="position:relative">${progress}%</span>
+        </button>`
+      : `<button id="dl-btn-${code}" onclick="downloadCountryForOffline('${code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)" type="button">${t('downloadOffline') || 'Télécharger'}</button>`
+
     return `
       <div class="flex items-center gap-3 px-4 py-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
         <span class="text-2xl">${flag}</span>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium">${name}</div>
           <div class="text-xs text-slate-400">${spotCount > 0 ? `${spotCount} spots` : ''}${spotCount > 0 && size ? ' · ' : ''}${size}</div>
-          ${downloading ? `<div style="height:3px;background:#1e293b;border-radius:2px;overflow:hidden;margin-top:4px"><div style="height:100%;background:#f59e0b;border-radius:2px;width:${progress}%"></div></div>` : ''}
         </div>
-        ${downloading
-          ? `<span class="text-xs text-amber-400 font-medium">${progress}%</span>`
-          : `<button id="dl-btn-${code}" onclick="downloadCountryForOffline('${code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)" type="button">${t('downloadOffline') || 'Télécharger'}</button>`
-        }
+        ${downloadBtn}
       </div>`
   }
 
@@ -308,8 +316,12 @@ function renderOfflinePanel(state) {
       </div>
       <!-- Country list -->
       <div style="overflow-y:auto;max-height:calc(70vh - 140px)">
+        ${offlineCountries.length > 0 ? `<div class="px-4 pt-2 pb-1"><span class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">${t('offlineSaved') || 'Sauvé'}</span></div>` : ''}
         ${offlineCountries.map(c => renderDownloadedRow(c)).join('')}
-        ${availableCountries.map(code => renderAvailableRow(code)).join('')}
+        ${top3.length > 0 ? `<div class="px-4 pt-3 pb-1"><span class="text-[10px] font-semibold text-amber-400 uppercase tracking-wider">${t('popular') || 'Populaires'}</span></div>` : ''}
+        ${top3.map(code => renderAvailableRow(code)).join('')}
+        ${restCountries.length > 0 ? `<div class="px-4 pt-3 pb-1"><span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">A — Z</span></div>` : ''}
+        ${restCountries.map(code => renderAvailableRow(code)).join('')}
       </div>
       <!-- Footer -->
       <div class="px-4 py-3 flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,0.05)">

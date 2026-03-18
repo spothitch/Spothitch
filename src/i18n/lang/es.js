@@ -4823,6 +4823,7 @@ export default {
   validatedShort: 'valid.',
   offlinePanelTitle: 'Spots sin conexión',
   offlineSaved: 'Guardado',
+  popular: 'Populares',
   americas: 'Américas',
   asia: 'Asia',
   africa: 'África',
