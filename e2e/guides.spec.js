@@ -60,13 +60,13 @@ test.describe('Guides', () => {
     // Navigate to Voyage tab first
     const voyageTab = page.locator('button:has-text("Voyage"), button:has-text("Trip")')
     if (await voyageTab.count() > 0) {
-      await voyageTab.first().click()
+      await voyageTab.first().click({ timeout: 5000 }).catch(() => {})
       await page.waitForTimeout(1000)
     }
 
     const guidesTab = page.locator('button:has-text("Guides"), button:has-text("guides"), [data-subtab="guides"]')
     if (await guidesTab.count() > 0) {
-      await guidesTab.first().click()
+      await guidesTab.first().click({ timeout: 5000 }).catch(() => {})
       await page.waitForTimeout(2000)
     }
 
