@@ -88,12 +88,46 @@ window.installFromLanding = async () => {
     btn.textContent = `✅ ${t('appInstalled') || 'Application installée !'}`
     btn.style.background = '#22c55e'
     btn.disabled = true
+    // Close after showing success
+    setTimeout(() => {
+      localStorage.setItem('spothitch_landing_v2', '1')
+      window.setState({ showLanding: false })
+    }, 1500)
+  } else {
+    // PWA not available — show manual install instructions popup
+    _showInstallInstructions(t)
   }
-  // Always close landing after install attempt
-  setTimeout(() => {
-    localStorage.setItem('spothitch_landing_v2', '1')
-    window.setState({ showLanding: false })
-  }, installed ? 1500 : 300)
+}
+
+function _showInstallInstructions(t) {
+  // Remove existing popup if any
+  document.getElementById('install-instructions-popup')?.remove()
+  const popup = document.createElement('div')
+  popup.id = 'install-instructions-popup'
+  popup.style.cssText = 'position:fixed;bottom:120px;left:16px;right:16px;z-index:999;animation:slideUp 0.3s ease'
+  popup.innerHTML = `
+    <div style="background:rgba(15,23,42,0.97);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <span style="color:#fbbf24;font-weight:700;font-size:14px">📲 ${t('manualInstallTitle') || 'Installation manuelle'}</span>
+        <button onclick="this.closest('#install-instructions-popup').remove()" style="color:#64748b;font-size:20px;background:none;border:none;cursor:pointer">×</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:rgba(245,158,11,0.2);color:#fbbf24;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+          <p style="font-size:13px;color:#cbd5e1;margin:0">${t('installStep1') || 'Ouvre le <strong style="color:white">menu du navigateur</strong> (⋮ ou ⋯)'}</p>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:rgba(245,158,11,0.2);color:#fbbf24;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+          <p style="font-size:13px;color:#cbd5e1;margin:0">${t('installStep2') || 'Choisis <strong style="color:white">"Ajouter à l\'écran d\'accueil"</strong>'}</p>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:rgba(245,158,11,0.2);color:#fbbf24;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+          <p style="font-size:13px;color:#cbd5e1;margin:0">${t('installStep3') || 'Confirme en appuyant sur <strong style="color:white">"Installer"</strong>'}</p>
+        </div>
+      </div>
+      <button onclick="this.closest('#install-instructions-popup').remove();closeLanding()" style="width:100%;margin-top:14px;padding:10px;border-radius:10px;background:rgba(100,116,139,0.2);color:#94a3b8;font-size:13px;border:none;cursor:pointer">${t('understood') || "J'ai compris"}</button>
+    </div>`
+  document.body.appendChild(popup)
 }
 
 window.installPWAFromLanding = () => {

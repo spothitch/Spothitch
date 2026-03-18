@@ -95,26 +95,22 @@ export function renderHome(state) {
       <div class="absolute bottom-[7.5rem] left-3 z-30 flex flex-col gap-2 items-start">
         <button
           onclick="openOfflinePanel()"
-          class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 flex items-center justify-center shadow-lg hover:bg-dark-primary/80 hover:text-white transition-colors"
+          class="flex items-center gap-2 h-11 px-3 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 shadow-lg hover:bg-dark-primary/80 hover:text-white active:scale-95 transition-all"
           aria-label="${t('offline') || 'Hors-ligne'}"
           tabindex="0"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+          <span class="text-[11px] font-medium">${t('offline') || 'Hors-ligne'}</span>
         </button>
         <button
           onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
-          class="w-11 h-11 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 flex items-center justify-center shadow-lg hover:bg-dark-primary/80 hover:text-white transition-colors"
+          class="flex items-center gap-2 h-11 px-3 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 shadow-lg hover:bg-dark-primary/80 hover:text-white active:scale-95 transition-all"
           aria-label="${t('countryGuides') || 'Guides pays'}"
           tabindex="0"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span class="text-[11px] font-medium">${t('guides') || 'Guides'}</span>
         </button>
-        <div id="spot-counter" class="pointer-events-none">
-          <div class="px-2.5 py-1.5 rounded-lg text-[10px] leading-snug shadow-lg bg-black/60 backdrop-blur-sm">
-            <span class="flex items-center gap-1 text-slate-400"><span class="w-[5px] h-[5px] bg-slate-400 rounded-full inline-block"></span> <span id="hw-count">0</span> ${t('pendingShort') || 'en att.'}</span>
-            <span class="flex items-center gap-1 text-emerald-400 mt-0.5"><span class="w-[5px] h-[5px] bg-emerald-400 rounded-full inline-block"></span> <span id="sh-count">0</span> ${t('validatedShort') || 'validés'}</span>
-          </div>
-        </div>
       </div>
 
       <!-- Add Spot FAB -->

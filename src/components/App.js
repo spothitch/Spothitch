@@ -379,7 +379,7 @@ export function renderModals(state) {
     ${state.showLocationPermission ? lazyRender('renderLocationPermission', state) : ''}
     ${state.showInstallBanner ? lazyRender('renderInstallBanner') : ''}
     ${state.showLanguageSelector ? lazyRender('renderLanguageSelector', state) : ''}
-    ${state.showWelcome ? lazyRender('renderWelcome', state) : ''}
+    ${''}<!-- Welcome modal removed — redundant with landing carousel -->
     <!-- Coming-soon modals removed: now use showFeatureIntro() from FeatureIntroModal -->
     ${state.showMyData ? lazyRender('renderMyDataModal') : ''}
     ${state.showTitles ? lazyRender('renderTitlesModal', state) : ''}
@@ -706,6 +706,9 @@ export function afterRender(state) {
 
   // Inject / update persistent map controls (zoom, GPS, gas stations)
   ensureMapControls(state)
+
+  // Legend overlay (state-driven, survives re-renders)
+  if (window._ensureLegendOverlay) window._ensureLegendOverlay(state.showMapLegend)
 
   // Update spot counter (hw-count / sh-count in Home.js)
   updateSpotCounter()

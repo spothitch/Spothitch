@@ -17,39 +17,54 @@ let homeDestDebounce = null
 function _buildSuggestionHTML(results) {
   const t = window.t || ((k) => k)
   if (!results?.length) return ''
+
+  // Build places list (left column)
+  const places = results.map((r, i) => {
+    const shortName = escapeHTML(r.fullName || r.name || '')
+    const cityName = escapeHTML(r.name || '')
+    const countryName = escapeHTML(r.countryName || '')
+    const cc = (r.countryCode || '').toUpperCase()
+    return `<button onclick="homeSelectPlace(${Number(r.lat)}, ${Number(r.lng)}, '${escapeJSString(shortName)}')"
+      class="w-full px-3 py-2.5 text-left hover:bg-white/10 transition-colors" data-home-suggestion="${i}">
+      <div class="flex items-center gap-2">
+        ${cc ? `<span class="text-sm flex-shrink-0">${countryCodeToFlag(cc)}</span>` : ''}
+        <div class="min-w-0"><span class="font-medium text-sm text-white truncate block">${cityName}</span>
+        ${countryName ? `<span class="text-[10px] text-slate-400">${countryName}</span>` : ''}</div>
+      </div></button>`
+  }).join('')
+
+  // Build guides list (right column, deduplicated by country)
+  const seen = new Set()
+  const guides = results.filter(r => {
+    const cc = (r.countryCode || '').toUpperCase()
+    if (!cc || seen.has(cc)) return false
+    seen.add(cc)
+    return true
+  }).slice(0, 4).map(r => {
+    const cityName = escapeHTML(r.name || '')
+    const cc = (r.countryCode || '').toUpperCase()
+    const countryName = escapeHTML(r.countryName || '')
+    const slug = cityName.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    return `<button onclick="openCityPanel('${slug}', '${escapeJSString(cityName)}', ${Number(r.lat)}, ${Number(r.lng)}, '${cc}', '${escapeJSString(countryName)}')"
+      class="w-full px-3 py-2.5 text-left hover:bg-primary-500/10 transition-colors">
+      <div class="font-medium text-sm text-primary-400 truncate">${t('hitchhikingGuide') || 'Guide'}: ${cityName}</div>
+      <div class="text-[10px] text-slate-500">${countryName}</div>
+    </button>`
+  }).join('')
+
   return `
     <div class="bg-dark-secondary/95 backdrop-blur rounded-xl border border-white/10 overflow-hidden shadow-xl">
-      ${results.map((r, i) => {
-        const shortName = escapeHTML(r.fullName || r.name || '')
-        const cityName = escapeHTML(r.name || '')
-        const countryName = escapeHTML(r.countryName || '')
-        const cc = (r.countryCode || '').toUpperCase()
-        const slug = cityName.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-        return `
-        <div class="border-b border-white/5 last:border-0">
-          <button
-            onclick="homeSelectPlace(${Number(r.lat)}, ${Number(r.lng)}, '${escapeJSString(shortName)}')"
-            class="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors"
-            data-home-suggestion="${i}"
-          >
-            <div class="flex items-center gap-2">
-              ${cc ? `<span class="text-base flex-shrink-0">${countryCodeToFlag(cc)}</span>` : ''}
-              <div class="min-w-0">
-                <span class="font-medium text-sm truncate block">${cityName}</span>
-                ${countryName ? `<span class="text-xs text-slate-400">${countryName}</span>` : ''}
-              </div>
-            </div>
-          </button>
-          <button
-            onclick="openCityPanel('${slug}', '${escapeJSString(cityName)}', ${Number(r.lat)}, ${Number(r.lng)}, '${cc}', '${escapeJSString(countryName)}')"
-            class="w-full px-4 py-2 text-left text-primary-400 hover:bg-primary-500/10 transition-colors text-xs font-medium border-t border-white/5"
-          >
-            📍 ${t('hitchhikingFrom') || 'Hitchhiking from'} ${cityName}
-          </button>
-        </div>`
-      }).join('')}
-    </div>
-  `
+      <div class="flex">
+        <div class="flex-1" style="border-right:1px solid rgba(255,255,255,0.08)">
+          <div class="px-3 py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider" style="background:rgba(255,255,255,0.03)">📍 ${t('places') || 'Lieux'}</div>
+          ${places}
+        </div>
+        <div class="flex-1" style="background:rgba(245,158,11,0.03)">
+          <div class="px-3 py-1.5 text-[10px] font-semibold text-primary-400 uppercase tracking-wider" style="background:rgba(245,158,11,0.08)">📖 ${t('guides') || 'Guides'}</div>
+          ${guides || `<div class="px-3 py-3 text-xs text-slate-500">${t('noGuides') || 'Aucun guide'}</div>`}
+        </div>
+      </div>
+    </div>`
 }
 
 window.homeSearchDestination = (query) => {
@@ -162,15 +177,24 @@ window.homeZoomOut = () => {
 }
 
 window.toggleMapLegend = () => {
-  const t = window.t || ((k) => k)
+  const current = window.getState?.()?.showMapLegend || false
+  window.setState({ showMapLegend: !current })
+}
+
+// Render/update legend overlay inside #home-map (called from ensureMapControls)
+window._ensureLegendOverlay = (show) => {
   const existing = document.getElementById('map-legend-overlay')
-  if (existing) {
-    existing.remove()
+  if (!show) {
+    if (existing) existing.remove()
     return
   }
+  if (existing) return // already visible
   const mapEl = document.getElementById('home-map')
   if (!mapEl) return
+  const t = window.t || ((k) => k)
   import('../utils/mapMarkers.js').then(({ buildLegendHTML }) => {
+    // Check again after async import
+    if (document.getElementById('map-legend-overlay')) return
     const overlay = document.createElement('div')
     overlay.id = 'map-legend-overlay'
     overlay.className = 'map-legend-overlay'

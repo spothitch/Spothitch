@@ -150,21 +150,44 @@ window.deleteOfflineCountry = async (code) => {
 
 window.downloadCountryForOffline = async (code) => {
   const t = window.t
+  const btn = document.getElementById(`dl-btn-${code}`)
   try {
-    window.setState({ offlineDownloadingCountry: code, offlineDownloadProgress: 0 })
+    // Transform button into progress indicator (direct DOM, no re-render)
+    if (btn) {
+      btn.disabled = true
+      btn.style.position = 'relative'
+      btn.style.overflow = 'hidden'
+      btn.style.minWidth = '90px'
+      btn.innerHTML = `<div id="dl-fill-${code}" style="position:absolute;inset:0;background:rgba(245,158,11,0.25);width:0%;transition:width 0.3s ease;border-radius:7px"></div><span style="position:relative">0%</span>`
+    }
+
     const { downloadCountrySpots } = await import('../services/offlineDownload.js')
     const result = await downloadCountrySpots(code, (progress) => {
-      window.setState({ offlineDownloadProgress: progress })
+      // Update button progress directly (fast, no re-render)
+      const fill = document.getElementById(`dl-fill-${code}`)
+      const span = btn?.querySelector('span')
+      if (fill) fill.style.width = `${progress}%`
+      if (span) span.textContent = `${progress}%`
     })
-    window.setState({ offlineDownloadingCountry: null, offlineDownloadProgress: 0 })
+
     if (result.success) {
+      // Transform to "✓ Sauvé" button
+      if (btn) {
+        btn.style.background = 'rgba(16,185,129,0.15)'
+        btn.style.color = '#34d399'
+        btn.style.border = '1px solid rgba(16,185,129,0.2)'
+        btn.innerHTML = `✓ ${t('offlineSaved') || 'Sauvé'}`
+        btn.onclick = () => window.deleteOfflineCountry(code)
+      }
       window.showToast(t('downloadComplete') || 'Téléchargement terminé', 'success')
       if (window._refreshCountryBubbles) window._refreshCountryBubbles()
     } else {
+      // Restore button
+      if (btn) { btn.disabled = false; btn.innerHTML = t('downloadOffline') || 'Télécharger' }
       window.showToast(t('downloadFailed') || 'Échec du téléchargement', 'error')
     }
   } catch (e) {
-    window.setState({ offlineDownloadingCountry: null, offlineDownloadProgress: 0 })
+    if (btn) { btn.disabled = false; btn.innerHTML = t('downloadOffline') || 'Télécharger' }
     window.showToast(t('downloadFailed') || 'Échec du téléchargement', 'error')
   }
 }

@@ -218,6 +218,7 @@ const initialState = {
   // GPS Navigation
   gasStations: [],
   showGasStationsOnMap: false,
+  showMapLegend: false,
   navigationActive: false,
   navigationDestination: null,
   navigationRoute: null,
