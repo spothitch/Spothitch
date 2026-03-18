@@ -887,6 +887,9 @@ function initHomeMap(state) {
     // Track which spot IDs are already added to avoid duplicates
     const addedSpotIds = new Set()
 
+    // Cache last GeoJSON feature count + IDs to avoid unnecessary setData calls (prevents blinking)
+    let lastGeoJSONKey = ''
+
     // Apply user filters to spots
     const applySpotFilters = (spots) => {
       const s = getState()
@@ -936,7 +939,10 @@ function initHomeMap(state) {
 
     const addSpotsSource = async (geojson) => {
       if (spotsSourceAdded) {
-        // Update existing source data
+        // Skip setData if features haven't changed (prevents blinking/flickering)
+        const key = geojson.features.map(f => f.properties.id).sort().join(',')
+        if (key === lastGeoJSONKey) return
+        lastGeoJSONKey = key
         const source = map.getSource('home-spots')
         if (source) source.setData(geojson)
         return
@@ -1021,6 +1027,7 @@ function initHomeMap(state) {
       map.on('mouseleave', 'home-spot-points', () => { map.getCanvas().style.cursor = '' })
       map.on('mouseenter', 'home-clusters', () => { map.getCanvas().style.cursor = 'pointer' })
       map.on('mouseleave', 'home-clusters', () => { map.getCanvas().style.cursor = '' })
+
     }
 
     // haversineKm imported from ../utils/geo.js
@@ -1149,7 +1156,13 @@ function initHomeMap(state) {
     }
 
     // Refresh bubble data from community spots (dynamic, no Hitchwiki index)
+    // Throttled to avoid excessive rebuilds that cause visual flicker
+    let lastBubbleRefresh = 0
+    const BUBBLE_THROTTLE_MS = 2000
     const refreshBubbles = () => {
+      const now = Date.now()
+      if (now - lastBubbleRefresh < BUBBLE_THROTTLE_MS) return
+      lastBubbleRefresh = now
       if (!countryCenters) {
         // Load country centers from spotLoader if not yet loaded
         if (spotLoader) countryCenters = spotLoader.getCountryCenters()
@@ -1174,6 +1187,48 @@ function initHomeMap(state) {
     }
 
     map.on('load', async () => {
+      // Long press on map → open AddSpot with pre-filled coordinates
+      let longPressTimer = null
+      let longPressStart = null
+      const LONG_PRESS_MS = 600
+      const MAX_MOVE_PX = 10
+
+      map.getCanvas().addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return
+        longPressStart = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+        longPressTimer = setTimeout(() => {
+          const rect = map.getCanvas().getBoundingClientRect()
+          const point = [longPressStart.x - rect.left, longPressStart.y - rect.top]
+          const lngLat = map.unproject(point)
+          if (navigator.vibrate) navigator.vibrate(30)
+          if (window.openAddSpot) {
+            window._pendingShareCoords = { lat: lngLat.lat, lng: lngLat.lng }
+            window.openAddSpot()
+          }
+          longPressTimer = null
+          longPressStart = null
+        }, LONG_PRESS_MS)
+      }, { passive: true })
+
+      map.getCanvas().addEventListener('touchmove', (e) => {
+        if (!longPressTimer || !longPressStart) return
+        const dx = e.touches[0].clientX - longPressStart.x
+        const dy = e.touches[0].clientY - longPressStart.y
+        if (Math.sqrt(dx * dx + dy * dy) > MAX_MOVE_PX) {
+          clearTimeout(longPressTimer)
+          longPressTimer = null
+          longPressStart = null
+        }
+      }, { passive: true })
+
+      map.getCanvas().addEventListener('touchend', () => {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer)
+          longPressTimer = null
+        }
+        longPressStart = null
+      }, { passive: true })
+
       // Country bubble layers (shows bubbles for countries with community spots)
       addCountryBubbleLayers(map)
 
