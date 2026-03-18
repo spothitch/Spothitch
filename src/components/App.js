@@ -1136,7 +1136,13 @@ function initHomeMap(state) {
           west: bounds.getWest(),
         })
         const allLoaded = loader.getAllLoadedSpots()
-        updateSpotsOnMap(allLoaded)
+        // Merge with state spots (Firebase community) to avoid erasing them
+        const currentState2 = getState()
+        const stateSpots2 = currentState2.spots || []
+        const mergedMap = new Map()
+        stateSpots2.forEach(s => mergedMap.set(s.id, s))
+        allLoaded.forEach(s => mergedMap.set(s.id, s))
+        updateSpotsOnMap(Array.from(mergedMap.values()))
       } catch {
         // silently fail
       } finally {
