@@ -191,10 +191,10 @@ export default defineConfig({
           },
           {
             urlPattern: /\/data\/spots\/.*\.json$/i,
-            handler: 'CacheFirst',
+            handler: 'NetworkFirst',
             options: {
               cacheName: 'spot-data',
-              expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 7 }
+              expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 }
             }
           },
           {

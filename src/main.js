@@ -244,6 +244,16 @@ async function init() {
       setState({ showLanding: true })
     }
 
+    // One-shot: purge stale spot-data cache from pre-Hitchwiki-removal era
+    // This runs once per device, then never again
+    if (!localStorage.getItem('spothitch_spot_cache_purged')) {
+      localStorage.setItem('spothitch_spot_cache_purged', '1')
+      if (window.caches) {
+        caches.delete('spot-data').catch(() => {})
+        caches.delete('spot-index').catch(() => {})
+      }
+    }
+
     // Initialize offline handler (needed for first render)
     try { initOfflineHandler() } catch (e) { /* optional */ }
 
