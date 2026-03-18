@@ -72,6 +72,8 @@ let db;
 let storage;
 let messaging;
 
+export function getFirebaseAuth() { return auth }
+
 export function initializeFirebase() {
   try {
     // Avoid re-initializing if already done

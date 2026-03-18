@@ -1757,8 +1757,17 @@ window.showSpotSummary = async () => {
   const spotType = state.addSpotType || 'custom'
   const description = document.getElementById('spot-description')?.value.trim() || ''
 
-  // Auth check — must be logged in to publish
-  if (!state.isLoggedIn) {
+  // Auth check — check Firebase Auth directly (state.isLoggedIn can lag)
+  let isAuthed = state.isLoggedIn
+  if (!isAuthed) {
+    try {
+      const fb = await import('../../services/firebase.js')
+      const auth = fb.getFirebaseAuth?.()
+      isAuthed = !!auth?.currentUser
+      if (isAuthed) setState({ isLoggedIn: true, currentUser: auth.currentUser })
+    } catch { /* no-op */ }
+  }
+  if (!isAuthed) {
     const { showError } = await import('../../services/notifications.js')
     showError(t('authRequiredAddSpot'))
     setState({
@@ -1876,8 +1885,17 @@ window.handleAddSpot = async (event) => {
   const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
 
-  // Auth check — must be logged in to publish
-  if (!state.isLoggedIn) {
+  // Auth check — check Firebase Auth directly (state.isLoggedIn can lag behind on slow connections)
+  let isAuthed = state.isLoggedIn
+  if (!isAuthed) {
+    try {
+      const fb = await import('../../services/firebase.js')
+      const auth = fb.getFirebaseAuth?.()
+      isAuthed = !!auth?.currentUser
+      if (isAuthed) setState({ isLoggedIn: true, currentUser: auth.currentUser })
+    } catch { /* no-op */ }
+  }
+  if (!isAuthed) {
     const { showError } = await import('../../services/notifications.js')
     showError(t('authRequiredAddSpot'))
     setState({
