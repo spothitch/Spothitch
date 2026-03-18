@@ -1144,54 +1144,22 @@ function initHomeMap(state) {
       const z = map.getZoom()
       // Always show spots — clusters aggregate at low zoom automatically
       setSpotLayersVisibility(map, true)
-      // Country bubbles visible only at low zoom (opacity already fades at zoom 6→7)
-      setBubbleLayersVisibility(map, z < 7)
+      // Country bubbles disabled (Hitchwiki removed)
+      setBubbleLayersVisibility(map, false)
     }
 
-    // Refresh bubble data (downloaded/loaded states)
-    const refreshBubbles = () => {
-      if (!spotIndex || !countryCenters) return
-      let downloadedCodes = new Set()
-      try {
-        const dl = JSON.parse(localStorage.getItem('spothitch_offline_countries') || '[]')
-        downloadedCodes = new Set(dl.map(c => c.code))
-      } catch { /* no-op */ }
-      const loadedCodes = spotLoader ? spotLoader.getLoadedCountryCodes() : new Set()
-      updateCountryBubbleData(map, spotIndex, countryCenters, loadedCodes, downloadedCodes)
-    }
+    // Refresh bubble data — disabled (Hitchwiki data removed, bubbles no longer needed)
+    const refreshBubbles = () => {}
 
     map.on('load', async () => {
-      // Add country bubble layers
-      addCountryBubbleLayers(map)
+      // Country bubble layers disabled (Hitchwiki data removed)
+      // addCountryBubbleLayers(map)
 
-      // Load spotLoader + index
+      // Load spotLoader (no index needed — Hitchwiki removed)
       try {
         const mod = await import('../services/spotLoader.js')
         spotLoader = mod
-        spotIndex = await mod.loadSpotIndex()
-        countryCenters = mod.getCountryCenters()
       } catch { /* no-op */ }
-
-      // Initial bubble data
-      refreshBubbles()
-
-      // Click on cluster bubble → zoom in to expand
-      map.on('click', 'country-bubble-clusters', (e) => {
-        if (!e.features?.length) return
-        handleClusterClick(map, e.features[0])
-      })
-      map.on('mouseenter', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = 'pointer' })
-      map.on('mouseleave', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = '' })
-
-      // Click on individual country bubble → zoom into that country
-      map.on('click', 'country-bubble-circles', (e) => {
-        if (!e.features?.length) return
-        if (activePopup) { activePopup.remove(); activePopup = null }
-        const coords = e.features[0].geometry.coordinates
-        map.flyTo({ center: coords, zoom: 7, duration: 800 })
-      })
-      map.on('mouseenter', 'country-bubble-circles', () => { map.getCanvas().style.cursor = 'pointer' })
-      map.on('mouseleave', 'country-bubble-circles', () => { map.getCanvas().style.cursor = '' })
 
       // Initial load strategy
       const currentZoom = map.getZoom()
