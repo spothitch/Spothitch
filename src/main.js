@@ -457,6 +457,28 @@ async function init() {
         // Preload, cleanup, monitoring
         try { preloadOnIdle() } catch (e) { /* optional */ }
         try { cleanupOldData() } catch (e) { /* optional */ }
+        // One-time cleanup: purge cached Hitchwiki spots from IDB + SW cache
+        try {
+          if (!localStorage.getItem('spothitch_hw_purged')) {
+            import('./utils/idb.js').then(async ({ clear, cacheSet }) => {
+              await clear('spots')
+              // Invalidate spot index cache so it re-fetches (empty) from network
+              await cacheSet('spot_index', null, 1)
+              localStorage.setItem('spothitch_hw_purged', '1')
+              // Also purge SW caches for spot data files
+              if (typeof caches !== 'undefined') {
+                const keys = await caches.keys()
+                for (const key of keys) {
+                  const cache = await caches.open(key)
+                  const requests = await cache.keys()
+                  for (const req of requests) {
+                    if (req.url.includes('/data/spots/')) await cache.delete(req)
+                  }
+                }
+              }
+            }).catch(() => {})
+          }
+        } catch { /* optional */ }
         try { initWebVitals() } catch (e) { /* optional */ }
         try { initWasm() } catch (e) { /* optional */ }
         try { initHoverPrefetch() } catch (e) { /* optional */ }
@@ -802,9 +824,18 @@ function render(state) {
   }
 
   // 6. Update modals container
+  // Preserve misplaced map across re-renders (MapLibre GL canvas)
   const modalsEl = document.getElementById('app-modals')
   if (modalsEl) {
+    const misplacedMap = document.getElementById('report-misplaced-wrapper')
+    const savedMisplacedMap = (misplacedMap && misplacedMap.querySelector('canvas')) ? misplacedMap : null
+
     modalsEl.innerHTML = renderModals(state)
+
+    if (savedMisplacedMap) {
+      const slot = document.getElementById('report-misplaced-wrapper')
+      if (slot) slot.replaceWith(savedMisplacedMap)
+    }
   }
 
   // 7. Update overlays container
