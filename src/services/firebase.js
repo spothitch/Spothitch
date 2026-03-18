@@ -922,16 +922,30 @@ export async function quickValidateSpot(spotId) {
     const user = getCurrentUser()
     if (!user) return { success: false, error: 'not_authenticated' }
 
-    const spotRef = doc(db, 'spots', String(spotId))
+    const sid = String(spotId)
+    const spotRef = doc(db, 'spots', sid)
     const { increment } = await import('firebase/firestore')
-    await updateDoc(spotRef, {
-      validationCount: increment(1),
-      lastValidated: new Date().toISOString(),
-      lastValidatedBy: user.displayName || user.email?.split('@')[0] || 'Anonyme',
-    }).catch(() => {}) // May fail if spot is imported (not in Firestore)
+
+    // Ensure spot document exists (Hitchwiki spots may not have one)
+    try {
+      const spotSnap = await getDoc(spotRef)
+      if (!spotSnap.exists()) {
+        await setDoc(spotRef, { createdAt: serverTimestamp(), source: 'hitchwiki', validationCount: 0 })
+      }
+    } catch { /* non-blocking */ }
+
+    try {
+      await updateDoc(spotRef, {
+        validationCount: increment(1),
+        lastValidated: new Date().toISOString(),
+        lastValidatedBy: user.displayName || user.email?.split('@')[0] || 'Anonyme',
+      })
+    } catch {
+      try { await setDoc(spotRef, { validationCount: 1, lastValidated: new Date().toISOString(), lastValidatedBy: user.displayName || 'Anonyme' }, { merge: true }) } catch { /* non-blocking */ }
+    }
 
     // Log the validation
-    const validationsRef = collection(db, 'spots', String(spotId), 'validations')
+    const validationsRef = collection(db, 'spots', sid, 'validations')
     await addDoc(validationsRef, {
       type: 'quick_validate',
       userId: user.uid,
@@ -1061,8 +1075,26 @@ export async function addValidation(data) {
   try {
     const user = getCurrentUser()
     const spotId = String(data.spotId)
-    const validationsRef = collection(db, 'spots', spotId, 'validations')
 
+    // Ensure the spot document exists in Firestore (Hitchwiki spots may not have one)
+    const spotRef = doc(db, 'spots', spotId)
+    const { increment } = await import('firebase/firestore')
+    try {
+      const spotSnap = await getDoc(spotRef)
+      if (!spotSnap.exists()) {
+        // Create the spot document so subcollections and updateDoc work
+        await setDoc(spotRef, {
+          createdAt: serverTimestamp(),
+          source: 'hitchwiki',
+          testCount: 0,
+          checkins: 0,
+          validationCount: 0,
+        })
+      }
+    } catch { /* non-blocking — Security Rules may prevent read */ }
+
+    // Add validation to subcollection
+    const validationsRef = collection(db, 'spots', spotId, 'validations')
     await addDoc(validationsRef, {
       ...data,
       userId: user?.uid || 'anonymous',
@@ -1071,15 +1103,25 @@ export async function addValidation(data) {
     })
 
     // Update spot stats — increment testCount (full experience) + checkins
-    const spotRef = doc(db, 'spots', spotId)
-    const { increment } = await import('firebase/firestore')
-    await updateDoc(spotRef, {
-      testCount: increment(1),
-      checkins: increment(1),
-      lastTested: new Date().toISOString(),
-      lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
-      lastUsed: new Date().toISOString().split('T')[0],
-    }).catch(() => {}) // May fail if spot is imported (not in Firestore)
+    try {
+      await updateDoc(spotRef, {
+        testCount: increment(1),
+        checkins: increment(1),
+        lastTested: new Date().toISOString(),
+        lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
+        lastUsed: new Date().toISOString().split('T')[0],
+      })
+    } catch {
+      // If updateDoc fails (no doc), try setDoc with merge
+      try {
+        await setDoc(spotRef, {
+          testCount: 1,
+          checkins: 1,
+          lastTested: new Date().toISOString(),
+          lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
+        }, { merge: true })
+      } catch { /* non-blocking */ }
+    }
 
     return { success: true }
   } catch (error) {
