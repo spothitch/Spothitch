@@ -904,8 +904,10 @@ function initHomeMap(state) {
     }
 
     // Helper: convert spots array to GeoJSON
-    const spotsToGeoJSON = (spots, forceRebuild = false) => {
-      if (forceRebuild) addedSpotIds.clear()
+    // Always rebuilds from scratch — addedSpotIds is used only within one call
+    // to deduplicate spots that appear multiple times in the input array
+    const spotsToGeoJSON = (spots) => {
+      addedSpotIds.clear()
       const filtered = applySpotFilters(spots)
       const favSet = getFavoritesSet()
       const features = []
@@ -1085,7 +1087,7 @@ function initHomeMap(state) {
     // Gather all spots and push to source
     const updateSpotsOnMap = (spots) => {
       const geojson = spotsToGeoJSON(spots)
-      if (geojson.features.length === 0 && spotsSourceAdded) return
+      // Always update source even if empty — prevents stale clusters from persisting
       addSpotsSource(geojson)
 
       // Update badge count
@@ -1248,7 +1250,7 @@ function initHomeMap(state) {
       lastZoom = currentZoom
 
       if (zoomChanged) {
-        // Immediately show already-loaded spots (no debounce)
+        // Immediately show already-loaded spots with forceRebuild to clear stale IDs
         const existing = spotLoader ? spotLoader.getAllLoadedSpots() : []
         const currentState = getState()
         const stateSpots = currentState.spots || []
@@ -1258,9 +1260,9 @@ function initHomeMap(state) {
         if (spotsMap.size > 0) updateSpotsOnMap(Array.from(spotsMap.values()))
       }
 
-      // Skip network reload if bounds barely changed
+      // Skip network reload if bounds barely changed AND zoom didn't change
       const bounds = map.getBounds()
-      if (lastBounds) {
+      if (lastBounds && !zoomChanged) {
         const dLat = Math.abs(bounds.getNorth() - lastBounds.getNorth())
         const dLng = Math.abs(bounds.getEast() - lastBounds.getEast())
         if (dLat < 0.01 && dLng < 0.01) return
@@ -1281,7 +1283,7 @@ function initHomeMap(state) {
       stateSpots.forEach(s => spotsMap.set(s.id, s))
       existing.forEach(s => spotsMap.set(s.id, s))
       const allSpots = Array.from(spotsMap.values())
-      const geojson = spotsToGeoJSON(allSpots, true)
+      const geojson = spotsToGeoJSON(allSpots)
       addSpotsSource(geojson)
       populateSplitView(allSpots)
     }
