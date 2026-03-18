@@ -1008,6 +1008,8 @@ window.loadAdminReports = async () => {
 }
 
 window.adminConfirmReport = async (reportId, targetId) => {
+  const { auth } = await import('../../services/firebase.js')
+  if (!auth.currentUser || !getState().isAdmin) { window.showToast?.(t('unauthorized') || 'Not authorized', 'error'); return }
   try {
     const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
     const { getApp } = await import('firebase/app')
@@ -1016,29 +1018,33 @@ window.adminConfirmReport = async (reportId, targetId) => {
     if (targetId) {
       await updateDoc(doc(db, 'spots', targetId), { hidden: true, hiddenReason: 'report_confirmed' }).catch(() => {})
     }
-    window.showToast?.('Signalement confirmé, spot masqué', 'success')
+    window.showToast?.(t('adminReportConfirmed') || 'Report confirmed, spot hidden', 'success')
     window.loadAdminReports()
   } catch (err) {
     console.error('Error confirming report:', err)
-    window.showToast?.('Erreur', 'error')
+    window.showToast?.(t('loadingError') || 'Error', 'error')
   }
 }
 
 window.adminDismissReport = async (reportId) => {
+  const { auth } = await import('../../services/firebase.js')
+  if (!auth.currentUser || !getState().isAdmin) { window.showToast?.(t('unauthorized') || 'Not authorized', 'error'); return }
   try {
     const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
     const { getApp } = await import('firebase/app')
     const db = getFirestore(getApp())
     await updateDoc(doc(db, 'reports', reportId), { status: 'dismissed', resolvedAt: serverTimestamp() })
-    window.showToast?.('Signalement rejeté', 'success')
+    window.showToast?.(t('adminReportDismissed') || 'Report dismissed', 'success')
     window.loadAdminReports()
   } catch (err) {
     console.error('Error dismissing report:', err)
-    window.showToast?.('Erreur', 'error')
+    window.showToast?.(t('loadingError') || 'Error', 'error')
   }
 }
 
 window.adminRelocateSpot = async (reportId, targetId, lat, lng) => {
+  const { auth } = await import('../../services/firebase.js')
+  if (!auth.currentUser || !getState().isAdmin) { window.showToast?.(t('unauthorized') || 'Not authorized', 'error'); return }
   try {
     const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
     const { getApp } = await import('firebase/app')
@@ -1052,11 +1058,11 @@ window.adminRelocateSpot = async (reportId, targetId, lat, lng) => {
       relocatedFrom: 'misplaced_report',
     }).catch(() => {})
     await updateDoc(doc(db, 'reports', reportId), { status: 'confirmed', resolvedAt: serverTimestamp() })
-    window.showToast?.('Spot déplacé avec succès', 'success')
+    window.showToast?.(t('adminReportRelocated') || 'Spot relocated successfully', 'success')
     window.loadAdminReports()
   } catch (err) {
     console.error('Error relocating spot:', err)
-    window.showToast?.('Erreur', 'error')
+    window.showToast?.(t('loadingError') || 'Error', 'error')
   }
 }
 
