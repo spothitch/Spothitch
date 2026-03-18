@@ -4698,6 +4698,8 @@ export default {
   guideAddCategory: 'Add a category',
   guideYourRating: 'Your rating',
   guideNoContribution: 'No contribution yet',
+  guideCommunityPending: '{count} contribution(s) pending review',
+  guideCommunityPending1: '1 contribution pending review',
   guideContribSaved: 'Contribution saved!',
   guideContribDeleted: 'Contribution deleted',
   guideTipPending: 'Pending review',

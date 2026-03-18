@@ -4753,6 +4753,8 @@ export default {
   guideAddCategory: 'Kategorie hinzufügen',
   guideYourRating: 'Deine Bewertung',
   guideNoContribution: 'Noch kein Beitrag',
+  guideCommunityPending: '{count} Beitrag/Beiträge ausstehend',
+  guideCommunityPending1: '1 Beitrag ausstehend',
   guideContribSaved: 'Beitrag gespeichert!',
   guideContribDeleted: 'Beitrag gelöscht',
   guideTipPending: 'Überprüfung ausstehend',

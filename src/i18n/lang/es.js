@@ -4695,6 +4695,8 @@ export default {
   guideAddCategory: 'Añadir una categoría',
   guideYourRating: 'Tu nota',
   guideNoContribution: 'Sin contribución aún',
+  guideCommunityPending: '{count} contribución(es) pendiente(s) de revisión',
+  guideCommunityPending1: '1 contribución pendiente de revisión',
   guideContribSaved: '¡Contribución guardada!',
   guideContribDeleted: 'Contribución eliminada',
   guideTipPending: 'Pendiente de revisión',

@@ -4699,6 +4699,8 @@ export default {
   guideAddCategory: 'Ajouter une catégorie',
   guideYourRating: 'Ta note',
   guideNoContribution: 'Pas encore de contribution',
+  guideCommunityPending: '{count} contribution(s) en attente de validation',
+  guideCommunityPending1: '1 contribution en attente de validation',
   guideContribSaved: 'Contribution enregistrée !',
   guideContribDeleted: 'Contribution supprimée',
   guideTipPending: 'En attente de validation',

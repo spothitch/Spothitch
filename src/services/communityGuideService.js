@@ -88,6 +88,9 @@ export async function submitGuideTip({ countryCode, category, rating, text, cust
     // Offline — local cache already saved
   }
 
+  // Invalidate community counts cache since a new tip was submitted
+  invalidatePendingCountsCache()
+
   return { success: true }
 }
 
@@ -187,6 +190,53 @@ export async function loadPublicGuideTips(countryCode) {
   }
 }
 
+// ==================== COMMUNITY PENDING COUNTS ====================
+
+let _pendingCountsCache = null
+let _pendingCountsLoading = false
+
+/**
+ * Load pending contribution counts grouped by country (visible to all users)
+ * Returns { countryCode: count } e.g. { FR: 3, DE: 1, AL: 2 }
+ */
+export async function loadCommunityPendingCounts() {
+  if (_pendingCountsCache) return _pendingCountsCache
+  if (_pendingCountsLoading) return {}
+  _pendingCountsLoading = true
+  try {
+    const db = await getDb()
+    if (!db) { _pendingCountsLoading = false; return {} }
+    const { collection, query, where, getDocs } = await import('firebase/firestore')
+    const q = query(collection(db, 'guideTips'), where('status', '==', 'pending'))
+    const snap = await getDocs(q)
+    const counts = {}
+    snap.docs.forEach(d => {
+      const code = d.data().countryCode
+      if (code) counts[code] = (counts[code] || 0) + 1
+    })
+    _pendingCountsCache = counts
+    _pendingCountsLoading = false
+    return counts
+  } catch {
+    _pendingCountsLoading = false
+    return {}
+  }
+}
+
+/**
+ * Get cached pending counts (sync, for rendering)
+ */
+export function getCommunityPendingCounts() {
+  return _pendingCountsCache || {}
+}
+
+/**
+ * Invalidate cache (call after a new submission)
+ */
+export function invalidatePendingCountsCache() {
+  _pendingCountsCache = null
+}
+
 // ==================== ADMIN FUNCTIONS ====================
 
 /**
@@ -260,6 +310,9 @@ export default {
   deleteUserGuideTip,
   getUserContribCount,
   loadPublicGuideTips,
+  loadCommunityPendingCounts,
+  getCommunityPendingCounts,
+  invalidatePendingCountsCache,
   approveGuideTip,
   rejectGuideTip,
   loadPendingGuideTips,

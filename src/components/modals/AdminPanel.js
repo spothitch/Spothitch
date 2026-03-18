@@ -7,7 +7,7 @@
 import { getState, setState } from '../../stores/state.js'
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 
 // ==================== FEATURE LIST (mirrors FeedbackPanel.js) ====================
 const FEATURES = {
@@ -655,6 +655,127 @@ function renderToolsTab(state) {
     </div>`
 }
 
+// ==================== RENDER: REPORTS TAB ====================
+
+function renderReportsTab(state) {
+  const reports = state.adminReportsData
+
+  if (!reports) {
+    return `
+      <div class="text-center py-12">
+        <div class="text-4xl mb-4">🚩</div>
+        <p class="text-slate-300 mb-4">${t('adminReportsLoadPrompt') || 'Charger les signalements depuis Firebase'}</p>
+        <button onclick="loadAdminReports()" class="btn-primary px-6 py-2">
+          ${icon('download', 'w-4 h-4 mr-2')} ${t('adminReportsLoad') || 'Charger les signalements'}
+        </button>
+      </div>`
+  }
+
+  if (reports.length === 0) {
+    return `
+      <div class="text-center py-12">
+        <div class="text-4xl mb-4">✅</div>
+        <p class="text-emerald-400 font-bold">${t('adminReportsNone') || 'Aucun signalement'}</p>
+        <button onclick="loadAdminReports()" class="btn-secondary px-4 py-1 mt-4 text-sm">
+          ${t('adminSentryRefresh') || 'Rafraîchir'}
+        </button>
+      </div>`
+  }
+
+  const pending = reports.filter(r => r.status === 'pending')
+  const confirmed = reports.filter(r => r.status === 'confirmed')
+  const dismissed = reports.filter(r => r.status === 'dismissed')
+
+  const SEVERITY_COLORS = {
+    low: 'text-slate-400 bg-slate-500/20',
+    medium: 'text-amber-400 bg-amber-500/20',
+    high: 'text-orange-400 bg-orange-500/20',
+    critical: 'text-red-400 bg-red-500/20',
+  }
+
+  const REASON_ICONS = {
+    misplaced: '📍', inaccurate: '⚠️', dangerous: '💀', inappropriate: '🚫',
+    duplicate: '📋', closed: '🔒', spam: '📢', harassment: '👤',
+    fake: '👁️', hate: '🔥', other: 'ℹ️',
+  }
+
+  const kpiHtml = `
+    <div class="grid grid-cols-3 gap-2 mb-4">
+      <div class="card p-3 text-center">
+        <div class="text-2xl font-bold text-amber-400">${pending.length}</div>
+        <div class="text-xs text-slate-400">${t('adminReportsPending') || 'En attente'}</div>
+      </div>
+      <div class="card p-3 text-center">
+        <div class="text-2xl font-bold text-emerald-400">${confirmed.length}</div>
+        <div class="text-xs text-slate-400">${t('adminReportsConfirmed') || 'Confirmés'}</div>
+      </div>
+      <div class="card p-3 text-center">
+        <div class="text-2xl font-bold text-slate-400">${dismissed.length}</div>
+        <div class="text-xs text-slate-400">${t('adminReportsDismissed') || 'Rejetés'}</div>
+      </div>
+    </div>`
+
+  const reportListHtml = reports.slice(0, 50).map(report => {
+    const reasonIcon = REASON_ICONS[report.reason] || '🚩'
+    const sevStyle = SEVERITY_COLORS[report.severity] || SEVERITY_COLORS.low
+    const dateStr = report.createdAt?.toDate
+      ? report.createdAt.toDate().toLocaleDateString()
+      : report.createdAt ? new Date(report.createdAt).toLocaleDateString() : ''
+    const statusBadge = report.status === 'pending'
+      ? '<span class="px-1.5 py-0.5 rounded text-xs bg-amber-500/20 text-amber-400">En attente</span>'
+      : report.status === 'confirmed'
+        ? '<span class="px-1.5 py-0.5 rounded text-xs bg-emerald-500/20 text-emerald-400">Confirmé</span>'
+        : '<span class="px-1.5 py-0.5 rounded text-xs bg-slate-500/20 text-slate-400">Rejeté</span>'
+
+    const coordsHtml = report.reason === 'misplaced' && report.suggestedLat
+      ? `<div class="text-xs text-blue-400 mt-1">📍 Position suggérée : ${Number(report.suggestedLat).toFixed(5)}, ${Number(report.suggestedLng).toFixed(5)}</div>`
+      : ''
+
+    const descHtml = report.description
+      ? `<p class="text-xs text-slate-300 mt-1">${escapeHTML(report.description)}</p>`
+      : ''
+
+    const actionBtns = report.status === 'pending' ? `
+      <div class="flex gap-2 mt-2">
+        ${report.reason === 'misplaced' && report.suggestedLat
+          ? `<button onclick="adminRelocateSpot('${escapeJSString(report.id)}', '${escapeJSString(report.targetId)}', ${report.suggestedLat}, ${report.suggestedLng})" class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">📍 Déplacer</button>`
+          : `<button onclick="adminConfirmReport('${escapeJSString(report.id)}', '${escapeJSString(report.targetId)}')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30">🚫 Masquer le spot</button>`
+        }
+        <button onclick="adminDismissReport('${escapeJSString(report.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400 hover:bg-slate-500/30">✕ Rejeter</button>
+      </div>` : ''
+
+    return `<div class="py-3 border-b border-slate-700/50">
+      <div class="flex items-start gap-2">
+        <div class="text-lg">${reasonIcon}</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-medium text-sm">${escapeHTML(report.reason || 'autre')}</span>
+            <span class="px-1.5 py-0.5 rounded text-xs ${sevStyle}">${report.severity || 'low'}</span>
+            ${statusBadge}
+          </div>
+          <div class="text-xs text-slate-500 mt-0.5">
+            ${report.type || 'spot'} · ${escapeHTML(report.reporterName || 'Anonyme')} · ${dateStr}
+          </div>
+          ${coordsHtml}
+          ${descHtml}
+          ${actionBtns}
+        </div>
+      </div>
+    </div>`
+  }).join('')
+
+  return `
+    ${kpiHtml}
+
+    <div class="card p-3 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="text-sm font-bold text-slate-200">${t('adminReportsList') || 'Signalements'} (${reports.length})</h4>
+        <button onclick="loadAdminReports()" class="text-xs text-amber-400 hover:underline">${t('adminSentryRefresh') || 'Rafraîchir'}</button>
+      </div>
+      <div class="max-h-96 overflow-y-auto">${reportListHtml}</div>
+    </div>`
+}
+
 // ==================== MAIN RENDER ====================
 
 export function renderAdminPanel(state) {
@@ -662,6 +783,7 @@ export function renderAdminPanel(state) {
 
   const tabs = [
     { key: 'feedback', label: t('adminTabFeedback') || 'Feedbacks', emoji: '📊' },
+    { key: 'reports', label: t('adminTabReports') || 'Signalements', emoji: '🚩' },
     { key: 'sentry', label: t('adminTabSentry') || 'Erreurs', emoji: '🐛' },
     { key: 'tools', label: t('adminTabTools') || 'Outils', emoji: '⚙️' },
   ]
@@ -676,6 +798,7 @@ export function renderAdminPanel(state) {
 
   let tabContent
   if (activeTab === 'feedback') tabContent = renderFeedbackTab(state)
+  else if (activeTab === 'reports') tabContent = renderReportsTab(state)
   else if (activeTab === 'sentry') tabContent = renderSentryTab(state)
   else tabContent = renderToolsTab(state)
 
@@ -863,6 +986,78 @@ window.adminExportState = () => {
   a.click()
   URL.revokeObjectURL(url)
   window.showToast?.(t('stateExported') || 'State exporté', 'success')
+}
+
+// ==================== REPORTS HANDLERS ====================
+
+window.loadAdminReports = async () => {
+  try {
+    window.showToast?.(t('loading') || 'Chargement...', 'info')
+    const { getFirestore, collection, getDocs, query, orderBy, limit } = await import('firebase/firestore')
+    const { getApp } = await import('firebase/app')
+    const db = getFirestore(getApp())
+    const q = query(collection(db, 'reports'), orderBy('createdAt', 'desc'), limit(100))
+    const snapshot = await getDocs(q)
+    const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+    setState({ adminReportsData: docs })
+    window.showToast?.(`${docs.length} signalement${docs.length > 1 ? 's' : ''}`, 'success')
+  } catch (err) {
+    console.error('Error loading reports:', err)
+    window.showToast?.(t('loadingError') || 'Erreur de chargement', 'error')
+  }
+}
+
+window.adminConfirmReport = async (reportId, targetId) => {
+  try {
+    const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
+    const { getApp } = await import('firebase/app')
+    const db = getFirestore(getApp())
+    await updateDoc(doc(db, 'reports', reportId), { status: 'confirmed', resolvedAt: serverTimestamp() })
+    if (targetId) {
+      await updateDoc(doc(db, 'spots', targetId), { hidden: true, hiddenReason: 'report_confirmed' }).catch(() => {})
+    }
+    window.showToast?.('Signalement confirmé, spot masqué', 'success')
+    window.loadAdminReports()
+  } catch (err) {
+    console.error('Error confirming report:', err)
+    window.showToast?.('Erreur', 'error')
+  }
+}
+
+window.adminDismissReport = async (reportId) => {
+  try {
+    const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
+    const { getApp } = await import('firebase/app')
+    const db = getFirestore(getApp())
+    await updateDoc(doc(db, 'reports', reportId), { status: 'dismissed', resolvedAt: serverTimestamp() })
+    window.showToast?.('Signalement rejeté', 'success')
+    window.loadAdminReports()
+  } catch (err) {
+    console.error('Error dismissing report:', err)
+    window.showToast?.('Erreur', 'error')
+  }
+}
+
+window.adminRelocateSpot = async (reportId, targetId, lat, lng) => {
+  try {
+    const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
+    const { getApp } = await import('firebase/app')
+    const db = getFirestore(getApp())
+    await updateDoc(doc(db, 'spots', targetId), {
+      lat: lat,
+      lng: lng,
+      'coordinates.lat': lat,
+      'coordinates.lng': lng,
+      relocatedAt: serverTimestamp(),
+      relocatedFrom: 'misplaced_report',
+    }).catch(() => {})
+    await updateDoc(doc(db, 'reports', reportId), { status: 'confirmed', resolvedAt: serverTimestamp() })
+    window.showToast?.('Spot déplacé avec succès', 'success')
+    window.loadAdminReports()
+  } catch (err) {
+    console.error('Error relocating spot:', err)
+    window.showToast?.('Erreur', 'error')
+  }
 }
 
 // openDonation is defined in DonationCard.js (accepts amount/type params)
