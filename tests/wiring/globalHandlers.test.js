@@ -363,6 +363,7 @@ const MAIN_JS_HANDLERS = [
   'selectSpotType', 'setWaitTime', 'setMethod',
   'setGroupSize', 'setTimeOfDay', 'toggleAmenity',
   'saveDraftAndClose', 'setRideResult',
+  'setExperienceDate', 'updateExperienceDate',
   // Validation mode (openTestSpot/openValidateSpot defined in spotActions.js)
   'openValidateSpot', 'openTestSpot',
   // Favorites (defined in favorites.js)
