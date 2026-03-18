@@ -9,7 +9,7 @@ import { countryGuides, getGuideByCode, getUniversalPhrases } from '../../data/g
 import { icon } from '../../utils/icons.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
 import { renderTipVoteButtons, renderSuggestionForm } from '../../services/feedbackService.js'
-import { GUIDE_CATEGORIES, getUserGuideTips, submitGuideTip, deleteUserGuideTip, loadCommunityPendingCounts, getCommunityPendingCounts } from '../../services/communityGuideService.js'
+import { GUIDE_CATEGORIES, getUserGuideTips, submitGuideTip, deleteUserGuideTip, loadCommunityPendingCounts, getCommunityPendingCounts, loadPublicGuideTips } from '../../services/communityGuideService.js'
 import { getCurrentUser } from '../../services/firebase.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 
@@ -342,8 +342,40 @@ function renderStartSection() {
 }
 
 // ==================== PAR PAYS ====================
+
+// Country center coordinates for proximity sorting
+const COUNTRY_CENTERS = {
+  FR: [46.6, 2.3], DE: [51.2, 10.4], ES: [40.4, -3.7], IT: [41.9, 12.5],
+  NL: [52.1, 5.3], BE: [50.5, 4.5], PT: [39.4, -8.2], AT: [47.5, 13.2],
+  CH: [46.8, 8.2], GB: [51.5, -0.1], IE: [53.4, -8.2], PL: [51.9, 19.1],
+  CZ: [49.8, 15.5], SE: [60.1, 18.6], NO: [60.5, 8.5], DK: [56.3, 9.5],
+  FI: [61.9, 25.7], HR: [45.1, 15.2], GR: [39.1, 21.8], RO: [45.9, 24.9],
+  HU: [47.2, 19.5], SK: [48.7, 19.7], SI: [46.1, 15.0], BG: [42.7, 25.5],
+  LT: [55.2, 23.9], LV: [56.9, 24.1], EE: [58.6, 25.0], LU: [49.8, 6.1],
+  RS: [44.0, 21.0], BA: [43.9, 17.7], ME: [42.7, 19.4], MK: [41.5, 22.0],
+  AL: [41.3, 20.2], TR: [39.9, 32.9], MA: [31.8, -7.1], GE: [42.3, 43.4],
+  IL: [31.0, 34.9], NZ: [-41.3, 174.8],
+}
+
+function getDistanceToCountry(countryCode, userLat, userLng) {
+  const center = COUNTRY_CENTERS[countryCode]
+  if (!center || !userLat) return 99999
+  const dLat = center[0] - userLat
+  const dLng = center[1] - userLng
+  return Math.sqrt(dLat * dLat + dLng * dLng)
+}
+
 function renderCountriesSection() {
-  const sortedGuides = [...countryGuides].sort((a, b) => a.difficulty - b.difficulty)
+  const state = window.getState?.() || {}
+  const userLat = state.userLat || state.lat
+  const userLng = state.userLng || state.lng
+
+  const sortedGuides = [...countryGuides].sort((a, b) => {
+    if (userLat && userLng) {
+      return getDistanceToCountry(a.code, userLat, userLng) - getDistanceToCountry(b.code, userLat, userLng)
+    }
+    return a.difficulty - b.difficulty
+  })
   const pendingCounts = getCommunityPendingCounts()
 
   // Trigger async load of community pending counts (re-renders when ready)
@@ -658,7 +690,9 @@ export function renderCountryDetail(guideOrCode) {
         <p class="text-sm text-slate-400">
           ${contribCount > 0
             ? `${contribCount}/7 ${t('guideContribCount') || 'catégories contribuées'}`
-            : (t('guideNoContribution') || 'Aucune contribution pour le moment')
+            : communityPending > 0
+              ? (t('guideNoPersonalContrib') || 'Tu n\'as pas encore contribué')
+              : (t('guideNoContribution') || 'Aucune contribution pour le moment')
           }
         </p>
         ${communityPending > 0 ? `
@@ -730,8 +764,78 @@ export function renderCountryDetail(guideOrCode) {
       <!-- Custom category form -->
       ${state.guideCustomCategoryOpen ? renderCustomCategoryForm(guide.code) : ''}
 
+      <!-- Approved community tips -->
+      <div id="guide-community-tips" class="space-y-2">
+        ${renderCommunityTipsSection(guide.code, state)}
+      </div>
+
       <!-- Bottom padding -->
       <div class="h-8"></div>
+    </div>
+  `
+}
+
+// ==================== COMMUNITY TIPS SECTION ====================
+
+// Cache for community tips per country
+const _communityTipsCache = {}
+
+function renderCommunityTipsSection(countryCode, _state) {
+  const tips = _communityTipsCache[countryCode]
+  const currentUser = getCurrentUser()
+
+  // Trigger async load if not cached
+  if (!tips) {
+    loadPublicGuideTips(countryCode).then(loaded => {
+      // Filter: only approved tips from OTHER users
+      const othersTips = loaded.filter(tip =>
+        tip.status === 'approved' && (!currentUser || tip.userId !== currentUser.uid)
+      )
+      _communityTipsCache[countryCode] = othersTips
+      if (othersTips.length > 0) {
+        // Force re-render
+        const s = window.getState?.() || {}
+        window.setState?.({ _communityTipsLoaded: (s._communityTipsLoaded || 0) + 1 })
+      }
+    })
+    return '' // Loading...
+  }
+
+  if (tips.length === 0) return ''
+
+  // Group tips by category
+  const byCategory = {}
+  for (const tip of tips) {
+    const cat = tip.customCategory ? tip.customCategoryName : tip.category
+    if (!byCategory[cat]) byCategory[cat] = []
+    byCategory[cat].push(tip)
+  }
+
+  const catLabel = (catId) => {
+    const found = GUIDE_CATEGORIES.find(c => c.id === catId)
+    return found ? (t(found.labelKey) || found.fallback) : catId
+  }
+
+  return `
+    <div class="mt-4">
+      <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+        ${icon('users', 'w-4 h-4 text-emerald-400')}
+        ${t('guideCommunityTips') || 'Conseils de la communauté'} (${tips.length})
+      </h3>
+      <div class="space-y-2">
+        ${Object.entries(byCategory).map(([catId, catTips]) => `
+          <div class="card p-3">
+            <div class="text-xs font-medium text-emerald-400 mb-2">${catLabel(catId)}</div>
+            ${catTips.map(tip => `
+              <div class="mb-2 last:mb-0">
+                ${tip.rating ? `<div class="flex items-center gap-0.5 mb-0.5">${renderStarsStatic(tip.rating)}</div>` : ''}
+                <p class="text-xs text-slate-300">${escapeHTML(tip.text)}</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">${escapeHTML(tip.username || 'Anonyme')}</p>
+              </div>
+            `).join('')}
+          </div>
+        `).join('')}
+      </div>
     </div>
   `
 }
@@ -1016,5 +1120,19 @@ document.addEventListener('input', (e) => {
 })
 
 window.submitGuideTip = window.submitGuideContribution
+
+// Admin: approve/reject guide tips
+window.adminApproveGuideTip = async (tipId) => {
+  const { approveGuideTip } = await import('../../services/communityGuideService.js')
+  return approveGuideTip(tipId)
+}
+window.adminRejectGuideTip = async (tipId) => {
+  const { rejectGuideTip } = await import('../../services/communityGuideService.js')
+  return rejectGuideTip(tipId)
+}
+window.adminLoadPendingGuideTips = async () => {
+  const { loadPendingGuideTips } = await import('../../services/communityGuideService.js')
+  return loadPendingGuideTips()
+}
 
 export default { renderGuides, renderCountryDetail, renderSafety }

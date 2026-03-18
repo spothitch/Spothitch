@@ -426,6 +426,7 @@ const MAIN_JS_HANDLERS = [
   'setAdminTab', 'loadAdminFeedback', 'setAdminFeedbackPeriod',
   'exportFeedbackCSV', 'loadAdminSentry',
   'loadAdminReports', 'adminConfirmReport', 'adminDismissReport', 'adminRelocateSpot',
+  'loadAdminGuideTips', 'adminApproveGuideTipAction', 'adminRejectGuideTipAction',
   // Beta Banner (session 2026-02-28)
   'closeBetaPopup',
   // Feature Slides (session 2026-03-03)
@@ -442,6 +443,7 @@ const MAIN_JS_HANDLERS = [
   'dismissGuideNudgeForCountry',
   'dismissGuideNudgeGlobal',
   'submitGuideTip',
+  'adminApproveGuideTip', 'adminRejectGuideTip', 'adminLoadPendingGuideTips',
   'selectGuideTipCategory',
   // Feature Intro Modal (session 2026-03-04)
   'showFeatureIntro',
