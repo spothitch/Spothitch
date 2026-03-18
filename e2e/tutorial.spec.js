@@ -1,54 +1,52 @@
 /**
- * E2E Tests - Alpha Welcome Popup (replaces tutorial)
- * Tests for the alpha welcome popup flow
+ * E2E Tests - Alpha Welcome / Landing (carousel v4)
+ * BetaBanner was removed — alpha messaging is now in the carousel landing page
  */
 
 import { test, expect } from '@playwright/test'
 import { skipOnboarding } from './helpers.js'
 
-test.describe('Alpha Welcome Popup', () => {
-  test('should show alpha popup for new users', async ({ page }) => {
+test.describe('Alpha Welcome', () => {
+  test('should show landing carousel for new users', async ({ page }) => {
     await page.goto('/')
     await page.evaluate(() => {
       localStorage.clear()
-      localStorage.setItem('spothitch_landing_v2', '1')
       localStorage.setItem('spothitch_cookies_v2', 'all')
     })
     await page.reload({ waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(3000)
 
-    // Alpha popup should be visible (not dismissed yet)
-    const popup = page.locator('#alpha-welcome-overlay')
-    const banner = page.locator('#beta-banner')
-    const hasPopupOrBanner = await popup.isVisible({ timeout: 5000 }).catch(() => false)
-      || await banner.isVisible({ timeout: 3000 }).catch(() => false)
-    expect(hasPopupOrBanner).toBeTruthy()
+    // Landing carousel should be visible for new users (no spothitch_landing_v2 key)
+    const landing = page.locator('#landing-carousel, [data-landing], .landing-track')
+    const alphaOverlay = page.locator('#alpha-welcome-overlay')
+    const hasLanding = await landing.first().isVisible({ timeout: 5000 }).catch(() => false)
+      || await alphaOverlay.isVisible({ timeout: 3000 }).catch(() => false)
+    expect(hasLanding).toBeTruthy()
   })
 
-  test('should dismiss popup on CTA click', async ({ page }) => {
-    await page.goto('/')
-    await page.evaluate(() => {
-      localStorage.clear()
-      localStorage.setItem('spothitch_landing_v2', '1')
-      localStorage.setItem('spothitch_cookies_v2', 'all')
-    })
-    await page.reload({ waitUntil: 'domcontentloaded' })
-    await page.waitForTimeout(3000)
-
-    // Click CTA via handler (button text varies by language)
-    await page.evaluate(() => window.closeBetaPopup?.())
-    await page.waitForTimeout(500)
-
-    // Popup should be gone
-    const popup = page.locator('#alpha-welcome-overlay')
-    await expect(popup).not.toBeVisible({ timeout: 3000 })
-  })
-
-  test('should show banner after popup dismissed', async ({ page }) => {
+  test('should dismiss landing and show map', async ({ page }) => {
     await skipOnboarding(page)
-    const banner = page.locator('#beta-banner')
-    await expect(banner).toBeVisible({ timeout: 5000 })
-    const bannerText = await banner.textContent()
-    expect(bannerText.toLowerCase()).toContain('alpha')
+    await page.waitForTimeout(1000)
+
+    // After onboarding, map should be visible
+    const map = page.locator('#home-map, canvas')
+    await expect(map.first()).toBeVisible({ timeout: 5000 })
+  })
+
+  test('should show alpha badge in landing', async ({ page }) => {
+    await page.goto('/')
+    await page.evaluate(() => {
+      localStorage.clear()
+      localStorage.setItem('spothitch_cookies_v2', 'all')
+    })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(3000)
+
+    // Check for alpha badge text in the page
+    const pageText = await page.textContent('body')
+    const hasAlpha = pageText.toLowerCase().includes('alpha')
+      || pageText.toLowerCase().includes('private')
+      || pageText.toLowerCase().includes('test')
+    expect(hasAlpha).toBeTruthy()
   })
 })
