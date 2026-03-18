@@ -191,12 +191,11 @@ export function buildLegendHTML(t) {
 
   return `
 <div class="text-xs font-bold mb-1.5">${t('mapLegend') || 'Légende'}</div>
-${row(c('#94a3b8'), t('spotStatusToVerify') || 'À vérifier')}
-${row(sp('#94a3b8', '#ef4444'), (t('spotStatusToVerify') || 'À vérifier') + ' + ⛽')}
-${row(c('#3b82f6'), t('spotStatusSpotHitch') || 'SpotHitch')}
-${row(sp('#3b82f6', '#ef4444'), 'SpotHitch + ⛽')}
+${row(c('#94a3b8'), t('legendInherited') || 'Hérité')}
+${row(c('#3b82f6'), t('legendNew') || 'Nouveau')}
 ${row(c('#22c55e'), t('reliableSpot') || 'Fiable')}
-${row(g('#94a3b8'), t('legendCertified') || 'Certifié')}
+${row(sp('#94a3b8', '#ef4444'), t('legendWithStation') || 'Avec station-service')}
+${row(g('#f59e0b'), t('legendCertified') || 'Certifié')}
 ${row(heart(), t('favorite') || 'Favori')}
 `
 }

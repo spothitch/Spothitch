@@ -1824,7 +1824,9 @@ export default {
   // Map & Spots
   mapLegend: 'Légende',
   favorite: 'Favori',
+  legendInherited: 'Hérité',
   legendNew: 'Nouveau',
+  legendWithStation: 'Avec station-service',
   legendSpotStation: 'Spot + station',
   legendCertified: 'Certifié',
   gasStation: 'Station essence',

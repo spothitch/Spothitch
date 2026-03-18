@@ -11,12 +11,12 @@ import { getState } from '../stores/state.js'
 const _AC = [68,114,101,97,109,101,114,50,48,50,54] // char codes
 
 function stepIndicator(active) {
-  return [0, 1, 2, 3, 4, 5, 6, 7].map(i => {
+  return [0, 1, 2, 3, 4, 5, 6].map(i => {
     const cls = i < active ? 'bg-primary-500/15 text-primary-300'
       : i === active ? 'bg-primary-500 text-dark-primary'
       : 'bg-white/[0.04] text-slate-600'
     const dot = `<div class="w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center ${cls}">${i + 1}</div>`
-    if (i < 7) {
+    if (i < 6) {
       const lineClass = i < active ? 'bg-primary-500/30' : 'bg-white/[0.06]'
       return dot + `<div class="w-2 h-0.5 ${lineClass}"></div>`
     }

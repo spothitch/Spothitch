@@ -26,8 +26,7 @@ window.dismissLanding = () => {
 }
 
 window.closeLanding = () => {
-  // Guard: must be logged in
-  if (!window.getState().isLoggedIn) return
+  localStorage.setItem('spothitch_landing_v2', '1')
   window.setState({ showLanding: false })
 }
 
@@ -42,8 +41,8 @@ window.toggleFormToggle = (checkboxId) => {
 window.skipToLandingAuth = () => {
   // Jump to code slide (index 5) — user must enter code first
   const alphaOk = localStorage.getItem('spothitch_alpha_code') === 'ok'
-  const targetSlide = alphaOk ? 7 : 5 // code slide or auth slide
-  const slideWidth = 100 / 8
+  const targetSlide = alphaOk ? 6 : 5 // last slide or code slide
+  const slideWidth = 100 / 7
   const track = document.getElementById('landing-track')
   const dots = document.querySelectorAll('.landing-dot')
   const nextBtn = document.getElementById('landing-next')
@@ -82,13 +81,19 @@ if (!window.landingNext) window.landingNext = () => {}
 
 window.installFromLanding = async () => {
   const t = window.t
-  const installed = await installPWA()
+  let installed = false
+  try { installed = await installPWA() } catch { /* PWA not supported */ }
   const btn = document.getElementById('landing-install-btn')
   if (installed && btn) {
     btn.textContent = `✅ ${t('appInstalled') || 'Application installée !'}`
     btn.style.background = '#22c55e'
     btn.disabled = true
   }
+  // Always close landing after install attempt
+  setTimeout(() => {
+    localStorage.setItem('spothitch_landing_v2', '1')
+    window.setState({ showLanding: false })
+  }, installed ? 1500 : 300)
 }
 
 window.installPWAFromLanding = () => {
