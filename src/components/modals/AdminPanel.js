@@ -941,10 +941,10 @@ window.adminApproveGuideTipAction = async (tipId) => {
       setState({ adminGuideTipsData: current.filter(t => t.id !== tipId) })
       window.showToast?.('✅ ' + (t('adminGuideTipApproved') || 'Contribution approuvée'), 'success')
     } else {
-      window.showToast?.(result.error || 'Erreur', 'error')
+      window.showToast?.(result.error || t('error') || 'Error', 'error')
     }
   } catch (err) {
-    window.showToast?.('Erreur: ' + err.message, 'error')
+    window.showToast?.((t('error') || 'Error') + ': ' + err.message, 'error')
   }
 }
 
@@ -957,10 +957,10 @@ window.adminRejectGuideTipAction = async (tipId) => {
       setState({ adminGuideTipsData: current.filter(t => t.id !== tipId) })
       window.showToast?.('❌ ' + (t('adminGuideTipRejected') || 'Contribution rejetée'), 'success')
     } else {
-      window.showToast?.(result.error || 'Erreur', 'error')
+      window.showToast?.(result.error || t('error') || 'Error', 'error')
     }
   } catch (err) {
-    window.showToast?.('Erreur: ' + err.message, 'error')
+    window.showToast?.((t('error') || 'Error') + ': ' + err.message, 'error')
   }
 }
 

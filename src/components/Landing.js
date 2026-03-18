@@ -144,7 +144,7 @@ export function renderLanding() {
             </button>
 
             <div class="w-full max-w-[280px] mx-auto p-2.5 rounded-xl" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05)">
-              <p class="text-[9px] font-semibold mb-0.5" style="color:#555">${t('alphaNoCode')}</p>
+              <p class="text-[10px] font-semibold mb-0.5" style="color:#555">${t('alphaNoCode')}</p>
               <p class="text-[11px]" style="color:#888">@captain_pouce · spothitch@gmail.com</p>
             </div>
           </div>
