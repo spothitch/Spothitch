@@ -4881,7 +4881,6 @@ export default {
   validatedShort: 'valid.',
   offlinePanelTitle: 'Offline-Spots',
   offlineSaved: 'Gespeichert',
-  popular: 'Beliebt',
   americas: 'Amerika',
   asia: 'Asien',
   africa: 'Afrika',
