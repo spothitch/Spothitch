@@ -3420,6 +3420,8 @@ export default {
   pickOnMap: 'Auf Karte wählen',
   tapToPlacePin: 'Tippen zum Platzieren',
   tapToPlaceSpot: 'Tippe auf die Karte, um deinen Spot zu setzen',
+  createSpotHere: 'Spot hier erstellen',
+  createSpotStation: 'Tankstellen Spot erstellen',
   stationName: 'Tankstellenname',
   roadName: 'Straßenname/-nummer',
   locationDesc: 'Ortsbeschreibung',

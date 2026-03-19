@@ -135,6 +135,12 @@ window.openAddSpot = () => {
     window.spotFormData.lng = coords.lng
     window.spotFormData.positionSource = 'share'
     window._pendingShareCoords = null
+    // Check if a spot type was pre-selected (e.g. from gas station click)
+    const pendingType = window._pendingSpotType || null
+    window._pendingSpotType = null
+    if (pendingType) {
+      window.spotFormData.spotType = pendingType
+    }
     // Reverse geocode to get city name + country — update DOM directly (no full re-render)
     import('../services/osrm.js').then(({ reverseGeocode }) => {
       reverseGeocode(coords.lat, coords.lng).then(loc => {
@@ -155,7 +161,7 @@ window.openAddSpot = () => {
         }
       }).catch(() => {})
     }).catch(() => {})
-    window.setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
+    window.setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: pendingType })
   } else {
     window.setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
     if (window._pendingShareText) {

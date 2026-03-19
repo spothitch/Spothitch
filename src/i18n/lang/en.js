@@ -3423,6 +3423,8 @@ export default {
   pickOnMap: 'Pick on map',
   tapToPlacePin: 'Tap to place pin',
   tapToPlaceSpot: 'Tap the map to place your spot',
+  createSpotHere: 'Create a spot here',
+  createSpotStation: 'Create a station spot',
   stationName: 'Station name',
   roadName: 'Road name/number',
   locationDesc: 'Location description',

@@ -3432,6 +3432,8 @@ export default {
   noStationFound: 'Aucune station trouvée',
   positionTooFar: 'Position trop éloignée de la ville',
   createSpot: 'Créer le spot',
+  createSpotHere: 'Créer un spot ici',
+  createSpotStation: 'Créer un spot station',
   saveDraft: 'Sauvegarder le brouillon',
   draftSaved: 'Brouillon sauvegardé !',
   draftsToComplete: 'spot(s) à compléter',
