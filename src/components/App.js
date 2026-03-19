@@ -701,20 +701,17 @@ export function afterRender(state) {
     }
   }
 
-  // A9: Always init the map (it persists across tabs)
-  setTimeout(() => initHomeMap(state), 100)
+  // Map init + controls: only when map tab is active
+  const activePanel = getActiveTabPanelId(state)
+  if (activePanel === 'map') {
+    setTimeout(() => initHomeMap(state), 100)
+    ensureMapControls(state)
+    if (window._ensureLegendOverlay) window._ensureLegendOverlay(state.showMapLegend)
+    updateSpotCounter()
+  }
 
-  // Inject / update persistent map controls (zoom, GPS, gas stations)
-  ensureMapControls(state)
-
-  // Legend overlay (state-driven, survives re-renders)
-  if (window._ensureLegendOverlay) window._ensureLegendOverlay(state.showMapLegend)
-
-  // Update spot counter (hw-count / sh-count in Home.js)
-  updateSpotCounter()
-
-  // Update offline storage size
-  const storageSizeEl = document.getElementById('offline-storage-size')
+  // Update offline storage size (only on profile tab)
+  const storageSizeEl = activePanel === 'profile' ? document.getElementById('offline-storage-size') : null
   if (storageSizeEl && storageSizeEl.textContent === '...') {
     navigator.storage?.estimate?.().then(est => {
       const usedMB = ((est.usage || 0) / 1024 / 1024).toFixed(1)
@@ -745,8 +742,10 @@ export function afterRender(state) {
     import('./modals/AddSpot.js').then(mod => mod.initAddSpotAfterRender?.())
   }
   // ValidateSpot afterRender removed — AddSpot's initAddSpotAfterRender handles both modes
-  // Companion: pass visibility flag so it can reset when modal closes
-  import('./modals/Companion.js').then(mod => mod.initCompanionAfterRender?.(!!state.showCompanionModal))
+  // Companion: only import if modal is open or companion mode is active
+  if (state.showCompanionModal || state.companionActive) {
+    import('./modals/Companion.js').then(mod => mod.initCompanionAfterRender?.(!!state.showCompanionModal))
+  }
 
   // Focus trap: clean up previous trap
   if (_activeFocusTrapCleanup) {
