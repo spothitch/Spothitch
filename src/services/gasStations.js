@@ -281,17 +281,19 @@ function showGasStationMarkers(stations) {
     },
   })
 
-  // Click handler for gas station popup
+  // Click handler for gas station → propose creating a spot
   map.on('click', 'gas-stations', (e) => {
     if (!e.features?.length) return
-    const props = e.features[0].properties
     const coords = e.features[0].geometry.coordinates
+    const lngLat = { lng: coords[0], lat: coords[1] }
     import('maplibre-gl').then((mod) => {
       const maplibregl = mod.default || mod
-      new maplibregl.Popup({ offset: 10, className: 'gas-popup' })
+      const label = t('createSpotStation') || 'Créer un spot station'
+      const popup = new maplibregl.Popup({ offset: 10, closeButton: false, className: 'create-spot-popup' })
         .setLngLat(coords)
-        .setHTML(`<div class="p-2 text-sm"><strong>${props.name}</strong>${props.brand ? `<br>${props.brand}` : ''}</div>`)
+        .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'gas_station')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#f59e0b;color:#0f172a;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap"><span style="font-size:16px">⛽</span>${label}</button>`)
         .addTo(map)
+      setTimeout(() => { try { popup.remove() } catch {} }, 4000)
     })
   })
   map.on('mouseenter', 'gas-stations', () => { map.getCanvas().style.cursor = 'pointer' })

@@ -696,10 +696,15 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Gas station popup — inherit same dark styling */
-.gas-popup .maplibregl-popup-content {
-  background-color: rgba(15, 21, 32, 0.95) !important;
-  color: white !important;
+/* Create spot bubble popup — clean minimal style */
+.create-spot-popup .maplibregl-popup-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none !important;
+}
+.create-spot-popup .maplibregl-popup-tip {
+  display: none !important;
 }
 
 .light-theme .maplibregl-popup-content {

@@ -1192,6 +1192,33 @@ function initHomeMap(state) {
       updateCountryBubbleData(map, dynamicIndex, countryCenters, loadedCodes, new Set())
     }
 
+    // Show a small confirmation bubble on the map to create a spot
+    function showCreateSpotBubble(mapInst, lngLat, spotType) {
+      import('maplibre-gl').then((mod) => {
+        const maplibregl = mod.default || mod
+        const label = spotType === 'gas_station'
+          ? (t('createSpotStation') || 'Créer un spot station')
+          : (t('createSpotHere') || 'Créer un spot ici')
+        const popup = new maplibregl.Popup({ offset: 10, closeButton: false, className: 'create-spot-popup' })
+          .setLngLat([lngLat.lng, lngLat.lat])
+          .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'${spotType || ''}')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#f59e0b;color:#0f172a;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap"><span style="font-size:16px">📍</span>${label}</button>`)
+          .addTo(mapInst)
+        // Auto-close after 4s
+        setTimeout(() => { try { popup.remove() } catch {} }, 4000)
+      })
+    }
+
+    // Handler called from the bubble button
+    window._createSpotFromBubble = (lat, lng, spotType) => {
+      if (window.openAddSpot) {
+        window._pendingShareCoords = { lat, lng }
+        if (spotType === 'gas_station') {
+          window._pendingSpotType = 'gas_station'
+        }
+        window.openAddSpot()
+      }
+    }
+
     map.on('load', async () => {
       // Hide map loading spinner
       const mapLoader = document.getElementById('map-loading-indicator')
@@ -1210,10 +1237,8 @@ function initHomeMap(state) {
           const point = [longPressStart.x - rect.left, longPressStart.y - rect.top]
           const lngLat = map.unproject(point)
           if (navigator.vibrate) navigator.vibrate(30)
-          if (window.openAddSpot) {
-            window._pendingShareCoords = { lat: lngLat.lat, lng: lngLat.lng }
-            window.openAddSpot()
-          }
+          // Show confirmation bubble instead of opening AddSpot directly
+          showCreateSpotBubble(map, lngLat)
           longPressTimer = null
           longPressStart = null
         }, LONG_PRESS_MS)

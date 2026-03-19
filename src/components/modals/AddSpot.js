@@ -110,23 +110,6 @@ function renderStep1(state) {
         </button>
       </div>
 
-      <!-- Station Name (gas_station only) -->
-      ${spotType === 'gas_station' ? `
-        <div style="margin-bottom:24px">
-          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('stationNameLabel')} <span style="color:#f59e0b">*</span></div>
-          <input
-            type="text"
-            id="spot-station-name"
-            name="stationName"
-            style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none"
-            placeholder="${t('stationNamePlaceholder')}"
-            maxlength="100"
-            value="${window.spotFormData?.stationName || ''}"
-            oninput="window.spotFormData.stationName = this.value"
-          />
-        </div>
-      ` : ''}
-
       <!-- Departure City — underline input -->
       <div style="margin-bottom:24px" class="relative">
         <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('departureCity') || 'Ville'} <span style="color:#f59e0b">*</span></div>
@@ -764,11 +747,6 @@ window.selectSpotType = (type) => {
       btn.style.color = '#64748b'
     }
   })
-  // Toggle station name field visibility (gas_station only)
-  const stationField = document.getElementById('spot-station-name')?.parentElement
-  if (stationField) {
-    stationField.style.display = type === 'gas_station' ? '' : 'none'
-  }
   // Store in spotFormData AND state for persistence (no re-render)
   window.spotFormData.spotType = type
   import('../../stores/state.js').then(({ setState }) => {
@@ -1475,7 +1453,7 @@ async function verifyGasStationNearby(lat, lng) {
     const found = data.elements && data.elements.length > 0
     return {
       verified: found,
-      stationName: found ? (data.elements[0].tags?.name || data.elements[0].tags?.brand || '') : '',
+      stationName: '',
     }
   } catch {
     return { verified: true } // fail open on network error
@@ -1936,7 +1914,6 @@ window.showSpotSummary = async () => {
       ${!state.addSpotValidateId ? row(t('spotTypeLabel') || 'Type', typeLabels[spotType] || spotType) : ''}
       ${!state.addSpotValidateId ? row(t('departureCity') || 'Départ', fd.departureCity) : ''}
       ${row(t('position') || 'Position', fd.locationName || (fd.lat?.toFixed(4) + ', ' + fd.lng?.toFixed(4)))}
-      ${fd.stationName ? row(t('stationNameLabel') || 'Station', fd.stationName) : ''}
       ${row(t('destinationCity') || 'Direction', allDests.join(', '))}
       ${row(t('waitTimeLabel') || 'Attente', fd.waitTime ? (fd.waitTime >= 180 ? '3h+' : fd.waitTime + ' min') : '')}
       ${row(t('practicalTips') || 'Méthode', methodLabels[fd.method] || '')}
@@ -2068,9 +2045,6 @@ window.handleAddSpot = async (event) => {
         })
       }
       // Either way, continue with submission
-    } else if (verification.stationName && !window.spotFormData.stationName) {
-      // Auto-fill station name if detected and user left it empty
-      window.spotFormData.stationName = verification.stationName
     }
   }
 

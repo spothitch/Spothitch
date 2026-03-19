@@ -3420,6 +3420,8 @@ export default {
   pickOnMap: 'Señalar en el mapa',
   tapToPlacePin: 'Toca para colocar el marcador',
   tapToPlaceSpot: 'Toca el mapa para colocar tu spot',
+  createSpotHere: 'Crear un spot aquí',
+  createSpotStation: 'Crear un spot estación',
   stationName: 'Nombre de la estación',
   roadName: 'Nombre de carretera',
   locationDesc: 'Descripción del lugar',
