@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractCoordsFromShare, resolveShortMapUrl } from '../../src/utils/mapsUrlParser.js'
+import { extractCoordsFromShare, resolveShortMapUrl, detectOpaqueMapUrl } from '../../src/utils/mapsUrlParser.js'
 
 describe('extractCoordsFromShare', () => {
   it('parses Google Maps ?q=lat,lng', () => {
@@ -96,6 +96,50 @@ describe('extractCoordsFromShare', () => {
     const text = 'Check this link: https://example.com\nAlso this: https://maps.google.com/?q=48.8566,2.3522'
     const result = extractCoordsFromShare('', text)
     expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+})
+
+describe('detectOpaqueMapUrl', () => {
+  it('detects ?cid= Google Maps URL', () => {
+    const result = detectOpaqueMapUrl('https://maps.google.com/?cid=11170656748112423237&entry=gps')
+    expect(result).toBeTruthy()
+  })
+
+  it('detects ?ftid= Google Maps URL', () => {
+    const result = detectOpaqueMapUrl('https://www.google.com/maps?ftid=0x47e66e2964e34e2d:0x8ddca9ee380ef7e0')
+    expect(result).toBeTruthy()
+  })
+
+  it('detects /place/ without @coords', () => {
+    const result = detectOpaqueMapUrl('https://www.google.com/maps/place/Eiffel+Tower')
+    expect(result).toBeTruthy()
+  })
+
+  it('does NOT detect /place/ with @coords (already parseable)', () => {
+    const result = detectOpaqueMapUrl('https://www.google.com/maps/place/Paris/@48.8566,2.3522,12z')
+    expect(result).toBeNull()
+  })
+
+  it('does NOT detect non-Google URLs', () => {
+    const result = detectOpaqueMapUrl('https://example.com/?cid=123')
+    expect(result).toBeNull()
+  })
+
+  it('returns null for Google Maps URL with ?q= (has coords)', () => {
+    const result = detectOpaqueMapUrl('https://maps.google.com/?q=48.8566,2.3522')
+    expect(result).toBeNull()
+  })
+
+  it('returns null for null/empty input', () => {
+    expect(detectOpaqueMapUrl(null)).toBeNull()
+    expect(detectOpaqueMapUrl('')).toBeNull()
+  })
+})
+
+describe('extractCoordsFromShare — CID URL returns null (needs resolution)', () => {
+  it('CID URL has no extractable coords', () => {
+    const result = extractCoordsFromShare('https://maps.google.com/?cid=11170656748112423237&entry=gps', '')
+    expect(result).toBeNull()
   })
 })
 

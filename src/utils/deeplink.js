@@ -4,7 +4,7 @@
  */
 
 import { setState, getState } from '../stores/state.js';
-import { extractCoordsFromShare, resolveShortMapUrl, geocodePlace } from './mapsUrlParser.js';
+import { extractCoordsFromShare, resolveShortMapUrl, geocodePlace, detectOpaqueMapUrl } from './mapsUrlParser.js';
 
 // Base path for the app (e.g., '/' for deployed app)
 const BASE_PATH = import.meta.env.BASE_URL || '/';
@@ -177,16 +177,31 @@ async function processShare() {
     coords = extractCoordsFromShare(url, text)
     if (coords) shareLog('strategy1-ok', `${coords.lat},${coords.lng}`)
 
-    // Strategy 2: Resolve shortened Google Maps URLs (maps.app.goo.gl / goo.gl)
+    // Strategy 2a: Resolve shortened Google Maps URLs (maps.app.goo.gl / goo.gl)
     if (!coords) {
       const allText = `${url} ${text}`
       const shortRe = /https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/maps|goo\.gle\/maps)\/\S+/
       const shortUrl = allText.match(shortRe)?.[0]
       if (shortUrl) {
-        shareLog('strategy2-try', shortUrl)
+        shareLog('strategy2a-try', shortUrl)
         coords = await resolveShortMapUrl(shortUrl)
-        if (coords) shareLog('strategy2-ok', `${coords.lat},${coords.lng}`)
-        else shareLog('strategy2-fail')
+        if (coords) shareLog('strategy2a-ok', `${coords.lat},${coords.lng}`)
+        else shareLog('strategy2a-fail')
+      }
+    }
+
+    // Strategy 2b: Resolve opaque Google Maps URLs (?cid=, ?ftid=, ?place_id=, /place/ without @)
+    if (!coords) {
+      const opaqueUrl = detectOpaqueMapUrl(url) || (text ? (() => {
+        const urls = text.match(/https?:\/\/[^\s]+/gi) || []
+        for (const u of urls) { const r = detectOpaqueMapUrl(u); if (r) return r }
+        return null
+      })() : null)
+      if (opaqueUrl) {
+        shareLog('strategy2b-try', opaqueUrl)
+        coords = await resolveShortMapUrl(opaqueUrl)
+        if (coords) shareLog('strategy2b-ok', `${coords.lat},${coords.lng}`)
+        else shareLog('strategy2b-fail')
       }
     }
 

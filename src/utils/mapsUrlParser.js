@@ -152,15 +152,41 @@ export function detectShortMapUrl(url) {
 }
 
 /**
- * Try to resolve a shortened Google Maps URL
+ * Check if a URL is a Google Maps URL with an opaque identifier (no coords).
+ * These need server-side resolution to extract actual coordinates.
+ * Covers: ?cid=, ?ftid=, ?place_id=, /place/ without @coords
+ * @param {string} url
+ * @returns {string|null} The URL if it needs resolution, null otherwise
+ */
+export function detectOpaqueMapUrl(url) {
+  if (!url) return null
+  try {
+    const parsed = new URL(url)
+    const host = parsed.hostname.replace('www.', '')
+    if (!host.includes('google') && !host.includes('maps.google')) return null
+    // URLs with CID, FTID or place_id but no extractable coordinates
+    if (parsed.searchParams.get('cid') || parsed.searchParams.get('ftid') || parsed.searchParams.get('place_id')) {
+      return url
+    }
+    // /place/NAME without @lat,lng coordinates
+    if (parsed.pathname.includes('/place/') && !url.includes('@')) {
+      return url
+    }
+  } catch { /* not a valid URL */ }
+  return null
+}
+
+/**
+ * Try to resolve a shortened or opaque Google Maps URL
  * Uses Cloudflare Worker proxy to follow redirects server-side (bypasses CORS).
+ * Also handles CID/FTID/place_id URLs by fetching og:image meta tag.
  * @param {string} shortUrl
  * @returns {Promise<{ lat: number, lng: number } | null>}
  */
 export async function resolveShortMapUrl(shortUrl) {
   const PROXY_URL = 'https://spothitch-resolve-map-url.antoine-v-ville.workers.dev'
 
-  // Strategy 1: Cloudflare Worker proxy
+  // Strategy 1: Cloudflare Worker proxy (works for short URLs)
   try {
     const res = await fetch(
       `${PROXY_URL}?url=${encodeURIComponent(shortUrl)}`,
@@ -184,17 +210,32 @@ export async function resolveShortMapUrl(shortUrl) {
       return geocodePlace(data.place)
     }
   } catch {
-    // Proxy unavailable
+    // Proxy unavailable or rejected URL
   }
 
-  // Strategy 2: Direct fetch (some browsers allow following redirects)
+  // Strategy 2: Fetch page HTML and extract coords from og:image meta tag
+  // Google Maps embeds center=lat,lng in the static map thumbnail URL
   try {
-    const res = await fetch(shortUrl, { redirect: 'follow', signal: AbortSignal.timeout(5000) })
+    const res = await fetch(shortUrl, { redirect: 'follow', signal: AbortSignal.timeout(8000) })
+    // Check resolved URL for coordinates
     if (res.url && res.url !== shortUrl) {
-      return parseMapUrl(res.url)
+      const fromResolved = parseMapUrl(res.url)
+      if (fromResolved) return fromResolved
+    }
+    // Parse HTML for og:image with coordinates
+    const html = await res.text()
+    const ogMatch = html.match(/og:image[^>]*content="([^"]*center=([^&"]+))/i)
+    if (ogMatch) {
+      const centerParam = decodeURIComponent(ogMatch[2])
+      const coordMatch = centerParam.match(/(-?\d{1,3}\.\d{3,8})\s*[,%]\s*(-?\d{1,3}\.\d{3,8})/)
+      if (coordMatch) {
+        const lat = parseFloat(coordMatch[1])
+        const lng = parseFloat(coordMatch[2])
+        if (isValidCoord(lat, lng)) return { lat, lng }
+      }
     }
   } catch {
-    // CORS or network error — expected
+    // CORS or network error — expected in browser
   }
 
   return null
