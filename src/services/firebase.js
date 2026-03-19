@@ -1083,37 +1083,7 @@ export async function loadSpotsFromFirebase() {
  * Save a spot to Firebase
  * @param {Object} spot - Spot data
  */
-export async function saveSpotToFirebase(spot) {
-  try {
-    const user = getCurrentUser();
-    const spotsRef = collection(db, 'spots');
-
-    // Filter to allowed fields only (prevent arbitrary data injection)
-    const safeSpot = {}
-    for (const key of SPOT_ALLOWED_FIELDS) {
-      if (spot[key] !== undefined) safeSpot[key] = spot[key]
-    }
-
-    const spotData = {
-      ...safeSpot,
-      creatorId: user?.uid || 'anonymous',
-      creator: user?.displayName || 'Anonyme',
-      creatorAvatar: user?.photoURL || '🤙',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      totalReviews: 0,
-      checkins: 0,
-      verified: false,
-      reports: 0,
-    };
-
-    const docRef = await addDoc(spotsRef, spotData);
-    return { success: true, id: docRef.id, spot: { ...spotData, id: docRef.id } };
-  } catch (error) {
-    console.error('Error saving spot:', error);
-    return { success: false, error };
-  }
-}
+// saveSpotToFirebase removed — use addSpot() instead (same validation + rate limiting)
 
 /**
  * Upload a photo to Firebase Storage
@@ -1609,6 +1579,31 @@ async function deleteUserData(userId) {
     // 6. Delete reports filed by user
     await deleteByField('reports', 'reporterUid', userId)
 
+    // 6b. Delete hostel recommendations by user
+    await deleteByField('hostel_recs', 'userId', userId)
+
+    // 6c. Delete guide reports by user
+    await deleteByField('guide_reports', 'userId', userId)
+
+    // 6d. Delete top-level guideVotes by user
+    await deleteByField('guideVotes', 'oddsUserId', userId)
+
+    // 6e. Delete userReviews: reviews OF this user + reviews BY this user
+    try {
+      // Delete the entire reviews subcollection for reviews OF this user
+      const reviewsOfUser = await getDocs(collection(db, 'userReviews', userId, 'reviews'))
+      if (reviewsOfUser.size > 0) {
+        const batch = writeBatch(db)
+        reviewsOfUser.docs.forEach((d) => batch.delete(d.ref))
+        await batch.commit()
+        totalDeleted += reviewsOfUser.size
+      }
+      // Delete the parent doc
+      await deleteDoc(doc(db, 'userReviews', userId)).catch(() => {})
+    } catch (err) {
+      console.error('deleteUserData: failed to delete userReviews:', err)
+    }
+
     // 7. Handle directMessages conversations
     try {
       const dmSnap = await getDocs(
@@ -1637,6 +1632,35 @@ async function deleteUserData(userId) {
       }
     } catch (err) {
       console.error('deleteUserData: failed to query directMessages:', err)
+    }
+
+    // 8. Handle groupConversations (remove user from members, delete if creator)
+    try {
+      const gcSnap = await getDocs(
+        query(
+          collection(db, 'groupConversations'),
+          where('members', 'array-contains', userId)
+        )
+      )
+      for (const gcDoc of gcSnap.docs) {
+        try {
+          const data = gcDoc.data()
+          if (data.creator === userId) {
+            // User created this group — delete it
+            await deleteDoc(gcDoc.ref)
+            totalDeleted += 1
+          } else {
+            // Remove user from members
+            await updateDoc(gcDoc.ref, {
+              members: arrayRemove(userId),
+            })
+          }
+        } catch (err) {
+          console.error('deleteUserData: failed to handle group conversation:', err)
+        }
+      }
+    } catch (err) {
+      console.error('deleteUserData: failed to query groupConversations:', err)
     }
 
     console.log(`deleteUserData: deleted ${totalDeleted} documents for user ${userId}`)

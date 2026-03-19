@@ -17,6 +17,7 @@
 
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
+import { escapeHTML } from '../../utils/sanitize.js'
 import { renderToggle } from '../../utils/toggle.js'
 import { getState } from '../../stores/state.js'
 import {
@@ -215,7 +216,7 @@ function renderSetupView(companion) {
             id="companion-guardian-name"
             class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors"
             placeholder="${t('guardianName') || 'Guardian name'}"
-            value="${companion.guardian?.name || ''}"
+            value="${escapeHTML(companion.guardian?.name || '')}"
             aria-label="${t('guardianName') || 'Guardian name'}"
           />
         </div>
@@ -250,7 +251,7 @@ function renderSetupView(companion) {
             : contacts.map((c, i) => `
               <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2 border border-white/10">
                 <div>
-                  <span class="text-sm text-white font-medium">${c.name || '?'}</span>
+                  <span class="text-sm text-white font-medium">${escapeHTML(c.name || '?')}</span>
                   <span class="text-xs text-slate-400 ml-2">${c.phone}</span>
                 </div>
                 <button
@@ -424,7 +425,7 @@ function renderActiveView(companion) {
         ${t('companionActive') || 'Companion Mode active'}
       </h2>
       <p class="text-sm text-slate-400 mt-1">
-        ${t('guardianName') || 'Guardian'}: <span class="text-emerald-400 font-medium">${companion.guardian?.name || '?'}</span>
+        ${t('guardianName') || 'Guardian'}: <span class="text-emerald-400 font-medium">${escapeHTML(companion.guardian?.name || '?')}</span>
         ${contactsCount > 1 ? `<span class="text-slate-500 ml-1">+${contactsCount - 1}</span>` : ''}
       </p>
     </div>
@@ -533,7 +534,7 @@ function renderActiveView(companion) {
         aria-label="SOS"
       >
         ${icon('triangle-alert', 'w-5 h-5')}
-        SOS — ${t('sendAlertTo') || 'Send alert to'} ${companion.guardian?.name || '?'}
+        SOS — ${t('sendAlertTo') || 'Send alert to'} ${escapeHTML(companion.guardian?.name || '?')}
         ${contactsCount > 1 ? `+${contactsCount - 1}` : ''}
       </button>
 
@@ -620,7 +621,7 @@ function renderTripHistory(history) {
                 <span class="text-xs text-slate-400">${dur}</span>
               </div>
               <div class="flex items-center gap-3 text-xs text-slate-400">
-                <span>${icon('shield', 'w-3 h-3 inline')} ${trip.guardian?.name || '?'}</span>
+                <span>${icon('shield', 'w-3 h-3 inline')} ${escapeHTML(trip.guardian?.name || '?')}</span>
                 ${trip.destination ? `<span>→ ${trip.destination}</span>` : ''}
                 <span>${icon('circle-check', 'w-3 h-3 inline text-emerald-500')} ${trip.checkInsCount || 0}</span>
                 <span>${icon('map-pin', 'w-3 h-3 inline')} ${(trip.positions || []).length}</span>
@@ -676,7 +677,7 @@ function renderAlertOverlay(companion) {
         <button
           onclick="companionSendAlert()"
           class="w-full py-4 rounded-xl bg-red-500 text-white font-bold text-lg flex items-center justify-center gap-3 active:scale-95 transition-colors"
-          aria-label="${t('sendAlertTo') || 'Send alert to'} ${companion.guardian?.name || ''}"
+          aria-label="${t('sendAlertTo') || 'Send alert to'} ${escapeHTML(companion.guardian?.name || '')}"
         >
           ${icon('send', 'w-6 h-6')}
           ${t('sendAlertTo') || 'Send alert to'} ${companion.guardian?.name || ''}

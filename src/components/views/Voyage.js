@@ -175,14 +175,14 @@ function renderMapFirstView(state) {
   const sheetHeight = sheetHeights[sheetState] || '80px'
 
   return `
-    <div class="relative" style="height:100dvh;margin:-0;padding:0">
+    <div class="relative h-dvh m-0 p-0">
       <!-- MAP (fills entire space) — wrapper handles absolute positioning so MapLibre can't override it -->
-      <div style="position:absolute;inset:0;z-index:0;overflow:hidden">
-        <div id="trip-map" style="width:100%;height:100%"></div>
+      <div class="absolute inset-0 z-0 overflow-hidden">
+        <div id="trip-map" class="w-full h-full"></div>
       </div>
 
       <!-- COLLAPSED FORM BAR (top) — matches mockup top-bar -->
-      <div class="absolute top-0 left-0 right-0 z-30" style="padding:env(safe-area-inset-top,0) 0 0 0">
+      <div class="absolute top-0 left-0 right-0 z-30 pt-[env(safe-area-inset-top,0)]">
         <div class="flex items-center justify-between px-4 py-2 bg-dark-secondary/95 backdrop-blur-xl border-b border-white/10">
           <div class="flex items-center gap-2 min-w-0 flex-1">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
@@ -210,7 +210,7 @@ function renderMapFirstView(state) {
       </div>
 
       <!-- MAP CONTROLS (right side, below top bar) -->
-      <div class="absolute right-3 z-20 flex flex-col gap-2" style="top:60px">
+      <div class="absolute right-3 z-20 flex flex-col gap-2 top-[60px]">
         <button
           onclick="centerTripMapOnGps()"
           class="w-10 h-10 rounded-xl bg-dark-secondary/90 backdrop-blur border border-white/10 flex items-center justify-center text-blue-400 hover:text-blue-300 transition-colors shadow-lg"
@@ -558,7 +558,7 @@ function renderEnRouteRadar(_state, activeTrip) {
 
 function renderTripForm(state) {
   return `
-    <div class="card p-4 space-y-4" style="overflow:visible!important">
+    <div class="card p-4 space-y-4 !overflow-visible">
       <h3 class="font-bold text-base flex items-center gap-2">
         ${icon('signpost', 'w-5 h-5 text-primary-400')}
         ${t('newTrip') || 'Nouveau voyage'}

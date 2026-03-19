@@ -23,6 +23,7 @@ import { renderCityPanel } from './views/CityPanel.js';
 import { renderCookieBanner } from './modals/CookieBanner.js';
 // BetaBanner removed — carousel v4 slide 5 covers alpha messaging
 import { icon } from '../utils/icons.js'
+import { escapeHTML } from '../utils/sanitize.js'
 import { trapFocus } from '../utils/a11y.js'
 import { registerMarkerImages, getMarkerType } from '../utils/mapMarkers.js'
 import { applyTripFilter } from '../utils/tripFilters.js'
@@ -281,13 +282,13 @@ function renderOfflinePanel(state) {
     const flag = countryFlag(c.code)
     const name = countryName(c.code)
     return `
-      <div class="flex items-center gap-3 px-4 py-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div class="flex items-center gap-3 px-4 py-3 border-b border-white/5">
         <span class="text-2xl">${flag}</span>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium">${name}</div>
           <div class="text-xs text-slate-400">${c.count || 0} spots · ~${estimateDownloadedSize(c)} MB</div>
         </div>
-        <button onclick="deleteOfflineCountry('${c.code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.2)" type="button">✓ ${t('offlineSaved') || 'Sauvé'}</button>
+        <button onclick="deleteOfflineCountry('${c.code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" type="button">✓ ${t('offlineSaved') || 'Sauvé'}</button>
       </div>`
   }
 
@@ -300,14 +301,14 @@ function renderOfflinePanel(state) {
     const progress = state.offlineDownloadProgress || 0
 
     const downloadBtn = downloading
-      ? `<button class="relative px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap overflow-hidden min-w-[90px]" style="background:rgba(245,158,11,0.1);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)" type="button" disabled>
-          <div style="position:absolute;inset:0;background:rgba(245,158,11,0.25);width:${progress}%;transition:width 0.3s ease;border-radius:7px"></div>
-          <span style="position:relative">${progress}%</span>
+      ? `<button class="relative px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap overflow-hidden min-w-[90px] bg-amber-500/10 text-amber-300 border border-amber-500/30" type="button" disabled>
+          <div class="absolute inset-0 bg-amber-500/25 rounded-[7px] transition-[width] duration-300 ease-out" style="width:${progress}%"></div>
+          <span class="relative">${progress}%</span>
         </button>`
-      : `<button id="dl-btn-${code}" onclick="downloadCountryForOffline('${code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)" type="button">${t('downloadOffline') || 'Télécharger'}</button>`
+      : `<button id="dl-btn-${code}" onclick="downloadCountryForOffline('${code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-amber-500/20 text-amber-300 border border-amber-500/30" type="button">${t('downloadOffline') || 'Télécharger'}</button>`
 
     return `
-      <div class="flex items-center gap-3 px-4 py-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div class="flex items-center gap-3 px-4 py-3 border-b border-white/5">
         <span class="text-2xl">${flag}</span>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium">${name}</div>
@@ -319,9 +320,9 @@ function renderOfflinePanel(state) {
 
   return `
     <!-- Backdrop -->
-    <div class="fixed inset-0 z-[55]" style="background:rgba(0,0,0,0.5)" onclick="closeOfflinePanel()" tabindex="0" role="dialog" aria-modal="true"></div>
+    <div class="fixed inset-0 z-[55] bg-black/50" onclick="closeOfflinePanel()" tabindex="0" role="dialog" aria-modal="true"></div>
     <!-- Bottom sheet -->
-    <div class="fixed bottom-[56px] left-0 right-0 z-[60]" style="max-height:70vh;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);border-radius:20px 20px 0 0;border-top:1px solid #334155">
+    <div class="fixed bottom-[56px] left-0 right-0 z-[60] max-h-[70vh] bg-gradient-to-b from-slate-800 to-slate-900 rounded-t-[20px] border-t border-slate-700">
       <!-- Handle -->
       <div class="flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-slate-600"></div></div>
       <!-- Header -->
@@ -330,7 +331,7 @@ function renderOfflinePanel(state) {
         <p class="text-xs text-slate-400 mt-0.5">${t('offlineHint') || 'Télécharge des pays pour les consulter sans internet'}</p>
       </div>
       <!-- Country list -->
-      <div style="overflow-y:auto;max-height:calc(70vh - 140px)">
+      <div class="overflow-y-auto max-h-[calc(70vh-140px)]">
         ${offlineCountries.length > 0 ? `<div class="px-4 pt-2 pb-1"><span class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">${t('offlineSaved') || 'Sauvé'}</span></div>` : ''}
         ${offlineCountries.map(c => renderDownloadedRow(c)).join('')}
         ${top3.length > 0 ? `<div class="px-4 pt-3 pb-1"><span class="text-[10px] font-semibold text-amber-400 uppercase tracking-wider">${t('popular') || 'Populaires'}</span></div>` : ''}
@@ -339,7 +340,7 @@ function renderOfflinePanel(state) {
         ${restCountries.map(code => renderAvailableRow(code)).join('')}
       </div>
       <!-- Footer -->
-      <div class="px-4 py-3 flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,0.05)">
+      <div class="px-4 py-3 flex items-center justify-between border-t border-white/5">
         <span class="text-xs text-slate-400">${offlineCountries.length} ${t('autoOfflineSyncCountries') || 'pays'} · ${totalSizeMB} MB</span>
         ${offlineCountries.length > 0 ? `<button onclick="clearAllOfflineData()" class="text-xs text-red-400/60" type="button">${t('clearAllOffline') || 'Tout supprimer'}</button>` : ''}
       </div>
@@ -478,18 +479,18 @@ function renderContactAmbassadorModal(state) {
           <div class="flex items-center gap-3">
             <span class="text-2xl">${state.selectedAmbassador.userAvatar || '🤙'}</span>
             <div>
-              <h2 id="contact-amb-title" class="text-base font-bold">${state.selectedAmbassador.userName || ''}</h2>
-              <p class="text-xs text-slate-400">${state.selectedAmbassador.city || ''}, ${state.selectedAmbassador.country || ''}</p>
+              <h2 id="contact-amb-title" class="text-base font-bold">${escapeHTML(state.selectedAmbassador.userName || '')}</h2>
+              <p class="text-xs text-slate-400">${escapeHTML(state.selectedAmbassador.city || '')}, ${escapeHTML(state.selectedAmbassador.country || '')}</p>
             </div>
           </div>
           <button onclick="closeContactAmbassador()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">${icon('x', 'w-5 h-5')}</button>
         </div>
         <div class="p-4 space-y-4">
-          ${state.selectedAmbassador.bio ? `<p class="text-sm text-slate-300 italic">"${state.selectedAmbassador.bio}"</p>` : ''}
+          ${state.selectedAmbassador.bio ? `<p class="text-sm text-slate-300 italic">"${escapeHTML(state.selectedAmbassador.bio)}"</p>` : ''}
           ${state.selectedAmbassador.languages?.length > 0 ? `
             <div class="flex items-center gap-2 flex-wrap">
               <span class="text-xs text-slate-400">${t('languages') || 'Langues'} :</span>
-              ${state.selectedAmbassador.languages.map(l => `<span class="px-2 py-0.5 rounded bg-white/10 text-xs">${l.toUpperCase()}</span>`).join('')}
+              ${state.selectedAmbassador.languages.map(l => `<span class="px-2 py-0.5 rounded bg-white/10 text-xs">${escapeHTML(l.toUpperCase())}</span>`).join('')}
             </div>
           ` : ''}
           <div>
@@ -1109,7 +1110,7 @@ function initHomeMap(state) {
           : (t('createSpotHere') || 'Créer un spot ici')
         const popup = new maplibregl.Popup({ offset: 10, closeButton: false, className: 'create-spot-popup' })
           .setLngLat([lngLat.lng, lngLat.lat])
-          .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'${spotType || ''}')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#f59e0b;color:#0f172a;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap"><span style="font-size:16px">📍</span>${label}</button>`)
+          .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'${spotType || ''}')" class="flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 text-slate-900 border-none rounded-full text-sm font-semibold cursor-pointer whitespace-nowrap"><span class="text-base">📍</span>${label}</button>`)
           .addTo(mapInst)
         // Auto-close after 4s
         setTimeout(() => { try { popup.remove() } catch { /* already removed */ } }, 4000)
@@ -1465,13 +1466,13 @@ function addAmenityMarkers(amenities) {
 
     // Popup on click with station name + service area + available services
     const services = poi.services || []
-    let popupHTML = `<div style="padding:2px 4px;font-family:system-ui;font-size:13px">`
-    popupHTML += `<div style="font-weight:600;color:#fff">${label} ${stationName}</div>`
+    let popupHTML = `<div class="p-0.5 font-sans text-[13px]">`
+    popupHTML += `<div class="font-semibold text-white">${label} ${stationName}</div>`
     if (areaName) {
-      popupHTML += `<div style="font-size:11px;color:#94a3b8;margin-top:2px">📍 ${areaName}</div>`
+      popupHTML += `<div class="text-[11px] text-slate-400 mt-0.5">📍 ${areaName}</div>`
     }
     if (services.length > 0) {
-      popupHTML += `<div style="margin-top:4px;font-size:15px;letter-spacing:2px">${services.join(' ')}</div>`
+      popupHTML += `<div class="mt-1 text-[15px] tracking-widest">${services.join(' ')}</div>`
     }
     popupHTML += `</div>`
     const popup = new tripMaplibregl.Popup({ offset: 25, closeButton: false, maxWidth: '260px' })

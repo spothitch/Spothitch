@@ -301,19 +301,18 @@ function renderSlideContent(slide, featureId) {
     return `
       <div class="flex flex-col items-center text-center px-6 pt-4 pb-2">
         <div class="text-5xl mb-5">${slide.emoji}</div>
-        <h2 class="text-2xl font-extrabold mb-3 leading-tight" style="color:#f59e0b">${escapeHTML(slide.title)}</h2>
-        <p class="text-sm leading-relaxed mb-6" style="color:#94a3b8">${escapeHTML(slide.subtitle)}</p>
+        <h2 class="text-2xl font-extrabold mb-3 leading-tight text-amber-500">${escapeHTML(slide.title)}</h2>
+        <p class="text-sm leading-relaxed mb-6 text-slate-400">${escapeHTML(slide.subtitle)}</p>
         <div class="w-full space-y-3 mb-6">
           ${(slide.items || []).map(item => `
-            <div class="flex items-center gap-3 p-3 rounded-xl text-left" style="background:rgba(255,255,255,0.05)">
+            <div class="flex items-center gap-3 p-3 rounded-xl text-left bg-white/5">
               <span class="text-xl shrink-0">${item.icon}</span>
-              <span class="text-sm" style="color:#e2e8f0">${escapeHTML(item.text)}</span>
+              <span class="text-sm text-slate-200">${escapeHTML(item.text)}</span>
             </div>
           `).join('')}
         </div>
         <button onclick="openFeedbackOnFeature('${featureId}')"
-          class="w-full py-4 rounded-2xl font-extrabold text-base cursor-pointer"
-          style="background:linear-gradient(135deg,#f59e0b,#fb923c);color:#0f1520;border:none;box-shadow:0 4px 20px rgba(245,158,11,0.4)">
+          class="w-full py-4 rounded-2xl font-extrabold text-base cursor-pointer bg-gradient-to-br from-amber-500 to-orange-400 text-dark-primary border-none shadow-[0_4px_20px_rgba(245,158,11,0.4)]">
           ${escapeHTML(t('featureAvisBtn') || '💬 Donner mon avis sur cette feature')}
         </button>
       </div>
@@ -323,12 +322,12 @@ function renderSlideContent(slide, featureId) {
   let extra = ''
 
   if (slide.hint) {
-    extra += `<p class="text-xs mt-4 animate-pulse" style="color:#64748b">${escapeHTML(slide.hint)}</p>`
+    extra += `<p class="text-xs mt-4 animate-pulse text-slate-500">${escapeHTML(slide.hint)}</p>`
   }
 
   if (slide.quote) {
     extra += `
-      <div class="mt-4 p-4 rounded-xl text-sm italic leading-relaxed" style="background:rgba(255,255,255,0.05);color:#94a3b8;border-left:3px solid ${slide.color || '#f59e0b'}">
+      <div class="mt-4 p-4 rounded-xl text-sm italic leading-relaxed bg-white/5 text-slate-400 border-l-[3px]" style="border-left-color:${slide.color || '#f59e0b'}">
         ${escapeHTML(slide.quote)}
       </div>
     `
@@ -336,12 +335,12 @@ function renderSlideContent(slide, featureId) {
 
   if (slide.card) {
     extra += `
-      <div class="mt-4 rounded-xl overflow-hidden" style="background:rgba(255,255,255,0.05)">
+      <div class="mt-4 rounded-xl overflow-hidden bg-white/5">
         ${slide.card.items.map(item => `
-          <div class="flex items-center gap-3 px-4 py-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+          <div class="flex items-center gap-3 px-4 py-3 border-b border-white/5">
             <span class="text-lg shrink-0">${item.icon}</span>
-            <span class="text-xs" style="color:#64748b;min-width:70px">${escapeHTML(item.label)}</span>
-            <span class="text-sm font-semibold" style="color:#e2e8f0">${escapeHTML(item.value)}</span>
+            <span class="text-xs text-slate-500 min-w-[70px]">${escapeHTML(item.label)}</span>
+            <span class="text-sm font-semibold text-slate-200">${escapeHTML(item.value)}</span>
           </div>
         `).join('')}
       </div>
@@ -352,7 +351,7 @@ function renderSlideContent(slide, featureId) {
     extra += `
       <div class="mt-4 flex gap-2 flex-wrap">
         ${slide.checkins.map(c => `
-          <div class="px-3 py-2 rounded-xl text-sm font-semibold" style="background:rgba(74,222,128,0.1);color:#4ade80">${escapeHTML(c)}</div>
+          <div class="px-3 py-2 rounded-xl text-sm font-semibold bg-green-400/10 text-green-400">${escapeHTML(c)}</div>
         `).join('')}
       </div>
     `
@@ -363,9 +362,9 @@ function renderSlideContent(slide, featureId) {
       <div class="mt-4 space-y-3">
         ${slide.timeline.map((item, i) => `
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0" style="background:rgba(239,68,68,0.15)">${item.icon}</div>
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0 bg-red-500/15">${item.icon}</div>
             ${i < slide.timeline.length - 1 ? '' : ''}
-            <span class="text-sm" style="color:#e2e8f0">${escapeHTML(item.text)}</span>
+            <span class="text-sm text-slate-200">${escapeHTML(item.text)}</span>
           </div>
         `).join('')}
       </div>
@@ -376,10 +375,10 @@ function renderSlideContent(slide, featureId) {
     extra += `
       <div class="mt-4 grid grid-cols-2 gap-2">
         ${slide.grid.map(item => `
-          <div class="p-3 rounded-xl text-center" style="background:rgba(255,255,255,0.05)">
+          <div class="p-3 rounded-xl text-center bg-white/5">
             <div class="text-2xl mb-1">${item.emoji}</div>
-            <div class="text-xs font-bold" style="color:#e2e8f0">${escapeHTML(item.label)}</div>
-            <div class="text-[10px]" style="color:#64748b">${escapeHTML(item.desc)}</div>
+            <div class="text-xs font-bold text-slate-200">${escapeHTML(item.label)}</div>
+            <div class="text-[10px] text-slate-500">${escapeHTML(item.desc)}</div>
           </div>
         `).join('')}
       </div>
@@ -390,7 +389,7 @@ function renderSlideContent(slide, featureId) {
     extra += `
       <div class="mt-4 flex flex-wrap gap-2">
         ${slide.tags.map(tag => `
-          <span class="px-3 py-1.5 rounded-full text-sm font-semibold" style="background:rgba(245,158,11,0.15);color:#f59e0b">${escapeHTML(tag)}</span>
+          <span class="px-3 py-1.5 rounded-full text-sm font-semibold bg-amber-500/15 text-amber-500">${escapeHTML(tag)}</span>
         `).join('')}
       </div>
     `
@@ -400,7 +399,7 @@ function renderSlideContent(slide, featureId) {
     <div class="flex flex-col items-center text-center px-6 pt-4 pb-2">
       <div class="text-5xl mb-5">${slide.emoji}</div>
       <h2 class="text-2xl font-extrabold mb-3 leading-tight" style="color:${escapeHTML(slide.color || '#f59e0b')}">${escapeHTML(slide.title)}</h2>
-      <p class="text-sm leading-relaxed" style="color:#94a3b8">${escapeHTML(slide.subtitle)}</p>
+      <p class="text-sm leading-relaxed text-slate-400">${escapeHTML(slide.subtitle)}</p>
       ${extra}
     </div>
   `
@@ -408,24 +407,24 @@ function renderSlideContent(slide, featureId) {
 
 function buildOverlayHTML(featureId, slides) {
   return `
-    <div class="fixed inset-0 flex items-end justify-center" style="z-index:200;background:rgba(0,0,0,0.92)" onclick="if(event.target===this)closeFeatureSlides()" aria-modal="true" role="dialog">
-      <div class="w-full max-w-md flex flex-col" style="height:90vh;background:#050510;border-radius:24px 24px 0 0;overflow:hidden;position:relative">
+    <div class="fixed inset-0 flex items-end justify-center z-[200] bg-black/[0.92]" onclick="if(event.target===this)closeFeatureSlides()" aria-modal="true" role="dialog">
+      <div class="w-full max-w-md flex flex-col h-[90vh] bg-[#050510] rounded-t-3xl overflow-hidden relative">
 
         <!-- Progress bar -->
         <div id="fs-progress-bar" class="absolute top-0 left-0 h-[3px] transition-all duration-400" style="background:linear-gradient(90deg,#f59e0b,#fb923c);width:${Math.round(100 / slides.length)}%;border-radius:0 2px 2px 0"></div>
 
         <!-- Close button -->
-        <button onclick="closeFeatureSlides()" class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-base" style="z-index:10;background:rgba(255,255,255,0.08);color:#94a3b8;border:none;cursor:pointer" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button>
+        <button onclick="closeFeatureSlides()" class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-base z-10 bg-white/[0.08] text-slate-400 border-none cursor-pointer" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button>
 
         <!-- Dots -->
-        <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1.5" style="z-index:10">
+        <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
           ${slides.map((_, i) => `
             <div id="fs-dot-${i}" class="rounded-full transition-all duration-300" style="width:${i === 0 ? '20px' : '6px'};height:6px;background:${i === 0 ? '#f59e0b' : 'rgba(255,255,255,0.2)'}"></div>
           `).join('')}
         </div>
 
         <!-- Slides container -->
-        <div id="fs-slides-container" class="flex-1 overflow-hidden relative" style="margin-top:36px">
+        <div id="fs-slides-container" class="flex-1 overflow-hidden relative mt-9">
           ${slides.map((slide, i) => `
             <div id="fs-slide-${i}" class="absolute inset-0 overflow-y-auto transition-all duration-400" style="opacity:${i === 0 ? 1 : 0};transform:translateX(${i === 0 ? '0' : '100%'})">
               <div class="min-h-full flex flex-col justify-center py-4">
@@ -437,8 +436,8 @@ function buildOverlayHTML(featureId, slides) {
 
         <!-- Nav buttons (prev / next) — hidden on CTA slide -->
         <div id="fs-nav" class="px-6 pb-6 pt-2 flex gap-3 shrink-0">
-          <button id="fs-prev-btn" onclick="featureSlidesPrev()" class="flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-opacity" style="background:rgba(255,255,255,0.06);color:#94a3b8;border:none;display:none" aria-label="Précédent">← Précédent</button>
-          <button id="fs-next-btn" onclick="featureSlidesNext()" class="flex-1 py-3 rounded-xl text-sm font-bold cursor-pointer" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)" aria-label="Suivant">Suivant →</button>
+          <button id="fs-prev-btn" onclick="featureSlidesPrev()" class="flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-opacity bg-white/[0.06] text-slate-400 border-none hidden" aria-label="Précédent">← Précédent</button>
+          <button id="fs-next-btn" onclick="featureSlidesNext()" class="flex-1 py-3 rounded-xl text-sm font-bold cursor-pointer bg-amber-500/15 text-amber-500 border border-amber-500/30" aria-label="Suivant">Suivant →</button>
         </div>
       </div>
     </div>
@@ -488,14 +487,10 @@ function updateSlideUI(idx) {
   const nextBtn = document.getElementById('fs-next-btn')
   const isLast = idx === total - 1
 
-  if (prevBtn) prevBtn.style.display = idx === 0 ? 'none' : 'block'
+  if (prevBtn) prevBtn.classList.toggle('hidden', idx === 0)
   if (nextBtn) {
-    if (isLast) {
-      // On CTA slide, hide the next button (CTA has its own button)
-      nextBtn.style.display = 'none'
-    } else {
-      nextBtn.style.display = 'block'
-    }
+    // On CTA slide, hide the next button (CTA has its own button)
+    nextBtn.classList.toggle('hidden', isLast)
   }
 }
 
