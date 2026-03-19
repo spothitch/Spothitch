@@ -150,7 +150,7 @@ export async function submitReport(type, targetId, reason, details = {}) {
       const { updateDoc, doc, increment } = await import('firebase/firestore')
       await updateDoc(doc(db, 'spots', targetId), {
         reports: increment(1),
-      }).catch(() => {}) // Spot may not exist in Firestore (Hitchwiki import)
+      }).catch(() => {})
     }
   } catch (err) {
     console.error('Failed to persist report to Firebase:', err)

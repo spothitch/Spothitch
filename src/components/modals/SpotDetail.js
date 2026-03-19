@@ -16,11 +16,7 @@ export function renderSpotDetail(state) {
 
   const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
   const navName = escapeJSString((spot.from || '') + ' - ' + (spot.to || ''))
-  // For converted spots (hitchwiki → community), only count community data
-  const isConverted = spot.source === 'community' && spot.attribution === 'SpotHitch'
-  const totalValidations = isConverted
-    ? (spot.validationCount || 0)
-    : (spot.validationCount || spot.userValidations || 0)
+  const totalValidations = spot.validationCount || spot.userValidations || 0
   const testCount = spot.liveTestCount || spot.testCount || 0
   const checkins = spot.checkins || 0
   // Validations = full experiences (with ratings/comments). Disponibilités = quick confirms
@@ -472,7 +468,7 @@ export function renderSpotDetail(state) {
               return `
               <div style="background:#161b28;border-radius:10px;padding:12px;margin-bottom:6px;${borderColor}">
                 <div style="font-size:12px;margin-bottom:2px">
-                  <span style="font-weight:500;${review.userId ? 'cursor:pointer;color:#f59e0b' : ''}" ${review.userId ? `onclick="showFriendProfile('${escapeJSString(review.userId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(review.userName || 'Hitchwiki')}</span>
+                  <span style="font-weight:500;${review.userId ? 'cursor:pointer;color:#f59e0b' : ''}" ${review.userId ? `onclick="showFriendProfile('${escapeJSString(review.userId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(review.userName || 'Anonyme')}</span>
                   ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
                   ${review.rating ? ` <span style="color:#f59e0b">${'\u2605'.repeat(review.rating)}${'\u2606'.repeat(5 - review.rating)}</span>` : ''}
                   ${resultBadge}
@@ -494,7 +490,7 @@ export function renderSpotDetail(state) {
 
           <!-- Meta + Maps + Street View -->
           <div style="padding:0 16px 12px;display:flex;justify-content:space-between;align-items:center">
-            <div style="font-size:11px;color:#475569">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · <span style="${spot.creatorId ? 'cursor:pointer;color:#f59e0b' : ''}" ${spot.creatorId ? `onclick="showFriendProfile('${escapeJSString(spot.creatorId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(spot.creator || 'HitchWiki')}</span>${spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''}</div>
+            <div style="font-size:11px;color:#475569">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · <span style="${spot.creatorId ? 'cursor:pointer;color:#f59e0b' : ''}" ${spot.creatorId ? `onclick="showFriendProfile('${escapeJSString(spot.creatorId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(spot.creator || 'Anonyme')}</span>${spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''}</div>
             <div style="display:flex;gap:6px">
               <button onclick="showNavigationPicker(${spot.coordinates?.lat}, ${spot.coordinates?.lng}, '${navName}')" type="button"
                 style="background:#161b28;border:1px solid #334155;color:#94a3b8;padding:7px 12px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">\ud83d\uddfa Maps</button>

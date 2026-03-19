@@ -628,35 +628,15 @@ function renderLegalModal(state) {
 }
 
 /**
- * Update the spot counter (En attente vs Validés) displayed on the map.
- * Reads from spotLoader and writes to #hw-count / #sh-count DOM elements.
+ * Update the spot counter displayed on the map.
+ * Counts community spots from state (Firestore).
  */
 function updateSpotCounter() {
-  const hwEl = document.getElementById('hw-count')
   const shEl = document.getElementById('sh-count')
-  if (!hwEl && !shEl) return
-  import('../services/spotLoader.js').then(({ loadSpotIndex, getAllLoadedSpots }) => {
-    loadSpotIndex?.().then(index => {
-      const totalHW = index?.totalSpots || 0
-      const loaderSpots = getAllLoadedSpots?.() || []
-      const stateSpots = getState().spots || []
-      // Count community spots from both spotLoader and state (Firestore)
-      const communityFromLoader = loaderSpots.filter(s => s.source !== 'hitchwiki').length
-      const communityFromState = stateSpots.filter(s => s.dataSource === 'community').length
-      const community = Math.max(communityFromLoader, communityFromState)
-      if (hwEl) hwEl.textContent = totalHW
-      if (shEl) shEl.textContent = community
-      // Counter updates on each call (community spots may arrive later from Firestore)
-    }).catch(() => {
-      const all = getAllLoadedSpots?.() || []
-      const stateSpots = getState().spots || []
-      if (hwEl) hwEl.textContent = all.filter(s => s.source === 'hitchwiki').length
-      if (shEl) shEl.textContent = Math.max(
-        all.filter(s => s.source !== 'hitchwiki').length,
-        stateSpots.filter(s => s.dataSource === 'community').length
-      )
-    })
-  }).catch(() => {})
+  if (!shEl) return
+  const stateSpots = getState().spots || []
+  const community = stateSpots.filter(s => s.dataSource === 'community').length
+  shEl.textContent = community
 }
 
 /**
@@ -876,16 +856,8 @@ function initHomeMap(state) {
           map.flyTo({ center: [longitude, latitude], zoom: 13, duration: 1200 })
           // Update global state
           if (window.setState) window.setState({ userLocation: { lat: latitude, lng: longitude }, gpsEnabled: true })
-          // Load spots in 50km radius once GPS is acquired
-          if (spotLoader) {
-            try {
-              const radiusSpots = await spotLoader.loadSpotsInRadius(latitude, longitude, 50)
-              updateSpotsOnMap(radiusSpots)
-              if (window._refreshCountryBubbles) window._refreshCountryBubbles()
-              // Prefetch nearby countries in background for faster browsing
-              spotLoader.prefetchNearbyCountries(latitude, longitude, 800)
-            } catch { /* no-op */ }
-          }
+          // Refresh map with community spots + bubbles
+          if (window._refreshCountryBubbles) window._refreshCountryBubbles()
         },
         () => { /* silently fail — user denied GPS */ },
         { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
@@ -1119,49 +1091,11 @@ function initHomeMap(state) {
       populateSplitView(spots)
     }
 
-    // Load spots for visible area
-    let isLoadingSpots = false
-    const loadSpotsForView = async () => {
-      // Always import spotLoader directly (don't rely on closure variable)
-      let loader = spotLoader
-      if (!loader) {
-        try {
-          loader = await import('../services/spotLoader.js')
-          spotLoader = loader
-        } catch { return }
-      }
-
+    // Show community spots from state on the map
+    const loadSpotsForView = () => {
       const currentState = getState()
       const stateSpots = currentState.spots || []
-      const existing = loader.getAllLoadedSpots()
-      const spotsMap = new Map()
-      stateSpots.forEach(s => spotsMap.set(s.id, s))
-      existing.forEach(s => spotsMap.set(s.id, s))
-      updateSpotsOnMap(Array.from(spotsMap.values()))
-
-      if (isLoadingSpots) return
-      isLoadingSpots = true
-      try {
-        const bounds = map.getBounds()
-        await loader.loadSpotsInBounds({
-          north: bounds.getNorth(),
-          south: bounds.getSouth(),
-          east: bounds.getEast(),
-          west: bounds.getWest(),
-        })
-        const allLoaded = loader.getAllLoadedSpots()
-        // Merge with state spots (Firebase community) to avoid erasing them
-        const currentState2 = getState()
-        const stateSpots2 = currentState2.spots || []
-        const mergedMap = new Map()
-        stateSpots2.forEach(s => mergedMap.set(s.id, s))
-        allLoaded.forEach(s => mergedMap.set(s.id, s))
-        updateSpotsOnMap(Array.from(mergedMap.values()))
-      } catch {
-        // silently fail
-      } finally {
-        isLoadingSpots = false
-      }
+      updateSpotsOnMap(stateSpots)
     }
 
     // Update layer visibility based on zoom level
@@ -1175,7 +1109,7 @@ function initHomeMap(state) {
       setBubbleLayersVisibility(map, z < 7)
     }
 
-    // Refresh bubble data from community spots (dynamic, no Hitchwiki index)
+    // Refresh bubble data from community spots
     // Throttled to avoid excessive rebuilds that cause visual flicker
     let lastBubbleRefresh = 0
     const BUBBLE_THROTTLE_MS = 2000
@@ -1305,22 +1239,9 @@ function initHomeMap(state) {
       map.on('mouseenter', 'country-bubble-circles', () => { map.getCanvas().style.cursor = 'pointer' })
       map.on('mouseleave', 'country-bubble-circles', () => { map.getCanvas().style.cursor = '' })
 
-      // Initial load strategy
-      const currentZoom = map.getZoom()
-      if (hasGps && spotLoader) {
-        // GPS: load spots in 50km radius
-        const radiusSpots = await spotLoader.loadSpotsInRadius(
-          state.userLocation.lat, state.userLocation.lng, 50
-        )
-        updateSpotsOnMap(radiusSpots)
-        refreshBubbles()
-      } else if (currentZoom >= 7) {
-        loadSpotsForView()
-      } else {
-        // No GPS, zoomed out: load spots for visible area anyway
-        // so the map isn't empty while bubbles also show
-        loadSpotsForView()
-      }
+      // Initial load: show community spots from state
+      loadSpotsForView()
+      refreshBubbles()
 
       updateLayerVisibility()
 
@@ -1363,14 +1284,9 @@ function initHomeMap(state) {
       lastZoom = currentZoom
 
       if (zoomChanged) {
-        // Immediately show already-loaded spots with forceRebuild to clear stale IDs
-        const existing = spotLoader ? spotLoader.getAllLoadedSpots() : []
-        const currentState = getState()
-        const stateSpots = currentState.spots || []
-        const spotsMap = new Map()
-        stateSpots.forEach(s => spotsMap.set(s.id, s))
-        existing.forEach(s => spotsMap.set(s.id, s))
-        if (spotsMap.size > 0) updateSpotsOnMap(Array.from(spotsMap.values()))
+        // Immediately re-display community spots
+        const stateSpots = getState().spots || []
+        if (stateSpots.length > 0) updateSpotsOnMap(stateSpots)
       }
 
       // Skip network reload if bounds barely changed AND zoom didn't change
@@ -1389,16 +1305,10 @@ function initHomeMap(state) {
 
     // Expose map spot refresh for filter changes
     window._refreshMapSpots = () => {
-      const existing = spotLoader ? spotLoader.getAllLoadedSpots() : []
-      const currentState = getState()
-      const stateSpots = currentState.spots || []
-      const spotsMap = new Map()
-      stateSpots.forEach(s => spotsMap.set(s.id, s))
-      existing.forEach(s => spotsMap.set(s.id, s))
-      const allSpots = Array.from(spotsMap.values())
-      const geojson = spotsToGeoJSON(allSpots)
+      const stateSpots = getState().spots || []
+      const geojson = spotsToGeoJSON(stateSpots)
       addSpotsSource(geojson)
-      populateSplitView(allSpots)
+      populateSplitView(stateSpots)
     }
 
     // Resize

@@ -41,7 +41,7 @@ export default {
   userReviews: 'Opiniones de viajeros',
   validations: 'Validaciones',
   reliability: 'Fiabilidad',
-  hitchwikiImport: 'Spot importado. ¡Valídalo para mejorar su fiabilidad!',
+
   verified: 'Verificado',
   login: 'Iniciar sesión',
   register: 'Registrarse',

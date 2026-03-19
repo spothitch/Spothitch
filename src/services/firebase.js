@@ -1025,11 +1025,11 @@ export async function quickValidateSpot(spotId) {
     const spotRef = doc(db, 'spots', sid)
     const { increment } = await import('firebase/firestore')
 
-    // Ensure spot document exists (Hitchwiki spots may not have one)
+    // Ensure spot document exists
     try {
       const spotSnap = await getDoc(spotRef)
       if (!spotSnap.exists()) {
-        await setDoc(spotRef, { createdAt: serverTimestamp(), source: 'hitchwiki', validationCount: 0 })
+        await setDoc(spotRef, { createdAt: serverTimestamp(), validationCount: 0 })
       }
     } catch { /* non-blocking */ }
 
@@ -1187,22 +1187,20 @@ export async function addValidation(data) {
     const user = getCurrentUser()
     const spotId = String(data.spotId)
 
-    // Ensure the spot document exists in Firestore (Hitchwiki spots may not have one)
+    // Ensure the spot document exists in Firestore
     const spotRef = doc(db, 'spots', spotId)
     const { increment } = await import('firebase/firestore')
     try {
       const spotSnap = await getDoc(spotRef)
       if (!spotSnap.exists()) {
-        // Create the spot document so subcollections and updateDoc work
         await setDoc(spotRef, {
           createdAt: serverTimestamp(),
-          source: 'hitchwiki',
           testCount: 0,
           checkins: 0,
           validationCount: 0,
         })
       }
-    } catch { /* non-blocking — Security Rules may prevent read */ }
+    } catch { /* non-blocking */ }
 
     // Add validation to subcollection
     const validationsRef = collection(db, 'spots', spotId, 'validations')

@@ -50,7 +50,7 @@ export default {
   userReviews: 'Bewertungen von Reisenden',
   validations: 'Validierungen',
   reliability: 'Zuverlässigkeit',
-  hitchwikiImport: 'Importierter Spot. Validiere ihn, um seine Zuverlässigkeit zu verbessern!',
+
   verified: 'Verifiziert',
   topSpot: 'Top',
   goodSpot: 'Gut',

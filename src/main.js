@@ -247,14 +247,16 @@ async function init() {
       setState({ showLanding: true })
     }
 
-    // One-shot: purge stale spot-data cache from pre-Hitchwiki-removal era
-    // This runs once per device, then never again
-    if (!localStorage.getItem('spothitch_spot_cache_purged')) {
-      localStorage.setItem('spothitch_spot_cache_purged', '1')
+    // Purge stale spot-data caches (SW + IDB)
+    if (!localStorage.getItem('spothitch_spot_cache_purged_v2')) {
+      localStorage.setItem('spothitch_spot_cache_purged_v2', '1')
       if (window.caches) {
         caches.delete('spot-data').catch(() => {})
         caches.delete('spot-index').catch(() => {})
       }
+      import('./utils/idb.js').then(({ clear }) => {
+        clear('spots').catch(() => {})
+      }).catch(() => {})
     }
 
     // Initialize offline handler (needed for first render)
@@ -479,15 +481,12 @@ async function init() {
         // Preload, cleanup, monitoring
         try { preloadOnIdle() } catch (e) { /* optional */ }
         try { cleanupOldData() } catch (e) { /* optional */ }
-        // One-time cleanup: purge cached Hitchwiki spots from IDB + SW cache
+        // Purge stale IDB + SW spot caches
         try {
-          if (!localStorage.getItem('spothitch_hw_purged')) {
-            import('./utils/idb.js').then(async ({ clear, cacheSet }) => {
+          if (!localStorage.getItem('spothitch_hw_purged_v2')) {
+            import('./utils/idb.js').then(async ({ clear }) => {
               await clear('spots')
-              // Invalidate spot index cache so it re-fetches (empty) from network
-              await cacheSet('spot_index', null, 1)
-              localStorage.setItem('spothitch_hw_purged', '1')
-              // Also purge SW caches for spot data files
+              localStorage.setItem('spothitch_hw_purged_v2', '1')
               if (typeof caches !== 'undefined') {
                 const keys = await caches.keys()
                 for (const key of keys) {
