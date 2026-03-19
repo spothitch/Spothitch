@@ -55,6 +55,30 @@ import {
 } from 'firebase/storage';
 import { getMessaging, getToken, onMessage, deleteToken } from 'firebase/messaging';
 
+// ==================== CLIENT-SIDE WRITE RATE LIMITER ====================
+
+/**
+ * Simple in-memory rate limiter for Firestore write operations.
+ * Tracks timestamps per operation type and rejects if limit exceeded.
+ * @param {string} opName - operation identifier (e.g. 'addSpot')
+ * @param {number} maxPerMinute - max allowed writes per 60s window
+ * @returns {{ allowed: boolean }} - whether the write is allowed
+ */
+const _rateLimitBuckets = {}
+function checkWriteRateLimit(opName, maxPerMinute) {
+  const now = Date.now()
+  const windowMs = 60_000
+  if (!_rateLimitBuckets[opName]) _rateLimitBuckets[opName] = []
+  // Purge entries older than 60s
+  _rateLimitBuckets[opName] = _rateLimitBuckets[opName].filter((ts) => now - ts < windowMs)
+  if (_rateLimitBuckets[opName].length >= maxPerMinute) {
+    console.warn(`Rate limit exceeded for ${opName}: ${maxPerMinute}/min`)
+    return { allowed: false }
+  }
+  _rateLimitBuckets[opName].push(now)
+  return { allowed: true }
+}
+
 // Firebase configuration from environment variables
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -514,6 +538,9 @@ const SPOT_ALLOWED_FIELDS = [
 
 export async function addSpot(spotData) {
   try {
+    if (!checkWriteRateLimit('addSpot', 5).allowed) {
+      return { success: false, error: 'rate_limit_exceeded' }
+    }
     const user = getCurrentUser();
     const safeData = {}
     for (const key of SPOT_ALLOWED_FIELDS) {
@@ -621,6 +648,9 @@ export async function addDestinationToSpot(spotId, destination) {
  */
 export async function addReview(spotId, reviewData) {
   try {
+    if (!checkWriteRateLimit('addReview', 10).allowed) {
+      return { success: false, error: 'rate_limit_exceeded' }
+    }
     const user = getCurrentUser();
     const REVIEW_ALLOWED_FIELDS = ['text', 'rating', 'comment', 'safety', 'traffic', 'accessibility', 'waitTime', 'photos']
     const safeReviewData = {}
@@ -676,6 +706,9 @@ export function subscribeToChatRoom(room, callback) {
  */
 export async function sendChatMessage(room, text) {
   try {
+    if (!checkWriteRateLimit('sendChatMessage', 30).allowed) {
+      return { success: false, error: 'rate_limit_exceeded' }
+    }
     const user = getCurrentUser();
     const safeText = (text || '').slice(0, 2000)
     const messagesRef = collection(db, 'chat', room, 'messages');
@@ -1112,6 +1145,9 @@ export async function saveValidationToFirebase(spotId, userId) {
  */
 export async function addValidation(data) {
   try {
+    if (!checkWriteRateLimit('addValidation', 20).allowed) {
+      return { success: false, error: 'rate_limit_exceeded' }
+    }
     const user = getCurrentUser()
     const spotId = String(data.spotId)
 
@@ -1446,37 +1482,135 @@ export async function deleteUserAccountGoogle() {
 }
 
 /**
- * Delete all user data from Firestore
+ * Delete all user data from Firestore (GDPR compliant)
+ * Best-effort: continues on individual failures, logs count of deleted docs
  * @param {string} userId - User ID
  */
 async function deleteUserData(userId) {
+  let totalDeleted = 0
+
+  // Helper: delete all docs in a subcollection under users/{uid}
+  async function deleteSubcollection(subName) {
+    try {
+      const snap = await getDocs(collection(db, 'users', userId, subName))
+      const batch = writeBatch(db)
+      snap.docs.forEach((d) => batch.delete(d.ref))
+      if (snap.size > 0) {
+        await batch.commit()
+        totalDeleted += snap.size
+      }
+    } catch (err) {
+      console.error(`deleteUserData: failed to delete subcollection ${subName}:`, err)
+    }
+  }
+
+  // Helper: delete docs in a top-level collection matching a field
+  async function deleteByField(collectionName, fieldName, value) {
+    try {
+      const snap = await getDocs(
+        query(collection(db, collectionName), where(fieldName, '==', value))
+      )
+      const batch = writeBatch(db)
+      snap.docs.forEach((d) => batch.delete(d.ref))
+      if (snap.size > 0) {
+        await batch.commit()
+        totalDeleted += snap.size
+      }
+    } catch (err) {
+      console.error(`deleteUserData: failed to delete from ${collectionName}:`, err)
+    }
+  }
+
   try {
-    const batch = writeBatch(db);
+    // 1. Delete user profile document
+    try {
+      await deleteDoc(doc(db, 'users', userId))
+      totalDeleted += 1
+    } catch (err) {
+      console.error('deleteUserData: failed to delete user profile:', err)
+    }
 
-    // Delete user profile document
-    const userDocRef = doc(db, 'users', userId);
-    batch.delete(userDocRef);
+    // 2. Delete subcollections under users/{uid}
+    const subcollections = [
+      'friends',
+      'friendRequests',
+      'favorites',
+      'trips',
+      'syncData',
+      'fcmTokens',
+      'guideVotes',
+    ]
+    await Promise.all(subcollections.map((sub) => deleteSubcollection(sub)))
 
-    // Find and delete user's spots
-    const spotsRef = collection(db, 'spots');
-    const spotsQuery = query(spotsRef, where('creatorId', '==', userId));
-    const spotsSnapshot = await getDocs(spotsQuery);
+    // 3. Delete username reservation(s)
+    try {
+      const usernameSnap = await getDocs(
+        query(collection(db, 'usernames'), where('uid', '==', userId))
+      )
+      const batch = writeBatch(db)
+      usernameSnap.docs.forEach((d) => batch.delete(d.ref))
+      if (usernameSnap.size > 0) {
+        await batch.commit()
+        totalDeleted += usernameSnap.size
+      }
+    } catch (err) {
+      console.error('deleteUserData: failed to delete username reservations:', err)
+    }
 
-    spotsSnapshot.docs.forEach((spotDoc) => {
-      batch.delete(spotDoc.ref);
-    });
+    // 4. Delete user's spots
+    await deleteByField('spots', 'creatorId', userId)
 
-    // Find and delete user's chat messages (optional - mark as deleted instead)
-    // This is a simplified version - in production you might want to anonymize instead
+    // 5. Delete from top-level collections with userId field
+    const userIdCollections = [
+      'roadmap_votes',
+      'roadmap_comments',
+      'featureUserVotes',
+      'featureOpinions',
+      'guideTips',
+      'id_verifications',
+      'feedback',
+    ]
+    await Promise.all(userIdCollections.map((c) => deleteByField(c, 'userId', userId)))
 
-    // Commit the batch
-    await batch.commit();
+    // 6. Delete reports filed by user
+    await deleteByField('reports', 'reporterUid', userId)
 
-    return { success: true };
+    // 7. Handle directMessages conversations
+    try {
+      const dmSnap = await getDocs(
+        query(
+          collection(db, 'directMessages'),
+          where('participants', 'array-contains', userId)
+        )
+      )
+      for (const dmDoc of dmSnap.docs) {
+        try {
+          const data = dmDoc.data()
+          const participants = data.participants || []
+          if (participants.length <= 2) {
+            // 2-person conversation: delete entirely
+            await deleteDoc(dmDoc.ref)
+            totalDeleted += 1
+          } else {
+            // Multi-participant: remove user from participants
+            await updateDoc(dmDoc.ref, {
+              participants: arrayRemove(userId),
+            })
+          }
+        } catch (err) {
+          console.error('deleteUserData: failed to handle DM conversation:', err)
+        }
+      }
+    } catch (err) {
+      console.error('deleteUserData: failed to query directMessages:', err)
+    }
+
+    console.log(`deleteUserData: deleted ${totalDeleted} documents for user ${userId}`)
+    return { success: true, deletedCount: totalDeleted }
   } catch (error) {
-    console.error('Error deleting user data:', error);
-    // Continue with account deletion even if data deletion partially fails
-    return { success: false, error };
+    console.error('Error deleting user data:', error)
+    console.log(`deleteUserData: deleted ${totalDeleted} documents before failure for user ${userId}`)
+    return { success: false, error, deletedCount: totalDeleted }
   }
 }
 
