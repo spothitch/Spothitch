@@ -1927,6 +1927,21 @@ window.showSpotSummary = async () => {
       ${description ? row(t('description') || 'Description', description.length > 80 ? description.slice(0, 80) + '...' : description) : ''}
       ${row(t('photoLabel') || 'Photos', photoCount > 0 ? photoCount + ' photo' + (photoCount > 1 ? 's' : '') : (t('noPhoto') || 'Aucune photo'))}
 
+      <!-- Street View check -->
+      ${!state.addSpotValidateId && fd.lat ? `
+      <div style="margin:14px 0 8px;background:rgba(15,30,60,0.6);border:1px solid rgba(96,165,250,0.2);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
+        <div style="flex:1">
+          <div style="font-size:11px;color:#93c5fd" id="sv-check-label">${t('streetViewCheckLabel') || 'Street View disponible ici ?'}</div>
+        </div>
+        <button type="button" onclick="checkStreetViewForNewSpot(${fd.lat}, ${fd.lng})"
+          id="sv-check-btn"
+          style="background:rgba(96,165,250,0.2);border:1px solid rgba(96,165,250,0.3);color:#93c5fd;padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">
+          ${t('streetViewCheck') || 'Vérifier'}
+        </button>
+      </div>
+      ` : ''}
+
       ${!state.addSpotValidateId ? `<p style="font-size:11px;color:#64748b;text-align:center;margin:16px 0 12px">${t('summaryWarning') || 'Une fois publié, ce spot ne pourra plus être modifié.'}</p>` : '<div style="margin-top:16px"></div>'}
 
       <div style="display:flex;gap:10px">
@@ -1946,6 +1961,28 @@ window.showSpotSummary = async () => {
 
 window.closeSpotSummary = () => {
   document.getElementById('spot-summary-overlay')?.remove()
+}
+
+// Handler: check Street View availability during spot creation
+window.checkStreetViewForNewSpot = (lat, lng) => {
+  const { openStreetView } = window._streetViewModule || {}
+  // Open Street View so user can check manually
+  const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0`
+  window.open(url, '_blank', 'noopener,noreferrer')
+  // Mark as verified (user clicked to check)
+  window.spotFormData._streetViewChecked = true
+  const btn = document.getElementById('sv-check-btn')
+  const label = document.getElementById('sv-check-label')
+  if (btn) {
+    btn.style.background = 'rgba(34,197,94,0.2)'
+    btn.style.borderColor = 'rgba(34,197,94,0.4)'
+    btn.style.color = '#22c55e'
+    btn.textContent = '✓ ' + (t('streetViewChecked') || 'Vérifié')
+  }
+  if (label) {
+    label.style.color = '#22c55e'
+    label.textContent = t('streetViewCheckedLabel') || 'Street View vérifié pour ce spot'
+  }
 }
 
 window.handleAddSpot = async (event) => {
@@ -2256,6 +2293,7 @@ window.handleAddSpot = async (event) => {
         signMethod: window.spotFormData.method || null,
       },
       stationName: window.spotFormData.stationName || '',
+      streetViewVerified: !!window.spotFormData._streetViewChecked,
       dataSource: 'community',
       createdAt: new Date().toISOString(),
       experienceDate: {

@@ -321,18 +321,30 @@ export function renderSpotDetail(state) {
 
           <!-- Street View banner (glassmorphism) -->
           ${spot.coordinates?.lat ? `
-          <div onclick="openSpotStreetView(${spot.coordinates.lat}, ${spot.coordinates.lng})" role="button" tabindex="0"
-            style="background:rgba(15,30,60,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(96,165,250,0.2);border-bottom:1px solid rgba(96,165,250,0.2);padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer"
-            aria-label="${t('streetView') || 'Street View'}">
-            <div style="width:36px;height:36px;background:rgba(96,165,250,0.2);border:1px solid rgba(96,165,250,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
+          <div style="background:rgba(15,30,60,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(96,165,250,0.2);border-bottom:1px solid rgba(96,165,250,0.2);padding:12px 16px;display:flex;align-items:center;gap:12px">
+            <div onclick="openSpotStreetView(${spot.coordinates.lat}, ${spot.coordinates.lng})" role="button" tabindex="0"
+              style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer"
+              aria-label="${t('streetView') || 'Street View'}">
+              <div style="width:36px;height:36px;background:rgba(96,165,250,0.2);border:1px solid rgba(96,165,250,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
+              </div>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span style="font-size:14px;color:#ffffff;font-weight:600">Street View</span>
+                  ${spot.streetViewVerified ? `<span style="font-size:9px;color:#22c55e;background:rgba(34,197,94,0.15);padding:2px 6px;border-radius:99px;font-weight:600">${t('verified') || 'Vérifié'} ✓</span>` : ''}
+                </div>
+                <div style="font-size:11px;color:#93c5fd">${spot.streetViewVerified ? (t('streetViewSubtitle') || 'Voir cet endroit comme si vous y étiez') : (t('streetViewNearby') || 'Vue Street View à proximité de ce spot')}</div>
+              </div>
             </div>
-            <div style="flex:1">
-              <div style="font-size:14px;color:#ffffff;font-weight:600">Street View</div>
-              <div style="font-size:11px;color:#93c5fd">${t('streetViewSubtitle') || 'Voir cet endroit comme si vous y étiez'}</div>
-            </div>
-            <div style="width:28px;height:28px;background:rgba(96,165,250,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            <div style="display:flex;align-items:center;gap:6px">
+              ${!spot.streetViewVerified ? `<button onclick="event.stopPropagation();confirmStreetViewAvailable('${escapeJSString(String(spot.id))}')" type="button"
+                style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#22c55e;padding:5px 8px;border-radius:8px;font-size:10px;cursor:pointer;white-space:nowrap;font-weight:500"
+                title="${t('streetViewConfirmTooltip') || 'Confirmer que Street View fonctionne ici'}"
+                aria-label="${t('streetViewConfirmTooltip') || 'Confirmer'}">✓ ${t('streetViewAvailable') || 'Dispo'}</button>` : ''}
+              <div onclick="openSpotStreetView(${spot.coordinates.lat}, ${spot.coordinates.lng})" role="button" tabindex="0"
+                style="width:28px;height:28px;background:rgba(96,165,250,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
             </div>
           </div>
           ` : ''}
@@ -715,6 +727,37 @@ function formatReviewDate(dateStr) {
 window.openSpotStreetView = async (lat, lng) => {
   const { openStreetView } = await import('../../services/streetview.js')
   openStreetView(lat, lng)
+}
+
+// Handler: confirm Street View is available at this spot
+window.confirmStreetViewAvailable = async (spotId) => {
+  const { getCurrentUser, getFirestore } = await import('../../services/firebase.js')
+  const user = getCurrentUser()
+  if (!user) {
+    const { setState } = await import('../../stores/state.js')
+    setState({ showAuth: true })
+    return
+  }
+  try {
+    const { doc, updateDoc } = await import('firebase/firestore')
+    const db = getFirestore()
+    await updateDoc(doc(db, 'spots', spotId), {
+      streetViewVerified: true,
+      streetViewVerifiedBy: user.uid,
+      streetViewVerifiedAt: new Date().toISOString(),
+    })
+    // Update local state so banner refreshes immediately
+    const { getState, setState } = await import('../../stores/state.js')
+    const currentSpot = getState().selectedSpot
+    if (currentSpot && String(currentSpot.id) === String(spotId)) {
+      setState({ selectedSpot: { ...currentSpot, streetViewVerified: true } })
+    }
+    const { showSuccess } = await import('../../services/notifications.js')
+    showSuccess(t('streetViewConfirmed') || 'Street View confirmé pour ce spot !')
+  } catch {
+    const { showError } = await import('../../services/notifications.js')
+    showError(t('errorGeneric') || 'Erreur, réessaie')
+  }
 }
 
 // Handler: add a destination to an existing spot
