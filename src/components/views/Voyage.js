@@ -11,7 +11,7 @@ import { renderToggle, renderToggleCompact } from '../../utils/toggle.js'
 import { renderGuides } from './Guides.js'
 import { safeSetItem } from '../../utils/storage.js'
 import { haversineKm } from '../../utils/geo.js'
-import { escapeJSString } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { applyTripFilter, countByFilter } from '../../utils/tripFilters.js'
 
 // Load Travel.js handlers (calculateTrip, syncTripFieldsAndCalculate, swapTripPoints, etc.)
@@ -333,7 +333,7 @@ function renderBottomSheetSpotItem(spot, i, results, favSet) {
     ? Math.round(haversineKm(results.fromCoords[0], results.fromCoords[1], sLat, sLng))
     : null
   const isFav = favSet.has(spot.id) || favSet.has(String(spot.id))
-  const spotName = spot.from || spot.city || spot.stationName || spot.description?.substring(0, 50) || (spot.country ? `${t('spot')} · ${spot.country}` : `${t('spot')} #${i + 1}`)
+  const spotName = escapeHTML(spot.from || spot.city || spot.stationName || spot.description?.substring(0, 50) || (spot.country ? `${t('spot')} · ${spot.country}` : `${t('spot')} #${i + 1}`))
 
   // Spot type label
   const spotType = spot.spotType || ''
@@ -471,7 +471,7 @@ function renderEnRouteRadar(_state, activeTrip) {
               ⭐
             </div>
             <div class="flex-1 min-w-0">
-              <div class="font-semibold truncate">${closestSpot.from || closestSpot.city || closestSpot.stationName || closestSpot.description?.substring(0, 50) || (closestSpot.country ? `${t('spot')} · ${closestSpot.country}` : t('spot'))}</div>
+              <div class="font-semibold truncate">${escapeHTML(closestSpot.from || closestSpot.city || closestSpot.stationName || closestSpot.description?.substring(0, 50) || (closestSpot.country ? `${t('spot')} · ${closestSpot.country}` : t('spot')))}</div>
               <div class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
                 ${closestSpot.spotType ? `<span>${closestSpot.spotType}</span>` : ''}
                 ${(closestSpot.avgWaitTime || closestSpot.avgWait) ? `<span>${icon('clock', 'w-3 h-3 inline')} ~${closestSpot.avgWaitTime || closestSpot.avgWait}min</span>` : ''}
@@ -516,7 +516,7 @@ function renderEnRouteRadar(_state, activeTrip) {
                   }
                   <span class="w-2.5 h-2.5 rounded-full shrink-0 ${i === 0 ? 'bg-amber-400' : 'bg-slate-600'}"></span>
                   <div class="flex-1 min-w-0">
-                    <div class="text-sm font-medium truncate">${spot.from || spot.city || spot.stationName || spot.description?.substring(0, 50) || (spot.country ? `${t('spot')} · ${spot.country}` : `${t('spot')} #${i + 1}`)}</div>
+                    <div class="text-sm font-medium truncate">${escapeHTML(spot.from || spot.city || spot.stationName || spot.description?.substring(0, 50) || (spot.country ? `${t('spot')} · ${spot.country}` : `${t('spot')} #${i + 1}`))}</div>
                     <div class="text-[10px] text-slate-500">${spot.spotType || ''} ${spot.userValidations ? `· ✓${spot.userValidations}` : ''}</div>
                   </div>
                   ${icon('chevron-right', 'w-3.5 h-3.5 text-slate-600 shrink-0')}
@@ -1100,7 +1100,7 @@ function renderTripDetail(state, tripIndex) {
             ${spots.map((spot, i) => `
               <button onclick="selectSpot(${spot.id})" class="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-white/5 transition-colors text-left">
                 <span class="text-xs font-bold text-slate-600 w-5">${i + 1}</span>
-                <span class="flex-1 text-sm truncate">${spot.from || spot.city || spot.stationName || spot.description?.substring(0, 50) || (spot.country ? `${t('spot')} · ${spot.country}` : `${t('spot')} #${i + 1}`)}</span>
+                <span class="flex-1 text-sm truncate">${escapeHTML(spot.from || spot.city || spot.stationName || spot.description?.substring(0, 50) || (spot.country ? `${t('spot')} · ${spot.country}` : `${t('spot')} #${i + 1}`))}</span>
                 ${icon('chevron-right', 'w-3 h-3 text-slate-600 shrink-0')}
               </button>
             `).join('')}

@@ -351,7 +351,7 @@ function renderProfileHeader(state) {
       <!-- Name + level -->
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1 flex-wrap">
-          <h2 class="text-base font-bold">@${state.username || t('traveler') || 'Voyageur'}</h2>
+          <h2 class="text-base font-bold">@${escapeHTML(state.username || t('traveler') || 'Voyageur')}</h2>
           ${verifiedBadge}
         </div>
         <div class="mt-1">
@@ -1575,8 +1575,8 @@ function renderSettingsMiniHeader(state) {
         </div>
       </div>
       <div>
-        <div class="font-medium text-sm">${state.username || t('traveler') || 'Voyageur'}</div>
-        <div class="text-xs text-slate-400">@${state.username || 'user'}</div>
+        <div class="font-medium text-sm">${escapeHTML(state.username || t('traveler') || 'Voyageur')}</div>
+        <div class="text-xs text-slate-400">@${escapeHTML(state.username || 'user')}</div>
       </div>
     </div>
   `
