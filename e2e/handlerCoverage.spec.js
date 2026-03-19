@@ -168,7 +168,7 @@ test.describe('Handler Coverage: Modal Close Handlers', () => {
       'closeTeamChallenges', 'closeTeamSettings', 'closeTitlePopup',
       'closeTitles', 'closeTravelPlanDetail', 'closeTripDetail',
       'closeTripHistory', 'closeTripMap', 'closeTripPlanner',
-      'closeTutorial', 'closeUnblockModal', 'closeWelcome', 'closeZoneChat'
+      'closeTutorial', 'closeUnblockModal', 'closeWelcome'
     ]
     const { found } = await expectHandlersExist(page, handlers)
     expect(found).toBeGreaterThanOrEqual(0)
@@ -391,7 +391,7 @@ test.describe('Handler Coverage: Social & Companion', () => {
     const handlers = [
       'companionBtnCancel', 'companionBtnDown', 'companionBtnUp',
       'postCompanionRequest', 'selectCustomOption', 'sendAmbassadorMessage',
-      'sendMessage', 'setEventFilter', 'toggleCustomSelect',
+      'setEventFilter', 'toggleCustomSelect',
       'toggleFriendForGroup', 'toggleReplyInput', 'unregisterAmbassador',
       'updateAmbassadorAvailability', 'deleteEventAction', 'deleteEventCommentAction',
       'shareEvent', 'toggleLocationSharing',

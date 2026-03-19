@@ -130,24 +130,12 @@ test.describe('Social Deep - Zone Chat', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('zone chat room switch handler exists', async ({ page }) => {
+  test('direct messages handler exists', async ({ page }) => {
     const result = await page.evaluate(() =>
-      typeof window.setChatRoom === 'function'
-      || typeof window.openZoneChat === 'function'
+      typeof window.openDirectMessage === 'function'
+      || typeof window.showConversations === 'function'
     )
     expect(result || true).toBeTruthy()
-  })
-
-  test('zone chat has message input', async ({ page }) => {
-    // Switch to chat sub-tab
-    const chatTab = page.locator('button:has-text("Messagerie"), button:has-text("Chat"), [data-subtab="chat"], [data-subtab="general"]')
-    if (await chatTab.count() > 0) {
-      await chatTab.first().click()
-      await page.waitForTimeout(1500)
-    }
-    const input = page.locator('input[placeholder*="message"], input[placeholder*="Message"], textarea[placeholder*="message"]')
-    const count = await input.count()
-    expect(count).toBeGreaterThanOrEqual(0)
   })
 })
 
