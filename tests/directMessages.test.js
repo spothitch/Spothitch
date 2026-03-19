@@ -78,9 +78,15 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(() => ({})),
   serverTimestamp: vi.fn(() => '2026-03-04T00:00:00Z'),
   increment: vi.fn((n) => n),
+  arrayUnion: vi.fn((...args) => args),
+  arrayRemove: vi.fn((...args) => args),
   onSnapshot: vi.fn(() => vi.fn()),
   writeBatch: vi.fn(),
   deleteDoc: vi.fn(),
+  enableNetwork: vi.fn(),
+  disableNetwork: vi.fn(),
+  runTransaction: vi.fn(),
+  setDoc: mockSetDoc,
 }))
 
 vi.mock('firebase/app', () => ({
