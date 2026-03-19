@@ -263,14 +263,9 @@ async function init() {
     // Expose _forceRender for lazy-loaded modules (bypasses dirty-checking + fingerprint)
     window._forceRender = () => {
       clearRenderCache('app')
-      // Only reset modal fingerprint if NO form modal is open.
-      // When AddSpot/Auth/SOS is open, other lazy modules loading (e.g. SpotDetail, Auth)
-      // would trigger _forceRender → reset fingerprint → recreate the open form = visual "reload".
-      const currentState = getState()
-      if (!currentState.showAddSpot && !currentState.showAuth && !currentState.showSOS) {
-        _lastModalFingerprint = ''
-      }
+      _lastModalFingerprint = '' // Always reset so lazy-loaded modals appear
       // Force re-render of the active tab so lazy-loaded content appears
+      const currentState = getState()
       const activePanel = getActiveTabPanelId(currentState)
       if (activePanel !== 'map') {
         _renderedTabs.delete(activePanel) // force re-render of this tab
