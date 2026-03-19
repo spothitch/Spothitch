@@ -111,6 +111,21 @@ function lazyRender(exportName, ...args) {
   return ''
 }
 
+/**
+ * Preload a lazy module into cache so first render is instant (no flash).
+ * Used by share flow to preload AddSpot before opening the form.
+ */
+export async function preloadLazyModule(exportName) {
+  if (_lazyCache[exportName]) return
+  const loader = _lazyLoaders[exportName]
+  if (loader) {
+    try {
+      const mod = await loader()
+      _lazyCache[exportName] = mod[exportName]
+    } catch { /* module load error — will retry on render */ }
+  }
+}
+
 // Store active focus trap cleanup function
 let _activeFocusTrapCleanup = null
 
