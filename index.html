@@ -6,6 +6,41 @@
     <meta name="google" content="notranslate">
     <script>try{var l=JSON.parse(localStorage.getItem('spothitch_v4_state')||'{}').lang;if(l&&/^(fr|en|es|de)$/.test(l))document.documentElement.lang=l}catch(e){}</script>
     <script>
+    // GLOBAL RELOAD GUARD: intercept ALL reload attempts during share flow.
+    // Logs which code tries to reload so we can identify the culprit.
+    (function() {
+      var isShare = window.location.search.indexOf('action=share') !== -1
+        || window.location.search.indexOf('url=') !== -1;
+      try { if (sessionStorage.getItem('spothitch_share_flow')) isShare = true } catch(e) {}
+      if (isShare) {
+        // Set share flow flag immediately (before any module loads)
+        try { sessionStorage.setItem('spothitch_share_flow', String(Date.now())) } catch(e) {}
+        // Override location.reload to BLOCK during share flow
+        var _origReload = location.reload.bind(location);
+        var _reloadLog = [];
+        Object.defineProperty(location, 'reload', {
+          value: function() {
+            var ts = Date.now();
+            var stack = (new Error()).stack || '';
+            var entry = { t: ts, stack: stack.slice(0, 500) };
+            _reloadLog.push(entry);
+            try { localStorage.setItem('spothitch_reload_blocked', JSON.stringify(_reloadLog)) } catch(e) {}
+            console.warn('[RELOAD BLOCKED] Share flow active. Stack:', stack.slice(0, 300));
+            // Check if share flow is still active (120s window)
+            var sfTs = 0;
+            try { sfTs = parseInt(sessionStorage.getItem('spothitch_share_flow') || '0', 10) } catch(e) {}
+            if (sfTs && (ts - sfTs < 120000)) {
+              return; // BLOCK the reload
+            }
+            // Share flow expired, allow reload
+            _origReload();
+          },
+          writable: true, configurable: true
+        });
+      }
+    })();
+    </script>
+    <script>
     // Stale cache recovery: if a JS module fails to load (hash mismatch after deploy),
     // delete only the stale precache, force SW update, and reload.
     // Keeps runtime caches (map tiles, API responses) intact.
