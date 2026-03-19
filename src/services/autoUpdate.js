@@ -43,10 +43,20 @@ export function startVersionCheck() {
 
   let pendingReload = false
 
+  function isShareFlowActive() {
+    if (window._shareInProgress) return true
+    try {
+      const ts = parseInt(sessionStorage.getItem('spothitch_share_flow') || '0', 10)
+      // Share flow is active for up to 120 seconds (user filling the AddSpot form)
+      if (ts && Date.now() - ts < 120_000) return true
+    } catch { /* no-op */ }
+    return false
+  }
+
   async function doReload() {
     if (isReloading) return
     // Never reload during an auth flow, share processing, or within 15s after auth completed
-    if (window._authInProgress || window._shareInProgress || sessionStorage.getItem('spothitch_auth_redirect') || (Date.now() - window._authJustCompleted < 15000)) {
+    if (window._authInProgress || isShareFlowActive() || sessionStorage.getItem('spothitch_auth_redirect') || (Date.now() - window._authJustCompleted < 15000)) {
       pendingReload = true
       return
     }
@@ -122,7 +132,7 @@ export function startVersionCheck() {
 
   // When user backgrounds the app, apply pending reload
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && pendingReload && !isReloading && !window._authInProgress && !window._shareInProgress && !sessionStorage.getItem('spothitch_auth_redirect') && (Date.now() - window._authJustCompleted >= 15000)) {
+    if (document.visibilityState === 'hidden' && pendingReload && !isReloading && !window._authInProgress && !isShareFlowActive() && !sessionStorage.getItem('spothitch_auth_redirect') && (Date.now() - window._authJustCompleted >= 15000)) {
       isReloading = true
       window.location.reload()
     }
@@ -151,7 +161,7 @@ export function startVersionCheck() {
   navigator.serviceWorker?.addEventListener('controllerchange', () => {
     if (hadController && !isReloading) {
       // Block reload if auth just completed or share in progress
-      if (window._authInProgress || window._shareInProgress || (Date.now() - window._authJustCompleted < 15000)) {
+      if (window._authInProgress || isShareFlowActive() || (Date.now() - window._authJustCompleted < 15000)) {
         pendingReload = true
         hadController = true
         return

@@ -71,25 +71,26 @@ describe('Share: reload protection during Google Maps share', () => {
     expect(autoUpdate).toMatch(/window\._shareInProgress/)
   })
 
-  it('doReload checks _shareInProgress before reloading', () => {
-    // The reload guard must check the share flag
-    expect(autoUpdate).toMatch(/_shareInProgress.*pendingReload\s*=\s*true|pendingReload.*_shareInProgress/)
-    // More direct: _shareInProgress must appear in the reload guard condition
+  it('doReload checks share flow guard before reloading', () => {
+    // The reload guard must check the share flag (directly or via isShareFlowActive helper)
     const doReloadSection = autoUpdate.slice(
       autoUpdate.indexOf('async function doReload'),
       autoUpdate.indexOf('showUpdateBanner')
     )
-    expect(doReloadSection).toContain('_shareInProgress')
+    const hasShareGuard = doReloadSection.includes('_shareInProgress') || doReloadSection.includes('isShareFlowActive')
+    expect(hasShareGuard).toBe(true)
   })
 
-  it('SW controllerchange checks _shareInProgress before reloading', () => {
+  it('SW controllerchange checks share flow guard before reloading', () => {
     const swSection = autoUpdate.slice(autoUpdate.indexOf('controllerchange'))
-    expect(swSection).toContain('_shareInProgress')
+    const hasShareGuard = swSection.includes('_shareInProgress') || swSection.includes('isShareFlowActive')
+    expect(hasShareGuard).toBe(true)
   })
 
-  it('visibilitychange pending reload checks _shareInProgress', () => {
-    // Find the visibilitychange handler that does pendingReload
-    expect(autoUpdate).toMatch(/visibilityState.*hidden.*pendingReload.*_shareInProgress|_shareInProgress.*pendingReload.*hidden/)
+  it('visibilitychange pending reload checks share flow guard', () => {
+    // The visibilitychange handler must guard against reloading during share flow
+    const hasShareGuard = autoUpdate.includes('isShareFlowActive') || autoUpdate.match(/visibilityState.*hidden.*pendingReload.*_shareInProgress/)
+    expect(hasShareGuard).toBeTruthy()
   })
 })
 

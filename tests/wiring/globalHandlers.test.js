@@ -223,7 +223,7 @@ const MAIN_JS_HANDLERS = [
   'saveSpotAsDraft', 'openSpotDraft', 'deleteSpotDraft',
   'addSpotDestination', 'removeSpotDestination',
   // SpotDetail destinations + street view (defined in SpotDetail.js)
-  'addDestinationToExistingSpot', 'openSpotStreetView',
+  'addDestinationToExistingSpot', 'openSpotStreetView', 'confirmStreetViewAvailable',
   // AdminPanel (defined in AdminPanel.js)
   'adminAddPoints', 'adminAddSkillPoints', 'adminAddThumbs',
   'adminLevelUp', 'adminMaxStats', 'openAccessibilityHelp',
@@ -362,7 +362,7 @@ const MAIN_JS_HANDLERS = [
   // AddSpot v2 (defined in AddSpot.js)
   'selectSpotType', 'setWaitTime', 'setMethod',
   'setGroupSize', 'setTimeOfDay', 'toggleAmenity',
-  'saveDraftAndClose', 'setRideResult',
+  'saveDraftAndClose', 'setRideResult', 'checkStreetViewForNewSpot',
   'setExperienceDate', 'updateExperienceDate',
   // Validation mode (openTestSpot/openValidateSpot defined in spotActions.js)
   'openValidateSpot', 'openTestSpot',

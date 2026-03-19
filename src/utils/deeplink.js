@@ -232,8 +232,12 @@ async function processShare() {
       setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
     }
     shareLog('done', 'AddSpot opened')
-    // Keep share guard active for 30s to protect initial form filling from reload
-    setTimeout(() => { window._shareInProgress = false }, 30000)
+    // Keep share guard active for 60s to protect form filling from reload
+    // The sessionStorage flag (spothitch_share_flow) provides a 120s window
+    setTimeout(() => {
+      window._shareInProgress = false
+      try { sessionStorage.removeItem('spothitch_share_flow') } catch { /* no-op */ }
+    }, 60000)
   } catch (e) {
     shareLog('open-error', e.message)
     window._shareInProgress = false
@@ -243,9 +247,12 @@ async function processShare() {
       } else {
         setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
       }
-      // Keep share guard active for 30s even on fallback path
+      // Keep share guard active for 60s even on fallback path
       window._shareInProgress = true
-      setTimeout(() => { window._shareInProgress = false }, 30000)
+      setTimeout(() => {
+        window._shareInProgress = false
+        try { sessionStorage.removeItem('spothitch_share_flow') } catch { /* no-op */ }
+      }, 60000)
     } catch {
       window._shareInProgress = false
     }
