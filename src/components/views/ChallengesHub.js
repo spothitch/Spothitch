@@ -9,6 +9,7 @@ import { allBadges } from '../../data/badges.js'
 import { allChallenges } from '../../data/challenges.js'
 import { shopRewards } from '../../data/rewards.js'
 import { icon } from '../../utils/icons.js'
+import { escapeHTML } from '../../utils/sanitize.js'
 
 export function renderChallengesHub(state) {
   const userBadges = state.badges || []
@@ -48,7 +49,7 @@ export function renderChallengesHub(state) {
             ${icon('sparkles', 'w-4 h-4 text-amber-400')}
             ${t('thumbHistoryTitle') || 'Comment gagner des Pouces'}
           </h3>
-          <button onclick="toggleThumbHistory()" class="text-slate-400 hover:text-white text-xs cursor-pointer relative z-10" type="button">✕</button>
+          <button onclick="toggleThumbHistory()" class="text-slate-400 hover:text-white text-xs cursor-pointer relative z-10" type="button" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button>
         </div>
         <div class="space-y-2 text-sm">
           <div class="flex justify-between items-center p-2 rounded-lg bg-white/5">

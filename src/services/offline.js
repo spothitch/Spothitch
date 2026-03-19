@@ -42,7 +42,7 @@ function createOfflineIndicator() {
   offlineIndicator.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:center;gap:8px">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-      <span>${t('offlineModeActivated') || 'Pas de connexion. Les spots sauvegardés restent accessibles.'}</span>
+      <span>${t('offlineModeActivated') || 'No connection. Saved spots remain accessible.'}</span>
     </div>
   `;
   document.body.prepend(offlineIndicator);
@@ -57,7 +57,7 @@ function handleOnline() {
   syncPendingActions();
 
   // Announce to screen readers
-  announceToSR(t('offlineConnectionRestored') || 'Connexion rétablie');
+  announceToSR(t('offlineConnectionRestored') || 'Connection restored');
 }
 
 /**
@@ -68,7 +68,7 @@ function handleOffline() {
   showOfflineIndicator();
 
   // Announce to screen readers
-  announceToSR(t('offlineModeActivated') || 'Mode hors-ligne activé');
+  announceToSR(t('offlineModeActivated') || 'Offline mode activated');
 }
 
 /**
@@ -255,7 +255,7 @@ export async function requireOnline() {
   if (!isOffline) return false;
   try {
     const { showToast } = await import('./notifications.js');
-    showToast(t('offlineActionBlocked') || 'Action impossible sans connexion internet', 'warning');
+    showToast(t('offlineActionBlocked') || 'This action requires an internet connection', 'warning');
   } catch {
     // notifications not loaded yet
   }
@@ -274,7 +274,7 @@ export function checkSlowConnection() {
     indicator.id = 'slow-connection-indicator';
     indicator.setAttribute('role', 'status');
     indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7c3aed;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:500;z-index:9998;animation:slideDown 0.3s ease-out';
-    indicator.textContent = t('slowConnection') || 'Connexion lente. Le chargement peut prendre du temps.';
+    indicator.textContent = t('slowConnection') || 'Slow connection. Loading may take longer.';
     document.body.prepend(indicator);
     // Auto-remove after 8 seconds
     setTimeout(() => indicator.remove(), 8000);
