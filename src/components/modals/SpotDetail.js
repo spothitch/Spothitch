@@ -319,6 +319,24 @@ export function renderSpotDetail(state) {
             <div style="text-align:center;font-size:9px;color:#475569;padding-top:6px;cursor:pointer" onclick="this.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ▲</div>
           </div>
 
+          <!-- Street View banner (glassmorphism) -->
+          ${spot.coordinates?.lat ? `
+          <div onclick="openSpotStreetView(${spot.coordinates.lat}, ${spot.coordinates.lng})" role="button" tabindex="0"
+            style="background:rgba(15,30,60,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(96,165,250,0.2);border-bottom:1px solid rgba(96,165,250,0.2);padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer"
+            aria-label="${t('streetView') || 'Street View'}">
+            <div style="width:36px;height:36px;background:rgba(96,165,250,0.2);border:1px solid rgba(96,165,250,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:14px;color:#ffffff;font-weight:600">Street View</div>
+              <div style="font-size:11px;color:#93c5fd">${t('streetViewSubtitle') || 'Voir cet endroit comme si vous y étiez'}</div>
+            </div>
+            <div style="width:28px;height:28px;background:rgba(96,165,250,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+          ` : ''}
+
           <!-- Title + neighborhood + destinations subtitle -->
           <div style="padding:14px 16px 0">
             <h2 id="spotdetail-title" style="font-size:22px;font-weight:600;color:#e2e8f0;margin-bottom:2px">${spotTitle}</h2>
@@ -464,9 +482,6 @@ export function renderSpotDetail(state) {
           <div style="padding:0 16px 12px;display:flex;justify-content:space-between;align-items:center">
             <div style="font-size:11px;color:#475569">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · <span style="${spot.creatorId ? 'cursor:pointer;color:#f59e0b' : ''}" ${spot.creatorId ? `onclick="showFriendProfile('${escapeJSString(spot.creatorId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(spot.creator || 'HitchWiki')}</span>${spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''}</div>
             <div style="display:flex;gap:6px">
-              ${spot.coordinates?.lat ? `<button onclick="openSpotStreetView(${spot.coordinates.lat}, ${spot.coordinates.lng})" type="button"
-                style="background:#161b28;border:1px solid #334155;color:#94a3b8;padding:7px 12px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="vertical-align:middle;margin-right:3px"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>${t('streetView') || 'Street View'}</button>` : ''}
               <button onclick="showNavigationPicker(${spot.coordinates?.lat}, ${spot.coordinates?.lng}, '${navName}')" type="button"
                 style="background:#161b28;border:1px solid #334155;color:#94a3b8;padding:7px 12px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">\ud83d\uddfa Maps</button>
             </div>
