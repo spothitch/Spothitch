@@ -68,7 +68,7 @@ export function renderLanding() {
           </h2>
           <p class="text-[13px] text-slate-400 leading-relaxed max-w-[280px] mt-2 relative z-10">${t('slide2Desc')}</p>
           <div class="w-full max-w-[280px] p-3.5 mt-4 rounded-xl text-left relative z-10" style="background:linear-gradient(135deg,rgba(251,191,36,0.05),rgba(251,146,60,0.03));border:1px solid rgba(251,191,36,0.1);border-left:2px solid #fbbf24">
-            <p class="text-[12px] italic leading-relaxed" style="color:#fde68a">"${t('slide2Quote')}"</p>
+            <p class="text-[12px] italic leading-relaxed text-amber-100">"${t('slide2Quote')}"</p>
           </div>
         </div>
 
@@ -88,11 +88,11 @@ export function renderLanding() {
           <h2 class="text-[22px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('slide4Title')} <span class="text-primary-400">${t('slide4TitleAccent')}</span>
           </h2>
-          <div class="inline-flex px-2.5 py-1 rounded-xl text-[10px] font-semibold mt-2 mb-4 relative z-10" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.15);color:#a78bfa">
+          <div class="inline-flex px-2.5 py-1 rounded-xl text-[10px] font-semibold mt-2 mb-4 relative z-10 bg-violet-500/[0.08] border border-violet-500/15 text-violet-400">
             ${t('slide4ComingSoon')}
           </div>
           <div class="w-full max-w-[280px] p-4 rounded-xl relative z-10" style="background:linear-gradient(135deg,rgba(139,92,246,0.05),rgba(99,102,241,0.03));border:1px solid rgba(139,92,246,0.1)">
-            <h3 class="text-[13px] font-bold mb-1.5" style="color:#c4b5fd">${t('slide4CardTitle')}</h3>
+            <h3 class="text-[13px] font-bold mb-1.5 text-violet-300">${t('slide4CardTitle')}</h3>
             <p class="text-[12px] text-slate-400 leading-relaxed">${t('slide4CardDesc')}</p>
           </div>
         </div>
@@ -131,21 +131,20 @@ export function renderLanding() {
               onkeydown="if(event.key==='Enter') validateAlphaCode()"
               autocomplete="off"
               spellcheck="false"
-              style="box-shadow:none"
+              class="shadow-none"
             />
             <div id="alpha-code-error" class="text-red-400 text-xs mb-2 hidden">${t('alphaCodeWrong')}</div>
 
             <button
               onclick="validateAlphaCode()"
-              class="w-full max-w-[280px] py-3.5 rounded-xl font-bold text-[14px] cursor-pointer mb-4"
-              style="background:linear-gradient(135deg,#d97706,#f59e0b);color:#0c0f17;border:none;box-shadow:0 3px 16px rgba(217,119,6,0.25)"
+              class="w-full max-w-[280px] py-3.5 rounded-xl font-bold text-[14px] cursor-pointer mb-4 bg-gradient-to-br from-amber-600 to-amber-500 text-dark-primary border-none shadow-[0_3px_16px_rgba(217,119,6,0.25)]"
             >
               ${t('alphaEnter')}
             </button>
 
-            <div class="w-full max-w-[280px] mx-auto p-2.5 rounded-xl" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05)">
-              <p class="text-[10px] font-semibold mb-0.5" style="color:#555">${t('alphaNoCode')}</p>
-              <p class="text-[11px]" style="color:#888">@captain_pouce · spothitch@gmail.com</p>
+            <div class="w-full max-w-[280px] mx-auto p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+              <p class="text-[10px] font-semibold mb-0.5 text-neutral-600">${t('alphaNoCode')}</p>
+              <p class="text-[11px] text-neutral-500">@captain_pouce · spothitch@gmail.com</p>
             </div>
           </div>
         </div>
@@ -162,8 +161,7 @@ export function renderLanding() {
           <button
             onclick="installFromLanding()"
             id="landing-install-btn"
-            class="w-full max-w-[280px] flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-[14px] relative z-10 mb-3 cursor-pointer"
-            style="background:linear-gradient(135deg,#d97706,#f59e0b);color:#0c0f17;border:none;box-shadow:0 3px 16px rgba(217,119,6,0.25)"
+            class="w-full max-w-[280px] flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-[14px] relative z-10 mb-3 cursor-pointer bg-gradient-to-br from-amber-600 to-amber-500 text-dark-primary border-none shadow-[0_3px_16px_rgba(217,119,6,0.25)]"
             type="button"
           >
             ${t('slide7InstallBtn')}
@@ -172,7 +170,7 @@ export function renderLanding() {
           <button
             onclick="closeLanding()"
             class="w-full max-w-[280px] flex items-center justify-center gap-2 py-3 rounded-xl text-slate-500 font-medium text-[12px] relative z-10 cursor-pointer"
-            style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07)"
+            class="bg-white/[0.02] border border-white/[0.07]"
             type="button"
           >
             ${t('slide7SkipBtn')}

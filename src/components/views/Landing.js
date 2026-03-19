@@ -292,7 +292,7 @@ export function renderLanding(_state) {
 
           <!-- Carousel -->
           <div class="relative">
-            <div id="landing-carousel" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-none" style="-webkit-overflow-scrolling:touch;scroll-behavior:smooth;">
+            <div id="landing-carousel" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-none scroll-smooth">
               ${carouselScreens.map((screen, i) => `
                 <div class="snap-center shrink-0 first:pl-4 last:pr-4">
                   <div class="relative w-56 md:w-64">

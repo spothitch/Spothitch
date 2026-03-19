@@ -27,27 +27,34 @@ window.switchHostelsDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchSpotDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 
 // ==================== HELPER ====================
-const _s = {
-  overlay: 'position:fixed;inset:0;z-index:80;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;overflow-y:auto',
-  wrap: 'width:100%;max-width:420px;margin:16px;position:relative',
-  close: 'position:absolute;top:8px;right:8px;z-index:5;background:rgba(255,255,255,0.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center',
-  intro: 'background:#1e293b;border-radius:16px;padding:28px 20px;text-align:center',
-  btn: 'background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;font-weight:700;border:none;padding:12px 28px;border-radius:12px;font-size:0.9rem;cursor:pointer',
-  bullet: 'display:flex;align-items:start;gap:10px;text-align:left;margin-bottom:8px',
-  bicon: 'font-size:1.1rem;flex-shrink:0;margin-top:1px',
-  btxt: 'font-size:0.78rem;color:#cbd5e1;line-height:1.4',
-  demo: 'background:#0f1520;border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.06)',
-  tabs: 'display:flex;gap:4px;margin:8px 0;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch',
-  card: 'background:#1a2332;border-radius:10px;padding:10px 12px;margin-bottom:5px;font-size:0.75rem;line-height:1.4',
-  secT: 'font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;display:flex;align-items:center;gap:5px',
-  stat: 'background:#1a2332;border-radius:8px;padding:8px;text-align:center',
+const _c = {
+  overlay: 'fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto',
+  wrap: 'w-full max-w-[420px] m-4 relative',
+  close: 'absolute top-2 right-2 z-[5] bg-white/10 border-none text-white w-8 h-8 rounded-full text-[1.2rem] cursor-pointer flex items-center justify-center',
+  intro: 'bg-slate-800 rounded-2xl text-center',
+  btn: 'text-dark-primary font-bold border-none px-7 py-3 rounded-xl text-[0.9rem] cursor-pointer',
+  bullet: 'flex items-start gap-2.5 text-left mb-2',
+  bicon: 'text-[1.1rem] shrink-0 mt-px',
+  btxt: 'text-[0.78rem] text-slate-300 leading-[1.4]',
+  demo: 'bg-dark-primary rounded-2xl p-3.5 border border-white/[0.06]',
+  tabs: 'flex gap-1 my-2 overflow-x-auto pb-1',
+  card: 'bg-dark-secondary rounded-[10px] px-3 py-2.5 mb-[5px] text-xs leading-[1.4]',
+  secT: 'text-xs font-bold text-amber-400 mb-1.5 flex items-center gap-[5px]',
+  stat: 'bg-dark-secondary rounded-lg p-2 text-center',
 }
+const _cIntro = 'px-5 py-7'
+const _cBtn = 'bg-gradient-to-br from-amber-300 to-amber-600'
+
+// Overlay needs inline style for background and backdrop-filter (not standard Tailwind)
+const _overlayStyle = 'background:rgba(0,0,0,0.85);backdrop-filter:blur(8px)'
+const _btnStyle = 'background:linear-gradient(135deg,#fbbf24,#d97706)'
 
 function _createDemo(id) {
   document.getElementById(id)?.remove()
   const overlay = document.createElement('div')
   overlay.id = id
-  overlay.style.cssText = _s.overlay
+  overlay.className = _c.overlay
+  overlay.style.cssText = _overlayStyle
   overlay.setAttribute('role', 'dialog')
   overlay.setAttribute('aria-modal', 'true')
   return overlay
@@ -57,22 +64,22 @@ function _createDemo(id) {
 window.showPointsDemo = () => {
   const ov = _createDemo('points-demo-overlay')
   ov.innerHTML = `
-    <div style="${_s.wrap}">
-      <button onclick="closePointsDemo()" style="${_s.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
-      <div id="points-demo-intro" style="${_s.intro}">
-        <div style="font-size:3rem;margin-bottom:12px">🏆</div>
-        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('pointsDemoIntroTitle') || 'Points, Classement & Récompenses')}</h2>
-        <p style="font-size:0.82rem;color:#94a3b8;line-height:1.5;margin:0 0 16px">${escapeHTML(t('pointsDemoIntroDesc') || 'Gagne des points en aidant la communauté, grimpe au classement et débloque des réductions chez nos partenaires voyage !')}</p>
-        <div style="margin:0 auto 20px;max-width:340px">
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📍</span><span style="${_s.btxt}">Gagne des points en créant et validant des spots, en ajoutant des photos et des conseils (+5 à +100 pts par action)</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🏅</span><span style="${_s.btxt}">Monte dans le classement de ton pays, d'Europe et mondial. Compare-toi à tes amis</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🔔</span><span style="${_s.btxt}">Reçois une notification quand tu passes près d'un spot à valider, même sans faire de stop (+20 pts)</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🎁</span><span style="${_s.btxt}">Échange tes points contre des réductions : Hostelworld (-15%), Booking (-10%), Decathlon (-15%), Flixbus, Interrail...</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🌟</span><span style="${_s.btxt}">6 niveaux : Débutant → Explorateur → Aventurier → Voyageur → Expert → Légende</span></div>
+    <div class="${_c.wrap}">
+      <button onclick="closePointsDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+      <div id="points-demo-intro" class="${_c.intro} ${_cIntro}">
+        <div class="text-5xl mb-3">🏆</div>
+        <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('pointsDemoIntroTitle') || 'Points, Classement & Récompenses')}</h2>
+        <p class="text-[0.82rem] text-slate-400 leading-normal m-0 mb-4">${escapeHTML(t('pointsDemoIntroDesc') || 'Gagne des points en aidant la communauté, grimpe au classement et débloque des réductions chez nos partenaires voyage !')}</p>
+        <div class="mx-auto mb-5 max-w-[340px]">
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📍</span><span class="${_c.btxt}">Gagne des points en créant et validant des spots, en ajoutant des photos et des conseils (+5 à +100 pts par action)</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🏅</span><span class="${_c.btxt}">Monte dans le classement de ton pays, d'Europe et mondial. Compare-toi à tes amis</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🔔</span><span class="${_c.btxt}">Reçois une notification quand tu passes près d'un spot à valider, même sans faire de stop (+20 pts)</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🎁</span><span class="${_c.btxt}">Échange tes points contre des réductions : Hostelworld (-15%), Booking (-10%), Decathlon (-15%), Flixbus, Interrail...</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🌟</span><span class="${_c.btxt}">6 niveaux : Débutant → Explorateur → Aventurier → Voyageur → Expert → Légende</span></div>
         </div>
-        <button onclick="startPointsDemo()" style="${_s.btn}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
+        <button onclick="startPointsDemo()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
       </div>
-      <div id="points-demo-main" style="display:none"></div>
+      <div id="points-demo-main" class="hidden"></div>
     </div>
   `
   document.body.appendChild(ov)
@@ -87,14 +94,14 @@ window.startPointsDemo = () => {
   intro.style.display = 'none'
   main.style.display = 'block'
   main.innerHTML = `
-    <div data-demo="overlay" style="${_s.demo}">
-      <div style="text-align:center;padding:12px;background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(217,119,6,0.05));border-radius:12px;margin-bottom:10px">
-        <div style="font-size:2.2rem;font-weight:900;color:#fbbf24">1 250</div>
-        <div style="font-size:0.68rem;color:#94a3b8">Points SpotHitch</div>
-        <div style="display:inline-block;background:rgba(34,197,94,0.15);color:#22c55e;font-size:0.6rem;font-weight:700;padding:3px 10px;border-radius:12px;margin-top:4px">🌟 Niveau Explorateur</div>
+    <div data-demo="overlay" class="${_c.demo}">
+      <div class="text-center p-3 rounded-xl mb-2.5" style="background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(217,119,6,0.05))">
+        <div class="text-[2.2rem] font-black text-amber-400">1 250</div>
+        <div class="text-[0.68rem] text-slate-400">Points SpotHitch</div>
+        <div class="inline-block text-[0.6rem] font-bold px-2.5 py-[3px] rounded-xl mt-1 bg-green-500/15 text-green-500">🌟 Niveau Explorateur</div>
       </div>
 
-      <div style="${_s.tabs}">
+      <div class="${_c.tabs}">
         <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'pts-points')" role="button" tabindex="0">⭐ Mes Points</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'pts-earn')" role="button" tabindex="0">💰 Gagner</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'pts-rank')" role="button" tabindex="0">🏅 Classement</span>
@@ -102,72 +109,72 @@ window.startPointsDemo = () => {
       </div>
 
       <!-- Mes Points -->
-      <div data-cd-panel="pts-points" style="display:block">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px">
-          <div style="${_s.stat}"><div style="font-size:1rem;font-weight:800;color:#fbbf24">23</div><div style="font-size:0.48rem;color:#64748b;text-transform:uppercase">Spots créés</div></div>
-          <div style="${_s.stat}"><div style="font-size:1rem;font-weight:800;color:#fbbf24">47</div><div style="font-size:0.48rem;color:#64748b;text-transform:uppercase">Validations</div></div>
-          <div style="${_s.stat}"><div style="font-size:1rem;font-weight:800;color:#fbbf24">12</div><div style="font-size:0.48rem;color:#64748b;text-transform:uppercase">Conseils</div></div>
+      <div data-cd-panel="pts-points" class="block">
+        <div class="grid grid-cols-3 gap-[5px] mb-2">
+          <div class="${_c.stat}"><div class="text-base font-extrabold text-amber-400">23</div><div class="text-[0.48rem] text-slate-500 uppercase">Spots créés</div></div>
+          <div class="${_c.stat}"><div class="text-base font-extrabold text-amber-400">47</div><div class="text-[0.48rem] text-slate-500 uppercase">Validations</div></div>
+          <div class="${_c.stat}"><div class="text-base font-extrabold text-amber-400">12</div><div class="text-[0.48rem] text-slate-500 uppercase">Conseils</div></div>
         </div>
-        <div style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.05));border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:8px 10px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
-          <span style="font-size:1.1rem;animation:shake 1s ease infinite">🔔</span>
-          <div style="flex:1;font-size:0.68rem;font-weight:600;color:#22c55e">Tu passes près d'un spot !<br><span style="font-weight:400;font-size:0.6rem;color:#94a3b8">Aire de Fleury · Valide-le pour +20 pts</span></div>
-          <span style="background:#22c55e;color:#0f1520;font-size:0.6rem;font-weight:700;padding:5px 10px;border-radius:6px">Valider ✓</span>
+        <div class="rounded-[10px] px-2.5 py-2 mb-2 flex items-center gap-2 border border-green-500/25" style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.05))">
+          <span class="text-[1.1rem] animate-[shake_1s_ease_infinite]">🔔</span>
+          <div class="flex-1 text-[0.68rem] font-semibold text-emerald-500">Tu passes près d'un spot !<br><span class="font-normal text-[0.6rem] text-slate-400">Aire de Fleury · Valide-le pour +20 pts</span></div>
+          <span class="bg-emerald-500 text-dark-primary text-[0.6rem] font-bold px-2.5 py-[5px] rounded-md">Valider ✓</span>
         </div>
-        <div style="${_s.card}">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.68rem;font-weight:600">Prochain niveau : Aventurier</span><span style="font-size:0.6rem;color:#fbbf24;font-weight:700">1 250 / 2 000</span></div>
-          <div style="height:5px;background:#1e293b;border-radius:3px;overflow:hidden"><div style="height:100%;width:62.5%;background:linear-gradient(90deg,#fbbf24,#d97706);border-radius:3px"></div></div>
+        <div class="${_c.card}">
+          <div class="flex justify-between mb-1"><span class="text-[0.68rem] font-semibold">Prochain niveau : Aventurier</span><span class="text-[0.6rem] text-amber-400 font-bold">1 250 / 2 000</span></div>
+          <div class="h-[5px] bg-slate-800 rounded-[3px] overflow-hidden"><div class="h-full rounded-[3px] w-[62.5%]" style="background:linear-gradient(90deg,#fbbf24,#d97706)"></div></div>
         </div>
       </div>
 
       <!-- Gagner -->
-      <div data-cd-panel="pts-earn" style="display:none">
-        <div style="${_s.secT}"><span style="font-size:0.85rem">📍</span> Actions sur les spots</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1rem">📍</span><div style="flex:1"><div style="font-weight:600">Créer un spot</div><div style="font-size:0.6rem;color:#64748b">Ajoute un nouveau spot avec photo</div></div><span style="font-weight:800;color:#fbbf24">+50</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1rem">✅</span><div style="flex:1"><div style="font-weight:600">Valider un spot</div><div style="font-size:0.6rem;color:#64748b">Confirme qu'un spot existe encore</div></div><span style="font-weight:800;color:#fbbf24">+20</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1rem">📸</span><div style="flex:1"><div style="font-weight:600">Ajouter une photo</div><div style="font-size:0.6rem;color:#64748b">Photo récente d'un spot</div></div><span style="font-weight:800;color:#fbbf24">+10</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1rem">💬</span><div style="flex:1"><div style="font-weight:600">Laisser un conseil</div><div style="font-size:0.6rem;color:#64748b">Astuce utile pour la commu</div></div><span style="font-weight:800;color:#fbbf24">+15</span></div>
-        <div style="${_s.secT};margin-top:10px"><span style="font-size:0.85rem">🤝</span> Actions sociales</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1rem">👋</span><div style="flex:1"><div style="font-weight:600">Inviter un ami</div><div style="font-size:0.6rem;color:#64748b">Ton ami rejoint SpotHitch</div></div><span style="font-weight:800;color:#fbbf24">+100</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1rem">🏁</span><div style="flex:1"><div style="font-weight:600">Participer à une course</div><div style="font-size:0.6rem;color:#64748b">Termine une course entre potes</div></div><span style="font-weight:800;color:#fbbf24">+50</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1rem">🎉</span><div style="flex:1"><div style="font-weight:600">Organiser un événement</div><div style="font-size:0.6rem;color:#64748b">Crée un meetup autostoppeurs</div></div><span style="font-weight:800;color:#fbbf24">+40</span></div>
-        <div style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.05));border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:8px;margin-top:8px;font-size:0.65rem;color:#22c55e">
+      <div data-cd-panel="pts-earn" class="hidden">
+        <div class="${_c.secT}"><span class="text-[0.85rem]">📍</span> Actions sur les spots</div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-base">📍</span><div class="flex-1"><div class="font-semibold">Créer un spot</div><div class="text-[0.6rem] text-slate-500">Ajoute un nouveau spot avec photo</div></div><span class="font-extrabold text-amber-400">+50</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-base">✅</span><div class="flex-1"><div class="font-semibold">Valider un spot</div><div class="text-[0.6rem] text-slate-500">Confirme qu'un spot existe encore</div></div><span class="font-extrabold text-amber-400">+20</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-base">📸</span><div class="flex-1"><div class="font-semibold">Ajouter une photo</div><div class="text-[0.6rem] text-slate-500">Photo récente d'un spot</div></div><span class="font-extrabold text-amber-400">+10</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-base">💬</span><div class="flex-1"><div class="font-semibold">Laisser un conseil</div><div class="text-[0.6rem] text-slate-500">Astuce utile pour la commu</div></div><span class="font-extrabold text-amber-400">+15</span></div>
+        <div class="${_c.secT} mt-2.5"><span class="text-[0.85rem]">🤝</span> Actions sociales</div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-base">👋</span><div class="flex-1"><div class="font-semibold">Inviter un ami</div><div class="text-[0.6rem] text-slate-500">Ton ami rejoint SpotHitch</div></div><span class="font-extrabold text-amber-400">+100</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-base">🏁</span><div class="flex-1"><div class="font-semibold">Participer à une course</div><div class="text-[0.6rem] text-slate-500">Termine une course entre potes</div></div><span class="font-extrabold text-amber-400">+50</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-base">🎉</span><div class="flex-1"><div class="font-semibold">Organiser un événement</div><div class="text-[0.6rem] text-slate-500">Crée un meetup autostoppeurs</div></div><span class="font-extrabold text-amber-400">+40</span></div>
+        <div class="rounded-[10px] p-2 mt-2 text-[0.65rem] text-emerald-500 border border-green-500/25" style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.05))">
           🔔 <strong>Validation automatique</strong> : Quand tu passes près d'un spot, une notification te propose de le valider, même si tu ne fais pas de stop. +20 pts !
         </div>
       </div>
 
       <!-- Classement -->
-      <div data-cd-panel="pts-rank" style="display:none">
-        <div style="${_s.secT}"><span style="font-size:0.85rem">🏅</span> Top France · Mars 2026</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:6px"><span style="font-size:0.85rem;font-weight:900;color:#fbbf24;min-width:18px">1</span><span style="width:24px;height:24px;border-radius:50%;background:#fbbf24;color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;flex-shrink:0">S</span><div style="flex:1"><div style="font-weight:600">RoadSophie</div><div style="font-size:0.58rem;color:#64748b">Lyon · 156 spots</div></div><span style="font-weight:800;color:#fbbf24">8 420</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:6px"><span style="font-size:0.85rem;font-weight:900;color:#94a3b8;min-width:18px">2</span><span style="width:24px;height:24px;border-radius:50%;background:#94a3b8;color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;flex-shrink:0">M</span><div style="flex:1"><div style="font-weight:600">MarcoHitch</div><div style="font-size:0.58rem;color:#64748b">Paris · 98 spots</div></div><span style="font-weight:800;color:#fbbf24">6 890</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:6px"><span style="font-size:0.85rem;font-weight:900;color:#cd7f32;min-width:18px">3</span><span style="width:24px;height:24px;border-radius:50%;background:#cd7f32;color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;flex-shrink:0">L</span><div style="flex:1"><div style="font-weight:600">LunaVoyage</div><div style="font-size:0.58rem;color:#64748b">Toulouse · 87 spots</div></div><span style="font-weight:800;color:#fbbf24">5 210</span></div>
-        <div style="text-align:center;padding:6px;font-size:0.6rem;color:#64748b">• • •</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:6px;border:1px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.05)"><span style="font-size:0.85rem;font-weight:900;color:#fbbf24;min-width:18px">42</span><span style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;flex-shrink:0">T</span><div style="flex:1"><div style="font-weight:600;color:#fbbf24">Toi ← C'est toi !</div><div style="font-size:0.58rem;color:#64748b">Paris · 23 spots</div></div><span style="font-weight:800;color:#fbbf24">1 250</span></div>
-        <div style="margin-top:10px;display:flex;gap:4px;flex-wrap:wrap">
-          <span style="padding:4px 10px;border-radius:10px;font-size:0.58rem;font-weight:600;background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.3)">🇫🇷 France</span>
-          <span style="padding:4px 10px;border-radius:10px;font-size:0.58rem;font-weight:600;background:transparent;color:#94a3b8;border:1px solid rgba(255,255,255,0.08)">🇪🇺 Europe</span>
-          <span style="padding:4px 10px;border-radius:10px;font-size:0.58rem;font-weight:600;background:transparent;color:#94a3b8;border:1px solid rgba(255,255,255,0.08)">🌍 Monde</span>
-          <span style="padding:4px 10px;border-radius:10px;font-size:0.58rem;font-weight:600;background:transparent;color:#94a3b8;border:1px solid rgba(255,255,255,0.08)">👫 Amis</span>
+      <div data-cd-panel="pts-rank" class="hidden">
+        <div class="${_c.secT}"><span class="text-[0.85rem]">🏅</span> Top France · Mars 2026</div>
+        <div class="${_c.card} flex items-center gap-1.5"><span class="text-[0.85rem] font-black text-amber-400 min-w-[18px]">1</span><span class="w-6 h-6 rounded-full bg-amber-400 text-dark-primary flex items-center justify-center text-[0.6rem] font-bold shrink-0">S</span><div class="flex-1"><div class="font-semibold">RoadSophie</div><div class="text-[0.58rem] text-slate-500">Lyon · 156 spots</div></div><span class="font-extrabold text-amber-400">8 420</span></div>
+        <div class="${_c.card} flex items-center gap-1.5"><span class="text-[0.85rem] font-black text-slate-400 min-w-[18px]">2</span><span class="w-6 h-6 rounded-full bg-slate-400 text-dark-primary flex items-center justify-center text-[0.6rem] font-bold shrink-0">M</span><div class="flex-1"><div class="font-semibold">MarcoHitch</div><div class="text-[0.58rem] text-slate-500">Paris · 98 spots</div></div><span class="font-extrabold text-amber-400">6 890</span></div>
+        <div class="${_c.card} flex items-center gap-1.5"><span class="text-[0.85rem] font-black min-w-[18px] text-[#cd7f32]">3</span><span class="w-6 h-6 rounded-full text-dark-primary flex items-center justify-center text-[0.6rem] font-bold shrink-0 bg-[#cd7f32]">L</span><div class="flex-1"><div class="font-semibold">LunaVoyage</div><div class="text-[0.58rem] text-slate-500">Toulouse · 87 spots</div></div><span class="font-extrabold text-amber-400">5 210</span></div>
+        <div class="text-center p-1.5 text-[0.6rem] text-slate-500">• • •</div>
+        <div class="${_c.card} flex items-center gap-1.5 border border-amber-400/30 bg-amber-400/5"><span class="text-[0.85rem] font-black text-amber-400 min-w-[18px]">42</span><span class="w-6 h-6 rounded-full text-dark-primary flex items-center justify-center text-[0.6rem] font-bold shrink-0" style="background:linear-gradient(135deg,#fbbf24,#d97706)">T</span><div class="flex-1"><div class="font-semibold text-amber-400">Toi ← C'est toi !</div><div class="text-[0.58rem] text-slate-500">Paris · 23 spots</div></div><span class="font-extrabold text-amber-400">1 250</span></div>
+        <div class="mt-2.5 flex gap-1 flex-wrap">
+          <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/30">🇫🇷 France</span>
+          <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold bg-transparent text-slate-400 border border-white/[0.08]">🇪🇺 Europe</span>
+          <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold bg-transparent text-slate-400 border border-white/[0.08]">🌍 Monde</span>
+          <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold bg-transparent text-slate-400 border border-white/[0.08]">👫 Amis</span>
         </div>
       </div>
 
       <!-- Réductions -->
-      <div data-cd-panel="pts-partners" style="display:none">
-        <div style="${_s.card};border-left:3px solid #fbbf24;font-size:0.68rem;color:#94a3b8;margin-bottom:8px">💡 Accumule des points en aidant la communauté puis échange-les contre des réductions chez nos partenaires voyage !</div>
-        <div style="${_s.secT}"><span style="font-size:0.85rem">🏨</span> Hébergement</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">🏨</span><div style="flex:1"><div style="font-weight:700">Hostelworld</div><div style="font-size:0.58rem;color:#94a3b8">-15% sur toutes les auberges</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-15%</div><div style="font-size:0.5rem;color:#64748b">2 000 pts</div></div></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">🏠</span><div style="flex:1"><div style="font-weight:700">Booking.com</div><div style="font-size:0.58rem;color:#94a3b8">-10% hébergements sélectionnés</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-10%</div><div style="font-size:0.5rem;color:#64748b">3 000 pts</div></div></div>
-        <div style="${_s.secT};margin-top:8px"><span style="font-size:0.85rem">🎒</span> Équipement</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">⛺</span><div style="flex:1"><div style="font-weight:700">Decathlon</div><div style="font-size:0.58rem;color:#94a3b8">-15% rayon randonnée & camping</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-15%</div><div style="font-size:0.5rem;color:#64748b">2 500 pts</div></div></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">🧥</span><div style="flex:1"><div style="font-weight:700">Patagonia</div><div style="font-size:0.58rem;color:#94a3b8">-10% vêtements outdoor</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-10%</div><div style="font-size:0.5rem;color:#64748b">4 000 pts</div></div></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">🎒</span><div style="flex:1"><div style="font-weight:700">Osprey</div><div style="font-size:0.58rem;color:#94a3b8">-20% sacs à dos voyage</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-20%</div><div style="font-size:0.5rem;color:#64748b">3 500 pts</div></div></div>
-        <div style="${_s.secT};margin-top:8px"><span style="font-size:0.85rem">🚌</span> Transport</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">🚌</span><div style="flex:1"><div style="font-weight:700">Flixbus</div><div style="font-size:0.58rem;color:#94a3b8">-10% tous les trajets</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-10%</div><div style="font-size:0.5rem;color:#64748b">1 000 pts</div></div></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">🚂</span><div style="flex:1"><div style="font-weight:700">Interrail</div><div style="font-size:0.58rem;color:#94a3b8">-15% pass ferroviaire Europe</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-15%</div><div style="font-size:0.5rem;color:#64748b">8 000 pts</div></div></div>
-        <div style="${_s.secT};margin-top:8px"><span style="font-size:0.85rem">🌍</span> Expériences</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">🎫</span><div style="flex:1"><div style="font-weight:700">GetYourGuide</div><div style="font-size:0.58rem;color:#94a3b8">-10% activités et visites</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-10%</div><div style="font-size:0.5rem;color:#64748b">1 500 pts</div></div></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">📱</span><div style="flex:1"><div style="font-weight:700">Airalo eSIM</div><div style="font-size:0.58rem;color:#94a3b8">-15% forfait data voyage</div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">-15%</div><div style="font-size:0.5rem;color:#64748b">800 pts</div></div></div>
-        <div style="text-align:center;margin-top:8px;font-size:0.68rem"><span style="font-weight:700">Tes points : <span style="color:#fbbf24">1 250</span></span><br><span style="font-size:0.6rem;color:#64748b">Tu peux déjà débloquer Flixbus (-10%) et Airalo (-15%) !</span></div>
+      <div data-cd-panel="pts-partners" class="hidden">
+        <div class="${_c.card} border-l-[3px] border-l-amber-400 text-[0.68rem] text-slate-400 mb-2">💡 Accumule des points en aidant la communauté puis échange-les contre des réductions chez nos partenaires voyage !</div>
+        <div class="${_c.secT}"><span class="text-[0.85rem]">🏨</span> Hébergement</div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">🏨</span><div class="flex-1"><div class="font-bold">Hostelworld</div><div class="text-[0.58rem] text-slate-400">-15% sur toutes les auberges</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-15%</div><div class="text-[0.5rem] text-slate-500">2 000 pts</div></div></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">🏠</span><div class="flex-1"><div class="font-bold">Booking.com</div><div class="text-[0.58rem] text-slate-400">-10% hébergements sélectionnés</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-10%</div><div class="text-[0.5rem] text-slate-500">3 000 pts</div></div></div>
+        <div class="${_c.secT} mt-2"><span class="text-[0.85rem]">🎒</span> Équipement</div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">⛺</span><div class="flex-1"><div class="font-bold">Decathlon</div><div class="text-[0.58rem] text-slate-400">-15% rayon randonnée & camping</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-15%</div><div class="text-[0.5rem] text-slate-500">2 500 pts</div></div></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">🧥</span><div class="flex-1"><div class="font-bold">Patagonia</div><div class="text-[0.58rem] text-slate-400">-10% vêtements outdoor</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-10%</div><div class="text-[0.5rem] text-slate-500">4 000 pts</div></div></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">🎒</span><div class="flex-1"><div class="font-bold">Osprey</div><div class="text-[0.58rem] text-slate-400">-20% sacs à dos voyage</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-20%</div><div class="text-[0.5rem] text-slate-500">3 500 pts</div></div></div>
+        <div class="${_c.secT} mt-2"><span class="text-[0.85rem]">🚌</span> Transport</div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">🚌</span><div class="flex-1"><div class="font-bold">Flixbus</div><div class="text-[0.58rem] text-slate-400">-10% tous les trajets</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-10%</div><div class="text-[0.5rem] text-slate-500">1 000 pts</div></div></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">🚂</span><div class="flex-1"><div class="font-bold">Interrail</div><div class="text-[0.58rem] text-slate-400">-15% pass ferroviaire Europe</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-15%</div><div class="text-[0.5rem] text-slate-500">8 000 pts</div></div></div>
+        <div class="${_c.secT} mt-2"><span class="text-[0.85rem]">🌍</span> Expériences</div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">🎫</span><div class="flex-1"><div class="font-bold">GetYourGuide</div><div class="text-[0.58rem] text-slate-400">-10% activités et visites</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-10%</div><div class="text-[0.5rem] text-slate-500">1 500 pts</div></div></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="text-[1.1rem]">📱</span><div class="flex-1"><div class="font-bold">Airalo eSIM</div><div class="text-[0.58rem] text-slate-400">-15% forfait data voyage</div></div><div class="text-right"><div class="font-extrabold text-emerald-500">-15%</div><div class="text-[0.5rem] text-slate-500">800 pts</div></div></div>
+        <div class="text-center mt-2 text-[0.68rem]"><span class="font-bold">Tes points : <span class="text-amber-400">1 250</span></span><br><span class="text-[0.6rem] text-slate-500">Tu peux déjà débloquer Flixbus (-10%) et Airalo (-15%) !</span></div>
       </div>
     </div>
   `
@@ -177,22 +184,22 @@ window.startPointsDemo = () => {
 window.showJournalDemo = () => {
   const ov = _createDemo('journal-demo-overlay')
   ov.innerHTML = `
-    <div style="${_s.wrap}">
-      <button onclick="closeJournalDemo()" style="${_s.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
-      <div id="journal-demo-intro" style="${_s.intro}">
-        <div style="font-size:3rem;margin-bottom:12px">📔</div>
-        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('journalDemoIntroTitle') || 'Carnet de Voyage')}</h2>
-        <p style="font-size:0.82rem;color:#94a3b8;line-height:1.5;margin:0 0 16px">${escapeHTML(t('journalDemoIntroDesc') || 'Ton voyage enregistré automatiquement, étape par étape. Partage tes itinéraires et inspire la communauté !')}</p>
-        <div style="margin:0 auto 20px;max-width:340px">
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📝</span><span style="${_s.btxt}">Chaque lift enregistré automatiquement : ville de départ, spot utilisé, temps d'attente, véhicule</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📊</span><span style="${_s.btxt}">Stats complètes de chaque voyage : km parcourus, nombre de lifts, temps total, pays traversés</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🗺️</span><span style="${_s.btxt}">Visualise ton parcours étape par étape sur une carte avec la timeline de chaque jour</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🌍</span><span style="${_s.btxt}">Partage tes itinéraires avec la communauté. Tes spots, temps d'attente et conseils aident tout le monde</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">❤️</span><span style="${_s.btxt}">Explore les voyages des autres autostoppeurs pour trouver l'inspiration et planifier tes prochaines aventures</span></div>
+    <div class="${_c.wrap}">
+      <button onclick="closeJournalDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+      <div id="journal-demo-intro" class="${_c.intro} ${_cIntro}">
+        <div class="text-5xl mb-3">📔</div>
+        <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('journalDemoIntroTitle') || 'Carnet de Voyage')}</h2>
+        <p class="text-[0.82rem] text-slate-400 leading-normal m-0 mb-4">${escapeHTML(t('journalDemoIntroDesc') || 'Ton voyage enregistré automatiquement, étape par étape. Partage tes itinéraires et inspire la communauté !')}</p>
+        <div class="mx-auto mb-5 max-w-[340px]">
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📝</span><span class="${_c.btxt}">Chaque lift enregistré automatiquement : ville de départ, spot utilisé, temps d'attente, véhicule</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📊</span><span class="${_c.btxt}">Stats complètes de chaque voyage : km parcourus, nombre de lifts, temps total, pays traversés</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🗺️</span><span class="${_c.btxt}">Visualise ton parcours étape par étape sur une carte avec la timeline de chaque jour</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🌍</span><span class="${_c.btxt}">Partage tes itinéraires avec la communauté. Tes spots, temps d'attente et conseils aident tout le monde</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">❤️</span><span class="${_c.btxt}">Explore les voyages des autres autostoppeurs pour trouver l'inspiration et planifier tes prochaines aventures</span></div>
         </div>
-        <button onclick="startJournalDemo()" style="${_s.btn}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
+        <button onclick="startJournalDemo()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
       </div>
-      <div id="journal-demo-main" style="display:none"></div>
+      <div id="journal-demo-main" class="hidden"></div>
     </div>
   `
   document.body.appendChild(ov)
@@ -207,68 +214,68 @@ window.startJournalDemo = () => {
   intro.style.display = 'none'
   main.style.display = 'block'
   main.innerHTML = `
-    <div data-demo="overlay" style="${_s.demo}">
-      <div style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a);border-radius:12px;height:80px;position:relative;overflow:hidden;margin-bottom:8px">
-        <div style="position:absolute;top:38px;left:30px;right:30px;height:2px;background:linear-gradient(90deg,#fbbf24,#22c55e,#3b82f6,#ec4899)"></div>
-        <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#fbbf24;border:2px solid #fff;top:35px;left:28px"></div>
-        <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#22c55e;border:2px solid #fff;top:35px;left:30%"></div>
-        <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#3b82f6;border:2px solid #fff;top:35px;left:55%"></div>
-        <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#ec4899;border:2px solid #fff;top:35px;right:28px"></div>
-        <div style="position:absolute;font-size:0.48rem;font-weight:700;top:48px;left:18px;color:#fbbf24">Paris</div>
-        <div style="position:absolute;font-size:0.48rem;font-weight:700;top:48px;left:26%;color:#22c55e">Lyon</div>
-        <div style="position:absolute;font-size:0.48rem;font-weight:700;top:48px;left:48%;color:#3b82f6">Marseille</div>
-        <div style="position:absolute;font-size:0.48rem;font-weight:700;top:48px;right:10px;color:#ec4899">Barcelone</div>
-        <div style="position:absolute;bottom:5px;right:8px;font-size:0.5rem;color:#64748b">🇫🇷 → 🇪🇸</div>
+    <div data-demo="overlay" class="${_c.demo}">
+      <div class="rounded-xl h-20 relative overflow-hidden mb-2" style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a)">
+        <div class="absolute h-0.5 top-[38px] left-[30px] right-[30px]" style="background:linear-gradient(90deg,#fbbf24,#22c55e,#3b82f6,#ec4899)"></div>
+        <div class="absolute w-2 h-2 rounded-full bg-amber-400 border-2 border-white top-[35px] left-[28px]"></div>
+        <div class="absolute w-2 h-2 rounded-full bg-emerald-500 border-2 border-white top-[35px] left-[30%]"></div>
+        <div class="absolute w-2 h-2 rounded-full bg-blue-500 border-2 border-white top-[35px] left-[55%]"></div>
+        <div class="absolute w-2 h-2 rounded-full bg-pink-500 border-2 border-white top-[35px] right-[28px]"></div>
+        <div class="absolute text-[0.48rem] font-bold text-amber-400 top-[48px] left-[18px]">Paris</div>
+        <div class="absolute text-[0.48rem] font-bold text-emerald-500 top-[48px] left-[26%]">Lyon</div>
+        <div class="absolute text-[0.48rem] font-bold text-blue-500 top-[48px] left-[48%]">Marseille</div>
+        <div class="absolute text-[0.48rem] font-bold text-pink-500 top-[48px] right-[10px]">Barcelone</div>
+        <div class="absolute text-[0.5rem] text-slate-500 bottom-[5px] right-[8px]">🇫🇷 → 🇪🇸</div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:8px">
-        <div style="${_s.stat}"><div style="font-size:0.85rem;font-weight:800;color:#fbbf24">1 085</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">km</div></div>
-        <div style="${_s.stat}"><div style="font-size:0.85rem;font-weight:800;color:#fbbf24">4</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">lifts</div></div>
-        <div style="${_s.stat}"><div style="font-size:0.85rem;font-weight:800;color:#fbbf24">8h30</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">trajet</div></div>
-        <div style="${_s.stat}"><div style="font-size:0.85rem;font-weight:800;color:#fbbf24">2</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">pays</div></div>
+      <div class="grid grid-cols-4 gap-1 mb-2">
+        <div class="${_c.stat}"><div class="text-[0.85rem] font-extrabold text-amber-400">1 085</div><div class="text-[0.45rem] text-slate-500 uppercase">km</div></div>
+        <div class="${_c.stat}"><div class="text-[0.85rem] font-extrabold text-amber-400">4</div><div class="text-[0.45rem] text-slate-500 uppercase">lifts</div></div>
+        <div class="${_c.stat}"><div class="text-[0.85rem] font-extrabold text-amber-400">8h30</div><div class="text-[0.45rem] text-slate-500 uppercase">trajet</div></div>
+        <div class="${_c.stat}"><div class="text-[0.85rem] font-extrabold text-amber-400">2</div><div class="text-[0.45rem] text-slate-500 uppercase">pays</div></div>
       </div>
 
-      <div style="${_s.tabs}">
+      <div class="${_c.tabs}">
         <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'jrn-current')" role="button" tabindex="0">🗺️ Voyage en cours</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'jrn-history')" role="button" tabindex="0">📚 Mes voyages</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'jrn-community')" role="button" tabindex="0">🌍 Communauté</span>
       </div>
 
       <!-- Voyage en cours -->
-      <div data-cd-panel="jrn-current" style="display:block">
-        <div style="${_s.secT}"><span style="font-size:0.85rem">📍</span> Étapes du voyage</div>
-        <div style="position:relative;padding-left:24px">
-          <div style="position:absolute;left:7px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#fbbf24,#22c55e,#3b82f6,#ec4899)"></div>
-          <div style="position:relative;margin-bottom:10px"><div style="position:absolute;left:-20px;top:5px;width:8px;height:8px;border-radius:50%;background:#fbbf24"></div><div style="${_s.card}"><div style="font-size:0.55rem;color:#64748b">📅 15 mars · 7h30</div><div style="font-weight:700;font-size:0.78rem">🏁 Paris · Départ</div><div style="font-size:0.62rem;color:#94a3b8">📍 Porte d'Orléans, direction A6</div><div style="display:flex;gap:6px;margin-top:3px;font-size:0.58rem"><span style="color:#22c55e">⏱️ 12 min</span><span style="color:#64748b">📋 Panneau "Lyon"</span></div></div></div>
-          <div style="position:relative;margin-bottom:10px"><div style="position:absolute;left:-20px;top:5px;width:8px;height:8px;border-radius:50%;background:#22c55e"></div><div style="${_s.card}"><div style="font-size:0.55rem;color:#64748b">📅 15 mars · 12h15</div><div style="font-weight:700;font-size:0.78rem">🛑 Lyon · Étape 1</div><div style="font-size:0.62rem;color:#94a3b8">📍 Aire de Dardilly · Pause déjeuner</div><div style="display:flex;gap:6px;margin-top:3px;font-size:0.58rem"><span style="color:#64748b">🚗 465 km</span><span style="color:#fbbf24">⭐ +50 pts</span></div></div></div>
-          <div style="position:relative;margin-bottom:10px"><div style="position:absolute;left:-20px;top:5px;width:8px;height:8px;border-radius:50%;background:#3b82f6"></div><div style="${_s.card}"><div style="font-size:0.55rem;color:#64748b">📅 15 mars · 17h00</div><div style="font-weight:700;font-size:0.78rem">🛑 Marseille · Étape 2</div><div style="font-size:0.62rem;color:#94a3b8">📍 La Joliette · Nuit en auberge</div><div style="display:flex;gap:6px;margin-top:3px;font-size:0.58rem"><span style="color:#64748b">🚗 315 km</span><span style="color:#fbbf24">⭐ +50 pts</span></div></div></div>
-          <div style="position:relative"><div style="position:absolute;left:-20px;top:5px;width:8px;height:8px;border-radius:50%;background:#ec4899"></div><div style="${_s.card};border:1px solid rgba(236,72,153,0.3)"><div style="font-size:0.55rem;color:#ec4899">📅 16 mars · 9h00 · EN COURS</div><div style="font-weight:700;font-size:0.78rem">🚀 Marseille → Barcelone</div><div style="font-size:0.62rem;color:#94a3b8">📍 Sortie A50 · Direction Espagne</div><div style="display:flex;gap:6px;margin-top:3px;font-size:0.58rem"><span style="color:#ec4899">⏳ En attente...</span></div></div></div>
+      <div data-cd-panel="jrn-current" class="block">
+        <div class="${_c.secT}"><span class="text-[0.85rem]">📍</span> Étapes du voyage</div>
+        <div class="relative pl-6">
+          <div class="absolute w-0.5 left-[7px] top-0 bottom-0" style="background:linear-gradient(180deg,#fbbf24,#22c55e,#3b82f6,#ec4899)"></div>
+          <div class="relative mb-2.5"><div class="absolute w-2 h-2 rounded-full bg-amber-400 -left-[20px] top-[5px]"></div><div class="${_c.card}"><div class="text-[0.55rem] text-slate-500">📅 15 mars · 7h30</div><div class="font-bold text-[0.78rem]">🏁 Paris · Départ</div><div class="text-[0.62rem] text-slate-400">📍 Porte d'Orléans, direction A6</div><div class="flex gap-1.5 mt-[3px] text-[0.58rem]"><span class="text-emerald-500">⏱️ 12 min</span><span class="text-slate-500">📋 Panneau "Lyon"</span></div></div></div>
+          <div class="relative mb-2.5"><div class="absolute w-2 h-2 rounded-full bg-emerald-500 -left-[20px] top-[5px]"></div><div class="${_c.card}"><div class="text-[0.55rem] text-slate-500">📅 15 mars · 12h15</div><div class="font-bold text-[0.78rem]">🛑 Lyon · Étape 1</div><div class="text-[0.62rem] text-slate-400">📍 Aire de Dardilly · Pause déjeuner</div><div class="flex gap-1.5 mt-[3px] text-[0.58rem]"><span class="text-slate-500">🚗 465 km</span><span class="text-amber-400">⭐ +50 pts</span></div></div></div>
+          <div class="relative mb-2.5"><div class="absolute w-2 h-2 rounded-full bg-blue-500 -left-[20px] top-[5px]"></div><div class="${_c.card}"><div class="text-[0.55rem] text-slate-500">📅 15 mars · 17h00</div><div class="font-bold text-[0.78rem]">🛑 Marseille · Étape 2</div><div class="text-[0.62rem] text-slate-400">📍 La Joliette · Nuit en auberge</div><div class="flex gap-1.5 mt-[3px] text-[0.58rem]"><span class="text-slate-500">🚗 315 km</span><span class="text-amber-400">⭐ +50 pts</span></div></div></div>
+          <div class="relative"><div class="absolute w-2 h-2 rounded-full bg-pink-500 -left-[20px] top-[5px]"></div><div class="${_c.card} border border-pink-500/30"><div class="text-[0.55rem] text-pink-500">📅 16 mars · 9h00 · EN COURS</div><div class="font-bold text-[0.78rem]">🚀 Marseille → Barcelone</div><div class="text-[0.62rem] text-slate-400">📍 Sortie A50 · Direction Espagne</div><div class="flex gap-1.5 mt-[3px] text-[0.58rem]"><span class="text-pink-500">⏳ En attente...</span></div></div></div>
         </div>
       </div>
 
       <!-- Mes voyages -->
-      <div data-cd-panel="jrn-history" style="display:none">
-        <div style="${_s.card};border:1px solid rgba(255,255,255,0.04);padding:12px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:0.9rem">🇫🇷→🇪🇸</span><div><div style="font-weight:700;font-size:0.78rem">Paris → Barcelone</div><div style="font-size:0.58rem;color:#64748b">15-16 mars 2026 · En cours</div></div></div>
-          <div style="display:flex;gap:4px"><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">1 085</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">km</div></div><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">4</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">lifts</div></div><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">8h30</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">temps</div></div></div>
+      <div data-cd-panel="jrn-history" class="hidden">
+        <div class="${_c.card} border border-white/[0.04] p-3">
+          <div class="flex items-center gap-2 mb-1.5"><span class="text-[0.9rem]">🇫🇷→🇪🇸</span><div><div class="font-bold text-[0.78rem]">Paris → Barcelone</div><div class="text-[0.58rem] text-slate-500">15-16 mars 2026 · En cours</div></div></div>
+          <div class="flex gap-1"><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">1 085</div><div class="text-[0.45rem] text-slate-500 uppercase">km</div></div><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">4</div><div class="text-[0.45rem] text-slate-500 uppercase">lifts</div></div><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">8h30</div><div class="text-[0.45rem] text-slate-500 uppercase">temps</div></div></div>
         </div>
-        <div style="${_s.card};border:1px solid rgba(255,255,255,0.04);padding:12px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:0.9rem">🇫🇷→🇩🇪</span><div><div style="font-weight:700;font-size:0.78rem">Paris → Berlin</div><div style="font-size:0.58rem;color:#64748b">28 fév au 2 mars 2026</div></div></div>
-          <div style="display:flex;gap:4px"><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">1 050</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">km</div></div><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">6</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">lifts</div></div><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">14h</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">temps</div></div></div>
+        <div class="${_c.card} border border-white/[0.04] p-3">
+          <div class="flex items-center gap-2 mb-1.5"><span class="text-[0.9rem]">🇫🇷→🇩🇪</span><div><div class="font-bold text-[0.78rem]">Paris → Berlin</div><div class="text-[0.58rem] text-slate-500">28 fév au 2 mars 2026</div></div></div>
+          <div class="flex gap-1"><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">1 050</div><div class="text-[0.45rem] text-slate-500 uppercase">km</div></div><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">6</div><div class="text-[0.45rem] text-slate-500 uppercase">lifts</div></div><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">14h</div><div class="text-[0.45rem] text-slate-500 uppercase">temps</div></div></div>
         </div>
-        <div style="${_s.card};border:1px solid rgba(255,255,255,0.04);padding:12px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:0.9rem">🇫🇷→🇳🇱</span><div><div style="font-weight:700;font-size:0.78rem">Lyon → Amsterdam</div><div style="font-size:0.58rem;color:#64748b">10-12 jan 2026</div></div></div>
-          <div style="display:flex;gap:4px"><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">1 100</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">km</div></div><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">7</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">lifts</div></div><div style="flex:1;text-align:center"><div style="font-size:0.8rem;font-weight:800;color:#fbbf24">16h</div><div style="font-size:0.45rem;color:#64748b;text-transform:uppercase">temps</div></div></div>
+        <div class="${_c.card} border border-white/[0.04] p-3">
+          <div class="flex items-center gap-2 mb-1.5"><span class="text-[0.9rem]">🇫🇷→🇳🇱</span><div><div class="font-bold text-[0.78rem]">Lyon → Amsterdam</div><div class="text-[0.58rem] text-slate-500">10-12 jan 2026</div></div></div>
+          <div class="flex gap-1"><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">1 100</div><div class="text-[0.45rem] text-slate-500 uppercase">km</div></div><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">7</div><div class="text-[0.45rem] text-slate-500 uppercase">lifts</div></div><div class="flex-1 text-center"><div class="text-[0.8rem] font-extrabold text-amber-400">16h</div><div class="text-[0.45rem] text-slate-500 uppercase">temps</div></div></div>
         </div>
       </div>
 
       <!-- Communauté -->
-      <div data-cd-panel="jrn-community" style="display:none">
-        <div style="${_s.secT}"><span style="font-size:0.85rem">🌍</span> Voyages récents</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;border-radius:50%;background:#22c55e;color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0">S</span><div style="flex:1"><div style="font-weight:600">RoadSophie</div><div style="font-size:0.6rem;color:#fbbf24">🇫🇷 Lyon → 🇮🇹 Rome</div><div style="font-size:0.55rem;color:#64748b">1 200 km · 8 lifts · ❤️ 24</div></div></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0">M</span><div style="flex:1"><div style="font-weight:600">MarcoHitch</div><div style="font-size:0.6rem;color:#fbbf24">🇩🇪 Berlin → 🇵🇱 Cracovie</div><div style="font-size:0.55rem;color:#64748b">640 km · 5 lifts · ❤️ 18</div></div></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;border-radius:50%;background:#ec4899;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0">L</span><div style="flex:1"><div style="font-weight:600">LunaVoyage</div><div style="font-size:0.6rem;color:#fbbf24">🇪🇸 Madrid → 🇵🇹 Lisbonne</div><div style="font-size:0.55rem;color:#64748b">630 km · 4 lifts · ❤️ 31</div></div></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;border-radius:50%;background:#fbbf24;color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0">T</span><div style="flex:1"><div style="font-weight:600">TomPouce34</div><div style="font-size:0.6rem;color:#fbbf24">🇫🇷 Paris → 🇬🇧 Londres</div><div style="font-size:0.55rem;color:#64748b">460 km · 3 lifts + ferry · ❤️ 45</div></div></div>
+      <div data-cd-panel="jrn-community" class="hidden">
+        <div class="${_c.secT}"><span class="text-[0.85rem]">🌍</span> Voyages récents</div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-500 text-dark-primary flex items-center justify-center text-[0.65rem] font-bold shrink-0">S</span><div class="flex-1"><div class="font-semibold">RoadSophie</div><div class="text-[0.6rem] text-amber-400">🇫🇷 Lyon → 🇮🇹 Rome</div><div class="text-[0.55rem] text-slate-500">1 200 km · 8 lifts · ❤️ 24</div></div></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center text-[0.65rem] font-bold shrink-0">M</span><div class="flex-1"><div class="font-semibold">MarcoHitch</div><div class="text-[0.6rem] text-amber-400">🇩🇪 Berlin → 🇵🇱 Cracovie</div><div class="text-[0.55rem] text-slate-500">640 km · 5 lifts · ❤️ 18</div></div></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-pink-500 text-white flex items-center justify-center text-[0.65rem] font-bold shrink-0">L</span><div class="flex-1"><div class="font-semibold">LunaVoyage</div><div class="text-[0.6rem] text-amber-400">🇪🇸 Madrid → 🇵🇹 Lisbonne</div><div class="text-[0.55rem] text-slate-500">630 km · 4 lifts · ❤️ 31</div></div></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-amber-400 text-dark-primary flex items-center justify-center text-[0.65rem] font-bold shrink-0">T</span><div class="flex-1"><div class="font-semibold">TomPouce34</div><div class="text-[0.6rem] text-amber-400">🇫🇷 Paris → 🇬🇧 Londres</div><div class="text-[0.55rem] text-slate-500">460 km · 3 lifts + ferry · ❤️ 45</div></div></div>
       </div>
     </div>
   `
@@ -278,22 +285,22 @@ window.startJournalDemo = () => {
 window.showSocialDemo = () => {
   const ov = _createDemo('social-demo-overlay')
   ov.innerHTML = `
-    <div style="${_s.wrap}">
-      <button onclick="closeSocialDemo()" style="${_s.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
-      <div id="social-demo-intro" style="${_s.intro}">
-        <div style="font-size:3rem;margin-bottom:12px">👥</div>
-        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('socialDemoIntroTitle') || 'Social, Courses & Événements')}</h2>
-        <p style="font-size:0.82rem;color:#94a3b8;line-height:1.5;margin:0 0 16px">${escapeHTML(t('socialDemoIntroDesc') || 'Rencontre des autostoppeurs, fais la course entre potes et organise des événements !')}</p>
-        <div style="margin:0 auto 20px;max-width:340px">
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📍</span><span style="${_s.btxt}">Vois les autostoppeurs à moins de 5 km de toi en temps réel. Active ta position pour 2h</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🏁</span><span style="${_s.btxt}">Fais la course entre potes avec classement en direct ! Crée un trajet et invite tes amis</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📍</span><span style="${_s.btxt}">Partage tes meilleurs spots en temps réel avec les participants de ta course</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🎉</span><span style="${_s.btxt}">Rejoins des événements : meetups mensuels, courses officielles, festivals, ateliers sécurité</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">💬</span><span style="${_s.btxt}">Discute avec les autostoppeurs proches et trouve des compagnons de route pour tes trajets</span></div>
+    <div class="${_c.wrap}">
+      <button onclick="closeSocialDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+      <div id="social-demo-intro" class="${_c.intro} ${_cIntro}">
+        <div class="text-5xl mb-3">👥</div>
+        <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('socialDemoIntroTitle') || 'Social, Courses & Événements')}</h2>
+        <p class="text-[0.82rem] text-slate-400 leading-normal m-0 mb-4">${escapeHTML(t('socialDemoIntroDesc') || 'Rencontre des autostoppeurs, fais la course entre potes et organise des événements !')}</p>
+        <div class="mx-auto mb-5 max-w-[340px]">
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📍</span><span class="${_c.btxt}">Vois les autostoppeurs à moins de 5 km de toi en temps réel. Active ta position pour 2h</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🏁</span><span class="${_c.btxt}">Fais la course entre potes avec classement en direct ! Crée un trajet et invite tes amis</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📍</span><span class="${_c.btxt}">Partage tes meilleurs spots en temps réel avec les participants de ta course</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🎉</span><span class="${_c.btxt}">Rejoins des événements : meetups mensuels, courses officielles, festivals, ateliers sécurité</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">💬</span><span class="${_c.btxt}">Discute avec les autostoppeurs proches et trouve des compagnons de route pour tes trajets</span></div>
         </div>
-        <button onclick="startSocialDemo()" style="${_s.btn}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
+        <button onclick="startSocialDemo()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
       </div>
-      <div id="social-demo-main" style="display:none"></div>
+      <div id="social-demo-main" class="hidden"></div>
     </div>
   `
   document.body.appendChild(ov)
@@ -308,8 +315,8 @@ window.startSocialDemo = () => {
   intro.style.display = 'none'
   main.style.display = 'block'
   main.innerHTML = `
-    <div data-demo="overlay" style="${_s.demo}">
-      <div style="${_s.tabs}">
+    <div data-demo="overlay" class="${_c.demo}">
+      <div class="${_c.tabs}">
         <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'soc-nearby')" role="button" tabindex="0">📍 Proches</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'soc-races')" role="button" tabindex="0">🏁 Courses</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'soc-events')" role="button" tabindex="0">🎉 Événements</span>
@@ -317,51 +324,51 @@ window.startSocialDemo = () => {
       </div>
 
       <!-- Proches -->
-      <div data-cd-panel="soc-nearby" style="display:block">
-        <div style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a);border-radius:12px;height:140px;position:relative;overflow:hidden;margin-bottom:8px">
-          <div style="position:absolute;width:12px;height:12px;border-radius:50%;background:#fbbf24;border:2px solid #fff;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2"></div>
-          <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#22c55e;border:2px solid #fff;top:35%;left:35%"></div>
-          <div style="position:absolute;font-size:0.48rem;font-weight:700;top:28%;left:24%;color:#22c55e;background:rgba(0,0,0,0.7);padding:1px 4px;border-radius:3px">Clara · 1.2 km</div>
-          <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#3b82f6;border:2px solid #fff;top:60%;left:65%"></div>
-          <div style="position:absolute;font-size:0.48rem;font-weight:700;top:53%;left:56%;color:#3b82f6;background:rgba(0,0,0,0.7);padding:1px 4px;border-radius:3px">Alex · 3.5 km</div>
-          <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:#ec4899;border:2px solid #fff;top:30%;left:70%"></div>
-          <div style="position:absolute;font-size:0.48rem;font-weight:700;top:23%;left:61%;color:#ec4899;background:rgba(0,0,0,0.7);padding:1px 4px;border-radius:3px">Luna · 5 km</div>
-          <div style="position:absolute;bottom:5px;left:6px;font-size:0.5rem;color:#94a3b8">📍 3 autostoppeurs dans un rayon de 5 km</div>
+      <div data-cd-panel="soc-nearby" class="block">
+        <div class="rounded-xl h-[140px] relative overflow-hidden mb-2" style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a)">
+          <div class="absolute w-3 h-3 rounded-full bg-amber-400 border-2 border-white z-[2] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+          <div class="absolute w-2 h-2 rounded-full bg-emerald-500 border-2 border-white top-[35%] left-[35%]"></div>
+          <div class="absolute text-[0.48rem] font-bold text-emerald-500 rounded-[3px] top-[28%] left-[24%] bg-black/70 px-1 py-px">Clara · 1.2 km</div>
+          <div class="absolute w-2 h-2 rounded-full bg-blue-500 border-2 border-white top-[60%] left-[65%]"></div>
+          <div class="absolute text-[0.48rem] font-bold text-blue-500 rounded-[3px] top-[53%] left-[56%] bg-black/70 px-1 py-px">Alex · 3.5 km</div>
+          <div class="absolute w-2 h-2 rounded-full bg-pink-500 border-2 border-white top-[30%] left-[70%]"></div>
+          <div class="absolute text-[0.48rem] font-bold text-pink-500 rounded-[3px] top-[23%] left-[61%] bg-black/70 px-1 py-px">Luna · 5 km</div>
+          <div class="absolute text-[0.5rem] text-slate-400 bottom-[5px] left-[6px]">📍 3 autostoppeurs dans un rayon de 5 km</div>
         </div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:30px;height:30px;border-radius:50%;background:#22c55e;color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">C</span><div style="flex:1"><div style="font-weight:600">Clara</div><div style="font-size:0.58rem;color:#94a3b8">Direction Lyon · Panneau "A6"</div></div><span style="font-size:0.62rem;font-weight:700;color:#22c55e">1.2 km</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:30px;height:30px;border-radius:50%;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">A</span><div style="flex:1"><div style="font-weight:600">Alex</div><div style="font-size:0.58rem;color:#94a3b8">Direction Bordeaux · Pouce</div></div><span style="font-size:0.62rem;font-weight:700;color:#22c55e">3.5 km</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:30px;height:30px;border-radius:50%;background:#ec4899;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">L</span><div style="flex:1"><div style="font-weight:600">Luna</div><div style="font-size:0.58rem;color:#94a3b8">Direction Marseille · En attente</div></div><span style="font-size:0.62rem;font-weight:700;color:#22c55e">5 km</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-[30px] h-[30px] rounded-full bg-emerald-500 text-dark-primary flex items-center justify-center text-[0.7rem] font-bold shrink-0">C</span><div class="flex-1"><div class="font-semibold">Clara</div><div class="text-[0.58rem] text-slate-400">Direction Lyon · Panneau "A6"</div></div><span class="text-[0.62rem] font-bold text-emerald-500">1.2 km</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-[30px] h-[30px] rounded-full bg-blue-500 text-white flex items-center justify-center text-[0.7rem] font-bold shrink-0">A</span><div class="flex-1"><div class="font-semibold">Alex</div><div class="text-[0.58rem] text-slate-400">Direction Bordeaux · Pouce</div></div><span class="text-[0.62rem] font-bold text-emerald-500">3.5 km</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-[30px] h-[30px] rounded-full bg-pink-500 text-white flex items-center justify-center text-[0.7rem] font-bold shrink-0">L</span><div class="flex-1"><div class="font-semibold">Luna</div><div class="text-[0.58rem] text-slate-400">Direction Marseille · En attente</div></div><span class="text-[0.62rem] font-bold text-emerald-500">5 km</span></div>
       </div>
 
       <!-- Courses -->
-      <div data-cd-panel="soc-races" style="display:none">
-        <div style="${_s.card};border:1px solid rgba(236,72,153,0.3);padding:12px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-weight:800;font-size:0.82rem">🏁 Paris → Barcelone</span><span style="font-size:0.55rem;font-weight:700;padding:3px 6px;border-radius:6px;background:rgba(236,72,153,0.15);color:#ec4899">EN COURS</span></div>
-          <div style="font-size:0.65rem;color:#94a3b8;margin-bottom:8px">1 085 km · 4 participants · Départ 15 mars</div>
-          <div style="${_s.secT};font-size:0.68rem">🏅 Classement live</div>
-          <div style="margin-bottom:4px;display:flex;align-items:center;gap:6px;padding:4px 0"><span style="font-weight:900;color:#fbbf24;min-width:14px;font-size:0.7rem">1</span><span style="width:20px;height:20px;border-radius:50%;background:#22c55e;color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:700;flex-shrink:0">C</span><div style="flex:1;font-size:0.65rem">Clara<div style="font-size:0.55rem;color:#94a3b8">Marseille · 780 km</div><div style="height:3px;background:#1e293b;border-radius:2px;margin-top:2px;overflow:hidden"><div style="height:100%;width:72%;background:#22c55e;border-radius:2px"></div></div></div><span style="font-size:0.58rem;font-weight:700;color:#22c55e">72%</span></div>
-          <div style="margin-bottom:4px;display:flex;align-items:center;gap:6px;padding:4px 0"><span style="font-weight:900;color:#94a3b8;min-width:14px;font-size:0.7rem">2</span><span style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:700;flex-shrink:0">T</span><div style="flex:1;font-size:0.65rem"><span style="color:#fbbf24">Toi</span><div style="font-size:0.55rem;color:#94a3b8">Lyon · 600 km</div><div style="height:3px;background:#1e293b;border-radius:2px;margin-top:2px;overflow:hidden"><div style="height:100%;width:55%;background:#fbbf24;border-radius:2px"></div></div></div><span style="font-size:0.58rem;font-weight:700;color:#fbbf24">55%</span></div>
-          <div style="margin-bottom:4px;display:flex;align-items:center;gap:6px;padding:4px 0"><span style="font-weight:900;color:#94a3b8;min-width:14px;font-size:0.7rem">3</span><span style="width:20px;height:20px;border-radius:50%;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:700;flex-shrink:0">A</span><div style="flex:1;font-size:0.65rem">Alex<div style="font-size:0.55rem;color:#94a3b8">Dijon · 430 km</div><div style="height:3px;background:#1e293b;border-radius:2px;margin-top:2px;overflow:hidden"><div style="height:100%;width:40%;background:#3b82f6;border-radius:2px"></div></div></div><span style="font-size:0.58rem;font-weight:700;color:#3b82f6">40%</span></div>
-          <div style="margin-bottom:4px;display:flex;align-items:center;gap:6px;padding:4px 0"><span style="font-weight:900;color:#94a3b8;min-width:14px;font-size:0.7rem">4</span><span style="width:20px;height:20px;border-radius:50%;background:#8b5cf6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:700;flex-shrink:0">M</span><div style="flex:1;font-size:0.65rem">Max<div style="font-size:0.55rem;color:#94a3b8">Auxerre · 270 km</div><div style="height:3px;background:#1e293b;border-radius:2px;margin-top:2px;overflow:hidden"><div style="height:100%;width:25%;background:#8b5cf6;border-radius:2px"></div></div></div><span style="font-size:0.58rem;font-weight:700;color:#8b5cf6">25%</span></div>
+      <div data-cd-panel="soc-races" class="hidden">
+        <div class="${_c.card} p-3 border border-pink-500/30">
+          <div class="flex justify-between items-center mb-1.5"><span class="font-extrabold text-[0.82rem]">🏁 Paris → Barcelone</span><span class="text-[0.55rem] font-bold px-1.5 py-[3px] rounded-md bg-pink-500/15 text-pink-500">EN COURS</span></div>
+          <div class="text-[0.65rem] text-slate-400 mb-2">1 085 km · 4 participants · Départ 15 mars</div>
+          <div class="${_c.secT} text-[0.68rem]">🏅 Classement live</div>
+          <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-amber-400 min-w-[14px] text-[0.7rem]">1</span><span class="w-5 h-5 rounded-full bg-emerald-500 text-dark-primary flex items-center justify-center text-[0.55rem] font-bold shrink-0">C</span><div class="flex-1 text-[0.65rem]">Clara<div class="text-[0.55rem] text-slate-400">Marseille · 780 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full bg-emerald-500 rounded-sm w-[72%]"></div></div></div><span class="text-[0.58rem] font-bold text-emerald-500">72%</span></div>
+          <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-slate-400 min-w-[14px] text-[0.7rem]">2</span><span class="w-5 h-5 rounded-full text-dark-primary flex items-center justify-center text-[0.55rem] font-bold shrink-0" style="background:linear-gradient(135deg,#fbbf24,#d97706)">T</span><div class="flex-1 text-[0.65rem]"><span class="text-amber-400">Toi</span><div class="text-[0.55rem] text-slate-400">Lyon · 600 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full bg-amber-400 rounded-sm w-[55%]"></div></div></div><span class="text-[0.58rem] font-bold text-amber-400">55%</span></div>
+          <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-slate-400 min-w-[14px] text-[0.7rem]">3</span><span class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[0.55rem] font-bold shrink-0">A</span><div class="flex-1 text-[0.65rem]">Alex<div class="text-[0.55rem] text-slate-400">Dijon · 430 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full bg-blue-500 rounded-sm w-[40%]"></div></div></div><span class="text-[0.58rem] font-bold text-blue-500">40%</span></div>
+          <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-slate-400 min-w-[14px] text-[0.7rem]">4</span><span class="w-5 h-5 rounded-full text-white flex items-center justify-center text-[0.55rem] font-bold shrink-0 bg-violet-500">M</span><div class="flex-1 text-[0.65rem]">Max<div class="text-[0.55rem] text-slate-400">Auxerre · 270 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full rounded-sm w-[25%] bg-violet-500"></div></div></div><span class="text-[0.58rem] font-bold text-violet-500">25%</span></div>
         </div>
-        <div style="display:block;background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;font-weight:700;text-align:center;padding:10px;border-radius:10px;margin-top:8px;font-size:0.75rem">🏁 Créer une nouvelle course</div>
+        <div class="block text-dark-primary font-bold text-center p-2.5 rounded-[10px] mt-2 text-xs" style="background:linear-gradient(135deg,#fbbf24,#d97706)">🏁 Créer une nouvelle course</div>
       </div>
 
       <!-- Événements -->
-      <div data-cd-panel="soc-events" style="display:none">
-        <div style="${_s.card};border:1px solid rgba(236,72,153,0.2);padding:10px"><div style="display:flex;gap:8px;align-items:start;margin-bottom:4px"><span style="font-size:1.2rem">🏁</span><div><div style="font-weight:700;font-size:0.78rem">Course Paris → Barcelone</div><div style="font-size:0.58rem;color:#fbbf24;font-weight:600">15-17 mars 2026</div></div></div><div style="font-size:0.62rem;color:#94a3b8;margin-bottom:4px">Course officielle ! 12 autostoppeurs, classement live, spots partagés.</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.55rem;color:#64748b">👥 12 inscrits · 🏆 Prix : 50€</div><span style="background:rgba(34,197,94,0.15);color:#22c55e;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:6px">✅ Inscrit</span></div></div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;gap:8px;align-items:start;margin-bottom:4px"><span style="font-size:1.2rem">🍻</span><div><div style="font-weight:700;font-size:0.78rem">Meetup Paris</div><div style="font-size:0.58rem;color:#fbbf24;font-weight:600">22 mars 2026 · 19h</div></div></div><div style="font-size:0.62rem;color:#94a3b8;margin-bottom:4px">Rencontre mensuelle des autostoppeurs parisiens. Bières et aventures !</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.55rem;color:#64748b">👥 28 inscrits · 🆓 Gratuit</div><span style="background:rgba(251,191,36,0.15);color:#fbbf24;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:6px">👋 J'y vais !</span></div></div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;gap:8px;align-items:start;margin-bottom:4px"><span style="font-size:1.2rem">🏕️</span><div><div style="font-weight:700;font-size:0.78rem">Festival Nomade · Ardèche</div><div style="font-size:0.58rem;color:#fbbf24;font-weight:600">12-14 avril 2026</div></div></div><div style="font-size:0.62rem;color:#94a3b8;margin-bottom:4px">Camping + ateliers (panneaux, sécurité, premiers secours). Débutants bienvenus !</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.55rem;color:#64748b">👥 45 inscrits · 💰 15€</div><span style="background:rgba(251,191,36,0.15);color:#fbbf24;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:6px">👋 J'y vais !</span></div></div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;gap:8px;align-items:start;margin-bottom:4px"><span style="font-size:1.2rem">🌍</span><div><div style="font-weight:700;font-size:0.78rem">Rassemblement Européen · Bruxelles</div><div style="font-size:0.58rem;color:#fbbf24;font-weight:600">1-3 mai 2026</div></div></div><div style="font-size:0.62rem;color:#94a3b8;margin-bottom:4px">200+ participants de 15 pays. Conférences, courses, ateliers.</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.55rem;color:#64748b">👥 142 inscrits · 🌐 15 pays</div><span style="background:rgba(251,191,36,0.15);color:#fbbf24;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:6px">👋 J'y vais !</span></div></div>
+      <div data-cd-panel="soc-events" class="hidden">
+        <div class="${_c.card} p-2.5 border border-pink-500/20"><div class="flex gap-2 items-start mb-1"><span class="text-[1.2rem]">🏁</span><div><div class="font-bold text-[0.78rem]">Course Paris → Barcelone</div><div class="text-[0.58rem] text-amber-400 font-semibold">15-17 mars 2026</div></div></div><div class="text-[0.62rem] text-slate-400 mb-1">Course officielle ! 12 autostoppeurs, classement live, spots partagés.</div><div class="flex justify-between items-center"><div class="text-[0.55rem] text-slate-500">👥 12 inscrits · 🏆 Prix : 50€</div><span class="text-[0.6rem] font-bold px-2.5 py-1 rounded-md bg-green-500/15 text-green-500">✅ Inscrit</span></div></div>
+        <div class="${_c.card} p-2.5"><div class="flex gap-2 items-start mb-1"><span class="text-[1.2rem]">🍻</span><div><div class="font-bold text-[0.78rem]">Meetup Paris</div><div class="text-[0.58rem] text-amber-400 font-semibold">22 mars 2026 · 19h</div></div></div><div class="text-[0.62rem] text-slate-400 mb-1">Rencontre mensuelle des autostoppeurs parisiens. Bières et aventures !</div><div class="flex justify-between items-center"><div class="text-[0.55rem] text-slate-500">👥 28 inscrits · 🆓 Gratuit</div><span class="text-[0.6rem] font-bold px-2.5 py-1 rounded-md bg-amber-400/15 text-amber-400">👋 J'y vais !</span></div></div>
+        <div class="${_c.card} p-2.5"><div class="flex gap-2 items-start mb-1"><span class="text-[1.2rem]">🏕️</span><div><div class="font-bold text-[0.78rem]">Festival Nomade · Ardèche</div><div class="text-[0.58rem] text-amber-400 font-semibold">12-14 avril 2026</div></div></div><div class="text-[0.62rem] text-slate-400 mb-1">Camping + ateliers (panneaux, sécurité, premiers secours). Débutants bienvenus !</div><div class="flex justify-between items-center"><div class="text-[0.55rem] text-slate-500">👥 45 inscrits · 💰 15€</div><span class="text-[0.6rem] font-bold px-2.5 py-1 rounded-md bg-amber-400/15 text-amber-400">👋 J'y vais !</span></div></div>
+        <div class="${_c.card} p-2.5"><div class="flex gap-2 items-start mb-1"><span class="text-[1.2rem]">🌍</span><div><div class="font-bold text-[0.78rem]">Rassemblement Européen · Bruxelles</div><div class="text-[0.58rem] text-amber-400 font-semibold">1-3 mai 2026</div></div></div><div class="text-[0.62rem] text-slate-400 mb-1">200+ participants de 15 pays. Conférences, courses, ateliers.</div><div class="flex justify-between items-center"><div class="text-[0.55rem] text-slate-500">👥 142 inscrits · 🌐 15 pays</div><span class="text-[0.6rem] font-bold px-2.5 py-1 rounded-md bg-amber-400/15 text-amber-400">👋 J'y vais !</span></div></div>
       </div>
 
       <!-- Spots partagés -->
-      <div data-cd-panel="soc-spots" style="display:none">
-        <div style="${_s.card};border-left:3px solid #22c55e;font-size:0.65rem;color:#94a3b8;margin-bottom:8px">💡 Pendant une course, partagez vos meilleurs spots avec les autres participants en temps réel !</div>
-        <div style="${_s.secT}"><span style="font-size:0.85rem">📍</span> Course Paris→Barcelone</div>
-        <div style="${_s.card}"><div style="display:flex;justify-content:space-between"><div><div style="font-weight:700">Aire de Fleury</div><div style="font-size:0.58rem;color:#94a3b8">A6 direction Lyon · Clara il y a 2h</div></div><span style="font-size:0.62rem;font-weight:700;color:#22c55e">⏱️ 8 min</span></div><div style="font-size:0.6rem;color:#94a3b8;margin-top:3px;font-style:italic">"Routier sympa, foncez !" · Clara</div></div>
-        <div style="${_s.card}"><div style="display:flex;justify-content:space-between"><div><div style="font-weight:700">Station Total Valence</div><div style="font-size:0.58rem;color:#94a3b8">A7 direction Marseille · Toi il y a 1h</div></div><span style="font-size:0.62rem;font-weight:700;color:#fbbf24">⏱️ 15 min</span></div><div style="font-size:0.6rem;color:#94a3b8;margin-top:3px;font-style:italic">"Beaucoup de camions, panneau recommandé" · Toi</div></div>
-        <div style="${_s.card}"><div style="display:flex;justify-content:space-between"><div><div style="font-weight:700">Sortie Nîmes</div><div style="font-size:0.58rem;color:#94a3b8">A9 direction Espagne · Alex il y a 30min</div></div><span style="font-size:0.62rem;font-weight:700;color:#22c55e">⏱️ 5 min</span></div><div style="font-size:0.6rem;color:#94a3b8;margin-top:3px;font-style:italic">"Spot incroyable, 5 min !" · Alex</div></div>
+      <div data-cd-panel="soc-spots" class="hidden">
+        <div class="${_c.card} border-l-[3px] border-l-emerald-500 text-[0.65rem] text-slate-400 mb-2">💡 Pendant une course, partagez vos meilleurs spots avec les autres participants en temps réel !</div>
+        <div class="${_c.secT}"><span class="text-[0.85rem]">📍</span> Course Paris→Barcelone</div>
+        <div class="${_c.card}"><div class="flex justify-between"><div><div class="font-bold">Aire de Fleury</div><div class="text-[0.58rem] text-slate-400">A6 direction Lyon · Clara il y a 2h</div></div><span class="text-[0.62rem] font-bold text-emerald-500">⏱️ 8 min</span></div><div class="text-[0.6rem] text-slate-400 mt-[3px] italic">"Routier sympa, foncez !" · Clara</div></div>
+        <div class="${_c.card}"><div class="flex justify-between"><div><div class="font-bold">Station Total Valence</div><div class="text-[0.58rem] text-slate-400">A7 direction Marseille · Toi il y a 1h</div></div><span class="text-[0.62rem] font-bold text-amber-400">⏱️ 15 min</span></div><div class="text-[0.6rem] text-slate-400 mt-[3px] italic">"Beaucoup de camions, panneau recommandé" · Toi</div></div>
+        <div class="${_c.card}"><div class="flex justify-between"><div><div class="font-bold">Sortie Nîmes</div><div class="text-[0.58rem] text-slate-400">A9 direction Espagne · Alex il y a 30min</div></div><span class="text-[0.62rem] font-bold text-emerald-500">⏱️ 5 min</span></div><div class="text-[0.6rem] text-slate-400 mt-[3px] italic">"Spot incroyable, 5 min !" · Alex</div></div>
       </div>
     </div>
   `
@@ -371,22 +378,22 @@ window.startSocialDemo = () => {
 window.showCompanionDemo = () => {
   const ov = _createDemo('companion-demo-overlay')
   ov.innerHTML = `
-    <div style="${_s.wrap}">
-      <button onclick="closeCompanionDemo()" style="${_s.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
-      <div id="companion-demo-intro" style="${_s.intro}">
-        <div style="font-size:3rem;margin-bottom:12px">🛡️</div>
-        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('companionDemoIntroTitle') || 'Mode Compagnon Sécurité')}</h2>
-        <p style="font-size:0.82rem;color:#94a3b8;line-height:1.5;margin:0 0 16px">${escapeHTML(t('companionDemoIntroDesc') || 'Rassure tes proches pendant ton trajet en stop avec le suivi en direct et les check-ins automatiques.')}</p>
-        <div style="margin:0 auto 20px;max-width:340px">
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📍</span><span style="${_s.btxt}">Tes proches (gardiens) voient ta position en direct sur la carte SpotHitch</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">✅</span><span style="${_s.btxt}">Check-in régulier (30min, 1h ou 2h) : un bouton pour confirmer que tout va bien</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">⚠️</span><span style="${_s.btxt}">Si tu manques un check-in, alerte automatique à tes gardiens avec ta dernière position</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🆘</span><span style="${_s.btxt}">Bouton SOS : alerte immédiate à tous tes gardiens + appel urgences + enregistrement audio</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🛡️</span><span style="${_s.btxt}">Version améliorée du compagnon de route actuel avec position live et connexion directe au SOS</span></div>
+    <div class="${_c.wrap}">
+      <button onclick="closeCompanionDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+      <div id="companion-demo-intro" class="${_c.intro} ${_cIntro}">
+        <div class="text-5xl mb-3">🛡️</div>
+        <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('companionDemoIntroTitle') || 'Mode Compagnon Sécurité')}</h2>
+        <p class="text-[0.82rem] text-slate-400 leading-normal m-0 mb-4">${escapeHTML(t('companionDemoIntroDesc') || 'Rassure tes proches pendant ton trajet en stop avec le suivi en direct et les check-ins automatiques.')}</p>
+        <div class="mx-auto mb-5 max-w-[340px]">
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📍</span><span class="${_c.btxt}">Tes proches (gardiens) voient ta position en direct sur la carte SpotHitch</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">✅</span><span class="${_c.btxt}">Check-in régulier (30min, 1h ou 2h) : un bouton pour confirmer que tout va bien</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">⚠️</span><span class="${_c.btxt}">Si tu manques un check-in, alerte automatique à tes gardiens avec ta dernière position</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🆘</span><span class="${_c.btxt}">Bouton SOS : alerte immédiate à tous tes gardiens + appel urgences + enregistrement audio</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🛡️</span><span class="${_c.btxt}">Version améliorée du compagnon de route actuel avec position live et connexion directe au SOS</span></div>
         </div>
-        <button onclick="startCompanionDemo()" style="${_s.btn}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
+        <button onclick="startCompanionDemo()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
       </div>
-      <div id="companion-demo-main" style="display:none"></div>
+      <div id="companion-demo-main" class="hidden"></div>
     </div>
   `
   document.body.appendChild(ov)
@@ -401,77 +408,77 @@ window.startCompanionDemo = () => {
   intro.style.display = 'none'
   main.style.display = 'block'
   main.innerHTML = `
-    <div data-demo="overlay" style="${_s.demo}">
-      <div style="${_s.tabs}">
+    <div data-demo="overlay" class="${_c.demo}">
+      <div class="${_c.tabs}">
         <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'cmp-me')" role="button" tabindex="0">🧳 Mon trajet</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'cmp-guardian')" role="button" tabindex="0">👁️ Vue Gardien</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'cmp-config')" role="button" tabindex="0">⚙️ Réglages</span>
       </div>
 
       <!-- Mon trajet -->
-      <div data-cd-panel="cmp-me" style="display:block">
-        <div style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:12px;text-align:center;margin-bottom:8px">
-          <div style="font-size:1.8rem;margin-bottom:2px">🛡️</div>
-          <div style="font-size:0.72rem;font-weight:700;color:#22c55e">Mode Compagnon actif</div>
-          <div style="font-size:0.58rem;color:#94a3b8">Maman et Clara voient ta position en direct</div>
+      <div data-cd-panel="cmp-me" class="block">
+        <div class="rounded-xl p-3 text-center mb-2 border border-emerald-500/20" style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02))">
+          <div class="text-[1.8rem] mb-0.5">🛡️</div>
+          <div class="text-[0.72rem] font-bold text-emerald-500">Mode Compagnon actif</div>
+          <div class="text-[0.58rem] text-slate-400">Maman et Clara voient ta position en direct</div>
         </div>
-        <div style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a);border-radius:12px;height:100px;position:relative;overflow:hidden;margin-bottom:8px">
-          <div style="position:absolute;top:48px;left:30px;right:80px;height:2px;background:rgba(34,197,94,0.3)"></div>
-          <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:#fbbf24;top:46px;left:28px"></div>
-          <div style="position:absolute;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid #fff;top:43px;left:60%"></div>
-          <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:#ec4899;top:46px;right:78px"></div>
-          <div style="position:absolute;bottom:5px;left:6px;font-size:0.5rem;color:#94a3b8;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px">🟢 Position partagée en direct</div>
-          <div style="position:absolute;top:5px;right:6px;font-size:0.5rem;color:#22c55e;font-weight:700;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px">Mis à jour il y a 30s</div>
+        <div class="rounded-xl h-[100px] relative overflow-hidden mb-2" style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a)">
+          <div class="absolute h-0.5 top-[48px] left-[30px] right-[80px] bg-emerald-500/30"></div>
+          <div class="absolute w-1.5 h-1.5 rounded-full bg-amber-400 top-[46px] left-[28px]"></div>
+          <div class="absolute w-3 h-3 rounded-full bg-emerald-500 border-2 border-white top-[43px] left-[60%]"></div>
+          <div class="absolute w-1.5 h-1.5 rounded-full bg-pink-500 top-[46px] right-[78px]"></div>
+          <div class="absolute text-[0.5rem] text-slate-400 rounded bottom-[5px] left-[6px] bg-black/60 px-1.5 py-0.5">🟢 Position partagée en direct</div>
+          <div class="absolute text-[0.5rem] text-emerald-500 font-bold rounded top-[5px] right-[6px] bg-black/60 px-1.5 py-0.5">Mis à jour il y a 30s</div>
         </div>
-        <div style="text-align:center;padding:12px;background:#1a2332;border-radius:10px;margin-bottom:8px">
-          <div style="font-size:1.8rem;font-weight:900;color:#22c55e;font-variant-numeric:tabular-nums">47:23</div>
-          <div style="font-size:0.6rem;color:#94a3b8;margin-top:2px">Prochain check-in dans</div>
-          <div style="height:3px;background:#1e293b;border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:21%;background:linear-gradient(90deg,#22c55e,#10b981);border-radius:2px"></div></div>
+        <div class="text-center p-3 bg-dark-secondary rounded-[10px] mb-2">
+          <div class="text-[1.8rem] font-black text-emerald-500 tabular-nums">47:23</div>
+          <div class="text-[0.6rem] text-slate-400 mt-0.5">Prochain check-in dans</div>
+          <div class="h-[3px] bg-slate-800 rounded-sm mt-1.5 overflow-hidden"><div class="h-full rounded-sm w-[21%]" style="background:linear-gradient(90deg,#22c55e,#10b981)"></div></div>
         </div>
-        <div style="background:linear-gradient(135deg,#22c55e,#10b981);color:#fff;font-size:0.82rem;font-weight:800;text-align:center;padding:12px;border-radius:12px;margin-bottom:6px;box-shadow:0 4px 20px rgba(34,197,94,0.3)">✅ Tout va bien · Envoyer check-in</div>
-        <div style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-size:0.78rem;font-weight:800;text-align:center;padding:10px;border-radius:12px;box-shadow:0 4px 20px rgba(239,68,68,0.3)">🆘 SOS · Alerter mes gardiens + urgences</div>
-        <div style="${_s.secT};margin-top:10px"><span style="font-size:0.85rem">👁️</span> Mes gardiens</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;border-radius:50%;background:#ec4899;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0">M</span><div style="flex:1"><div style="font-weight:600">Maman</div><div style="font-size:0.55rem;color:#94a3b8">Voit ta position en temps réel</div></div><span style="font-size:0.55rem;font-weight:700;color:#22c55e">🟢 En ligne</span></div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px"><span style="width:28px;height:28px;border-radius:50%;background:#22c55e;color:#0f1520;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0">C</span><div style="flex:1"><div style="font-weight:600">Clara</div><div style="font-size:0.55rem;color:#94a3b8">Voit ta position en temps réel</div></div><span style="font-size:0.55rem;font-weight:700;color:#64748b">⚫ Hors ligne</span></div>
+        <div class="text-white text-[0.82rem] font-extrabold text-center p-3 rounded-xl mb-1.5" style="background:linear-gradient(135deg,#22c55e,#10b981);box-shadow:0 4px 20px rgba(34,197,94,0.3)">✅ Tout va bien · Envoyer check-in</div>
+        <div class="text-white text-[0.78rem] font-extrabold text-center p-2.5 rounded-xl" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 20px rgba(239,68,68,0.3)">🆘 SOS · Alerter mes gardiens + urgences</div>
+        <div class="${_c.secT} mt-2.5"><span class="text-[0.85rem]">👁️</span> Mes gardiens</div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-pink-500 text-white flex items-center justify-center text-[0.65rem] font-bold shrink-0">M</span><div class="flex-1"><div class="font-semibold">Maman</div><div class="text-[0.55rem] text-slate-400">Voit ta position en temps réel</div></div><span class="text-[0.55rem] font-bold text-emerald-500">🟢 En ligne</span></div>
+        <div class="${_c.card} flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-500 text-dark-primary flex items-center justify-center text-[0.65rem] font-bold shrink-0">C</span><div class="flex-1"><div class="font-semibold">Clara</div><div class="text-[0.55rem] text-slate-400">Voit ta position en temps réel</div></div><span class="text-[0.55rem] font-bold text-slate-500">⚫ Hors ligne</span></div>
       </div>
 
       <!-- Vue Gardien -->
-      <div data-cd-panel="cmp-guardian" style="display:none">
-        <div style="${_s.card};border-left:3px solid #22c55e;font-size:0.65rem;color:#94a3b8;margin-bottom:8px">👁️ Voici ce que tes gardiens (maman, amis) voient sur leur téléphone</div>
-        <div style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04));border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:12px;text-align:center;margin-bottom:8px">
-          <div style="font-size:1.5rem">🟢</div>
-          <div style="font-size:0.72rem;font-weight:700;color:#22c55e">Antoine va bien</div>
-          <div style="font-size:0.55rem;color:#94a3b8">Dernier check-in il y a 12 min · Lyon</div>
+      <div data-cd-panel="cmp-guardian" class="hidden">
+        <div class="${_c.card} border-l-[3px] border-l-emerald-500 text-[0.65rem] text-slate-400 mb-2">👁️ Voici ce que tes gardiens (maman, amis) voient sur leur téléphone</div>
+        <div class="rounded-xl p-3 text-center mb-2 border border-emerald-500/20" style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04))">
+          <div class="text-2xl">🟢</div>
+          <div class="text-[0.72rem] font-bold text-emerald-500">Antoine va bien</div>
+          <div class="text-[0.55rem] text-slate-400">Dernier check-in il y a 12 min · Lyon</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px">
-          <div style="${_s.stat}"><div style="font-size:0.85rem">🏁</div><div style="font-size:0.45rem;color:#64748b">Départ</div><div style="font-size:0.65rem;font-weight:700">Paris</div></div>
-          <div style="${_s.stat}"><div style="font-size:0.85rem">📍</div><div style="font-size:0.45rem;color:#64748b">Position</div><div style="font-size:0.65rem;font-weight:700;color:#22c55e">Lyon</div></div>
-          <div style="${_s.stat}"><div style="font-size:0.85rem">🎯</div><div style="font-size:0.45rem;color:#64748b">Arrivée</div><div style="font-size:0.65rem;font-weight:700">Barcelone</div></div>
+        <div class="grid grid-cols-3 gap-1 mb-2">
+          <div class="${_c.stat}"><div class="text-[0.85rem]">🏁</div><div class="text-[0.45rem] text-slate-500">Départ</div><div class="text-[0.65rem] font-bold">Paris</div></div>
+          <div class="${_c.stat}"><div class="text-[0.85rem]">📍</div><div class="text-[0.45rem] text-slate-500">Position</div><div class="text-[0.65rem] font-bold text-emerald-500">Lyon</div></div>
+          <div class="${_c.stat}"><div class="text-[0.85rem]">🎯</div><div class="text-[0.45rem] text-slate-500">Arrivée</div><div class="text-[0.65rem] font-bold">Barcelone</div></div>
         </div>
-        <div style="${_s.secT}"><span style="font-size:0.85rem">📋</span> Notifications reçues</div>
-        <div style="${_s.card};border-left:3px solid #22c55e"><strong style="color:#22c55e">✅ Tout va bien</strong> · Antoine est à Lyon, direction Marseille<div style="font-size:0.52rem;color:#64748b;margin-top:2px">Il y a 12 min</div></div>
-        <div style="${_s.card};border-left:3px solid #22c55e"><strong style="color:#22c55e">✅ Tout va bien</strong> · Aire de Fleury sur l'A6<div style="font-size:0.52rem;color:#64748b;margin-top:2px">Il y a 1h25</div></div>
-        <div style="${_s.card};border-left:3px solid #3b82f6"><strong style="color:#3b82f6">🚀 Trajet démarré</strong> · Paris vers Barcelone<div style="font-size:0.52rem;color:#64748b;margin-top:2px">Il y a 6h15</div></div>
-        <div style="${_s.card};border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.05);margin-top:8px"><div style="font-size:0.68rem;font-weight:700;color:#ef4444;margin-bottom:3px">⚠️ Si un check-in est manqué</div><div style="font-size:0.58rem;color:#94a3b8">Alerte immédiate + dernière position + appeler directement + contacter urgences</div></div>
+        <div class="${_c.secT}"><span class="text-[0.85rem]">📋</span> Notifications reçues</div>
+        <div class="${_c.card} border-l-[3px] border-l-emerald-500"><strong class="text-emerald-500">✅ Tout va bien</strong> · Antoine est à Lyon, direction Marseille<div class="text-[0.52rem] text-slate-500 mt-0.5">Il y a 12 min</div></div>
+        <div class="${_c.card} border-l-[3px] border-l-emerald-500"><strong class="text-emerald-500">✅ Tout va bien</strong> · Aire de Fleury sur l'A6<div class="text-[0.52rem] text-slate-500 mt-0.5">Il y a 1h25</div></div>
+        <div class="${_c.card} border-l-[3px] border-l-blue-500"><strong class="text-blue-500">🚀 Trajet démarré</strong> · Paris vers Barcelone<div class="text-[0.52rem] text-slate-500 mt-0.5">Il y a 6h15</div></div>
+        <div class="${_c.card} mt-2 border border-red-500/20 bg-red-500/5"><div class="text-[0.68rem] font-bold text-red-500 mb-[3px]">⚠️ Si un check-in est manqué</div><div class="text-[0.58rem] text-slate-400">Alerte immédiate + dernière position + appeler directement + contacter urgences</div></div>
       </div>
 
       <!-- Réglages -->
-      <div data-cd-panel="cmp-config" style="display:none">
-        <div style="${_s.secT}"><span style="font-size:0.85rem">⏰</span> Fréquence check-in</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px">
-          <div style="${_s.card};text-align:center"><div style="font-size:0.85rem">⚡</div><div style="font-size:0.65rem;font-weight:600">30 min</div><div style="font-size:0.5rem;color:#64748b">Prudent</div></div>
-          <div style="${_s.card};text-align:center;border:1px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.05)"><div style="font-size:0.85rem">✅</div><div style="font-size:0.65rem;font-weight:600;color:#fbbf24">1 heure</div><div style="font-size:0.5rem;color:#fbbf24">Recommandé</div></div>
-          <div style="${_s.card};text-align:center"><div style="font-size:0.85rem">🕐</div><div style="font-size:0.65rem;font-weight:600">2 heures</div><div style="font-size:0.5rem;color:#64748b">Relax</div></div>
+      <div data-cd-panel="cmp-config" class="hidden">
+        <div class="${_c.secT}"><span class="text-[0.85rem]">⏰</span> Fréquence check-in</div>
+        <div class="grid grid-cols-3 gap-1 mb-2">
+          <div class="${_c.card} text-center"><div class="text-[0.85rem]">⚡</div><div class="text-[0.65rem] font-semibold">30 min</div><div class="text-[0.5rem] text-slate-500">Prudent</div></div>
+          <div class="${_c.card} text-center border border-amber-400/30 bg-amber-400/5"><div class="text-[0.85rem]">✅</div><div class="text-[0.65rem] font-semibold text-amber-400">1 heure</div><div class="text-[0.5rem] text-amber-400">Recommandé</div></div>
+          <div class="${_c.card} text-center"><div class="text-[0.85rem]">🕐</div><div class="text-[0.65rem] font-semibold">2 heures</div><div class="text-[0.5rem] text-slate-500">Relax</div></div>
         </div>
-        <div style="${_s.secT}"><span style="font-size:0.85rem">🔔</span> En cas de check-in manqué</div>
-        <div style="${_s.card}">
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:0.68rem">📱 Notification push aux gardiens</span><span style="color:#22c55e;font-size:0.6rem;font-weight:700">Oui ✓</span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:0.68rem">📩 SMS d'alerte</span><span style="color:#22c55e;font-size:0.6rem;font-weight:700">Oui ✓</span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:0.68rem">📍 Partager dernière position</span><span style="color:#22c55e;font-size:0.6rem;font-weight:700">Oui ✓</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="font-size:0.68rem">⏳ Délai avant alerte</span><span style="color:#fbbf24;font-size:0.6rem;font-weight:700">15 min</span></div>
+        <div class="${_c.secT}"><span class="text-[0.85rem]">🔔</span> En cas de check-in manqué</div>
+        <div class="${_c.card}">
+          <div class="flex justify-between mb-[5px]"><span class="text-[0.68rem]">📱 Notification push aux gardiens</span><span class="text-emerald-500 text-[0.6rem] font-bold">Oui ✓</span></div>
+          <div class="flex justify-between mb-[5px]"><span class="text-[0.68rem]">📩 SMS d'alerte</span><span class="text-emerald-500 text-[0.6rem] font-bold">Oui ✓</span></div>
+          <div class="flex justify-between mb-[5px]"><span class="text-[0.68rem]">📍 Partager dernière position</span><span class="text-emerald-500 text-[0.6rem] font-bold">Oui ✓</span></div>
+          <div class="flex justify-between"><span class="text-[0.68rem]">⏳ Délai avant alerte</span><span class="text-amber-400 text-[0.6rem] font-bold">15 min</span></div>
         </div>
-        <div style="${_s.secT};margin-top:8px"><span style="font-size:0.85rem">🆘</span> Bouton SOS</div>
-        <div style="${_s.card};border:1px solid rgba(239,68,68,0.2)"><div style="font-size:0.68rem;font-weight:600;margin-bottom:3px">Le SOS déclenche simultanément :</div><div style="font-size:0.6rem;color:#94a3b8">🚨 Alerte tous tes gardiens<br>📱 SMS + appel au gardien principal<br>📍 Position aux urgences (112)<br>🔊 Alarme sonore<br>📹 Enregistrement audio</div></div>
+        <div class="${_c.secT} mt-2"><span class="text-[0.85rem]">🆘</span> Bouton SOS</div>
+        <div class="${_c.card} border border-red-500/20"><div class="text-[0.68rem] font-semibold mb-[3px]">Le SOS déclenche simultanément :</div><div class="text-[0.6rem] text-slate-400">🚨 Alerte tous tes gardiens<br>📱 SMS + appel au gardien principal<br>📍 Position aux urgences (112)<br>🔊 Alarme sonore<br>📹 Enregistrement audio</div></div>
       </div>
     </div>
   `
@@ -481,22 +488,22 @@ window.startCompanionDemo = () => {
 window.showHostelsDemo = () => {
   const ov = _createDemo('hostels-demo-overlay')
   ov.innerHTML = `
-    <div style="${_s.wrap}">
-      <button onclick="closeHostelsDemo()" style="${_s.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
-      <div id="hostels-demo-intro" style="${_s.intro}">
-        <div style="font-size:3rem;margin-bottom:12px">🏨</div>
-        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('hostelsDemoIntroTitle') || 'Auberges & Événements')}</h2>
-        <p style="font-size:0.82rem;color:#94a3b8;line-height:1.5;margin:0 0 16px">${escapeHTML(t('hostelsDemoIntroDesc') || 'Dors pas cher avec -15% chez nos partenaires et organise des événements pour la communauté !')}</p>
-        <div style="margin:0 auto 20px;max-width:340px">
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🏨</span><span style="${_s.btxt}">Auberges recommandées par la communauté dans chaque ville avec avis et photos</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">💰</span><span style="${_s.btxt}">-15% sur les réservations en utilisant tes points SpotHitch (2 000 pts = code de réduction)</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🏷️</span><span style="${_s.btxt}">Filtres par ambiance : Festif, Calme, Budget, Social, Éco. Trouve l'auberge qui te correspond</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🎉</span><span style="${_s.btxt}">Organise des meetups, courses, festivals et ateliers pour la communauté (+40 pts par événement)</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📍</span><span style="${_s.btxt}">Découvre les événements autour de toi et inscris-toi en un clic</span></div>
+    <div class="${_c.wrap}">
+      <button onclick="closeHostelsDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+      <div id="hostels-demo-intro" class="${_c.intro} ${_cIntro}">
+        <div class="text-5xl mb-3">🏨</div>
+        <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('hostelsDemoIntroTitle') || 'Auberges & Événements')}</h2>
+        <p class="text-[0.82rem] text-slate-400 leading-normal m-0 mb-4">${escapeHTML(t('hostelsDemoIntroDesc') || 'Dors pas cher avec -15% chez nos partenaires et organise des événements pour la communauté !')}</p>
+        <div class="mx-auto mb-5 max-w-[340px]">
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🏨</span><span class="${_c.btxt}">Auberges recommandées par la communauté dans chaque ville avec avis et photos</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">💰</span><span class="${_c.btxt}">-15% sur les réservations en utilisant tes points SpotHitch (2 000 pts = code de réduction)</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🏷️</span><span class="${_c.btxt}">Filtres par ambiance : Festif, Calme, Budget, Social, Éco. Trouve l'auberge qui te correspond</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🎉</span><span class="${_c.btxt}">Organise des meetups, courses, festivals et ateliers pour la communauté (+40 pts par événement)</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📍</span><span class="${_c.btxt}">Découvre les événements autour de toi et inscris-toi en un clic</span></div>
         </div>
-        <button onclick="startHostelsDemo()" style="${_s.btn}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
+        <button onclick="startHostelsDemo()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
       </div>
-      <div id="hostels-demo-main" style="display:none"></div>
+      <div id="hostels-demo-main" class="hidden"></div>
     </div>
   `
   document.body.appendChild(ov)
@@ -511,50 +518,50 @@ window.startHostelsDemo = () => {
   intro.style.display = 'none'
   main.style.display = 'block'
   main.innerHTML = `
-    <div data-demo="overlay" style="${_s.demo}">
-      <div style="${_s.tabs}">
+    <div data-demo="overlay" class="${_c.demo}">
+      <div class="${_c.tabs}">
         <span class="cd-tab cd-tab-active" onclick="switchDemoTab(this,'htl-hostels')" role="button" tabindex="0">🏨 Auberges</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'htl-events')" role="button" tabindex="0">🎉 Événements</span>
         <span class="cd-tab" onclick="switchDemoTab(this,'htl-create')" role="button" tabindex="0">✏️ Créer un event</span>
       </div>
 
       <!-- Auberges -->
-      <div data-cd-panel="htl-hostels" style="display:block">
-        <div style="display:flex;gap:4px;margin-bottom:6px;overflow-x:auto;padding-bottom:2px">
-          <span style="padding:4px 10px;border-radius:10px;font-size:0.58rem;font-weight:600;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:#fbbf24">🇫🇷 Paris</span>
-          <span style="padding:4px 10px;border-radius:10px;font-size:0.58rem;font-weight:600;background:#1a2332;color:#94a3b8">🇪🇸 Barcelona</span>
-          <span style="padding:4px 10px;border-radius:10px;font-size:0.58rem;font-weight:600;background:#1a2332;color:#94a3b8">🇩🇪 Berlin</span>
-          <span style="padding:4px 10px;border-radius:10px;font-size:0.58rem;font-weight:600;background:#1a2332;color:#94a3b8">🇳🇱 Amsterdam</span>
+      <div data-cd-panel="htl-hostels" class="block">
+        <div class="flex gap-1 mb-1.5 overflow-x-auto pb-0.5">
+          <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/30">🇫🇷 Paris</span>
+          <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold bg-dark-secondary text-slate-400">🇪🇸 Barcelona</span>
+          <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold bg-dark-secondary text-slate-400">🇩🇪 Berlin</span>
+          <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold bg-dark-secondary text-slate-400">🇳🇱 Amsterdam</span>
         </div>
-        <div style="display:flex;gap:3px;margin-bottom:6px;flex-wrap:wrap">
-          <span style="padding:3px 8px;border-radius:10px;font-size:0.52rem;font-weight:600;border:1px solid rgba(251,191,36,0.3);color:#fbbf24">Tous</span>
-          <span style="padding:3px 8px;border-radius:10px;font-size:0.52rem;font-weight:600;background:#1a2332;color:#94a3b8">🎉 Festif</span>
-          <span style="padding:3px 8px;border-radius:10px;font-size:0.52rem;font-weight:600;background:#1a2332;color:#94a3b8">😴 Calme</span>
-          <span style="padding:3px 8px;border-radius:10px;font-size:0.52rem;font-weight:600;background:#1a2332;color:#94a3b8">💰 Budget</span>
+        <div class="flex gap-[3px] mb-1.5 flex-wrap">
+          <span class="py-[3px] px-2 rounded-[10px] text-[0.52rem] font-semibold text-amber-400 border border-amber-400/30">Tous</span>
+          <span class="py-[3px] px-2 rounded-[10px] text-[0.52rem] font-semibold bg-dark-secondary text-slate-400">🎉 Festif</span>
+          <span class="py-[3px] px-2 rounded-[10px] text-[0.52rem] font-semibold bg-dark-secondary text-slate-400">😴 Calme</span>
+          <span class="py-[3px] px-2 rounded-[10px] text-[0.52rem] font-semibold bg-dark-secondary text-slate-400">💰 Budget</span>
         </div>
-        <div style="${_s.card};border-left:3px solid #fbbf24;font-size:0.62rem;color:#94a3b8;margin-bottom:6px">💡 <strong>Réduction SpotHitch</strong> : utilise tes points pour -15% chez nos partenaires !</div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="width:36px;height:36px;border-radius:10px;background:rgba(34,197,94,0.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🌿</span><div style="flex:1"><div style="font-weight:700;font-size:0.78rem">Le Village Hostel</div><div style="font-size:0.55rem;color:#94a3b8">📍 Montmartre · Vue Sacré-Cœur</div><div style="display:flex;gap:3px;margin-top:2px"><span style="font-size:0.48rem;font-weight:600;padding:1px 5px;border-radius:4px;background:rgba(34,197,94,0.12);color:#22c55e">🌿 Éco</span><span style="font-size:0.48rem;font-weight:600;padding:1px 5px;border-radius:4px;background:rgba(245,158,11,0.12);color:#f59e0b">💰 Budget</span></div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">16€</div><div style="font-size:0.55rem;color:#64748b;text-decoration:line-through">19€</div><div style="font-size:0.48rem;color:#22c55e;font-weight:700">-15% SpotHitch</div></div></div><div style="display:flex;gap:5px;font-size:0.55rem;color:#64748b"><span style="color:#fbbf24">⭐ 4.6</span><span>🛏️ Dortoir 6</span><span>🍳 Petit-déj</span><span>📶 WiFi</span></div></div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="width:36px;height:36px;border-radius:10px;background:rgba(236,72,153,0.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🎉</span><div style="flex:1"><div style="font-weight:700;font-size:0.78rem">St Christopher's Inn</div><div style="font-size:0.55rem;color:#94a3b8">📍 Gare du Nord · Bar intégré</div><div style="display:flex;gap:3px;margin-top:2px"><span style="font-size:0.48rem;font-weight:600;padding:1px 5px;border-radius:4px;background:rgba(236,72,153,0.12);color:#ec4899">🎉 Festif</span><span style="font-size:0.48rem;font-weight:600;padding:1px 5px;border-radius:4px;background:rgba(59,130,246,0.12);color:#3b82f6">🤝 Social</span></div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">19€</div><div style="font-size:0.55rem;color:#64748b;text-decoration:line-through">22€</div><div style="font-size:0.48rem;color:#22c55e;font-weight:700">-15% SpotHitch</div></div></div><div style="display:flex;gap:5px;font-size:0.55rem;color:#64748b"><span style="color:#fbbf24">⭐ 4.4</span><span>🛏️ Dortoir 8</span><span>🍺 Bar</span><span>🎵 DJ</span></div></div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="width:36px;height:36px;border-radius:10px;background:rgba(99,102,241,0.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">😴</span><div style="flex:1"><div style="font-weight:700;font-size:0.78rem">Generator Paris</div><div style="font-size:0.55rem;color:#94a3b8">📍 Colonel Fabien · Rooftop</div><div style="display:flex;gap:3px;margin-top:2px"><span style="font-size:0.48rem;font-weight:600;padding:1px 5px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8">😴 Calme</span></div></div><div style="text-align:right"><div style="font-weight:800;color:#22c55e">24€</div><div style="font-size:0.55rem;color:#64748b;text-decoration:line-through">28€</div><div style="font-size:0.48rem;color:#22c55e;font-weight:700">-15% SpotHitch</div></div></div><div style="display:flex;gap:5px;font-size:0.55rem;color:#64748b"><span style="color:#fbbf24">⭐ 4.7</span><span>🛏️ Dortoir 4</span><span>🌅 Rooftop</span><span>☕ Café</span></div></div>
+        <div class="${_c.card} border-l-[3px] border-l-amber-400 text-[0.62rem] text-slate-400 mb-1.5">💡 <strong>Réduction SpotHitch</strong> : utilise tes points pour -15% chez nos partenaires !</div>
+        <div class="${_c.card} p-2.5"><div class="flex items-center gap-2 mb-1.5"><span class="w-9 h-9 rounded-[10px] flex items-center justify-center text-[1.1rem] shrink-0 bg-emerald-500/10">🌿</span><div class="flex-1"><div class="font-bold text-[0.78rem]">Le Village Hostel</div><div class="text-[0.55rem] text-slate-400">📍 Montmartre · Vue Sacré-Cœur</div><div class="flex gap-[3px] mt-0.5"><span class="text-[0.48rem] font-semibold px-[5px] py-px rounded text-emerald-500 bg-emerald-500/[0.12]">🌿 Éco</span><span class="text-[0.48rem] font-semibold px-[5px] py-px rounded text-amber-500 bg-amber-500/[0.12]">💰 Budget</span></div></div><div class="text-right"><div class="font-extrabold text-emerald-500">16€</div><div class="text-[0.55rem] text-slate-500 line-through">19€</div><div class="text-[0.48rem] text-emerald-500 font-bold">-15% SpotHitch</div></div></div><div class="flex gap-[5px] text-[0.55rem] text-slate-500"><span class="text-amber-400">⭐ 4.6</span><span>🛏️ Dortoir 6</span><span>🍳 Petit-déj</span><span>📶 WiFi</span></div></div>
+        <div class="${_c.card} p-2.5"><div class="flex items-center gap-2 mb-1.5"><span class="w-9 h-9 rounded-[10px] flex items-center justify-center text-[1.1rem] shrink-0 bg-pink-500/10">🎉</span><div class="flex-1"><div class="font-bold text-[0.78rem]">St Christopher's Inn</div><div class="text-[0.55rem] text-slate-400">📍 Gare du Nord · Bar intégré</div><div class="flex gap-[3px] mt-0.5"><span class="text-[0.48rem] font-semibold px-[5px] py-px rounded text-pink-500 bg-pink-500/[0.12]">🎉 Festif</span><span class="text-[0.48rem] font-semibold px-[5px] py-px rounded text-blue-500 bg-blue-500/[0.12]">🤝 Social</span></div></div><div class="text-right"><div class="font-extrabold text-emerald-500">19€</div><div class="text-[0.55rem] text-slate-500 line-through">22€</div><div class="text-[0.48rem] text-emerald-500 font-bold">-15% SpotHitch</div></div></div><div class="flex gap-[5px] text-[0.55rem] text-slate-500"><span class="text-amber-400">⭐ 4.4</span><span>🛏️ Dortoir 8</span><span>🍺 Bar</span><span>🎵 DJ</span></div></div>
+        <div class="${_c.card} p-2.5"><div class="flex items-center gap-2 mb-1.5"><span class="w-9 h-9 rounded-[10px] flex items-center justify-center text-[1.1rem] shrink-0 bg-indigo-500/10">😴</span><div class="flex-1"><div class="font-bold text-[0.78rem]">Generator Paris</div><div class="text-[0.55rem] text-slate-400">📍 Colonel Fabien · Rooftop</div><div class="flex gap-[3px] mt-0.5"><span class="text-[0.48rem] font-semibold px-[5px] py-px rounded bg-indigo-500/[0.12] text-indigo-400">😴 Calme</span></div></div><div class="text-right"><div class="font-extrabold text-emerald-500">24€</div><div class="text-[0.55rem] text-slate-500 line-through">28€</div><div class="text-[0.48rem] text-emerald-500 font-bold">-15% SpotHitch</div></div></div><div class="flex gap-[5px] text-[0.55rem] text-slate-500"><span class="text-amber-400">⭐ 4.7</span><span>🛏️ Dortoir 4</span><span>🌅 Rooftop</span><span>☕ Café</span></div></div>
       </div>
 
       <!-- Événements -->
-      <div data-cd-panel="htl-events" style="display:none">
-        <div style="${_s.card};border:1px solid rgba(236,72,153,0.2);padding:10px"><div style="display:flex;gap:8px;align-items:start;margin-bottom:4px"><span style="font-size:1.2rem">🏁</span><div><div style="font-weight:700;font-size:0.78rem">Course Paris → Barcelone</div><div style="font-size:0.58rem;color:#fbbf24;font-weight:600">15-17 mars 2026</div></div></div><div style="font-size:0.62rem;color:#94a3b8;margin-bottom:4px">Course officielle ! 12 autostoppeurs, classement live.</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.55rem;color:#64748b">👥 12/20 · 🏆 50€</div><span style="background:rgba(34,197,94,0.15);color:#22c55e;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:6px">✅ Inscrit</span></div></div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;gap:8px;align-items:start;margin-bottom:4px"><span style="font-size:1.2rem">🍻</span><div><div style="font-weight:700;font-size:0.78rem">Meetup Paris</div><div style="font-size:0.58rem;color:#fbbf24;font-weight:600">22 mars 2026 · 19h</div></div></div><div style="font-size:0.62rem;color:#94a3b8;margin-bottom:4px">Rencontre mensuelle. Partage tes aventures, bière offerte !</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.55rem;color:#64748b">👥 28 · 🆓 Gratuit</div><span style="background:rgba(251,191,36,0.15);color:#fbbf24;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:6px">👋 J'y vais !</span></div></div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;gap:8px;align-items:start;margin-bottom:4px"><span style="font-size:1.2rem">🏕️</span><div><div style="font-weight:700;font-size:0.78rem">Festival Nomade · Ardèche</div><div style="font-size:0.58rem;color:#fbbf24;font-weight:600">12-14 avril 2026</div></div></div><div style="font-size:0.62rem;color:#94a3b8;margin-bottom:4px">Camping + ateliers. Débutants bienvenus !</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.55rem;color:#64748b">👥 45 · 💰 15€</div><span style="background:rgba(251,191,36,0.15);color:#fbbf24;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:6px">👋 J'y vais !</span></div></div>
-        <div style="${_s.card};padding:10px"><div style="display:flex;gap:8px;align-items:start;margin-bottom:4px"><span style="font-size:1.2rem">🌍</span><div><div style="font-weight:700;font-size:0.78rem">Rassemblement Européen · Bruxelles</div><div style="font-size:0.58rem;color:#fbbf24;font-weight:600">1-3 mai 2026</div></div></div><div style="font-size:0.62rem;color:#94a3b8;margin-bottom:4px">200+ participants, 15 pays, conférences, courses.</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.55rem;color:#64748b">👥 142 · 🌐 15 pays</div><span style="background:rgba(251,191,36,0.15);color:#fbbf24;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:6px">👋 J'y vais !</span></div></div>
+      <div data-cd-panel="htl-events" class="hidden">
+        <div class="${_c.card} p-2.5 border border-pink-500/20"><div class="flex gap-2 items-start mb-1"><span class="text-[1.2rem]">🏁</span><div><div class="font-bold text-[0.78rem]">Course Paris → Barcelone</div><div class="text-[0.58rem] text-amber-400 font-semibold">15-17 mars 2026</div></div></div><div class="text-[0.62rem] text-slate-400 mb-1">Course officielle ! 12 autostoppeurs, classement live.</div><div class="flex justify-between items-center"><div class="text-[0.55rem] text-slate-500">👥 12/20 · 🏆 50€</div><span class="text-[0.6rem] font-bold px-2.5 py-1 rounded-md bg-green-500/15 text-green-500">✅ Inscrit</span></div></div>
+        <div class="${_c.card} p-2.5"><div class="flex gap-2 items-start mb-1"><span class="text-[1.2rem]">🍻</span><div><div class="font-bold text-[0.78rem]">Meetup Paris</div><div class="text-[0.58rem] text-amber-400 font-semibold">22 mars 2026 · 19h</div></div></div><div class="text-[0.62rem] text-slate-400 mb-1">Rencontre mensuelle. Partage tes aventures, bière offerte !</div><div class="flex justify-between items-center"><div class="text-[0.55rem] text-slate-500">👥 28 · 🆓 Gratuit</div><span class="text-[0.6rem] font-bold px-2.5 py-1 rounded-md bg-amber-400/15 text-amber-400">👋 J'y vais !</span></div></div>
+        <div class="${_c.card} p-2.5"><div class="flex gap-2 items-start mb-1"><span class="text-[1.2rem]">🏕️</span><div><div class="font-bold text-[0.78rem]">Festival Nomade · Ardèche</div><div class="text-[0.58rem] text-amber-400 font-semibold">12-14 avril 2026</div></div></div><div class="text-[0.62rem] text-slate-400 mb-1">Camping + ateliers. Débutants bienvenus !</div><div class="flex justify-between items-center"><div class="text-[0.55rem] text-slate-500">👥 45 · 💰 15€</div><span class="text-[0.6rem] font-bold px-2.5 py-1 rounded-md bg-amber-400/15 text-amber-400">👋 J'y vais !</span></div></div>
+        <div class="${_c.card} p-2.5"><div class="flex gap-2 items-start mb-1"><span class="text-[1.2rem]">🌍</span><div><div class="font-bold text-[0.78rem]">Rassemblement Européen · Bruxelles</div><div class="text-[0.58rem] text-amber-400 font-semibold">1-3 mai 2026</div></div></div><div class="text-[0.62rem] text-slate-400 mb-1">200+ participants, 15 pays, conférences, courses.</div><div class="flex justify-between items-center"><div class="text-[0.55rem] text-slate-500">👥 142 · 🌐 15 pays</div><span class="text-[0.6rem] font-bold px-2.5 py-1 rounded-md bg-amber-400/15 text-amber-400">👋 J'y vais !</span></div></div>
       </div>
 
       <!-- Créer un event -->
-      <div data-cd-panel="htl-create" style="display:none">
-        <div style="${_s.card};border-left:3px solid #fbbf24;font-size:0.62rem;color:#94a3b8;margin-bottom:8px">💡 Organise un meetup, une course ou un atelier pour la communauté ! <span style="color:#fbbf24;font-weight:600">+40 pts</span></div>
-        <div style="margin-bottom:8px"><div style="font-size:0.65rem;font-weight:600;margin-bottom:3px">🎯 Type d'événement</div><div style="display:flex;gap:3px;flex-wrap:wrap"><span style="padding:4px 10px;border-radius:10px;font-size:0.55rem;font-weight:600;border:1px solid rgba(251,191,36,0.3);color:#fbbf24">🍻 Meetup</span><span style="padding:4px 10px;border-radius:10px;font-size:0.55rem;font-weight:600;background:#1a2332;color:#94a3b8">🏁 Course</span><span style="padding:4px 10px;border-radius:10px;font-size:0.55rem;font-weight:600;background:#1a2332;color:#94a3b8">🏕️ Festival</span><span style="padding:4px 10px;border-radius:10px;font-size:0.55rem;font-weight:600;background:#1a2332;color:#94a3b8">📚 Atelier</span></div></div>
-        <div style="margin-bottom:6px"><div style="font-size:0.65rem;font-weight:600;margin-bottom:3px">📝 Nom</div><div style="${_s.card}">Meetup Autostoppeurs Toulouse</div></div>
-        <div style="margin-bottom:6px"><div style="font-size:0.65rem;font-weight:600;margin-bottom:3px">📅 Date</div><div style="${_s.card}">29 mars 2026 · 19h00</div></div>
-        <div style="margin-bottom:6px"><div style="font-size:0.65rem;font-weight:600;margin-bottom:3px">📍 Lieu</div><div style="${_s.card}">Bar Le Petit Vélo, Toulouse</div></div>
-        <div style="margin-bottom:6px"><div style="font-size:0.65rem;font-weight:600;margin-bottom:3px">📝 Description</div><div style="${_s.card}">Première rencontre des autostoppeurs toulousains ! Venez partager vos aventures et trouver des compagnons de route.</div></div>
-        <div style="display:block;background:linear-gradient(135deg,#fbbf24,#d97706);color:#0f1520;font-weight:700;text-align:center;padding:10px;border-radius:10px;margin-top:8px;font-size:0.75rem">🎉 Créer l'événement · +40 pts</div>
+      <div data-cd-panel="htl-create" class="hidden">
+        <div class="${_c.card} border-l-[3px] border-l-amber-400 text-[0.62rem] text-slate-400 mb-2">💡 Organise un meetup, une course ou un atelier pour la communauté ! <span class="text-amber-400 font-semibold">+40 pts</span></div>
+        <div class="mb-2"><div class="text-[0.65rem] font-semibold mb-[3px]">🎯 Type d'événement</div><div class="flex gap-[3px] flex-wrap"><span class="px-2.5 py-1 rounded-[10px] text-[0.55rem] font-semibold text-amber-400 border border-amber-400/30">🍻 Meetup</span><span class="px-2.5 py-1 rounded-[10px] text-[0.55rem] font-semibold bg-dark-secondary text-slate-400">🏁 Course</span><span class="px-2.5 py-1 rounded-[10px] text-[0.55rem] font-semibold bg-dark-secondary text-slate-400">🏕️ Festival</span><span class="px-2.5 py-1 rounded-[10px] text-[0.55rem] font-semibold bg-dark-secondary text-slate-400">📚 Atelier</span></div></div>
+        <div class="mb-1.5"><div class="text-[0.65rem] font-semibold mb-[3px]">📝 Nom</div><div class="${_c.card}">Meetup Autostoppeurs Toulouse</div></div>
+        <div class="mb-1.5"><div class="text-[0.65rem] font-semibold mb-[3px]">📅 Date</div><div class="${_c.card}">29 mars 2026 · 19h00</div></div>
+        <div class="mb-1.5"><div class="text-[0.65rem] font-semibold mb-[3px]">📍 Lieu</div><div class="${_c.card}">Bar Le Petit Vélo, Toulouse</div></div>
+        <div class="mb-1.5"><div class="text-[0.65rem] font-semibold mb-[3px]">📝 Description</div><div class="${_c.card}">Première rencontre des autostoppeurs toulousains ! Venez partager vos aventures et trouver des compagnons de route.</div></div>
+        <div class="block text-dark-primary font-bold text-center p-2.5 rounded-[10px] mt-2 text-xs" style="background:linear-gradient(135deg,#fbbf24,#d97706)">🎉 Créer l'événement · +40 pts</div>
       </div>
     </div>
   `
@@ -564,22 +571,22 @@ window.startHostelsDemo = () => {
 window.showSpotDemo = () => {
   const ov = _createDemo('spot-demo-overlay')
   ov.innerHTML = `
-    <div style="${_s.wrap}">
-      <button onclick="closeSpotDemo()" style="${_s.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
-      <div id="spot-demo-intro" style="${_s.intro}">
-        <div style="font-size:3rem;margin-bottom:12px">📍</div>
-        <h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin:0 0 8px">${escapeHTML(t('spotDemoIntroTitle') || 'Nouvelle fiche spot')}</h2>
-        <p style="font-size:0.82rem;color:#94a3b8;line-height:1.5;margin:0 0 16px">${escapeHTML(t('spotDemoIntroDesc') || 'Voici à quoi ressemblera un spot complet avec toutes les infos, photos, avis et outils de la communauté.')}</p>
-        <div style="margin:0 auto 20px;max-width:340px">
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📸</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet1') || 'Galerie photos cliquable. Vois le spot sous tous les angles avant d\'y aller')}</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">✅</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet2') || 'Valider = confirmer que le spot existe (en passant), Tester = donner ton avis complet (après du stop)')}</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">🏅</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet3') || 'Badges de statut : Basique → Fiable → Certifié → Spot d\'Or selon les validations et avis')}</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">💡</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet4') || 'Tips d\'experts, meilleurs créneaux, spots alternatifs proches et urgences, tout en un')}</span></div>
-          <div style="${_s.bullet}"><span style="${_s.bicon}">📍</span><span style="${_s.btxt}">${escapeHTML(t('spotDemoBullet5') || 'Ouvre directement dans Google Maps pour y aller à pied. Un seul bouton')}</span></div>
+    <div class="${_c.wrap}">
+      <button onclick="closeSpotDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+      <div id="spot-demo-intro" class="${_c.intro} ${_cIntro}">
+        <div class="text-5xl mb-3">📍</div>
+        <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('spotDemoIntroTitle') || 'Nouvelle fiche spot')}</h2>
+        <p class="text-[0.82rem] text-slate-400 leading-normal m-0 mb-4">${escapeHTML(t('spotDemoIntroDesc') || 'Voici à quoi ressemblera un spot complet avec toutes les infos, photos, avis et outils de la communauté.')}</p>
+        <div class="mx-auto mb-5 max-w-[340px]">
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📸</span><span class="${_c.btxt}">${escapeHTML(t('spotDemoBullet1') || 'Galerie photos cliquable. Vois le spot sous tous les angles avant d\'y aller')}</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">✅</span><span class="${_c.btxt}">${escapeHTML(t('spotDemoBullet2') || 'Valider = confirmer que le spot existe (en passant), Tester = donner ton avis complet (après du stop)')}</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">🏅</span><span class="${_c.btxt}">${escapeHTML(t('spotDemoBullet3') || 'Badges de statut : Basique → Fiable → Certifié → Spot d\'Or selon les validations et avis')}</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">💡</span><span class="${_c.btxt}">${escapeHTML(t('spotDemoBullet4') || 'Tips d\'experts, meilleurs créneaux, spots alternatifs proches et urgences, tout en un')}</span></div>
+          <div class="${_c.bullet}"><span class="${_c.bicon}">📍</span><span class="${_c.btxt}">${escapeHTML(t('spotDemoBullet5') || 'Ouvre directement dans Google Maps pour y aller à pied. Un seul bouton')}</span></div>
         </div>
-        <button onclick="startSpotDemo()" style="${_s.btn}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
+        <button onclick="startSpotDemo()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button>
       </div>
-      <div id="spot-demo-main" style="display:none"></div>
+      <div id="spot-demo-main" class="hidden"></div>
     </div>
   `
   document.body.appendChild(ov)
@@ -595,29 +602,45 @@ window.startSpotDemo = () => {
   main.style.display = 'block'
 
   const _spot = {
-    brd: 'border-radius:18px',
-    photoWrap: 'position:relative;aspect-ratio:2/1;cursor:pointer;border-radius:16px;overflow:hidden',
-    gradient: 'position:absolute;inset:0;background:linear-gradient(to top,rgba(15,21,32,.9) 5%,transparent 50%);border-radius:16px',
-    statusBadge: 'display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:0.6rem;font-weight:700',
+    brd: 'rounded-[18px]',
+    photoWrap: 'relative cursor-pointer rounded-2xl overflow-hidden',
+    gradient: 'absolute inset-0 rounded-2xl',
+    statusBadge: 'inline-flex items-center gap-[5px] px-3 py-[5px] rounded-[20px] text-[0.6rem] font-bold',
+    statusGreenCrown: '',
+    score: 'w-11 h-11 rounded-full flex items-center justify-center text-base font-black text-white',
+    btnV: 'flex-1 px-1.5 py-3 rounded-[20px] border-none cursor-pointer text-white font-extrabold text-[0.78rem] flex flex-col items-center gap-0.5',
+    btnT: 'flex-1 px-1.5 py-3 rounded-[20px] border-none cursor-pointer text-dark-primary font-extrabold text-[0.78rem] flex flex-col items-center gap-0.5',
+    btnM: 'flex items-center justify-center gap-2 w-full py-[11px] rounded-[20px] border-none cursor-pointer font-extrabold text-[0.78rem] text-white',
+    dateCard: 'p-2 rounded-[14px]',
+    metric: 'px-1 py-2 rounded-[14px] text-center border border-white/[0.06]',
+    badge: 'inline-flex items-center gap-[3px] px-2 py-0.5 rounded-[20px] text-[0.55rem] font-semibold',
+    bg: '',
+    ba: '',
+    bb: '',
+    sum: 'px-3 py-2 border border-white/[0.08] rounded-[14px] text-[0.72rem] font-semibold cursor-pointer flex justify-between items-center',
+    inner: 'px-2.5 py-2 rounded-xl',
+    secBtn: 'flex-1 flex items-center justify-center gap-1 p-2 rounded-2xl text-[0.6rem] font-bold border border-white/[0.12] bg-white/5 text-white cursor-pointer',
+  }
+
+  // Styles that require inline CSS (gradients, complex backgrounds, box-shadows)
+  const _spotStyles = {
     statusGreenCrown: 'background:#065f46;color:#6ee7b7;border:2px solid #34d399',
-    score: 'width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;border:3px solid rgba(15,21,32,.8)',
-    btnV: 'flex:1;padding:12px 6px;border-radius:20px;border:none;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;font-size:0.78rem;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 4px 12px rgba(16,185,129,.3)',
-    btnT: 'flex:1;padding:12px 6px;border-radius:20px;border:none;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0f1520;font-weight:800;font-size:0.78rem;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 4px 12px rgba(245,158,11,.3)',
-    btnM: 'display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border-radius:20px;border:none;cursor:pointer;font-weight:800;font-size:0.78rem;background:linear-gradient(135deg,#4285f4,#1a73e8);color:#fff;box-shadow:0 4px 12px rgba(66,133,244,.3)',
-    dateCard: 'padding:8px;border-radius:14px',
-    metric: 'padding:8px 4px;border-radius:14px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)',
-    badge: 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:0.55rem;font-weight:600',
+    score: 'background:linear-gradient(135deg,#10b981,#059669);border:3px solid rgba(15,21,32,.8)',
+    btnV: 'background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 12px rgba(16,185,129,.3)',
+    btnT: 'background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 12px rgba(245,158,11,.3)',
+    btnM: 'background:linear-gradient(135deg,#4285f4,#1a73e8);box-shadow:0 4px 12px rgba(66,133,244,.3)',
+    gradient: 'background:linear-gradient(to top,rgba(15,21,32,.9) 5%,transparent 50%)',
     bg: 'background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2)',
     ba: 'background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2)',
     bb: 'background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.2)',
-    sum: 'padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;font-size:0.72rem;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center',
-    inner: 'padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.03)',
-    secBtn: 'flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;border-radius:16px;font-size:0.6rem;font-weight:700;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#fff;cursor:pointer',
+    metric: 'background:rgba(255,255,255,.03)',
+    sum: 'background:rgba(255,255,255,.03)',
+    inner: 'background:rgba(255,255,255,.03)',
   }
 
   main.innerHTML = `
-    <div data-demo="overlay" style="${_s.demo};padding:10px;border-radius:22px">
-      <div style="${_s.tabs}">
+    <div data-demo="overlay" class="${_c.demo} p-2.5 rounded-[22px]">
+      <div class="${_c.tabs}">
         <span class="cd-tab cd-tab-active" onclick="switchSpotDemoTab(this,'spot-overview')" role="button" tabindex="0">📍 Aperçu</span>
         <span class="cd-tab" onclick="switchSpotDemoTab(this,'spot-details')" role="button" tabindex="0">📊 Détails</span>
         <span class="cd-tab" onclick="switchSpotDemoTab(this,'spot-community')" role="button" tabindex="0">💬 Communauté</span>
@@ -625,161 +648,161 @@ window.startSpotDemo = () => {
       </div>
 
       <!-- ===== TAB 1: APERÇU ===== -->
-      <div data-cd-panel="spot-overview" style="display:block">
+      <div data-cd-panel="spot-overview" class="block">
         <!-- Photo -->
-        <div style="padding:4px 4px 0;margin-bottom:8px">
-          <div style="${_spot.photoWrap}">
-            <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a2332,#0f1520);display:flex;align-items:center;justify-content:center;font-size:2rem">🏞️</div>
-            <div style="${_spot.gradient}"></div>
-            <div style="position:absolute;top:6px;left:6px;${_spot.statusBadge};${_spot.statusGreenCrown}"><span style="font-size:0.65rem">👑</span> Fiable certifié</div>
-            <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);padding:3px 8px;border-radius:12px;font-size:0.55rem;font-weight:600">📷 4 photos</div>
-            <div style="position:absolute;bottom:8px;left:8px">
-              <div style="font-size:0.9rem;font-weight:800">Namur → Liège</div>
-              <div style="font-size:0.55rem;color:rgba(255,255,255,.5)">🏙️ Sortie de ville · E411 · 🇧🇪</div>
+        <div class="px-1 pt-1 mb-2">
+          <div class="${_spot.photoWrap} aspect-[2/1]">
+            <div class="w-full h-full flex items-center justify-center text-[2rem]" style="background:linear-gradient(135deg,#1a2332,#0f1520)">🏞️</div>
+            <div class="${_spot.gradient}" style="${_spotStyles.gradient}"></div>
+            <div class="absolute top-1.5 left-1.5 inline-flex items-center gap-[5px] px-3 py-[5px] rounded-[20px] text-[0.6rem] font-bold" style="${_spotStyles.statusGreenCrown}"><span class="text-[0.65rem]">👑</span> Fiable certifié</div>
+            <div class="absolute rounded-xl text-[0.55rem] font-semibold bottom-2 right-2 bg-black/60 px-2 py-[3px]">📷 4 photos</div>
+            <div class="absolute bottom-2 left-2">
+              <div class="text-[0.9rem] font-extrabold">Namur → Liège</div>
+              <div class="text-[0.55rem] text-white/50">🏙️ Sortie de ville · E411 · 🇧🇪</div>
             </div>
-            <div style="position:absolute;bottom:6px;right:50px;${_spot.score}">4.2</div>
+            <div class="${_spot.score} absolute bottom-1.5 right-[50px]" style="${_spotStyles.score}">4.2</div>
           </div>
         </div>
 
         <!-- Actions Valider / Testé -->
-        <div style="display:flex;gap:6px;margin-bottom:6px">
-          <button style="${_spot.btnV}"><span style="font-size:1.1rem">✅</span>Je valide<span style="font-size:0.5rem;font-weight:400;opacity:.7">Ce spot existe</span></button>
-          <button style="${_spot.btnT}"><span style="font-size:1.1rem">🤙</span>J'ai testé<span style="font-size:0.5rem;font-weight:400;opacity:.5">Donner mon avis</span></button>
+        <div class="flex gap-1.5 mb-1.5">
+          <button class="${_spot.btnV}" style="${_spotStyles.btnV}"><span class="text-[1.1rem]">✅</span>Je valide<span class="text-[0.5rem] font-normal opacity-70">Ce spot existe</span></button>
+          <button class="${_spot.btnT}" style="${_spotStyles.btnT}"><span class="text-[1.1rem]">🤙</span>J'ai testé<span class="text-[0.5rem] font-normal opacity-50">Donner mon avis</span></button>
         </div>
 
         <!-- Google Maps -->
-        <button style="${_spot.btnM};margin-bottom:8px">📍 Ouvrir dans Google Maps</button>
+        <button class="${_spot.btnM} mb-2" style="${_spotStyles.btnM}">📍 Ouvrir dans Google Maps</button>
 
         <!-- Dates -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-          <div style="${_spot.dateCard};background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.1)">
-            <div style="font-size:0.5rem;color:#475569">✅ Dernière validation</div>
-            <div style="font-size:0.65rem;font-weight:700;color:#6ee7b7">il y a 2 sem.</div>
-            <div style="font-size:0.5rem;color:#475569">par @TravelMarc</div>
+        <div class="grid grid-cols-2 gap-1.5 mb-2">
+          <div class="${_spot.dateCard} bg-emerald-500/5 border border-emerald-500/10">
+            <div class="text-[0.5rem] text-[#475569]">✅ Dernière validation</div>
+            <div class="text-[0.65rem] font-bold text-[#6ee7b7]">il y a 2 sem.</div>
+            <div class="text-[0.5rem] text-[#475569]">par @TravelMarc</div>
           </div>
-          <div style="${_spot.dateCard};background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.1)">
-            <div style="font-size:0.5rem;color:#475569">🤙 Dernier test</div>
-            <div style="font-size:0.65rem;font-weight:700;color:#fbbf24">il y a 3 jours</div>
-            <div style="font-size:0.5rem;color:#475569">@BenTheRoad · ★★★★★</div>
+          <div class="${_spot.dateCard} bg-amber-500/5 border border-amber-500/10">
+            <div class="text-[0.5rem] text-[#475569]">🤙 Dernier test</div>
+            <div class="text-[0.65rem] font-bold text-amber-400">il y a 3 jours</div>
+            <div class="text-[0.5rem] text-[#475569]">@BenTheRoad · ★★★★★</div>
           </div>
         </div>
 
         <!-- Météo + Légal -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,.02);border-radius:16px;margin-bottom:8px;font-size:0.65rem">
-          <span>⛅ 14°C <span style="${_spot.badge};${_spot.bg};font-size:0.45rem">👍</span></span>
-          <span style="${_spot.badge};${_spot.bg}">⚖️ Légal</span>
-          <span style="${_spot.badge};${_spot.ba}">🌸 Printemps</span>
+        <div class="flex justify-between items-center px-2.5 py-1.5 rounded-2xl mb-2 text-[0.65rem] bg-white/[0.02]">
+          <span>⛅ 14°C <span class="${_spot.badge} text-[0.45rem]" style="${_spotStyles.bg}">👍</span></span>
+          <span class="${_spot.badge}" style="${_spotStyles.bg}">⚖️ Légal</span>
+          <span class="${_spot.badge}" style="${_spotStyles.ba}">🌸 Printemps</span>
         </div>
 
         <!-- 4 Métriques -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:8px">
-          <div style="${_spot.metric}"><div style="font-size:0.55rem;color:#475569">⏱️</div><div style="font-size:0.7rem;font-weight:800;color:#f59e0b">8 min</div></div>
-          <div style="${_spot.metric}"><div style="font-size:0.55rem;color:#475569">🛡️</div><div style="font-size:0.7rem;font-weight:800;color:#10b981">4/5</div></div>
-          <div style="${_spot.metric}"><div style="font-size:0.55rem;color:#475569">🎯</div><div style="font-size:0.7rem;font-weight:800;color:#10b981">87%</div></div>
-          <div style="${_spot.metric}"><div style="font-size:0.55rem;color:#475569">✅</div><div style="font-size:0.7rem;font-weight:800;color:#3b82f6">12</div></div>
+        <div class="grid grid-cols-4 gap-1 mb-2">
+          <div class="${_spot.metric}" style="${_spotStyles.metric}"><div class="text-[0.55rem] text-[#475569]">⏱️</div><div class="text-[0.7rem] font-extrabold text-amber-500">8 min</div></div>
+          <div class="${_spot.metric}" style="${_spotStyles.metric}"><div class="text-[0.55rem] text-[#475569]">🛡️</div><div class="text-[0.7rem] font-extrabold text-emerald-600">4/5</div></div>
+          <div class="${_spot.metric}" style="${_spotStyles.metric}"><div class="text-[0.55rem] text-[#475569]">🎯</div><div class="text-[0.7rem] font-extrabold text-emerald-600">87%</div></div>
+          <div class="${_spot.metric}" style="${_spotStyles.metric}"><div class="text-[0.55rem] text-[#475569]">✅</div><div class="text-[0.7rem] font-extrabold text-blue-500">12</div></div>
         </div>
 
         <!-- Tags -->
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
-          <span style="${_spot.badge};${_spot.bg}">☂️ Abri</span>
-          <span style="${_spot.badge};${_spot.bg}">👁️ Visible</span>
-          <span style="${_spot.badge};${_spot.bg}">🅿️ Place</span>
-          <span style="${_spot.badge};${_spot.bb}">💡 Éclairé</span>
-          <span style="${_spot.badge};${_spot.ba}">🤙 Pouce</span>
+        <div class="flex flex-wrap gap-1 mb-2">
+          <span class="${_spot.badge}" style="${_spotStyles.bg}">☂️ Abri</span>
+          <span class="${_spot.badge}" style="${_spotStyles.bg}">👁️ Visible</span>
+          <span class="${_spot.badge}" style="${_spotStyles.bg}">🅿️ Place</span>
+          <span class="${_spot.badge}" style="${_spotStyles.bb}">💡 Éclairé</span>
+          <span class="${_spot.badge}" style="${_spotStyles.ba}">🤙 Pouce</span>
         </div>
 
         <!-- Actions secondaires -->
-        <div style="display:flex;gap:4px">
-          <div style="${_spot.secBtn}">🔖 Sauver</div>
-          <div style="${_spot.secBtn}">📤 Partager</div>
-          <div style="${_spot.secBtn}">🚩 Signaler</div>
+        <div class="flex gap-1">
+          <div class="${_spot.secBtn}">🔖 Sauver</div>
+          <div class="${_spot.secBtn}">📤 Partager</div>
+          <div class="${_spot.secBtn}">🚩 Signaler</div>
         </div>
       </div>
 
       <!-- ===== TAB 2: DÉTAILS ===== -->
-      <div data-cd-panel="spot-details" style="display:none">
-        <div style="${_s.secT}">📊 Notation détaillée</div>
-        <div style="${_s.card}">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.65rem">🛡️ Sécurité</span><span style="font-size:0.65rem;font-weight:700;color:#6ee7b7">4/5</span></div>
-          <div style="height:5px;background:#1e293b;border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:80%;background:#10b981;border-radius:3px"></div></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.65rem">🚗 Trafic</span><span style="font-size:0.65rem;font-weight:700;color:#6ee7b7">5/5</span></div>
-          <div style="height:5px;background:#1e293b;border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:100%;background:#f59e0b;border-radius:3px"></div></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.65rem">♿ Accessibilité</span><span style="font-size:0.65rem;font-weight:700;color:#fbbf24">3/5</span></div>
-          <div style="height:5px;background:#1e293b;border-radius:3px;overflow:hidden"><div style="height:100%;width:60%;background:#f59e0b;border-radius:3px"></div></div>
+      <div data-cd-panel="spot-details" class="hidden">
+        <div class="${_c.secT}">📊 Notation détaillée</div>
+        <div class="${_c.card}">
+          <div class="flex justify-between mb-1"><span class="text-[0.65rem]">🛡️ Sécurité</span><span class="text-[0.65rem] font-bold text-[#6ee7b7]">4/5</span></div>
+          <div class="h-[5px] bg-slate-800 rounded-[3px] overflow-hidden mb-2"><div class="h-full bg-emerald-600 rounded-[3px] w-[80%]"></div></div>
+          <div class="flex justify-between mb-1"><span class="text-[0.65rem]">🚗 Trafic</span><span class="text-[0.65rem] font-bold text-[#6ee7b7]">5/5</span></div>
+          <div class="h-[5px] bg-slate-800 rounded-[3px] overflow-hidden mb-2"><div class="h-full bg-amber-500 rounded-[3px] w-full"></div></div>
+          <div class="flex justify-between mb-1"><span class="text-[0.65rem]">♿ Accessibilité</span><span class="text-[0.65rem] font-bold text-amber-400">3/5</span></div>
+          <div class="h-[5px] bg-slate-800 rounded-[3px] overflow-hidden"><div class="h-full bg-amber-500 rounded-[3px] w-[60%]"></div></div>
         </div>
 
-        <div style="${_s.secT};margin-top:10px">🕐 Meilleurs créneaux</div>
-        <div style="${_s.card};background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15)">
-          <div style="font-size:0.72rem;font-weight:700;color:#6ee7b7">✨ Mardi–Vendredi 9h–12h</div>
-          <div style="font-size:0.58rem;color:#64748b;margin-top:2px">4 min d'attente vs 15 min le dimanche soir</div>
+        <div class="${_c.secT} mt-2.5">🕐 Meilleurs créneaux</div>
+        <div class="${_c.card} bg-emerald-500/5 border border-emerald-500/15">
+          <div class="text-[0.72rem] font-bold text-[#6ee7b7]">✨ Mardi–Vendredi 9h–12h</div>
+          <div class="text-[0.58rem] text-slate-500 mt-0.5">4 min d'attente vs 15 min le dimanche soir</div>
         </div>
 
-        <div style="${_s.secT};margin-top:10px">📊 Statuts des spots</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:#334155;color:#cbd5e1;border:1px solid #475569;font-size:0.5rem">📍</span><span style="font-size:0.5rem;color:#64748b">1+ avis</span></div>
-          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:#334155;color:#cbd5e1;border:2px solid #94a3b8;font-size:0.5rem">👑</span><span style="font-size:0.5rem;color:#64748b">Certifié</span></div>
-          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:#065f46;color:#6ee7b7;border:1px solid #10b981;font-size:0.5rem">⭐</span><span style="font-size:0.5rem;color:#64748b">3+ avis & valid.</span></div>
-          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};${_spot.statusGreenCrown};font-size:0.5rem">👑</span><span style="font-size:0.5rem;color:#64748b">Fiable certifié</span></div>
-          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444;font-size:0.5rem">⛽</span><span style="font-size:0.5rem;color:#64748b">Station</span></div>
-          <div style="${_s.card};display:flex;align-items:center;gap:6px;padding:6px 8px"><span style="${_spot.statusBadge};background:linear-gradient(135deg,#78350f,#92400e);color:#fde047;border:2px solid #eab308;font-size:0.5rem">✨</span><span style="font-size:0.5rem;color:#64748b">Spot d'Or</span></div>
+        <div class="${_c.secT} mt-2.5">📊 Statuts des spots</div>
+        <div class="grid grid-cols-2 gap-1">
+          <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] bg-slate-700 text-slate-300 border border-slate-600">📍</span><span class="text-[0.5rem] text-slate-500">1+ avis</span></div>
+          <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] bg-slate-700 text-slate-300 border-2 border-slate-400">👑</span><span class="text-[0.5rem] text-slate-500">Certifié</span></div>
+          <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] bg-[#065f46] text-[#6ee7b7] border border-emerald-500">⭐</span><span class="text-[0.5rem] text-slate-500">3+ avis & valid.</span></div>
+          <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem]" style="${_spotStyles.statusGreenCrown}">👑</span><span class="text-[0.5rem] text-slate-500">Fiable certifié</span></div>
+          <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] bg-red-900 text-red-300 border border-red-500">⛽</span><span class="text-[0.5rem] text-slate-500">Station</span></div>
+          <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] text-yellow-300 border-2 border-yellow-500" style="background:linear-gradient(135deg,#78350f,#92400e)">✨</span><span class="text-[0.5rem] text-slate-500">Spot d'Or</span></div>
         </div>
       </div>
 
       <!-- ===== TAB 3: COMMUNAUTÉ ===== -->
-      <div data-cd-panel="spot-community" style="display:none">
-        <div style="${_s.secT}">💡 Tips d'experts</div>
-        <div style="${_s.card};background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);margin-bottom:5px">
-          <div style="font-size:0.65rem"><strong style="color:#fbbf24">@TravelMarc :</strong> Se placer APRÈS le feu rouge. Les voitures tournent toutes vers l'E411.</div>
+      <div data-cd-panel="spot-community" class="hidden">
+        <div class="${_c.secT}">💡 Tips d'experts</div>
+        <div class="${_c.card} mb-[5px] bg-amber-500/5 border border-amber-500/15">
+          <div class="text-[0.65rem]"><strong class="text-amber-400">@TravelMarc :</strong> Se placer APRÈS le feu rouge. Les voitures tournent toutes vers l'E411.</div>
         </div>
-        <div style="${_s.card};background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15)">
-          <div style="font-size:0.65rem"><strong style="color:#fbbf24">@BenTheRoad :</strong> Écrire "LIÈGE" sur la pancarte, pas "E411".</div>
-        </div>
-
-        <div style="${_s.secT};margin-top:10px">💬 Avis communauté (12)</div>
-        <div style="${_s.card};margin-bottom:5px">
-          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px"><span>🤙</span><span style="font-size:0.68rem;font-weight:700;color:#fbbf24">@TravelMarc</span><span style="font-size:0.55rem;color:#64748b">★★★★★ · 5 min · Solo</span></div>
-          <div style="font-size:0.62rem;color:#94a3b8">Super spot ! Pris en 5 min un lundi matin. Je recommande.</div>
-        </div>
-        <div style="${_s.card}">
-          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px"><span>🌍</span><span style="font-size:0.68rem;font-weight:700;color:#fbbf24">@SarahVoyage</span><span style="font-size:0.55rem;color:#64748b">★★★★ · 12 min · Duo</span></div>
-          <div style="font-size:0.62rem;color:#94a3b8">Bon spot, un peu long à deux mais ça passe.</div>
+        <div class="${_c.card} bg-amber-500/5 border border-amber-500/15">
+          <div class="text-[0.65rem]"><strong class="text-amber-400">@BenTheRoad :</strong> Écrire "LIÈGE" sur la pancarte, pas "E411".</div>
         </div>
 
-        <div style="${_s.secT};margin-top:10px">📍 Spots alternatifs proches</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px">
-          <div style="width:26px;height:26px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:900;color:#fff;flex-shrink:0">4.5</div>
-          <div style="flex:1"><div style="font-weight:700;font-size:0.72rem">⛽ Station Total</div><div style="font-size:0.55rem;color:#64748b">800m · 5 min · 18 valid.</div></div>
-          <span style="${_spot.badge};${_spot.bg};font-size:0.45rem">Mieux!</span>
+        <div class="${_c.secT} mt-2.5">💬 Avis communauté (12)</div>
+        <div class="${_c.card} mb-[5px]">
+          <div class="flex items-center gap-[5px] mb-1"><span>🤙</span><span class="text-[0.68rem] font-bold text-amber-400">@TravelMarc</span><span class="text-[0.55rem] text-slate-500">★★★★★ · 5 min · Solo</span></div>
+          <div class="text-[0.62rem] text-slate-400">Super spot ! Pris en 5 min un lundi matin. Je recommande.</div>
+        </div>
+        <div class="${_c.card}">
+          <div class="flex items-center gap-[5px] mb-1"><span>🌍</span><span class="text-[0.68rem] font-bold text-amber-400">@SarahVoyage</span><span class="text-[0.55rem] text-slate-500">★★★★ · 12 min · Duo</span></div>
+          <div class="text-[0.62rem] text-slate-400">Bon spot, un peu long à deux mais ça passe.</div>
+        </div>
+
+        <div class="${_c.secT} mt-2.5">📍 Spots alternatifs proches</div>
+        <div class="${_c.card} flex items-center gap-2">
+          <div class="w-[26px] h-[26px] rounded-full bg-emerald-600 flex items-center justify-center text-[0.6rem] font-black text-white shrink-0">4.5</div>
+          <div class="flex-1"><div class="font-bold text-[0.72rem]">⛽ Station Total</div><div class="text-[0.55rem] text-slate-500">800m · 5 min · 18 valid.</div></div>
+          <span class="${_spot.badge} text-[0.45rem]" style="${_spotStyles.bg}">Mieux!</span>
         </div>
       </div>
 
       <!-- ===== TAB 4: URGENCE ===== -->
-      <div data-cd-panel="spot-emergency" style="display:none">
-        <div style="${_s.secT}">🆘 Urgence & plan B</div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px;margin-bottom:5px">
-          <span style="font-size:1.1rem">🏥</span>
-          <div><div style="font-weight:700;font-size:0.72rem">CHU Namur</div><div style="font-size:0.55rem;color:#64748b">2.8 km · ☎️ +32 81 72 61 11</div></div>
+      <div data-cd-panel="spot-emergency" class="hidden">
+        <div class="${_c.secT}">🆘 Urgence & plan B</div>
+        <div class="${_c.card} flex items-center gap-2 mb-[5px]">
+          <span class="text-[1.1rem]">🏥</span>
+          <div><div class="font-bold text-[0.72rem]">CHU Namur</div><div class="text-[0.55rem] text-slate-500">2.8 km · ☎️ +32 81 72 61 11</div></div>
         </div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px;margin-bottom:5px">
-          <span style="font-size:1.1rem">👮</span>
-          <div><div style="font-weight:700;font-size:0.72rem">Police locale</div><div style="font-size:0.55rem;color:#64748b">1.5 km · ☎️ +32 81 24 81 11</div></div>
+        <div class="${_c.card} flex items-center gap-2 mb-[5px]">
+          <span class="text-[1.1rem]">👮</span>
+          <div><div class="font-bold text-[0.72rem]">Police locale</div><div class="text-[0.55rem] text-slate-500">1.5 km · ☎️ +32 81 24 81 11</div></div>
         </div>
-        <div style="${_s.card};display:flex;align-items:center;gap:8px">
-          <span style="font-size:1.1rem">🚌</span>
-          <div><div style="font-weight:700;font-size:0.72rem">Bus 38 → Liège</div><div style="font-size:0.55rem;color:#64748b">400m · ~7€ · Toutes les 30 min</div></div>
-        </div>
-
-        <div style="${_s.secT};margin-top:10px">⚖️ Auto-stop en Belgique</div>
-        <div style="${_s.card};border-left:3px solid #6ee7b7">
-          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px"><span style="${_spot.badge};${_spot.bg}">✅ Légal</span></div>
-          <div style="font-size:0.62rem;color:#94a3b8">L'auto-stop est légal en Belgique. Interdit sur les autoroutes (accotements), mais autorisé aux entrées et aires de repos.</div>
+        <div class="${_c.card} flex items-center gap-2">
+          <span class="text-[1.1rem]">🚌</span>
+          <div><div class="font-bold text-[0.72rem]">Bus 38 → Liège</div><div class="text-[0.55rem] text-slate-500">400m · ~7€ · Toutes les 30 min</div></div>
         </div>
 
-        <div style="${_s.secT};margin-top:10px">🆘 Bouton SOS</div>
-        <div style="${_s.card};background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);text-align:center;padding:12px">
-          <div style="font-size:1.5rem;margin-bottom:4px">🆘</div>
-          <div style="font-size:0.72rem;font-weight:700;color:#fca5a5">En cas d'urgence</div>
-          <div style="font-size:0.58rem;color:#64748b;margin-top:2px">Envoie ta position + alerte à tes contacts</div>
+        <div class="${_c.secT} mt-2.5">⚖️ Auto-stop en Belgique</div>
+        <div class="${_c.card} border-l-[3px] border-l-emerald-300">
+          <div class="flex items-center gap-[5px] mb-1"><span class="${_spot.badge}" style="${_spotStyles.bg}">✅ Légal</span></div>
+          <div class="text-[0.62rem] text-slate-400">L'auto-stop est légal en Belgique. Interdit sur les autoroutes (accotements), mais autorisé aux entrées et aires de repos.</div>
+        </div>
+
+        <div class="${_c.secT} mt-2.5">🆘 Bouton SOS</div>
+        <div class="${_c.card} text-center p-3 bg-red-500/[0.08] border border-red-500/20">
+          <div class="text-2xl mb-1">🆘</div>
+          <div class="text-[0.72rem] font-bold text-red-300">En cas d'urgence</div>
+          <div class="text-[0.58rem] text-slate-500 mt-0.5">Envoie ta position + alerte à tes contacts</div>
         </div>
       </div>
     </div>

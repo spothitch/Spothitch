@@ -171,8 +171,9 @@ export async function syncOfflineQueue() {
 async function processOfflineAction(action) {
   switch (action.type) {
     case 'ADD_SPOT': {
-      const { saveSpotToFirebase } = await import('../services/firebase.js');
-      await saveSpotToFirebase(action.data);
+      const { addSpot } = await import('../services/firebase.js');
+      const result = await addSpot(action.data);
+      if (!result.success) throw new Error(result.error || 'addSpot failed');
       break;
     }
 

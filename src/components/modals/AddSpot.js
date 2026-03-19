@@ -30,12 +30,12 @@ function detectSeason() {
 function renderBarRating(criterion, label) {
   const currentValue = window.spotFormData?.ratings?.[criterion] || 0
   return `
-    <div style="margin-bottom:24px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px">${label} <span style="color:#f59e0b">*</span></span>
-        <span style="font-size:12px;color:#f59e0b" id="spot-rating-value-${criterion}">${currentValue ? currentValue + '/5' : ''}</span>
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-[11px] text-slate-500 uppercase tracking-wide">${label} <span class="text-amber-500">*</span></span>
+        <span class="text-xs text-amber-500" id="spot-rating-value-${criterion}">${currentValue ? currentValue + '/5' : ''}</span>
       </div>
-      <div style="display:flex;gap:4px" role="radiogroup" aria-label="${label}">
+      <div class="flex gap-1" role="radiogroup" aria-label="${label}">
         ${[1, 2, 3, 4, 5].map(val => `
           <button
             type="button"
@@ -48,7 +48,7 @@ function renderBarRating(criterion, label) {
           ></button>
         `).join('')}
       </div>
-      <p style="font-size:11px;color:#64748b;margin-top:4px;min-height:1.25rem" id="spot-rating-desc-${criterion}" aria-live="polite"></p>
+      <p class="text-[11px] text-slate-500 mt-1 min-h-5" id="spot-rating-desc-${criterion}" aria-live="polite"></p>
     </div>
   `
 }
@@ -63,7 +63,7 @@ function renderStepProgress(currentStep) {
     t('stepDetails') || 'Derniers détails',
   ]
   return `
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+    <div class="flex items-center gap-3 mb-6">
       ${[1, 2, 3].map((step, i) => {
         const isActive = step === currentStep
         const isDone = step < currentStep
@@ -78,12 +78,12 @@ function renderStepProgress(currentStep) {
             ? 'background:linear-gradient(90deg,#f59e0b,#334155)'
             : 'background:#1a1f2e'
         return `
-          ${i > 0 ? `<div style="flex:1;height:1px;${lineStyle}"></div>` : ''}
-          <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;${circleStyle};flex-shrink:0" title="${stepTitles[i]}">${step}</div>
+          ${i > 0 ? `<div class="flex-1 h-px" style="${lineStyle}"></div>` : ''}
+          <div class="w-7 h-7 rounded-full flex items-center justify-center text-[13px] shrink-0" style="${circleStyle}" title="${stepTitles[i]}">${step}</div>
         `
       }).join('')}
     </div>
-    <div style="font-size:22px;font-weight:300;color:#e2e8f0;margin-bottom:28px">${stepTitles[currentStep - 1]}</div>
+    <div class="text-[22px] font-light text-slate-200 mb-7">${stepTitles[currentStep - 1]}</div>
   `
 }
 
@@ -95,9 +95,9 @@ function renderStep1(state) {
   return `
     <div class="step-transition">
       <!-- Spot Type — 3x2 grid -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('spotTypeLabel')} <span style="color:#f59e0b">*</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('spotTypeLabel')} <span class="text-amber-500">*</span></div>
+        <div class="grid grid-cols-2 gap-2.5">
           ${['gas_station', 'toll', 'roundabout', 'on_ramp', 'roadside', 'custom'].map(type => `
           <button type="button" onclick="selectSpotType('${type}')"
             class="spot-type-btn ${spotType === type ? 'active' : ''}"
@@ -105,19 +105,19 @@ function renderStep1(state) {
             ${t('spotType' + type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(''))}
           </button>`).join('')}
         </div>
-        <button type="button" onclick="autoDetectRoad()" style="width:100%;margin-top:8px;padding:8px 0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.1);font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        <button type="button" onclick="autoDetectRoad()" class="w-full mt-2 py-2 bg-transparent border-0 border-b border-white/10 text-[11px] text-[#475569] cursor-pointer flex items-center justify-center gap-1.5">
           ${icon('crosshair', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
         </button>
       </div>
 
       <!-- Departure City — underline input -->
-      <div style="margin-bottom:24px" class="relative">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('departureCity') || 'Ville'} <span style="color:#f59e0b">*</span></div>
+      <div class="mb-6 relative">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('departureCity') || 'Ville'} <span class="text-amber-500">*</span></div>
         <input
           type="text"
           id="spot-departure-city"
           name="departureCity"
-          style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none"
+          class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-base outline-none"
           placeholder="${t('departureCity') || 'Ville de départ'}"
           value="${escapeHTML(window.spotFormData?.departureCity || '')}"
           required
@@ -130,17 +130,17 @@ function renderStep1(state) {
 
       <!-- Position summary (if set) -->
       ${window.spotFormData?.lat && window.spotFormData?.departureCity ? `
-        <div style="padding:10px 0;border-bottom:1px solid #1a1f2e;margin-bottom:20px">
-          <span style="font-size:14px;color:#e2e8f0">${escapeHTML(window.spotFormData.departureCity)}</span>
-          <span style="color:#334155"> · </span>
-          <span style="font-size:13px;color:#64748b">${t('position') || 'Position'}: ${window.spotFormData.locationName || window.spotFormData.departureCity}</span>
+        <div class="py-2.5 border-b border-[#1a1f2e] mb-5">
+          <span class="text-sm text-slate-200">${escapeHTML(window.spotFormData.departureCity)}</span>
+          <span class="text-slate-700"> · </span>
+          <span class="text-[13px] text-slate-500">${t('position') || 'Position'}: ${window.spotFormData.locationName || window.spotFormData.departureCity}</span>
         </div>
       ` : ''}
 
       <!-- Photo — dashed underline zone -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">
-          ${t('photoLabel') || 'Photo'} <span style="font-size:10px;color:#334155;text-transform:none;letter-spacing:0">(${t('recommended') || 'recommandé'})</span>
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">
+          ${t('photoLabel') || 'Photo'} <span class="text-[10px] text-slate-700 normal-case tracking-normal">(${t('recommended') || 'recommandé'})</span>
         </div>
         <input
           type="file"
@@ -159,18 +159,18 @@ function renderStep1(state) {
           role="button"
           tabindex="0"
           aria-label="${t('clickToAddPhoto') || 'Cliquez pour ajouter une photo'}"
-          style="border-bottom:1px dashed #334155;padding:14px 0;text-align:center;color:#475569;font-size:12px;cursor:pointer"
+          class="border-b border-dashed border-slate-700 py-3.5 text-center text-[#475569] text-xs cursor-pointer"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" style="vertical-align:middle;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" class="align-middle mr-1.5 inline"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
           ${t('addPhoto') || 'Ajouter une photo'}
         </div>
         ` : ''}
-        <div id="photo-preview" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <div id="photo-preview" class="flex gap-2 mt-2 flex-wrap">
           ${(window.spotFormData?.photos || []).map((p, i) => `
-            <div style="position:relative;width:96px;height:96px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)">
-              <img src="${p}" alt="Photo ${i + 1}" style="width:100%;height:100%;object-fit:cover" />
+            <div class="relative w-24 h-24 rounded-lg overflow-hidden border border-white/10">
+              <img src="${p}" alt="Photo ${i + 1}" class="w-full h-full object-cover" />
               <button type="button" onclick="removeSpotPhoto(${i})"
-                style="position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;color:#f87171;border:none;cursor:pointer"
+                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center text-red-400 border-0 cursor-pointer"
                 aria-label="${t('close') || 'Supprimer'}">
                 ${icon('x', 'w-4 h-4')}
               </button>
@@ -180,8 +180,8 @@ function renderStep1(state) {
       </div>
 
       <!-- Info tip -->
-      <div style="font-size:11px;color:#334155;margin-bottom:20px">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div class="text-[11px] text-slate-700 mb-5">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" class="align-middle mr-1 inline"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
         ${t('googleMapsShareTip') || 'Tu peux aussi partager un spot depuis Google Maps vers SpotHitch'}
       </div>
 
@@ -189,7 +189,7 @@ function renderStep1(state) {
       <button
         type="button"
         onclick="addSpotNextStep()"
-        style="width:100%;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase"
+        class="w-full bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm font-medium cursor-pointer tracking-wide uppercase"
       >
         ${t('next') || 'SUIVANT'}
       </button>
@@ -212,10 +212,11 @@ function renderStep2(state) {
 
   // Helper for underline tab bar
   const tabBar = (items, currentVal, onclickFn) => `
-    <div style="display:flex;gap:0;border-bottom:1px solid #334155">
+    <div class="flex gap-0 border-b border-slate-700">
       ${items.map(item => `
         <div onclick="${onclickFn}('${item.value}')" role="button" tabindex="0"
-          style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${
+          class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
+          style="${
             currentVal === item.value
               ? `color:${item.color || '#f59e0b'};border-bottom:2px solid ${item.color || '#f59e0b'};margin-bottom:-1px`
               : 'color:#64748b'
@@ -226,13 +227,13 @@ function renderStep2(state) {
   return `
     <div class="step-transition">
       <!-- Direction — underline input -->
-      <div style="margin-bottom:24px" class="relative">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('destinationCity') || 'Direction'} <span style="color:#f59e0b">*</span></div>
+      <div class="mb-6 relative">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('destinationCity') || 'Direction'} <span class="text-amber-500">*</span></div>
         <input
           type="text"
           id="spot-direction-city"
           name="directionCity"
-          style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:16px;outline:none"
+          class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-base outline-none"
           placeholder="${t('destinationCity') || 'Direction'}"
           value="${escapeHTML(window.spotFormData?.directionCity || '')}"
           oninput="window.spotFormData.directionCity = this.value.trim() || null; window.spotFormData.directionCityCoords = null"
@@ -242,58 +243,58 @@ function renderStep2(state) {
       </div>
 
       <!-- Extra destinations -->
-      <div style="margin-bottom:24px">
+      <div class="mb-6">
         ${(window.spotFormData?.extraDestinations || []).map((d, i) => `
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="flex:1;padding:6px 12px;font-size:13px;color:#f59e0b;border-bottom:1px solid #f59e0b">${icon('map-pin', 'w-3.5 h-3.5 inline mr-1')} ${escapeHTML(d.city)}</span>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="flex-1 px-3 py-1.5 text-[13px] text-amber-500 border-b border-amber-500">${icon('map-pin', 'w-3.5 h-3.5 inline mr-1')} ${escapeHTML(d.city)}</span>
             <button type="button" onclick="removeSpotDestination(${i})"
-              style="width:28px;height:28px;border-radius:50%;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;color:#f87171;border:none;cursor:pointer"
+              class="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 border-0 cursor-pointer"
               aria-label="${t('removeDestination') || 'Supprimer'}">
               ${icon('x', 'w-4 h-4')}
             </button>
           </div>
         `).join('')}
         ${(window.spotFormData?.extraDestinations || []).length < 4 ? `
-          <div class="relative" id="extra-dest-wrapper" style="display:none">
+          <div class="relative hidden" id="extra-dest-wrapper">
             <input
               type="text"
               id="spot-extra-dest"
-              style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none"
+              class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none"
               placeholder="${t('destinationCityPlaceholder') || 'Ville de destination'}"
             />
           </div>
           <button type="button" onclick="addSpotDestination()"
-            style="width:100%;padding:8px 0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.05);font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"
+            class="w-full py-2 bg-transparent border-0 border-b border-white/5 text-[11px] text-[#475569] cursor-pointer flex items-center justify-center gap-1.5"
             id="add-dest-btn">
             ${icon('plus', 'w-3.5 h-3.5')} ${t('addDestination') || 'Ajouter une destination'}
           </button>
         ` : `
-          <div style="font-size:11px;color:#475569;text-align:center">${t('maxDestinations') || 'Maximum 5 destinations'}</div>
+          <div class="text-[11px] text-[#475569] text-center">${t('maxDestinations') || 'Maximum 5 destinations'}</div>
         `}
       </div>
 
       <!-- Wait Time — range slider + amber value -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('waitTimeLabel') || "Attente"} <span style="color:#f59e0b">*</span></div>
-        <div style="display:flex;align-items:center;gap:12px">
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('waitTimeLabel') || "Attente"} <span class="text-amber-500">*</span></div>
+        <div class="flex items-center gap-3">
           <input
             type="range"
             min="0"
             max="${WAIT_STEPS.length - 1}"
             value="${waitIdx >= 0 ? waitIdx : 4}"
-            style="flex:1;accent-color:#f59e0b"
+            class="flex-1 accent-amber-500"
             oninput="setWaitTime(this.value)"
             aria-label="${t('waitTimeSliderDesc') || 'Combien de temps as-tu attendu ?'}"
           />
-          <span style="font-size:16px;font-weight:300;color:#f59e0b;min-width:60px;text-align:right" id="wait-time-display">
+          <span class="text-base font-light text-amber-500 min-w-[60px] text-right" id="wait-time-display">
             ${currentWait ? (currentWait >= 180 ? '3h+' : currentWait + ' min') : '10 min'}
           </span>
         </div>
       </div>
 
       <!-- Method — underline tab bar -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('practicalTips') || 'Méthode'} <span style="color:#f59e0b">*</span></div>
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('practicalTips') || 'Méthode'} <span class="text-amber-500">*</span></div>
         ${tabBar([
           { value: 'sign', label: t('methodSign') || 'Panneau' },
           { value: 'thumb', label: t('methodThumb') || 'Pouce' },
@@ -302,8 +303,8 @@ function renderStep2(state) {
       </div>
 
       <!-- Group — underline tab bar -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('groupSizeLabel') || 'Groupe'} <span style="color:#f59e0b">*</span></div>
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('groupSizeLabel') || 'Groupe'} <span class="text-amber-500">*</span></div>
         ${tabBar([
           { value: 'solo', label: t('groupSolo') || 'Solo' },
           { value: 'duo', label: t('groupDuo') || 'Duo' },
@@ -312,8 +313,8 @@ function renderStep2(state) {
       </div>
 
       <!-- Moment — underline tab bar -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('timeOfDayLabel') || 'Moment'} <span style="color:#f59e0b">*</span></div>
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('timeOfDayLabel') || 'Moment'} <span class="text-amber-500">*</span></div>
         ${tabBar([
           { value: 'morning', label: t('timeMorning') || 'Matin' },
           { value: 'afternoon', label: t('timeAfternoon') || 'Après-midi' },
@@ -323,26 +324,29 @@ function renderStep2(state) {
       </div>
 
       <!-- Lift obtenu — underline tab bar (Oui = green, Abandonné = grey) -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">${t('gotARide') || 'Lift obtenu'} <span style="color:#f59e0b">*</span></div>
-        <div style="display:flex;gap:0;border-bottom:1px solid #334155">
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('gotARide') || 'Lift obtenu'} <span class="text-amber-500">*</span></div>
+        <div class="flex gap-0 border-b border-slate-700">
           <div onclick="setRideResult('yes')" role="button" tabindex="0"
-            style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'yes' ? 'color:#22c55e;border-bottom:2px solid #22c55e;margin-bottom:-1px' : 'color:#64748b'}">${t('yes') || 'Oui'}</div>
+            class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
+            style="${rideResult === 'yes' ? 'color:#22c55e;border-bottom:2px solid #22c55e;margin-bottom:-1px' : 'color:#64748b'}">${t('yes') || 'Oui'}</div>
           <div onclick="setRideResult('no')" role="button" tabindex="0"
-            style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'no' ? 'color:#ef4444;border-bottom:2px solid #ef4444;margin-bottom:-1px' : 'color:#64748b'}">${t('no') || 'Non'}</div>
+            class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
+            style="${rideResult === 'no' ? 'color:#ef4444;border-bottom:2px solid #ef4444;margin-bottom:-1px' : 'color:#64748b'}">${t('no') || 'Non'}</div>
           <div onclick="setRideResult('gaveUp')" role="button" tabindex="0"
-            style="flex:1;padding:10px 0;text-align:center;font-size:13px;cursor:pointer;${rideResult === 'gaveUp' ? 'color:#64748b;border-bottom:2px solid #64748b;margin-bottom:-1px' : 'color:#64748b'}">${t('gaveUp') || 'Abandonné'}</div>
+            class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
+            style="${rideResult === 'gaveUp' ? 'color:#64748b;border-bottom:2px solid #64748b;margin-bottom:-1px' : 'color:#64748b'}">${t('gaveUp') || 'Abandonné'}</div>
         </div>
       </div>
 
       <!-- RETOUR + SUIVANT buttons -->
-      <div style="display:flex;gap:12px;margin-top:24px">
+      <div class="flex gap-3 mt-6">
         <button type="button" onclick="addSpotPrevStep()"
-          style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;text-transform:uppercase">
+          class="flex-1 bg-transparent border border-slate-700 text-slate-500 rounded-none p-3.5 text-sm cursor-pointer uppercase">
           ${t('back') || 'RETOUR'}
         </button>
         <button type="button" onclick="addSpotNextStep()"
-          style="flex:2;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;font-weight:500;cursor:pointer;text-transform:uppercase">
+          class="flex-[2] bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm font-medium cursor-pointer uppercase">
           ${t('next') || 'SUIVANT'}
         </button>
       </div>
@@ -365,73 +369,75 @@ function renderStep3(state) {
       ${renderBarRating('accessibility', t('accessibility') || 'Accessibilité')}
 
       <!-- Amenities — underline tab style -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">${t('amenitiesLabel') || 'Commodités'}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:0">
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2.5">${t('amenitiesLabel') || 'Commodités'}</div>
+        <div class="flex flex-wrap gap-0">
           <button type="button" onclick="toggleAmenity('shelter')"
-            class="amenity-chip"
-            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.shelter ? '2px solid #f59e0b' : 'none'};color:${tags.shelter ? '#f59e0b' : '#64748b'};cursor:pointer">
+            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+            style="border-bottom:${tags.shelter ? '2px solid #f59e0b' : 'none'};color:${tags.shelter ? '#f59e0b' : '#64748b'}">
             ${t('amenityShelter') || 'Abri'}
           </button>
           <button type="button" onclick="toggleAmenity('waterFood')"
-            class="amenity-chip"
-            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.waterFood ? '2px solid #f59e0b' : 'none'};color:${tags.waterFood ? '#f59e0b' : '#64748b'};cursor:pointer">
+            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+            style="border-bottom:${tags.waterFood ? '2px solid #f59e0b' : 'none'};color:${tags.waterFood ? '#f59e0b' : '#64748b'}">
             ${t('amenityWater') || 'Eau'}
           </button>
           <button type="button" onclick="toggleAmenity('toilets')"
-            class="amenity-chip"
-            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.toilets ? '2px solid #f59e0b' : 'none'};color:${tags.toilets ? '#f59e0b' : '#64748b'};cursor:pointer">
+            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+            style="border-bottom:${tags.toilets ? '2px solid #f59e0b' : 'none'};color:${tags.toilets ? '#f59e0b' : '#64748b'}">
             ${t('amenityToilets') || 'Toilettes'}
           </button>
           <button type="button" onclick="toggleAmenity('food')"
-            class="amenity-chip"
-            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.food ? '2px solid #f59e0b' : 'none'};color:${tags.food ? '#f59e0b' : '#64748b'};cursor:pointer">
+            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+            style="border-bottom:${tags.food ? '2px solid #f59e0b' : 'none'};color:${tags.food ? '#f59e0b' : '#64748b'}">
             ${t('amenityFood') || 'Nourriture'}
           </button>
           <button type="button" onclick="toggleAmenity('stoppingSpace')"
-            class="amenity-chip"
-            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${tags.stoppingSpace ? '2px solid #f59e0b' : 'none'};color:${tags.stoppingSpace ? '#f59e0b' : '#64748b'};cursor:pointer">
+            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+            style="border-bottom:${tags.stoppingSpace ? '2px solid #f59e0b' : 'none'};color:${tags.stoppingSpace ? '#f59e0b' : '#64748b'}">
             ${t('stoppingSpaceTag') || 'Parking'}
           </button>
         </div>
       </div>
 
       <!-- Description — underline textarea -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">
-          ${t('description')} <span style="font-size:10px;color:#334155;text-transform:none;letter-spacing:0">(${t('recommended') || 'recommandé'})</span>
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">
+          ${t('description')} <span class="text-[10px] text-slate-700 normal-case tracking-normal">(${t('recommended') || 'recommandé'})</span>
         </div>
         <textarea
           id="spot-description"
           name="description"
-          style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;resize:none;min-height:60px;font-family:inherit"
+          class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none resize-none min-h-[60px] font-[inherit]"
           placeholder="${t('spotDescPlaceholder') || 'Quelques mots sur ce spot...'}"
           maxlength="500"
           aria-describedby="desc-counter"
         ></textarea>
-        <div style="text-align:right;font-size:11px;color:#475569;margin-top:4px" id="desc-counter" aria-live="polite">
+        <div class="text-right text-[11px] text-[#475569] mt-1" id="desc-counter" aria-live="polite">
           <span id="desc-count">0</span>/500 <span class="sr-only">caractères</span>
         </div>
       </div>
 
       <!-- Experience date -->
-      <div style="margin-bottom:24px">
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">${t('experienceDateLabel') || 'Quand as-tu fait du stop ici ?'}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="mb-6">
+        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2.5">${t('experienceDateLabel') || 'Quand as-tu fait du stop ici ?'}</div>
+        <div class="flex gap-2 flex-wrap">
           <button type="button" onclick="setExperienceDate('today')"
             id="exp-date-today"
-            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${(!window.spotFormData._expCustom) ? '2px solid #f59e0b' : 'none'};color:${(!window.spotFormData._expCustom) ? '#f59e0b' : '#64748b'};cursor:pointer">
+            class="px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+            style="border-bottom:${(!window.spotFormData._expCustom) ? '2px solid #f59e0b' : 'none'};color:${(!window.spotFormData._expCustom) ? '#f59e0b' : '#64748b'}">
             ${t('today') || "Aujourd'hui"}
           </button>
           <button type="button" onclick="setExperienceDate('custom')"
             id="exp-date-custom"
-            style="padding:8px 16px;font-size:12px;background:transparent;border:none;border-bottom:${window.spotFormData._expCustom ? '2px solid #f59e0b' : 'none'};color:${window.spotFormData._expCustom ? '#f59e0b' : '#64748b'};cursor:pointer">
+            class="px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+            style="border-bottom:${window.spotFormData._expCustom ? '2px solid #f59e0b' : 'none'};color:${window.spotFormData._expCustom ? '#f59e0b' : '#64748b'}">
             ${t('chooseDate') || 'Choisir une date'}
           </button>
         </div>
-        <div id="exp-date-selectors" style="display:${window.spotFormData._expCustom ? 'flex' : 'none'};gap:12px;margin-top:10px">
+        <div id="exp-date-selectors" class="gap-3 mt-2.5" style="display:${window.spotFormData._expCustom ? 'flex' : 'none'}">
           <select id="exp-month" onchange="updateExperienceDate()"
-            style="flex:1;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;appearance:none;cursor:pointer">
+            class="flex-1 bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none appearance-none cursor-pointer">
             ${(() => {
               const now = new Date()
               const months = [
@@ -445,7 +451,7 @@ function renderStep3(state) {
             })()}
           </select>
           <select id="exp-year" onchange="updateExperienceDate()"
-            style="flex:0.6;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;appearance:none;cursor:pointer">
+            class="flex-[0.6] bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none appearance-none cursor-pointer">
             ${(() => {
               const now = new Date()
               const selYear = window.spotFormData.experienceYear ?? now.getFullYear()
@@ -458,19 +464,19 @@ function renderStep3(state) {
       </div>
 
       <!-- RETOUR + PUBLIER buttons -->
-      <div style="display:flex;gap:12px;margin-top:24px">
+      <div class="flex gap-3 mt-6">
         <button type="button" onclick="addSpotPrevStep()"
-          style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;text-transform:uppercase">
+          class="flex-1 bg-transparent border border-slate-700 text-slate-500 rounded-none p-3.5 text-sm cursor-pointer uppercase">
           ${t('back') || 'RETOUR'}
         </button>
         ${isPreview ? `
         <button type="button" onclick="closeAddSpot()"
-          style="flex:2;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:0;padding:14px;font-size:14px;cursor:pointer;text-transform:uppercase" id="submit-spot-btn">
+          class="flex-[2] bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm cursor-pointer uppercase" id="submit-spot-btn">
           ${t('previewModeClose') || 'FERMER'}
         </button>
         ` : `
         <button type="button" onclick="showSpotSummary()"
-          style="flex:2;background:#f59e0b;border:none;color:#0f1520;border-radius:0;padding:14px;font-size:14px;font-weight:600;cursor:pointer;text-transform:uppercase" id="submit-spot-btn">
+          class="flex-[2] bg-amber-500 border-0 text-[#0f1520] rounded-none p-3.5 text-sm font-semibold cursor-pointer uppercase" id="submit-spot-btn">
           ${isValidation ? (t('reviewAndSubmit') || 'VÉRIFIER ET ENVOYER') : (t('reviewAndPublish') || 'VÉRIFIER ET PUBLIER')}
         </button>
         `}
@@ -500,21 +506,21 @@ function renderPositionBlock() {
   const lng = window.spotFormData?.lng
 
   return `
-    <div style="margin-bottom:24px">
-      <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px" id="location-label">${t('position') || 'Position sur la carte'} <span style="color:#f59e0b">*</span></div>
+    <div class="mb-6">
+      <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3" id="location-label">${t('position') || 'Position sur la carte'} <span class="text-amber-500">*</span></div>
 
       ${hasPosition ? `
         <!-- Position chosen — mini map preview + info -->
         <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
           onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
-          style="background:#111827;cursor:pointer;overflow:hidden">
-          <div id="addspot-mini-map" style="width:100%;height:120px;background:#161b28"></div>
-          <div style="padding:10px 14px;display:flex;align-items:center;gap:10px">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;color:#e2e8f0">${escapeHTML(window.spotFormData?.locationName || '')} <span style="color:#475569;font-size:11px">${lat?.toFixed(4) || '?'}, ${lng?.toFixed(4) || '?'}</span></div>
-              ${window.spotFormData?.departureCity && window.spotFormData?.locationName && window.spotFormData.departureCity !== window.spotFormData.locationName ? `<div style="font-size:11px;color:#94a3b8">${t('departure') || 'Départ'}: ${escapeHTML(window.spotFormData.departureCity)}</div>` : ''}
-              <div style="font-size:11px;color:#f59e0b">${t('modify') || 'Modifier la position'}</div>
+          class="bg-[#111827] cursor-pointer overflow-hidden">
+          <div id="addspot-mini-map" class="w-full h-[120px] bg-[#161b28]"></div>
+          <div class="px-3.5 py-2.5 flex items-center gap-2.5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" class="shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div class="flex-1 min-w-0">
+              <div class="text-[13px] text-slate-200">${escapeHTML(window.spotFormData?.locationName || '')} <span class="text-[#475569] text-[11px]">${lat?.toFixed(4) || '?'}, ${lng?.toFixed(4) || '?'}</span></div>
+              ${window.spotFormData?.departureCity && window.spotFormData?.locationName && window.spotFormData.departureCity !== window.spotFormData.locationName ? `<div class="text-[11px] text-slate-400">${t('departure') || 'Départ'}: ${escapeHTML(window.spotFormData.departureCity)}</div>` : ''}
+              <div class="text-[11px] text-amber-500">${t('modify') || 'Modifier la position'}</div>
             </div>
           </div>
         </div>
@@ -522,12 +528,12 @@ function renderPositionBlock() {
         <!-- No position — map placeholder + GPS button -->
         <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
           onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
-          style="background:#111827;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#475569;font-size:12px;gap:6px;cursor:pointer">
+          class="bg-[#111827] h-[110px] flex flex-col items-center justify-center text-[#475569] text-xs gap-1.5 cursor-pointer">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
           ${t('tapToPlaceSpot') || 'Toucher pour placer le spot'}
         </div>
         <button type="button" onclick="useGPSForSpot()"
-          style="width:100%;margin-top:8px;padding:10px 0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"
+          class="w-full mt-2 py-2.5 bg-transparent border-0 border-b border-white/5 text-xs text-[#475569] cursor-pointer flex items-center justify-center gap-1.5"
           aria-describedby="location-display">
           ${icon('crosshair', 'w-4 h-4')} ${t('useMyPosition') || 'Ma position GPS'}
         </button>
@@ -553,10 +559,9 @@ function renderGmapsTip() {
 
   if (hidden) {
     return `
-      <div style="text-align:center;padding:8px 0 0">
+      <div class="text-center pt-2">
         <span onclick="window._showGmapsTipFull()"
-          style="font-size:11px;color:#f59e0b;cursor:pointer;
-            text-decoration:underline" role="button" tabindex="0"
+          class="text-[11px] text-amber-500 cursor-pointer underline" role="button" tabindex="0"
           onkeydown="if(event.key==='Enter')window._showGmapsTipFull()">
           ${t('gmapsTipLink')}
         </span>
@@ -585,16 +590,15 @@ export function renderAddSpot(_state) {
 
       <!-- Modal -->
       <div
-        class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl"
-        style="background:#0f1520;border:1px solid #1e293b"
+        class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl bg-[#0f1520] border border-[#1e293b]"
         onclick="event.stopPropagation()"
       >
         <!-- Header — minimal -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1a1f2e">
-          <h2 id="addspot-modal-title" style="font-size:16px;font-weight:600;color:#e2e8f0">${isValidation ? (t('validateSpotTitle') || 'Valider ce spot') : t('addSpot')}${isPreview ? ` <span style="font-size:12px;font-weight:400;color:#f59e0b;margin-left:8px">${t('previewMode')}</span>` : ''}</h2>
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[#1a1f2e]">
+          <h2 id="addspot-modal-title" class="text-base font-semibold text-slate-200">${isValidation ? (t('validateSpotTitle') || 'Valider ce spot') : t('addSpot')}${isPreview ? ` <span class="text-xs font-normal text-amber-500 ml-2">${t('previewMode')}</span>` : ''}</h2>
           <button
             onclick="closeAddSpot()"
-            style="width:32px;height:32px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:#64748b"
+            class="w-8 h-8 bg-white/5 flex items-center justify-center border-0 cursor-pointer text-slate-500"
             aria-label="${t('close') || 'Fermer'}"
             type="button"
           >
@@ -603,10 +607,10 @@ export function renderAddSpot(_state) {
         </div>
 
         <!-- Form -->
-        <div style="padding:24px 20px;overflow-y:auto;max-height:calc(90vh - 70px)">
+        <div class="px-5 py-6 overflow-y-auto max-h-[calc(90vh-70px)]">
           ${renderStepProgress(currentStep)}
 
-          <form id="add-spot-form" onsubmit="handleAddSpot(event)" aria-label="${t('addSpotForm') || "Formulaire d'ajout de spot"}" style="touch-action:manipulation">
+          <form id="add-spot-form" onsubmit="handleAddSpot(event)" aria-label="${t('addSpotForm') || "Formulaire d'ajout de spot"}" class="touch-manipulation">
             ${currentStep === 1 ? renderStep1(_state) : ''}
             ${currentStep === 2 ? renderStep2(_state) : ''}
             ${currentStep === 3 ? renderStep3(_state) : ''}
@@ -1076,10 +1080,9 @@ window._dismissGmapsTip = (checked) => {
       localStorage.setItem('spothitch_gmaps_tip_hidden', '1')
       const card = document.getElementById('gmaps-tip-card')
       if (card) {
-        card.outerHTML = `<div style="text-align:center;padding:8px 0 0">
+        card.outerHTML = `<div class="text-center pt-2">
           <span onclick="window._showGmapsTipFull()"
-            style="font-size:11px;color:#f59e0b;cursor:pointer;
-              text-decoration:underline" role="button" tabindex="0">
+            class="text-[11px] text-amber-500 cursor-pointer underline" role="button" tabindex="0">
             ${t('gmapsTipLink')}
           </span></div>`
       }
@@ -1103,77 +1106,60 @@ window._showGmapsTipFull = () => {
 function renderGmapsTipCard() {
   return `
     <div id="gmaps-tip-card"
-      style="background:#0f1520;border:1px solid #1e293b;
-        border-radius:12px;padding:16px;margin-top:14px">
-      <div style="font-size:14px;font-weight:700;text-align:center;
-        margin-bottom:14px">
+      class="bg-[#0f1520] border border-[#1e293b] rounded-xl p-4 mt-3.5">
+      <div class="text-sm font-bold text-center mb-3.5">
         ${t('gmapsTipTitle')}
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:14px">
-        <div style="flex:1;background:#1a1f2e;border-radius:10px;
-          overflow:hidden;border:1px solid rgba(239,68,68,0.2)">
-          <div style="background:rgba(239,68,68,0.08);padding:6px;
-            text-align:center;font-size:10px;font-weight:700;
-            color:#ef4444;letter-spacing:1px">
+      <div class="flex gap-2.5 mb-3.5">
+        <div class="flex-1 bg-[#1a1f2e] rounded-[10px] overflow-hidden border border-red-500/20">
+          <div class="bg-red-500/[0.08] p-1.5 text-center text-[10px] font-bold text-red-500 tracking-wide">
             ❌ ${t('gmapsTipManual')}
           </div>
-          <div style="height:80px;position:relative;overflow:hidden;
-            background:#111827">
+          <div class="h-20 relative overflow-hidden bg-[#111827]">
             <img src="https://tile.openstreetmap.org/6/32/22.png"
-              style="width:100%;height:100%;object-fit:cover;opacity:0.4"
+              class="w-full h-full object-cover opacity-40"
               alt="" onerror="this.style.display='none'">
-            <div style="position:absolute;inset:0;display:flex;
-              align-items:center;justify-content:center">
-              <span style="font-size:28px;opacity:0.8">🔍</span>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-[28px] opacity-80">🔍</span>
             </div>
           </div>
-          <div style="padding:8px;text-align:center;font-size:10px;
-            color:#94a3b8">
+          <div class="p-2 text-center text-[10px] text-slate-400">
             ${t('gmapsTipManualDesc')}
-            <div style="color:#ef4444;font-weight:600;margin-top:4px">
+            <div class="text-red-500 font-semibold mt-1">
               ⏱ ~2 min
             </div>
           </div>
         </div>
-        <div style="flex:1;background:#1a1f2e;border-radius:10px;
-          overflow:hidden;border:1px solid rgba(34,197,94,0.2)">
-          <div style="background:rgba(34,197,94,0.08);padding:6px;
-            text-align:center;font-size:10px;font-weight:700;
-            color:#22c55e;letter-spacing:1px">
+        <div class="flex-1 bg-[#1a1f2e] rounded-[10px] overflow-hidden border border-emerald-500/20">
+          <div class="bg-emerald-500/[0.08] p-1.5 text-center text-[10px] font-bold text-emerald-500 tracking-wide">
             ✓ GOOGLE MAPS
           </div>
-          <div style="height:80px;position:relative;overflow:hidden;
-            background:#111827">
+          <div class="h-20 relative overflow-hidden bg-[#111827]">
             <img src="https://tile.openstreetmap.org/14/8529/5975.png"
-              style="width:100%;height:100%;object-fit:cover;opacity:0.5"
+              class="w-full h-full object-cover opacity-50"
               alt="" onerror="this.style.display='none'">
-            <div style="position:absolute;top:50%;left:50%;
-              transform:translate(-50%,-100%)">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full">
               <svg width="18" height="24" viewBox="0 0 24 32"
                 fill="#f59e0b"><path d="M12 0C5.4 0 0 5.4 0 12c0 9
                 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z"/></svg>
             </div>
           </div>
-          <div style="padding:8px;text-align:center;font-size:10px;
-            color:#94a3b8">
+          <div class="p-2 text-center text-[10px] text-slate-400">
             ${t('gmapsTipShareDesc')}
-            <div style="color:#22c55e;font-weight:600;margin-top:4px">
+            <div class="text-emerald-500 font-semibold mt-1">
               ⏱ 3 sec
             </div>
           </div>
         </div>
       </div>
-      <div style="text-align:center;font-size:12px;color:#94a3b8;
-        margin-bottom:12px">
+      <div class="text-center text-xs text-slate-400 mb-3">
         ${t('gmapsTipHowTo')}
       </div>
-      <label style="display:flex;align-items:center;gap:8px;
-        font-size:12px;color:#64748b;cursor:pointer;
-        justify-content:center"
+      <label class="flex items-center gap-2 text-xs text-slate-500 cursor-pointer justify-center"
         onclick="event.stopPropagation()">
         <input type="checkbox"
           onchange="window._dismissGmapsTip(this.checked)"
-          style="accent-color:#f59e0b;width:14px;height:14px">
+          class="accent-amber-500 w-3.5 h-3.5">
         ${t('gmapsTipDismiss')}
       </label>
     </div>`
@@ -1465,17 +1451,17 @@ function showGasStationConfirm() {
   return new Promise((resolve) => {
     const overlay = document.createElement('div')
     overlay.id = 'gas-station-confirm'
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px'
+    overlay.className = 'fixed inset-0 z-[10000] bg-black/70 flex items-center justify-center p-5'
     overlay.innerHTML = `
-      <div style="background:#0f1520;border-radius:16px;padding:24px;max-width:340px;width:100%;border:1px solid #1a1f2e">
-        <div style="text-align:center;margin-bottom:16px">
+      <div class="bg-[#0f1520] rounded-2xl p-6 max-w-[340px] w-full border border-[#1a1f2e]">
+        <div class="text-center mb-4">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
         </div>
-        <div style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:8px;text-align:center">${t('noStationConfirmTitle')}</div>
-        <div style="font-size:14px;color:#94a3b8;margin-bottom:24px;text-align:center;line-height:1.5">${t('noStationConfirmMessage')}</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <button id="gas-confirm-keep" style="padding:14px;border-radius:10px;border:1px solid #334155;background:transparent;color:#e2e8f0;font-size:14px;cursor:pointer">${t('noStationKeep')}</button>
-          <button id="gas-confirm-change" style="padding:14px;border-radius:10px;border:none;background:#f59e0b;color:#0f1520;font-size:14px;font-weight:600;cursor:pointer">${t('noStationChange')}</button>
+        <div class="text-base font-semibold text-slate-200 mb-2 text-center">${t('noStationConfirmTitle')}</div>
+        <div class="text-sm text-slate-400 mb-6 text-center leading-relaxed">${t('noStationConfirmMessage')}</div>
+        <div class="flex flex-col gap-2.5">
+          <button id="gas-confirm-keep" class="p-3.5 rounded-[10px] border border-slate-700 bg-transparent text-slate-200 text-sm cursor-pointer">${t('noStationKeep')}</button>
+          <button id="gas-confirm-change" class="p-3.5 rounded-[10px] border-0 bg-amber-500 text-[#0f1520] text-sm font-semibold cursor-pointer">${t('noStationChange')}</button>
         </div>
       </div>
     `
@@ -1896,20 +1882,20 @@ window.showSpotSummary = async () => {
   if (tags.stoppingSpace) amenityList.push(t('stoppingSpaceTag') || 'Parking')
 
   const row = (label, value) => value ? `
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b">
-      <span style="font-size:12px;color:#64748b">${escapeHTML(label)}</span>
-      <span style="font-size:12px;color:#e2e8f0;text-align:right;max-width:60%">${escapeHTML(String(value))}</span>
+    <div class="flex justify-between py-2 border-b border-[#1e293b]">
+      <span class="text-xs text-slate-500">${escapeHTML(label)}</span>
+      <span class="text-xs text-slate-200 text-right max-w-[60%]">${escapeHTML(String(value))}</span>
     </div>` : ''
 
   const photoCount = (fd.photos || []).length
 
   const overlay = document.createElement('div')
   overlay.id = 'spot-summary-overlay'
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px'
+  overlay.className = 'fixed inset-0 z-[60] flex items-center justify-center p-4'
   overlay.innerHTML = `
-    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)" onclick="closeSpotSummary()" role="button" tabindex="0"></div>
-    <div style="position:relative;background:#0f1520;border:1px solid #1e293b;border-radius:12px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;padding:20px" onclick="event.stopPropagation()">
-      <h3 style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:16px;text-align:center">${state.addSpotValidateId ? (t('summaryTitle') || 'Récapitulatif') : (t('summaryTitle') || 'Récapitulatif du spot')}</h3>
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeSpotSummary()" role="button" tabindex="0"></div>
+    <div class="relative bg-[#0f1520] border border-[#1e293b] rounded-xl max-w-[400px] w-full max-h-[80vh] overflow-y-auto p-5" onclick="event.stopPropagation()">
+      <h3 class="text-lg font-semibold text-slate-200 mb-4 text-center">${state.addSpotValidateId ? (t('summaryTitle') || 'Récapitulatif') : (t('summaryTitle') || 'Récapitulatif du spot')}</h3>
 
       ${!state.addSpotValidateId ? row(t('spotTypeLabel') || 'Type', typeLabels[spotType] || spotType) : ''}
       ${!state.addSpotValidateId ? row(t('departureCity') || 'Départ', fd.departureCity) : ''}
@@ -1929,28 +1915,28 @@ window.showSpotSummary = async () => {
 
       <!-- Street View check -->
       ${!state.addSpotValidateId && fd.lat ? `
-      <div style="margin:14px 0 8px;background:rgba(15,30,60,0.6);border:1px solid rgba(96,165,250,0.2);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
-        <div style="flex:1">
-          <div style="font-size:11px;color:#93c5fd" id="sv-check-label">${t('streetViewCheckLabel') || 'Street View disponible ici ?'}</div>
+      <div class="my-3.5 bg-[rgba(15,30,60,0.6)] border border-blue-400/20 rounded-[10px] px-3 py-2.5 flex items-center gap-2.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" class="shrink-0"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
+        <div class="flex-1">
+          <div class="text-[11px] text-blue-300" id="sv-check-label">${t('streetViewCheckLabel') || 'Street View disponible ici ?'}</div>
         </div>
         <button type="button" onclick="checkStreetViewForNewSpot(${fd.lat}, ${fd.lng})"
           id="sv-check-btn"
-          style="background:rgba(96,165,250,0.2);border:1px solid rgba(96,165,250,0.3);color:#93c5fd;padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer;white-space:nowrap">
+          class="bg-blue-400/20 border border-blue-400/30 text-blue-300 px-2.5 py-1 rounded-lg text-[11px] cursor-pointer whitespace-nowrap">
           ${t('streetViewCheck') || 'Vérifier'}
         </button>
       </div>
       ` : ''}
 
-      ${!state.addSpotValidateId ? `<p style="font-size:11px;color:#64748b;text-align:center;margin:16px 0 12px">${t('summaryWarning') || 'Une fois publié, ce spot ne pourra plus être modifié.'}</p>` : '<div style="margin-top:16px"></div>'}
+      ${!state.addSpotValidateId ? `<p class="text-[11px] text-slate-500 text-center my-4">${t('summaryWarning') || 'Une fois publié, ce spot ne pourra plus être modifié.'}</p>` : '<div class="mt-4"></div>'}
 
-      <div style="display:flex;gap:10px">
+      <div class="flex gap-2.5">
         <button type="button" onclick="closeSpotSummary()"
-          style="flex:1;background:transparent;border:1px solid #334155;color:#64748b;padding:12px;font-size:13px;cursor:pointer;border-radius:8px">
+          class="flex-1 bg-transparent border border-slate-700 text-slate-500 p-3 text-[13px] cursor-pointer rounded-lg">
           ${t('modify') || 'Modifier'}
         </button>
         <button type="button" onclick="closeSpotSummary();document.getElementById('add-spot-form')?.dispatchEvent(new Event('submit',{cancelable:true}))"
-          style="flex:2;background:#f59e0b;border:none;color:#0f1520;padding:12px;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px">
+          class="flex-[2] bg-amber-500 border-0 text-[#0f1520] p-3 text-sm font-semibold cursor-pointer rounded-lg">
           ${state.addSpotValidateId ? (t('confirmSubmit') || 'Confirmer et envoyer') : (t('confirmPublish') || 'Confirmer et publier')}
         </button>
       </div>

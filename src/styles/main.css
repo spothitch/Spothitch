@@ -420,11 +420,6 @@
     @apply bg-amber-100 text-amber-700;
   }
 
-  /* Toast Notifications — design pill glassmorphism top */
-  .toast {
-    /* styles inline via JS — voir notifications.js showToast() */
-  }
-
   /* Chat Bubbles */
   .chat-bubble {
     @apply max-w-[80%] px-4 py-3 rounded-2xl mb-2;
@@ -443,7 +438,6 @@
     @apply bg-[#f5f2eb] text-[#1c1917];
   }
 
-  /* Map Markers */
   /* Photo Upload */
   .photo-upload {
     @apply border-2 border-dashed border-white/20 rounded-2xl p-10 text-center cursor-pointer;
@@ -601,8 +595,6 @@
     animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
   }
 
-  /* Stagger Delays */
-
   /* Interactive Animations */
   .hover-lift {
     @apply transition-transform duration-300;
@@ -611,19 +603,6 @@
     @apply -translate-y-1;
   }
 
-  /* Touch-friendly tap targets */
-  @media (pointer: coarse) {
-  }
-
-  /* Reduce motion */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
 }
 
 /* ===== MAPLIBRE GL OVERRIDES ===== */
@@ -806,12 +785,7 @@
 
 /* ===== CONTRAST FIXES (WCAG 2.1 AA - 4.5:1 minimum) ===== */
 
-/* Fix slate-400 text contrast - upgrade to slate-300 for better visibility */
-.text-slate-400 {
-  color: #cbd5e1 !important; /* slate-300: 7.04:1 contrast on dark bg */
-}
-
-/* Fix slate-500 text contrast */
+/* Fix slate-400 text contrast */
 .text-slate-400 {
   color: #94a3b8 !important; /* slate-400: 4.64:1 contrast on dark bg */
 }
@@ -823,10 +797,6 @@
 }
 
 /* Light theme contrast fixes */
-.light-theme .text-slate-400 {
-  color: #57534e !important; /* stone-600: good contrast on warm bg */
-}
-
 .light-theme .text-slate-400 {
   color: #44403c !important; /* stone-700: excellent contrast on warm bg */
 }
@@ -898,38 +868,9 @@ label {
   color: #44403c !important; /* stone-700 for excellent contrast */
 }
 
-/* Screen Reader Only */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
+/* Screen Reader Only — see line ~1022 for !important version */
 
-/* Skip Link - visible on focus */
-.skip-link {
-  @apply sr-only;
-}
-
-.skip-link:focus {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  width: auto;
-  height: auto;
-  padding: 1rem 1.5rem;
-  margin: 0;
-  overflow: visible;
-  clip: auto;
-  white-space: normal;
-  z-index: 9999;
-  @apply bg-primary-500 text-white rounded-xl font-bold shadow-xl;
-}
+/* Skip Link — see line ~1001 for full definition */
 
 /* Focus Visible - enhanced focus indicators */
 *:focus-visible {
@@ -1030,8 +971,6 @@ textarea:focus-visible {
   white-space: nowrap !important;
   border: 0 !important;
 }
-
-/* Show when focused (for skip links) */
 
 /* Keyboard Navigation Indicator */
 body.keyboard-nav *:focus {
@@ -1430,28 +1369,6 @@ details summary svg { transition: transform 0.2s ease; }
   }
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -1598,15 +1515,9 @@ img[data-error="true"]::after {
 
 /* ===== ADDITIONAL ACCESSIBILITY STYLES ===== */
 
-/* Avatar selection buttons */
-
-
 .avatar-option.selected {
   @apply border-primary-500 bg-primary-500/20 ring-2 ring-primary-500/50;
 }
-
-
-/* SOS header button accessible */
 
 
 /* Live indicator for SOS */
@@ -1621,8 +1532,6 @@ img[data-error="true"]::after {
 [role="checkbox"]:focus-visible {
   @apply ring-2 ring-primary-400 ring-offset-2 ring-offset-dark-primary outline-hidden;
 }
-
-/* Visually hidden but accessible to screen readers */
 
 /* Dialog/Modal focus trap styling */
 [role="dialog"],
@@ -1795,16 +1704,6 @@ textarea[aria-invalid="true"] {
   color-scheme: light;
 }
 
-/* Light theme - Buttons */
-.light-theme .btn-primary {
-  background: linear-gradient(135deg, #fbbf24, #d97706);
-  @apply shadow-amber-500/30;
-}
-
-.light-theme .btn-primary:hover {
-  @apply shadow-amber-500/40;
-}
-
 /* Light theme - Progress bars */
 .light-theme .progress-bar {
   @apply bg-[#e5e2d9];
@@ -1814,55 +1713,10 @@ textarea[aria-invalid="true"] {
   background: linear-gradient(90deg, #fbbf24, #d97706);
 }
 
-/* Light theme - Badges */
-.light-theme .badge-primary {
-  @apply bg-orange-100 text-orange-700;
-}
-
-.light-theme .badge-success {
-  @apply bg-emerald-100 text-emerald-700;
-}
-
-.light-theme .badge-warning {
-  @apply bg-amber-100 text-amber-700;
-}
-
-.light-theme .badge-danger {
-  @apply bg-red-100 text-red-700;
-}
-
 /* Light theme - Chat bubbles */
-.light-theme .chat-bubble.sent {
-  @apply bg-orange-500 text-white;
-}
-
-.light-theme .chat-bubble.received {
-  @apply bg-[#f5f2eb] text-[#1c1917];
-}
-
-/* Light theme - Modals */
-.light-theme .bg-dark-secondary,
-.light-theme .bg-dark-primary {
-  @apply bg-white;
-}
-
-.light-theme .bg-white\/5 {
-  @apply bg-[#fafaf8];
-}
-
-.light-theme .border-white\/10 {
-  @apply border-[#e5e2d9];
-}
-
 /* Light theme - Navigation overlay */
 .light-theme .navigation-overlay .bg-primary-600 {
   @apply bg-orange-500;
-}
-
-/* Light theme - Skeleton */
-.light-theme .skeleton {
-  background: linear-gradient(90deg, #e5e2d9 0%, #f5f2eb 50%, #e5e2d9 100%);
-  background-size: 200% 100%;
 }
 
 /* Light theme - Donation card */
@@ -2028,11 +1882,6 @@ textarea[aria-invalid="true"] {
   animation: splashLogoIn 0.8s ease-out;
 }
 
-
-@keyframes splashIconFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
 
 .splash-logo-text {
   font-family: 'Space Grotesk', sans-serif;
@@ -2713,15 +2562,6 @@ textarea[aria-invalid="true"] {
   animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes modalBackdropFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes modalSlideUp {
   from {
     opacity: 0;
@@ -2733,169 +2573,11 @@ textarea[aria-invalid="true"] {
   }
 }
 
-
-@keyframes modalSlideDown {
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-}
-
-/* Spot Card Hover Effect - Subtle elevation */
-
-
 .light-theme .spot-card:hover {
   box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15), 0 0 0 1px rgba(245, 158, 11, 0.1);
 }
 
 
-/* Badge Pulse Animation - Subtle attention grabber */
-
-@keyframes badgePulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0);
-  }
-}
-
-.light-theme .badge-pulse {
-  animation: badgePulseLightTheme 2s ease-in-out infinite;
-}
-
-@keyframes badgePulseLightTheme {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0);
-  }
-}
-
-/* Tab Change Animation - Smooth cross-fade */
-
-
-@keyframes tabFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes tabFadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-/* Tab Navigation Indicator - Smooth slide */
-
-/* Enhanced Skeleton Loading */
-
-.light-theme .skeleton-shimmer {
-  background: linear-gradient(90deg, #e5e2d9 0%, #f5f2eb 50%, #e5e2d9 100%);
-  background-size: 200% 100%;
-}
-
-@keyframes skeletonShimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-
-@keyframes skeletonGloss {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Toast Notification - Slide from top with bounce */
-
-
-@keyframes toastSlideInBounce {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50px);
-  }
-  60% {
-    transform: translate(-50%, 5px);
-  }
-  80% {
-    transform: translate(-50%, -2px);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@keyframes toastSlideOut {
-  from {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -20px);
-  }
-}
-
-/* Button Press Effect - Satisfying feedback */
-
-
-/* Input Focus Animation - Gentle glow */
-
-
-@keyframes inputGlow {
-  0% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
-  }
-  100% {
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-  }
-}
-
-.light-theme .input-focus:focus {
-  animation: inputGlowLightTheme 0.3s ease-out;
-}
-
-@keyframes inputGlowLightTheme {
-  0% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
-  }
-  100% {
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-  }
-}
 
 /* List Item Stagger Animation - Sequential entrance */
 .list-stagger > * {
@@ -2922,47 +2604,6 @@ textarea[aria-invalid="true"] {
   }
 }
 
-/* Notification Badge - Attention pulse */
-
-@keyframes notificationPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-/* Success Checkmark Animation */
-
-@keyframes checkmarkPop {
-  0% {
-    opacity: 0;
-    transform: scale(0) rotate(-45deg);
-  }
-  50% {
-    transform: scale(1.2) rotate(5deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-/* Error Shake Animation */
-
-@keyframes errorShake {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  10%, 30%, 50%, 70%, 90% {
-    transform: translateX(-5px);
-  }
-  20%, 40%, 60%, 80% {
-    transform: translateX(5px);
-  }
-}
-
 /* Loading Spinner - Smooth rotation */
 .spinner {
   animation: spinnerRotate 1s linear infinite;
@@ -2977,38 +2618,6 @@ textarea[aria-invalid="true"] {
   }
 }
 
-/* Content Reveal - Bottom to top */
-
-@keyframes contentReveal {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-    clip-path: inset(0 0 100% 0);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-/* Floating Action Button - Gentle bob */
-
-@keyframes fabFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-/* Profile Avatar - Subtle glow on hover */
-
-
-.light-theme .avatar-glow:hover {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4), 0 0 10px rgba(245, 158, 11, 0.2);
-}
 
 /* ===== FAQ / Help Center / Legal — Light Theme Overlays ===== */
 
@@ -3115,27 +2724,6 @@ textarea[aria-invalid="true"] {
   border-color: #e5e2d9;
 }
 
-/* Map Marker - Drop-in animation */
-
-@keyframes markerDrop {
-  0% {
-    opacity: 0;
-    transform: translateY(-50px) scale(0.5);
-  }
-  60% {
-    transform: translateY(5px) scale(1.1);
-  }
-  80% {
-    transform: translateY(-2px) scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Progress Bar - Fill animation */
-
 /* ===== TRIP BOTTOM SHEET ===== */
 .trip-bottom-sheet {
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3157,26 +2745,6 @@ textarea[aria-invalid="true"] {
 }
 
 
-@keyframes progressFill {
-  from {
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-/* Card Flip Animation */
-
-.card-flip.flipped {
-  transform: rotateY(180deg);
-}
-
-/* Ripple Effect on Click */
-
-/* Utility Classes for Common Animations */
-
 
 .animate-slide-up {
   animation: slideUp 0.4s ease-out;
@@ -3192,8 +2760,6 @@ textarea[aria-invalid="true"] {
   transition-duration: 200ms;
   transition-timing-function: ease-out;
 }
-
-/* Disable transitions for specific elements */
 
 /* Respect Reduced Motion Preference - WCAG Compliance */
 @media (prefers-reduced-motion: reduce) {
@@ -3238,11 +2804,6 @@ textarea[aria-invalid="true"] {
 }
 .slide-panel-in {
   animation: slidePanelIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes popIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

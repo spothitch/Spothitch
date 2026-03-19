@@ -71,14 +71,10 @@ export async function initSentry() {
         /moz-extension/,
         /chrome-extension/,
         /safari-extension/,
-        // Common false positives
+        // Common browser/extension noise
         /Script error\.?$/,
-        /null is not an object/,
-        /undefined is not an object/,
-        /Cannot read propert/,
         /Permission denied/,
         /NotAllowedError/,
-        /QuotaExceededError/,
         /SecurityError/,
       ],
 
@@ -116,9 +112,8 @@ export async function initSentry() {
         if (msg.includes('WebGL') || msg.includes('context lost')
           || msg.includes('Failed to initialize')) return null
 
-        // Drop localStorage/quota errors (private browsing)
-        if (msg.includes('QuotaExceeded')
-          || msg.includes('SecurityError')
+        // Drop SecurityError (private browsing, cross-origin)
+        if (msg.includes('SecurityError')
           || msg.includes('The operation is insecure')) return null
 
         // Rate-limit: max 5 errors per minute
