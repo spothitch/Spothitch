@@ -13,6 +13,8 @@
  * - Check-in reminder (handled in service) (#29)
  * - Trusted contacts circle (#30)
  * - Trip history (#31)
+ *
+ * V7 "Timeline" design
  */
 
 import { t } from '../../i18n/index.js'
@@ -160,132 +162,134 @@ function renderConsentScreen() {
 }
 
 /**
- * Setup view — configure guardian(s), channel, departure/arrival toggles, then start trip
+ * Setup view — V7 Timeline design
+ * Guardian selection, destination, interval buttons, then start trip
  */
 function renderSetupView(companion) {
   const history = loadTripHistory()
   const contacts = Array.isArray(companion.trustedContacts) ? companion.trustedContacts : []
+  const currentInterval = companion.checkInInterval || 30
 
   return `
     <!-- Header -->
-    <div class="bg-emerald-500/10 p-8 text-center rounded-t-3xl">
-      <div class="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center
-        text-3xl mx-auto mb-4" aria-hidden="true">
-        ${icon('shield', 'w-8 h-8 text-emerald-400')}
+    <div class="p-6 pb-0">
+      <div class="flex items-center justify-between mb-1">
+        <h2 id="companion-modal-title" class="text-base font-bold text-white flex items-center gap-2">
+          ${icon('shield', 'w-4 h-4 text-amber-400')}
+          ${t('companionMode') || 'Guardian Mode'}
+        </h2>
+        <button
+          onclick="closeCompanionModal()"
+          class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+          aria-label="${t('close') || 'Close'}"
+        >
+          ${icon('x', 'w-4 h-4 text-white')}
+        </button>
       </div>
-      <h2 id="companion-modal-title" class="text-xl font-bold text-white">
-        ${t('companionMode') || 'Companion Mode'}
-      </h2>
-      <p class="text-slate-400 mt-2 text-sm">
-        ${t('companionSetup') || 'Set up your safety'}
+      <p class="text-xs text-slate-400 mb-4">
+        ${t('companionExplanation') || 'Your guardians will watch over you during your hitchhiking trip.'}
       </p>
     </div>
 
-    <!-- Close button -->
-    <button
-      onclick="closeCompanionModal()"
-      class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-      aria-label="${t('close') || 'Close'}"
-    >
-      ${icon('x', 'w-5 h-5 text-white')}
-    </button>
-
     <!-- Content -->
-    <div class="p-6 space-y-5">
-      <!-- Explanation -->
-      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-        <p class="text-sm text-slate-300 leading-relaxed">
-          ${t('companionExplanation') || 'Companion mode keeps you safe while hitchhiking. Choose a trusted contact (guardian). If you do not check in on time, an alert with your last known position will be sent.'}
-        </p>
+    <div class="px-5 pb-5 space-y-4">
+
+      <!-- === DESTINATION === -->
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5" for="companion-destination">
+          ${t('companionDestination') || 'Destination'}
+        </label>
+        <input
+          type="text"
+          id="companion-destination"
+          class="w-full px-3.5 py-3 rounded-xl bg-slate-800/80 border border-white/[0.06] text-white placeholder-slate-500 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-colors"
+          placeholder="${t('companionDestinationPlaceholder') || 'e.g. Paris, Lyon...'}"
+          value="${escapeHTML(companion.destination || '')}"
+          aria-label="${t('companionDestination') || 'Destination'}"
+        />
       </div>
 
-      <!-- === PRIMARY GUARDIAN === -->
-      <div class="space-y-3">
-        <h3 class="text-sm font-semibold text-emerald-400 uppercase tracking-wide flex items-center gap-2">
-          ${icon('shield-check', 'w-4 h-4')}
-          ${t('guardianTitle') || 'Primary guardian'}
+      <!-- === GUARDIAN SELECTION === -->
+      <div>
+        <h3 class="text-[13px] font-bold text-white flex items-center gap-2 mb-3">
+          ${icon('users', 'w-3.5 h-3.5 text-amber-400')}
+          ${t('guardianTitle') || 'Select your guardians'}
         </h3>
 
-        <!-- Guardian Name -->
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-2" for="companion-guardian-name">
-            ${t('guardianName') || 'Guardian name'}
-          </label>
-          <input
-            type="text"
-            id="companion-guardian-name"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors"
-            placeholder="${t('guardianName') || 'Guardian name'}"
-            value="${escapeHTML(companion.guardian?.name || '')}"
-            aria-label="${t('guardianName') || 'Guardian name'}"
-          />
+        <!-- Primary guardian -->
+        <div class="space-y-2 mb-3">
+          <div class="flex items-center gap-3 bg-slate-800/80 rounded-xl px-3.5 py-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-sm font-bold text-dark-primary shrink-0">
+              ${escapeHTML((companion.guardian?.name || '?')[0].toUpperCase())}
+            </div>
+            <div class="flex-1 min-w-0">
+              <input
+                type="text"
+                id="companion-guardian-name"
+                class="block w-full bg-transparent text-sm font-semibold text-white placeholder-slate-500 focus:outline-none"
+                placeholder="${t('guardianName') || 'Guardian name'}"
+                value="${escapeHTML(companion.guardian?.name || '')}"
+                aria-label="${t('guardianName') || 'Guardian name'}"
+              />
+              <input
+                type="tel"
+                id="companion-guardian-phone"
+                class="block w-full bg-transparent text-xs text-slate-400 placeholder-slate-600 focus:outline-none mt-0.5"
+                placeholder="+33 6 12 34 56 78"
+                value="${companion.guardian?.phone || ''}"
+                aria-label="${t('guardianPhone') || 'Guardian phone'}"
+              />
+            </div>
+            <div class="w-5 h-5 rounded-full bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center shrink-0">
+              ${icon('check', 'w-3 h-3 text-white')}
+            </div>
+          </div>
         </div>
 
-        <!-- Guardian Phone -->
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-2" for="companion-guardian-phone">
-            ${t('guardianPhone') || 'Guardian phone'}
-          </label>
-          <input
-            type="tel"
-            id="companion-guardian-phone"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors"
-            placeholder="+33 6 12 34 56 78"
-            value="${companion.guardian?.phone || ''}"
-            aria-label="${t('guardianPhone') || 'Guardian phone'}"
-          />
-        </div>
-      </div>
-
-      <!-- === TRUSTED CONTACTS (#30) === -->
-      <div class="space-y-3">
-        <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wide flex items-center gap-2">
-          ${icon('users', 'w-4 h-4 text-emerald-400')}
-          ${t('trustedContacts') || 'Trusted contacts'} <span class="text-slate-500 font-normal normal-case">(${t('trustedContactsMax') || 'up to 5'})</span>
-        </h3>
-
-        <!-- Existing trusted contacts list -->
-        <div id="companion-trusted-contacts" class="space-y-2">
-          ${contacts.length === 0
-            ? `<p class="text-xs text-slate-500 italic">${t('noTrustedContacts') || 'No additional contacts yet'}</p>`
-            : contacts.map((c, i) => `
-              <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2 border border-white/10">
-                <div>
-                  <span class="text-sm text-white font-medium">${escapeHTML(c.name || '?')}</span>
-                  <span class="text-xs text-slate-400 ml-2">${c.phone}</span>
+        <!-- Trusted contacts list -->
+        ${contacts.length > 0 ? `
+          <div class="space-y-2 mb-3">
+            ${contacts.map((c, i) => `
+              <div class="flex items-center gap-3 bg-slate-800/80 rounded-xl px-3.5 py-3">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                  ${escapeHTML((c.name || '?')[0].toUpperCase())}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="block text-sm font-semibold text-white truncate">${escapeHTML(c.name || '?')}</span>
+                  <span class="block text-xs text-slate-400">${escapeHTML(c.phone || '')}</span>
                 </div>
                 <button
                   onclick="companionRemoveTrustedContact(${i})"
-                  class="text-slate-500 hover:text-red-400 transition-colors"
+                  class="w-5 h-5 rounded-full bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center shrink-0 hover:bg-red-500 hover:border-red-500 transition-colors"
                   aria-label="${t('remove') || 'Remove'}"
                 >
-                  ${icon('x', 'w-4 h-4')}
+                  ${icon('check', 'w-3 h-3 text-white')}
                 </button>
               </div>
-            `).join('')
-          }
-        </div>
+            `).join('')}
+          </div>
+        ` : ''}
 
-        <!-- Add trusted contact form (shown only when < 5 contacts) -->
+        <!-- Add trusted contact -->
         ${contacts.length < 5 ? `
           <div class="flex gap-2">
             <input
               type="text"
               id="companion-tc-name"
-              class="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:border-emerald-500 transition-colors"
+              class="flex-1 px-3 py-2.5 rounded-xl bg-slate-800/80 border border-white/[0.06] text-white placeholder-slate-500 text-xs focus:border-amber-500 transition-colors"
               placeholder="${t('contactName') || 'Name'}"
               aria-label="${t('contactName') || 'Contact name'}"
             />
             <input
               type="tel"
               id="companion-tc-phone"
-              class="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 text-sm focus:border-emerald-500 transition-colors"
+              class="flex-1 px-3 py-2.5 rounded-xl bg-slate-800/80 border border-white/[0.06] text-white placeholder-slate-500 text-xs focus:border-amber-500 transition-colors"
               placeholder="+33 6..."
               aria-label="${t('guardianPhone') || 'Phone'}"
             />
             <button
               onclick="companionAddTrustedContact()"
-              class="px-3 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
+              class="px-3 py-2.5 rounded-xl bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors"
               aria-label="${t('add') || 'Add'}"
             >
               ${icon('plus', 'w-4 h-4')}
@@ -296,45 +300,37 @@ function renderSetupView(companion) {
         `}
       </div>
 
-      <!-- === ALERT CHANNEL — App push notifications only === -->
-      <div class="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/20">
-        <div class="flex items-center gap-2 mb-2">
-          ${icon('bell', 'w-4 h-4 text-emerald-400')}
-          <span class="text-sm font-semibold text-emerald-400">${t('companionPushOnly') || 'Push notifications'}</span>
-        </div>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          ${t('companionPushOnlyDesc') || 'Alerts are sent via push notifications in the app. Your guardian receives instant alerts even abroad, with no SMS cost. The guardian needs the SpotHitch app or can open the web link.'}
-        </p>
-      </div>
-
-      <!-- === DESTINATION (for ETA #28) === -->
+      <!-- === CHECK-IN INTERVAL (pill buttons) === -->
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-2" for="companion-destination">
-          ${icon('navigation', 'w-4 h-4 inline mr-1 text-slate-400')}
-          ${t('companionDestination') || 'Destination'} <span class="text-slate-500">(${t('optional') || 'optional'})</span>
+        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          ${t('checkInInterval') || 'Check-in interval'}
         </label>
-        <input
-          type="text"
-          id="companion-destination"
-          class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors"
-          placeholder="${t('companionDestinationPlaceholder') || 'e.g. Paris, Lyon...'}"
-          value="${companion.destination || ''}"
-          aria-label="${t('companionDestination') || 'Destination'}"
-        />
+        <div class="flex gap-2">
+          ${[15, 30, 45, 60].map(val => `
+            <button
+              onclick="document.querySelectorAll('[data-interval-btn]').forEach(b=>{b.classList.remove('bg-amber-500','text-dark-primary','border-amber-500/30');b.classList.add('bg-slate-800/80','text-slate-300','border-white/[0.06]')});this.classList.remove('bg-slate-800/80','text-slate-300','border-white/[0.06]');this.classList.add('bg-amber-500','text-dark-primary','border-amber-500/30');document.getElementById('companion-interval').value='${val}'"
+              data-interval-btn
+              class="flex-1 py-2.5 rounded-xl border text-xs font-semibold transition-colors ${val === currentInterval ? 'bg-amber-500 text-dark-primary border-amber-500/30' : 'bg-slate-800/80 text-slate-300 border-white/[0.06]'}"
+            >
+              ${val < 60 ? `${val}min` : `1h`}
+            </button>
+          `).join('')}
+        </div>
+        <input type="hidden" id="companion-interval" value="${currentInterval}" />
       </div>
 
-      <!-- === NOTIFICATIONS TOGGLES (#25, #26) === -->
-      <div class="bg-white/5 rounded-xl p-4 border border-white/10 space-y-3">
-        <h3 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
-          ${icon('bell', 'w-4 h-4 text-emerald-400')}
+      <!-- === NOTIFICATIONS TOGGLES === -->
+      <div class="bg-slate-800/50 rounded-xl p-3.5 border border-white/[0.06] space-y-3">
+        <h3 class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+          ${icon('bell', 'w-3.5 h-3.5 text-amber-400')}
           ${t('companionNotifications') || 'Automatic notifications'}
         </h3>
 
         <!-- Departure toggle (#26) -->
         <label class="flex items-center justify-between cursor-pointer">
           <div>
-            <span class="text-sm text-white">${t('notifyOnDeparture') || 'Notify guardian on departure'}</span>
-            <p class="text-xs text-slate-400">${t('notifyOnDepartureDesc') || 'Sends "I am starting my trip" on start'}</p>
+            <span class="text-xs text-white">${t('notifyOnDeparture') || 'Notify guardian on departure'}</span>
+            <p class="text-[10px] text-slate-500">${t('notifyOnDepartureDesc') || 'Sends "I am starting my trip" on start'}</p>
           </div>
           <input type="checkbox" id="companion-notify-departure" class="hidden" ${companion.notifyOnDeparture !== false ? 'checked' : ''}>
           ${renderToggle(companion.notifyOnDeparture !== false, "toggleFormToggle('companion-notify-departure')", t('notifyOnDeparture') || 'Notify guardian on departure')}
@@ -343,39 +339,33 @@ function renderSetupView(companion) {
         <!-- Arrival toggle (#25) -->
         <label class="flex items-center justify-between cursor-pointer">
           <div>
-            <span class="text-sm text-white">${t('notifyOnArrival') || 'Notify guardian on arrival'}</span>
-            <p class="text-xs text-slate-400">${t('notifyOnArrivalDesc') || 'Sends "I arrived safely" on stop'}</p>
+            <span class="text-xs text-white">${t('notifyOnArrival') || 'Notify guardian on arrival'}</span>
+            <p class="text-[10px] text-slate-500">${t('notifyOnArrivalDesc') || 'Sends "I arrived safely" on stop'}</p>
           </div>
           <input type="checkbox" id="companion-notify-arrival" class="hidden" ${companion.notifyOnArrival !== false ? 'checked' : ''}>
           ${renderToggle(companion.notifyOnArrival !== false, "toggleFormToggle('companion-notify-arrival')", t('notifyOnArrival') || 'Notify guardian on arrival')}
         </label>
       </div>
 
-      <!-- === CHECK-IN INTERVAL === -->
-      <div>
-        <label class="block text-sm font-medium text-slate-300 mb-2" for="companion-interval">
-          ${t('checkInInterval') || 'Check-in interval'}
-        </label>
-        <select
-          id="companion-interval"
-          class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors appearance-none"
-          aria-label="${t('checkInInterval') || 'Check-in interval'}"
-        >
-          <option value="15" class="bg-dark-primary">${t('every15min') || 'Every 15 min'}</option>
-          <option value="30" selected class="bg-dark-primary">${t('every30min') || 'Every 30 min'}</option>
-          <option value="45" class="bg-dark-primary">${t('every45min') || 'Every 45 min'}</option>
-          <option value="60" class="bg-dark-primary">${t('every1h') || 'Every hour'}</option>
-        </select>
+      <!-- === PUSH NOTIFICATION INFO === -->
+      <div class="bg-amber-500/10 rounded-xl p-3 border border-amber-500/20">
+        <div class="flex items-center gap-2 mb-1">
+          ${icon('bell', 'w-3.5 h-3.5 text-amber-400')}
+          <span class="text-xs font-semibold text-amber-400">${t('companionPushOnly') || 'Push notifications'}</span>
+        </div>
+        <p class="text-[10px] text-slate-400 leading-relaxed">
+          ${t('companionPushOnlyDesc') || 'Alerts are sent via push notifications in the app. Your guardian receives instant alerts even abroad, with no SMS cost.'}
+        </p>
       </div>
 
       <!-- Start Trip Button -->
       <button
         onclick="startCompanion()"
-        class="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg flex items-center justify-center gap-3 transition-colors shadow-lg shadow-emerald-500/20 active:scale-95"
+        class="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-dark-primary font-bold text-sm flex items-center justify-center gap-2.5 transition-colors active:scale-95"
         aria-label="${t('startTrip') || 'Start trip'}"
       >
-        ${icon('play', 'w-6 h-6')}
-        ${t('startTrip') || 'Start trip'}
+        ${icon('shield', 'w-5 h-5')}
+        ${t('companionActivate') || 'Activate Guardian'}
       </button>
 
       <!-- === TRIP HISTORY (#31) === -->
@@ -385,7 +375,8 @@ function renderSetupView(companion) {
 }
 
 /**
- * Active view — timer, check-in button, battery, breadcrumbs, ETA
+ * Active view — V7 Timeline design
+ * Timer card at top, timeline events, action buttons at bottom
  */
 function renderActiveView(companion) {
   const secondsRemaining = getTimeUntilNextCheckIn()
@@ -417,136 +408,202 @@ function renderActiveView(companion) {
     : 0
   const contactsCount = 1 + extraContacts
 
-  return `
-    <!-- Header -->
-    <div class="bg-emerald-500/10 p-6 text-center rounded-t-3xl">
-      <h2 id="companion-modal-title" class="text-lg font-bold text-white flex items-center justify-center gap-2">
-        ${icon('shield', 'w-5 h-5 text-emerald-400')}
-        ${t('companionActive') || 'Companion Mode active'}
-      </h2>
-      <p class="text-sm text-slate-400 mt-1">
-        ${t('guardianName') || 'Guardian'}: <span class="text-emerald-400 font-medium">${escapeHTML(companion.guardian?.name || '?')}</span>
-        ${contactsCount > 1 ? `<span class="text-slate-500 ml-1">+${contactsCount - 1}</span>` : ''}
-      </p>
-    </div>
+  // Status badge
+  const isWarning = !overdue && secondsRemaining < 180 // < 3 min
+  const badgeColor = overdue ? 'bg-red-500/10 text-red-400' : isWarning ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'
+  const badgeLabel = overdue
+    ? (t('companionOverdue') || 'Check-in missed')
+    : isWarning
+      ? (t('companionWarning') || 'Check-in soon')
+      : (t('companionSafe') || 'Safe')
+  const badgeDotColor = overdue ? 'bg-red-400' : isWarning ? 'bg-amber-400' : 'bg-emerald-400'
 
+  const lang = getState().lang || 'fr'
+
+  return `
     <!-- Close button -->
     <button
       onclick="closeCompanionModal()"
-      class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+      class="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
       aria-label="${t('close') || 'Close'}"
     >
-      ${icon('x', 'w-5 h-5 text-white')}
+      ${icon('x', 'w-4 h-4 text-white')}
     </button>
 
     <!-- Content -->
-    <div class="p-6 space-y-5">
-      <!-- Timer Circle -->
-      <div class="flex justify-center">
-        <div class="relative w-40 h-40">
-          <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
-            <circle cx="50" cy="50" r="45" stroke-width="6" fill="none"
-              class="stroke-white/10" />
-            <circle cx="50" cy="50" r="45" stroke-width="6" fill="none"
-              stroke-linecap="round"
-              class="${overdue ? 'stroke-red-500' : 'stroke-emerald-400'}"
-              stroke-dasharray="${2 * Math.PI * 45}"
-              stroke-dashoffset="${2 * Math.PI * 45 * (1 - progress)}"
-              style="transition: stroke-dashoffset 0.5s ease" />
-          </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-3xl font-bold ${overdue ? 'text-red-400' : 'text-white'}">
-              ${overdue ? '-' : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}
-            </span>
-            <span class="text-xs ${overdue ? 'text-red-400' : 'text-slate-400'} mt-1">
-              ${overdue ? (t('companionOverdue') || 'Overdue!') : (t('checkInReminder') || 'Next check-in')}
-            </span>
-          </div>
+    <div class="p-5 space-y-4">
+      <!-- Timer Card -->
+      <div class="bg-slate-800/80 rounded-2xl p-5 text-center border ${overdue ? 'border-red-500/30' : 'border-amber-500/15'}">
+        <h2 id="companion-modal-title" class="sr-only">${t('companionActive') || 'Companion Mode active'}</h2>
+        <div class="text-4xl font-extrabold ${overdue ? 'text-red-400' : isWarning ? 'text-amber-400' : 'text-white'} leading-none">
+          ${overdue ? '+' : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}
+        </div>
+        <div class="text-[11px] text-slate-500 uppercase tracking-wider mt-1">
+          ${overdue ? (t('companionOverdueLabel') || 'Overdue') : (t('checkInReminder') || 'Next check-in')}
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold mt-2 ${badgeColor}">
+          <span class="w-1.5 h-1.5 rounded-full ${badgeDotColor}"></span>
+          ${badgeLabel}
         </div>
       </div>
 
-      <!-- Check-in Button -->
-      <button
-        onclick="companionCheckIn()"
-        class="w-full py-5 rounded-xl ${overdue ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30 animate-pulse' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'} text-white font-bold text-xl flex items-center justify-center gap-3 transition-colors shadow-lg active:scale-95"
-        aria-label="${t('imSafe') || "I'm safe"}"
-      >
-        ${icon('circle-check', 'w-7 h-7')}
-        ${t('imSafe') || "I'm safe"}
-      </button>
+      <!-- Timeline -->
+      <div class="relative pl-7">
+        <!-- Vertical line -->
+        <div class="absolute left-2 top-0 bottom-0 w-0.5 bg-white/[0.06]" aria-hidden="true"></div>
 
-      <!-- Stats row -->
-      <div class="grid grid-cols-3 gap-2">
-        <div class="bg-white/5 rounded-xl p-3 text-center border border-white/10">
-          <div class="text-xs text-slate-400 mb-1">${t('tripDuration') || 'Duration'}</div>
-          <div class="text-base font-bold text-white">
-            ${tripHours > 0 ? `${tripHours}h${String(tripMins).padStart(2, '0')}` : `${tripMins}min`}
+        <!-- Trip start event -->
+        <div class="relative mb-3">
+          <div class="absolute -left-5 top-1.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-emerald-500 z-10" aria-hidden="true"></div>
+          <div class="bg-slate-800/80 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[13px] font-bold text-white flex items-center gap-1.5">
+                ${icon('shield', 'w-3.5 h-3.5 text-amber-400')}
+                ${t('tripStarted') || 'Trip started'}
+              </span>
+              <span class="text-[10px] text-slate-500">
+                ${companion.tripStart ? new Date(companion.tripStart).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' }) : ''}
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">
+              ${companion.destination ? `→ ${escapeHTML(companion.destination)}. ` : ''}${t('guardianName') || 'Guardian'}: ${escapeHTML(companion.guardian?.name || '?')}${contactsCount > 1 ? ` +${contactsCount - 1}` : ''}
+            </p>
           </div>
         </div>
-        <div class="bg-white/5 rounded-xl p-3 text-center border border-white/10">
-          <div class="text-xs text-slate-400 mb-1">${t('checkInInterval') || 'Interval'}</div>
-          <div class="text-base font-bold text-white">${companion.checkInInterval}min</div>
+
+        <!-- Check-in events (from positions/check-ins) -->
+        ${(companion.checkInsCount || 0) > 0 ? `
+          ${Array.from({ length: Math.min(companion.checkInsCount || 0, 5) }, (_, i) => {
+            const checkInNum = (companion.checkInsCount || 0) - i
+            const isCurrent = i === 0
+            return `
+              <div class="relative mb-3">
+                <div class="absolute ${isCurrent ? '-left-[22px] top-1 w-4 h-4' : '-left-5 top-1.5 w-3 h-3'} rounded-full ${isCurrent ? 'bg-amber-500 border-2 border-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.4)]' : 'bg-emerald-500 border-2 border-emerald-500'} z-10" aria-hidden="true"></div>
+                <div class="bg-slate-800/80 rounded-xl p-3 ${isCurrent ? 'border border-amber-500/20' : ''}">
+                  <div class="flex items-center justify-between mb-0.5">
+                    <span class="text-[13px] font-bold text-white flex items-center gap-1.5">
+                      ${icon('check', 'w-3.5 h-3.5 text-amber-400')}
+                      Check-in ${checkInNum}
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-400">${t('imSafe') || "I'm safe"}</p>
+                </div>
+              </div>
+            `
+          }).join('')}
+        ` : ''}
+
+        <!-- Map position card -->
+        ${positions.length > 0 ? `
+          <div class="relative mb-3">
+            <div class="absolute -left-5 top-1.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-emerald-500 z-10" aria-hidden="true"></div>
+            <div class="bg-slate-800/80 rounded-xl p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[13px] font-bold text-white flex items-center gap-1.5">
+                  ${icon('map-pin', 'w-3.5 h-3.5 text-amber-400')}
+                  ${t('positions') || 'Position'}
+                </span>
+                <span class="text-[10px] text-slate-500">
+                  ${new Date(positions[positions.length - 1].timestamp).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+              <div class="w-full h-[80px] rounded-lg bg-slate-900/80 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(rgba(245,158,11,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.3) 1px, transparent 1px); background-size: 24px 24px;"></div>
+                <div class="absolute top-1/2 left-1/2 w-2.5 h-2.5 rounded-full bg-amber-500 -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_rgba(245,158,11,0.4)]"></div>
+                <div class="absolute bottom-1.5 left-2.5 text-[10px] text-slate-500 flex items-center gap-1">
+                  ${icon('map-pin', 'w-3 h-3')}
+                  ${positions[positions.length - 1].lat.toFixed(4)}, ${positions[positions.length - 1].lng.toFixed(4)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Stats card -->
+        <div class="relative mb-3">
+          <div class="absolute -left-5 top-1.5 w-3 h-3 rounded-full bg-slate-600 border-2 border-slate-600 z-10" aria-hidden="true"></div>
+          <div class="bg-slate-800/80 rounded-xl overflow-hidden">
+            <div class="flex divide-x divide-white/[0.04]">
+              <div class="flex-1 py-3 px-2 text-center">
+                <div class="text-sm font-extrabold text-white">
+                  ${tripHours > 0 ? `${tripHours}h${String(tripMins).padStart(2, '0')}` : `${tripMins}min`}
+                </div>
+                <div class="text-[9px] text-slate-500 uppercase tracking-wider">${t('tripDuration') || 'Duration'}</div>
+              </div>
+              <div class="flex-1 py-3 px-2 text-center">
+                <div class="text-sm font-extrabold text-white">${companion.checkInsCount || 0}</div>
+                <div class="text-[9px] text-slate-500 uppercase tracking-wider">${t('checkInsCount') || 'Check-ins'}</div>
+              </div>
+              <div class="flex-1 py-3 px-2 text-center" id="companion-battery-row">
+                <div class="text-sm font-extrabold text-white">${companion.checkInInterval}min</div>
+                <div class="text-[9px] text-slate-500 uppercase tracking-wider">${t('checkInInterval') || 'Interval'}</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="bg-white/5 rounded-xl p-3 text-center border border-white/10">
-          <div class="text-xs text-slate-400 mb-1">${t('checkInsCount') || 'Check-ins'}</div>
-          <div class="text-base font-bold text-emerald-400">${companion.checkInsCount || 0}</div>
-        </div>
+
+        <!-- ETA card -->
+        ${etaInfo.speedKmh !== null ? `
+          <div class="relative mb-3">
+            <div class="absolute -left-5 top-1.5 w-3 h-3 rounded-full bg-slate-600 border-2 border-slate-600 z-10" aria-hidden="true"></div>
+            <div class="bg-slate-800/80 rounded-xl p-3">
+              <div class="flex items-center gap-2 mb-1">
+                ${icon('navigation', 'w-3.5 h-3.5 text-amber-400')}
+                <span class="text-xs font-medium text-slate-300">${t('etaTitle') || 'Speed & ETA'}</span>
+              </div>
+              <div class="flex items-center gap-3 text-xs">
+                <span class="text-white font-bold">${Math.round(etaInfo.speedKmh)} km/h</span>
+                ${etaInfo.etaMinutes !== null ? `
+                  <span class="text-slate-600">|</span>
+                  <span class="text-slate-300">${t('etaLabel') || 'ETA'}: <span class="text-amber-400 font-bold">
+                    ${etaInfo.etaMinutes < 60
+                      ? `${etaInfo.etaMinutes}min`
+                      : `${Math.floor(etaInfo.etaMinutes / 60)}h${String(etaInfo.etaMinutes % 60).padStart(2, '0')}`
+                    }
+                  </span></span>
+                ` : ''}
+                ${etaInfo.distanceKm !== null ? `
+                  <span class="text-slate-600">|</span>
+                  <span class="text-slate-400">${etaInfo.distanceKm.toFixed(1)} km</span>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        ` : ''}
       </div>
 
-      <!-- Battery level (#27) -->
-      <div id="companion-battery-row" class="hidden">
-        <!-- Populated by JS after mount -->
-      </div>
+      <!-- Action buttons -->
+      <div class="space-y-2.5">
+        <!-- Check-in Button -->
+        <button
+          onclick="companionCheckIn()"
+          class="w-full py-4 rounded-xl ${overdue ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30 animate-pulse' : 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20'} ${overdue ? 'text-white' : 'text-dark-primary'} font-bold text-base flex items-center justify-center gap-2.5 transition-colors shadow-lg active:scale-95"
+          aria-label="${t('imSafe') || "I'm safe"}"
+        >
+          ${icon('check', 'w-5 h-5')}
+          ${overdue ? (t('imSafe') || "I'm safe") : (t('companionCheckInNow') || 'Check-in now')}
+        </button>
 
-      <!-- ETA (#28) -->
-      ${etaInfo.speedKmh !== null ? `
-        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
-          <div class="flex items-center gap-2 mb-2">
-            ${icon('gauge', 'w-4 h-4 text-emerald-400')}
-            <span class="text-sm font-medium text-slate-300">${t('etaTitle') || 'Speed & ETA'}</span>
-          </div>
-          <div class="flex items-center gap-4 text-sm">
-            <span class="text-white font-bold">${Math.round(etaInfo.speedKmh)} km/h</span>
-            ${etaInfo.etaMinutes !== null ? `
-              <span class="text-slate-400">·</span>
-              <span class="text-slate-300">${t('etaLabel') || 'ETA'}: <span class="text-emerald-400 font-bold">
-                ${etaInfo.etaMinutes < 60
-                  ? `${etaInfo.etaMinutes}min`
-                  : `${Math.floor(etaInfo.etaMinutes / 60)}h${String(etaInfo.etaMinutes % 60).padStart(2, '0')}`
-                }
-              </span></span>
-            ` : ''}
-            ${etaInfo.distanceKm !== null ? `
-              <span class="text-slate-400">·</span>
-              <span class="text-slate-400">${etaInfo.distanceKm.toFixed(1)} km</span>
-            ` : ''}
-          </div>
+        <!-- SOS + Stop row -->
+        <div class="flex gap-2.5">
+          <button
+            onclick="companionSendAlert()"
+            class="flex-1 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-red-500/20 transition-colors"
+            aria-label="SOS"
+          >
+            ${icon('triangle-alert', 'w-4 h-4')}
+            SOS
+          </button>
+          <button
+            onclick="stopCompanion()"
+            class="flex-1 py-3 rounded-xl bg-slate-800/80 border border-white/[0.06] text-slate-300 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-slate-700/80 transition-colors"
+            aria-label="${t('stopTrip') || 'Stop trip'}"
+          >
+            ${icon('circle-stop', 'w-4 h-4')}
+            ${t('stopTrip') || 'Stop trip'}
+          </button>
         </div>
-      ` : ''}
-
-      <!-- GPS Breadcrumb Trail (#24) -->
-      ${positions.length > 0 ? renderBreadcrumbTimeline(positions) : ''}
-
-      <!-- SOS Button -->
-      <button
-        onclick="companionSendAlert()"
-        class="w-full py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 font-semibold flex items-center justify-center gap-2 hover:bg-red-500/30 transition-colors"
-        aria-label="SOS"
-      >
-        ${icon('triangle-alert', 'w-5 h-5')}
-        SOS — ${t('sendAlertTo') || 'Send alert to'} ${escapeHTML(companion.guardian?.name || '?')}
-        ${contactsCount > 1 ? `+${contactsCount - 1}` : ''}
-      </button>
-
-      <!-- Stop Trip -->
-      <button
-        onclick="stopCompanion()"
-        class="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 font-medium flex items-center justify-center gap-2 hover:bg-white/10 transition-colors"
-        aria-label="${t('stopTrip') || 'Stop trip'}"
-      >
-        ${icon('circle-stop', 'w-4 h-4')}
-        ${t('stopTrip') || 'Stop trip'}
-      </button>
+      </div>
     </div>
   `
 }
@@ -592,17 +649,17 @@ function renderTripHistory(history) {
   const shown = history.slice(0, 5)
 
   return `
-    <details class="group bg-white/5 rounded-xl border border-white/10">
-      <summary class="flex items-center justify-between p-4 cursor-pointer list-none select-none">
-        <span class="text-sm font-medium text-slate-300 flex items-center gap-2">
-          ${icon('history', 'w-4 h-4 text-slate-400')}
+    <details class="group bg-slate-800/50 rounded-xl border border-white/[0.06]">
+      <summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none">
+        <span class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+          ${icon('history', 'w-3.5 h-3.5 text-slate-400')}
           ${t('pastTrips') || 'Past trips'} <span class="text-slate-500">(${history.length})</span>
         </span>
         <span class="text-slate-400 group-open:rotate-180 transition-transform">
-          ${icon('chevron-down', 'w-4 h-4')}
+          ${icon('chevron-down', 'w-3.5 h-3.5')}
         </span>
       </summary>
-      <div class="px-4 pb-4 space-y-2">
+      <div class="px-3.5 pb-3.5 space-y-2">
         ${shown.map(trip => {
           const start = new Date(trip.startTime)
           const durationMs = (trip.endTime || Date.now()) - trip.startTime
@@ -612,7 +669,7 @@ function renderTripHistory(history) {
           const dur = h > 0 ? `${h}h${String(m).padStart(2, '0')}` : `${m}min`
 
           return `
-            <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+            <div class="bg-slate-800/80 rounded-xl p-3 border border-white/[0.04]">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-medium text-white">
                   ${start.toLocaleDateString(lang, { day: '2-digit', month: 'short' })}
@@ -622,8 +679,8 @@ function renderTripHistory(history) {
               </div>
               <div class="flex items-center gap-3 text-xs text-slate-400">
                 <span>${icon('shield', 'w-3 h-3 inline')} ${escapeHTML(trip.guardian?.name || '?')}</span>
-                ${trip.destination ? `<span>→ ${trip.destination}</span>` : ''}
-                <span>${icon('circle-check', 'w-3 h-3 inline text-emerald-500')} ${trip.checkInsCount || 0}</span>
+                ${trip.destination ? `<span class="truncate max-w-[80px]">${escapeHTML(trip.destination)}</span>` : ''}
+                <span>${icon('check', 'w-3 h-3 inline text-emerald-500')} ${trip.checkInsCount || 0}</span>
                 <span>${icon('map-pin', 'w-3 h-3 inline')} ${(trip.positions || []).length}</span>
               </div>
             </div>
@@ -643,33 +700,37 @@ function renderTripHistory(history) {
 
 /**
  * Alert overlay — shown when check-in is overdue
+ * V7 design: SOS pulsing circle + timeline + action buttons
  */
 function renderAlertOverlay(companion) {
+  const contactsCount = 1 + (Array.isArray(companion.trustedContacts) ? companion.trustedContacts.filter(c => c?.phone).length : 0)
+
   return `
     <div class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-red-900/95 backdrop-blur-xl"
       role="alertdialog" aria-modal="true" aria-labelledby="companion-alert-title"
       onclick="event.stopPropagation()">
-      <div class="text-center max-w-sm">
+      <div class="text-center max-w-sm w-full">
         <!-- Pulsing icon -->
-        <div class="w-24 h-24 rounded-full bg-red-500 flex items-center justify-center
-          text-5xl mx-auto mb-6 animate-pulse" aria-hidden="true">
-          ${icon('triangle-alert', 'w-12 h-12 text-white')}
+        <div class="w-24 h-24 rounded-full bg-red-500/15 flex items-center justify-center mx-auto mb-6 animate-pulse">
+          <div class="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center">
+            ${icon('triangle-alert', 'w-8 h-8 text-white')}
+          </div>
         </div>
 
-        <h2 id="companion-alert-title" class="text-3xl font-bold text-white mb-3">
+        <h2 id="companion-alert-title" class="text-2xl font-extrabold text-white mb-2">
           ${t('areYouOk') || 'Are you OK?'}
         </h2>
-        <p class="text-red-200 mb-8">
+        <p class="text-sm text-red-200 mb-8">
           ${t('missedCheckIn') || "You didn't check in on time."}
         </p>
 
         <!-- I'm fine -->
         <button
           onclick="companionCheckIn()"
-          class="w-full py-4 rounded-xl bg-emerald-500 text-white font-bold text-lg mb-4 flex items-center justify-center gap-3 active:scale-95 transition-colors"
+          class="w-full py-4 rounded-xl bg-emerald-500 text-white font-bold text-lg mb-3 flex items-center justify-center gap-3 active:scale-95 transition-colors"
           aria-label="${t('imSafe') || "I'm safe"}"
         >
-          ${icon('circle-check', 'w-6 h-6')}
+          ${icon('check', 'w-6 h-6')}
           ${t('imSafe') || "I'm safe"}
         </button>
 
@@ -680,7 +741,8 @@ function renderAlertOverlay(companion) {
           aria-label="${t('sendAlertTo') || 'Send alert to'} ${escapeHTML(companion.guardian?.name || '')}"
         >
           ${icon('send', 'w-6 h-6')}
-          ${t('sendAlertTo') || 'Send alert to'} ${companion.guardian?.name || ''}
+          ${t('sendAlertTo') || 'Send alert to'} ${escapeHTML(companion.guardian?.name || '')}
+          ${contactsCount > 1 ? `+${contactsCount - 1}` : ''}
         </button>
       </div>
     </div>
@@ -772,24 +834,10 @@ async function updateBatteryDisplay() {
   const pct = Math.round(level * 100)
   const isLow = pct <= 15
   const color = isLow ? 'text-red-400' : pct <= 30 ? 'text-amber-400' : 'text-emerald-400'
-  const batteryIcon = icon('battery-low', `w-5 h-5 ${color}`)
 
-  el.classList.remove('hidden')
   el.innerHTML = `
-    <div class="bg-white/5 rounded-xl p-3 border ${isLow ? 'border-red-500/30' : 'border-white/10'} flex items-center gap-3">
-      <span>${batteryIcon}</span>
-      <div class="flex-1">
-        <div class="flex items-center justify-between">
-          <span class="text-sm text-slate-300">${t('batteryLevel') || 'Battery'}</span>
-          <span class="text-sm font-bold ${color}">${pct}%</span>
-        </div>
-        <div class="mt-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-          <div class="h-full rounded-full transition-colors ${isLow ? 'bg-red-500' : pct <= 30 ? 'bg-amber-500' : 'bg-emerald-500'}"
-            style="width: ${pct}%"></div>
-        </div>
-        ${isLow ? `<p class="text-xs text-red-400 mt-1">${t('batteryLowWarning') || 'Battery low. Guardian will be alerted'}</p>` : ''}
-      </div>
-    </div>
+    <div class="text-sm font-extrabold ${color}">${pct}%</div>
+    <div class="text-[9px] text-slate-500 uppercase tracking-wider">${t('batteryLevel') || 'Battery'}</div>
   `
 }
 
