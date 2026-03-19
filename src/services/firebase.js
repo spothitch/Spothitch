@@ -625,6 +625,7 @@ export async function updateSpot(spotId, updates) {
       'totalReviews', 'checkins', 'verified', 'reports',
       'lastValidatedAt', 'lastTestedAt', 'lastValidated', 'lastTested',
       'lastValidatedBy', 'lastTestedBy', 'userValidations',
+      'streetViewVerified', 'streetViewVerifiedBy', 'streetViewVerifiedAt',
     ]
     for (const key of COUNTER_FIELDS) {
       if (updates[key] !== undefined) safeUpdates[key] = updates[key]

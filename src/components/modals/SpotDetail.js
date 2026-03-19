@@ -729,19 +729,62 @@ window.openSpotStreetView = async (lat, lng) => {
   openStreetView(lat, lng)
 }
 
-// Handler: confirm Street View is available at this spot
+// Handler: confirm Street View is available — shows confirmation dialog
 window.confirmStreetViewAvailable = async (spotId) => {
-  const { getCurrentUser, getFirestore } = await import('../../services/firebase.js')
+  const { getCurrentUser } = await import('../../services/firebase.js')
   const user = getCurrentUser()
   if (!user) {
     const { setState } = await import('../../stores/state.js')
     setState({ showAuth: true })
     return
   }
+
+  // Get spot coordinates for Street View link
+  const { getState } = await import('../../stores/state.js')
+  const spot = getState().selectedSpot
+  const lat = spot?.coordinates?.lat
+  const lng = spot?.coordinates?.lng
+
+  // Show confirmation dialog
+  const overlay = document.createElement('div')
+  overlay.id = 'sv-confirm-overlay'
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:16px'
+  overlay.innerHTML = `
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)" onclick="document.getElementById('sv-confirm-overlay')?.remove()" role="button" tabindex="0" aria-label="${t('cancel') || 'Annuler'}"></div>
+    <div style="position:relative;background:#0f1520;border:1px solid #1e293b;border-radius:14px;max-width:340px;width:100%;padding:20px;text-align:center" onclick="event.stopPropagation()">
+      <div style="width:48px;height:48px;background:rgba(96,165,250,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
+      </div>
+      <h3 style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:8px">${t('streetViewConfirmTitle') || 'Vérifier Street View'}</h3>
+      <p style="font-size:13px;color:#94a3b8;margin-bottom:16px;line-height:1.5">${t('streetViewConfirmText') || 'Regardez d\'abord sur Google Street View si cet endroit est bien visible, puis confirmez.'}</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button type="button" onclick="openSpotStreetView(${lat}, ${lng})"
+          style="width:100%;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);color:#93c5fd;padding:11px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
+          ${t('streetViewOpenFirst') || 'Ouvrir Street View d\'abord'}
+        </button>
+        <button type="button" onclick="doConfirmStreetView('${escapeJSString(String(spotId))}')"
+          style="width:100%;background:#22c55e;border:none;color:#fff;padding:11px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
+          ${t('streetViewYesConfirm') || 'Oui, Street View fonctionne ici'} ✓
+        </button>
+        <button type="button" onclick="document.getElementById('sv-confirm-overlay')?.remove()"
+          style="width:100%;background:transparent;border:1px solid #334155;color:#64748b;padding:10px;border-radius:10px;font-size:12px;cursor:pointer">
+          ${t('cancel') || 'Annuler'}
+        </button>
+      </div>
+    </div>
+  `
+  document.body.appendChild(overlay)
+}
+
+// Handler: actually save Street View verification to Firestore
+window.doConfirmStreetView = async (spotId) => {
+  document.getElementById('sv-confirm-overlay')?.remove()
   try {
-    const { doc, updateDoc } = await import('firebase/firestore')
-    const db = getFirestore()
-    await updateDoc(doc(db, 'spots', spotId), {
+    const { getCurrentUser, updateSpot } = await import('../../services/firebase.js')
+    const user = getCurrentUser()
+    if (!user) return
+    await updateSpot(spotId, {
       streetViewVerified: true,
       streetViewVerifiedBy: user.uid,
       streetViewVerifiedAt: new Date().toISOString(),
