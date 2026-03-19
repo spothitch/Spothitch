@@ -204,6 +204,24 @@
 >   6. `gh run view` du dernier CI
 > - NE PAS dire "c'est terminé" tant que les 6 checks ne sont pas verts
 
+> **RÈGLE #20 — TESTS OBLIGATOIRES AVANT CHAQUE PUSH + CORRECTION AUTOMATIQUE** (ABSOLUMENT OBLIGATOIRE) :
+> - **AVANT chaque `git push`** → lancer `npx vitest run tests/wiring/` + `npm run build`. Si un seul test échoue → CORRIGER avant de push. JAMAIS push avec un test cassé.
+> - **Si un test échoue après une modification** → c'est que la modification a cassé une fonction existante. Le test montre EXACTEMENT ce qui est cassé. Trouver la cause, corriger le code (pas le test), re-lancer les tests, et ne push que quand tout est vert.
+> - **Si un test de régression échoue** (`e2e/regression.spec.js` ou `tests/wiring/networkGuards.test.js`) → c'est un BLOQUEUR ABSOLU. Ces tests protègent des fonctions critiques. Ne JAMAIS contourner ou supprimer un test de régression pour faire passer le CI.
+> - **Quand une nouvelle feature est ajoutée** → ajouter les tests correspondants DANS LE MÊME COMMIT :
+>   1. Tests wiring dans `tests/wiring/` (handlers existent)
+>   2. Tests comportementaux dans `e2e/regression.spec.js` (la feature marche vraiment)
+>   3. Mettre à jour `memory/e2e-coverage-map.md` (marquer ✅)
+> - **Quand une feature existante est modifiée** → vérifier que ses tests passent toujours. Si le comportement change, mettre à jour les tests pour refléter le NOUVEAU comportement attendu.
+> - **Couverture E2E** : `node scripts/check-e2e-coverage.mjs` vérifie que les handlers window.* sont couverts par les tests. Le seuil est à 30% minimum (objectif : 80%+). Ce seuil ne doit JAMAIS baisser.
+> - **Ordre de priorité quand un test échoue** :
+>   1. Comprendre POURQUOI le test échoue (lire le message d'erreur)
+>   2. Vérifier si c'est la modification qui a cassé quelque chose (git diff)
+>   3. Corriger le CODE source, pas le test (sauf si le test est obsolète)
+>   4. Re-lancer les tests
+>   5. Push seulement quand TOUT est vert
+> - Cette règle existe parce que des modifications innocentes ont cassé des fonctions critiques (mode hors ligne, partage Google Maps) sans que personne ne s'en rende compte avant que les utilisateurs signalent le problème
+
 > **RÈGLE #13 — QUALITÉ VISUELLE MOBILE** :
 > - TOUT changement UI doit être testé sur viewport 390x844 (iPhone 14)
 > - Vérifier CHAQUE écran modifié avec un screenshot Playwright AVANT de push
