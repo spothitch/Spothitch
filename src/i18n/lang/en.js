@@ -50,7 +50,7 @@ export default {
   userReviews: 'Traveler reviews',
   validations: 'Validations',
   reliability: 'Reliability',
-  hitchwikiImport: 'Imported spot. Validate it to improve its reliability!',
+
   verified: 'Verified',
   topSpot: 'Top',
   goodSpot: 'Good',
@@ -3565,7 +3565,6 @@ export default {
   commentPlaceholder: "Tips, warnings, useful info...",
 
   // Spot source
-  spotSourceHitchmap: "Imported data",
   spotSourceCommunity: "Community data",
   spotSourceLabel: "Data source",
 

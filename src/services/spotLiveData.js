@@ -54,11 +54,9 @@ export async function fetchSpotValidations(spotId) {
 /**
  * Merge static spot data with live Firebase validations (pure function)
  *
- * RULE: when at least 1 community validation exists for an imported spot,
- * ALL imported data (comments, ratings, wait time, test count) is replaced
- * by community data only.
+ * Merges static spot data with live community validations.
  *
- * @param {object} staticSpot - The static imported spot
+ * @param {object} staticSpot - The spot data
  * @param {Array} validations - Firebase validation records
  * @returns {object} merged spot with live* fields
  */
@@ -139,7 +137,7 @@ export function mergeSpotData(staticSpot, validations) {
   const liveLastTestedBy = mostRecentTest?.userName || staticSpot.lastTestedBy || ''
   const liveLastValidatedBy = mostRecentValidation?.userName || staticSpot.lastValidatedBy || ''
 
-  // Live comments: community only for imported spots, merged for others
+  // Live comments from community validations
   const firebaseComments = allValidations
     .filter(v => v.comment)
     .map(v => ({

@@ -189,7 +189,7 @@ window.openTestSpot = async (spotId) => {
   // Pre-fill form from existing spot
   const lat = spot?.coordinates?.lat ?? spot?.lat ?? null
   const lng = spot?.coordinates?.lng ?? spot?.lng ?? spot?.lon ?? null
-  // Strip "#N" suffix from Hitchwiki spot names (e.g. "Namur #1" → "Namur")
+  // Strip "#N" suffix from spot names (e.g. "Namur #1" → "Namur")
   const rawFrom = spot?.from || spot?.departureCity || spot?.fromCity || null
   const cleanCity = rawFrom ? rawFrom.replace(/\s*#\d+$/, '').trim() : null
   window.spotFormData = {

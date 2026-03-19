@@ -3,7 +3,7 @@
  * "Split net + couronne 3 pointes + anneau fin doré"
  *
  * 4 tiers:
- *   Grey (#94a3b8)  — Hitchwiki importé, pas encore utilisé par la communauté ("à vérifier")
+ *   Grey (#94a3b8)  — Spot non vérifié ("à vérifier")
  *   Blue (#3b82f6)  — Spot SpotHitch communauté (créé ou utilisé par nos users)
  *   Green (#22c55e) — Fiable (3+ tests communauté AND 3+ validations)
  *   Gold overlay    — Certifié ambassadeur (couronne + anneau doré)
@@ -126,7 +126,7 @@ export async function registerMarkerImages(map) {
 /**
  * Determine the marker image name for a spot.
  * Tier logic:
- *   - Grey: Hitchwiki imported, not yet USED by SpotHitch community
+ *   - Grey: Not yet tested by SpotHitch community
  *   - Blue: SpotHitch community spot (created or used by our users)
  *   - Green: Reliable (3+ community tests AND 3+ validations)
  *   - Gold overlay: ambassadorVerified = true

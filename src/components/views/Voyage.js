@@ -340,7 +340,7 @@ function renderBottomSheetSpotItem(spot, i, results, favSet) {
   // Wait time
   const waitTime = spot.avgWaitTime || spot.avgWait
   // Stars display (1-5 based on rating)
-  const rating = spot.globalRating || spot._hitchwikiRating || 0
+  const rating = spot.globalRating || 0
   const stars = rating > 0 ? '★'.repeat(Math.round(Math.min(5, rating))) + '☆'.repeat(5 - Math.round(Math.min(5, rating))) : ''
   const safeSpotId = escapeJSString(String(spot.id))
 

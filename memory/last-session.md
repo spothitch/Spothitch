@@ -1,13 +1,13 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-18 18:27
+Date : 2026-03-19 17:09
 
 ## Derniers commits
-5e49734 fix: register spothitch_hw_purged in RGPD storage + update ratchet
-f2ae4d6 chore: update quality ratchet for Error Patterns 95→90
-b0e7f51 fix: purge Hitchwiki spots du cache local des utilisateurs existants
-64ca634 fix: overwrite Hitchwiki JSONs with empty stubs to purge CDN cache
-9d53b2c chore: force clean deploy — purge Hitchwiki spot files from CDN
+25e79ad fix: remove all imported data traces from codebase
+35d8167 fix: restore _forceRender modal fingerprint reset for lazy-loaded modals
+c260718 feat: Street View banner with 2 distinct states (unverified / certified)
+7c3e6dd fix: prevent form recreation during share flow by guarding _forceRender
+16b9a2f fix: global reload interceptor + AddSpot preload for share flow
 
 ## Note
 Reprendre avec : claude --continue

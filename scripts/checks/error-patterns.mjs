@@ -48,7 +48,7 @@ const PATTERN_CHECKS = [
         const SKIP = new Set(['addEventListener', 'removeEventListener', 'onerror', 'onload',
              'onunhandledrejection', 'onresize', 'onpopstate', 'onhashchange',
              '__SPOTHITCH_VERSION__', '_lazyLoaders', '_loadedModules',
-             'mapInstance', 'spotHitchMap', 'homeMapInstance',
+             'mapInstance', 'homeMapInstance',
              'spotFormData', 'validateFormData', 'identityVerificationState'])
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i]
@@ -833,7 +833,7 @@ const PATTERN_CHECKS = [
       const SKIP = new Set(['addEventListener', 'removeEventListener', 'onerror', 'onload',
         'onunhandledrejection', 'onresize', 'onpopstate', 'onhashchange',
         '__SPOTHITCH_VERSION__', '_lazyLoaders', '_loadedModules',
-        'mapInstance', 'spotHitchMap', 'homeMapInstance',
+        'mapInstance', 'homeMapInstance',
         'spotFormData', 'validateFormData', 'identityVerificationState',
         'landingNext', 'closeAuth', 'closeDailyReward'])
       const handlersByFile = {} // handler → [files]

@@ -2,7 +2,7 @@
  * Spot Freshness/Reliability Service
  * Color-coded tier system:
  *
- *   - Grey (#94a3b8): Hitchwiki imported, not yet tested by SpotHitch community ("à vérifier")
+ *   - Grey (#94a3b8): Not yet tested by SpotHitch community ("à vérifier")
  *   - Blue (#3b82f6): SpotHitch community spot (created or tested by our users)
  *   - Green (#10b981): Reliable (3+ tests AND 3+ validations by SpotHitch users)
  *   - Gold (#fbbf24): Certified (10+ tests AND 10+ validations)

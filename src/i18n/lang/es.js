@@ -41,7 +41,7 @@ export default {
   userReviews: 'Opiniones de viajeros',
   validations: 'Validaciones',
   reliability: 'Fiabilidad',
-  hitchwikiImport: 'Spot importado. ¡Valídalo para mejorar su fiabilidad!',
+
   verified: 'Verificado',
   login: 'Iniciar sesión',
   register: 'Registrarse',
@@ -3562,7 +3562,6 @@ export default {
   commentPlaceholder: "Consejos, advertencias, info útil...",
 
   // Spot source
-  spotSourceHitchmap: "Datos importados",
   spotSourceCommunity: "Datos comunidad",
   spotSourceLabel: "Fuente de datos",
 

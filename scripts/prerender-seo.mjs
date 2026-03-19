@@ -357,17 +357,11 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 }
 
 // ==================== DATA SOURCES ====================
-// Set to false to stop loading imported spot data entirely
-const HITCHMAP_ENABLED = process.env.HITCHMAP_ENABLED !== 'false'
 
 /**
- * Load imported spots from static JSON files
+ * Load spots from static JSON files
  */
-function loadHitchmapSpots() {
-  if (!HITCHMAP_ENABLED) {
-    console.log('  Imported data DISABLED (HITCHMAP_ENABLED=false)')
-    return []
-  }
+function loadStaticSpots() {
   const files = readdirSync(SPOTS_PATH).filter(f => f.endsWith('.json'))
   const allSpots = []
   for (const file of files) {
@@ -376,11 +370,11 @@ function loadHitchmapSpots() {
       const country = file.replace('.json', '').toUpperCase()
       const spots = data.spots || (Array.isArray(data) ? data : [])
       for (const s of spots) {
-        allSpots.push({ ...s, country, dataSource: 'hitchmap' })
+        allSpots.push({ ...s, country, dataSource: 'static' })
       }
     } catch { /* skip broken files */ }
   }
-  console.log(`  Imported: ${allSpots.length} spots loaded`)
+  console.log(`  Static: ${allSpots.length} spots loaded`)
   return allSpots
 }
 
@@ -413,7 +407,7 @@ async function loadFirebaseSpots() {
       try {
         const fields = doc.fields || {}
         const spot = firestoreFieldsToObject(fields)
-        // Normalize to match Hitchmap format
+        // Normalize fields
         spots.push({
           lat: spot.coordinates?.lat || spot.lat || null,
           lon: spot.coordinates?.lng || spot.lng || null,
@@ -473,15 +467,15 @@ function firestoreValueToJS(val) {
 }
 
 /**
- * Load ALL spots from both sources (imported + Firebase community)
+ * Load ALL spots from both sources (static files + Firebase community)
  */
 async function loadAllSpots() {
-  const [hitchmap, firebase] = await Promise.all([
-    Promise.resolve(loadHitchmapSpots()),
+  const [staticSpots, firebase] = await Promise.all([
+    Promise.resolve(loadStaticSpots()),
     loadFirebaseSpots(),
   ])
-  const all = [...hitchmap, ...firebase]
-  console.log(`  Total: ${all.length} spots (${hitchmap.length} imported + ${firebase.length} community)`)
+  const all = [...staticSpots, ...firebase]
+  console.log(`  Total: ${all.length} spots (${staticSpots.length} static + ${firebase.length} community)`)
   return all
 }
 

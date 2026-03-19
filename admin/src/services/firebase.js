@@ -276,18 +276,13 @@ export async function getSpotStats() {
   const allSpots = await loadAllDocs('spots')
   let total = 0
   let community = 0
-  let hitchwiki = 0
   let reported = 0
   for (const s of allSpots) {
     total++
-    if (s.source === 'hitchwiki') {
-      hitchwiki++
-    } else {
-      community++
-    }
+    community++
     if (s.reportCount > 0 || (s.reports && s.reports.length > 0)) {
       reported++
     }
   }
-  return { total, community, hitchwiki, reported }
+  return { total, community, reported }
 }

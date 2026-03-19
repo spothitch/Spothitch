@@ -6,7 +6,6 @@
  */
 
 import {
-  getCollectionCount,
   getFilteredCount,
   getRecentDocs,
   loadAllDocs,
@@ -50,12 +49,11 @@ export function isRealSpot(spot, realUserIds = []) {
 }
 
 export async function loadDashboardStats() {
-  const [allUsers, allSpots, allReports, pendingTipsCount, hitchwikiStats] = await Promise.all([
+  const [allUsers, allSpots, allReports, pendingTipsCount] = await Promise.all([
     loadAllDocs('users').catch(() => []),
     loadAllDocs('spots').catch(() => []),
     loadAllDocs('reports').catch(() => []),
     getFilteredCount('guideTips', 'status', '==', 'pending').catch(() => 0),
-    loadHitchwikiStats(),
   ])
 
   const realUsers = allUsers.filter((u) => isRealUser(u))
@@ -67,22 +65,10 @@ export async function loadDashboardStats() {
   return {
     userCount: realUsers.length,
     spotCountFirebase: realSpots.length,
-    spotCountHitchwiki: hitchwikiStats.totalHitchwiki,
-    hitchwikiCountries: hitchwikiStats.countries,
     pendingTipsCount,
     testUserCount: testUsers.length,
     testSpotCount: testSpots.length,
     testReportCount: allReports.length,
-  }
-}
-
-async function loadHitchwikiStats() {
-  try {
-    const res = await fetch('https://spothitch.com/data/spots-stats.json')
-    if (!res.ok) throw new Error('Failed to load stats')
-    return await res.json()
-  } catch {
-    return { totalHitchwiki: 0, countries: 0 }
   }
 }
 

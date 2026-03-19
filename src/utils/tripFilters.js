@@ -18,7 +18,7 @@ export function applyTripFilter(spots, filter) {
         (s.description || '').toLowerCase().includes('station')
       )
     case 'rating4':
-      return spots.filter(s => (s.globalRating || 0) >= 4 || (s._hitchwikiRating || 0) >= 4)
+      return spots.filter(s => (s.globalRating || 0) >= 4)
     case 'wait20':
       return spots.filter(s => s.avgWaitTime && s.avgWaitTime <= 20)
     case 'verified':

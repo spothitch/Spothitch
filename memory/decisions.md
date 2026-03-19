@@ -26,12 +26,11 @@
 
 | Décision | Choix | Raison | Date |
 |----------|-------|--------|------|
-| Source spots | Hitchmap/Hitchwiki ODBL | 14 669 spots, 137 pays, données communautaires | 2025-12-23 |
+| Source spots | Données communautaires uniquement | Spots créés par les utilisateurs SpotHitch | 2026-03 |
 | Stockage spots | JSON par pays dans public/data/spots/ | Chargement lazy par pays, pas de backend | 2026-01 |
 | Cache client | IndexedDB + localStorage | Offline, pas de limite 5MB (IndexedDB) | 2025-12-26 |
 | Nettoyage données | Suppression 3642 spots dangereux/peu fiables | Qualité > quantité | 2026-02 |
-| Kill switch Hitchmap | VITE_HITCHMAP_ENABLED env var | Pouvoir couper les données Hitchmap si besoin légal | 2026-02 |
-| Suppression commentaires Hitchwiki | Commentaires bruts retirés, infos extraites dans champs structurés | Spots temporaires, pas besoin de texte libre. Destinations avec % plus utiles. | 2026-03-15 |
+| Données importées supprimées | Toutes les données importées retirées, 100% communautaire | SpotHitch repart de zéro avec uniquement les spots créés par la communauté | 2026-03-18 |
 | Destinations avec pourcentages | Extraites des commentaires + nearest city lookup | L'utilisateur voit "→ Budapest 40%, → Bratislava 30%" au lieu de commentaires bruts | 2026-03-15 |
 | Noms spots = ville principale | Quartiers/arrondissements en sous-info, pas dans le titre | "Paris #5" avec "13e arrondissement" en dessous, pas "Paris 13e Arrondissement #5" | 2026-03-15 |
 
@@ -68,7 +67,7 @@
 | Marqueurs carte Style D | Split vertical (gauche=tier, droite=rouge) pour stations + bordure dorée brillante pour certifié. **VERROUILLÉ** — ne jamais changer sans accord Antoine. | Choisi par Antoine parmi 6 propositions (A-F). Icônes canvas, symbol layer. | 2026-03-02 |
 | Or auto-certifié | Spot d'Or (10+ tests + 10+ validations) est TOUJOURS certifié, même sans ambassadeur | La communauté qui valide massivement = preuve suffisante | 2026-03-02 |
 | Photo optionnelle + 50pts | Photo pas obligatoire à la création ni au test, mais donne +50 points bonus | Testeurs ajoutent beaucoup de spots sans photos au début | 2026-03-02 |
-| Champs spot obligatoires | Tout obligatoire sauf photo : position, type, ville, direction, méthode, groupe, heure, résultat, description, 3 notes | Qualité des données avant retrait Hitchwiki | 2026-03-02 |
+| Champs spot obligatoires | Tout obligatoire sauf photo : position, type, ville, direction, méthode, groupe, heure, résultat, description, 3 notes | Qualité des données communautaires | 2026-03-02 |
 | Âge/genre inscription | birthYear (obligatoire, 16+) et gender (optionnel) collectés à l'inscription | Données communautaires pour analytics | 2026-03-02 |
 | @pseudo obligatoire | Username unique style Instagram (@pseudo), 3-20 chars, lettres/chiffres/._. Firestore `usernames/{pseudo}` pour unicité. Obligatoire email + Google. | Identité communautaire, mentions futures, social | 2026-03-02 |
 | Complete Profile Google | Après 1er Google sign-in, modal "Complète ton profil" (pseudo+âge+genre) avant de continuer | Google ne fournit pas ces infos, on les demande post-auth | 2026-03-02 |
