@@ -127,8 +127,10 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_test_mode', category: DataCategory.SETTINGS, description: 'Developer test mode bypass for auth' },
   { key: 'spothitch_beta_seen', category: DataCategory.SETTINGS, description: 'Beta banner dismissed flag' },
   { key: 'spothitch_hw_purged', category: DataCategory.CACHE, description: 'One-time flag: stale spots purged from IDB/SW cache' },
+  { key: 'spothitch_hw_purged_v2', category: DataCategory.CACHE, description: 'V2 purge flag: stale spots purged from IDB/SW cache' },
   { key: 'spothitch_gmaps_tip_hidden', category: DataCategory.SETTINGS, description: 'Google Maps share tip dismissed' },
   { key: 'spothitch_spot_cache_purged', category: DataCategory.CACHE, description: 'One-shot flag: stale spot cache purged' },
+  { key: 'spothitch_spot_cache_purged_v2', category: DataCategory.CACHE, description: 'V2 purge flag: stale spot cache purged' },
   { key: 'spothitch_v4_cookie_consent', category: DataCategory.SETTINGS, description: 'Cookie consent preferences (RGPD)' },
 
   // === SECURITY ===
@@ -171,6 +173,8 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_cities_*', category: DataCategory.CACHE, description: 'Cities list per downloaded country (spothitch_cities_FR, etc.)' },
   { key: 'spothitch_cache_timestamp', category: DataCategory.CACHE, description: 'Cache timestamps' },
   { key: 'spothitch_hw_purged', category: DataCategory.CACHE, description: 'Flag indicating stale spots have been purged from local cache' },
+  { key: 'spothitch_hw_purged_v2', category: DataCategory.CACHE, description: 'V2 flag indicating stale spots have been purged from local cache' },
+  { key: 'spothitch_spot_cache_purged_v2', category: DataCategory.CACHE, description: 'V2 flag: stale spot SW cache purged' },
   { key: 'spothitch_badge_count', category: DataCategory.CACHE, description: 'Notification badge count' },
   { key: 'spothitch_notification_badge_count', category: DataCategory.CACHE, description: 'Badge count display' },
   { key: 'spothitch_notification_history', category: DataCategory.CACHE, description: 'Notification history' },
