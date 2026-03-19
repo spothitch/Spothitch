@@ -122,13 +122,14 @@ window.addEventListener('error', (e) => {
     const isShareFlow = window._shareInProgress
       || window.location.search.includes('action=share')
       || sessionStorage.getItem('spothitch_share_flow')
+    // Guarded reload: only reload if NOT in share flow (visibilityState irrelevant for cache recovery)
+    const safeReload = () => { if (!isShareFlow) window.location.reload() } // eslint-disable-line no-unused-vars
     if (window.caches) {
       caches.keys().then(keys =>
         Promise.all(keys.map(k => caches.delete(k)))
-      ).then(() => { if (!isShareFlow) window.location.reload() })
-        .catch(() => { if (!isShareFlow) window.location.reload() })
-    } else if (!isShareFlow) {
-      window.location.reload()
+      ).then(safeReload).catch(safeReload)
+    } else {
+      safeReload()
     }
   }
 })
