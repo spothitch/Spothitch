@@ -28,8 +28,12 @@ const HITCHMAP_ENABLED = import.meta.env.VITE_HITCHMAP_ENABLED !== 'false'
 const INDEX_TTL = 24 * 60 * 60 * 1000 // 24h for spot index
 const SPOTS_VERSION_TTL = 30 * 24 * 60 * 60 * 1000 // 30 days for version tracking
 
-// Cache loaded country data (in-memory)
+// LRU eviction constants
+const MAX_COUNTRIES_IN_MEMORY = 20
+
+// Cache loaded country data (in-memory) with LRU tracking
 const loadedCountries = new Map()
+const countryAccessTimes = new Map() // country code → last access timestamp
 let countryIndex = null
 const allLoadedSpotsMap = new Map()
 
@@ -41,6 +45,36 @@ function getAllLoadedSpotsArray() {
 function addSpotsToAll(spots) {
   for (const s of spots) {
     if (s.id != null) allLoadedSpotsMap.set(s.id, s)
+  }
+}
+
+/**
+ * Track access time for a country (LRU)
+ */
+function touchCountry(code) {
+  countryAccessTimes.set(code, Date.now())
+}
+
+/**
+ * Evict least recently used countries from memory when limit exceeded.
+ * Evicted spots are still in IDB, just removed from the in-memory map.
+ */
+function evictLRUCountries() {
+  if (loadedCountries.size <= MAX_COUNTRIES_IN_MEMORY) return
+
+  // Sort by access time ascending (oldest first)
+  const sorted = [...countryAccessTimes.entries()]
+    .sort((a, b) => a[1] - b[1])
+
+  const toEvict = loadedCountries.size - MAX_COUNTRIES_IN_MEMORY
+  for (let i = 0; i < toEvict && i < sorted.length; i++) {
+    const code = sorted[i][0]
+    // Remove spots for this country from allLoadedSpotsMap
+    for (const [id, s] of allLoadedSpotsMap) {
+      if (s.country === code) allLoadedSpotsMap.delete(id)
+    }
+    loadedCountries.delete(code)
+    countryAccessTimes.delete(code)
   }
 }
 
@@ -86,6 +120,7 @@ export async function loadCountrySpots(countryCode) {
 
   // 1. In-memory cache → instantaneous
   if (loadedCountries.has(code)) {
+    touchCountry(code)
     return loadedCountries.get(code)
   }
 
@@ -94,6 +129,8 @@ export async function loadCountrySpots(countryCode) {
     const idbSpots = await getByIndex('spots', 'country', code)
     if (idbSpots && idbSpots.length > 0) {
       loadedCountries.set(code, idbSpots)
+      touchCountry(code)
+      evictLRUCountries()
       addSpotsToAll(idbSpots)
       // Check if we should refresh from network in background (version check)
       refreshFromNetworkIfNeeded(code).catch(() => {})
@@ -118,6 +155,8 @@ export async function loadCountrySpots(countryCode) {
     const spots = convertToAppFormat(data.spots, code)
 
     loadedCountries.set(code, spots)
+    touchCountry(code)
+    evictLRUCountries()
     addSpotsToAll(spots)
 
     // Save to IDB for offline use (fire-and-forget)
@@ -542,6 +581,7 @@ export function prefetchNearbyCountries(lat, lng, radiusKm = 800) {
  */
 export function clearSpotCache() {
   loadedCountries.clear()
+  countryAccessTimes.clear()
   allLoadedSpotsMap.clear()
 }
 

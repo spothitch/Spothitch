@@ -205,6 +205,12 @@ window.showFeatureIntro = (featureId) => {
   // Remove any existing overlay
   document.getElementById('feature-intro-overlay')?.remove()
 
+  // Re-attach global listeners (removed on close to prevent leaks)
+  document.removeEventListener('keydown', _featureIntroKeydown)
+  document.removeEventListener('click', _featureIntroClick)
+  document.addEventListener('keydown', _featureIntroKeydown)
+  document.addEventListener('click', _featureIntroClick)
+
   const el = document.createElement('div')
   el.innerHTML = buildModalHTML(feature)
   const overlay = el.firstElementChild
@@ -216,6 +222,8 @@ window.showFeatureIntro = (featureId) => {
 
 window.closeFeatureIntro = () => {
   document.getElementById('feature-intro-overlay')?.remove()
+  // Remove global listeners to prevent memory leaks; re-attached on next show
+  cleanupFeatureIntroListeners()
 }
 
 window.featureIntroCTA = (featureId) => {
@@ -297,19 +305,29 @@ window.submitIntroVote = async (featureId) => {
   }, 1200)
 }
 
-// Keyboard close
-document.addEventListener('keydown', (e) => {
+// Named handlers for cleanup
+function _featureIntroKeydown(e) {
   if (e.key === 'Escape' && document.getElementById('feature-intro-overlay')) {
     window.closeFeatureIntro()
   }
-})
+}
 
-// Delegate vote button clicks
-document.addEventListener('click', (e) => {
+function _featureIntroClick(e) {
   const btn = e.target.closest('.intro-vote-btn')
   if (!btn) return
   const { vote, featureid } = btn.dataset
   if (vote && featureid) {
     window.selectIntroVote(vote, featureid)
   }
-})
+}
+
+// Listeners are registered on modal open (showFeatureIntro) and removed on close
+// to prevent memory leaks from persistent global listeners
+
+/**
+ * Cleanup global event listeners (call when modal is no longer needed)
+ */
+export function cleanupFeatureIntroListeners() {
+  document.removeEventListener('keydown', _featureIntroKeydown)
+  document.removeEventListener('click', _featureIntroClick)
+}

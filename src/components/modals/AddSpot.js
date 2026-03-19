@@ -2365,12 +2365,28 @@ window.handleAddSpot = async (event) => {
   }
 }
 
-// Character counter for description
-document.addEventListener('input', (e) => {
+// Character counter for description (named handler for cleanup)
+function _addSpotInputHandler(e) {
   if (e.target.id === 'spot-description') {
     const count = document.getElementById('desc-count')
     if (count) count.textContent = e.target.value.length
   }
-})
+}
+document.addEventListener('input', _addSpotInputHandler)
+
+/**
+ * Cleanup AddSpot event listeners — called from closeAddSpot
+ */
+export function cleanupAddSpotListeners() {
+  document.removeEventListener('input', _addSpotInputHandler)
+}
+
+/**
+ * Re-attach AddSpot event listeners — called when modal opens
+ */
+export function attachAddSpotListeners() {
+  document.removeEventListener('input', _addSpotInputHandler) // prevent duplicates
+  document.addEventListener('input', _addSpotInputHandler)
+}
 
 export default { renderAddSpot }
