@@ -2159,6 +2159,7 @@ export default {
   offlineModeActivated: 'Pas de connexion. Les spots sauvegardés restent accessibles.',
   offlineActionBlocked: 'Action impossible sans connexion internet',
   slowConnection: 'Connexion lente. Le chargement peut prendre du temps.',
+  firebaseInitFailed: 'Problème de connexion. Certaines fonctionnalités peuvent ne pas fonctionner.',
   syncingActions: 'Synchronisation en cours...',
   syncComplete: 'Synchronisation terminée !',
   syncFailed: 'Actions non synchronisées',

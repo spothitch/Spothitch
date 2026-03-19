@@ -5,6 +5,23 @@
 
 const OSRM_BASE_URL = 'https://router.project-osrm.org/route/v1/driving/';
 
+// Nominatim rate limiter: minimum 1000ms between requests
+let _lastNominatimRequest = 0
+const NOMINATIM_MIN_INTERVAL = 1000
+
+/**
+ * Wait if needed to respect Nominatim rate limit (1 req/sec).
+ * Returns a promise that resolves when it's safe to send the request.
+ */
+async function waitForNominatimSlot() {
+  const now = Date.now()
+  const elapsed = now - _lastNominatimRequest
+  if (elapsed < NOMINATIM_MIN_INTERVAL) {
+    await new Promise(resolve => setTimeout(resolve, NOMINATIM_MIN_INTERVAL - elapsed))
+  }
+  _lastNominatimRequest = Date.now()
+}
+
 // Cache for route results
 const routeCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -150,6 +167,7 @@ export async function searchLocation(query) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=8&accept-language=${lang}&featuretype=settlement&addressdetails=1`;
 
   try {
+    await waitForNominatimSlot()
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'SpotHitch/2.0 (https://spothitch.com)',
@@ -211,6 +229,7 @@ export async function reverseGeocode(lat, lng) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${lang}`;
 
   try {
+    await waitForNominatimSlot()
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'SpotHitch/2.0 (https://spothitch.com)',
@@ -254,6 +273,7 @@ export async function searchCities(query, { countryCode } = {}) {
   }
 
   try {
+    await waitForNominatimSlot()
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'SpotHitch/2.0 (https://spothitch.com)',
@@ -309,6 +329,7 @@ export async function searchCountries(query) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&accept-language=${lang}&featuretype=country&addressdetails=1`
 
   try {
+    await waitForNominatimSlot()
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'SpotHitch/2.0 (https://spothitch.com)',

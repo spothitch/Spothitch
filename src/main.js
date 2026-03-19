@@ -311,7 +311,17 @@ async function init() {
         // may already be signed in even without anything in localStorage.
         try {
           const fb = await getFirebase()
-          fb.initializeFirebase()
+          const firebaseOk = fb.initializeFirebase()
+          if (!firebaseOk) {
+            // Show a visible banner when Firebase fails to initialize
+            const banner = document.createElement('div')
+            banner.id = 'firebase-init-banner'
+            banner.setAttribute('role', 'alert')
+            banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#f59e0b;color:#000;text-align:center;padding:10px 16px;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px'
+            const msg = (typeof t === 'function' && t('firebaseInitFailed')) || 'Connection issue. Some features may not work.'
+            banner.innerHTML = `<span>${msg}</span><button onclick="location.reload()" style="background:#000;color:#f59e0b;border:none;border-radius:6px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer">${(typeof t === 'function' && t('retry')) || 'Retry'}</button>`
+            document.body.prepend(banner)
+          }
 
           // Handle auth state changes (fires immediately with current state, then on every change)
           fb.onAuthChange(async (user) => {

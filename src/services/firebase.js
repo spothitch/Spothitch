@@ -79,6 +79,34 @@ function checkWriteRateLimit(opName, maxPerMinute) {
   return { allowed: true }
 }
 
+// ==================== RETRY WRAPPER FOR NETWORK ERRORS ====================
+
+/**
+ * Retry a function with exponential backoff on network errors.
+ * @param {Function} fn - async function to call
+ * @param {number} maxAttempts - max retry attempts (default 3)
+ * @returns {Promise<*>} result of fn()
+ */
+async function withRetry(fn, maxAttempts = 3) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      const isNetworkError =
+        error?.code === 'unavailable' ||
+        error?.code === 'network-request-failed' ||
+        error?.message?.includes('network') ||
+        error?.message?.includes('Failed to fetch')
+      if (!isNetworkError || attempt >= maxAttempts) {
+        throw error
+      }
+      const delay = Math.pow(2, attempt - 1) * 1000 // 1s, 2s, 4s
+      console.warn(`[withRetry] Attempt ${attempt}/${maxAttempts} failed, retrying in ${delay}ms...`)
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+  }
+}
+
 // Firebase configuration from environment variables
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -558,7 +586,7 @@ export async function addSpot(spotData) {
       if (!safeData.accessibility) safeData.accessibility = safeData.ratings.accessibility || 0
     }
     const spotsRef = collection(db, 'spots');
-    const docRef = await addDoc(spotsRef, {
+    const docRef = await withRetry(() => addDoc(spotsRef, {
       ...safeData,
       creatorId: user?.uid || 'anonymous',
       creator: user?.displayName || 'Anonyme',
@@ -572,7 +600,7 @@ export async function addSpot(spotData) {
       lastTested: new Date().toISOString(),
       lastValidatedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
       lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
-    });
+    }));
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error adding spot:', error);
@@ -601,10 +629,10 @@ export async function updateSpot(spotId, updates) {
       if (updates[key] !== undefined) safeUpdates[key] = updates[key]
     }
     const spotRef = doc(db, 'spots', spotId);
-    await updateDoc(spotRef, {
+    await withRetry(() => updateDoc(spotRef, {
       ...safeUpdates,
       updatedAt: serverTimestamp()
-    });
+    }));
     return { success: true };
   } catch (error) {
     console.error('Error updating spot:', error);
@@ -658,12 +686,12 @@ export async function addReview(spotId, reviewData) {
       if (reviewData[key] !== undefined) safeReviewData[key] = reviewData[key]
     }
     const reviewsRef = collection(db, 'spots', spotId, 'reviews');
-    await addDoc(reviewsRef, {
+    await withRetry(() => addDoc(reviewsRef, {
       ...safeReviewData,
       userId: user?.uid || 'anonymous',
       userName: user?.displayName || 'Anonyme',
       createdAt: serverTimestamp()
-    });
+    }));
     return { success: true };
   } catch (error) {
     console.error('Error adding review:', error);
@@ -1170,12 +1198,12 @@ export async function addValidation(data) {
 
     // Add validation to subcollection
     const validationsRef = collection(db, 'spots', spotId, 'validations')
-    await addDoc(validationsRef, {
+    await withRetry(() => addDoc(validationsRef, {
       ...data,
       userId: user?.uid || 'anonymous',
       userName: user?.displayName || 'Anonyme',
       createdAt: serverTimestamp(),
-    })
+    }))
 
     // Update spot stats — increment testCount (full experience) + checkins
     try {

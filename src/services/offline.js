@@ -156,16 +156,38 @@ async function syncPendingActions() {
  * @param {Object} action - Action to process
  */
 async function processAction(action) {
+  // Dynamic import to avoid circular dependencies
+  const fb = await import('./firebase.js')
+
   switch (action.type) {
-    case 'ADD_SPOT':
-      /* no-op */
-      break;
-    case 'ADD_RATING':
-      /* no-op */
-      break;
-    case 'SEND_MESSAGE':
-      /* no-op */
-      break;
+    case 'ADD_SPOT': {
+      console.log('[OfflineSync] Syncing ADD_SPOT:', action.data?.name || 'unnamed')
+      const result = await fb.addSpot(action.data)
+      if (!result.success) throw new Error(result.error || 'addSpot failed')
+      console.log('[OfflineSync] ADD_SPOT synced, id:', result.id)
+      break
+    }
+    case 'ADD_REVIEW': {
+      console.log('[OfflineSync] Syncing ADD_REVIEW for spot:', action.spotId)
+      const result = await fb.addReview(action.spotId, action.data)
+      if (!result.success) throw new Error(result.error || 'addReview failed')
+      console.log('[OfflineSync] ADD_REVIEW synced')
+      break
+    }
+    case 'ADD_VALIDATION': {
+      console.log('[OfflineSync] Syncing ADD_VALIDATION for spot:', action.data?.spotId)
+      const result = await fb.addValidation(action.data)
+      if (!result.success) throw new Error(result.error || 'addValidation failed')
+      console.log('[OfflineSync] ADD_VALIDATION synced')
+      break
+    }
+    case 'SEND_MESSAGE': {
+      console.log('[OfflineSync] Syncing SEND_MESSAGE to room:', action.room)
+      const result = await fb.sendChatMessage(action.room, action.text)
+      if (!result.success) throw new Error(result.error || 'sendChatMessage failed')
+      console.log('[OfflineSync] SEND_MESSAGE synced')
+      break
+    }
     default:
       console.warn('Unknown action type:', action.type);
   }
