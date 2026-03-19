@@ -448,13 +448,18 @@ export async function searchPhoton(query, { countryCode, biasLat, biasLng } = {}
   const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&accept-language=${lang}&featuretype=city&addressdetails=1`
 
   try {
+    // Abort after 5s to avoid "Searching..." staying visible forever
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 5000)
     // Fire both APIs in parallel — Photon (~100ms) + Nominatim (~800ms)
     const [photonRes, nominatimRes] = await Promise.allSettled([
-      fetch(photonUrl).then(r => r.ok ? r.json() : null),
+      fetch(photonUrl, { signal: ctrl.signal }).then(r => r.ok ? r.json() : null),
       fetch(nominatimUrl, {
         headers: { 'User-Agent': 'SpotHitch/2.0 (https://spothitch.com)' },
+        signal: ctrl.signal,
       }).then(r => r.ok ? r.json() : null),
     ])
+    clearTimeout(timer)
 
     const photonResults = photonRes.status === 'fulfilled' ? _parsePhotonResponse(photonRes.value) : []
     const nominatimResults = nominatimRes.status === 'fulfilled' ? _parseNominatimResponse(nominatimRes.value) : []

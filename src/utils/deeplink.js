@@ -124,6 +124,8 @@ async function processShare() {
     return
   }
   _lastProcessedShareId = share.id
+  // Block auto-reload during entire share processing (prevents freeze/reload during spot creation)
+  window._shareInProgress = true
   shareLog('processing', `source=${share.source} url=${share.url.slice(0, 60)} text=${share.text.slice(0, 60)} title=${share.title}`)
 
   // Clear sessionStorage so this share isn't re-processed on next focus
@@ -230,15 +232,23 @@ async function processShare() {
       setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
     }
     shareLog('done', 'AddSpot opened')
+    // Keep share guard active for 30s to protect initial form filling from reload
+    setTimeout(() => { window._shareInProgress = false }, 30000)
   } catch (e) {
     shareLog('open-error', e.message)
+    window._shareInProgress = false
     try {
       if (window.openAddSpot) {
         window.openAddSpot()
       } else {
         setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1 })
       }
-    } catch { /* give up */ }
+      // Keep share guard active for 30s even on fallback path
+      window._shareInProgress = true
+      setTimeout(() => { window._shareInProgress = false }, 30000)
+    } catch {
+      window._shareInProgress = false
+    }
   }
 }
 

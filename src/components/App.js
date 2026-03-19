@@ -1193,6 +1193,9 @@ function initHomeMap(state) {
     }
 
     map.on('load', async () => {
+      // Hide map loading spinner
+      const mapLoader = document.getElementById('map-loading-indicator')
+      if (mapLoader) { mapLoader.style.opacity = '0'; setTimeout(() => mapLoader.remove(), 500) }
       // Long press on map → open AddSpot with pre-filled coordinates
       let longPressTimer = null
       let longPressStart = null

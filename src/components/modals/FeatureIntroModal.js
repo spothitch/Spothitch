@@ -180,7 +180,8 @@ function buildModalHTML(feature) {
           <div id="intro-comment-area" style="display:${commentDisplay}">
             <textarea id="intro-vote-comment" rows="2"
               placeholder="${escapeHTML(t('voteCommentPlaceholder') || 'Un avis ? (optionnel)')}"
-              style="width:100%;padding:8px 10px;border-radius:10px;font-size:0.7rem;color:#fff;resize:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-family:inherit;margin-bottom:8px"
+              class="intro-vote-textarea"
+              style="width:100%;padding:8px 10px;border-radius:10px;font-size:0.7rem;color:#fff;resize:none;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);font-family:inherit;margin-bottom:8px"
               maxlength="300">${escapeHTML(commentValue)}</textarea>
             <button onclick="submitIntroVote('${id}')"
               id="intro-submit-btn"
