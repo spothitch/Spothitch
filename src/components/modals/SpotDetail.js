@@ -756,7 +756,7 @@ window.confirmStreetViewAvailable = async (spotId) => {
     showSuccess(t('streetViewConfirmed') || 'Street View confirmé pour ce spot !')
   } catch {
     const { showError } = await import('../../services/notifications.js')
-    showError(t('errorGeneric') || 'Erreur, réessaie')
+    showError(t('error') || 'Erreur')
   }
 }
 
