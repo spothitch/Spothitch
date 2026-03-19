@@ -34,9 +34,16 @@ exports.onNewSpot = onDocumentCreated('spots/{spotId}', (event) => {
 const { onNewDirectMessage } = require('./notifications/onNewMessage')
 exports.onNewDirectMessage = onNewDirectMessage
 
+// ==================== BRIQUE 3 — Notifications spot activity ====================
+const { onNewValidation, onNewReview } = require('./notifications/onSpotActivity')
+exports.onNewValidation = onNewValidation
+exports.onNewReview = onNewReview
+
+// ==================== BRIQUE 4 — Notification friend request ====================
+const { onFriendRequest } = require('./notifications/onFriendRequest')
+exports.onFriendRequest = onFriendRequest
+
 // ==================== FUTURE BRIQUES ====================
-// Brique 3: exports.onNewValidation = require('./notifications/onNewValidation')
-// Brique 4: exports.onFriendRequest = require('./notifications/onFriendRequest')
 // Brique 5: exports.onTripStart = require('./sos/onTripStart')
 // Brique 6: exports.onReportCreated = require('./moderation/onReport')
 // Brique 7: exports.dailyCleanup = require('./scheduled/cleanup')
