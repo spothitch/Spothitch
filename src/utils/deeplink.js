@@ -128,6 +128,12 @@ async function processShare() {
   window._shareInProgress = true
   shareLog('processing', `source=${share.source} url=${share.url.slice(0, 60)} text=${share.text.slice(0, 60)} title=${share.title}`)
 
+  // Preload AddSpot module into lazy cache so the first render is instant
+  // (prevents the "empty → form appears" flash from lazy loading)
+  import('../components/App.js').then(({ preloadLazyModule }) => {
+    preloadLazyModule('renderAddSpot')
+  }).catch(() => {})
+
   // Clear sessionStorage so this share isn't re-processed on next focus
   try { sessionStorage.removeItem('spothitch_pending_share') } catch { /* no-op */ }
 
