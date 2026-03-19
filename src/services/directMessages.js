@@ -29,6 +29,7 @@ import { getApps, getApp } from 'firebase/app'
 import { getState, setState } from '../stores/state.js'
 import { Storage } from '../utils/storage.js'
 import { t } from '../i18n/index.js'
+import { containsProfanity } from './firebase.js'
 
 // ==================== STORAGE (FALLBACK) ====================
 
@@ -207,6 +208,7 @@ export function unsubscribeFromAllConversations() {
 export async function sendDirectMessage(recipientId, text, options = {}) {
   if (!recipientId) return { success: false, error: 'no_recipient' }
   if (!text?.trim()) return { success: false, error: 'empty_message' }
+  if (containsProfanity(text)) return { success: false, error: 'profanity_detected' }
 
   const state = getState()
   const uid = state.user?.uid

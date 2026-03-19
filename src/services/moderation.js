@@ -146,11 +146,22 @@ export async function submitReport(type, targetId, reason, details = {}) {
     await addDoc(collection(db, 'reports'), firestoreReport)
 
     // If spot report, increment report counter on the spot
+    // Auto-hide spot after 3 reports (community moderation)
     if (type === 'spot' || type === 'SPOT') {
-      const { updateDoc, doc, increment } = await import('firebase/firestore')
-      await updateDoc(doc(db, 'spots', targetId), {
+      const { updateDoc, doc, increment, getDoc } = await import('firebase/firestore')
+      const spotRef = doc(db, 'spots', targetId)
+      await updateDoc(spotRef, {
         reports: increment(1),
       }).catch(() => {})
+      // Check if threshold reached → auto-hide
+      try {
+        const spotSnap = await getDoc(spotRef)
+        const reportCount = spotSnap.data()?.reports || 0
+        if (reportCount >= 3 && !spotSnap.data()?.hidden) {
+          await updateDoc(spotRef, { hidden: true, hiddenReason: 'auto_moderation', hiddenAt: new Date().toISOString() })
+          console.log(`[Moderation] Spot ${targetId} auto-hidden after ${reportCount} reports`)
+        }
+      } catch (e) { /* best-effort */ }
     }
   } catch (err) {
     console.error('Failed to persist report to Firebase:', err)

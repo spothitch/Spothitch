@@ -570,6 +570,11 @@ export async function addSpot(spotData) {
     if (!checkWriteRateLimit('addSpot', 5).allowed) {
       return { success: false, error: 'rate_limit_exceeded' }
     }
+    // Profanity check on user-submitted text fields
+    const textToCheck = [spotData.name, spotData.description, spotData.tips].filter(Boolean).join(' ')
+    if (containsProfanity(textToCheck)) {
+      return { success: false, error: 'profanity_detected' }
+    }
     const user = getCurrentUser();
     const safeData = {}
     for (const key of SPOT_ALLOWED_FIELDS) {
@@ -681,6 +686,10 @@ export async function addReview(spotId, reviewData) {
     if (!checkWriteRateLimit('addReview', 10).allowed) {
       return { success: false, error: 'rate_limit_exceeded' }
     }
+    // Profanity check on review text
+    if (containsProfanity(reviewData.text || reviewData.comment)) {
+      return { success: false, error: 'profanity_detected' }
+    }
     const user = getCurrentUser();
     const REVIEW_ALLOWED_FIELDS = ['text', 'rating', 'comment', 'safety', 'traffic', 'accessibility', 'waitTime', 'photos']
     const safeReviewData = {}
@@ -738,6 +747,9 @@ export async function sendChatMessage(room, text) {
   try {
     if (!checkWriteRateLimit('sendChatMessage', 30).allowed) {
       return { success: false, error: 'rate_limit_exceeded' }
+    }
+    if (containsProfanity(text)) {
+      return { success: false, error: 'profanity_detected' }
     }
     const user = getCurrentUser();
     const safeText = (text || '').slice(0, 2000)
@@ -904,6 +916,17 @@ const PROFANITY_LIST = [
   'scheiße', 'scheisse', 'arschloch', 'hurensohn', 'fotze', 'wichser',
   'admin', 'spothitch', 'moderator', 'support', 'system', 'root',
 ]
+
+/**
+ * Check if text contains profanity. Used for usernames, spot names, reviews, messages.
+ * @param {string} text
+ * @returns {boolean} true if profanity detected
+ */
+export function containsProfanity(text) {
+  if (!text) return false
+  const lower = text.toLowerCase().replace(/[._\-\s]/g, '')
+  return PROFANITY_LIST.some(w => lower.includes(w))
+}
 
 /**
  * Validate username format (client-side, before Firestore check)
