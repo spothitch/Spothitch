@@ -362,6 +362,10 @@ function haversineKm(lat1, lon1, lat2, lon2) {
  * Load spots from static JSON files
  */
 function loadStaticSpots() {
+  if (!existsSync(SPOTS_PATH)) {
+    console.log('  Static: no spot files (community data only)')
+    return []
+  }
   const files = readdirSync(SPOTS_PATH).filter(f => f.endsWith('.json'))
   const allSpots = []
   for (const file of files) {

@@ -7,11 +7,10 @@
  *   1. HTTP 200 on main page + response time
  *   2. version.json loads and has valid format
  *   3. Security headers present (CSP, HSTS, X-Frame, X-Content-Type)
- *   4. Spots data loads (FR.json)
- *   5. SSL certificate expiry (warn 30 days before)
- *   6. Response time budget (warn >2s, error >5s)
- *   7. Sitemap.xml exists and valid
- *   8. robots.txt exists
+ *   4. SSL certificate expiry (warn 30 days before)
+ *   5. Response time budget (warn >2s, error >5s)
+ *   6. Sitemap.xml exists and valid
+ *   7. robots.txt exists
  *
  * Usage: node scripts/monitor.mjs
  */
@@ -174,23 +173,6 @@ async function checkSSLCertificate() {
   }
 }
 
-async function checkSpotsData() {
-  try {
-    const res = await fetchWithTimeout(`${SITE_URL}/data/spots/fr.json`)
-    if (res.status !== 200) {
-      return { name: 'Spots Data (FR)', ok: false, error: `HTTP ${res.status}` }
-    }
-    const data = await res.json()
-    const spots = Array.isArray(data) ? data : data?.spots
-    if (!Array.isArray(spots) || spots.length === 0) {
-      return { name: 'Spots Data (FR)', ok: false, error: 'Empty or invalid JSON' }
-    }
-    return { name: 'Spots Data (FR)', ok: true, detail: `${spots.length} spots, ${res._elapsed}ms` }
-  } catch (err) {
-    return { name: 'Spots Data (FR)', ok: false, error: err.message }
-  }
-}
-
 async function checkSitemap() {
   try {
     const res = await fetchWithTimeout(`${SITE_URL}/sitemap.xml`)
@@ -241,7 +223,6 @@ const checks = await Promise.all([
   checkVersionJson(),
   checkSecurityHeaders(),
   checkSSLCertificate(),
-  checkSpotsData(),
   checkSitemap(),
   checkRobotsTxt(),
 ])

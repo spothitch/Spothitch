@@ -1,7 +1,7 @@
 /**
  * Country Bounding Boxes
  * Used by offline tile downloader to calculate which map tiles to pre-fetch
- * Matches the 137 countries in spotLoader.js _countryCenters
+ * Matches the countries in spotLoader.js _countryCenters
  *
  * Format: { code: [south, west, north, east] } (latitude/longitude)
  */

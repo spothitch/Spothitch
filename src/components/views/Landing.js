@@ -11,11 +11,13 @@ import { icon } from '../../utils/icons.js'
  * Render the landing page for new visitors
  */
 export function renderLanding(_state) {
+  const communitySpots = (_state.spots || []).filter(s => s.dataSource === 'community')
+  const countries = new Set(communitySpots.map(s => s.country || s.countryCode).filter(Boolean))
   const stats = {
-    spots: '14,669',
-    countries: 137,
-    users: '1,500',
-    checkins: '5,000'
+    spots: communitySpots.length || '\u2014',
+    countries: countries.size || '\u2014',
+    users: '\u2014',
+    checkins: '\u2014'
   };
 
   const carouselScreens = [
@@ -174,11 +176,11 @@ export function renderLanding(_state) {
               <div class="text-sm text-slate-400">${t('landingStatsCountries')}</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-bold text-amber-400">${stats.users}+</div>
+              <div class="text-3xl md:text-4xl font-bold text-amber-400">${stats.users}</div>
               <div class="text-sm text-slate-400">${t('landingStatsUsers')}</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-bold text-purple-400">${stats.checkins}+</div>
+              <div class="text-3xl md:text-4xl font-bold text-purple-400">${stats.checkins}</div>
               <div class="text-sm text-slate-400">Check-ins</div>
             </div>
           </div>
