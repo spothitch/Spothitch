@@ -112,16 +112,22 @@ window.addEventListener('error', (e) => {
     || msg.includes('Importing a module script failed')
     || msg.includes('Loading chunk')
     || msg.includes('Loading CSS chunk')) {
+    // Already handled by index.html inline script? Skip.
+    if (window.__swRecovery) return
     // Already reloading? Don't loop
     if (sessionStorage.getItem('spothitch_cache_recovery')) return
     sessionStorage.setItem('spothitch_cache_recovery', '1')
-    // Clear all SW caches then reload
+    // If a share flow is active, clear caches but DON'T reload
+    // (the cleared cache will let subsequent dynamic imports fetch from network)
+    const isShareFlow = window._shareInProgress
+      || window.location.search.includes('action=share')
+      || sessionStorage.getItem('spothitch_share_flow')
     if (window.caches) {
       caches.keys().then(keys =>
         Promise.all(keys.map(k => caches.delete(k)))
-      ).then(() => window.location.reload())
-        .catch(() => window.location.reload())
-    } else {
+      ).then(() => { if (!isShareFlow) window.location.reload() })
+        .catch(() => { if (!isShareFlow) window.location.reload() })
+    } else if (!isShareFlow) {
       window.location.reload()
     }
   }
@@ -214,6 +220,9 @@ async function init() {
     try { localStorage.setItem('spothitch_beta_seen', '1') } catch { /* no-op */ }
     try { localStorage.setItem('spothitch_v4_cookie_consent', JSON.stringify({ preferences: { necessary: true }, timestamp: Date.now(), version: '1.0' })) } catch { /* no-op */ }
     setState({ showLanding: false, showWelcome: false })
+    // Block ALL auto-reload mechanisms during the share flow (survives page reloads)
+    try { sessionStorage.setItem('spothitch_share_flow', String(Date.now())) } catch { /* no-op */ }
+    window._shareInProgress = true
   }
 
   try {
@@ -253,6 +262,7 @@ async function init() {
     // Expose _forceRender for lazy-loaded modules (bypasses dirty-checking + fingerprint)
     window._forceRender = () => {
       clearRenderCache('app')
+      _lastModalFingerprint = '' // Reset modal fingerprint so lazy-loaded modals appear
       // Force re-render of the active tab so lazy-loaded content appears
       const state = getState()
       const activePanel = getActiveTabPanelId(state)
@@ -733,6 +743,26 @@ function getRenderFingerprint(state) {
  */
 let _appInitialized = false
 const _renderedTabs = new Set() // tracks which tab panels have been rendered at least once
+let _lastModalFingerprint = ''
+
+// Modal fingerprint: tracks only the state keys that affect which modals are rendered.
+// This prevents re-rendering modals (destroying AddSpot form, etc.) on unrelated state changes.
+function getModalFingerprint(state) {
+  return [
+    state.showAgeVerification, state.showIdentityVerification,
+    !!state.selectedSpot, state.showAddSpot, state.addSpotStep, state.addSpotPreview,
+    state.showSOS, state.showAuth, state.showCompleteProfile,
+    state.showFilters, state.showStats, state.showBadges, state.showChallenges,
+    state.showShop, state.showMyRewards, state.showQuiz, state.showLeaderboard,
+    !!state.checkinSpot, state.showDailyReward, state.showBadgePopup,
+    state.showBadgeDetail, state.selectedBadgeId,
+    state.navigationActive, state.showDonation, state.showDonationThankYou,
+    state.showAmbassadorSuccess, state.showContactAmbassador, !!state.selectedAmbassador,
+    state.showProfileCustomization, state.showNearbyFriends, state.showReport,
+    state.showCompanionModal, state.showMyData, state.showAdmin,
+    state.showFeatureSlides, state.showFeatureIntro,
+  ].join('|')
+}
 
 function render(state) {
   const app = document.getElementById('app')
@@ -835,17 +865,23 @@ function render(state) {
   }
 
   // 6. Update modals container
-  // Preserve misplaced map across re-renders (MapLibre GL canvas)
-  const modalsEl = document.getElementById('app-modals')
-  if (modalsEl) {
-    const misplacedMap = document.getElementById('report-misplaced-wrapper')
-    const savedMisplacedMap = (misplacedMap && misplacedMap.querySelector('canvas')) ? misplacedMap : null
+  // Only re-render if modal-related state changed (prevents destroying AddSpot form
+  // during unrelated state changes like spots loading, GPS updates, etc.)
+  const modalFp = getModalFingerprint(state)
+  if (modalFp !== _lastModalFingerprint) {
+    _lastModalFingerprint = modalFp
+    // Preserve misplaced map across re-renders (MapLibre GL canvas)
+    const modalsEl = document.getElementById('app-modals')
+    if (modalsEl) {
+      const misplacedMap = document.getElementById('report-misplaced-wrapper')
+      const savedMisplacedMap = (misplacedMap && misplacedMap.querySelector('canvas')) ? misplacedMap : null
 
-    modalsEl.innerHTML = renderModals(state)
+      modalsEl.innerHTML = renderModals(state)
 
-    if (savedMisplacedMap) {
-      const slot = document.getElementById('report-misplaced-wrapper')
-      if (slot) slot.replaceWith(savedMisplacedMap)
+      if (savedMisplacedMap) {
+        const slot = document.getElementById('report-misplaced-wrapper')
+        if (slot) slot.replaceWith(savedMisplacedMap)
+      }
     }
   }
 

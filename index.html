@@ -22,6 +22,12 @@
           regs.forEach(function(r) { r.update() });
         });
       }
+      // If a share flow is active (Google Maps share → AddSpot), DON'T reload.
+      // The cache is cleared above, so next dynamic import will fetch from network.
+      var isShare = window.location.search.indexOf('action=share') !== -1
+        || window.location.search.indexOf('url=') !== -1
+      try { if (sessionStorage.getItem('spothitch_share_flow')) isShare = true } catch(e) {}
+      if (isShare) return;
       // Reload after a short delay to let the new SW activate
       setTimeout(function() { window.location.reload() }, 300);
     }
