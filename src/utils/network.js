@@ -25,8 +25,8 @@ export function initNetworkMonitor() {
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
 
-  // Periodic connectivity check
-  setInterval(checkConnectivity, 30000); // Every 30 seconds
+  // Periodic connectivity check (60s — was 30s, reduced to avoid false offline on slow networks)
+  setInterval(checkConnectivity, 60000);
 }
 
 /**
@@ -68,20 +68,48 @@ function handleOffline() {
 
 /**
  * Check actual connectivity (not just navigator.onLine)
+ * Requires 3 consecutive failures before marking offline to avoid false positives
+ * from transient network hiccups (DNS delay, slow response, SW interference)
  */
+let _connectivityFailCount = 0
+const CONNECTIVITY_FAIL_THRESHOLD = 3
+
 export async function checkConnectivity() {
+  // Don't override online state if browser says we're offline (trust OS-level detection)
+  if (!navigator.onLine) {
+    _connectivityFailCount = CONNECTIVITY_FAIL_THRESHOLD
+    setState({ isOnline: false })
+    return false
+  }
+
   try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 8000) // 8s timeout (generous for slow connections)
     const response = await fetch('/manifest.json', {
       method: 'HEAD',
       cache: 'no-store',
-    });
-    const isOnline = response.ok;
-    setState({ isOnline });
-    return isOnline;
+      signal: controller.signal,
+    })
+    clearTimeout(timeout)
+
+    if (response.ok) {
+      _connectivityFailCount = 0
+      setState({ isOnline: true })
+      return true
+    }
+    // Server responded but not OK — count as failure
+    _connectivityFailCount++
   } catch {
-    setState({ isOnline: false });
-    return false;
+    _connectivityFailCount++
   }
+
+  // Only mark offline after consecutive failures (avoids false positives)
+  if (_connectivityFailCount >= CONNECTIVITY_FAIL_THRESHOLD) {
+    setState({ isOnline: false })
+    return false
+  }
+  // Under threshold: keep current state, don't flicker
+  return getState().isOnline
 }
 
 /**

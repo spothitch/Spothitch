@@ -721,9 +721,8 @@ if (state.theme === 'light') {
   document.body.classList.add('light-theme');
 }
 
-// Listen to online/offline events
-window.addEventListener('online', () => actions.setOnlineStatus(true));
-window.addEventListener('offline', () => actions.setOnlineStatus(false));
+// Online/offline state is managed centrally by network.js initNetworkMonitor()
+// — removed duplicate listeners here to avoid race conditions (6 handlers were fighting)
 
 // Export default state object for backward compatibility
 export default state;

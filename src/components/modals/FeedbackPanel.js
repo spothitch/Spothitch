@@ -120,7 +120,7 @@ export function renderFeedbackPanel(state) {
         </div>
 
         <!-- Tab pills -->
-        <div class="flex gap-1.5 px-4 py-3 overflow-x-auto shrink-0" style="-webkit-overflow-scrolling:touch">
+        <div class="flex gap-1.5 pl-4 pr-8 py-3 overflow-x-auto shrink-0" style="-webkit-overflow-scrolling:touch;scrollbar-width:none">
           ${TABS.map(tab => {
             const isActive = tab.id === activeTab
             const tabFeats = FEATURES_DATA.filter(f => FEATURE_TAB_MAP[f.id] === tab.id)

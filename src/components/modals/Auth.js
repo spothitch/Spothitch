@@ -37,9 +37,9 @@ export function renderAuth(state) {
         </button>
 
         <!-- Header -->
-        <div class="p-6 pb-4 text-center">
-          <div class="text-4xl mb-3" aria-hidden="true">🤙</div>
-          <h2 id="auth-modal-title" class="text-2xl font-bold gradient-text">
+        <div class="px-6 pt-4 pb-3 text-center">
+          <div class="text-3xl mb-2" aria-hidden="true">🤙</div>
+          <h2 id="auth-modal-title" class="text-xl font-bold gradient-text">
             ${isSignUp ? t('signUpTitle') : t('signInTitle')}
           </h2>
           ${reason ? `
@@ -71,7 +71,7 @@ export function renderAuth(state) {
         </div>
 
         <!-- Divider -->
-        <div class="flex items-center gap-4 px-6 my-5">
+        <div class="flex items-center gap-4 px-6 my-3">
           <div class="flex-1 h-px bg-white/10"></div>
           <span class="text-slate-400 text-sm">${t('orContinueWithEmail')}</span>
           <div class="flex-1 h-px bg-white/10"></div>
@@ -256,11 +256,11 @@ export function renderAuth(state) {
           </p>
 
           <!-- Skip / Continue without account -->
-          <div class="text-center mt-4 pb-2">
+          <div class="text-center mt-3 pb-4">
             <button
               type="button"
               onclick="closeAuth()"
-              class="text-slate-500 text-sm hover:text-slate-300 transition-colors"
+              class="text-slate-400 text-sm hover:text-slate-200 transition-colors underline underline-offset-2"
             >
               ${t('continueWithoutAccount')}
             </button>

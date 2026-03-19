@@ -12,6 +12,8 @@ let isReloading = false
 window._authInProgress = false
 // Guard: block auto-reload for 15 seconds after auth completes (SW update + version.json would reload during sign-in)
 window._authJustCompleted = 0
+// Guard: block auto-reload while a share is being processed (Google Maps share → AddSpot flow)
+window._shareInProgress = false
 
 export function startVersionCheck() {
   const t = window.t || ((k) => k)
@@ -43,8 +45,8 @@ export function startVersionCheck() {
 
   async function doReload() {
     if (isReloading) return
-    // Never reload during an auth flow or within 15s after auth completed
-    if (window._authInProgress || sessionStorage.getItem('spothitch_auth_redirect') || (Date.now() - window._authJustCompleted < 15000)) {
+    // Never reload during an auth flow, share processing, or within 15s after auth completed
+    if (window._authInProgress || window._shareInProgress || sessionStorage.getItem('spothitch_auth_redirect') || (Date.now() - window._authJustCompleted < 15000)) {
       pendingReload = true
       return
     }
@@ -120,7 +122,7 @@ export function startVersionCheck() {
 
   // When user backgrounds the app, apply pending reload
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && pendingReload && !isReloading && !window._authInProgress && !sessionStorage.getItem('spothitch_auth_redirect') && (Date.now() - window._authJustCompleted >= 15000)) {
+    if (document.visibilityState === 'hidden' && pendingReload && !isReloading && !window._authInProgress && !window._shareInProgress && !sessionStorage.getItem('spothitch_auth_redirect') && (Date.now() - window._authJustCompleted >= 15000)) {
       isReloading = true
       window.location.reload()
     }
@@ -148,8 +150,8 @@ export function startVersionCheck() {
   let hadController = !!navigator.serviceWorker?.controller
   navigator.serviceWorker?.addEventListener('controllerchange', () => {
     if (hadController && !isReloading) {
-      // Block reload if auth just completed (user would see a jarring reload right after sign-in)
-      if (window._authInProgress || (Date.now() - window._authJustCompleted < 15000)) {
+      // Block reload if auth just completed or share in progress
+      if (window._authInProgress || window._shareInProgress || (Date.now() - window._authJustCompleted < 15000)) {
         pendingReload = true
         hadController = true
         return

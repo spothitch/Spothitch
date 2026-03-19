@@ -203,6 +203,96 @@
     @apply bg-white/95 backdrop-blur-2xl border-light-border shadow-2xl shadow-stone-400/20 text-stone-800;
   }
 
+  /* Light theme: AddSpot modal override (inline styles use dark colors) */
+  .light-theme .addspot-dialog > div:nth-child(2) {
+    background: #fafaf9 !important;
+    border-color: #d6d3d1 !important;
+    color: #1c1917 !important;
+  }
+
+  .light-theme .addspot-dialog [style*="color:#e2e8f0"],
+  .light-theme .addspot-dialog [style*="color: #e2e8f0"] {
+    color: #1c1917 !important;
+  }
+
+  .light-theme .addspot-dialog [style*="color:#64748b"],
+  .light-theme .addspot-dialog [style*="color: #64748b"] {
+    color: #57534e !important;
+  }
+
+  .light-theme .addspot-dialog [style*="color:#475569"],
+  .light-theme .addspot-dialog [style*="color: #475569"] {
+    color: #44403c !important;
+  }
+
+  .light-theme .addspot-dialog [style*="color:#94a3b8"],
+  .light-theme .addspot-dialog [style*="color: #94a3b8"] {
+    color: #78716c !important;
+  }
+
+  .light-theme .addspot-dialog [style*="color:#cbd5e1"],
+  .light-theme .addspot-dialog [style*="color: #cbd5e1"] {
+    color: #292524 !important;
+  }
+
+  .light-theme .addspot-dialog [style*="background:#0f1520"],
+  .light-theme .addspot-dialog [style*="background: #0f1520"] {
+    background: #fafaf9 !important;
+  }
+
+  .light-theme .addspot-dialog [style*="background:#1a1f2e"],
+  .light-theme .addspot-dialog [style*="background: #1a1f2e"] {
+    background: #f5f5f4 !important;
+  }
+
+  .light-theme .addspot-dialog [style*="background:#111827"],
+  .light-theme .addspot-dialog [style*="background: #111827"] {
+    background: #f5f5f4 !important;
+  }
+
+  .light-theme .addspot-dialog [style*="border-bottom:1px solid #1a1f2e"],
+  .light-theme .addspot-dialog [style*="border-color:#1e293b"] {
+    border-color: #d6d3d1 !important;
+  }
+
+  .light-theme .addspot-dialog [style*="border:1px solid #1e293b"] {
+    border-color: #d6d3d1 !important;
+  }
+
+  .light-theme .addspot-dialog [style*="border:1px solid #334155"],
+  .light-theme .addspot-dialog [style*="border: 1px solid #334155"] {
+    border-color: #a8a29e !important;
+  }
+
+  .light-theme .addspot-dialog input,
+  .light-theme .addspot-dialog textarea,
+  .light-theme .addspot-dialog select {
+    background: #ffffff !important;
+    color: #1c1917 !important;
+    border-color: #d6d3d1 !important;
+  }
+
+  .light-theme .addspot-dialog input::placeholder,
+  .light-theme .addspot-dialog textarea::placeholder {
+    color: #a8a29e !important;
+  }
+
+  /* FeatureIntroModal textarea placeholder contrast */
+  .intro-vote-textarea::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+  }
+
+  .light-theme .intro-vote-textarea {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: #1c1917 !important;
+    border-color: #d6d3d1 !important;
+  }
+
+  .light-theme .intro-vote-textarea::placeholder {
+    color: #78716c !important;
+  }
+
   /* Buttons */
   .btn {
     @apply font-semibold px-6 py-3 rounded-xl border-none cursor-pointer transition-colors duration-300;

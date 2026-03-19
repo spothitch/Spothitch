@@ -189,6 +189,7 @@ export function initDraggableFeedbackBtn() {
     touchAction: 'none', userSelect: 'none',
     transition: 'opacity 0.2s',
     minWidth: '44px',
+    overflow: 'visible',
   })
 
   // Restore saved Y position or default to 45%
@@ -199,7 +200,7 @@ export function initDraggableFeedbackBtn() {
   // Pulse dot style
   const style = document.createElement('style')
   style.textContent = `
-    #fb-side-btn .fb-badge { position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 6px rgba(239,68,68,0.6);animation:fbBadgePop 0.3s ease-out }
+    #fb-side-btn .fb-badge { position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 6px rgba(239,68,68,0.6);animation:fbBadgePop 0.3s ease-out }
     #fb-side-btn .fb-badge:empty { display:none }
     #fb-side-btn .fb-label { font-size:11px;font-weight:700;letter-spacing:1.5px }
     @keyframes fbBadgePop { from{transform:scale(0)} to{transform:scale(1)} }
