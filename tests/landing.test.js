@@ -32,12 +32,12 @@ describe('Landing Component', () => {
       expect(html).toContain('landing-features');
     });
 
-    it('should display statistics', () => {
+    it('should display landing page content', () => {
       const state = {};
       const html = renderLanding(state);
 
-      expect(html).toContain('14,669');
-      expect(html).toContain('137');
+      // Landing page should contain key sections (stats were removed in commit 62b8369)
+      expect(html).toContain('landing-page');
     });
 
     it('should contain features section', () => {

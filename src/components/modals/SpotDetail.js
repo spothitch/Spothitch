@@ -229,19 +229,19 @@ export function renderSpotDetail(state) {
           <div class="mx-3 mt-2.5 bg-[rgba(22,27,40,0.9)] backdrop-blur-xl rounded-[14px] p-3.5 flex justify-around border border-slate-800">
             <div class="text-center cursor-pointer" onclick="document.getElementById('spot-detail-panel')?.classList.toggle('hidden')" role="button" tabindex="0">
               <div class="text-[22px] font-bold" style="color:${successRate != null ? (successRate >= 50 ? '#22c55e' : '#ef4444') : '#e2e8f0'}">${successRate != null ? successRate + '%' : '—'}</div>
-              <div class="text-[9px] text-slate-500">${t('successRate') || 'Réussite'}</div>
-              ${successRate != null && successRate < 100 ? `<div class="text-[8px] text-red-500 mt-px cursor-pointer">${100 - successRate}% ${t('failRate') || 'échec'} ↓</div>` : ''}
+              <div class="text-[10px] text-slate-500">${t('successRate') || 'Réussite'}</div>
+              ${successRate != null && successRate < 100 ? `<div class="text-[10px] text-red-500 mt-px cursor-pointer">${100 - successRate}% ${t('failRate') || 'échec'} ↓</div>` : ''}
             </div>
             <div class="w-px bg-slate-800"></div>
             <div class="text-center">
               <div class="text-[22px] font-bold text-slate-200">${(spot.liveAvgWaitTime || spot.avgWaitTime) ? (spot.liveAvgWaitTime || spot.avgWaitTime) + "'" : '—'}</div>
-              <div class="text-[9px] text-slate-500">${t('waitTimeLabel') || 'Attente'}</div>
+              <div class="text-[10px] text-slate-500">${t('waitTimeLabel') || 'Attente'}</div>
             </div>
             <div class="w-px bg-slate-800"></div>
             <div class="text-center cursor-pointer" onclick="document.getElementById('spot-people-panel')?.classList.toggle('hidden')" role="button" tabindex="0">
               <div class="text-[22px] font-bold text-primary-500">${validatedCount || '—'}</div>
-              <div class="text-[9px] text-slate-500">${t('usageCount') || 'Validations'}</div>
-              ${availableCount > 0 ? `<div class="text-[8px] text-primary-500 mt-px cursor-pointer">+ ${availableCount} ${t('availabilityCount') || 'dispo.'} ↓</div>` : ''}
+              <div class="text-[10px] text-slate-500">${t('usageCount') || 'Validations'}</div>
+              ${availableCount > 0 ? `<div class="text-[10px] text-primary-500 mt-px cursor-pointer">+ ${availableCount} ${t('availabilityCount') || 'dispo.'} ↓</div>` : ''}
             </div>
           </div>
 
@@ -273,11 +273,11 @@ export function renderSpotDetail(state) {
                 <div class="flex gap-2 mb-2.5">
                   <div class="flex-1 bg-[#161b28] rounded-lg p-2 text-center border-l-3 border-emerald-500">
                     <div class="text-lg font-bold text-emerald-500">${successes.length}</div>
-                    <div class="text-[9px] text-slate-500">${t('successes') || 'Réussites'}</div>
+                    <div class="text-[10px] text-slate-500">${t('successes') || 'Réussites'}</div>
                   </div>
                   <div class="flex-1 bg-[#161b28] rounded-lg p-2 text-center border-l-3 border-red-500">
                     <div class="text-lg font-bold text-red-500">${fails.length}</div>
-                    <div class="text-[9px] text-slate-500">${t('failures') || 'Échecs'}</div>
+                    <div class="text-[10px] text-slate-500">${t('failures') || 'Échecs'}</div>
                   </div>
                 </div>
                 ${Object.entries(methodBreakdown).map(([label, v]) => `
@@ -292,7 +292,7 @@ export function renderSpotDetail(state) {
                     <span style="color:${v.fail > 0 ? '#ef4444' : '#22c55e'}">${v.ok > 0 ? v.ok + ' ✓' : ''}${v.ok > 0 && v.fail > 0 ? ' · ' : ''}${v.fail > 0 ? v.fail + ' ✗' : ''}</span>
                   </div>
                 `).join('')}
-                <div class="text-center text-[9px] text-[#475569] pt-1.5 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ▲</div>
+                <div class="text-center text-[10px] text-[#475569] pt-1.5 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ▲</div>
               `
             })()}
           </div>
@@ -303,7 +303,7 @@ export function renderSpotDetail(state) {
               <div class="text-[10px] text-emerald-500 font-semibold uppercase mb-2">${t('usageCount') || 'Validations'} (${displayReviews.length})</div>
               ${displayReviews.map(r => `
                 <div class="flex items-center gap-2 py-1.5 border-b border-white/[0.04]">
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] text-white shrink-0" style="background:${r.rideResult === 'yes' ? '#22c55e' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '#ef4444' : '#64748b'}">${(r.userName || '?')[0]}</div>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] text-white shrink-0" style="background:${r.rideResult === 'yes' ? '#22c55e' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '#ef4444' : '#64748b'}">${(r.userName || '?')[0]}</div>
                   <div class="flex-1 min-w-0">
                     <span class="text-xs font-medium" style="${r.userId ? 'color:#f59e0b;cursor:pointer' : ''}" ${r.userId ? `onclick="showFriendProfile('${escapeJSString(r.userId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(r.userName || 'Anonyme')}</span>
                     ${r.rideResult === 'yes' ? '<span class="text-[10px] text-emerald-500 ml-1">✓</span>' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '<span class="text-[10px] text-red-500 ml-1">✗</span>' : ''}
@@ -312,7 +312,7 @@ export function renderSpotDetail(state) {
                 </div>
               `).join('')}
             ` : ''}
-            <div class="text-center text-[9px] text-[#475569] pt-1.5 cursor-pointer" onclick="this.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ▲</div>
+            <div class="text-center text-[10px] text-[#475569] pt-1.5 cursor-pointer" onclick="this.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ▲</div>
           </div>
 
           <!-- Street View banner (glassmorphism) — 2 states: unverified / certified -->
@@ -329,7 +329,7 @@ export function renderSpotDetail(state) {
               <div class="flex-1">
                 <div class="flex items-center gap-1.5">
                   <span class="text-sm font-semibold" style="color:${spot.streetViewVerified ? '#ffffff' : '#94a3b8'}">Street View</span>
-                  ${spot.streetViewVerified ? `<span class="text-[9px] text-emerald-500 bg-[rgba(34,197,94,0.15)] px-1.5 py-0.5 rounded-full font-semibold">${t('streetViewCertified') || 'Certifié'} ✓</span>` : `<span class="text-[9px] text-slate-400 bg-[rgba(100,116,139,0.15)] px-1.5 py-0.5 rounded-full font-medium">?</span>`}
+                  ${spot.streetViewVerified ? `<span class="text-[10px] text-emerald-500 bg-[rgba(34,197,94,0.15)] px-1.5 py-0.5 rounded-full font-semibold">${t('streetViewCertified') || 'Certifié'} ✓</span>` : `<span class="text-[10px] text-slate-400 bg-[rgba(100,116,139,0.15)] px-1.5 py-0.5 rounded-full font-medium">?</span>`}
                 </div>
                 <div class="text-[11px]" style="color:${spot.streetViewVerified ? '#86efac' : '#64748b'}">${spot.streetViewVerified ? (t('streetViewSubtitle') || 'Voir cet endroit comme si vous y étiez') : (t('streetViewNotVerified') || 'Pas encore vérifié par la communauté')}</div>
               </div>
@@ -362,7 +362,7 @@ export function renderSpotDetail(state) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" class="align-middle mr-1 inline"><polyline points="20 6 9 17 4 12"/></svg>
                 ${t('validateBtn') || 'Valider'}
               </span>
-              <span class="text-[9px] text-[#475569] font-normal">${t('validateSubtitle') || 'Le spot est toujours là'}</span>
+              <span class="text-[10px] text-[#475569] font-normal">${t('validateSubtitle') || 'Le spot est toujours là'}</span>
             </button>
             <button onclick="openTestSpot(${spotIdStr})" type="button"
               class="flex-1 bg-primary-500 text-dark-primary border-none pt-3 px-2 pb-2 rounded-[10px] text-sm font-semibold cursor-pointer flex flex-col items-center gap-0.5">
@@ -370,18 +370,18 @@ export function renderSpotDetail(state) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f1520" stroke-width="2" class="align-middle mr-1 inline"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                 ${t('myExperience') || 'Mon expérience'}
               </span>
-              <span class="text-[9px] text-[rgba(15,21,32,0.6)] font-normal">${t('experienceSubtitle') || "J'ai fait du stop ici"}</span>
+              <span class="text-[10px] text-[rgba(15,21,32,0.6)] font-normal">${t('experienceSubtitle') || "J'ai fait du stop ici"}</span>
             </button>
           </div>
 
           <!-- Dates (2 cards) — aligned with buttons above: Valider (left) / Mon expérience (right) -->
           <div class="px-4 pb-3 flex gap-2">
             <div class="flex-1 bg-[#161b28] rounded-lg py-2 px-2.5">
-              <div class="text-[9px] text-slate-500 uppercase">${t('lastValidation') || 'Dernière validation'}</div>
+              <div class="text-[10px] text-slate-500 uppercase">${t('lastValidation') || 'Dernière validation'}</div>
               <div class="text-xs text-slate-200">${spot.lastValidated ? formatRelativeDate(spot.lastValidated) : (spot.lastUsed ? formatRelativeDate(spot.lastUsed) : '—')}${displayName(spot.liveLastValidatedBy || spot.lastValidatedBy)}</div>
             </div>
             <div class="flex-1 bg-[#161b28] rounded-lg py-2 px-2.5">
-              <div class="text-[9px] text-slate-500 uppercase">${t('lastTest') || 'Dernière utilisation'}</div>
+              <div class="text-[10px] text-slate-500 uppercase">${t('lastTest') || 'Dernière utilisation'}</div>
               <div class="text-xs text-slate-200">${(spot.liveLastTested || spot.lastTested) ? formatRelativeDate(spot.liveLastTested || spot.lastTested) : '—'}${displayName(spot.liveLastTestedBy || spot.lastTestedBy)}</div>
             </div>
           </div>
@@ -408,9 +408,9 @@ export function renderSpotDetail(state) {
           ${hasTags ? `
           <div class="px-4 pb-1.5 text-[10px] text-emerald-500 uppercase tracking-wide font-semibold">${t('whatWorks') || 'Ce qui marche ici'}</div>
           <div class="px-4 pb-1 flex flex-wrap gap-1.5">
-            ${methodStats.map(s => `<span class="text-[11px] text-primary-500 bg-[rgba(245,158,11,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[9px]">${s.pct}%</span>` : ''}</span>`).join('')}
-            ${groupStats.map(s => `<span class="text-[11px] text-blue-500 bg-[rgba(59,130,246,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[9px]">${s.pct}%</span>` : ''}</span>`).join('')}
-            ${timeStats.map(s => `<span class="text-[11px] text-emerald-500 bg-[rgba(34,197,94,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[9px]">${s.pct}%</span>` : ''}</span>`).join('')}
+            ${methodStats.map(s => `<span class="text-[11px] text-primary-500 bg-[rgba(245,158,11,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
+            ${groupStats.map(s => `<span class="text-[11px] text-blue-500 bg-[rgba(59,130,246,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
+            ${timeStats.map(s => `<span class="text-[11px] text-emerald-500 bg-[rgba(34,197,94,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
           </div>
           ` : ''}
 
@@ -574,8 +574,8 @@ async function loadMapillaryForHero(lat, lng, spotId) {
         />
         <div class="absolute bottom-3 right-3 z-2 flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-          <span class="text-[9px] text-slate-400">Mapillary</span>
-          ${photos.length > 1 ? `<span class="text-[9px] text-slate-500">${photos.length} photos</span>` : ''}
+          <span class="text-[10px] text-slate-400">Mapillary</span>
+          ${photos.length > 1 ? `<span class="text-[10px] text-slate-500">${photos.length} photos</span>` : ''}
         </div>
       `
 
