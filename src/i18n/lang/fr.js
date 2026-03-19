@@ -3565,7 +3565,6 @@ export default {
   commentPlaceholder: "Conseils, avertissements, infos utiles...",
 
   // Spot source
-  spotSourceHitchmap: "Données importées",
   spotSourceCommunity: "Données communauté",
   spotSourceLabel: "Source des données",
 

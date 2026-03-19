@@ -7,7 +7,7 @@
 ## Fichiers mémoire détaillés
 
 - `memory/app-state.md` — **ÉTAT DES LIEUX VISUEL** de chaque écran + décisions design. LIRE EN PREMIER pour ne pas signaler comme bug ce qui est voulu.
-- `memory/bug-destination-hitchwiki.md` — **BUG EN COURS** : champ destination inutilisable dans validation Hitchwiki (signalé 2026-03-17)
+
 - `memory/teasing-templates.md` — Guidelines templates teasing (style, ton, règles, templates existants)
 - `memory/funding.md` — Dossier financement
 - `memory/features.md` — Inventaire des 190+ features
@@ -520,8 +520,8 @@
 - Système auth progressif + social login
 
 ### Sessions antérieures
-- Order 66 script (suppression données importées)
-- Kill switch VITE_HITCHMAP_ENABLED
+- Données importées entièrement supprimées (2026-03-18)
+- Scripts de traitement des données importées supprimés
 - Pages SEO par ville (852 villes)
 - Refonte AddSpot + ValidateSpot modal
 - Filtres carte fonctionnels

@@ -43,11 +43,6 @@ export function renderDashboard() {
         <div class="kpi-label">Utilisateurs réels <span class="help-tip" title="Comptes créés par de vrais utilisateurs via l'app. Les comptes de test automatisés ne sont pas comptés.">?</span></div>
       </div>
       <div class="kpi">
-        <div class="kpi-value slate" id="kpi-hitchwiki"><span class="spinner"></span></div>
-        <div class="kpi-label">Spots Hitchwiki <span class="help-tip" title="Spots importés de la base Hitchwiki (ancienne communauté d'auto-stoppeurs). Ce sont des données historiques, pas créées par tes utilisateurs.">?</span></div>
-        <div class="kpi-sub" id="kpi-hitchwiki-countries"></div>
-      </div>
-      <div class="kpi">
         <div class="kpi-value blue" id="kpi-spots"><span class="spinner"></span></div>
         <div class="kpi-label">Spots communautaires <span class="help-tip" title="Spots créés par les utilisateurs de SpotHitch via le bouton Ajouter un spot dans l'app.">?</span></div>
       </div>
@@ -88,9 +83,6 @@ export async function bindDashboardEvents() {
   loadDashboardStats()
     .then((stats) => {
       document.getElementById('kpi-users').textContent = stats.userCount.toLocaleString('fr-FR')
-      document.getElementById('kpi-hitchwiki').textContent = stats.spotCountHitchwiki.toLocaleString('fr-FR')
-      const countriesEl = document.getElementById('kpi-hitchwiki-countries')
-      if (countriesEl) countriesEl.textContent = stats.hitchwikiCountries + ' pays'
       document.getElementById('kpi-spots').textContent = stats.spotCountFirebase.toLocaleString('fr-FR')
       document.getElementById('kpi-pending').textContent = stats.pendingTipsCount.toLocaleString('fr-FR')
 
@@ -111,7 +103,6 @@ export async function bindDashboardEvents() {
     .catch((err) => {
       console.error('Failed to load stats:', err)
       document.getElementById('kpi-users').textContent = '?'
-      document.getElementById('kpi-hitchwiki').textContent = '?'
       document.getElementById('kpi-spots').textContent = '?'
       document.getElementById('kpi-pending').textContent = '?'
       const summaryEl = document.getElementById('cleanup-summary')

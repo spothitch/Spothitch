@@ -160,9 +160,9 @@
 
 ## Onboarding & UX
 
-- [x] Carousel d'accueil 7 slides (5 originales + PWA install prompt + timeline Hitchwiki) + sélecteur de langue
+- [x] Carousel d'accueil 7 slides (5 originales + PWA install prompt + timeline communautaire) + sélecteur de langue
 - [x] Astuce Google Maps dans AddSpot (design avant/après : manuel ~2min vs partage 3sec, masquable, lien discret)
-- [x] Compteur Hitchwiki vs SpotHitch sur la carte
+- [x] Compteur spots communautaires sur la carte
 - [x] Map-first : montrer la carte immédiatement
 - [x] États vides avec messages et actions
 - [x] Skeletons de chargement animés

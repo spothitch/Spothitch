@@ -62,7 +62,7 @@ const TYPE_LABELS = {
 let allSpots = null
 let allReports = null
 let searchQuery = ''
-let sourceFilter = 'all' // all | community | hitchwiki
+let sourceFilter = 'all' // all | community
 let statusFilter = 'all' // all | reported | verified | certified
 let sortBy = 'recent' // recent | validations | reports | country
 let currentPage = 0
@@ -83,10 +83,6 @@ export function renderSpotList() {
       <div class="kpi">
         <div class="kpi-value blue" id="kpi-community-spots"><span class="spinner"></span></div>
         <div class="kpi-label">Communauté</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-value slate" id="kpi-hitchwiki-spots"><span class="spinner"></span></div>
-        <div class="kpi-label">Hitchwiki</div>
       </div>
       <div class="kpi">
         <div class="kpi-value red" id="kpi-reported-spots"><span class="spinner"></span></div>
@@ -111,7 +107,6 @@ export function renderSpotList() {
     <div class="section-tabs" id="spot-source-tabs" style="margin-bottom:12px;">
       <button class="tab ${sourceFilter === 'all' ? 'active' : ''}" data-source-filter="all">Tous</button>
       <button class="tab ${sourceFilter === 'community' ? 'active' : ''}" data-source-filter="community">Communauté</button>
-      <button class="tab ${sourceFilter === 'hitchwiki' ? 'active' : ''}" data-source-filter="hitchwiki">Hitchwiki</button>
     </div>
 
     <!-- Status filter + Sort -->
@@ -152,9 +147,7 @@ function getFilteredSpots() {
 
   // Source filter
   if (sourceFilter === 'community') {
-    filtered = filtered.filter((s) => s.source !== 'hitchwiki')
-  } else if (sourceFilter === 'hitchwiki') {
-    filtered = filtered.filter((s) => s.source === 'hitchwiki')
+    filtered = filtered.filter((s) => s.source !== 'imported')
   }
 
   // Status filter
@@ -306,7 +299,7 @@ function renderSpotCard(spot, isReported) {
   const validations = spot.validationCount || 0
   const tier = getTier(validations)
   const reports = getReportCount(spot)
-  const source = spot.source === 'hitchwiki' ? 'Hitchwiki' : 'Communauté'
+  const source = 'Communauté'
   const isHidden = spot.hidden === true
 
   const reportBadge = reports > 0
@@ -317,9 +310,7 @@ function renderSpotCard(spot, isReported) {
     ? `<span style="background:rgba(100,116,139,0.2);color:#94a3b8;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Masqué</span>`
     : ''
 
-  const sourceBadge = spot.source === 'hitchwiki'
-    ? `<span style="background:rgba(148,163,184,0.15);color:#94a3b8;padding:2px 8px;border-radius:4px;font-size:11px;">Hitchwiki</span>`
-    : `<span style="background:rgba(96,165,250,0.15);color:#60a5fa;padding:2px 8px;border-radius:4px;font-size:11px;">Communauté</span>`
+  const sourceBadge = `<span style="background:rgba(96,165,250,0.15);color:#60a5fa;padding:2px 8px;border-radius:4px;font-size:11px;">Communauté</span>`
 
   const expandedHtml = expandedSpotId === spot.id
     ? `<div class="spot-reports-detail" id="spot-reports-${id}" style="background:#1a2332;border-radius:8px;padding:12px;margin-top:10px;">
@@ -655,15 +646,10 @@ function updateKPIs() {
   if (!allSpots) return
   let total = 0
   let community = 0
-  let hitchwiki = 0
   let reported = 0
   for (const s of allSpots) {
     total++
-    if (s.source === 'hitchwiki') {
-      hitchwiki++
-    } else {
-      community++
-    }
+    community++
     if (getReportCount(s) > 0) {
       reported++
     }
@@ -674,7 +660,6 @@ function updateKPIs() {
   }
   el('kpi-total-spots', total)
   el('kpi-community-spots', community)
-  el('kpi-hitchwiki-spots', hitchwiki)
   el('kpi-reported-spots', reported)
 }
 

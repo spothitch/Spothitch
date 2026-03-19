@@ -121,10 +121,10 @@
 - Accessibilité (clavier, lecteur écran, ARIA, contraste WCAG AA)
 - Conformité RGPD (cookie banner, export données, suppression compte)
 - SEO (sitemap, structured data, Open Graph). Pages villes SEO supprimées (nettoyage).
-- Onboarding carousel 8 slides (5 originales + Hitchwiki timeline + code alpha + PWA install + connexion). Bouton Skip supprimé.
+- Onboarding carousel 8 slides (5 originales + timeline communautaire + code alpha + PWA install + connexion). Bouton Skip supprimé.
 - Astuce Google Maps dans AddSpot (design avant/après, masquable, lien discret après masquage)
 - Code d'accès alpha (slide 6 du carousel, code "Dreamer2026", bloquant, contact @captain_pouce / spothitch@gmail.com)
-- Compteur Hitchwiki vs SpotHitch sur la carte (à droite du bouton Guides, total 3026 depuis index)
+- Compteur spots communautaires sur la carte (à droite du bouton Guides)
 - Téléchargement offline par pays (sélecteur dans settings, i18n corrigé, jauge espace fonctionnelle)
 - Recherche suggestions dédupliquées (plus de doublons)
 - Réseaux sociaux avec emoji + label texte + liens cliquables (📷 Instagram, 🎵 TikTok, 👤 Facebook, ▶️ YouTube, 𝕏 X/Twitter, 👻 Snapchat)

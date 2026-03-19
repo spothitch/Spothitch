@@ -1,6 +1,6 @@
 # errors.md - Journal des erreurs et corrections SpotHitch
 
-> Dernière mise à jour : 2026-03-16
+> Dernière mise à jour : 2026-03-19
 > IMPORTANT : Après CHAQUE bug trouvé ou corrigé, ajouter une entrée ici.
 > Le Plan Wolf analyse ce fichier pour éviter les régressions.
 
@@ -378,7 +378,7 @@ Chaque erreur suit ce format :
 - **Gravité** : MINEUR
 - **Description** : Le check ERR-001 dans `error-patterns.mjs` flaggait les handlers définis dans Voyage.js comme des doublons, alors qu'ils utilisent le pattern `if (!window.swapTripPoints) { window.swapTripPoints = ... }`. Ce sont des fallbacks intentionnels pour le lazy-loading, pas des vrais doublons.
 - **Cause racine** : Le check comptait toutes les occurrences `window.xxx =` sans analyser le contexte (guards). Résultat : faux positifs qui polluent le score.
-- **Correction** : Modifié `error-patterns.mjs` pour détecter les guards `if (!window.xxx)` dans les 3 lignes précédentes. Les assignments gardés ne comptent plus comme des doublons. Aussi ajouté `mapInstance`, `spotHitchMap`, `homeMapInstance` à la skip list (propriétés, pas handlers).
+- **Correction** : Modifié `error-patterns.mjs` pour détecter les guards `if (!window.xxx)` dans les 3 lignes précédentes. Les assignments gardés ne comptent plus comme des doublons. Aussi ajouté `mapInstance`, `homeMapInstance` à la skip list (propriétés, pas handlers).
 - **Leçon** : **Quand un check automatique a des faux positifs, le corriger IMMÉDIATEMENT plutôt que de l'ignorer. Un check avec trop de bruit est pire qu'aucun check — les vrais problèmes se noient dans le bruit. Toujours tester les patterns LÉGITIMES (lazy-loading guards, propriétés vs handlers) avant de déployer un check.**
 - **Fichiers** : `scripts/checks/error-patterns.mjs`
 - **Statut** : CORRIGÉ
@@ -560,7 +560,7 @@ Chaque erreur suit ce format :
   - C1: filtres route ne mettaient pas à jour la carte (tous les spots restaient verts)
   - C2: trip map détruite à chaque setState (condition showTripMap manquait tripFormCollapsed)
   - C3: touch-action:none sur le conteneur entier bloquait le scroll
-  - C4: tous les spots affichaient "Spot" sans nom (champs from/city/stationName vides dans données Hitchmap)
+  - C4: tous les spots affichaient "Spot" sans nom (champs from/city/stationName vides dans les données)
   - C5: tripSheetTouchMove appelait preventDefault() sans condition
   - M3: highlightTripSpot forçait un re-render complet via setState({})
   - M5: openAddTripNote utilisait prompt() natif (UX mauvaise)
@@ -572,7 +572,7 @@ Chaque erreur suit ce format :
   - m11: tripSelectSuggestion inline non sanitisé
 - **Cause racine** : Code Voyage.js accumulé sans refactoring, logique de filtre non implémentée (placeholder), conditions de préservation map trop restrictives, touch-action global au lieu de ciblé, noms de spots dépendants de champs vides dans les données source.
 - **Correction** : 9 fichiers modifiés. Filtres implémentés avec opacity 0.2 pour spots non-matchés. Map préservée avec condition élargie. Touch-action ciblé sur handle. Labels spots avec fallback description/country/#N. Bottom sheet géré en DOM direct. Note modal remplace prompt(). Photos compressées 800px/0.7 quality/3 max. haversineKm importé depuis geo.js. escapeJSString pour suggestions. attributionControl:true.
-- **Leçon** : TOUJOURS implémenter la logique derrière un placeholder ("TODO: filter" = bug garanti). TOUJOURS tester les données réelles (pas juste le code — les champs from/city sont vides dans 99% des spots Hitchmap). JAMAIS touch-action:none sur un conteneur scrollable. JAMAIS prompt() natif dans une PWA mobile. JAMAIS stocker des images pleine résolution en base64 dans localStorage.
+- **Leçon** : TOUJOURS implémenter la logique derrière un placeholder ("TODO: filter" = bug garanti). TOUJOURS tester les données réelles (pas juste le code). JAMAIS touch-action:none sur un conteneur scrollable. JAMAIS prompt() natif dans une PWA mobile. JAMAIS stocker des images pleine résolution en base64 dans localStorage.
 - **Fichiers** : `src/components/App.js`, `src/components/views/Voyage.js`, `src/components/views/Travel.js`, `src/main.js`, `src/styles/main.css`, `src/i18n/lang/{fr,en,es,de}.js`
 - **Statut** : CORRIGÉ
 
@@ -1029,4 +1029,218 @@ Chaque erreur suit ce format :
 - **Correction** : Les onglets non-carte sont maintenant TOUJOURS re-rendus quand ils deviennent actifs. Le coût est ~5ms (génération HTML), ce qui est imperceptible.
 - **Leçon** : Ne JAMAIS cacher du contenu dynamique (messages, scores, badges) sans mécanisme d'invalidation. Le HTML est cheap à régénérer, mais des données stales sont un bug visible par l'utilisateur.
 - **Fichiers** : src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-084 — _forceRender recrée les modals ouverts (reload visuel du formulaire AddSpot)
+- **Date** : 2026-03-19
+- **Gravité** : CRITIQUE
+- **Description** : Quand un utilisateur partage un lien Google Maps vers SpotHitch, le formulaire AddSpot s'ouvre mais se "recharge" visuellement (flash blanc, formulaire qui disparaît et réapparaît). Ce bug se produit aussi potentiellement pour Auth et SOS. L'utilisateur perd sa saisie en cours et pense que l'app plante.
+- **Cause racine** : `window._forceRender()` remet `_lastModalFingerprint = ''` inconditionnellement. Quand un autre module lazy se charge (SpotDetail, Auth, etc.), il appelle `_forceRender()` → le fingerprint est reset → le render suivant voit un fingerprint différent → il recrée entièrement le HTML du modal ouvert → le formulaire est détruit et reconstruit = flash visuel.
+- **Correction** : Guard dans `_forceRender` : ne reset le fingerprint QUE si aucun modal formulaire n'est ouvert (`!showAddSpot && !showAuth && !showSOS`). En complément, preload du module AddSpot dans deeplink.js dès la détection du partage (avant d'ouvrir le formulaire).
+- **Leçon** : **JAMAIS reset un fingerprint/cache de rendu sans vérifier l'état courant.** Quand `_forceRender` est appelé, il faut toujours se demander : "est-ce qu'un formulaire est en cours de saisie ?" Si oui, ne PAS détruire son HTML. Plus généralement : tout mécanisme de "force refresh" doit préserver les formulaires/modals actifs. **CHECKLIST OBLIGATOIRE quand on touche à `_forceRender`, `_lastModalFingerprint`, `scheduleRender`, ou au lazy loading de modules :**
+  1. Vérifier que les modals ouverts (AddSpot, Auth, SOS) ne sont PAS recréés
+  2. Tester le flux de partage Google Maps (share target)
+  3. Tester l'ouverture de AddSpot pendant le chargement d'autres modules
+  4. Vérifier que le formulaire garde sa saisie après un render
+- **Fichiers** : src/main.js, src/utils/deeplink.js
+- **Statut** : CORRIGÉ
+
+### ERR-085 — Cascade de reload lors du partage Google Maps (share flow)
+- **Date** : 2026-03-19
+- **Gravité** : CRITIQUE
+- **Description** : Quand un utilisateur partage un lien Google Maps vers SpotHitch, l'app entrait dans une boucle de reload/re-render. Le formulaire AddSpot s'ouvrait, se fermait, se rouvrait. L'utilisateur devait parfois réessayer 3 ou 4 fois.
+- **Cause racine** : Plusieurs problèmes combinés : 1) Le module AddSpot est lazy-loaded, donc `_forceRender` était appelé quand le module chargeait, ce qui recréait le formulaire. 2) `isShareFlowActive` n'était pas vérifié par le global reload interceptor. 3) Pas de fingerprint de protection pour empêcher les re-renders pendant un partage actif.
+- **Correction** : 3 commits successifs : preload du module AddSpot dès détection du partage (deeplink.js), global reload interceptor qui bloque les reloads pendant un share flow actif (main.js), guard dans `_forceRender` pour ne pas reset le fingerprint si un modal est ouvert.
+- **Leçon** : **Le share flow est un chemin critique ultra-fragile.** Tout changement qui touche au rendu, au lazy loading, ou aux intercepteurs de reload DOIT être testé avec un partage Google Maps. Toujours vérifier : 1) Le formulaire s'ouvre sans flash 2) Le formulaire reste ouvert 3) La saisie n'est pas perdue 4) Pas de reload parasite.
+- **Fichiers** : src/main.js, src/utils/deeplink.js
+- **Statut** : CORRIGÉ
+
+### ERR-086 — Modal confirmation Street View + erreur Firestore
+- **Date** : 2026-03-19
+- **Gravité** : MAJEUR
+- **Description** : La modal de confirmation Street View ne s'affichait pas correctement. En parallèle, une erreur Firestore apparaissait lors de certaines actions.
+- **Cause racine** : Problème de rendu de la modal + champ undefined envoyé à Firestore updateDoc.
+- **Correction** : Fix du rendu modal + filtrage des champs undefined avant envoi Firestore.
+- **Leçon** : **JAMAIS envoyer de valeurs `undefined` à Firestore** (updateDoc, setDoc). Toujours filtrer les champs avant envoi. Firestore rejette silencieusement ou crash selon les cas.
+- **Fichiers** : src/main.js, src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-087 — Clé i18n errorGeneric inexistante
+- **Date** : 2026-03-19
+- **Gravité** : MINEUR
+- **Description** : Le code référençait `t('errorGeneric')` mais cette clé n'existait pas dans les fichiers i18n. L'utilisateur voyait "errorGeneric" en texte brut au lieu du message d'erreur traduit.
+- **Cause racine** : La clé correcte est `error`, pas `errorGeneric`. Erreur de nommage lors d'un précédent développement.
+- **Correction** : Remplacement de `errorGeneric` par `error` partout dans le code.
+- **Leçon** : **Avant d'utiliser une clé i18n, vérifier qu'elle existe dans src/i18n/index.js.** Faire un grep. Ne JAMAIS inventer une clé sans l'ajouter dans les 4 langues.
+- **Fichiers** : src/i18n/index.js, src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-088 — Firebase updateDoc crash avec des champs undefined au login
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : Au login Firebase, `updateDoc` recevait des champs avec valeur `undefined` (ex: bio, avatar). Firestore rejette ces valeurs et le login échouait silencieusement pour certains utilisateurs.
+- **Cause racine** : Les données utilisateur récupérées de l'auth provider n'ont pas toujours tous les champs. Le code passait directement l'objet sans filtrer les `undefined`.
+- **Correction** : Filtrage de tous les champs undefined avant chaque appel updateDoc/setDoc.
+- **Leçon** : **Toujours filtrer les `undefined` avant tout appel Firestore.** Pattern : `Object.fromEntries(Object.entries(data).filter(([,v]) => v !== undefined))`. S'applique à CHAQUE endroit qui écrit dans Firestore.
+- **Fichiers** : src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-089 — Spots Firebase disparaissent après moveend (loadSpotsForView écrase les spots communautaires)
+- **Date** : 2026-03-17
+- **Gravité** : CRITIQUE
+- **Description** : Quand l'utilisateur bougeait la carte, les spots ajoutés par la communauté (Firebase) disparaissaient. Seuls les spots statiques restaient visibles.
+- **Cause racine** : `loadSpotsForView` remplaçait entièrement le tableau de spots au lieu de merger. Les spots Firebase chargés dynamiquement étaient écrasés par les spots statiques du pays.
+- **Correction** : Merge des spots Firebase avec les spots statiques au lieu de remplacer. Les spots communautaires persistent indépendamment du moveend.
+- **Leçon** : **Quand on charge des données par zone géographique, TOUJOURS merger avec l'existant, JAMAIS remplacer.** Les données dynamiques (Firebase) et statiques (JSON pays) doivent coexister. Pattern : `new Map()` avec ID comme clé pour éviter les doublons.
+- **Fichiers** : src/services/spotLoader.js, src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-090 — Admin login loop avec signInWithRedirect
+- **Date** : 2026-03-17
+- **Gravité** : CRITIQUE
+- **Description** : L'admin ne pouvait pas se connecter. `signInWithRedirect` créait une boucle infinie de redirections sur certains navigateurs mobiles.
+- **Cause racine** : `signInWithRedirect` ne fonctionne pas fiablement dans les PWA standalone et sur certains navigateurs mobiles (Safari iOS, Chrome Android). Le redirect revient à l'app mais l'auth state n'est pas récupéré à temps.
+- **Correction** : Remplacement par `signInWithPopup` qui fonctionne partout.
+- **Leçon** : **JAMAIS utiliser `signInWithRedirect` dans une PWA.** Toujours `signInWithPopup`. Le redirect est incompatible avec le mode standalone et crée des boucles sur mobile.
+- **Fichiers** : src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-091 — Fantômes de spots importés sur téléphones (ancien cache spot-data)
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : Après le retrait des données importées, les utilisateurs existants voyaient encore des spots fantômes sur la carte. Les spots avaient disparu du serveur mais restaient dans le cache local (IndexedDB + Service Worker).
+- **Cause racine** : L'ancien cache `spot-data` dans le navigateur contenait encore les spots. Le code ne purgeait pas le cache au démarrage. Le guard env var n'était pas appliqué dans le build production.
+- **Correction** : Suppression complète du spotLoader (remplacé par stubs vides), purge v2 de l'IDB au démarrage, suppression des fichiers JSON et des règles SW.
+- **Leçon** : **Quand on retire des données du serveur, TOUJOURS purger les caches clients.** Les utilisateurs existants ont des données en cache qui persistent. Ne JAMAIS se fier à une env var build-time pour bloquer du code critique. Préférer la suppression pure et simple du code.
+- **Fichiers** : src/main.js, src/services/spotLoader.js
+- **Statut** : CORRIGÉ
+
+### ERR-092 — Clusters disparaissent au zoom
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : En zoomant/dézoomant sur la carte, les clusters de spots disparaissaient. L'utilisateur devait bouger la carte pour les faire réapparaître.
+- **Cause racine** : Le GeoJSON source des clusters n'était pas reconstruit après un changement de zoom. Le code gardait l'ancien GeoJSON en cache.
+- **Correction** : Toujours reconstruire le GeoJSON source à chaque changement de zoom, pas seulement au moveend.
+- **Leçon** : **Les clusters MapLibre doivent être reconstruits à CHAQUE changement de vue (zoom ET move).** Ne JAMAIS cacher le GeoJSON des clusters sans invalidation au zoom.
+- **Fichiers** : src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-093 — AddSpot freeze/reload au changement de type de spot
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : Dans le formulaire AddSpot, changer le type de spot (sortie de ville, station, etc.) causait un freeze ou un reload du formulaire.
+- **Cause racine** : Le changement de type déclenchait un setState qui re-rendait tout le modal, y compris le formulaire. Le fingerprint changeait → le HTML était recréé.
+- **Correction** : Le changement de type ne déclenche plus un re-render complet. Seul le champ type est mis à jour dans le DOM sans recréer le formulaire.
+- **Leçon** : **Les changements de champs dans un formulaire ne doivent JAMAIS déclencher un re-render complet du modal.** Utiliser des updates DOM ciblés (textContent, value) au lieu de recréer le HTML.
+- **Fichiers** : src/components/modals/AddSpot.js
+- **Statut** : CORRIGÉ
+
+### ERR-094 — Auth race condition dans handleAddSpot
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : `handleAddSpot` vérifiait l'auth AVANT d'ouvrir le formulaire. Si l'utilisateur n'était pas connecté, le formulaire s'ouvrait puis se refermait immédiatement pour afficher la modal Auth. Après connexion, le formulaire ne se rouvrait pas.
+- **Cause racine** : Gate auth dans `openAddSpot` qui faisait un reset de l'état du formulaire. Race condition entre la fermeture du formulaire et l'ouverture de l'auth.
+- **Correction** : Retrait du gate auth de `openAddSpot`. L'auth est vérifiée au moment de la SOUMISSION, pas à l'ouverture. L'utilisateur peut remplir le formulaire avant de se connecter.
+- **Leçon** : **JAMAIS bloquer l'ouverture d'un formulaire avec un gate auth.** Vérifier l'auth à la SOUMISSION. L'utilisateur doit pouvoir voir et remplir le formulaire avant de se connecter. Ça réduit la friction et évite les race conditions.
+- **Fichiers** : src/main.js, src/components/modals/AddSpot.js
+- **Statut** : CORRIGÉ
+
+### ERR-095 — Direction input unfocusable à l'étape 2 (AddSpot validation)
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : Dans le formulaire AddSpot en mode validation, le champ "direction" à l'étape 2 était impossible à focus/cliquer. L'utilisateur ne pouvait pas modifier la direction du spot.
+- **Cause racine** : Un overlay invisible (z-index trop élevé d'un autre élément) couvrait le champ input. Le click était intercepté par l'overlay au lieu d'atteindre l'input.
+- **Correction** : Correction du z-index et de la structure HTML pour que l'input soit toujours accessible.
+- **Leçon** : **Après chaque changement de layout/z-index, tester que TOUS les inputs du formulaire sont cliquables.** Utiliser Playwright pour vérifier : `page.click('input')` doit fonctionner sans timeout.
+- **Fichiers** : src/components/modals/AddSpot.js
+- **Statut** : CORRIGÉ
+
+### ERR-096 — Boutons carte invisibles (SVG externe cassé + z-index)
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : Les boutons de la carte (localisation, zoom, etc.) étaient invisibles. Les icônes ne s'affichaient pas et les boutons étaient sous d'autres éléments.
+- **Cause racine** : 1) Utilisation d'icônes SVG externes qui ne chargeaient pas offline. 2) z-index trop bas, les boutons étaient sous la navbar.
+- **Correction** : SVG inline au lieu d'externe. z-index à 30. Espacement corrigé pour ne pas chevaucher la navbar.
+- **Leçon** : **JAMAIS d'icônes SVG externes sur une PWA.** Toujours utiliser des SVG inline ou le fichier icons.js. Les ressources externes ne chargent pas offline et sont un point de défaillance.
+- **Fichiers** : src/main.js, src/components/App.js
+- **Statut** : CORRIGÉ
+
+### ERR-097 — Textes français hardcodés dans l'interface (Phase 6 i18n)
+- **Date** : 2026-03-18
+- **Gravité** : MAJEUR
+- **Description** : Plusieurs textes étaient hardcodés en français au lieu d'utiliser les clés i18n. Les utilisateurs EN/ES/DE voyaient du français dans certaines parties de l'app.
+- **Cause racine** : Développement rapide sans passer par le système i18n. Les textes étaient mis directement dans le HTML/JS au lieu d'utiliser `t('key')`.
+- **Correction** : Remplacement de tous les textes hardcodés par des clés i18n + ajout des traductions dans les 4 langues.
+- **Leçon** : **ZÉRO texte hardcodé. JAMAIS.** Même pour un "OK" ou un "×". Tout doit passer par `t('key')`. Faire un grep `grep -rn ">[A-Z]" src/` pour trouver les textes hardcodés restants.
+- **Fichiers** : src/components/modals/*.js, src/i18n/index.js
+- **Statut** : CORRIGÉ
+
+### ERR-098 — Clés i18n dupliquées (popular, hitchhikingGuide, places)
+- **Date** : 2026-03-17
+- **Gravité** : MINEUR
+- **Description** : Plusieurs clés i18n étaient définies en double dans le fichier de traductions. La seconde définition écrasait silencieusement la première, ce qui pouvait causer des traductions incorrectes.
+- **Cause racine** : Ajouts successifs de clés sans vérifier si elles existaient déjà.
+- **Correction** : Suppression des doublons + ajout des clés manquantes.
+- **Leçon** : **Avant d'ajouter une clé i18n, TOUJOURS grep pour vérifier qu'elle n'existe pas déjà.** `grep "keyName" src/i18n/index.js`. Les doublons sont silencieux en JS (pas d'erreur, la dernière gagne).
+- **Fichiers** : src/i18n/index.js
+- **Statut** : CORRIGÉ
+
+### ERR-099 — Firestore rules trop permissives + XSS potentiel (Phase 1 sécurité)
+- **Date** : 2026-03-18
+- **Gravité** : CRITIQUE
+- **Description** : Les règles Firestore permettaient des écritures non validées. Certains champs utilisateur n'étaient pas sanitizés, ouvrant un vecteur XSS via les noms d'utilisateur ou descriptions de spots.
+- **Cause racine** : Règles Firestore de développement encore en place ("allow write: if true"). Pas de validation côté client des inputs utilisateur.
+- **Correction** : Règles Firestore restrictives (auth required, validation des champs). Sanitization des inputs utilisateur côté client. Utilisation de `textContent` au lieu de `innerHTML` pour l'affichage.
+- **Leçon** : **Les règles Firestore de développement ("allow write: if true") ne doivent JAMAIS arriver en production.** Vérifier les règles Firestore à chaque audit de sécurité. Côté client, TOUJOURS utiliser `textContent` pour afficher des données utilisateur, JAMAIS `innerHTML`.
+- **Fichiers** : firestore.rules, src/services/firebase.js, src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-100 — BetaBanner ghost overlay empêche les clics
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : Après fermeture du BetaBanner, un overlay invisible restait et empêchait les clics sur la carte et les boutons en dessous.
+- **Cause racine** : La fermeture du banner changeait l'état mais ne déclenchait pas un re-render complet. L'ancien HTML du banner (avec son overlay) restait dans le DOM.
+- **Correction** : Force re-render après fermeture du BetaBanner pour supprimer l'overlay du DOM.
+- **Leçon** : **Quand un élément avec overlay/backdrop est fermé, TOUJOURS vérifier que l'overlay est retiré du DOM.** Ne pas se fier au `display: none` car le fingerprint peut empêcher le re-render. Forcer le re-render si nécessaire.
+- **Fichiers** : src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-101 — Service worker empêche le reload (boucle de reload)
+- **Date** : 2026-03-17
+- **Gravité** : CRITIQUE
+- **Description** : L'app entrait dans une boucle de reload infinie. Le service worker interceptait le reload et servait l'ancienne version, ce qui déclenchait un nouveau reload.
+- **Cause racine** : Le service worker cachait les réponses et les resservait même après un `location.reload()`. Le code de mise à jour détectait une ancienne version → reload → SW sert l'ancien cache → détecte encore une ancienne version → reload...
+- **Correction** : Désenregistrement du service worker AVANT le reload (`navigator.serviceWorker.getRegistration().then(r => r.unregister())`). Le reload suivant va au réseau, pas au cache SW.
+- **Leçon** : **Quand on fait un reload pour mise à jour, TOUJOURS désenregistrer le SW d'abord.** Sinon le SW resert l'ancien cache et le reload est inutile. Pattern : `unregister()` → `location.reload(true)`.
+- **Fichiers** : src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-102 — 6 bugs plan multi (modal validation, admin, doublons, live data, spotType)
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : Pendant les tests multi-utilisateurs, 6 bugs trouvés : 1) Modal de validation ne s'ouvrait pas 2) Admin ne pouvait pas valider 3) Spots en double sur la carte 4) Données live pas mises à jour 5) spotType perdu au submit 6) Compteur de spots incorrect.
+- **Cause racine** : Multiples : stubs manquants pour handlers lazy, conditions auth trop restrictives pour admin, pas de déduplication par ID, pas de listener realtime, champ spotType non transmis au Firestore.
+- **Correction** : Fix des 6 bugs dans un seul commit. Ajout des stubs, correction des conditions auth, déduplication par Map, listener onSnapshot, transmission du spotType.
+- **Leçon** : **Les tests multi-utilisateurs révèlent des bugs invisibles en solo.** Toujours tester avec au moins 2 comptes simultanés avant de merger. Les bugs de concurrence (doublons, données live) n'apparaissent JAMAIS en test solo.
+- **Fichiers** : src/main.js, src/components/modals/AddSpot.js, src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-103 — Edit profile modal fond transparent + bio non persistée
+- **Date** : 2026-03-17
+- **Gravité** : MINEUR
+- **Description** : La modal d'édition de profil avait un fond transparent (on voyait la carte derrière). La bio saisie n'était pas sauvegardée dans l'état.
+- **Cause racine** : CSS manquant pour le background de la modal. La bio était lue du DOM mais pas écrite dans le state avec setState.
+- **Correction** : Ajout du background opaque + persistance de la bio dans l'état via setState.
+- **Leçon** : **Chaque modal DOIT avoir un fond opaque (bg-white ou bg-gray-900).** Vérifier visuellement. Et chaque champ de formulaire qui doit être persisté doit appeler setState, pas juste modifier le DOM.
+- **Fichiers** : src/components/modals/EditProfile.js
+- **Statut** : CORRIGÉ
+
+### ERR-104 — Spot loading lent sur la carte (import dynamique + debounce trop long)
+- **Date** : 2026-03-17
+- **Gravité** : MAJEUR
+- **Description** : Le chargement des spots sur la carte était trop lent. L'utilisateur voyait la carte vide pendant 2-3 secondes en zoomant/déplaçant.
+- **Cause racine** : 1) Import dynamique du spotLoader à chaque moveend (overhead inutile). 2) Debounce de 500ms trop long pour le moveend.
+- **Correction** : Import direct (statique) du spotLoader. Debounce réduit à 200ms.
+- **Leçon** : **Les modules critiques (spotLoader, firebase) doivent être importés statiquement, pas dynamiquement.** Le lazy loading est pour les modals et vues, pas pour les services de données. Le debounce carte doit être < 300ms pour une UX fluide.
+- **Fichiers** : src/main.js, src/services/spotLoader.js
 - **Statut** : CORRIGÉ

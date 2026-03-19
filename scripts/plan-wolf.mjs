@@ -1079,7 +1079,7 @@ function phase6_regressionGuard() {
         // Skip internal state flags (prefixed with _)
         if (name.startsWith('_')) return false
         // Skip known state variables that are set multiple times intentionally
-        const stateVars = ['spotFormData', 'spotHitchMap', 'mapInstance', 'timestamps',
+        const stateVars = ['spotFormData', 'mapInstance', 'timestamps',
           'blocked', 'identityVerificationState', 'selectedLanguageCode',
           'tripSearchSuggestions', 'showToast']
         if (stateVars.includes(name)) return false

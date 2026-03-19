@@ -65,7 +65,7 @@ function extractCodeHandlers() {
     'spotFormData', 'setState', 'getState',
     '_lazyLoaders', '_loadedModules', '__SPOTHITCH_VERSION__',
     'maplibregl', 'matchMedia',
-    'homeMapInstance', 'mapInstance', 'spotHitchMap',
+    'homeMapInstance', 'mapInstance',
     '_tripMapInstance', '_tripMapAddAmenities', '_tripMapRemoveAmenities',
     '_tripMapFlyTo', '_tripMapResize', '_tripMapCleanup',
     'deviceManagerState', 'emailVerificationState', 'identityVerificationState',
