@@ -44,7 +44,8 @@ import {
   arrayRemove,
   increment,
   enableNetwork,
-  disableNetwork
+  disableNetwork,
+  runTransaction
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -557,9 +558,24 @@ export async function addSpot(spotData) {
  */
 export async function updateSpot(spotId, updates) {
   try {
+    // Filter to allowed fields only (same pattern as addSpot)
+    const safeUpdates = {}
+    for (const key of SPOT_ALLOWED_FIELDS) {
+      if (updates[key] !== undefined) safeUpdates[key] = updates[key]
+    }
+    // Also allow counter/meta fields that authenticated users can update
+    const COUNTER_FIELDS = [
+      'validationCount', 'testCount', 'averageRating', 'totalRatings',
+      'totalReviews', 'checkins', 'verified', 'reports',
+      'lastValidatedAt', 'lastTestedAt', 'lastValidated', 'lastTested',
+      'lastValidatedBy', 'lastTestedBy', 'userValidations',
+    ]
+    for (const key of COUNTER_FIELDS) {
+      if (updates[key] !== undefined) safeUpdates[key] = updates[key]
+    }
     const spotRef = doc(db, 'spots', spotId);
     await updateDoc(spotRef, {
-      ...updates,
+      ...safeUpdates,
       updatedAt: serverTimestamp()
     });
     return { success: true };
@@ -876,21 +892,25 @@ export async function reserveUsername(username, uid) {
   try {
     const u = username.toLowerCase().trim()
     const docRef = doc(db, 'usernames', u)
-    const snapshot = await getDoc(docRef)
 
-    if (snapshot.exists()) {
-      // Already taken (race condition check)
-      if (snapshot.data().uid === uid) return { success: true } // Same user re-claiming
-      return { success: false, error: 'taken' }
-    }
+    // Use a transaction for atomic check + claim (prevents race conditions)
+    await runTransaction(db, async (transaction) => {
+      const snapshot = await transaction.get(docRef)
 
-    await setDoc(docRef, {
-      uid,
-      username: u,
-      createdAt: serverTimestamp(),
+      if (snapshot.exists()) {
+        // Already taken
+        if (snapshot.data().uid === uid) return // Same user re-claiming — no-op
+        throw new Error('taken')
+      }
+
+      transaction.set(docRef, {
+        uid,
+        username: u,
+        createdAt: serverTimestamp(),
+      })
     })
 
-    // Also update the user's profile with the username
+    // Also update the user's profile with the username (outside transaction — non-critical)
     const userRef = doc(db, 'users', uid)
     await updateDoc(userRef, { username: u }).catch(async () => {
       // Profile may not exist yet — create it
@@ -899,6 +919,7 @@ export async function reserveUsername(username, uid) {
 
     return { success: true }
   } catch (error) {
+    if (error.message === 'taken') return { success: false, error: 'taken' }
     console.error('Error reserving username:', error)
     return { success: false, error: error.code || 'unknown' }
   }
@@ -1001,8 +1022,14 @@ export async function saveSpotToFirebase(spot) {
     const user = getCurrentUser();
     const spotsRef = collection(db, 'spots');
 
+    // Filter to allowed fields only (prevent arbitrary data injection)
+    const safeSpot = {}
+    for (const key of SPOT_ALLOWED_FIELDS) {
+      if (spot[key] !== undefined) safeSpot[key] = spot[key]
+    }
+
     const spotData = {
-      ...spot,
+      ...safeSpot,
       creatorId: user?.uid || 'anonymous',
       creator: user?.displayName || 'Anonyme',
       creatorAvatar: user?.photoURL || '🤙',

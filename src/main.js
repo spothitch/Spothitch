@@ -89,6 +89,7 @@ import {
   preloadModals,
   preloadOnIdle,
 } from './utils/lazyLoad.js';
+import { ADMIN_EMAILS } from './utils/constants.js'
 import {
   restoreCompanionMode,
   onOverdue as onCompanionOverdue,
@@ -215,14 +216,6 @@ async function init() {
     setState({ showLanding: false, showWelcome: false })
   }
 
-  // TEMPORARY DEBUG: log every page load URL so we can diagnose share target issues
-  try {
-    const _dbg = JSON.parse(localStorage.getItem('spothitch_url_log') || '[]')
-    _dbg.push({ t: Date.now(), url: window.location.href.slice(0, 300) })
-    if (_dbg.length > 10) _dbg.splice(0, _dbg.length - 10)
-    localStorage.setItem('spothitch_url_log', JSON.stringify(_dbg))
-  } catch { /* no-op */ }
-
   try {
     // Load detected language translations (only active language, not all 4)
     const lang = await initI18n();
@@ -303,7 +296,7 @@ async function init() {
         try { initNetworkMonitor() } catch (e) { /* optional */ }
 
         // Notifications
-        try { await initNotifications() } catch (e) { /* optional */ }
+        try { await initNotifications() } catch (e) { console.warn('Notifications init failed:', e.message) }
 
         // Error tracking (Sentry)
         // NOTE: only initSentry — do NOT call setupGlobalErrorHandlers here,
@@ -311,7 +304,7 @@ async function init() {
         try {
           const { initSentry } = await import('./services/sentry.js')
           await initSentry()
-        } catch (e) { /* optional */ }
+        } catch (e) { console.warn('Sentry init failed:', e.message) }
 
         // Firebase — always initialize and listen for auth state
         // Firebase Auth persists sessions in IndexedDB, so a returning user
@@ -336,7 +329,6 @@ async function init() {
                 return
               }
               actions.setUser(user)
-              const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
               const updates = {
                 currentUser: user,
                 isAdmin: ADMIN_EMAILS.includes(user.email?.toLowerCase()),
@@ -428,7 +420,6 @@ async function init() {
               await fb.createOrUpdateUserProfile(user)
               fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
               import('./services/firebaseSync.js').then(m => m.hydrateAllFromFirestore(user.uid)).catch(() => {})
-              const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
               actions.setUser(user)
               setState({
                 showAuth: false,
@@ -453,7 +444,7 @@ async function init() {
               else if (pendingAction === 'tripPlanner') setTimeout(() => window.openTripPlanner?.(), 300)
             }
           } catch (_e) { /* redirect check optional */ }
-        } catch (e) { /* optional */ }
+        } catch (e) { console.warn('Firebase init failed:', e.message) }
 
         // Lazy background services
         try { const { initNearbyFriendsTracking } = await import('./services/nearbyFriends.js'); initNearbyFriendsTracking() } catch (e) { /* optional */ }

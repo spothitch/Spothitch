@@ -459,7 +459,16 @@ function persistState() {
   Storage.set('state', stateToPersist);
 
   // Sync all local data to Firebase (debounced, won't fire on every call)
-  import('../services/firebaseSync.js').then(m => m.syncAllToFirestore()).catch(() => {})
+  // Cache the module reference after first import to avoid creating new Promise chains
+  if (!persistState._fbSyncModule) {
+    persistState._fbSyncPromise = persistState._fbSyncPromise || import('../services/firebaseSync.js')
+    persistState._fbSyncPromise.then(m => {
+      persistState._fbSyncModule = m
+      m.syncAllToFirestore()
+    }).catch(() => {})
+  } else {
+    persistState._fbSyncModule.syncAllToFirestore()
+  }
 }
 
 // Debounced persist — batch rapid setState calls into one localStorage write
