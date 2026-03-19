@@ -223,7 +223,7 @@ const MAIN_JS_HANDLERS = [
   'saveSpotAsDraft', 'openSpotDraft', 'deleteSpotDraft',
   'addSpotDestination', 'removeSpotDestination',
   // SpotDetail destinations + street view (defined in SpotDetail.js)
-  'addDestinationToExistingSpot', 'openSpotStreetView', 'confirmStreetViewAvailable',
+  'addDestinationToExistingSpot', 'openSpotStreetView', 'confirmStreetViewAvailable', 'doConfirmStreetView',
   // AdminPanel (defined in AdminPanel.js)
   'adminAddPoints', 'adminAddSkillPoints', 'adminAddThumbs',
   'adminLevelUp', 'adminMaxStats', 'openAccessibilityHelp',
