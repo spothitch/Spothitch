@@ -347,8 +347,8 @@ export async function createOrUpdateUserProfile(user) {
       // Existing user — update last login
       const updates = {
         lastLoginAt: serverTimestamp(),
-        displayName: user.displayName || snapshot.data().displayName,
-        photoURL: user.photoURL || snapshot.data().photoURL,
+        displayName: user.displayName || snapshot.data().displayName || null,
+        photoURL: user.photoURL || snapshot.data().photoURL || null,
       }
       // If pending registration data (from social login post-auth), merge it
       if (window._pendingRegistrationData) {
