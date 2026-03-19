@@ -799,8 +799,6 @@ function initHomeMap(state) {
 
     const maplibregl = maplibreModule.default || maplibreModule
     const {
-      addCountryBubbleLayers, updateCountryBubbleData,
-      createBubblePopup, handleClusterClick, setBubbleLayersVisibility,
       setSpotLayersVisibility,
     } = await import('../services/countryBubbles.js')
 
@@ -856,18 +854,14 @@ function initHomeMap(state) {
           map.flyTo({ center: [longitude, latitude], zoom: 13, duration: 1200 })
           // Update global state
           if (window.setState) window.setState({ userLocation: { lat: latitude, lng: longitude }, gpsEnabled: true })
-          // Refresh map with community spots + bubbles
-          if (window._refreshCountryBubbles) window._refreshCountryBubbles()
+          // Refresh map with community spots
+          loadSpotsForView()
         },
         () => { /* silently fail — user denied GPS */ },
         { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
       )
     }
 
-    // spotLoader module reference (loaded once, reused)
-    let spotLoader = null
-    let spotIndex = null
-    let countryCenters = null
     let activePopup = null
 
     // Track which spot IDs are already added to avoid duplicates
@@ -1102,42 +1096,8 @@ function initHomeMap(state) {
     // Spots always visible (clusters at low zoom, individual at high zoom)
     // Bubbles fade in/out via their own opacity interpolation (zoom 6→7)
     const updateLayerVisibility = () => {
-      const z = map.getZoom()
       // Always show spots — clusters aggregate at low zoom automatically
       setSpotLayersVisibility(map, true)
-      // Country bubbles visible at low zoom (only for countries with community spots)
-      setBubbleLayersVisibility(map, z < 7)
-    }
-
-    // Refresh bubble data from community spots
-    // Throttled to avoid excessive rebuilds that cause visual flicker
-    let lastBubbleRefresh = 0
-    const BUBBLE_THROTTLE_MS = 2000
-    const refreshBubbles = () => {
-      const now = Date.now()
-      if (now - lastBubbleRefresh < BUBBLE_THROTTLE_MS) return
-      lastBubbleRefresh = now
-      if (!countryCenters) {
-        // Load country centers from spotLoader if not yet loaded
-        if (spotLoader) countryCenters = spotLoader.getCountryCenters()
-        if (!countryCenters) return
-      }
-      // Build index dynamically from actual spots in state
-      const currentState = getState()
-      const allSpots = currentState.spots || []
-      if (allSpots.length === 0) return
-      // Count spots per country
-      const countByCountry = {}
-      for (const s of allSpots) {
-        const cc = (s.country || s.countryCode || '').toUpperCase()
-        if (cc) countByCountry[cc] = (countByCountry[cc] || 0) + 1
-      }
-      // Build fake index from real data
-      const dynamicIndex = {
-        countries: Object.entries(countByCountry).map(([code, count]) => ({ code, count })),
-      }
-      const loadedCodes = new Set(Object.keys(countByCountry))
-      updateCountryBubbleData(map, dynamicIndex, countryCenters, loadedCodes, new Set())
     }
 
     // Show a small confirmation bubble on the map to create a spot
@@ -1211,37 +1171,8 @@ function initHomeMap(state) {
         longPressStart = null
       }, { passive: true })
 
-      // Country bubble layers (shows bubbles for countries with community spots)
-      addCountryBubbleLayers(map)
-
-      // Load spotLoader for country centers
-      try {
-        const mod = await import('../services/spotLoader.js')
-        spotLoader = mod
-        countryCenters = mod.getCountryCenters()
-      } catch { /* no-op */ }
-
-      // Click on cluster bubble → zoom in
-      map.on('click', 'country-bubble-clusters', (e) => {
-        if (!e.features?.length) return
-        handleClusterClick(map, e.features[0])
-      })
-      map.on('mouseenter', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = 'pointer' })
-      map.on('mouseleave', 'country-bubble-clusters', () => { map.getCanvas().style.cursor = '' })
-
-      // Click on individual country bubble → zoom into that country
-      map.on('click', 'country-bubble-circles', (e) => {
-        if (!e.features?.length) return
-        if (activePopup) { activePopup.remove(); activePopup = null }
-        const coords = e.features[0].geometry.coordinates
-        map.flyTo({ center: coords, zoom: 7, duration: 800 })
-      })
-      map.on('mouseenter', 'country-bubble-circles', () => { map.getCanvas().style.cursor = 'pointer' })
-      map.on('mouseleave', 'country-bubble-circles', () => { map.getCanvas().style.cursor = '' })
-
       // Initial load: show community spots from state
       loadSpotsForView()
-      refreshBubbles()
 
       updateLayerVisibility()
 
@@ -1261,7 +1192,6 @@ function initHomeMap(state) {
             communitySpots.forEach(s => spotsMap.set(s.id, s))
             if (window.setState) window.setState({ spots: Array.from(spotsMap.values()) })
             updateSpotsOnMap(Array.from(spotsMap.values()))
-            refreshBubbles()
           }
         }
       } catch { /* Firestore unavailable — static spots still work */ }
@@ -1274,9 +1204,6 @@ function initHomeMap(state) {
     map.on('moveend', () => {
       updateLayerVisibility()
       clearTimeout(moveTimer)
-
-      // Refresh bubbles at any zoom
-      refreshBubbles()
 
       // Detect zoom change — instantly re-display cached spots
       const currentZoom = map.getZoom()
@@ -1299,9 +1226,6 @@ function initHomeMap(state) {
       lastBounds = bounds
       moveTimer = setTimeout(loadSpotsForView, 300)
     })
-
-    // Expose refreshBubbles for main.js handlers
-    window._refreshCountryBubbles = refreshBubbles
 
     // Expose map spot refresh for filter changes
     window._refreshMapSpots = () => {
