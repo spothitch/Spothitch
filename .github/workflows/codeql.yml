@@ -5,8 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 6am UTC
+  # NO schedule/cron — GitHub banned our previous account for scheduled workflows
 
 jobs:
   analyze:
