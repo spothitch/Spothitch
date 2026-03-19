@@ -51,6 +51,7 @@ import {
   getStorage,
   ref,
   uploadString,
+  uploadBytes,
   getDownloadURL
 } from 'firebase/storage';
 import { getMessaging, getToken, onMessage, deleteToken } from 'firebase/messaging';
@@ -762,7 +763,10 @@ export async function sendChatMessage(room, text) {
 export async function uploadImage(base64Data, path) {
   try {
     const storageRef = ref(storage, path);
-    const snapshot = await uploadString(storageRef, base64Data, 'data_url');
+    // Convert base64 data URL to Blob for more efficient upload (less memory than base64 string)
+    const response = await fetch(base64Data);
+    const blob = await response.blob();
+    const snapshot = await uploadBytes(storageRef, blob);
     const downloadURL = await getDownloadURL(snapshot.ref);
     return { success: true, url: downloadURL };
   } catch (error) {
@@ -1122,7 +1126,10 @@ export async function uploadPhotoToFirebase(dataUrl, spotId) {
     const path = `spots/${spotId}/${user?.uid || 'anon'}_${timestamp}.jpg`;
 
     const storageRef = ref(storage, path);
-    const snapshot = await uploadString(storageRef, dataUrl, 'data_url');
+    // Convert base64 data URL to Blob for more efficient upload (less memory than base64 string)
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+    const snapshot = await uploadBytes(storageRef, blob);
     const downloadURL = await getDownloadURL(snapshot.ref);
 
     return { success: true, url: downloadURL, path };
@@ -1855,7 +1862,7 @@ if (typeof window !== 'undefined') {
     reserveUsername, validateUsername, checkUsernameAvailability,
     // Storage functions
     getStorage: () => storage,
-    ref, uploadString, getDownloadURL,
+    ref, uploadString, uploadBytes, getDownloadURL,
     uploadImage, uploadPhotoToFirebase,
   }
 }

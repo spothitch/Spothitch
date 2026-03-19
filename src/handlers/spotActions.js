@@ -170,10 +170,14 @@ window.openAddSpot = () => {
   }
 }
 window.openAddSpotPreview = () => window.setState({ showAddSpot: true, addSpotPreview: true });
-window.closeAddSpot = () => window.setState({
-  showAddSpot: false, addSpotPreview: false, addSpotStep: 1, addSpotType: null,
-  addSpotValidateId: null,
-});
+window.closeAddSpot = () => {
+  // Cleanup AddSpot event listeners to prevent memory leaks
+  import('../components/modals/AddSpot.js').then(m => m.cleanupAddSpotListeners?.()).catch(() => {})
+  window.setState({
+    showAddSpot: false, addSpotPreview: false, addSpotStep: 1, addSpotType: null,
+    addSpotValidateId: null,
+  })
+}
 
 // Open AddSpot in validation mode — "J'ai testé ce spot"
 // Reuses the same 3-step wizard but with position/type/city pre-filled from the existing spot

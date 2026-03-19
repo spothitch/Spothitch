@@ -3,6 +3,9 @@
  * WCAG 2.1 AA Compliance Helpers
  */
 
+// Use window.t to avoid circular dependency with i18n
+const _t = (key) => (typeof window !== 'undefined' && window.t ? window.t(key) : '') || ''
+
 /**
  * Announce message to screen readers
  * @param {string} message - Message to announce
@@ -133,14 +136,15 @@ export function formatForSR(num, unit, unitPlural) {
  * @param {string} text - Link text
  * @returns {string} HTML string
  */
-export function createSkipLink(targetId = 'main-content', text = 'Aller au contenu principal') {
+export function createSkipLink(targetId = 'main-content', text) {
+  const linkText = text || _t('skipToContent') || 'Skip to main content'
   return `
     <a 
       href="#${targetId}" 
       class="skip-link"
       tabindex="0"
     >
-      ${text}
+      ${linkText}
     </a>
   `;
 }
@@ -251,22 +255,22 @@ export function enableArrowNavigation(container, itemSelector = 'button, a') {
 export function announceAction(action, success = true, customMessage = '') {
   const messages = {
     // Success messages
-    checkin_success: 'Check-in enregistré avec succès',
-    spot_created: 'Nouveau spot créé avec succès',
-    review_submitted: 'Avis publié avec succès',
-    login_success: 'Connexion réussie',
-    logout_success: 'Déconnexion réussie',
-    saved: 'Sauvegardé',
-    copied: 'Copié dans le presse-papier',
-    sent: 'Message envoyé',
+    checkin_success: _t('sr.checkinSuccess') || 'Check-in recorded',
+    spot_created: _t('sr.spotCreated') || 'New spot created',
+    review_submitted: _t('sr.reviewSubmitted') || 'Review submitted',
+    login_success: _t('sr.loginSuccess') || 'Login successful',
+    logout_success: _t('sr.logoutSuccess') || 'Logout successful',
+    saved: _t('sr.saved') || 'Saved',
+    copied: _t('sr.copiedToClipboard') || 'Copied to clipboard',
+    sent: _t('sr.messageSent') || 'Message sent',
 
     // Error messages
-    checkin_error: 'Erreur lors du check-in',
-    spot_error: 'Erreur lors de la création du spot',
-    review_error: 'Erreur lors de la publication de l\'avis',
-    login_error: 'Erreur de connexion',
-    network_error: 'Erreur de connexion au réseau',
-    generic_error: 'Une erreur est survenue',
+    checkin_error: _t('sr.checkinError') || 'Check-in error',
+    spot_error: _t('sr.spotError') || 'Spot creation error',
+    review_error: _t('sr.reviewError') || 'Review submission error',
+    login_error: _t('sr.loginError') || 'Login error',
+    network_error: _t('sr.networkError') || 'Network connection error',
+    generic_error: _t('sr.genericError') || 'An error occurred',
   };
 
   const key = success ? `${action}_success` : `${action}_error`;
@@ -311,7 +315,8 @@ export function createLiveRegion(regionId, politeness = 'polite') {
  * @param {string} pageTitle - Title of the new page/view
  */
 export function announcePageChange(pageTitle) {
-  announce(`Navigation vers ${pageTitle}`, 'polite');
+  const prefix = _t('sr.navigatingToPrefix') || 'Navigating to'
+  announce(`${prefix} ${pageTitle}`, 'polite');
 
   // Focus the main content area
   requestAnimationFrame(() => {
@@ -335,7 +340,7 @@ export function setLoadingState(element, isLoading) {
 
   if (isLoading) {
     element.setAttribute('aria-describedby', 'loading-message');
-    announce('Chargement en cours...', 'polite');
+    announce(_t('sr.loadingInProgress') || 'Loading...', 'polite');
   } else {
     element.removeAttribute('aria-describedby');
   }

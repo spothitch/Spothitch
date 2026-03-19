@@ -683,7 +683,7 @@ window.handlePhotoSelect = async (event) => {
       const thumb = document.createElement('div')
       thumb.style.cssText = 'width:60px;height:60px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0'
       thumb.innerHTML = `<img src="${compressed}" style="width:100%;height:100%;object-fit:cover" alt="Photo ${window.spotFormData.photos.length}">
-        <button type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);border-radius:50%;border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`
+        <button type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);border-radius:50%;border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center" aria-label="${escapeHTML(t('removePhoto') || 'Remove photo')}">✕</button>`
       const uploadBtn = photoZone.querySelector('label, [for="spot-photo"]')?.parentElement
       if (uploadBtn) photoZone.insertBefore(thumb, uploadBtn)
       // Hide upload button if max reached
@@ -2365,12 +2365,28 @@ window.handleAddSpot = async (event) => {
   }
 }
 
-// Character counter for description
-document.addEventListener('input', (e) => {
+// Character counter for description (named handler for cleanup)
+function _addSpotInputHandler(e) {
   if (e.target.id === 'spot-description') {
     const count = document.getElementById('desc-count')
     if (count) count.textContent = e.target.value.length
   }
-})
+}
+document.addEventListener('input', _addSpotInputHandler)
+
+/**
+ * Cleanup AddSpot event listeners — called from closeAddSpot
+ */
+export function cleanupAddSpotListeners() {
+  document.removeEventListener('input', _addSpotInputHandler)
+}
+
+/**
+ * Re-attach AddSpot event listeners — called when modal opens
+ */
+export function attachAddSpotListeners() {
+  document.removeEventListener('input', _addSpotInputHandler) // prevent duplicates
+  document.addEventListener('input', _addSpotInputHandler)
+}
 
 export default { renderAddSpot }

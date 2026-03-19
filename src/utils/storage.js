@@ -21,7 +21,8 @@ export const Storage = {
   },
 
   /**
-   * Set item in localStorage
+   * Set item in localStorage with QuotaExceededError handling
+   * On quota error: clears old/large entries (analytics, cache), then retries
    * @param {string} key - Storage key
    * @param {any} value - Value to store
    * @returns {boolean} Success status
@@ -31,6 +32,27 @@ export const Storage = {
       localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
       return true;
     } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        console.warn(`Storage.set quota exceeded for ${key}, clearing old data...`);
+        try {
+          // Remove non-essential entries: analytics, cache, history, old session data
+          const evictPatterns = ['_cache', '_history', 'analytics', '_old', '_backup', '_tmp']
+          const allKeys = Object.keys(localStorage)
+          // Sort by value size descending to free most space first
+          const candidates = allKeys
+            .filter(k => evictPatterns.some(p => k.includes(p)))
+            .sort((a, b) => (localStorage.getItem(b) || '').length - (localStorage.getItem(a) || '').length)
+          for (const k of candidates) {
+            localStorage.removeItem(k)
+          }
+          // Retry the write
+          localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
+          return true;
+        } catch {
+          console.warn(`Storage.set still full after cleanup for ${key}`);
+          return false;
+        }
+      }
       console.warn(`Storage.set error for ${key}:`, e);
       return false;
     }
@@ -63,6 +85,24 @@ export const Storage = {
     } catch (e) {
       console.warn('Storage.clear error:', e);
       return false;
+    }
+  },
+
+  /**
+   * Get current localStorage usage in KB
+   * @returns {number} Usage in KB (all keys, not just SpotHitch-prefixed)
+   */
+  getUsage() {
+    try {
+      let totalBytes = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        totalBytes += (key.length + (value ? value.length : 0)) * 2; // UTF-16 = 2 bytes per char
+      }
+      return Math.round(totalBytes / 1024);
+    } catch {
+      return 0;
     }
   },
 };

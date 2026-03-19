@@ -88,7 +88,7 @@ describe('Accessibility Utilities', () => {
     it('should create skip link with default values', () => {
       const link = createSkipLink()
       expect(link).toContain('href="#main-content"')
-      expect(link).toContain('Aller au contenu principal')
+      expect(link).toContain('Skip to main content')
       expect(link).toContain('class="skip-link"')
     })
 
