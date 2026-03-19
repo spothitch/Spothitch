@@ -3361,6 +3361,7 @@ export default {
   noHistoryYet: 'Noch kein Verlauf',
   noPhotosForSpot: 'Keine Fotos für diesen Spot',
   streetView: 'Street View',
+  streetViewSubtitle: 'Sehen Sie diesen Ort, als wären Sie dort',
   translate: 'Übersetzen',
   showOriginal: 'Original anzeigen',
   sameLanguage: 'Bereits in deiner Sprache',

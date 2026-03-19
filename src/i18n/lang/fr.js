@@ -3368,6 +3368,7 @@ export default {
   sameLanguage: 'Déjà dans ta langue',
   translationFailed: 'Traduction indisponible',
   streetView: 'Street View',
+  streetViewSubtitle: 'Voir cet endroit comme si vous y étiez',
   loadingStreetPhotos: 'Chargement des photos...',
   noStreetPhotos: 'Pas de photo disponible',
   streetViewPhoto: 'Photo de rue',
