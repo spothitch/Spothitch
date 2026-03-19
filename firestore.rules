@@ -231,13 +231,6 @@ service cloud.firestore {
         && request.auth.uid == resource.data.userId;
     }
 
-    // Chat rooms (legacy)
-    match /chat/{room}/messages/{messageId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
-    }
-
     // Identity verifications
     match /id_verifications/{verificationId} {
       allow read: if request.auth != null

@@ -189,12 +189,6 @@ async function processOfflineAction(action) {
       break;
     }
 
-    case 'CHAT_MESSAGE': {
-      const { sendChatMessage } = await import('../services/firebase.js');
-      await sendChatMessage(action.room, action.text);
-      break;
-    }
-
     default:
       console.warn('Unknown offline action type:', action.type);
   }

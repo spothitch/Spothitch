@@ -1090,26 +1090,6 @@ window.skipTutorial = () => { /* retired */ }
 window.closeTutorial = () => { /* retired */ }
 window.finishTutorial = () => { /* retired */ }
 
-// Chat handlers — canonical: Conversations.js (with Firebase subscription)
-if (!window.setChatRoom) {
-  window.setChatRoom = (room) => {
-    window.setState?.({ chatRoom: room })
-  }
-}
-// sendMessage — canonical owner is Social.js (full implementation with state + localStorage + Firebase).
-// This fallback only runs if Social.js hasn't loaded yet.
-if (!window.sendMessage) {
-  window.sendMessage = async () => {
-    const input = document.getElementById('chat-input');
-    const text = input?.value?.trim();
-    if (!text) return;
-    const { chatRoom } = getState();
-    const fbChat = await getFirebase()
-    await fbChat.sendChatMessage(chatRoom || 'general', text);
-    if (input) input.value = '';
-  };
-}
-
 // Filter handlers
 window.setFilter = (filter) => actions.setFilter(filter);
 window.handleSearch = (query) => debounce('search', () => actions.setSearchQuery(query), 250);

@@ -97,7 +97,6 @@ const baseState = {
   tripResults: null,
   savedTrips: [],
   messages: [],
-  chatRoom: 'general',
   tutorialStep: 0,
   tutorialCompleted: false,
   selectedFriendProfileId: 'friend1',

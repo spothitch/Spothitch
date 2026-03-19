@@ -47,8 +47,6 @@ const MAIN_JS_HANDLERS = [
   'openSettings', 'closeSettings', 'setLanguage',
   // Tutorial
   'startTutorial', 'nextTutorial', 'prevTutorial', 'skipTutorial', 'finishTutorial', 'closeTutorial',
-  // Chat
-  'setChatRoom', 'sendMessage',
   // Filters / Map layout
   'setFilter', 'handleSearch', 'openFilters', 'closeFilters', 'toggleSplitView', 'openActiveTrip',
   'setFilterCountry', 'setFilterMinRating', 'setFilterMaxWait',
@@ -178,8 +176,6 @@ const MAIN_JS_HANDLERS = [
   'sendFriendRequest',
   // Feed (defined in Feed.js)
   'setFeedFilter', 'toggleFeedVisibility',
-  // Conversations (defined in Conversations.js)
-  'openZoneChat', 'closeZoneChat',
   // Group Conversations Firebase (defined in Conversations.js)
   'openGroupConversation', 'closeGroupConversation',
   'openCreateGroupConversation', 'closeCreateGroupConversation',
@@ -351,8 +347,6 @@ const MAIN_JS_HANDLERS = [
   'showHostelsDemo', 'closeHostelsDemo', 'startHostelsDemo', 'switchHostelsDemoTab',
   // Spot Demo (defined in ProfileDemos.js)
   'showSpotDemo', 'closeSpotDemo', 'startSpotDemo', 'switchSpotDemoTab',
-  // Chat extras (defined in Chat.js)
-  'handleChatKeypress',
   // FAQ (defined in FAQ.js)
   'toggleFAQItem', 'scrollToFAQCategory', 'filterFAQ', 'clearFAQSearch',
   'closeFAQ', 'searchFAQ', 'getFAQQuestionById',
@@ -571,7 +565,6 @@ const mockState = {
   tripSteps: [],
   savedTrips: [],
   messages: [],
-  chatRoom: 'general',
   sosActive: false,
   tutorialStep: 0,
   tutorialCompleted: false,

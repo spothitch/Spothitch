@@ -26,14 +26,12 @@ const initialState = {
   lang: 'fr',
   activeSubTab: 'planner',
   socialSubTab: 'messagerie',
-  chatSubTab: 'zones',
   profileSubTab: 'profil',
   groupSubTab: 'mine',
   eventSubTab: 'upcoming',
   feedFilter: 'all',
   eventFilter: 'all',
   showCompanionSearch: false,
-  showZoneChat: false,
   // Group Conversations (Firebase)
   groupConversations: [],
   activeGroupConversation: null,
@@ -152,7 +150,6 @@ const initialState = {
   equippedTitle: null,
 
   // Chat & Social
-  chatRoom: 'general',
   messages: [],
   friends: [],
   friendRequests: [],

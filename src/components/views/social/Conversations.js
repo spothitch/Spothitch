@@ -82,25 +82,6 @@ function renderConversationList(state) {
 
   return `
     <div class="flex-1 overflow-y-auto">
-      <!-- Zone chat rooms (compact) -->
-      <div class="px-4 pt-3 pb-1">
-        <button
-          onclick="openZoneChat()"
-          class="card p-3 w-full text-left bg-gradient-to-r from-primary-500/10 to-amber-500/10 border-primary-500/20 hover:border-primary-500/40 transition-colors"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-primary-500/20 flex items-center justify-center">
-              ${icon('message-circle', 'w-5 h-5 text-primary-400')}
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-sm">${t('zoneChatRooms')}</div>
-              <div class="text-xs text-slate-400">${t('zoneChatRoomsDesc')}</div>
-            </div>
-            ${icon('chevron-right', 'w-4 h-4 text-slate-400')}
-          </div>
-        </button>
-      </div>
-
       <!-- Conversation list -->
       ${allConversations.length > 0 ? `
         ${allConversations.map(conv => `
@@ -442,42 +423,7 @@ function renderCreateGroupConversationForm(state) {
   `
 }
 
-// Zone Chat Firebase real-time subscription
-let _zoneChatUnsub = null
-
-async function subscribeZoneChat(room) {
-  if (_zoneChatUnsub) {
-    _zoneChatUnsub()
-    _zoneChatUnsub = null
-  }
-  try {
-    const { subscribeToChatRoom } = await import('../../../services/firebase.js')
-    _zoneChatUnsub = subscribeToChatRoom(room, (messages) => {
-      window.setState?.({ messages })
-    })
-  } catch { /* Firebase not configured */ }
-}
-
 // Global handlers
-window.openZoneChat = () => {
-  const { chatRoom } = window.getState?.() || {}
-  window.setState?.({ showZoneChat: true })
-  subscribeZoneChat(chatRoom || 'general')
-}
-
-window.closeZoneChat = () => {
-  if (_zoneChatUnsub) {
-    _zoneChatUnsub()
-    _zoneChatUnsub = null
-  }
-  window.setState?.({ showZoneChat: false })
-}
-
-window.setChatRoom = (room) => {
-  window.setState?.({ chatRoom: room })
-  subscribeZoneChat(room)
-}
-
 window.openGroupConversation = (groupId) => {
   const { subscribeToGroupConversation } = window._gcModule || {}
   if (subscribeToGroupConversation) {

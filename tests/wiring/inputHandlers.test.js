@@ -59,7 +59,6 @@ const mockState = {
   tripResults: null,
   savedTrips: [],
   messages: [],
-  chatRoom: 'general',
   sosActive: false,
   userLocation: { lat: 48.8566, lng: 2.3522 },
   isOnline: true,

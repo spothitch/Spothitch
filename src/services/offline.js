@@ -181,13 +181,6 @@ async function processAction(action) {
       console.log('[OfflineSync] ADD_VALIDATION synced')
       break
     }
-    case 'SEND_MESSAGE': {
-      console.log('[OfflineSync] Syncing SEND_MESSAGE to room:', action.room)
-      const result = await fb.sendChatMessage(action.room, action.text)
-      if (!result.success) throw new Error(result.error || 'sendChatMessage failed')
-      console.log('[OfflineSync] SEND_MESSAGE synced')
-      break
-    }
     default:
       console.warn('Unknown action type:', action.type);
   }

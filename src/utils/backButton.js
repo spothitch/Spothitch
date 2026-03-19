@@ -200,11 +200,6 @@ function handleBack() {
     return true
   }
 
-  if (state.showZoneChat) {
-    setState({ showZoneChat: false })
-    return true
-  }
-
   // 8. If search query is active → clear it
   if (state.searchQuery) {
     setState({ searchQuery: '' })

@@ -725,49 +725,6 @@ export async function getReviews(spotId) {
   }
 }
 
-// ==================== FIRESTORE - CHAT ====================
-
-/**
- * Subscribe to chat messages
- */
-export function subscribeToChatRoom(room, callback) {
-  const messagesRef = collection(db, 'chat', room, 'messages');
-  const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(50));
-
-  return onSnapshot(q, (snapshot) => {
-    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    callback(messages.reverse());
-  });
-}
-
-/**
- * Send a chat message
- */
-export async function sendChatMessage(room, text) {
-  try {
-    if (!checkWriteRateLimit('sendChatMessage', 30).allowed) {
-      return { success: false, error: 'rate_limit_exceeded' }
-    }
-    if (containsProfanity(text)) {
-      return { success: false, error: 'profanity_detected' }
-    }
-    const user = getCurrentUser();
-    const safeText = (text || '').slice(0, 2000)
-    const messagesRef = collection(db, 'chat', room, 'messages');
-    await addDoc(messagesRef, {
-      text: safeText,
-      userId: user?.uid || 'anonymous',
-      userName: user?.displayName || 'Anonyme',
-      userAvatar: '🤙',
-      createdAt: serverTimestamp()
-    });
-    return { success: true };
-  } catch (error) {
-    console.error('Error sending message:', error);
-    return { success: false, error };
-  }
-}
-
 // ==================== STORAGE ====================
 
 /**

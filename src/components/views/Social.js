@@ -36,11 +36,6 @@ window.toggleFeedVisibility = async () => {
 export function renderSocial(state) {
   const mainTab = state.socialSubTab || 'messagerie'
 
-  // Zone chat overlay (full-screen)
-  if (state.showZoneChat) {
-    return renderZoneChatOverlay(state)
-  }
-
   // Event detail overlay
   if (state.selectedEvent) {
     return renderEventDetail(state, state.selectedEvent)
@@ -243,25 +238,6 @@ function renderMessagerieTab(state) {
           </div>
         </div>
       ` : ''}
-
-      <!-- Zone chat rooms card -->
-      <div class="px-4 pb-2">
-        <button
-          onclick="openZoneChat()"
-          class="card p-3 w-full text-left bg-gradient-to-r from-primary-500/10 to-amber-500/10 border-primary-500/20 hover:border-primary-500/40 transition-colors"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-lg">
-              💬
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-sm">${t('zoneChatRooms')}</div>
-              <div class="text-xs text-slate-400">${t('zoneChatRoomsDesc')}</div>
-            </div>
-            ${icon('chevron-right', 'w-4 h-4 text-slate-400')}
-          </div>
-        </button>
-      </div>
 
       <!-- Companion travel search — beta guard -->
       <div class="px-4 pb-2">
@@ -496,93 +472,6 @@ function renderActivityCard(activity) {
           </p>
           <time class="text-xs text-slate-400 mt-0.5 block">${formatRelativeTime(activity.timestamp)}</time>
         </div>
-      </div>
-    </div>
-  `
-}
-
-// ==================== ZONE CHAT OVERLAY ====================
-
-function renderZoneChatOverlay(state) {
-  const rooms = [
-    { id: 'general', name: t('general'), icon: '💬' },
-    { id: 'europe', name: t('europe'), icon: '🇪🇺' },
-    { id: 'help', name: t('help'), icon: '❓' },
-    { id: 'meetups', name: t('meetups'), icon: '🤝' },
-    { id: 'routes', name: t('routes'), icon: '🛣️' },
-  ]
-
-  const currentRoom = state.chatRoom || 'general'
-  const messages = (state.messages || []).filter(m => !m.room || m.room === currentRoom)
-
-  return `
-    <div class="flex flex-col h-[calc(100vh-140px)]">
-      <div class="p-3 bg-dark-secondary/50 flex items-center gap-3">
-        <button onclick="closeZoneChat()" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white" aria-label="${t('back')}">
-          ${icon('arrow-left', 'w-5 h-5')}
-        </button>
-        <div class="flex-1">
-          <div class="font-medium text-sm">${t('zoneChatRooms')}</div>
-        </div>
-      </div>
-
-      <div class="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-none">
-        ${rooms.map(room => `
-          <button
-            onclick="setChatRoom('${room.id}')"
-            class="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-      currentRoom === room.id
-        ? 'bg-primary-500 text-white'
-        : 'bg-white/5 text-slate-400 hover:bg-white/10'
-    }"
-          >
-            <span>${room.icon}</span> ${room.name}
-          </button>
-        `).join('')}
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-4 space-y-3" id="chat-messages" role="log" aria-live="polite">
-        ${state.chatLoading
-    ? renderSkeletonChatList(6)
-    : messages.length > 0
-      ? messages.slice(-50).map(msg => renderZoneMessage(msg, state)).join('')
-      : renderEmptyState('chat', { compact: true })}
-      </div>
-
-      <div class="p-3 glass-dark">
-        <form class="flex gap-2" onsubmit="event.preventDefault(); sendMessage('${currentRoom}');">
-          <input
-            type="text"
-            class="input-field flex-1"
-            placeholder="${t('typeMessage')}"
-            id="chat-input"
-            autocomplete="off"
-            aria-label="${t('typeMessage')}"
-          />
-          <button type="submit" class="btn-primary px-4" aria-label="${t('send')}">
-            ${icon('send', 'w-5 h-5')}
-          </button>
-        </form>
-      </div>
-    </div>
-  `
-}
-
-function renderZoneMessage(msg, state) {
-  const isSent = msg.userId === (state.user?.uid || 'local-user')
-  return `
-    <div class="flex ${isSent ? 'justify-end' : 'justify-start'}">
-      <div class="max-w-[80%] ${isSent ? 'bg-primary-500/20' : 'bg-white/5'} rounded-2xl px-4 py-2 ${isSent ? 'rounded-br-md' : 'rounded-bl-md'}">
-        ${!isSent ? `
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-sm">${escapeHTML(msg.userAvatar || '🤙')}</span>
-            <span class="text-xs font-medium text-primary-400">${escapeHTML(msg.userName || '')}</span>
-          </div>
-        ` : ''}
-        <p class="text-sm text-white">${escapeHTML(msg.text || '')}</p>
-        <time class="text-xs text-slate-400 mt-1 block ${isSent ? 'text-right' : ''}">
-          ${formatTime(msg.createdAt)}
-        </time>
       </div>
     </div>
   `
@@ -1036,52 +925,6 @@ window.openFriendChat = (friendId) => {
 
 window.closeFriendChat = () => {
   window.setState?.({ activeDMConversation: null })
-}
-
-window.sendMessage = async (room) => {
-  const input = document.getElementById('chat-input')
-  if (!input?.value.trim()) return
-
-  const { getState, setState } = await import('../../stores/state.js')
-  const state = getState()
-  if (!state.isLoggedIn && !state.user) {
-    window.setState?.({ showAuth: true, authPendingAction: 'social', showAuthReason: window.t?.('loginToChat') || 'Connect to send messages' })
-    return
-  }
-
-  const text = input.value.trim()
-  input.value = ''
-  const messages = state.messages || []
-
-  const newMsg = {
-    id: Date.now().toString(),
-    room: room || 'general',
-    text,
-    userName: state.username || t('traveler'),
-    userAvatar: state.avatar || '🤙',
-    userId: state.user?.uid || 'local-user',
-    createdAt: new Date().toISOString(),
-  }
-
-  const updatedMessages = [...messages, newMsg]
-  setState({ messages: updatedMessages })
-
-  try {
-    localStorage.setItem('spothitch_messages', JSON.stringify(updatedMessages.slice(-100)))
-  } catch { /* quota exceeded */ }
-
-  try {
-    const { sendChatMessage } = await import('../../services/firebase.js')
-    await sendChatMessage(room, text)
-  } catch (err) {
-    console.error('Chat send failed:', err)
-    window.showToast?.(t('messageSendFailed') || 'Message non envoyé. Vérifie ta connexion.', 'error')
-  }
-
-  setTimeout(() => {
-    const chatEl = document.getElementById('chat-messages')
-    if (chatEl) chatEl.scrollTop = chatEl.scrollHeight
-  }, 50)
 }
 
 window.sendPrivateMessage = async (friendId) => {
