@@ -293,7 +293,7 @@ function showGasStationMarkers(stations) {
         .setLngLat(coords)
         .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'gas_station')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#f59e0b;color:#0f172a;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap"><span style="font-size:16px">⛽</span>${label}</button>`)
         .addTo(map)
-      setTimeout(() => { try { popup.remove() } catch {} }, 4000)
+      setTimeout(() => { try { popup.remove() } catch { /* already removed */ } }, 4000)
     })
   })
   map.on('mouseenter', 'gas-stations', () => { map.getCanvas().style.cursor = 'pointer' })
