@@ -1,13 +1,13 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-19 17:09
+Date : 2026-03-20 00:31
 
 ## Derniers commits
-25e79ad fix: remove all imported data traces from codebase
-35d8167 fix: restore _forceRender modal fingerprint reset for lazy-loaded modals
-c260718 feat: Street View banner with 2 distinct states (unverified / certified)
-7c3e6dd fix: prevent form recreation during share flow by guarding _forceRender
-16b9a2f fix: global reload interceptor + AddSpot preload for share flow
+db74c37 feat: add push notifications for spot activity + friend requests (briques 3-4)
+02ad667 feat: Cloud Functions infrastructure + DM push notifications (briques 1-2)
+a74f851 fix: remove cron schedule from CodeQL workflow
+33f2bad feat: remove legacy zone chat system (replaced by group conversations)
+2ca94e7 feat: achieve 100% handler coverage (35% → 100%, 733/733 handlers)
 
 ## Note
 Reprendre avec : claude --continue
