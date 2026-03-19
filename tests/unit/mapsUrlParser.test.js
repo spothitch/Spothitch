@@ -97,6 +97,62 @@ describe('extractCoordsFromShare', () => {
     const result = extractCoordsFromShare('', text)
     expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
   })
+
+  // New formats added for completeness
+  it('parses ?query= parameter (official API format)', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/search/?api=1&query=48.8566,2.3522', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses ?viewpoint= parameter (Street View URL)', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=48.857832,2.295226', '')
+    expect(result).toEqual({ lat: 48.857832, lng: 2.295226 })
+  })
+
+  it('parses ?origin= parameter (navigation start)', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/dir/?api=1&origin=48.8566,2.3522&destination=Lyon', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses ?saddr= parameter (legacy directions)', () => {
+    const result = extractCoordsFromShare('https://maps.google.com/maps?saddr=48.8566,2.3522&daddr=48.8700,2.3200', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses ?daddr= parameter (legacy directions destination)', () => {
+    const result = extractCoordsFromShare('https://maps.google.com/maps?daddr=48.8700,2.3200', '')
+    expect(result).toEqual({ lat: 48.87, lng: 2.32 })
+  })
+
+  it('parses ?sll= parameter (legacy search center)', () => {
+    const result = extractCoordsFromShare('https://maps.google.com/maps?q=restaurants&sll=48.8566,2.3522', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses ?cbll= parameter (legacy Street View)', () => {
+    const result = extractCoordsFromShare('https://maps.google.com/maps?cbll=48.8566,2.3522&layer=c', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses /dir/lat,lng/ path-based directions', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/dir/48.8566,2.3522/48.8700,2.3200', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses geo: URI (Android share)', () => {
+    const result = extractCoordsFromShare('', 'geo:48.8566,2.3522?z=15')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses geo:0,0?q=lat,lng URI (Android search intent)', () => {
+    const result = extractCoordsFromShare('', 'geo:0,0?q=48.8566,2.3522(Eiffel Tower)')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses country-specific Google Maps domain', () => {
+    const result = extractCoordsFromShare('https://maps.google.fr/maps?q=48.8566,2.3522', '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
 })
 
 describe('detectOpaqueMapUrl', () => {
