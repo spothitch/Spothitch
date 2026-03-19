@@ -36,10 +36,10 @@ const PAGE_META_CONFIG = {
       de: 'SpotHitch - Die Tramper-Community'
     },
     description: {
-      fr: 'Trouvez les meilleurs spots d\'auto-stop dans le monde. Plus de 100 spots verifies, guides par pays, planificateur de voyage et communaute active.',
-      en: 'Find the best hitchhiking spots around the world. Over 100 verified spots, country guides, trip planner and active community.',
-      es: 'Encuentra los mejores spots de autoestop en Europa. Mas de 100 spots verificados, guias por pais, planificador de viajes y comunidad activa.',
-      de: 'Finden Sie die besten Tramper-Spots in Europa. Uber 100 verifizierte Spots, Landerfuhrer, Reiseplaner und aktive Community.'
+      fr: 'Trouvez les meilleurs spots d\'auto-stop dans le monde. Spots communautaires verifies, guides par pays, planificateur de voyage et communaute active.',
+      en: 'Find the best hitchhiking spots around the world. Community-verified spots, country guides, trip planner and active community.',
+      es: 'Encuentra los mejores spots de autoestop en el mundo. Spots comunitarios verificados, guias por pais, planificador de viajes y comunidad activa.',
+      de: 'Finden Sie die besten Tramper-Spots weltweit. Community-verifizierte Spots, Landerfuhrer, Reiseplaner und aktive Community.'
     },
     keywords: {
       fr: 'autostop, hitchhiking, spots, voyage, backpacking, worldwide, monde, auto-stop, pouce, routard, aventure',

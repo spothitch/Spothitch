@@ -21,7 +21,7 @@ const faqData = {
       {
         id: 'general-1',
         q: t('faqQ1', "Qu'est-ce que SpotHitch ?"),
-        a: t('faqA1', "SpotHitch est une application communautaire qui permet aux autostoppeurs de trouver et partager les meilleurs spots d'auto-stop dans le monde. Nous avons plus de 500 spots vérifiés dans 40+ pays.")
+        a: t('faqA1', "SpotHitch est une application communautaire qui permet aux autostoppeurs de trouver et partager les meilleurs spots d'auto-stop dans le monde.")
       },
       {
         id: 'general-2',
@@ -31,7 +31,7 @@ const faqData = {
       {
         id: 'general-3',
         q: t('faqQ3', "Dans quels pays SpotHitch est-il disponible ?"),
-        a: t('faqA3', "Actuellement, nous couvrons plus de 40 pays sur tous les continents. Nous ajoutons régulièrement de nouveaux spots ! Les principaux pays incluent France, Allemagne, Espagne, USA, Canada, Australie, Nouvelle-Zélande, Maroc, Turquie et bien d'autres.")
+        a: t('faqA3', "Nous couvrons de nombreux pays à travers le monde. Les principaux pays incluent France, Allemagne, Espagne, USA, Canada, Australie, Nouvelle-Zélande, Maroc, Turquie et bien d'autres.")
       },
       {
         id: 'general-4',
@@ -41,7 +41,7 @@ const faqData = {
       {
         id: 'general-5',
         q: t('faqQ5', "Y a-t-il une communauté d'utilisateurs ?"),
-        a: t('faqA5', "Oui ! SpotHitch compte plus de 1500 autostoppeurs actifs. Vous pouvez rejoindre le chat, créer des groupes de voyage, et échanger des conseils avec d'autres utilisateurs.")
+        a: t('faqA5', "Oui ! Vous pouvez rejoindre le chat, créer des groupes de voyage, et échanger des conseils avec d'autres autostoppeurs.")
       }
     ]
   },
