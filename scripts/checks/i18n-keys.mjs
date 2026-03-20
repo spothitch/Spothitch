@@ -56,6 +56,8 @@ function findUsedKeys(dir) {
     const regex = /\bt\(\s*['"](\w+)['"]/g
     let match
     while ((match = regex.exec(content)) !== null) {
+      // Skip dynamic key prefixes like t('featureName_' + f.id)
+      if (match[1].endsWith('_')) continue
       keys.add(match[1])
     }
   }
