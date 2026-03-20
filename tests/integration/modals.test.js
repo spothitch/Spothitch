@@ -115,19 +115,19 @@ beforeEach(() => {
 // ===============================================================
 describe('Integration: SOS Modal', () => {
   beforeEach(() => {
-    // Simulate disclaimer already accepted so tests see the real SOS modal
-    localStorage.setItem('spothitch_sos_disclaimer_seen', '1')
+    // SOS v4b: intro screen shown first, then main SOS modal
+    localStorage.setItem('spothitch_sos_intro_seen', '1')
   })
 
   afterEach(() => {
-    localStorage.removeItem('spothitch_sos_disclaimer_seen')
+    localStorage.removeItem('spothitch_sos_intro_seen')
   })
 
-  it('shows disclaimer on first use', () => {
-    localStorage.removeItem('spothitch_sos_disclaimer_seen')
+  it('shows intro on first use', () => {
+    localStorage.removeItem('spothitch_sos_intro_seen')
     const html = renderSOS({ ...baseState, showSOS: true })
-    expect(html).toContain('sos-disclaimer-title')
-    expect(html).toContain('acceptSOSDisclaimer')
+    expect(html).toContain('sos-intro-title')
+    expect(html).toContain('acceptSOSIntro')
   })
 
   it('opens with showSOS flag', () => {
@@ -140,26 +140,27 @@ describe('Integration: SOS Modal', () => {
   it('contains share location button', () => {
     const html = renderSOS({ ...baseState, showSOS: true })
     expect(html).toContain('sos-share-btn')
-    // Button déclenche directement shareSOSLocation (pas de countdown)
     expect(html).toContain('shareSOSLocation')
   })
 
-  it('contains emergency contact form', () => {
+  it('contains alert tiles (fake call, emergency, community, record)', () => {
     const html = renderSOS({ ...baseState, showSOS: true })
-    expect(html).toContain('emergency-name')
-    expect(html).toContain('emergency-phone')
-    expect(html).toContain('addEmergencyContact')
+    expect(html).toContain('sosOpenFakeCall')
+    expect(html).toContain('sosBroadcastCommunity')
+    expect(html).toContain('sosShowRecordOptions')
   })
 
-  it('shows existing emergency contacts', () => {
+  it('has alerts and config tabs', () => {
     const html = renderSOS({ ...baseState, showSOS: true })
-    expect(html).toContain('Mom')
-    expect(html).toContain('+33600000000')
+    expect(html).toContain('sosTab(0)')
+    expect(html).toContain('sosTab(1)')
+    expect(html).toContain('data-sos-tab')
   })
 
-  it('contains SOS templates', () => {
+  it('shows config panel items', () => {
     const html = renderSOS({ ...baseState, showSOS: true })
-    expect(html).toContain('sendSOSTemplate')
+    expect(html).toContain('data-sos-panel="1"')
+    expect(html).toContain('sosOpenConfig')
   })
 
   it('closes with closeSOS', () => {
