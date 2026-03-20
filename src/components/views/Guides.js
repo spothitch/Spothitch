@@ -12,6 +12,17 @@ import { renderTipVoteButtons, renderSuggestionForm } from '../../services/feedb
 import { GUIDE_CATEGORIES, getUserGuideTips, submitGuideTip, deleteUserGuideTip, loadCommunityPendingCounts, getCommunityPendingCounts, loadPublicGuideTips } from '../../services/communityGuideService.js'
 import { getCurrentUser } from '../../services/firebase.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
+import { getState } from '../../stores/state.js'
+
+/**
+ * Returns the localized country name for a guide.
+ * Uses nameEn for non-French languages (en/es/de).
+ */
+function getGuideName(guide) {
+  const lang = getState()?.lang || 'fr'
+  if (lang !== 'fr' && guide.nameEn) return guide.nameEn
+  return guide.name
+}
 
 /* eslint-disable no-unused-vars -- static data kept for future reference */
 const ETIQUETTE_DATA = {
@@ -258,7 +269,7 @@ export function renderGuides(state) {
 
 function renderPendingTipBanner(country) {
   const flag = country.flag || ''
-  const name = country.name || country.code
+  const name = getGuideName(country) || country.code
   return `
     <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30">
       <span class="text-2xl">${flag}</span>
@@ -278,9 +289,9 @@ function renderGuideTipForm(country) {
     <div class="card p-4 space-y-3 border border-emerald-500/20">
       <div class="flex items-center gap-2">
         ${icon('book-open', 'w-5 h-5 text-emerald-400')}
-        <h3 class="font-bold text-sm">${country.flag || ''} ${escapeHTML(country.name || code)}</h3>
+        <h3 class="font-bold text-sm">${country.flag || ''} ${escapeHTML(getGuideName(country) || code)}</h3>
       </div>
-      <p class="text-sm text-slate-400">${t('guideNudgeText')?.replace('[pays]', escapeHTML(country.name || ''))?.replace('[country]', escapeHTML(country.name || '')) || 'Partage tes conseils pour ce pays !'}</p>
+      <p class="text-sm text-slate-400">${t('guideNudgeText')?.replace('[pays]', escapeHTML(getGuideName(country) || ''))?.replace('[country]', escapeHTML(getGuideName(country) || '')) || 'Partage tes conseils pour ce pays !'}</p>
       <button
         onclick="selectGuide('${escapeJSString(code)}')"
         class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
@@ -412,7 +423,7 @@ function renderCountriesSection() {
             <div class="flex items-center gap-3 mb-2">
               <span class="text-3xl">${guide.flag}</span>
               <div>
-                <div class="font-bold">${guide.name}</div>
+                <div class="font-bold">${getGuideName(guide)}</div>
                 ${contribCount > 0
                   ? `<div class="text-xs text-emerald-400">${contribCount}/7 ${icon('check', 'w-3 h-3 inline')}</div>`
                   : communityPending > 0
@@ -545,7 +556,7 @@ function renderPhrasesSection() {
         <div class="card p-4">
           <div class="flex items-center gap-2 mb-3">
             <span class="text-2xl">${guide.flag}</span>
-            <span class="font-bold">${guide.name}</span>
+            <span class="font-bold">${getGuideName(guide)}</span>
           </div>
           <div class="space-y-2">
             ${phrases.map(p => `
@@ -577,7 +588,7 @@ function renderEventsSection() {
         <div class="card p-4">
           <div class="flex items-center gap-2 mb-3">
             <span class="text-2xl">${guide.flag}</span>
-            <span class="font-bold">${guide.name}</span>
+            <span class="font-bold">${getGuideName(guide)}</span>
           </div>
           <div class="space-y-2">
             ${guide.events.map(event => {
@@ -648,7 +659,7 @@ function renderLegalitySection() {
             <div class="flex items-center gap-3">
               <span class="text-2xl">${guide.flag}</span>
               <div>
-                <div class="font-medium">${guide.name}</div>
+                <div class="font-medium">${getGuideName(guide)}</div>
                 <div class="text-xs text-slate-400 mt-0.5 line-clamp-1">${guide.legalityText}</div>
               </div>
             </div>
@@ -686,7 +697,7 @@ export function renderCountryDetail(guideOrCode) {
       <!-- Header -->
       <div class="card p-5 text-center">
         <span class="text-5xl mb-3 block">${guide.flag}</span>
-        <h2 class="text-xl font-bold mb-1">${escapeHTML(guide.name)}</h2>
+        <h2 class="text-xl font-bold mb-1">${escapeHTML(getGuideName(guide))}</h2>
         <p class="text-sm text-slate-400">
           ${contribCount > 0
             ? `${contribCount}/7 ${t('guideContribCount') || 'catégories contribuées'}`

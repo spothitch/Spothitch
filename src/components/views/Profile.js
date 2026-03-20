@@ -941,7 +941,7 @@ function renderRoadmapTab(_state) {
       + '<div class="flex-1 min-w-0">'
       + '<div class="flex items-center gap-2 mb-1">'
       + '<span class="text-lg">' + f.emoji + '</span>'
-      + '<h3 class="font-semibold text-sm truncate">' + escapeHTML(f.name || f.title) + '</h3>'
+      + '<h3 class="font-semibold text-sm truncate">' + escapeHTML(t('featureName_' + f.id) || f.name || f.title) + '</h3>'
       + '</div>'
       + '<div class="flex flex-wrap gap-1.5 mb-2">'
       + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-red-500/12 text-red-500">🔥 ' + ft.essential + '</span>'
