@@ -435,10 +435,9 @@ test.describe('Error-Free Critical Flows', () => {
 })
 
 // ================================================================
-// FLOW 6: Social Chat - Zone Chat via showZoneChat
-// #chat-input lives in the zone chat overlay (showZoneChat: true)
+// FLOW 6: Social — Feed + Messaging (zone chat removed, replaced by private messaging)
 // ================================================================
-test.describe('Social Chat - Deep Functional', () => {
+test.describe('Social - Deep Functional', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'social')
@@ -454,48 +453,15 @@ test.describe('Social Chat - Deep Functional', () => {
     await expect(socialContent.first()).toBeVisible({ timeout: 5000 })
   })
 
-  test('should open zone chat and show chat input', async ({ page }) => {
-    // Open zone chat overlay
-    await page.evaluate(() => window.setState?.({ showZoneChat: true }))
-    await page.waitForTimeout(2000)
-
-    const chatInput = page.locator('#chat-input')
-    await expect(chatInput).toBeVisible({ timeout: 10000 })
-  })
-
-  test('should send message in zone chat and verify it appears', async ({ page }) => {
-    // Open zone chat overlay
-    await page.evaluate(() => window.setState?.({ showZoneChat: true }))
-    await page.waitForTimeout(2000)
-
-    const chatInput = page.locator('#chat-input')
-    await expect(chatInput).toBeVisible({ timeout: 10000 })
-
-    const testMsg = 'Test message E2E ' + Date.now()
-    await chatInput.fill(testMsg)
-    await expect(chatInput).toHaveValue(testMsg)
-
-    // Submit via Enter
-    await chatInput.press('Enter')
-
-    // In CI without Firebase, the message may not persist or appear in chat list.
-    // Soft check: verify input clears OR message appears — either indicates send was attempted.
-    const inputCleared = await page.waitForFunction(
-      () => {
-        const el = document.getElementById('chat-input')
-        return el && el.value === ''
-      },
-      { timeout: 5000 }
-    ).catch(() => null)
-
-    if (inputCleared) {
-      // Input cleared — send handler ran. Check message appearance (optional).
-      const msgInChat = page.locator(`text="${testMsg}"`)
-      await msgInChat.first().isVisible({ timeout: 3000 }).catch(() => {})
+  test('should navigate to messaging sub-tab', async ({ page }) => {
+    // Click on the messaging sub-tab
+    const msgTab = page.locator('text=/Messagerie|Messages|messaging/i')
+    if (await msgTab.first().isVisible({ timeout: 3000 }).catch(() => false)) {
+      await msgTab.first().click()
+      await page.waitForTimeout(1000)
+      // Verify navigation worked (app still functional)
+      await expect(page.locator('nav')).toBeVisible()
     }
-    // If input didn't clear, Firebase likely unavailable — test still passes
-    // as long as no crash occurred (app is still functional)
-    await expect(page.locator('nav')).toBeVisible()
   })
 
   test('should switch to messagerie sub-tab with content', async ({ page }) => {
