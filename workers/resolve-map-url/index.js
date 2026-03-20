@@ -22,7 +22,10 @@ export default {
       return new Response(null, { headers })
     }
 
-    if (!target || !target.match(/^https:\/\/(maps\.app\.goo\.gl|goo\.gl|g\.co|goo\.gle)\//)) {
+    // Accept short URLs AND full Google Maps URLs (any TLD: google.com, google.fr, etc.)
+    const isShortUrl = target.match(/^https?:\/\/(maps\.app\.goo\.gl|goo\.gl|g\.co|goo\.gle)\//)
+    const isGoogleMaps = target.match(/^https?:\/\/((www|maps)\.)?google\.[a-z.]{2,6}\/(maps|maps\/.*)/)
+    if (!target || (!isShortUrl && !isGoogleMaps)) {
       return new Response(JSON.stringify({ error: 'Invalid URL' }), { status: 400, headers })
     }
 
@@ -33,6 +36,13 @@ export default {
     }
 
     try {
+      // Strategy 0: Try extracting coords directly from the submitted URL
+      // (handles full Google Maps URLs with @lat,lng, !3d!4d, ?q=lat,lng, etc.)
+      const directCoords = extractCoordsFromUrl(target)
+      if (directCoords) {
+        return new Response(JSON.stringify({ ...directCoords, resolvedUrl: target }), { headers })
+      }
+
       // Strategy 1: Follow redirects manually to capture each Location header
       let currentUrl = target
       let finalUrl = target
@@ -77,7 +87,7 @@ export default {
 
         // Strategy 1b: Use Google Maps embed endpoint for EXACT place coordinates
         // When URL has a place ftid like !1s0x...!  the embed returns exact coords
-        const ftid = extractFtid(finalUrl)
+        const ftid = extractFtid(finalUrl) || extractFtid(html)
         if (ftid) {
           const embedCoords = await resolveViaEmbed(ftid, extractPlaceName(finalUrl))
           if (embedCoords) {
@@ -127,6 +137,15 @@ export default {
           return new Response(JSON.stringify({ ...htmlCoords, resolvedUrl: followUrl }), { headers })
         }
 
+        // Try embed resolution from ftid in the HTML
+        const ftid = extractFtid(followUrl) || extractFtid(html)
+        if (ftid) {
+          const embedCoords = await resolveViaEmbed(ftid, extractPlaceName(followUrl))
+          if (embedCoords) {
+            return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: followUrl }), { headers })
+          }
+        }
+
         const place = extractPlaceName(followUrl) || extractPlaceFromHtml(html)
         if (place) {
           const geocoded = await geocodeAddress(place)
@@ -135,6 +154,45 @@ export default {
           }
           return new Response(JSON.stringify({ place, resolvedUrl: followUrl }), { headers })
         }
+      }
+
+      // Strategy 3: For full Google Maps URLs, try fetching with consent cookie
+      // Google Maps sometimes requires consent to show content
+      if (isGoogleMaps) {
+        try {
+          const consentRes = await fetch(target, {
+            redirect: 'follow',
+            headers: {
+              ...browserHeaders,
+              'Cookie': 'CONSENT=YES+; NID=1',
+            },
+          })
+          const consentUrl = consentRes.url || target
+          const consentCoords = extractCoordsFromUrl(consentUrl)
+          if (consentCoords) {
+            return new Response(JSON.stringify({ ...consentCoords, resolvedUrl: consentUrl }), { headers })
+          }
+          const consentHtml = await consentRes.text()
+          const consentHtmlCoords = extractCoordsFromHtml(consentHtml)
+          if (consentHtmlCoords) {
+            return new Response(JSON.stringify({ ...consentHtmlCoords, resolvedUrl: consentUrl }), { headers })
+          }
+          const ftid = extractFtid(consentUrl) || extractFtid(consentHtml)
+          if (ftid) {
+            const embedCoords = await resolveViaEmbed(ftid, extractPlaceName(consentUrl))
+            if (embedCoords) {
+              return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: consentUrl }), { headers })
+            }
+          }
+          const place = extractPlaceName(consentUrl) || extractPlaceFromHtml(consentHtml)
+          if (place) {
+            const geocoded = await geocodeAddress(place)
+            if (geocoded) {
+              return new Response(JSON.stringify({ ...geocoded, resolvedUrl: consentUrl }), { headers })
+            }
+            return new Response(JSON.stringify({ place, resolvedUrl: consentUrl }), { headers })
+          }
+        } catch { /* consent fetch failed */ }
       }
 
       return new Response(JSON.stringify({
@@ -150,23 +208,31 @@ export default {
 
 function extractCoordsFromUrl(url) {
   // /@lat,lng format (most common in Google Maps URLs)
-  const atMatch = url.match(/@(-?\d{1,3}\.\d{3,8}),(-?\d{1,3}\.\d{3,8})/)
+  const atMatch = url.match(/@(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
   if (atMatch) {
     const lat = parseFloat(atMatch[1])
     const lng = parseFloat(atMatch[2])
     if (isValid(lat, lng)) return { lat, lng }
   }
 
-  // /search/lat,lng or /search/lat,+lng (Google Maps 2025+ share format)
-  const searchMatch = url.match(/\/(?:search|place)\/(-?\d{1,3}\.\d{3,8}),\s?\+?(-?\d{1,3}\.\d{3,8})/)
+  // /search/lat,lng or /place/lat,lng (Google Maps share formats)
+  const searchMatch = url.match(/\/(?:search|place)\/(-?\d{1,3}\.\d{3,15}),\s?\+?(-?\d{1,3}\.\d{3,15})/)
   if (searchMatch) {
     const lat = parseFloat(searchMatch[1])
     const lng = parseFloat(searchMatch[2])
     if (isValid(lat, lng)) return { lat, lng }
   }
 
+  // /dir/lat,lng or /dir//lat,lng (directions with coords — origin or destination)
+  const dirMatch = url.match(/\/dir\/[^/]*\/?(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
+  if (dirMatch) {
+    const lat = parseFloat(dirMatch[1])
+    const lng = parseFloat(dirMatch[2])
+    if (isValid(lat, lng)) return { lat, lng }
+  }
+
   // !3d(lat)!4d(lng) format (Google Maps data URL encoding)
-  const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,8})!4d(-?\d{1,3}\.\d{3,8})/)
+  const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,15})!4d(-?\d{1,3}\.\d{3,15})/)
   if (dataMatch) {
     const lat = parseFloat(dataMatch[1])
     const lng = parseFloat(dataMatch[2])
@@ -176,10 +242,10 @@ function extractCoordsFromUrl(url) {
   // ?q=lat,lng or &q=lat,lng and similar query params
   try {
     const parsed = new URL(url)
-    for (const key of ['q', 'll', 'center', 'destination', 'query']) {
+    for (const key of ['q', 'll', 'center', 'destination', 'origin', 'query', 'saddr', 'daddr', 'viewpoint', 'sll', 'cbll']) {
       const val = parsed.searchParams.get(key)
       if (val) {
-        const m = val.match(/^(-?\d{1,3}\.\d{3,8})\s*,\s*(-?\d{1,3}\.\d{3,8})$/)
+        const m = val.match(/^(-?\d{1,3}\.\d{1,15})\s*,\s*(-?\d{1,3}\.\d{1,15})$/)
         if (m) {
           const lat = parseFloat(m[1])
           const lng = parseFloat(m[2])
@@ -196,20 +262,26 @@ function extractCoordsFromHtml(html) {
   if (!html || html.length < 100) return null
 
   const patterns = [
-    // Google Maps APP_INITIALIZATION_STATE data
-    /\[null,null,(-?\d{1,3}\.\d{4,8}),(-?\d{1,3}\.\d{4,8})\]/,
-    // JSON center coordinates
-    /center"?:\s*\[(-?\d{1,3}\.\d{4,8}),\s*(-?\d{1,3}\.\d{4,8})\]/,
-    // JSON lat/lng
-    /lat"?:\s*(-?\d{1,3}\.\d{4,8}).*?lng"?:\s*(-?\d{1,3}\.\d{4,8})/s,
-    // @lat,lng in any context
-    /@(-?\d{1,3}\.\d{4,8}),(-?\d{1,3}\.\d{4,8})/,
+    // Google Maps APP_INITIALIZATION_STATE: [null,null,lat,lng] or [null,null,lng,lat]
+    /\[null,null,(-?\d{1,3}\.\d{4,15}),(-?\d{1,3}\.\d{4,15})\]/,
+    // APP_OPTIONS data: [[lat,lng]] or center:[lat,lng]
+    /center"?:\s*\[(-?\d{1,3}\.\d{4,15}),\s*(-?\d{1,3}\.\d{4,15})\]/,
+    // JSON lat/lng properties
+    /lat"?:\s*(-?\d{1,3}\.\d{4,15}).*?lng"?:\s*(-?\d{1,3}\.\d{4,15})/s,
+    // latitude/longitude properties
+    /latitude"?:\s*(-?\d{1,3}\.\d{4,15}).*?longitude"?:\s*(-?\d{1,3}\.\d{4,15})/s,
+    // @lat,lng in any context (URLs, scripts, etc.)
+    /@(-?\d{1,3}\.\d{4,15}),(-?\d{1,3}\.\d{4,15})/,
     // !3d(lat)!4d(lng) in HTML content
-    /!3d(-?\d{1,3}\.\d{4,8})!4d(-?\d{1,3}\.\d{4,8})/,
-    // Array format [lat, lng, 0]
-    /\[(-?\d{1,3}\.\d{4,8}),(-?\d{1,3}\.\d{4,8}),0\]/,
-    // og:url or canonical with coordinates
-    /content="[^"]*@(-?\d{1,3}\.\d{4,8}),(-?\d{1,3}\.\d{4,8})/,
+    /!3d(-?\d{1,3}\.\d{4,15})!4d(-?\d{1,3}\.\d{4,15})/,
+    // Array format [lat, lng, 0] (Google Maps JS data)
+    /\[(-?\d{1,3}\.\d{4,15}),(-?\d{1,3}\.\d{4,15}),0\]/,
+    // og:url or og:image with coordinates
+    /content="[^"]*@(-?\d{1,3}\.\d{4,15}),(-?\d{1,3}\.\d{4,15})/,
+    // og:image with center= param (static maps thumbnail)
+    /og:image[^>]*content="[^"]*center=(-?\d{1,3}\.\d{4,15})(?:%2C|,)(-?\d{1,3}\.\d{4,15})/i,
+    // Google Maps initEmbed data: numbers in arrays like ,[lat],[lng],
+    /,(-?\d{1,2}\.\d{5,15}),(-?\d{1,3}\.\d{5,15}),/,
   ]
 
   for (const pattern of patterns) {
@@ -226,12 +298,21 @@ function extractCoordsFromHtml(html) {
 }
 
 /**
- * Extract Google Maps feature ID (ftid) from a place URL.
- * Format: "0x<hex>:0x<hex>" found in data=...!1s... parameter
+ * Extract Google Maps feature ID (ftid) from a place URL or HTML.
+ * Format: "0x<hex>:0x<hex>" found in data=...!1s... parameter or in page source
  */
-function extractFtid(url) {
-  const match = url.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i)
-  return match ? match[1] : null
+function extractFtid(str) {
+  if (!str) return null
+  // !1s format (most common in URLs)
+  const match = str.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i)
+  if (match) return match[1]
+  // ftid= query parameter
+  const ftidParam = str.match(/ftid=(0x[0-9a-f]+:0x[0-9a-f]+)/i)
+  if (ftidParam) return ftidParam[1]
+  // Hex format in HTML/JS data
+  const hexMatch = str.match(/"(0x[0-9a-f]{10,}:0x[0-9a-f]{10,})"/i)
+  if (hexMatch) return hexMatch[1]
+  return null
 }
 
 /**

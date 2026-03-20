@@ -26,14 +26,14 @@ export function extractCoordsFromShare(url, text) {
     }
 
     // Try geo: URI (Android share format): geo:lat,lng or geo:0,0?q=lat,lng
-    const geoMatch = text.match(/geo:(-?\d{1,3}\.\d{3,8}),(-?\d{1,3}\.\d{3,8})/)
+    const geoMatch = text.match(/geo:(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
     if (geoMatch) {
       const lat = parseFloat(geoMatch[1])
       const lng = parseFloat(geoMatch[2])
       if (isValidCoord(lat, lng) && (lat !== 0 || lng !== 0)) return { lat, lng }
     }
     // geo:0,0?q=lat,lng variant
-    const geoQMatch = text.match(/geo:[^?]*\?q=(-?\d{1,3}\.\d{3,8}),(-?\d{1,3}\.\d{3,8})/)
+    const geoQMatch = text.match(/geo:[^?]*\?q=(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
     if (geoQMatch) {
       const lat = parseFloat(geoQMatch[1])
       const lng = parseFloat(geoQMatch[2])
@@ -41,7 +41,7 @@ export function extractCoordsFromShare(url, text) {
     }
 
     // Try raw coords in text: "48.8566, 2.3522" or "48.8566,2.3522"
-    const coordMatch = text.match(/(-?\d{1,3}\.\d{3,8})\s*,\s*(-?\d{1,3}\.\d{3,8})/)
+    const coordMatch = text.match(/(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})/)
     if (coordMatch) {
       const lat = parseFloat(coordMatch[1])
       const lng = parseFloat(coordMatch[2])
@@ -65,7 +65,7 @@ function parseMapUrl(url) {
     // ?q= or ?query= with lat,lng (Google Maps share + official API format)
     const q = parsed.searchParams.get('q') || parsed.searchParams.get('query')
     if (q) {
-      const match = q.match(/^(-?\d{1,3}\.\d{3,8})\s*,\s*(-?\d{1,3}\.\d{3,8})$/)
+      const match = q.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
       if (match) {
         const lat = parseFloat(match[1])
         const lng = parseFloat(match[2])
@@ -74,7 +74,7 @@ function parseMapUrl(url) {
     }
 
     // /@lat,lng,zoom or /place/.../@lat,lng
-    const atMatch = url.match(/@(-?\d{1,3}\.\d{3,8}),(-?\d{1,3}\.\d{3,8})/)
+    const atMatch = url.match(/@(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
     if (atMatch) {
       const lat = parseFloat(atMatch[1])
       const lng = parseFloat(atMatch[2])
@@ -82,15 +82,16 @@ function parseMapUrl(url) {
     }
 
     // /search/lat,lng or /search/lat,+lng (Google Maps current share format 2025+)
-    const searchMatch = url.match(/\/(?:search|place)\/(-?\d{1,3}\.\d{3,8}),\s?\+?(-?\d{1,3}\.\d{3,8})/)
+    const searchMatch = url.match(/\/(?:search|place)\/(-?\d{1,3}\.\d{3,15}),\s?\+?(-?\d{1,3}\.\d{3,15})/)
     if (searchMatch) {
       const lat = parseFloat(searchMatch[1])
       const lng = parseFloat(searchMatch[2])
       if (isValidCoord(lat, lng)) return { lat, lng }
     }
 
-    // /dir/lat,lng/... (path-based directions with coords)
-    const dirMatch = url.match(/\/dir\/(-?\d{1,3}\.\d{3,8}),(-?\d{1,3}\.\d{3,8})/)
+    // /dir/lat,lng or /dir//lat,lng (directions with coords — origin or destination)
+    // Handles both /dir/48.8,2.3/... and /dir//48.8,2.3 (empty origin)
+    const dirMatch = url.match(/\/dir\/\/?(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
     if (dirMatch) {
       const lat = parseFloat(dirMatch[1])
       const lng = parseFloat(dirMatch[2])
@@ -98,7 +99,7 @@ function parseMapUrl(url) {
     }
 
     // !3d(lat)!4d(lng) — Google Maps data URL encoding (common in long share URLs)
-    const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,8})!4d(-?\d{1,3}\.\d{3,8})/)
+    const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,15})!4d(-?\d{1,3}\.\d{3,15})/)
     if (dataMatch) {
       const lat = parseFloat(dataMatch[1])
       const lng = parseFloat(dataMatch[2])
@@ -108,7 +109,7 @@ function parseMapUrl(url) {
     // ll=lat,lng (Apple Maps, Waze, alternate Google Maps)
     const ll = parsed.searchParams.get('ll')
     if (ll) {
-      const match = ll.match(/^(-?\d{1,3}\.\d{3,8})\s*,\s*(-?\d{1,3}\.\d{3,8})$/)
+      const match = ll.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
       if (match) {
         const lat = parseFloat(match[1])
         const lng = parseFloat(match[2])
@@ -119,7 +120,7 @@ function parseMapUrl(url) {
     // center=lat,lng (some map providers)
     const center = parsed.searchParams.get('center')
     if (center) {
-      const match = center.match(/^(-?\d{1,3}\.\d{3,8})\s*,\s*(-?\d{1,3}\.\d{3,8})$/)
+      const match = center.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
       if (match) {
         const lat = parseFloat(match[1])
         const lng = parseFloat(match[2])
@@ -131,7 +132,7 @@ function parseMapUrl(url) {
     for (const param of ['destination', 'origin', 'saddr', 'daddr']) {
       const val = parsed.searchParams.get(param)
       if (val) {
-        const match = val.match(/^(-?\d{1,3}\.\d{3,8})\s*,\s*(-?\d{1,3}\.\d{3,8})$/)
+        const match = val.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
         if (match) {
           const lat = parseFloat(match[1])
           const lng = parseFloat(match[2])
@@ -144,7 +145,7 @@ function parseMapUrl(url) {
     for (const param of ['viewpoint', 'sll', 'cbll']) {
       const val = parsed.searchParams.get(param)
       if (val) {
-        const match = val.match(/^(-?\d{1,3}\.\d{3,8})\s*,\s*(-?\d{1,3}\.\d{3,8})$/)
+        const match = val.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
         if (match) {
           const lat = parseFloat(match[1])
           const lng = parseFloat(match[2])
@@ -154,7 +155,7 @@ function parseMapUrl(url) {
     }
 
     // OpenStreetMap: /map=zoom/lat/lng or #map=zoom/lat/lng
-    const osmPath = (parsed.pathname + parsed.hash).match(/map=\d+\/(-?\d{1,3}\.\d{3,8})\/(-?\d{1,3}\.\d{3,8})/)
+    const osmPath = (parsed.pathname + parsed.hash).match(/map=\d+\/(-?\d{1,3}\.\d{3,15})\/(-?\d{1,3}\.\d{3,15})/)
     if (osmPath) {
       const lat = parseFloat(osmPath[1])
       const lng = parseFloat(osmPath[2])
@@ -168,7 +169,7 @@ function parseMapUrl(url) {
   }
 
   // Fallback: try !3d/!4d on raw string even if URL parsing failed
-  const dataFallback = url.match(/!3d(-?\d{1,3}\.\d{3,8})!4d(-?\d{1,3}\.\d{3,8})/)
+  const dataFallback = url.match(/!3d(-?\d{1,3}\.\d{3,15})!4d(-?\d{1,3}\.\d{3,15})/)
   if (dataFallback) {
     const lat = parseFloat(dataFallback[1])
     const lng = parseFloat(dataFallback[2])
@@ -192,7 +193,8 @@ export function detectShortMapUrl(url) {
 /**
  * Check if a URL is a Google Maps URL with an opaque identifier (no coords).
  * These need server-side resolution to extract actual coordinates.
- * Covers: ?cid=, ?ftid=, ?place_id=, /place/ without @coords
+ * Covers: ?cid=, ?ftid=, ?place_id=, /place/ without @coords,
+ * ?q=PlaceName (non-coordinate), /dir/ with place names
  * @param {string} url
  * @returns {string|null} The URL if it needs resolution, null otherwise
  */
@@ -210,6 +212,25 @@ export function detectOpaqueMapUrl(url) {
     if (parsed.pathname.includes('/place/') && !url.includes('@')) {
       return url
     }
+    // ?q=PlaceName (non-coordinate query — a place name that needs geocoding)
+    const q = parsed.searchParams.get('q') || parsed.searchParams.get('query')
+    if (q && !q.match(/^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/)) {
+      return url
+    }
+    // /dir/ with place names (not coordinates) in origin or destination
+    if (parsed.pathname.includes('/dir/') && !url.includes('@')) {
+      // Check if coords are present in the path
+      const hasPathCoords = parsed.pathname.match(/\d{1,3}\.\d{3,},\s*-?\d{1,3}\.\d{3,}/)
+      if (!hasPathCoords) return url
+    }
+    // /search/PlaceName (non-coordinate search)
+    const searchPath = parsed.pathname.match(/\/search\/([^/]+)/)
+    if (searchPath) {
+      const term = decodeURIComponent(searchPath[1])
+      if (!term.match(/^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/)) {
+        return url
+      }
+    }
   } catch { /* not a valid URL */ }
   return null
 }
@@ -217,18 +238,18 @@ export function detectOpaqueMapUrl(url) {
 /**
  * Try to resolve a shortened or opaque Google Maps URL
  * Uses Cloudflare Worker proxy to follow redirects server-side (bypasses CORS).
- * Also handles CID/FTID/place_id URLs by fetching og:image meta tag.
- * @param {string} shortUrl
+ * Also handles CID/FTID/place_id/place-name URLs.
+ * @param {string} mapUrl - Short URL or full Google Maps URL
  * @returns {Promise<{ lat: number, lng: number } | null>}
  */
-export async function resolveShortMapUrl(shortUrl) {
+export async function resolveShortMapUrl(mapUrl) {
   const PROXY_URL = 'https://spothitch-resolve-map-url.antoine-v-ville.workers.dev'
 
-  // Strategy 1: Cloudflare Worker proxy (works for short URLs)
+  // Strategy 1: Cloudflare Worker proxy (works for short URLs AND full Google Maps URLs)
   try {
     const res = await fetch(
-      `${PROXY_URL}?url=${encodeURIComponent(shortUrl)}`,
-      { signal: AbortSignal.timeout(8000) }
+      `${PROXY_URL}?url=${encodeURIComponent(mapUrl)}`,
+      { signal: AbortSignal.timeout(10000) }
     )
     const data = await res.json()
 
@@ -238,12 +259,12 @@ export async function resolveShortMapUrl(shortUrl) {
     }
 
     // Worker returned a resolved URL — try parsing it for coords
-    if (data.resolvedUrl && data.resolvedUrl !== shortUrl) {
+    if (data.resolvedUrl && data.resolvedUrl !== mapUrl) {
       const fromResolved = parseMapUrl(data.resolvedUrl)
       if (fromResolved) return fromResolved
     }
 
-    // Worker returned a place name — geocode it (but skip garbage like "Dynamic Link Not Found")
+    // Worker returned a place name — geocode it (skip garbage like "Dynamic Link Not Found")
     if (data.place && !data.place.toLowerCase().includes('not found') && !data.place.toLowerCase().includes('dynamic link')) {
       return geocodePlace(data.place)
     }
@@ -253,10 +274,11 @@ export async function resolveShortMapUrl(shortUrl) {
 
   // Strategy 2: Fetch page HTML and extract coords from og:image meta tag
   // Google Maps embeds center=lat,lng in the static map thumbnail URL
+  // (This only works if CORS is not blocked — usually fails in browser but kept as fallback)
   try {
-    const res = await fetch(shortUrl, { redirect: 'follow', signal: AbortSignal.timeout(8000) })
+    const res = await fetch(mapUrl, { redirect: 'follow', signal: AbortSignal.timeout(8000) })
     // Check resolved URL for coordinates
-    if (res.url && res.url !== shortUrl) {
+    if (res.url && res.url !== mapUrl) {
       const fromResolved = parseMapUrl(res.url)
       if (fromResolved) return fromResolved
     }
@@ -265,7 +287,7 @@ export async function resolveShortMapUrl(shortUrl) {
     const ogMatch = html.match(/og:image[^>]*content="([^"]*center=([^&"]+))/i)
     if (ogMatch) {
       const centerParam = decodeURIComponent(ogMatch[2])
-      const coordMatch = centerParam.match(/(-?\d{1,3}\.\d{3,8})\s*[,%]\s*(-?\d{1,3}\.\d{3,8})/)
+      const coordMatch = centerParam.match(/(-?\d{1,3}\.\d{3,15})\s*[,%]\s*(-?\d{1,3}\.\d{3,15})/)
       if (coordMatch) {
         const lat = parseFloat(coordMatch[1])
         const lng = parseFloat(coordMatch[2])
