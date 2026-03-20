@@ -14,13 +14,11 @@ import { getAvailableCountries } from '../../../services/countryChat.js'
  * @param {object} state
  * @returns {string} HTML
  */
-export function renderCountryChats(state) {
+export function renderCountryChats(_state) {
   const countries = getAvailableCountries()
-  const lang = localStorage.getItem('spothitch_lang') || 'fr'
 
   // Group by region
   const europe = countries.filter(c => ['FR', 'DE', 'ES', 'IT', 'NL', 'BE', 'PT', 'AT', 'CH', 'IE', 'PL', 'CZ', 'GB', 'SE', 'NO', 'DK', 'FI', 'HU', 'HR', 'RO', 'GR', 'BG', 'SK', 'SI'].includes(c.code))
-  const other = countries.filter(c => !europe.some(e => e.code === c.code))
 
   return `
     <div class="px-4 py-3">
@@ -64,7 +62,7 @@ window.joinCountryChatAction = async (code) => {
 // Handler: show all countries
 window.showAllCountryChats = () => {
   // For now, show a toast — full page to be built later
-  const { showToast } = import('../../../services/notifications.js').then(n =>
+  import('../../../services/notifications.js').then(n =>
     n.showToast(t('comingSoon') || 'Bientôt disponible', 'info')
   )
 }

@@ -121,7 +121,6 @@ function renderTimerCard(timer) {
 // Register handlers
 window.openGuardianChat = async (userId) => {
   if (!userId) return
-  const { showConversations } = await import('../../../stores/state.js')
   window.openDirectMessage?.(userId)
 }
 

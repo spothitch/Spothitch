@@ -917,8 +917,6 @@ window.showCommunitySOSOnMap = (lat, lng, name) => {
  * Auto-removed after 5 minutes.
  */
 function _addSOSMarker(map, lat, lng, name) {
-  const markerId = `community-sos-${Date.now()}`
-
   // Create pulsing dot element
   const el = document.createElement('div')
   el.style.cssText = `
