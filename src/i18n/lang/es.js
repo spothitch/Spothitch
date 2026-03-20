@@ -3438,6 +3438,7 @@ export default {
   companionStarted: '¡Modo compañero activado! Buen viaje.',
   companionStopped: 'Modo compañero desactivado.',
   companionCheckedIn: '¡Check-in registrado! Estás a salvo.',
+  companionActivate: 'Activar guardián',
   guardianRequired: 'Rellena el nombre y el número de tu guardián.',
   companionAlertOpening: 'Enviando alerta push al guardian...',
 
@@ -3749,6 +3750,10 @@ export default {
   sosFakeCallAnswer: 'Contestar',
   sosFakeCallDecline: 'Rechazar',
   sosFakeCallHangUp: 'Colgar',
+  sosAlertGuardians: 'Alertar guardianes',
+  sosAlertGuardiansDesc: 'Posición + alerta a todos los guardianes',
+  sosEmergency: 'Emergencia',
+  sosEmergencyDesc: 'Alerta máxima + servicios de emergencia',
   sosRecordEvidence: 'Grabar evidencia',
   sosRecording: 'REC',
   sosRecordAudio: 'Audio',

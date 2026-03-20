@@ -3438,6 +3438,7 @@ export default {
   companionStarted: 'Begleitmodus aktiviert! Gute Reise.',
   companionStopped: 'Begleitmodus deaktiviert.',
   companionCheckedIn: 'Check-in erfolgreich! Du bist sicher.',
+  companionActivate: 'Wächter aktivieren',
   guardianRequired: 'Bitte fülle den Namen und die Telefonnummer deines Begleiters aus.',
   companionAlertOpening: 'Push-Alarm an Begleiter wird gesendet...',
 
@@ -3749,6 +3750,10 @@ export default {
   sosFakeCallAnswer: 'Annehmen',
   sosFakeCallDecline: 'Ablehnen',
   sosFakeCallHangUp: 'Auflegen',
+  sosAlertGuardians: 'Wächter alarmieren',
+  sosAlertGuardiansDesc: 'Position + Alarm an alle Wächter',
+  sosEmergency: 'Notfall',
+  sosEmergencyDesc: 'Maximaler Alarm + Rettungsdienst',
   sosRecordEvidence: 'Beweise aufzeichnen',
   sosRecording: 'REC',
   sosRecordAudio: 'Audio',
