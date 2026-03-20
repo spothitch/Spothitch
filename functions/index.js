@@ -16,19 +16,7 @@ const { getFirestore } = require('firebase-admin/firestore')
 // Initialize Firebase Admin (uses default service account)
 initializeApp()
 
-/**
- * BRIQUE 1 — Test function: logs when a new spot is created.
- * This verifies Cloud Functions are correctly connected to Firestore.
- * Will be replaced by real notification logic in Brique 3.
- */
-exports.onNewSpot = onDocumentCreated('spots/{spotId}', (event) => {
-  const spot = event.data?.data()
-  if (!spot) return null
-
-  console.log(`[SpotHitch] New spot created: ${spot.name || 'unnamed'} by ${spot.creator || 'anonymous'} (ID: ${event.params.spotId})`)
-
-  return null
-})
+// BRIQUE 1 — onNewSpot test function removed, replaced by onSpotCreatedTelegram
 
 // ==================== BRIQUE 2 — Notifications DM ====================
 const { onNewDirectMessage } = require('./notifications/onNewMessage')
@@ -50,9 +38,11 @@ exports.checkSOSTimers = checkSOSTimers
 const { onSOSAlert } = require('./sos/onSOSAlert')
 exports.onSOSAlert = onSOSAlert
 
-// ==================== BRIQUE 6 — Telegram webhook for reports ====================
-const { onNewReport } = require('./notifications/telegramWebhook')
+// ==================== BRIQUE 6 — Telegram alerts (reports, new users, new spots) ====================
+const { onNewReport, onNewUser, onSpotCreatedTelegram } = require('./notifications/telegramWebhook')
 exports.onNewReport = onNewReport
+exports.onNewUser = onNewUser
+exports.onSpotCreatedTelegram = onSpotCreatedTelegram
 
 // ==================== FUTURE BRIQUES ====================
 // Brique 7: exports.dailyCleanup = require('./scheduled/cleanup')

@@ -68,6 +68,81 @@ exports.onNewReport = onDocumentCreated(
   }
 )
 
+// Admin emails — don't send Telegram alerts for these accounts
+const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
+
+/**
+ * Telegram alert: new user registered
+ */
+exports.onNewUser = onDocumentCreated(
+  'users/{userId}',
+  async (event) => {
+    const user = event.data?.data()
+    if (!user) return null
+
+    const botToken = TELEGRAM_BOT_TOKEN.value()
+    const chatId = TELEGRAM_CHAT_ID.value()
+    if (!botToken || !chatId) return null
+
+    // Skip admin accounts
+    if (ADMIN_EMAILS.includes(user.email)) return null
+
+    const name = user.username || user.displayName || 'Anonyme'
+    const text = [
+      `*Nouvel utilisateur*`,
+      ``,
+      `Nom : ${name}`,
+      user.email ? `Email : ${user.email}` : '',
+      `ID : \`${event.params.userId}\``,
+    ].filter(Boolean).join('\n')
+
+    await sendTelegramMessage(botToken, chatId, text)
+    console.log(`[Telegram] New user: ${name}`)
+    return null
+  }
+)
+
+/**
+ * Telegram alert: new spot created
+ */
+exports.onSpotCreatedTelegram = onDocumentCreated(
+  'spots/{spotId}',
+  async (event) => {
+    const spot = event.data?.data()
+    if (!spot) return null
+
+    const botToken = TELEGRAM_BOT_TOKEN.value()
+    const chatId = TELEGRAM_CHAT_ID.value()
+    if (!botToken || !chatId) return null
+
+    // Skip spots created by admin
+    if (ADMIN_EMAILS.includes(spot.creatorEmail)) return null
+    // Also skip by creator name matching admin
+    if (spot.creator === 'Antoine' && spot.creatorId) return null
+
+    const name = spot.name || 'Sans nom'
+    const creator = spot.creator || 'Anonyme'
+    const city = spot.city || spot.countryName || ''
+    const lat = spot.lat || spot.coordinates?.lat || ''
+    const lng = spot.lng || spot.coordinates?.lng || ''
+
+    const text = [
+      `*Nouveau spot*`,
+      ``,
+      `Nom : ${name}`,
+      city ? `Lieu : ${city}` : '',
+      `Créé par : ${creator}`,
+      lat ? `Position : ${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)}` : '',
+      ``,
+      `[Voir sur SpotHitch](https://spothitch.com)`,
+    ].filter(Boolean).join('\n')
+
+    await sendTelegramMessage(botToken, chatId, text)
+    console.log(`[Telegram] New spot: ${name} by ${creator}`)
+    return null
+  }
+)
+
 /**
  * Send a message via Telegram Bot API
  */
