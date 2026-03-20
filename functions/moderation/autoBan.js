@@ -7,6 +7,7 @@ const { onDocumentCreated } = require('firebase-functions/v2/firestore')
 const { getFirestore } = require('firebase-admin/firestore')
 const { defineString } = require('firebase-functions/params')
 const https = require('https')
+const { isIgnoredAccount } = require('../config/ignoredAccounts')
 
 const TELEGRAM_BOT_TOKEN = defineString('TELEGRAM_BOT_TOKEN', { default: '' })
 const TELEGRAM_CHAT_ID = defineString('TELEGRAM_CHAT_ID', { default: '' })
@@ -35,6 +36,8 @@ function sendTelegram(botToken, chatId, text) {
 exports.checkAutoBan = onDocumentCreated('reports/{reportId}', async (event) => {
   const report = event.data?.data()
   if (!report || report.type !== 'user') return null
+  // Skip reports from ignored accounts (tests, admin)
+  if (isIgnoredAccount(report.reporterEmail)) return null
 
   const targetId = report.targetId
   if (!targetId) return null
@@ -79,6 +82,8 @@ exports.checkAutoBan = onDocumentCreated('reports/{reportId}', async (event) => 
 exports.onSpotHidden = onDocumentCreated('reports/{reportId}', async (event) => {
   const report = event.data?.data()
   if (!report || report.type !== 'spot') return null
+  // Skip reports from ignored accounts (tests, admin)
+  if (isIgnoredAccount(report.reporterEmail)) return null
 
   const spotId = report.targetId
   if (!spotId) return null

@@ -8,6 +8,7 @@ const { onDocumentCreated } = require('firebase-functions/v2/firestore')
 const { getFirestore } = require('firebase-admin/firestore')
 const { defineString } = require('firebase-functions/params')
 const https = require('https')
+const { isIgnoredAccount } = require('../config/ignoredAccounts')
 
 const TELEGRAM_BOT_TOKEN = defineString('TELEGRAM_BOT_TOKEN', { default: '' })
 const TELEGRAM_CHAT_ID = defineString('TELEGRAM_CHAT_ID', { default: '' })
@@ -66,13 +67,15 @@ async function notifyAdmin(type, field, text, userId) {
 exports.checkSpotProfanity = onDocumentCreated('spots/{spotId}', async (event) => {
   const spot = event.data?.data()
   if (!spot) return null
+  // Skip Telegram alert for ignored accounts (still delete if profanity found)
+  const skipTelegram = isIgnoredAccount(spot.creatorEmail)
 
   const badField = checkFields(spot, ['name', 'description', 'tips'])
   if (!badField) return null
 
   console.log(`[Moderation] Profanity in spot ${event.params.spotId} field ${badField}`)
   await getFirestore().doc(`spots/${event.params.spotId}`).delete()
-  await notifyAdmin('spot', badField, spot[badField], spot.creatorId)
+  if (!skipTelegram) await notifyAdmin('spot', badField, spot[badField], spot.creatorId)
   return null
 })
 
@@ -86,7 +89,7 @@ exports.checkReviewProfanity = onDocumentCreated('spots/{spotId}/reviews/{review
 
   console.log(`[Moderation] Profanity in review ${event.params.reviewId}`)
   await getFirestore().doc(`spots/${event.params.spotId}/reviews/${event.params.reviewId}`).delete()
-  await notifyAdmin('review', badField, review[badField], review.userId)
+  if (!isIgnoredAccount(review.userEmail)) await notifyAdmin('review', badField, review[badField], review.userId)
   return null
 })
 
@@ -99,6 +102,6 @@ exports.checkMessageProfanity = onDocumentCreated('directMessages/{convId}/messa
 
   console.log(`[Moderation] Profanity in DM ${event.params.msgId}`)
   await getFirestore().doc(`directMessages/${event.params.convId}/messages/${event.params.msgId}`).delete()
-  await notifyAdmin('message', 'text', msg.text, msg.senderId)
+  if (!isIgnoredAccount(msg.senderEmail)) await notifyAdmin('message', 'text', msg.text, msg.senderId)
   return null
 })

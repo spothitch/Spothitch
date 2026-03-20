@@ -13,6 +13,7 @@
 const { onDocumentCreated } = require('firebase-functions/v2/firestore')
 const { defineString } = require('firebase-functions/params')
 const https = require('https')
+const { isIgnoredAccount } = require('../config/ignoredAccounts')
 
 // Config params (set via Firebase console or CLI)
 const TELEGRAM_BOT_TOKEN = defineString('TELEGRAM_BOT_TOKEN', {
@@ -35,6 +36,12 @@ exports.onNewReport = onDocumentCreated(
 
     if (!botToken || !chatId) {
       console.log('[Telegram] Bot token or chat ID not configured, skipping')
+      return null
+    }
+
+    // Skip reports from ignored accounts (tests, admin)
+    if (isIgnoredAccount(report.reporterEmail)) {
+      console.log(`[Telegram] Skipping report from ignored account: ${report.reporterEmail}`)
       return null
     }
 
@@ -68,8 +75,7 @@ exports.onNewReport = onDocumentCreated(
   }
 )
 
-// Admin emails — don't send Telegram alerts for these accounts
-const ADMIN_EMAILS = ['antoine.v.ville@gmail.com', 'ci-admin@spothitch.com']
+// Ignored accounts filtering is now handled by ../config/ignoredAccounts.js
 
 /**
  * Telegram alert: new user registered
@@ -84,8 +90,8 @@ exports.onNewUser = onDocumentCreated(
     const chatId = TELEGRAM_CHAT_ID.value()
     if (!botToken || !chatId) return null
 
-    // Skip admin accounts
-    if (ADMIN_EMAILS.includes(user.email)) return null
+    // Skip ignored accounts (admin + CI tests)
+    if (isIgnoredAccount(user.email)) return null
 
     const name = user.username || user.displayName || 'Anonyme'
     const text = [
@@ -115,10 +121,8 @@ exports.onSpotCreatedTelegram = onDocumentCreated(
     const chatId = TELEGRAM_CHAT_ID.value()
     if (!botToken || !chatId) return null
 
-    // Skip spots created by admin
-    if (ADMIN_EMAILS.includes(spot.creatorEmail)) return null
-    // Also skip by creator name matching admin
-    if (spot.creator === 'Antoine' && spot.creatorId) return null
+    // Skip spots created by ignored accounts (admin + CI tests)
+    if (isIgnoredAccount(spot.creatorEmail)) return null
 
     const name = spot.name || 'Sans nom'
     const creator = spot.creator || 'Anonyme'
