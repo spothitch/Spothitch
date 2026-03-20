@@ -1,20 +1,28 @@
 /**
- * SOS Modal Component
- * Emergency mode for sharing location with extended safety features:
- * - SMS alert to emergency contacts
- * - Offline mode with cached position
- * - Auto-call with country detection
- * - Silent alarm mode
- * - Fake call UI
- * - Audio/video recording evidence
- * - Primary contact (starred)
- * - Customizable alert message
+ * SOS Modal Component — v4b "Alerts First"
+ *
+ * Structure:
+ * 1. Intro screen (first open only) — explains why to configure
+ * 2. Main modal with 2 tabs:
+ *    - Tab 1 (default): Alertes — 2x2 grid + big SOS button + safe button
+ *    - Tab 2: Configuration — checklist with sliding sidebars
+ *
+ * Design decisions (approved by Antoine 2026-03-20):
+ * - No "silent mode" (removed, deemed useless)
+ * - Alerts tab first (not config)
+ * - No separate contacts tab (contacts are inside config sidebar)
+ * - Contacts: SpotHitch (push) + SMS (external) + primary contact choice
+ * - Fake call: name, delay (instant/30s/1m/2m/5m), sound+vibration
+ * - Community: radius 5/10/25/50km + opt-in to receive alerts
+ * - Recording: permissions granted in advance, max duration
+ * - Test button for each config element
+ * - Lucide SVG icons only, zero childish emoji
  */
 
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
 import { escapeHTML } from '../../utils/sanitize.js'
-import { renderCommunityAlertSettings } from '../../services/communityAlert.js'
+import { getCommunityAlertSettings } from '../../services/communityAlert.js'
 
 // ─── SOS localStorage helpers ───────────────────────────────────────────────
 const LS = {
@@ -53,480 +61,245 @@ function getCountryEmergencyNumber() {
 }
 
 export function renderSOS(state) {
-  const disclaimerSeen = typeof localStorage !== 'undefined' && localStorage.getItem('spothitch_sos_disclaimer_seen')
-  if (!disclaimerSeen) return renderSOSDisclaimer()
+  const introSeen = typeof localStorage !== 'undefined' && localStorage.getItem('spothitch_sos_intro_seen')
+  if (!introSeen) return renderSOSIntro()
   return renderSOSMain(state)
 }
 
-// ─── Disclaimer ─────────────────────────────────────────────────────────────
-function renderSOSDisclaimer() {
+// ─── Intro Screen (first open only) ─────────────────────────────────────────
+function renderSOSIntro() {
   return `
-    <div
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onclick="closeSOS()"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="sos-disclaimer-title"
-     tabindex="0">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeSOS()" role="dialog" aria-modal="true" aria-labelledby="sos-intro-title" tabindex="0">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-      <div
-        class="relative bg-dark-primary border-2 border-amber-500/30 rounded-3xl w-full max-w-md slide-up"
-        onclick="event.stopPropagation()"
-      >
-        <div class="p-8 text-center">
-          <div class="w-14 h-14 rounded-full bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center mx-auto mb-4">
-            ${icon('triangle-alert', 'w-7 h-7 text-amber-400')}
+      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()">
+        <div class="p-6 flex flex-col items-center text-center">
+          <div class="w-14 h-14 rounded-full bg-red-500/[0.06] border-[1.5px] border-red-500/[0.12] flex items-center justify-center mb-4">
+            ${icon('shield-alert', 'w-6 h-6 text-red-500')}
           </div>
-          <h2 id="sos-disclaimer-title" class="text-xl font-extrabold text-slate-200 mb-2">
-            ${t('sosDisclaimerTitle') || 'Important : SOS'}
-          </h2>
-          <div class="text-sm text-slate-400 text-left space-y-3 mb-6 leading-relaxed">
-            <p>${t('sosDisclaimerText1') || 'SpotHitch does NOT replace emergency services.'}</p>
-            <p>${t('sosDisclaimerText2') || 'The SOS feature helps you share your location with your trusted contacts but cannot guarantee help will arrive.'}</p>
-            <p>${t('sosDisclaimerText3') || 'In case of real emergency, always call your local emergency number (112 in Europe, 911 in USA/Canada).'}</p>
+          <h2 id="sos-intro-title" class="text-lg font-extrabold text-slate-200 mb-1">${t('sosPrepareTitle') || 'Prépare ton SOS'}</h2>
+          <p class="text-[13px] text-slate-400 leading-relaxed max-w-[280px]">${t('sosPrepareDesc') || 'En cas de danger, chaque seconde compte. Configure tout maintenant pour ne rien avoir à faire en urgence.'}</p>
+
+          <div class="w-full text-left mt-5 space-y-2.5">
+            ${_introFeature('phone-incoming', 'amber', t('sosFakeCall') || 'Faux appel', t('sosFakeCallIntro') || 'Simule un appel pour quitter une situation')}
+            ${_introFeature('shield', 'red', t('sosTripleAlert') || 'Triple alerte', t('sosTripleAlertIntro') || 'Push, SMS et appel en un geste')}
+            ${_introFeature('radio', 'blue', t('sosCommunity') || 'Communauté', t('sosCommunityIntro') || 'Les autostoppeurs proches sont prévenus')}
+            ${_introFeature('mic', 'rose', t('sosEvidence') || 'Preuves', t('sosEvidenceIntro') || 'Enregistre audio et vidéo')}
+            ${_introFeature('phone-call', 'emerald', t('sosEmergency') || 'Urgences', t('sosEmergencyIntro') || '112 détecté selon ton pays')}
           </div>
-          <button
-            onclick="acceptSOSDisclaimer()"
-            class="w-full py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-dark-primary font-bold text-base transition-colors"
-          >
-            ${t('sosDisclaimerAccept') || 'I understand, continue'}
+
+          <button onclick="acceptSOSIntro()" class="w-full mt-5 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-dark-primary font-bold text-[15px] transition-colors flex items-center justify-center gap-2">
+            ${icon('settings', 'w-[18px] h-[18px]')}
+            ${t('sosConfigureNow') || 'Configurer mon SOS'}
           </button>
+          <button onclick="acceptSOSIntro()" class="text-[13px] text-slate-500 mt-2 py-1">${t('sosConfigureLater') || 'Configurer plus tard'}</button>
         </div>
-        <button
-          onclick="closeSOS()"
-          class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
-          aria-label="${t('close') || 'Close'}"
-        >
-          ${icon('x', 'w-5 h-5')}
-        </button>
       </div>
     </div>
   `
 }
 
-// ─── Main SOS Modal — V10 Quick Actions Grid ────────────────────────────────
-function renderSOSMain(state) {
-  const isSilent = LS.silent()
-  const customMsg = LS.customMsg()
-  const primaryIdx = LS.primaryContact()
-  const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true
-  const cachedPos = LS.cachedPos()
-  const detectedNumber = getCountryEmergencyNumber()
-
-  // Count active actions for the active panel badge
-  const activeCount = [state.sosActive, isSilent].filter(Boolean).length
-
+function _introFeature(iconName, color, title, desc) {
+  const colors = {
+    amber: { bg: 'bg-amber-500/[0.08]', fg: 'text-amber-500' },
+    red: { bg: 'bg-red-500/[0.08]', fg: 'text-red-500' },
+    blue: { bg: 'bg-blue-500/[0.08]', fg: 'text-blue-500' },
+    rose: { bg: 'bg-rose-500/[0.08]', fg: 'text-rose-500' },
+    emerald: { bg: 'bg-emerald-500/[0.08]', fg: 'text-emerald-500' },
+  }
+  const c = colors[color] || colors.amber
   return `
-    <div
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onclick="closeSOS()"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="sos-modal-title"
-      aria-describedby="sos-modal-desc"
-     tabindex="0">
-      <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-
-      <!-- Modal -->
-      <div
-        class="relative bg-dark-primary border border-white/5 rounded-3xl
-          w-full max-w-md max-h-[90vh] overflow-y-auto slide-up"
-        onclick="event.stopPropagation()"
-      >
-        <!-- Header -->
-        <div class="pt-8 pb-4 px-6 text-center">
-          <div class="w-12 h-12 rounded-full bg-danger-500/10 border-2 border-danger-500/20 flex items-center justify-center mx-auto mb-3" aria-hidden="true">
-            ${icon('shield', 'w-6 h-6 text-danger-400')}
-          </div>
-          <h2 id="sos-modal-title" class="text-xl font-extrabold text-slate-200">${t('sosTitle')}</h2>
-          <p id="sos-modal-desc" class="text-sm text-slate-500 mt-1">${t('sosDesc')}</p>
-
-          ${!isOnline ? `
-            <div class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-medium" role="alert">
-              ${icon('wifi-off', 'w-3 h-3')}
-              ${t('sosOfflineMode') || 'Mode hors ligne'}
-              ${cachedPos ? `· ${t('sosUsingCachedPos') || 'position en cache'}` : `· ${t('sosNoCachedPos') || 'aucune position en cache'}`}
-            </div>
-          ` : ''}
-        </div>
-
-        <!-- Content -->
-        <div class="px-5 pb-6 space-y-4">
-
-          <!-- ── 2x2 Quick Actions Grid ── -->
-          <div class="grid grid-cols-2 gap-3">
-            <!-- Tile 1: Fake Call -->
-            <button
-              onclick="sosOpenFakeCall()"
-              class="bg-dark-secondary rounded-2xl p-5 text-center flex flex-col items-center gap-3 border-2 border-white/5 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all min-h-[140px] justify-center"
-              type="button"
-              title="${t('sosFakeCallTitle') || 'Simuler un appel entrant'}"
-            >
-              <div class="w-13 h-13 rounded-2xl bg-amber-500/10 flex items-center justify-center">
-                ${icon('phone', 'w-6 h-6 text-amber-500')}
-              </div>
-              <div>
-                <div class="text-sm font-bold text-slate-200">${t('sosFakeCall') || 'Faux appel'}</div>
-                <div class="text-xs text-slate-500 mt-0.5 leading-tight">${t('sosFakeCallDesc') || 'Simuler un appel'}</div>
-              </div>
-            </button>
-
-            <!-- Tile 2: Silent Alert -->
-            <button
-              onclick="sosToggleSilent()"
-              class="bg-dark-secondary rounded-2xl p-5 text-center flex flex-col items-center gap-3 border-2 transition-all min-h-[140px] justify-center ${isSilent ? 'border-amber-500/40 bg-amber-500/5' : 'border-white/5 hover:border-amber-500/30 hover:bg-amber-500/5'}"
-              type="button"
-              aria-pressed="${isSilent}"
-              title="${t('sosSilentModeTitle') || 'Mode alarme silencieuse'}"
-            >
-              <div class="w-13 h-13 rounded-2xl bg-amber-500/10 flex items-center justify-center">
-                ${icon('eye-off', 'w-6 h-6 text-amber-500')}
-              </div>
-              <div>
-                <div class="text-sm font-bold text-slate-200">${t('sosSilentMode') || 'Alarme silencieuse'}</div>
-                <div class="text-xs mt-0.5 leading-tight ${isSilent ? 'text-emerald-400' : 'text-slate-500'}">
-                  ${isSilent ? (t('sosSilentOn') || 'Activé') : (t('sosSilentOff') || 'Désactivé')}
-                </div>
-              </div>
-            </button>
-
-            <!-- Tile 3: Alert Guardians -->
-            <button
-              onclick="shareSOSLocation()"
-              class="bg-dark-secondary rounded-2xl p-5 text-center flex flex-col items-center gap-3 border-2 transition-all min-h-[140px] justify-center ${state.sosActive ? 'border-danger-500/40 bg-danger-500/5' : 'border-white/5 hover:border-danger-500/30 hover:bg-danger-500/5'}"
-              id="sos-share-btn"
-              type="button"
-              aria-pressed="${state.sosActive ? 'true' : 'false'}"
-              aria-describedby="sos-status"
-            >
-              <div class="w-13 h-13 rounded-2xl bg-danger-500/10 flex items-center justify-center">
-                ${icon(state.sosActive ? 'circle-stop' : 'shield', 'w-6 h-6 text-danger-400')}
-              </div>
-              <div>
-                <div class="text-sm font-bold text-slate-200">${state.sosActive ? (t('stopSharing') || 'Stop') : (t('sosAlertGuardians') || 'Alerter gardiens')}</div>
-                <div class="text-xs mt-0.5 leading-tight ${state.sosActive ? 'text-danger-400' : 'text-slate-500'}">
-                  ${state.sosActive ? (t('positionSharedLive') || 'Position en direct') : (t('sosAlertGuardiansDesc') || 'Position + alerte')}
-                </div>
-              </div>
-            </button>
-
-            <!-- Tile 4: Emergency call -->
-            <a
-              href="tel:${detectedNumber}"
-              class="bg-dark-secondary rounded-2xl p-5 text-center flex flex-col items-center gap-3 border-2 border-white/5 hover:border-red-700/40 hover:bg-red-700/5 transition-all min-h-[140px] justify-center no-underline"
-              aria-label="${t('sosAutoCallLabel') || 'Appeler les secours'} (${detectedNumber})"
-            >
-              <div class="w-13 h-13 rounded-2xl bg-red-700/15 flex items-center justify-center">
-                ${icon('triangle-alert', 'w-6 h-6 text-red-500')}
-              </div>
-              <div>
-                <div class="text-sm font-bold text-slate-200">${t('sosEmergency') || 'Urgence'} ${detectedNumber}</div>
-                <div class="text-xs text-slate-500 mt-0.5 leading-tight">${t('sosEmergencyDesc') || 'Alerte maximale + secours'}</div>
-              </div>
-            </a>
-          </div>
-
-          <!-- SOS active status -->
-          ${state.sosActive ? `
-            <div class="bg-danger-500/10 border border-danger-500/20 rounded-2xl p-4" role="alert" aria-live="assertive" id="sos-status">
-              <div class="flex items-center gap-3">
-                <div class="live-dot" aria-hidden="true"></div>
-                <span class="text-sm font-bold text-danger-400">${t('positionSharedLive') || 'Position partagée en direct'}</span>
-              </div>
-              <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                ${t('contactsCanSeePosition') || 'Tes contacts de confiance peuvent voir ta position en temps réel.'}
-              </p>
-            </div>
-          ` : `<div id="sos-status" class="sr-only">${t('positionShareInactive') || 'Partage de position non actif'}</div>`}
-
-          <!-- ── Active Actions Panel ── -->
-          ${(state.sosActive || isSilent) ? `
-            <div class="bg-dark-secondary rounded-2xl p-4 border border-white/5">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2 text-sm font-bold text-slate-200">
-                  ${icon('shield', 'w-4 h-4 text-amber-500')}
-                  ${t('sosActiveActions') || 'Actions actives'}
-                </div>
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-danger-500/15 text-danger-400">
-                  ${activeCount} ${activeCount > 1 ? (t('sosActives') || 'actives') : (t('sosActiveOne') || 'active')}
-                </span>
-              </div>
-
-              ${isSilent ? `
-                <div class="flex items-center gap-3 py-3 border-b border-white/5">
-                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                    ${icon('eye-off', 'w-4 h-4 text-amber-500')}
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-sm font-semibold text-slate-200">${t('sosSilentMode') || 'Alarme silencieuse'}</div>
-                    <div class="text-xs text-emerald-400">${t('sosActiveStatus') || 'En cours'}</div>
-                  </div>
-                  <button onclick="sosToggleSilent()" class="w-11 h-6 rounded-full bg-emerald-500 relative transition-colors shrink-0" type="button" aria-pressed="true" aria-label="${t('sosSilentMode') || 'Alarme silencieuse'}">
-                    <span class="absolute w-4 h-4 rounded-full bg-white top-1 right-1 transition-transform" aria-hidden="true"></span>
-                  </button>
-                </div>
-              ` : ''}
-
-              ${state.sosActive ? `
-                <div class="flex items-center gap-3 py-3">
-                  <div class="w-9 h-9 rounded-xl bg-danger-500/10 flex items-center justify-center shrink-0">
-                    ${icon('map-pin', 'w-4 h-4 text-danger-400')}
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-sm font-semibold text-slate-200">${t('sosPositionSharing') || 'Partage de position'}</div>
-                    <div class="text-xs text-emerald-400">${t('sosActiveStatus') || 'En cours'}</div>
-                  </div>
-                  <button onclick="shareSOSLocation()" class="w-11 h-6 rounded-full bg-danger-500 relative transition-colors shrink-0" type="button" aria-pressed="true" aria-label="${t('sosPositionSharing') || 'Partage de position'}">
-                    <span class="absolute w-4 h-4 rounded-full bg-white top-1 right-1 transition-transform" aria-hidden="true"></span>
-                  </button>
-                </div>
-              ` : ''}
-            </div>
-          ` : ''}
-
-          <!-- ── Record Evidence ── -->
-          <div class="bg-dark-secondary rounded-2xl p-4 border border-white/5">
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                ${icon('camera', 'w-4 h-4 text-rose-400')}
-                <span class="text-sm font-bold text-slate-200">${t('sosRecordEvidence') || 'Enregistrer des preuves'}</span>
-              </div>
-              <span id="sos-rec-indicator" class="hidden items-center gap-1 text-xs text-rose-400 font-semibold">
-                <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse inline-block"></span>
-                ${t('sosRecording') || 'REC'}
-              </span>
-            </div>
-            <div class="flex gap-2">
-              <button
-                onclick="sosStartRecording('audio')"
-                id="sos-rec-audio-btn"
-                class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-semibold transition-colors hover:bg-rose-500/20"
-                type="button"
-              >
-                ${icon('music', 'w-4 h-4')}
-                ${t('sosRecordAudio') || 'Audio'}
-              </button>
-              <button
-                onclick="sosStartRecording('video')"
-                id="sos-rec-video-btn"
-                class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-semibold transition-colors hover:bg-rose-500/20"
-                type="button"
-              >
-                ${icon('camera', 'w-4 h-4')}
-                ${t('sosRecordVideo') || 'Vidéo'}
-              </button>
-              <button
-                onclick="sosStopRecording()"
-                id="sos-rec-stop-btn"
-                class="hidden flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-400 text-sm font-semibold"
-                type="button"
-                aria-label="${t('sosStopRecording') || 'Arrêter l\'enregistrement'}"
-              >
-                ${icon('circle-stop', 'w-4 h-4')}
-              </button>
-            </div>
-            <div id="sos-rec-result" class="hidden mt-2 text-xs text-slate-400"></div>
-          </div>
-
-          <!-- ── Emergency Contacts ── -->
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2" id="contacts-heading">
-                ${icon('users', 'w-4 h-4 text-amber-500')}
-                ${t('emergencyContacts')}
-                ${state.emergencyContacts.length > 0 ? `<span class="text-xs text-slate-500">(${state.emergencyContacts.length})</span>` : ''}
-              </h3>
-            </div>
-
-            <!-- Triple alert description -->
-            <div class="bg-danger-500/10 rounded-xl p-3 mb-3 border border-danger-500/20">
-              <p class="text-xs text-danger-300 leading-relaxed flex items-start gap-2">
-                ${icon('zap', 'w-4 h-4 text-danger-400 shrink-0 mt-0.5')}
-                <span>${t('sosTripleAlertDesc') || 'When SOS is triggered, everything fires at once: push notification + SMS + phone call to your primary contact. No choice needed. Maximum safety.'}</span>
-              </p>
-            </div>
-
-            <!-- Add Contact Form -->
-            <div class="bg-dark-secondary rounded-2xl p-4 mb-3 space-y-3 border border-white/5">
-              <div class="flex gap-2">
-                <input
-                  type="text"
-                  id="emergency-name"
-                  class="input-field flex-1"
-                  placeholder="${t('contactName') || 'Nom du contact'}"
-                  aria-label="${t('emergencyContactName') || 'Nom du contact d\'urgence'}"
-                />
-              </div>
-              <div class="flex gap-2">
-                <input
-                  type="tel"
-                  id="emergency-phone"
-                  class="input-field flex-1"
-                  placeholder="${t('phonePlaceholder') || '+33 6 12 34 56 78'}"
-                  aria-label="${t('emergencyContactPhone') || 'Téléphone du contact d\'urgence'}"
-                  onkeydown="if(event.key==='Enter') addEmergencyContact()"
-                />
-                <button
-                  onclick="addEmergencyContact()"
-                  class="btn-primary px-4"
-                  type="button"
-                  aria-label="${t('addContact') || 'Ajouter le contact'}"
-                >
-                  ${icon('plus', 'w-5 h-5')}
-                </button>
-              </div>
-            </div>
-
-            <ul class="space-y-2" aria-labelledby="contacts-heading" role="list">
-              ${state.emergencyContacts.length > 0
-    ? state.emergencyContacts.map((contact, i) => `
-                    <li class="bg-dark-secondary rounded-2xl border border-white/5 p-3 flex items-center justify-between ${i === primaryIdx ? 'border-amber-500/30 bg-amber-500/5' : ''}">
-                      <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl ${i === primaryIdx ? 'bg-amber-500/15' : 'bg-primary-500/15'} flex items-center justify-center" aria-hidden="true">
-                          ${icon(i === primaryIdx ? 'star' : 'user', `w-4 h-4 ${i === primaryIdx ? 'text-amber-500' : 'text-primary-400'}`)}
-                        </div>
-                        <div>
-                          <div class="text-sm font-semibold text-slate-200 flex items-center gap-1.5">
-                            ${escapeHTML(contact.name)}
-                            ${i === primaryIdx ? `<span class="text-xs text-amber-400 font-semibold">${t('sosPrimaryContact') || 'Principal'}</span>` : ''}
-                          </div>
-                          <div class="text-xs text-slate-500">${escapeHTML(contact.phone)}</div>
-                        </div>
-                      </div>
-                      <div class="flex items-center gap-1">
-                        <button
-                          onclick="sosSetPrimaryContact(${i})"
-                          class="w-8 h-8 flex items-center justify-center rounded-full transition-colors ${i === primaryIdx ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'}"
-                          type="button"
-                          aria-label="${t('sosSetPrimary') || 'Définir comme contact principal'} ${escapeHTML(contact.name)}"
-                          aria-pressed="${i === primaryIdx}"
-                        >
-                          ${icon('star', 'w-4 h-4')}
-                        </button>
-                        <button
-                          onclick="removeEmergencyContact(${i})"
-                          class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-danger-400 rounded-full transition-colors"
-                          type="button"
-                          aria-label="${t('deleteContact') || 'Supprimer le contact'} ${escapeHTML(contact.name)}"
-                        >
-                          ${icon('x', 'w-4 h-4')}
-                        </button>
-                      </div>
-                    </li>
-                  `).join('')
-    : `
-                  <li class="text-center text-slate-500 py-4">
-                    ${icon('user-plus', 'w-6 h-6 mb-2')}
-                    <p class="text-sm">${t('addTrustedContacts') || 'Ajoute des contacts de confiance'}</p>
-                  </li>
-                `
-}
-            </ul>
-          </div>
-
-          <!-- ── Custom Alert Message ── -->
-          <div class="bg-dark-secondary rounded-2xl p-4 space-y-2 border border-white/5">
-            <label class="flex items-center gap-2 text-sm font-bold text-slate-200" for="sos-custom-msg">
-              ${icon('pencil', 'w-4 h-4 text-primary-400')}
-              ${t('sosCustomMessage') || 'Message personnalisé'}
-            </label>
-            <textarea
-              id="sos-custom-msg"
-              class="input-field w-full text-sm resize-none"
-              rows="2"
-              maxlength="200"
-              placeholder="${t('sosCustomMsgPlaceholder') || 'Ajouté en tête de chaque alerte...'}"
-              oninput="sosUpdateCustomMsg(this.value)"
-            >${escapeHTML(customMsg)}</textarea>
-            <p class="text-xs text-slate-500">${t('sosCustomMsgHint') || 'Ce texte sera ajouté au début de vos messages d\'alerte.'}</p>
-          </div>
-
-          <!-- ── Emergency Numbers Grid ── -->
-          <div class="bg-dark-secondary rounded-2xl p-4 space-y-3 border border-white/5">
-            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-              ${icon('globe', 'w-4 h-4 text-primary-400')}
-              ${t('emergencyNumbersByCountry') || 'Numéros d\'urgence par pays'}
-            </h3>
-            <div id="country-emergency-numbers">
-              <div class="grid grid-cols-2 gap-2 text-sm">
-                <a href="tel:112" class="p-2.5 rounded-xl bg-danger-500/10 text-center no-underline">
-                  <div class="text-xs text-slate-500">Europe</div>
-                  <div class="font-bold text-danger-400">112</div>
-                </a>
-                <a href="tel:911" class="p-2.5 rounded-xl bg-danger-500/10 text-center no-underline">
-                  <div class="text-xs text-slate-500">USA/Canada</div>
-                  <div class="font-bold text-danger-400">911</div>
-                </a>
-                <a href="tel:000" class="p-2.5 rounded-xl bg-danger-500/10 text-center no-underline">
-                  <div class="text-xs text-slate-500">${t('australia') || 'Australie'}</div>
-                  <div class="font-bold text-danger-400">000</div>
-                </a>
-                <a href="tel:111" class="p-2.5 rounded-xl bg-danger-500/10 text-center no-underline">
-                  <div class="text-xs text-slate-500">${t('newZealand') || 'Nv-Zélande'}</div>
-                  <div class="font-bold text-danger-400">111</div>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- ── Pre-programmed Messages ── -->
-          <div class="bg-dark-secondary rounded-2xl p-4 space-y-3 border border-white/5">
-            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-              ${icon('message-circle-more', 'w-4 h-4 text-emerald-400')}
-              ${t('emergencyMessages') || 'Messages d\'urgence'}
-            </h3>
-            <div class="space-y-2">
-              <button onclick="sendSOSTemplate('danger')" class="w-full p-3 rounded-xl bg-danger-500/10 text-left text-sm hover:bg-danger-500/20 transition-colors">
-                <div class="font-semibold text-danger-400">${t('sosInDanger') || 'Je suis en danger'}</div>
-                <div class="text-xs text-slate-500">${t('sosInDangerDesc') || 'Envoie ta position + message d\'alerte'}</div>
-              </button>
-              <button onclick="sendSOSTemplate('stuck')" class="w-full p-3 rounded-xl bg-amber-500/10 text-left text-sm hover:bg-amber-500/20 transition-colors">
-                <div class="font-semibold text-amber-400">${t('sosStuck') || 'Je suis bloqué(e)'}</div>
-                <div class="text-xs text-slate-500">${t('sosStuckDesc') || 'Envoie ta position + demande d\'aide'}</div>
-              </button>
-              <button onclick="sendSOSTemplate('help')" class="w-full p-3 rounded-xl bg-primary-500/10 text-left text-sm hover:bg-primary-500/20 transition-colors">
-                <div class="font-semibold text-primary-400">${t('sosNeedHelp') || 'J\'ai besoin d\'aide'}</div>
-                <div class="text-xs text-slate-500">${t('sosNeedHelpDesc') || 'Envoie ta position + description'}</div>
-              </button>
-            </div>
-          </div>
-
-          <!-- ── Community Alert Settings ── -->
-          ${renderCommunityAlertSettings()}
-
-          <!-- Info note -->
-          <div class="flex items-start gap-2 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
-            ${icon('info', 'w-4 h-4 text-amber-500 shrink-0 mt-0.5')}
-            <p class="text-xs text-slate-500 leading-relaxed">
-              ${t('sosCombineNote') || 'Vous pouvez combiner plusieurs actions. Par exemple, lancer un faux appel puis activer l\'alerte silencieuse.'}
-            </p>
-          </div>
-
-          <!-- I'm Safe Button -->
-          ${state.sosActive ? `
-            <button
-              onclick="markSafe()"
-              class="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-dark-primary font-bold text-base transition-colors"
-              type="button"
-            >
-              ${icon('shield-check', 'w-5 h-5')}
-              ${t('iAmSafe')}
-            </button>
-          ` : ''}
-        </div>
-
-        <!-- Close -->
-        <button
-          onclick="closeSOS()"
-          class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
-          aria-label="${t('closeSOSWindow') || 'Fermer la fenêtre SOS'}"
-          type="button"
-        >
-          ${icon('x', 'w-5 h-5')}
-        </button>
+    <div class="flex items-start gap-3">
+      <div class="w-7 h-7 rounded-lg ${c.bg} flex items-center justify-center shrink-0 mt-0.5">
+        ${icon(iconName, `w-3.5 h-3.5 ${c.fg}`)}
+      </div>
+      <div>
+        <div class="text-[13px] font-semibold text-slate-200">${title}</div>
+        <div class="text-[11px] text-slate-500 leading-snug">${desc}</div>
       </div>
     </div>
+  `
+}
+
+// ─── Main SOS Modal — v4b Alerts First + Config Tab ─────────────────────────
+function renderSOSMain(state) {
+  const detectedNumber = getCountryEmergencyNumber()
+  const communitySettings = getCommunityAlertSettings()
+  const fakeCallName = localStorage.getItem('spothitch_sos_fake_name') || t('sosFakeCallerName') || 'Maman'
+  const fakeCallDelay = localStorage.getItem('spothitch_sos_fake_delay') || '30'
+  const contacts = state.emergencyContacts || []
+  const contactNames = contacts.map(c => escapeHTML(c.name)).join(', ') || t('sosNoContacts') || 'Aucun contact'
+
+  // Count configured items
+  const configCount = [
+    contacts.length > 0,                    // contacts
+    true,                                    // fake call (always has defaults)
+    true,                                    // message (push/sms/call always on)
+    communitySettings.receiveAlerts,         // community
+    true,                                    // recording (we count as ready if page loaded)
+    true,                                    // emergency number (auto-detected)
+  ].filter(Boolean).length
+
+  return `
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeSOS()" role="alertdialog" aria-modal="true" aria-labelledby="sos-modal-title" tabindex="0">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
+      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden slide-up flex flex-col" onclick="event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="flex items-center gap-2 px-5 pt-4 pb-3 border-b border-white/5 shrink-0">
+          ${icon('shield-alert', 'w-[18px] h-[18px] text-red-500')}
+          <h2 id="sos-modal-title" class="text-[15px] font-extrabold text-slate-200 flex-1">SOS</h2>
+          <button onclick="closeSOS()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" type="button" aria-label="${t('close') || 'Fermer'}">
+            ${icon('x', 'w-3.5 h-3.5 text-slate-400')}
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-white/[0.06] px-5 shrink-0">
+          <button onclick="sosTab(0)" class="sos-tab flex-1 py-2.5 text-center text-[13px] font-semibold flex items-center justify-center gap-1.5 border-b-2 transition-colors text-amber-500 border-amber-500" data-sos-tab="0" type="button">
+            ${icon('zap', 'w-3.5 h-3.5')} ${t('sosTabAlerts') || 'Alertes'}
+          </button>
+          <button onclick="sosTab(1)" class="sos-tab flex-1 py-2.5 text-center text-[13px] font-semibold flex items-center justify-center gap-1.5 border-b-2 transition-colors text-slate-500 border-transparent" data-sos-tab="1" type="button">
+            ${icon('settings', 'w-3.5 h-3.5')} ${t('sosTabConfig') || 'Configuration'}
+          </button>
+        </div>
+
+        <!-- Tab content (scrollable) -->
+        <div class="flex-1 overflow-y-auto">
+
+          <!-- ═══ TAB 0: ALERTES ═══ -->
+          <div class="sos-panel p-5 space-y-3" data-sos-panel="0">
+
+            <!-- 2x2 grid -->
+            <div class="grid grid-cols-2 gap-2.5">
+              ${_alertTile('phone-incoming', 'amber', t('sosFakeCall') || 'Faux appel', `${fakeCallDelay}s · ${escapeHTML(fakeCallName)}`, 'sosOpenFakeCall()')}
+              ${_alertTile('phone-call', 'emerald', detectedNumber, t('sosEmergencyCall') || 'Appel d\'urgence', `window.open('tel:${detectedNumber}')`)}
+              ${_alertTile('radio', 'blue', t('sosCommunity') || 'Communauté', `${communitySettings.broadcastRadius || 5} km`, 'sosBroadcastCommunity()')}
+              ${_alertTile('mic', 'rose', t('sosRecord') || 'Enregistrer', 'Audio · Vidéo', 'sosShowRecordOptions()')}
+            </div>
+
+            <!-- Record buttons (hidden by default, shown on click) -->
+            <div id="sos-record-panel" class="hidden">
+              <div class="flex gap-2">
+                <button onclick="sosStartRecording('audio')" id="sos-rec-audio-btn" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-semibold" type="button">
+                  ${icon('mic', 'w-4 h-4')} ${t('sosRecordAudio') || 'Audio'}
+                </button>
+                <button onclick="sosStartRecording('video')" id="sos-rec-video-btn" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-semibold" type="button">
+                  ${icon('video', 'w-4 h-4')} ${t('sosRecordVideo') || 'Vidéo'}
+                </button>
+                <button onclick="sosStopRecording()" id="sos-rec-stop-btn" class="hidden items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-semibold" type="button">
+                  ${icon('circle-stop', 'w-4 h-4')}
+                </button>
+              </div>
+              <span id="sos-rec-indicator" class="hidden items-center gap-1 text-xs text-rose-400 font-semibold mt-2">
+                <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse inline-block"></span> REC
+              </span>
+              <div id="sos-rec-result" class="hidden mt-2 text-xs text-slate-400"></div>
+            </div>
+
+            <!-- Big SOS button -->
+            <button onclick="shareSOSLocation()" class="w-full py-3.5 rounded-xl bg-red-500/[0.08] border-[1.5px] border-red-500/20 text-red-300 text-[15px] font-bold flex items-center justify-center gap-2.5 transition-colors active:bg-red-500/[0.15] active:border-red-500" type="button" id="sos-share-btn">
+              ${icon('shield', 'w-5 h-5 text-red-500')}
+              ${state.sosActive ? (t('stopSharing') || 'Arrêter le partage') : (t('sosAlertGuardians') || 'Alerter mes gardiens')}
+            </button>
+            <p class="text-[11px] text-slate-500 text-center leading-relaxed">
+              Push + SMS + appel → <strong class="text-slate-400">${contactNames}</strong> · Position GPS
+            </p>
+
+            <!-- Safe button -->
+            <button onclick="markSafe()" class="w-full py-3 rounded-xl bg-emerald-500 text-white text-[14px] font-bold flex items-center justify-center gap-2 transition-colors active:bg-emerald-600" type="button">
+              ${icon('check-circle', 'w-4.5 h-4.5')}
+              ${t('iAmSafe') || 'Je suis en sécurité'}
+            </button>
+          </div>
+
+          <!-- ═══ TAB 1: CONFIGURATION ═══ -->
+          <div class="sos-panel hidden p-5 space-y-2" data-sos-panel="1">
+
+            <!-- Contacts -->
+            ${_configItem('users', 'amber', t('emergencyContacts') || 'Contacts d\'urgence', contacts.length > 0 ? contactNames : (t('sosNoContacts') || 'Non configuré'), contacts.length > 0, 'sosOpenConfig(\'contacts\')')}
+            <!-- Fake call -->
+            ${_configItem('phone-incoming', 'amber', t('sosFakeCall') || 'Faux appel', `${escapeHTML(fakeCallName)} · ${fakeCallDelay} sec`, true, 'sosOpenConfig(\'fake\')')}
+            <!-- Message -->
+            ${_configItem('shield', 'red', t('sosAlertMessage') || 'Message d\'alerte', 'Push · SMS · Appel', true, 'sosOpenConfig(\'message\')')}
+            <!-- Community -->
+            ${_configItem('radio', 'blue', t('sosCommunity') || 'Communauté', communitySettings.receiveAlerts ? `${communitySettings.broadcastRadius || 5} km` : (t('sosNotConfigured') || 'Non configuré'), communitySettings.receiveAlerts, 'sosOpenConfig(\'community\')')}
+            <!-- Recording -->
+            ${_configItem('mic', 'rose', t('sosRecording') || 'Enregistrement', t('sosMicCamera') || 'Micro et caméra', true, 'sosOpenConfig(\'recording\')')}
+            <!-- Emergency -->
+            ${_configItem('phone-call', 'emerald', t('sosEmergencyCall') || 'Appel d\'urgence', `${detectedNumber} (${t('sosDetected') || 'détecté'})`, true, 'sosOpenConfig(\'emergency\')')}
+
+            <!-- Config progress -->
+            <div class="text-center py-2 px-4 bg-amber-500/[0.04] border border-amber-500/[0.08] rounded-lg mt-2">
+              <div class="text-[13px] font-semibold text-amber-500">${configCount}/6 ${t('sosConfigured') || 'configurés'}</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">${t('sosConfigHint') || 'Appuie sur chaque élément pour le configurer'}</div>
+            </div>
+
+            <!-- Test -->
+            <button onclick="sosOpenConfig('test')" class="w-full mt-2 flex items-center gap-3 p-3 bg-blue-500/[0.04] border border-blue-500/[0.08] rounded-lg transition-colors active:bg-blue-500/[0.08]" type="button">
+              ${icon('play-circle', 'w-4 h-4 text-blue-400 shrink-0')}
+              <div class="text-left">
+                <div class="text-[13px] font-semibold text-blue-300">${t('sosTestSOS') || 'Tester le SOS'}</div>
+                <div class="text-[11px] text-slate-500">${t('sosTestDesc') || 'Envoie une alerte test à un contact'}</div>
+              </div>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CONFIG SIDEBARS (rendered outside modal for z-index) ═══ -->
+    <div id="sos-config-overlay" class="fixed inset-0 z-[60] bg-black/60 hidden" onclick="sosCloseConfig()"></div>
+    <div id="sos-config-panel" class="fixed right-0 top-0 bottom-0 w-[88%] max-w-[345px] bg-dark-primary z-[61] transform translate-x-full transition-transform duration-300 overflow-y-auto hidden">
+      <div id="sos-config-content" class="p-5"></div>
+    </div>
+  `
+}
+
+// ─── Alert tile helper ──────────────────────────────────────────────────────
+function _alertTile(iconName, color, label, sub, onclick) {
+  const colors = {
+    amber: { bg: 'bg-amber-500/10', fg: 'text-amber-500' },
+    emerald: { bg: 'bg-emerald-500/10', fg: 'text-emerald-500' },
+    blue: { bg: 'bg-blue-500/10', fg: 'text-blue-500' },
+    rose: { bg: 'bg-rose-500/10', fg: 'text-rose-500' },
+    red: { bg: 'bg-red-500/10', fg: 'text-red-500' },
+  }
+  const c = colors[color] || colors.amber
+  return `
+    <button onclick="${onclick}" class="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-4 text-center flex flex-col items-center gap-2 transition-all active:scale-95 active:bg-white/[0.08]" type="button">
+      <div class="w-11 h-11 rounded-full ${c.bg} flex items-center justify-center">
+        ${icon(iconName, `w-5 h-5 ${c.fg}`)}
+      </div>
+      <div class="text-[13px] font-semibold text-slate-200">${label}</div>
+      <div class="text-[10px] text-slate-500">${sub}</div>
+    </button>
+  `
+}
+
+// ─── Config checklist item helper ───────────────────────────────────────────
+function _configItem(iconName, color, title, desc, isReady, onclick) {
+  const colors = {
+    amber: 'bg-amber-500/[0.08]', red: 'bg-red-500/[0.08]', blue: 'bg-blue-500/[0.08]',
+    rose: 'bg-rose-500/[0.08]', emerald: 'bg-emerald-500/[0.08]',
+  }
+  const fgColors = {
+    amber: 'text-amber-500', red: 'text-red-500', blue: 'text-blue-500',
+    rose: 'text-rose-500', emerald: 'text-emerald-500',
+  }
+  return `
+    <button onclick="${onclick}" class="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl transition-colors active:bg-white/[0.06]" type="button">
+      <div class="w-9 h-9 rounded-lg ${colors[color] || colors.amber} flex items-center justify-center shrink-0">
+        ${icon(iconName, `w-4 h-4 ${fgColors[color] || fgColors.amber}`)}
+      </div>
+      <div class="flex-1 text-left min-w-0">
+        <div class="text-[13px] font-semibold text-slate-200">${title}</div>
+        <div class="text-[11px] text-slate-500 truncate">${desc}</div>
+      </div>
+      <div class="w-6 h-6 rounded-full ${isReady ? 'bg-emerald-500/[0.12]' : 'bg-red-500/[0.08]'} flex items-center justify-center shrink-0">
+        ${icon(isReady ? 'check' : 'x', `w-3 h-3 ${isReady ? 'text-emerald-500' : 'text-red-500'}`)}
+      </div>
+    </button>
   `
 }
 
@@ -853,8 +626,249 @@ window.markSafe = async () => {
 
 window.acceptSOSDisclaimer = () => {
   localStorage.setItem('spothitch_sos_disclaimer_seen', '1')
-  // Force re-render — setState({showSOS:true}) is a no-op if already true
+  localStorage.setItem('spothitch_sos_intro_seen', '1')
   window._forceRender?.()
+}
+
+// ── v4b: Intro accept ────────────────────────────────────────────────────────
+window.acceptSOSIntro = () => {
+  localStorage.setItem('spothitch_sos_intro_seen', '1')
+  // Also mark old disclaimer as seen for backward compat
+  localStorage.setItem('spothitch_sos_disclaimer_seen', '1')
+  window._forceRender?.()
+}
+
+// ── v4b: Tab switching ───────────────────────────────────────────────────────
+window.sosTab = (index) => {
+  document.querySelectorAll('.sos-tab').forEach((tab, i) => {
+    tab.classList.toggle('text-amber-500', i === index)
+    tab.classList.toggle('border-amber-500', i === index)
+    tab.classList.toggle('text-slate-500', i !== index)
+    tab.classList.toggle('border-transparent', i !== index)
+  })
+  document.querySelectorAll('.sos-panel').forEach((panel, i) => {
+    panel.classList.toggle('hidden', i !== index)
+  })
+}
+
+// ── v4b: Show record options panel ───────────────────────────────────────────
+window.sosShowRecordOptions = () => {
+  const panel = document.getElementById('sos-record-panel')
+  if (panel) panel.classList.toggle('hidden')
+}
+
+// ── v4b: Broadcast community SOS ─────────────────────────────────────────────
+window.sosBroadcastCommunity = async () => {
+  const pos = await _getSOSPosition()
+  if (!pos) {
+    window.showToast?.(t('positionNotAvailable') || 'Position non disponible', 'error')
+    return
+  }
+  LS.savePos(pos.lat, pos.lng)
+  _writeSOSAlertToFirestore(pos, 'community')
+  import('../../services/communityAlert.js').then(({ broadcastCommunitySOSAlert }) => {
+    broadcastCommunitySOSAlert(pos, 'community')
+  }).catch(() => {})
+  window.showToast?.(t('sosCommunityAlertSent') || 'Alerte envoyée à la communauté', 'success')
+}
+
+// ── v4b: Config sidebar ──────────────────────────────────────────────────────
+window.sosOpenConfig = (section) => {
+  const overlay = document.getElementById('sos-config-overlay')
+  const panel = document.getElementById('sos-config-panel')
+  const content = document.getElementById('sos-config-content')
+  if (!overlay || !panel || !content) return
+
+  content.innerHTML = _getConfigContent(section)
+  overlay.classList.remove('hidden')
+  panel.classList.remove('hidden')
+  requestAnimationFrame(() => {
+    panel.style.transform = 'translateX(0)'
+  })
+
+  // Re-init lucide icons in sidebar
+  if (window.lucide?.createIcons) window.lucide.createIcons()
+}
+
+window.sosCloseConfig = () => {
+  const overlay = document.getElementById('sos-config-overlay')
+  const panel = document.getElementById('sos-config-panel')
+  if (!panel || !overlay) return
+  panel.style.transform = 'translateX(100%)'
+  setTimeout(() => {
+    overlay.classList.add('hidden')
+    panel.classList.add('hidden')
+  }, 300)
+}
+
+function _getConfigContent(section) {
+  const { getState } = window
+  const state = getState ? getState() : {}
+  const contacts = state.emergencyContacts || []
+  const primaryIdx = LS.primaryContact()
+  const fakeCallName = localStorage.getItem('spothitch_sos_fake_name') || t('sosFakeCallerName') || 'Maman'
+  const fakeCallDelay = localStorage.getItem('spothitch_sos_fake_delay') || '30'
+  const customMsg = LS.customMsg()
+  const detectedNumber = getCountryEmergencyNumber()
+
+  const backBtn = `<button onclick="sosCloseConfig()" class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-400 mb-4 bg-transparent border-none cursor-pointer p-0">${icon('arrow-left', 'w-4 h-4')} ${t('back') || 'Retour'}</button>`
+  const titleCls = 'text-base font-extrabold text-slate-200 mb-1'
+  const descCls = 'text-[12px] text-slate-500 mb-4 leading-relaxed'
+  const labelCls = 'text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 mt-4'
+
+  switch (section) {
+    case 'contacts':
+      return `${backBtn}
+        <div class="${titleCls}">${t('emergencyContacts') || 'Contacts d\'urgence'}</div>
+        <div class="${descCls}">${t('sosContactsDesc') || 'Contacts SpotHitch (push) et contacts SMS (hors app).'}</div>
+        <div class="${labelCls}">SpotHitch (push)</div>
+        ${contacts.filter(c => c.type === 'app').map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('') || ''}
+        <div class="flex gap-1.5 mt-1.5">
+          <input type="text" id="sos-cfg-app-search" class="input-field flex-1 text-[12px] min-w-0" placeholder="${t('sosSearchUser') || 'Chercher un utilisateur SpotHitch...'}">
+          <button onclick="addEmergencyContact()" class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center shrink-0" type="button">${icon('plus', 'w-3.5 h-3.5 text-dark-primary')}</button>
+        </div>
+        <div class="${labelCls}">SMS (${t('sosExternalContacts') || 'hors app'})</div>
+        ${contacts.filter(c => c.type !== 'app').map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('') || contacts.map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('')}
+        <div class="flex gap-1.5 mt-1.5">
+          <input type="text" id="emergency-name" class="input-field flex-1 text-[12px] min-w-0" placeholder="${t('contactName') || 'Nom'}">
+          <input type="tel" id="emergency-phone" class="input-field flex-1 text-[12px] min-w-0" placeholder="${t('phonePlaceholder') || 'Téléphone'}">
+          <button onclick="addEmergencyContact()" class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center shrink-0" type="button">${icon('plus', 'w-3.5 h-3.5 text-dark-primary')}</button>
+        </div>
+        <div class="${labelCls}">${t('sosPrimaryContact') || 'Contact principal'} (${t('sosCalledFirst') || 'appelé en premier'})</div>
+        <div class="flex gap-1.5 flex-wrap">
+          ${contacts.map((c, i) => `<button onclick="sosSetPrimaryContact(${i});sosOpenConfig('contacts')" class="px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${i === primaryIdx ? 'bg-amber-500/[0.12] border-amber-500/30 text-amber-500' : 'bg-white/[0.04] border-white/[0.06] text-slate-400'}" type="button">${escapeHTML(c.name)}</button>`).join('') || `<span class="text-[12px] text-slate-500">${t('sosNoContacts') || 'Aucun contact'}</span>`}
+        </div>`
+
+    case 'fake':
+      return `${backBtn}
+        <div class="${titleCls}">${t('sosFakeCall') || 'Faux appel'}</div>
+        <div class="${descCls}">${t('sosFakeCallConfigDesc') || 'Simule un appel entrant crédible pour avoir un prétexte de partir.'}</div>
+        <div class="${labelCls}">${t('sosDisplayName') || 'Nom affiché'}</div>
+        <input class="input-field w-full text-[13px]" value="${escapeHTML(fakeCallName)}" oninput="localStorage.setItem('spothitch_sos_fake_name',this.value)">
+        <div class="${labelCls}">${t('sosDelay') || 'Délai'}</div>
+        <div class="flex gap-1.5 flex-wrap">
+          ${['0', '30', '60', '120', '300'].map(d => {
+    const labels = { '0': t('sosDirect') || 'Direct', '30': '30 sec', '60': '1 min', '120': '2 min', '300': '5 min' }
+    return `<button onclick="localStorage.setItem('spothitch_sos_fake_delay','${d}');sosOpenConfig('fake')" class="px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${fakeCallDelay === d ? 'bg-amber-500/[0.12] border-amber-500/30 text-amber-500' : 'bg-white/[0.04] border-white/[0.06] text-slate-400'}" type="button">${labels[d]}</button>`
+  }).join('')}
+        </div>
+        <div class="${labelCls}">${t('sosSound') || 'Son'}</div>
+        <div class="flex items-center justify-between py-2">
+          <span class="text-[13px] flex items-center gap-1.5">${icon('volume-2', 'w-3 h-3 text-amber-500')} ${t('sosForceSoundVibration') || 'Forcer son + vibration'}</span>
+          <div class="w-9 h-5 rounded-full bg-amber-500 relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] right-[3px]"></span></div>
+        </div>
+        <p class="text-[11px] text-slate-500 leading-relaxed mt-1">${t('sosSoundHint') || 'La vibration marche même en silencieux. Le son dépend des réglages du téléphone.'}</p>
+        <div class="mt-4 p-3 bg-emerald-500/[0.04] border border-emerald-500/[0.08] rounded-lg">
+          <div class="text-[13px] font-bold text-emerald-400 flex items-center gap-1.5 mb-1">${icon('play-circle', 'w-3.5 h-3.5')} ${t('sosTest') || 'Tester'}</div>
+          <div class="text-[11px] text-slate-500 mb-2">${t('sosFakeCallTestDesc') || 'Lance un faux appel pour voir le résultat.'}</div>
+          <button onclick="sosOpenFakeCall();sosCloseConfig()" class="w-full py-2 bg-emerald-500/10 border border-emerald-500/15 rounded-lg text-emerald-400 text-[12px] font-semibold flex items-center justify-center gap-1.5" type="button">${icon('phone-incoming', 'w-3.5 h-3.5')} ${t('sosLaunchTest') || 'Lancer un test'}</button>
+        </div>`
+
+    case 'message':
+      return `${backBtn}
+        <div class="${titleCls}">${t('sosAlertMessage') || 'Message d\'alerte'}</div>
+        <div class="${descCls}">${t('sosMessageConfigDesc') || 'Ce message est envoyé avec ta position GPS quand tu appuies sur "Alerter".'}</div>
+        <div class="${labelCls}">${t('sosYourMessage') || 'Ton message'}</div>
+        <textarea id="sos-custom-msg" class="input-field w-full text-[13px] resize-none h-20" maxlength="200" placeholder="${t('sosCustomMsgPlaceholder') || 'Ex: Je suis en autostop et j\'ai besoin d\'aide...'}" oninput="sosUpdateCustomMsg(this.value)">${escapeHTML(customMsg)}</textarea>
+        <p class="text-[11px] text-slate-500 mt-1">${t('sosMaxChars') || '200 caractères max. Position GPS toujours jointe.'}</p>
+        <div class="${labelCls}">${t('sosChannels') || 'Canaux'}</div>
+        <div class="space-y-1">
+          <div class="flex items-center justify-between py-2"><span class="text-[13px] flex items-center gap-1.5">${icon('bell', 'w-3 h-3 text-amber-500')} Push (SpotHitch)</span><div class="w-9 h-5 rounded-full bg-amber-500 relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] right-[3px]"></span></div></div>
+          <div class="flex items-center justify-between py-2"><span class="text-[13px] flex items-center gap-1.5">${icon('message-circle', 'w-3 h-3 text-amber-500')} SMS</span><div class="w-9 h-5 rounded-full bg-amber-500 relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] right-[3px]"></span></div></div>
+          <div class="flex items-center justify-between py-2"><span class="text-[13px] flex items-center gap-1.5">${icon('phone', 'w-3 h-3 text-amber-500')} ${t('sosCallPrimary') || 'Appel au principal'}</span><div class="w-9 h-5 rounded-full bg-amber-500 relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] right-[3px]"></span></div></div>
+        </div>
+        <div class="mt-4 p-3 bg-emerald-500/[0.04] border border-emerald-500/[0.08] rounded-lg">
+          <div class="text-[13px] font-bold text-emerald-400 flex items-center gap-1.5 mb-1">${icon('play-circle', 'w-3.5 h-3.5')} ${t('sosTestAlert') || 'Tester l\'alerte'}</div>
+          <div class="text-[11px] text-slate-500 mb-2">${t('sosTestAlertDesc') || 'Envoie un test à un contact.'}</div>
+          <button onclick="sosOpenConfig('test')" class="w-full py-2 bg-emerald-500/10 border border-emerald-500/15 rounded-lg text-emerald-400 text-[12px] font-semibold flex items-center justify-center gap-1.5" type="button">${icon('send', 'w-3.5 h-3.5')} Test → ${contacts[0] ? escapeHTML(contacts[0].name) : '...'}</button>
+        </div>`
+
+    case 'community':
+      return `${backBtn}
+        <div class="${titleCls}">${t('sosCommunity') || 'Communauté'}</div>
+        <div class="${descCls}">${t('sosCommunityConfigDesc') || 'Les autostoppeurs SpotHitch proches reçoivent ta position quand tu actives le SOS.'}</div>
+        <div class="flex items-center justify-between py-2"><span class="text-[13px] flex items-center gap-1.5">${icon('radio', 'w-3 h-3 text-blue-500')} ${t('sosSendToCommunity') || 'Envoyer à la communauté'}</span><div onclick="toggleCommunityAlerts()" class="w-9 h-5 rounded-full ${getCommunityAlertSettings().receiveAlerts ? 'bg-amber-500' : 'bg-white/10'} relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] ${getCommunityAlertSettings().receiveAlerts ? 'right-[3px]' : 'left-[3px]'}"></span></div></div>
+        <div class="${labelCls}">${t('sosRadius') || 'Rayon'}</div>
+        <div class="flex gap-1.5 flex-wrap">
+          ${[5, 10, 25, 50].map(r => `<button onclick="setCommunityRadius('broadcastRadius',${r});sosOpenConfig('community')" class="px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${(getCommunityAlertSettings().broadcastRadius || 10) === r ? 'bg-amber-500/[0.12] border-amber-500/30 text-amber-500' : 'bg-white/[0.04] border-white/[0.06] text-slate-400'}" type="button">${r} km</button>`).join('')}
+        </div>
+        <div class="mt-4 p-3 bg-blue-500/[0.04] border border-blue-500/[0.08] rounded-lg">
+          <div class="flex items-center justify-between py-1"><span class="text-[13px] flex items-center gap-1.5">${icon('heart', 'w-3 h-3 text-blue-400')} ${t('sosReceiveAlerts') || 'Recevoir les alertes des autres'}</span><div onclick="toggleCommunityAlerts()" class="w-9 h-5 rounded-full ${getCommunityAlertSettings().receiveAlerts ? 'bg-amber-500' : 'bg-white/10'} relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] ${getCommunityAlertSettings().receiveAlerts ? 'right-[3px]' : 'left-[3px]'}"></span></div></div>
+          <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">${t('sosReceiveAlertsHint') || 'Sois notifié si un autostoppeur proche a besoin d\'aide.'}</p>
+        </div>`
+
+    case 'recording':
+      return `${backBtn}
+        <div class="${titleCls}">${t('sosRecording') || 'Enregistrement'}</div>
+        <div class="${descCls}">${t('sosRecordingConfigDesc') || 'Autorise le micro et la caméra maintenant. En urgence, tu n\'auras pas le temps.'}</div>
+        <button onclick="sosStartRecording('audio');sosStopRecording()" class="w-full flex items-center gap-3 p-3 bg-white/[0.04] border border-white/[0.06] rounded-lg mb-1.5" type="button">
+          ${icon('mic', 'w-3.5 h-3.5 text-rose-400')}
+          <span class="flex-1 text-[13px]">${t('sosMicrophone') || 'Microphone'}</span>
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/[0.12] text-amber-500">${t('sosAuthorize') || 'Autoriser'}</span>
+        </button>
+        <button onclick="sosStartRecording('video');sosStopRecording()" class="w-full flex items-center gap-3 p-3 bg-white/[0.04] border border-white/[0.06] rounded-lg mb-1.5" type="button">
+          ${icon('video', 'w-3.5 h-3.5 text-rose-400')}
+          <span class="flex-1 text-[13px]">${t('sosCamera') || 'Caméra'}</span>
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/[0.12] text-amber-500">${t('sosAuthorize') || 'Autoriser'}</span>
+        </button>
+        <div class="${labelCls}">${t('sosMaxDuration') || 'Durée max'}</div>
+        <div class="flex gap-1.5 flex-wrap">
+          ${['2', '5', '10', '30'].map(d => `<button class="px-3 py-1.5 rounded-full text-[12px] font-medium border ${d === '5' ? 'bg-amber-500/[0.12] border-amber-500/30 text-amber-500' : 'bg-white/[0.04] border-white/[0.06] text-slate-400'}" type="button">${d} min</button>`).join('')}
+        </div>`
+
+    case 'emergency':
+      return `${backBtn}
+        <div class="${titleCls}">${t('sosEmergencyCall') || 'Appel d\'urgence'}</div>
+        <div class="${descCls}">${t('sosEmergencyConfigDesc') || 'Détecté automatiquement selon ton pays.'}</div>
+        <div class="flex items-center gap-3 p-3 bg-emerald-500/[0.06] border border-emerald-500/10 rounded-lg">
+          ${icon('phone-call', 'w-5 h-5 text-emerald-500')}
+          <div><div class="text-xl font-extrabold">${detectedNumber}</div><div class="text-[11px] text-slate-500">Europe (${t('sosAutoDetected') || 'détecté automatiquement'})</div></div>
+        </div>
+        <div class="${labelCls}" style="margin-top:1rem">${t('sosOtherNumbers') || 'Autres numéros'}</div>
+        <div class="flex gap-1.5 flex-wrap">
+          <a href="tel:911" class="px-3 py-1.5 rounded-full text-[12px] font-medium bg-white/[0.04] border border-white/[0.06] text-slate-400 no-underline">911 USA</a>
+          <a href="tel:000" class="px-3 py-1.5 rounded-full text-[12px] font-medium bg-white/[0.04] border border-white/[0.06] text-slate-400 no-underline">000 AUS</a>
+          <a href="tel:111" class="px-3 py-1.5 rounded-full text-[12px] font-medium bg-white/[0.04] border border-white/[0.06] text-slate-400 no-underline">111 NZ</a>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-3 leading-relaxed">${t('sosNumberChanges') || 'Le numéro change automatiquement quand tu voyages dans un autre pays.'}</p>`
+
+    case 'test':
+      return `${backBtn}
+        <div class="${titleCls}">${t('sosTestSOS') || 'Tester le SOS'}</div>
+        <div class="${descCls}">${t('sosTestSOSDesc') || 'Envoie une alerte test. Le message indiquera clairement que c\'est un test.'}</div>
+        <div class="${labelCls}">${t('sosChooseContact') || 'Choisir un contact'}</div>
+        ${contacts.map((c) => `
+          <button onclick="this.style.borderColor='#f59e0b'" class="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/[0.06] rounded-lg mb-1.5 transition-colors" type="button">
+            <div class="w-7 h-7 rounded-full ${c.type === 'app' ? 'bg-gradient-to-br from-amber-500 to-amber-700' : 'bg-gradient-to-br from-blue-500 to-blue-700'} flex items-center justify-center text-[10px] font-bold text-white shrink-0">${escapeHTML(c.name.substring(0, 2).toUpperCase())}</div>
+            <div class="flex-1 text-left"><div class="text-[13px] font-semibold">${escapeHTML(c.name)}</div><div class="text-[11px] text-slate-500">${c.type === 'app' ? 'Push' : 'SMS'}</div></div>
+          </button>
+        `).join('') || `<p class="text-[12px] text-slate-500">${t('sosNoContacts') || 'Aucun contact'}</p>`}
+        <div class="${labelCls}" style="margin-top:1rem">${t('sosTestPreview') || 'Aperçu'}</div>
+        <div class="p-3 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[12px] text-slate-400 leading-relaxed">
+          <strong class="text-amber-500">[TEST]</strong> ${t('sosTestMessage') || 'Ceci est un test du SOS SpotHitch. Aucune urgence.'}
+        </div>
+        <button class="w-full mt-3 py-2.5 bg-emerald-500/10 border border-emerald-500/15 rounded-lg text-emerald-400 text-[13px] font-semibold flex items-center justify-center gap-2" type="button">
+          ${icon('send', 'w-3.5 h-3.5')} ${t('sosSendTest') || 'Envoyer le test'}
+        </button>
+        <p class="text-[11px] text-slate-500 text-center mt-2">${t('sosTestClarification') || 'Le contact recevra un message clairement identifié comme test.'}</p>`
+
+    default:
+      return `${backBtn}<p class="text-slate-500">Section inconnue</p>`
+  }
+}
+
+function _renderConfigContact(contact, index, primaryIdx) {
+  return `
+    <div class="flex items-center gap-2.5 py-2 px-2 bg-white/[0.02] rounded-lg mb-1">
+      <div class="w-7 h-7 rounded-full ${contact.type === 'app' ? 'bg-gradient-to-br from-amber-500 to-amber-700' : 'bg-gradient-to-br from-blue-500 to-blue-700'} flex items-center justify-center text-[10px] font-bold text-white shrink-0">${escapeHTML(contact.name.substring(0, 2).toUpperCase())}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[12px] font-semibold text-slate-200 truncate">${escapeHTML(contact.name)}</div>
+        <div class="text-[10px] text-slate-500 truncate">${escapeHTML(contact.phone || contact.username || '')}</div>
+      </div>
+      ${index === primaryIdx ? `<span class="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-500/[0.12] text-emerald-500 shrink-0">${t('sosPrimaryContact') || 'Principal'}</span>` : ''}
+      <button onclick="removeEmergencyContact(${index})" class="w-6 h-6 flex items-center justify-center shrink-0" type="button">${icon('trash-2', 'w-3 h-3 text-slate-500')}</button>
+    </div>
+  `
 }
 
 window.sendSOSTemplate = async (type) => {

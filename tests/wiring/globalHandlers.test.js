@@ -33,6 +33,8 @@ const MAIN_JS_HANDLERS = [
   'sosSetPrimaryContact',
   'sosOpenFakeCall', 'sosFakeCallAnswer', 'sosFakeCallDecline',
   'sosStartRecording', 'sosStopRecording',
+  'acceptSOSIntro', 'sosTab', 'sosShowRecordOptions', 'sosBroadcastCommunity',
+  'sosOpenConfig', 'sosCloseConfig',
   // Auth
   'openAuth', 'closeAuth', 'setAuthMode',
   'handleGoogleSignIn', 'handleFacebookSignIn', 'handleAppleSignIn',
