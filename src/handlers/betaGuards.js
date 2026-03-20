@@ -103,9 +103,11 @@
 
   // — ÉVÉNEMENTS (beta) — intercept setSocialTab('evenements')
   const _origSetSocialTab = window.setSocialTab
-  if (!window.setSocialTab) window.setSocialTab = (tab, ...args) => {
-    if (tab === 'evenements') return window.showFeatureIntro?.('evenements')
-    return _origSetSocialTab?.(tab, ...args)
+  if (!window.setSocialTab) {
+    window.setSocialTab = (tab, ...args) => {
+      if (tab === 'evenements') return window.showFeatureIntro?.('evenements')
+      return _origSetSocialTab?.(tab, ...args)
+    }
   }
 
   // — VÉRIFICATION IDENTITÉ (beta) —

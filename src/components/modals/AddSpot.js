@@ -1951,7 +1951,6 @@ window.closeSpotSummary = () => {
 
 // Handler: check Street View availability during spot creation
 window.checkStreetViewForNewSpot = (lat, lng) => {
-  const { openStreetView } = window._streetViewModule || {}
   // Open Street View so user can check manually
   const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0`
   window.open(url, '_blank', 'noopener,noreferrer')
@@ -2189,7 +2188,9 @@ window.handleAddSpot = async (event) => {
         locationName: null, roadNumber: null, positionSource: null,
         method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
         rideResult: null, stationName: '', extraDestinations: [],
-        experienceYear: new Date().getFullYear(), experienceMonth: new Date().getMonth() + 1, experienceDay: new Date().getDate(), _expCustom: false,
+        experienceYear: new Date().getFullYear(),
+        experienceMonth: new Date().getMonth() + 1,
+        experienceDay: new Date().getDate(), _expCustom: false,
       }
       return
     }

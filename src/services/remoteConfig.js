@@ -48,7 +48,7 @@ export async function initRemoteConfig() {
   if (_initialized) return
 
   try {
-    const { getRemoteConfig, fetchAndActivate, getValue } = await import('firebase/remote-config')
+    const { getRemoteConfig, fetchAndActivate } = await import('firebase/remote-config')
     const { getApp } = await import('firebase/app')
 
     _remoteConfig = getRemoteConfig(getApp())

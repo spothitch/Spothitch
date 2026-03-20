@@ -92,22 +92,12 @@ export function renderSpotDetail(state) {
     if (c.method) allMethods.push(c.method)
     if (c.groupSize) allGroups.push(c.groupSize)
   }
-  const mostCommon = (arr) => {
-    if (arr.length === 0) return null
-    const counts = {}
-    arr.forEach(v => { counts[v] = (counts[v] || 0) + 1 })
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k]) => k)
-  }
   // Also aggregate timeOfDay
   const allTimes = []
   if (spot.timeOfDay) allTimes.push(spot.timeOfDay)
   for (const c of (spot.liveComments || [])) {
     if (c.timeOfDay) allTimes.push(c.timeOfDay)
   }
-  const topMethods = mostCommon(allMethods)
-  const topGroups = mostCommon(allGroups)
-  const topTimes = mostCommon(allTimes)
-
   const timeLabels = {
     dawn: t('timeDawn') || 'Aube',
     morning: t('timeMorning') || 'Matin',

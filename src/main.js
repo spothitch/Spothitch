@@ -123,7 +123,7 @@ window.addEventListener('error', (e) => {
       || window.location.search.includes('action=share')
       || sessionStorage.getItem('spothitch_share_flow')
     // Guarded reload: only reload if NOT in share flow (visibilityState irrelevant for cache recovery)
-    const safeReload = () => { if (!isShareFlow) window.location.reload() } // eslint-disable-line no-unused-vars
+    const safeReload = () => { if (!isShareFlow) window.location.reload() }
     if (window.caches) {
       caches.keys().then(keys =>
         Promise.all(keys.map(k => caches.delete(k)))
@@ -485,25 +485,6 @@ async function init() {
         // Preload, cleanup, monitoring
         try { preloadOnIdle() } catch (e) { /* optional */ }
         try { cleanupOldData() } catch (e) { /* optional */ }
-        // Purge stale IDB + SW spot caches
-        try {
-          if (!localStorage.getItem('spothitch_hw_purged_v2')) {
-            import('./utils/idb.js').then(async ({ clear }) => {
-              await clear('spots')
-              localStorage.setItem('spothitch_hw_purged_v2', '1')
-              if (typeof caches !== 'undefined') {
-                const keys = await caches.keys()
-                for (const key of keys) {
-                  const cache = await caches.open(key)
-                  const requests = await cache.keys()
-                  for (const req of requests) {
-                    if (req.url.includes('/data/spots/')) await cache.delete(req)
-                  }
-                }
-              }
-            }).catch(() => {})
-          }
-        } catch { /* optional */ }
         try { initWebVitals() } catch (e) { /* optional */ }
         try { initWasm() } catch (e) { /* optional */ }
         try { initHoverPrefetch() } catch (e) { /* optional */ }
@@ -1486,7 +1467,9 @@ if (!window.openAdminPanel) window.openAdminPanel = () => setState({ showAdminPa
 if (!window.openMyData) window.openMyData = () => setState({ showMyData: true })
 // openConsentSettings — canonical in MyData.js, rendered inside that modal
 // openTestSpot/openValidateSpot defined in spotActions.js — stubs open AddSpot in validation mode
-if (!window.openTestSpot) window.openTestSpot = (id) => setState({ showAddSpot: true, addSpotStep: 1, addSpotValidateId: id })
+if (!window.openTestSpot) {
+  window.openTestSpot = (id) => setState({ showAddSpot: true, addSpotStep: 1, addSpotValidateId: id })
+}
 if (!window.openValidateSpot) window.openValidateSpot = window.openTestSpot
 if (!window.openSpotDraft) window.openSpotDraft = (id) => setState({ showAddSpot: true, editDraftId: id })
 if (!window.openFeedbackDetail) {

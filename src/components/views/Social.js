@@ -11,7 +11,7 @@ import { renderSearchInput } from '../../utils/searchInput.js'
 // renderToggle removed — proximity radar is now "coming soon"
 import { escapeHTML } from '../../utils/sanitize.js'
 import { renderCustomSelect } from '../../utils/customSelect.js'
-import { formatTime, formatRelativeTime, formatEventDate } from '../../utils/formatters.js'
+import { formatRelativeTime, formatEventDate } from '../../utils/formatters.js'
 import { renderConversations } from './social/Conversations.js'
 import { renderSkeletonChatList } from '../ui/Skeleton.js'
 import { getConversationsList } from '../../services/directMessages.js'

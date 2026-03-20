@@ -4956,4 +4956,16 @@ export default {
   asia: 'Asien',
   africa: 'Afrika',
   oceania: 'Ozeanien',
+
+  // Companion & SOS
+  companionWarning: 'Check-in bald',
+  companionOverdueLabel: 'Überfällig',
+  tripStarted: 'Reise gestartet',
+  companionCheckInNow: 'Jetzt einchecken',
+  sosActiveActions: 'Aktive Aktionen',
+  sosActives: 'aktiv',
+  sosActiveOne: 'aktiv',
+  sosActiveStatus: 'Läuft',
+  sosPositionSharing: 'Standortfreigabe',
+  sosCombineNote: 'Du kannst mehrere Aktionen kombinieren. Zum Beispiel einen Fake-Anruf starten und dann den stillen Alarm aktivieren.',
 }

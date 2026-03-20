@@ -6,14 +6,14 @@
  */
 
 let _analytics = null
-let _performance = null
+let _performance = null // eslint-disable-line no-unused-vars
 
 /**
  * Initialize Firebase Analytics (call after cookie consent)
  */
 export async function initFirebaseAnalytics() {
   try {
-    const { getAnalytics, logEvent, setUserId } = await import('firebase/analytics')
+    const { getAnalytics, setUserId } = await import('firebase/analytics')
     const { getApp } = await import('firebase/app')
     _analytics = getAnalytics(getApp())
 

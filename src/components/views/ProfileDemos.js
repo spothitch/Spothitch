@@ -43,8 +43,6 @@ const _c = {
   stat: 'bg-dark-secondary rounded-lg p-2 text-center',
 }
 const _cIntro = 'px-5 py-7'
-const _cBtn = 'bg-gradient-to-br from-amber-300 to-amber-600'
-
 // Overlay needs inline style for background and backdrop-filter (not standard Tailwind)
 const _overlayStyle = 'background:rgba(0,0,0,0.85);backdrop-filter:blur(8px)'
 const _btnStyle = 'background:linear-gradient(135deg,#fbbf24,#d97706)'

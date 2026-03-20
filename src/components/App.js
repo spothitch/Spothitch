@@ -259,7 +259,9 @@ function renderOfflinePanel(state) {
   const top3 = [...allAvailable].sort((a, b) => (spotCounts[b] || 0) - (spotCounts[a] || 0)).slice(0, 3)
   const top3Set = new Set(top3)
   // Rest sorted alphabetically by localized name
-  const restCountries = allAvailable.filter(c => !top3Set.has(c)).sort((a, b) => countryName(a).localeCompare(countryName(b), lang))
+  const restCountries = allAvailable
+    .filter(c => !top3Set.has(c))
+    .sort((a, b) => countryName(a).localeCompare(countryName(b), lang))
 
   // Estimate total size: spots JSON (~0.5 KB/spot) + map tiles (~1.5 MB base) + stations
   const getSpotCount = (code) => spotCounts[code] || 0
@@ -862,8 +864,6 @@ function initHomeMap(state) {
         { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
       )
     }
-
-    let activePopup = null
 
     // Track which spot IDs are already added to avoid duplicates
     const addedSpotIds = new Set()

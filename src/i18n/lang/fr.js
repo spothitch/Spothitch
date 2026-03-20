@@ -4902,4 +4902,16 @@ export default {
   asia: 'Asie',
   africa: 'Afrique',
   oceania: 'Océanie',
+
+  // Companion & SOS
+  companionWarning: 'Check-in bientôt',
+  companionOverdueLabel: 'En retard',
+  tripStarted: 'Voyage démarré',
+  companionCheckInNow: 'Check-in maintenant',
+  sosActiveActions: 'Actions actives',
+  sosActives: 'actives',
+  sosActiveOne: 'active',
+  sosActiveStatus: 'En cours',
+  sosPositionSharing: 'Partage de position',
+  sosCombineNote: 'Vous pouvez combiner plusieurs actions. Par exemple, lancer un faux appel puis activer l\'alerte silencieuse.',
 }

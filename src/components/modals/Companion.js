@@ -394,11 +394,6 @@ function renderActiveView(companion) {
   // Positions array
   const positions = companion.positions || []
 
-  // Timer circle progress (0 to 1)
-  const totalSeconds = companion.checkInInterval * 60
-  const elapsed = totalSeconds - secondsRemaining
-  const progress = overdue ? 1 : Math.min(elapsed / totalSeconds, 1)
-
   // ETA
   const etaInfo = getETAInfo(companion)
 
@@ -609,39 +604,6 @@ function renderActiveView(companion) {
 }
 
 /**
- * GPS breadcrumb timeline — last 10 positions (#24)
- */
-function renderBreadcrumbTimeline(positions) {
-  const lang = getState().lang || 'fr'
-  const trail = positions.slice(-10).reverse() // newest first
-
-  return `
-    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-      <div class="flex items-center gap-2 mb-3">
-        ${icon('route', 'w-4 h-4 text-emerald-400')}
-        <span class="text-sm font-medium text-slate-300">${t('breadcrumbTrail') || 'GPS trail'}</span>
-        <span class="text-xs text-slate-500 ml-auto">${positions.length} ${t('positions') || 'positions'}</span>
-      </div>
-      <div class="space-y-2 max-h-40 overflow-y-auto">
-        ${trail.map((pos, i) => `
-          <div class="flex items-center gap-3 ${i === 0 ? 'opacity-100' : 'opacity-60'}">
-            <div class="flex-shrink-0 w-2 h-2 rounded-full ${i === 0 ? 'bg-emerald-400' : 'bg-slate-500'}"></div>
-            <div class="flex-1 min-w-0">
-              <span class="text-xs text-slate-400 font-mono">
-                ${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}
-              </span>
-            </div>
-            <span class="text-xs text-slate-500 flex-shrink-0">
-              ${new Date(pos.timestamp).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `
-}
-
-/**
  * Trip history section (#31)
  */
 function renderTripHistory(history) {
@@ -703,7 +665,9 @@ function renderTripHistory(history) {
  * V7 design: SOS pulsing circle + timeline + action buttons
  */
 function renderAlertOverlay(companion) {
-  const contactsCount = 1 + (Array.isArray(companion.trustedContacts) ? companion.trustedContacts.filter(c => c?.phone).length : 0)
+  const extraContacts = Array.isArray(companion.trustedContacts)
+    ? companion.trustedContacts.filter(c => c?.phone).length : 0
+  const contactsCount = 1 + extraContacts
 
   return `
     <div class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-red-900/95 backdrop-blur-xl"
