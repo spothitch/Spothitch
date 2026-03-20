@@ -50,6 +50,9 @@ exports.checkSOSTimers = checkSOSTimers
 const { onSOSAlert } = require('./sos/onSOSAlert')
 exports.onSOSAlert = onSOSAlert
 
+// ==================== BRIQUE 6 — Telegram webhook for reports ====================
+const { onNewReport } = require('./notifications/telegramWebhook')
+exports.onNewReport = onNewReport
+
 // ==================== FUTURE BRIQUES ====================
-// Brique 6: exports.onReportCreated = require('./moderation/onReport')
 // Brique 7: exports.dailyCleanup = require('./scheduled/cleanup')

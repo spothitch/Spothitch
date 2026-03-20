@@ -325,6 +325,10 @@ async function init() {
         try {
           const fb = await getFirebase()
           const firebaseOk = fb.initializeFirebase()
+
+          // Initialize Remote Config (non-blocking, uses defaults if fails)
+          import('./services/remoteConfig.js').then(rc => rc.initRemoteConfig()).catch(() => {})
+
           if (!firebaseOk) {
             // Show a visible banner when Firebase fails to initialize
             const banner = document.createElement('div')
