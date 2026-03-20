@@ -626,6 +626,9 @@ window.shareSOSLocation = async () => {
   actions.toggleSOS()
   actions.setUserLocation({ lat: pos.lat, lng: pos.lng })
 
+  // Write SOS alert to Firestore → triggers Cloud Function → push notifs to guardians
+  _writeSOSAlertToFirestore(pos, 'alert')
+
   // Fire triple alert: push + SMS + call — all in parallel
   _fireTripleAlert(pos.lat, pos.lng, state.emergencyContacts)
 }
@@ -659,6 +662,55 @@ async function _getSOSPosition() {
       { enableHighAccuracy: true, timeout: 10000 }
     )
   })
+}
+
+/**
+ * Write SOS alert to Firestore to trigger server-side Cloud Function.
+ * The Cloud Function sends push notifications to all guardians.
+ */
+async function _writeSOSAlertToFirestore(pos, type) {
+  try {
+    const { db, getCurrentUser } = await import('../../services/firebase.js')
+    const { addDoc, collection, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return
+
+    // Get guardian IDs from companion state or friends
+    const companionRaw = localStorage.getItem('spothitch_companion')
+    let guardianIds = []
+    if (companionRaw) {
+      try {
+        const companion = JSON.parse(companionRaw)
+        guardianIds = (companion.trustedContacts || [])
+          .map(c => c.userId || c.uid)
+          .filter(Boolean)
+      } catch { /* ignore */ }
+    }
+
+    // Also check friends list as fallback
+    if (guardianIds.length === 0) {
+      const { getState } = await import('../../stores/state.js')
+      const state = getState()
+      guardianIds = (state.friends || []).slice(0, 5).map(f => f.id || f.uid).filter(Boolean)
+    }
+
+    if (guardianIds.length === 0) {
+      console.warn('[SOS] No guardian IDs available for server-side alert')
+      return
+    }
+
+    await addDoc(collection(db, 'sosAlerts'), {
+      userId: user.uid,
+      userName: user.displayName || 'Voyageur',
+      guardianIds,
+      position: pos ? { lat: pos.lat, lng: pos.lng } : null,
+      type,
+      createdAt: serverTimestamp(),
+    })
+    console.log(`[SOS] Alert written to Firestore (${type}), ${guardianIds.length} guardian(s)`)
+  } catch (err) {
+    console.warn('[SOS] Failed to write alert to Firestore:', err.message)
+  }
 }
 
 /**
@@ -833,9 +885,14 @@ window.sendSOSTemplate = async (type) => {
 // ── New handlers ─────────────────────────────────────────────────────────────
 
 // Silent alarm toggle
-window.sosToggleSilent = () => {
+window.sosToggleSilent = async () => {
   const current = LS.silent()
   localStorage.setItem('spothitch_sos_silent', current ? '0' : '1')
+  // If activating silent mode, send silent alert to guardians via Cloud Function
+  if (!current) {
+    const pos = await _getSOSPosition()
+    if (pos) _writeSOSAlertToFirestore(pos, 'silent')
+  }
   window.setState?.({})
 }
 

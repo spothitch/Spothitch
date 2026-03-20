@@ -43,7 +43,13 @@ exports.onNewReview = onNewReview
 const { onFriendRequest } = require('./notifications/onFriendRequest')
 exports.onFriendRequest = onFriendRequest
 
+// ==================== BRIQUE 5 — SOS Server-side ====================
+const { checkSOSTimers } = require('./sos/checkTimers')
+exports.checkSOSTimers = checkSOSTimers
+
+const { onSOSAlert } = require('./sos/onSOSAlert')
+exports.onSOSAlert = onSOSAlert
+
 // ==================== FUTURE BRIQUES ====================
-// Brique 5: exports.onTripStart = require('./sos/onTripStart')
 // Brique 6: exports.onReportCreated = require('./moderation/onReport')
 // Brique 7: exports.dailyCleanup = require('./scheduled/cleanup')

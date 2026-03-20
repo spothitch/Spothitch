@@ -41,7 +41,7 @@ async function syncSOSTimerToFirestore(action, data = {}) {
         userId: user.uid,
         userName: user.displayName || 'Voyageur',
         guardianName: data.guardianName || '',
-        guardianId: data.guardianId || '',
+        guardianIds: data.guardianIds || [],
         checkInIntervalMinutes: data.interval || 30,
         lastCheckIn: serverTimestamp(),
         tripStart: serverTimestamp(),
@@ -513,8 +513,13 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
   startBatteryMonitor()
 
   // Sync to Firestore for server-side monitoring (Brique 5)
+  // Collect guardian user IDs from friends list for push notifications
+  const guardianIds = (options.trustedContacts || [])
+    .map(c => c.userId || c.uid)
+    .filter(Boolean)
   syncSOSTimerToFirestore('start', {
     guardianName: guardian.name,
+    guardianIds,
     interval,
     destination: options.destination,
   })

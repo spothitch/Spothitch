@@ -266,5 +266,22 @@ service cloud.firestore {
       allow read, write: if request.auth != null
         && request.auth.uid == userId;
     }
+
+    // SOS Timers — companion mode server-side monitoring
+    match /sosTimers/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId;
+      allow delete: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    // SOS Alerts — emergency alerts triggering push notifications
+    match /sosAlerts/{alertId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
   }
 }
