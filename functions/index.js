@@ -54,6 +54,15 @@ const { checkAutoBan, onSpotHidden } = require('./moderation/autoBan')
 exports.checkAutoBan = checkAutoBan
 exports.onSpotHidden = onSpotHidden
 
+// ==================== Trust Score + Badges (server-side) ====================
+const { updateTrustOnSpot, updateTrustOnReport } = require('./moderation/trustScore')
+exports.updateTrustOnSpot = updateTrustOnSpot
+exports.updateTrustOnReport = updateTrustOnReport
+
+const { checkBadgesOnSpot, checkBadgesOnReport } = require('./moderation/badges')
+exports.checkBadgesOnSpot = checkBadgesOnSpot
+exports.checkBadgesOnReport = checkBadgesOnReport
+
 // ==================== BRIQUE 7 — Scheduled cleanup ====================
 const { dailyCleanup } = require('./scheduled/cleanup')
 exports.dailyCleanup = dailyCleanup
