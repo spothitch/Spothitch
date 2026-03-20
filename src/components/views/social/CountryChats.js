@@ -65,7 +65,7 @@ export function renderCountryChats(_state) {
       <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         ${visibleCountries.map(c => {
           const count = memberCountCache[c.code]
-          const badge = count ? `<span class="absolute -top-1 -right-1 text-[9px] bg-amber-500 text-dark-primary rounded-full w-4 h-4 flex items-center justify-center font-bold">${count}</span>` : ''
+          const badge = count ? `<span class="absolute -top-1 -right-1 text-[10px] bg-amber-500 text-dark-primary rounded-full w-4 h-4 flex items-center justify-center font-bold">${count}</span>` : ''
           return `
           <button
             onclick="joinCountryChatAction('${c.code}')"
