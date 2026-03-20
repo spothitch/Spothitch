@@ -3792,6 +3792,19 @@ export default {
   seeOnMap: 'Auf der Karte anzeigen',
   veryClose: 'ganz in der Nähe',
 
+  // Guardian Watch + Country Chats
+  countryChats: 'Länderchat',
+  joinedCountryChat: 'Beigetreten!',
+  friendsOnTrip: 'Freunde unterwegs',
+  checkInOverdue: 'Überfällig',
+  onTrip: 'Unterwegs',
+  positionUnknown: 'Position unbekannt',
+  onTheRoad: 'Auf der Straße',
+  lastCheckIn: 'Letztes Zeichen',
+  interval: 'Intervall',
+  message: 'Nachricht',
+  checkInMissedGuardian: 'Keine Nachrichten seit dem letzten geplanten Check-in',
+
   // Guides — Cultural Etiquette (#76)
   guideEtiquetteTitle: 'Kulturelle Etikette',
   guideEtiquetteGreeting: 'Begruessungen',
@@ -4983,4 +4996,25 @@ export default {
   sosActiveStatus: 'Läuft',
   sosPositionSharing: 'Standortfreigabe',
   sosCombineNote: 'Du kannst mehrere Aktionen kombinieren. Zum Beispiel einen Fake-Anruf starten und dann den stillen Alarm aktivieren.',
+
+  // Feature names (roadmap / feature intro)
+  'featureName_chat': 'Länder-Chat',
+  'featureName_stats': 'Statistiken',
+  'featureName_classements': 'Ranglisten',
+  'featureName_niveaux': 'Stufen und Abzeichen',
+  'featureName_sos': 'Notfall-SOS',
+  'featureName_compagnon': 'Reisebegleiter',
+  'featureName_notif-spot': 'Spot-Benachrichtigungen',
+  'featureName_activite-amis': 'Freunde-Aktivität',
+  'featureName_defis': 'Herausforderungen',
+  'featureName_score-confiance': 'Vertrauenspunktzahl',
+  'featureName_avis-profils': 'Profilbewertungen',
+  'featureName_itineraire': 'Routenplaner',
+  'featureName_radar': 'Nähe-Radar',
+  'featureName_quiz': 'Quiz',
+  'featureName_guides': 'Länderführer',
+  'featureName_gardien': 'Wächter-Modus',
+  'featureName_evenements': 'Veranstaltungen',
+  'featureName_auberges': 'Herbergen',
+  'featureName_villes': 'Stadtführer',
 }

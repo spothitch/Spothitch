@@ -3792,6 +3792,19 @@ export default {
   seeOnMap: 'Ver en el mapa',
   veryClose: 'muy cerca',
 
+  // Guardian Watch + Country Chats
+  countryChats: 'Chats por país',
+  joinedCountryChat: '¡Unido!',
+  friendsOnTrip: 'Amigos en viaje',
+  checkInOverdue: 'Atrasado',
+  onTrip: 'En camino',
+  positionUnknown: 'Posición desconocida',
+  onTheRoad: 'En la carretera',
+  lastCheckIn: 'Última señal',
+  interval: 'Intervalo',
+  message: 'Mensaje',
+  checkInMissedGuardian: 'Sin noticias desde el último check-in previsto',
+
   // Guides — Cultural Etiquette (#76)
   guideEtiquetteTitle: 'Etiqueta cultural',
   guideEtiquetteGreeting: 'Saludos',
@@ -4925,4 +4938,25 @@ export default {
   sosActiveStatus: 'En curso',
   sosPositionSharing: 'Compartir ubicación',
   sosCombineNote: 'Puedes combinar varias acciones. Por ejemplo, iniciar una llamada falsa y luego activar la alerta silenciosa.',
+
+  // Feature names (roadmap / feature intro)
+  'featureName_chat': 'Chat por país',
+  'featureName_stats': 'Estadísticas',
+  'featureName_classements': 'Clasificaciones',
+  'featureName_niveaux': 'Niveles e insignias',
+  'featureName_sos': 'SOS de emergencia',
+  'featureName_compagnon': 'Compañero de viaje',
+  'featureName_notif-spot': 'Alertas de spot cercano',
+  'featureName_activite-amis': 'Actividad de amigos',
+  'featureName_defis': 'Desafíos',
+  'featureName_score-confiance': 'Puntuación de confianza',
+  'featureName_avis-profils': 'Reseñas de perfil',
+  'featureName_itineraire': 'Planificador de ruta',
+  'featureName_radar': 'Radar de proximidad',
+  'featureName_quiz': 'Quiz',
+  'featureName_guides': 'Guías por país',
+  'featureName_gardien': 'Modo guardián',
+  'featureName_evenements': 'Eventos',
+  'featureName_auberges': 'Albergues',
+  'featureName_villes': 'Guías de ciudades',
 }
