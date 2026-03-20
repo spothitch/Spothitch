@@ -283,5 +283,23 @@ service cloud.firestore {
         && request.resource.data.userId == request.auth.uid;
       allow update, delete: if false;
     }
+
+    // Community SOS Alerts — broadcast to nearby opted-in users
+    match /communityAlerts/{alertId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      // Cloud Function updates notifiedCount; clients cannot modify
+      allow update, delete: if false;
+    }
+
+    // User Locations — approximate position for community SOS alert matching
+    match /userLocations/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId;
+      allow delete: if request.auth != null
+        && request.auth.uid == userId;
+    }
   }
 }

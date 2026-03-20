@@ -38,6 +38,9 @@ exports.checkSOSTimers = checkSOSTimers
 const { onSOSAlert } = require('./sos/onSOSAlert')
 exports.onSOSAlert = onSOSAlert
 
+const { onCommunitySOSAlert } = require('./sos/onCommunitySOSAlert')
+exports.onCommunitySOSAlert = onCommunitySOSAlert
+
 // ==================== BRIQUE 6 — Telegram alerts (reports, new users, new spots) ====================
 const { onNewReport, onNewUser, onSpotCreatedTelegram } = require('./notifications/telegramWebhook')
 exports.onNewReport = onNewReport
