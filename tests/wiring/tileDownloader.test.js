@@ -6,7 +6,7 @@
 import { describe, it, expect } from 'vitest'
 
 describe('countryBounds.js', () => {
-  it('exports COUNTRY_BOUNDS with 137 countries', async () => {
+  it('exports COUNTRY_BOUNDS with supported countries', async () => {
     const mod = await import('../../src/data/countryBounds.js')
     const codes = Object.keys(mod.COUNTRY_BOUNDS)
     expect(codes.length).toBeGreaterThanOrEqual(100)

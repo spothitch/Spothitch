@@ -14,6 +14,7 @@
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
 import { escapeHTML } from '../../utils/sanitize.js'
+import { renderCommunityAlertSettings } from '../../services/communityAlert.js'
 
 // ─── SOS localStorage helpers ───────────────────────────────────────────────
 const LS = {
@@ -491,6 +492,9 @@ function renderSOSMain(state) {
             </div>
           </div>
 
+          <!-- ── Community Alert Settings ── -->
+          ${renderCommunityAlertSettings()}
+
           <!-- Info note -->
           <div class="flex items-start gap-2 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
             ${icon('info', 'w-4 h-4 text-amber-500 shrink-0 mt-0.5')}
@@ -628,6 +632,11 @@ window.shareSOSLocation = async () => {
 
   // Write SOS alert to Firestore → triggers Cloud Function → push notifs to guardians
   _writeSOSAlertToFirestore(pos, 'alert')
+
+  // Broadcast community alert to nearby opted-in users (position EXACTE)
+  import('../../services/communityAlert.js').then(({ broadcastCommunitySOSAlert }) => {
+    broadcastCommunitySOSAlert(pos, 'emergency')
+  }).catch(() => {})
 
   // Fire triple alert: push + SMS + call — all in parallel
   _fireTripleAlert(pos.lat, pos.lng, state.emergencyContacts)
@@ -888,10 +897,15 @@ window.sendSOSTemplate = async (type) => {
 window.sosToggleSilent = async () => {
   const current = LS.silent()
   localStorage.setItem('spothitch_sos_silent', current ? '0' : '1')
-  // If activating silent mode, send silent alert to guardians via Cloud Function
+  // If activating silent mode, send silent alert to guardians + community
   if (!current) {
     const pos = await _getSOSPosition()
-    if (pos) _writeSOSAlertToFirestore(pos, 'silent')
+    if (pos) {
+      _writeSOSAlertToFirestore(pos, 'silent')
+      import('../../services/communityAlert.js').then(({ broadcastCommunitySOSAlert }) => {
+        broadcastCommunitySOSAlert(pos, 'silent')
+      }).catch(() => {})
+    }
   }
   window.setState?.({})
 }
@@ -899,6 +913,32 @@ window.sosToggleSilent = async () => {
 // Custom message persistence
 window.sosUpdateCustomMsg = (value) => {
   localStorage.setItem('spothitch_sos_custom_msg', value.slice(0, 200))
+}
+
+// ── Community Alert handlers ────────────────────────────────────────────────
+window.toggleCommunityAlerts = async () => {
+  const { getCommunityAlertSettings, saveCommunityAlertSettings, startPositionSharing, stopPositionSharing } = await import('../../services/communityAlert.js')
+  const settings = getCommunityAlertSettings()
+  const newState = !settings.receiveAlerts
+  saveCommunityAlertSettings({ receiveAlerts: newState })
+  if (newState) {
+    startPositionSharing()
+  } else {
+    stopPositionSharing()
+  }
+  window.setState?.({})
+}
+
+window.setCommunityRadius = async (key, value) => {
+  const { saveCommunityAlertSettings } = await import('../../services/communityAlert.js')
+  saveCommunityAlertSettings({ [key]: value })
+  window.setState?.({})
+}
+
+window.setCommunityGenderFilter = async (value) => {
+  const { saveCommunityAlertSettings } = await import('../../services/communityAlert.js')
+  saveCommunityAlertSettings({ genderFilter: value })
+  window.setState?.({})
 }
 
 // Primary contact

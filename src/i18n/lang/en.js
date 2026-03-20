@@ -3780,6 +3780,21 @@ export default {
   sosCallEmergency: 'Call emergency services',
   sosAutoCallHint: 'Number detected for your region',
 
+  // Community SOS Alert
+  communityAlertTitle: 'Community alert',
+  communityAlertToggle: 'Enable community alerts',
+  communityAlertDesc: 'Get notified when a hitchhiker near you needs help. Your approximate location is shared only with nearby users.',
+  communityHelpRadius: 'I\'m willing to help up to',
+  communityBroadcastRadius: 'My SOS alerts people within',
+  communityGenderFilter: 'Who receives my SOS alert',
+  communityFilterAll: 'Everyone',
+  communityFilterWomen: 'Women only',
+  communityFilterWomenNote: 'Only users who set their gender to "Female" in their profile will receive your alert.',
+  aHitchhiker: 'A hitchhiker',
+  needsHelpNearYou: 'needs help near you',
+  seeOnMap: 'See on map',
+  veryClose: 'very close',
+
   // Guides — Cultural Etiquette (#76)
   guideEtiquetteTitle: 'Cultural etiquette',
   guideEtiquetteGreeting: 'Greetings',

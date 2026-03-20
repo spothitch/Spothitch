@@ -72,6 +72,10 @@
   if (!window.shareSOSLink) window.shareSOSLink = noop
   if (!window.addEmergencyContact) window.addEmergencyContact = guard('sos')
   if (!window.removeEmergencyContact) window.removeEmergencyContact = noop
+  if (!window.toggleCommunityAlerts) window.toggleCommunityAlerts = noop
+  if (!window.setCommunityRadius) window.setCommunityRadius = noop
+  if (!window.setCommunityGenderFilter) window.setCommunityGenderFilter = noop
+  if (!window.showCommunitySOSOnMap) window.showCommunitySOSOnMap = noop
 
   // — COMPAGNON (beta) —
   window.showCompanionModal = guard('compagnon')

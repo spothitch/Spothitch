@@ -3777,6 +3777,21 @@ export default {
   sosCallEmergency: 'Notfalldienste anrufen',
   sosAutoCallHint: 'Nummer fuer Ihre Region erkannt',
 
+  // Community SOS Alert
+  communityAlertTitle: 'Gemeinschaftsalarm',
+  communityAlertToggle: 'Gemeinschaftsalarme aktivieren',
+  communityAlertDesc: 'Erhalte eine Benachrichtigung, wenn ein Tramper in deiner Nähe Hilfe braucht. Dein ungefährer Standort wird nur mit Nutzern in der Nähe geteilt.',
+  communityHelpRadius: 'Ich helfe gerne bis zu',
+  communityBroadcastRadius: 'Mein SOS alarmiert Personen im Umkreis von',
+  communityGenderFilter: 'Wer erhält meinen SOS-Alarm',
+  communityFilterAll: 'Alle',
+  communityFilterWomen: 'Nur Frauen',
+  communityFilterWomenNote: 'Nur Nutzerinnen, die in ihrem Profil "Weiblich" angegeben haben, erhalten deinen Alarm.',
+  aHitchhiker: 'Ein Tramper',
+  needsHelpNearYou: 'braucht Hilfe in deiner Nähe',
+  seeOnMap: 'Auf der Karte anzeigen',
+  veryClose: 'ganz in der Nähe',
+
   // Guides — Cultural Etiquette (#76)
   guideEtiquetteTitle: 'Kulturelle Etikette',
   guideEtiquetteGreeting: 'Begruessungen',

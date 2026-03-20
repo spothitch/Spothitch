@@ -3777,6 +3777,21 @@ export default {
   sosCallEmergency: 'Llamar a emergencias',
   sosAutoCallHint: 'Número detectado segun tu región',
 
+  // Community SOS Alert
+  communityAlertTitle: 'Alerta comunitaria',
+  communityAlertToggle: 'Activar alertas comunitarias',
+  communityAlertDesc: 'Recibe una alerta cuando un autoestopista cerca de ti necesite ayuda. Tu ubicación aproximada se comparte solo con usuarios cercanos.',
+  communityHelpRadius: 'Quiero ayudar hasta',
+  communityBroadcastRadius: 'Mi SOS alerta a personas en un radio de',
+  communityGenderFilter: 'Quién recibe mi alerta SOS',
+  communityFilterAll: 'Todos',
+  communityFilterWomen: 'Solo mujeres',
+  communityFilterWomenNote: 'Solo las usuarias que indicaron "Mujer" en su perfil recibirán tu alerta.',
+  aHitchhiker: 'Un autoestopista',
+  needsHelpNearYou: 'necesita ayuda cerca de ti',
+  seeOnMap: 'Ver en el mapa',
+  veryClose: 'muy cerca',
+
   // Guides — Cultural Etiquette (#76)
   guideEtiquetteTitle: 'Etiqueta cultural',
   guideEtiquetteGreeting: 'Saludos',

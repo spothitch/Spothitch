@@ -84,6 +84,8 @@ const MAIN_JS_HANDLERS = [
   'deleteGuideContribution', 'addCustomGuideCategory', 'submitCustomCategory',
   // Friends
   'showFriends', 'openFriendsChat', 'showAddFriend', 'closeAddFriend',
+  // Country chats + Guardian watch
+  'joinCountryChatAction', 'showAllCountryChats', 'openGuardianChat', 'callGuardianFriend',
   'acceptFriendRequest', 'declineFriendRequest',
   'sendPrivateMessage', 'copyFriendLink',
   'openFriendChat', 'closeFriendChat', 'showFriendProfile',
@@ -447,6 +449,11 @@ const MAIN_JS_HANDLERS = [
   // Unified voting (session 2026-03-05)
   'selectIntroVote',
   'submitIntroVote',
+  // Community SOS Alert (session 2026-03-20)
+  'toggleCommunityAlerts',
+  'setCommunityRadius',
+  'setCommunityGenderFilter',
+  'showCommunitySOSOnMap',
 ]
 
 MAIN_JS_HANDLERS.forEach(h => KNOWN_HANDLERS.add(h))

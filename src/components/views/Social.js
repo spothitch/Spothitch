@@ -13,6 +13,8 @@ import { escapeHTML } from '../../utils/sanitize.js'
 import { renderCustomSelect } from '../../utils/customSelect.js'
 import { formatRelativeTime, formatEventDate } from '../../utils/formatters.js'
 import { renderConversations } from './social/Conversations.js'
+import { renderGuardianWatch } from './social/GuardianWatch.js'
+import { renderCountryChats } from './social/CountryChats.js'
 import { renderSkeletonChatList } from '../ui/Skeleton.js'
 import { getConversationsList } from '../../services/directMessages.js'
 import { getUpcomingEvents, getEventComments, EVENT_TYPES } from '../../services/events.js'
@@ -170,6 +172,14 @@ function renderMessagerieTab(state) {
 
   return `
     <div class="flex-1 overflow-y-auto relative">
+      <!-- Friends on active Guardian trips -->
+      <div class="px-4 pt-3">
+        ${renderGuardianWatch()}
+      </div>
+
+      <!-- Country chats -->
+      ${renderCountryChats(state)}
+
       <!-- Search bar -->
       <div class="px-4 pt-3 pb-2">
         ${renderSearchInput({

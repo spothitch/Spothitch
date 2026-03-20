@@ -82,6 +82,11 @@ export async function initNotifications() {
 
   // Listen for foreground messages
   onForegroundMessage((payload) => {
+    // Community SOS alert → show special banner
+    if (payload.data?.type === 'community_sos_alert') {
+      _showCommunitySOSBanner(payload.data)
+      return
+    }
     showToast(payload.notification?.body || 'Nouvelle notification', 'info');
   });
 }
@@ -831,3 +836,133 @@ export default {
   cancelScheduledNotification,
   cancelAllScheduledNotifications,
 };
+
+// ─── Community SOS Alert Banner ──────────────────────────────────────────────
+
+/**
+ * Show a persistent red banner when a community SOS alert arrives.
+ * The banner shows the distance and has buttons to view on map or call emergency.
+ */
+function _showCommunitySOSBanner(data) {
+  const { voyagerName, lat, lng, distance, alertType } = data
+  const existing = document.getElementById('community-sos-banner')
+  if (existing) existing.remove()
+
+  const name = voyagerName ? escapeHTML(voyagerName) : (t('aHitchhiker') || 'Un autostoppeur')
+  const distText = parseFloat(distance) < 1
+    ? (t('veryClose') || 'tout près')
+    : `${distance}km`
+
+  const banner = document.createElement('div')
+  banner.id = 'community-sos-banner'
+  banner.setAttribute('role', 'alert')
+  banner.setAttribute('aria-live', 'assertive')
+  banner.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    color: white; padding: 16px; text-align: center;
+    box-shadow: 0 4px 20px rgba(220,38,38,.5);
+    animation: slideDown .3s ease-out;
+  `
+  banner.innerHTML = `
+    <style>@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}</style>
+    <div style="max-width:400px;margin:0 auto">
+      <div style="font-weight:800;font-size:15px;margin-bottom:4px">
+        ${alertType === 'silent' ? '🔇' : '🆘'} SOS ${distText}
+      </div>
+      <div style="font-size:13px;opacity:.9;margin-bottom:12px">
+        ${name} ${t('needsHelpNearYou') || 'a besoin d\'aide près de vous'}
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="showCommunitySOSOnMap(${lat},${lng},'${escapeHTML(voyagerName || '')}')" style="
+          flex:1;padding:10px;border-radius:12px;border:none;
+          background:white;color:#dc2626;font-weight:700;font-size:13px;cursor:pointer;
+        ">${t('seeOnMap') || 'Voir sur la carte'}</button>
+        <a href="tel:112" style="
+          padding:10px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
+          background:transparent;color:white;font-weight:700;font-size:13px;
+          text-decoration:none;display:flex;align-items:center;gap:4px;
+        ">📞 112</a>
+        <button onclick="document.getElementById('community-sos-banner')?.remove()" style="
+          padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
+          background:transparent;color:white;font-size:13px;cursor:pointer;
+        " aria-label="${t('close') || 'Fermer'}">✕</button>
+      </div>
+    </div>
+  `
+  document.body.appendChild(banner)
+
+  // Auto-dismiss after 60 seconds
+  setTimeout(() => banner.remove(), 60000)
+}
+
+// Handler to show community SOS on the map
+window.showCommunitySOSOnMap = (lat, lng, name) => {
+  document.getElementById('community-sos-banner')?.remove()
+  // Switch to map tab
+  window.setState?.({ activeTab: 'map' })
+  // Fly to SOS position
+  setTimeout(() => {
+    const map = window.__mapInstance
+    if (map) {
+      map.flyTo({ center: [lng, lat], zoom: 15, duration: 1500 })
+      // Add a temporary pulsing marker
+      _addSOSMarker(map, lat, lng, name)
+    }
+  }, 300)
+}
+
+/**
+ * Add a pulsing red SOS marker on the map.
+ * Auto-removed after 5 minutes.
+ */
+function _addSOSMarker(map, lat, lng, name) {
+  const markerId = `community-sos-${Date.now()}`
+
+  // Create pulsing dot element
+  const el = document.createElement('div')
+  el.style.cssText = `
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #dc2626; border: 3px solid white;
+    box-shadow: 0 0 0 0 rgba(220,38,38,.7);
+    animation: sosPulse 1.5s ease-out infinite;
+  `
+  const style = document.createElement('style')
+  style.textContent = `
+    @keyframes sosPulse {
+      0% { box-shadow: 0 0 0 0 rgba(220,38,38,.7); }
+      70% { box-shadow: 0 0 0 20px rgba(220,38,38,0); }
+      100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+    }
+  `
+  document.head.appendChild(style)
+
+  // Use maplibregl Marker
+  try {
+    const maplibregl = window.maplibregl || window.mapboxgl
+    if (maplibregl) {
+      const popup = new maplibregl.Popup({ offset: 25, closeOnClick: false })
+        .setHTML(`<div style="padding:8px;text-align:center;font-size:13px;">
+          <strong style="color:#dc2626">🆘 SOS</strong><br/>
+          ${name ? escapeHTML(name) : 'Voyageur en détresse'}<br/>
+          <a href="tel:112" style="color:#dc2626;font-weight:700">📞 Appeler 112</a>
+        </div>`)
+
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(map)
+
+      popup.addTo(map)
+
+      // Auto-remove after 5 minutes
+      setTimeout(() => {
+        marker.remove()
+        popup.remove()
+        style.remove()
+      }, 5 * 60 * 1000)
+    }
+  } catch (err) {
+    console.warn('[CommunityAlert] Failed to add map marker:', err.message)
+  }
+}

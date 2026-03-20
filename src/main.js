@@ -387,6 +387,10 @@ async function init() {
                 gcModule.subscribeToAllGroupConversations(user.uid)
                 favsModule.subscribeFavorites(user.uid)
                 favsModule.syncLocalFavoritesToFirestore(user.uid)
+                // Start watching for friends in Guardian mode
+                import('./services/guardianWatch.js').then(gw => {
+                  gw.startGuardianWatch(() => scheduleRender(() => _appInternals.render()))
+                }).catch(() => {})
               } catch { /* non-bloquant */ }
               // If we're returning from a Google redirect, close the auth modal
               // (getRedirectResult can return null on some browsers — this is the backup)
