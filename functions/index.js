@@ -44,5 +44,16 @@ exports.onNewReport = onNewReport
 exports.onNewUser = onNewUser
 exports.onSpotCreatedTelegram = onSpotCreatedTelegram
 
-// ==================== FUTURE BRIQUES ====================
-// Brique 7: exports.dailyCleanup = require('./scheduled/cleanup')
+// ==================== BRIQUE 6b — Server-side moderation ====================
+const { checkSpotProfanity, checkReviewProfanity, checkMessageProfanity } = require('./moderation/profanityFilter')
+exports.checkSpotProfanity = checkSpotProfanity
+exports.checkReviewProfanity = checkReviewProfanity
+exports.checkMessageProfanity = checkMessageProfanity
+
+const { checkAutoBan, onSpotHidden } = require('./moderation/autoBan')
+exports.checkAutoBan = checkAutoBan
+exports.onSpotHidden = onSpotHidden
+
+// ==================== BRIQUE 7 — Scheduled cleanup ====================
+const { dailyCleanup } = require('./scheduled/cleanup')
+exports.dailyCleanup = dailyCleanup
