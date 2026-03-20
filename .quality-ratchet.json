@@ -1,6 +1,6 @@
 {
-  "totalScore": 100,
-  "updatedAt": "2026-03-19T14:34:40.349Z",
+  "totalScore": 98,
+  "updatedAt": "2026-03-20T00:36:09.230Z",
   "checks": {
     "Handlers Wiring": {
       "score": 100,
@@ -8,9 +8,9 @@
       "warnings": 0
     },
     "i18n Keys": {
-      "score": 100,
+      "score": 85,
       "errors": 0,
-      "warnings": 0
+      "warnings": 12
     },
     "Dead Exports": {
       "score": 100,
@@ -43,9 +43,9 @@
       "warnings": 0
     },
     "Bundle Size": {
-      "score": 95,
+      "score": 90,
       "errors": 0,
-      "warnings": 1
+      "warnings": 2
     },
     "Import Cycles": {
       "score": 100,

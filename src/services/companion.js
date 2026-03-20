@@ -22,6 +22,47 @@ import { sendLocalNotification } from './notifications.js'
 import { t } from '../i18n/index.js'
 import { haversineKm } from '../utils/geo.js'
 
+/**
+ * Sync SOS timer to Firestore so the server can monitor it.
+ * If the phone dies, the server-side Cloud Function detects the expired timer
+ * and sends a push notification to the guardian.
+ */
+async function syncSOSTimerToFirestore(action, data = {}) {
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { doc, setDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return
+
+    const timerRef = doc(db, 'sosTimers', user.uid)
+
+    if (action === 'start') {
+      await setDoc(timerRef, {
+        userId: user.uid,
+        userName: user.displayName || 'Voyageur',
+        guardianName: data.guardianName || '',
+        guardianId: data.guardianId || '',
+        checkInIntervalMinutes: data.interval || 30,
+        lastCheckIn: serverTimestamp(),
+        tripStart: serverTimestamp(),
+        destination: data.destination || '',
+        lastPosition: data.position || null,
+        active: true,
+      })
+    } else if (action === 'checkin') {
+      await setDoc(timerRef, {
+        lastCheckIn: serverTimestamp(),
+        lastPosition: data.position || null,
+        active: true,
+      }, { merge: true })
+    } else if (action === 'stop') {
+      await deleteDoc(timerRef)
+    }
+  } catch (err) {
+    console.warn('[Companion] Failed to sync SOS timer to Firestore:', err.message)
+  }
+}
+
 const STORAGE_KEY = 'spothitch_companion'
 const HISTORY_KEY = 'spothitch_trip_history'
 const CHECK_INTERVAL_MS = 10_000 // check every 10 seconds
@@ -471,6 +512,13 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
   startTimer()
   startBatteryMonitor()
 
+  // Sync to Firestore for server-side monitoring (Brique 5)
+  syncSOSTimerToFirestore('start', {
+    guardianName: guardian.name,
+    interval,
+    destination: options.destination,
+  })
+
   // Departure notification (#26)
   if (state.notifyOnDeparture) {
     setTimeout(() => {
@@ -552,6 +600,11 @@ export function checkIn() {
   }
 
   saveState(state)
+
+  // Sync to Firestore for server-side monitoring
+  const lastPos = state.positions?.[state.positions.length - 1] || null
+  syncSOSTimerToFirestore('checkin', { position: lastPos })
+
   return state
 }
 

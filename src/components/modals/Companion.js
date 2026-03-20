@@ -528,15 +528,15 @@ function renderActiveView(companion) {
                 <div class="text-sm font-extrabold text-white">
                   ${tripHours > 0 ? `${tripHours}h${String(tripMins).padStart(2, '0')}` : `${tripMins}min`}
                 </div>
-                <div class="text-[9px] text-slate-500 uppercase tracking-wider">${t('tripDuration') || 'Duration'}</div>
+                <div class="text-[10px] text-slate-500 uppercase tracking-wider">${t('tripDuration') || 'Duration'}</div>
               </div>
               <div class="flex-1 py-3 px-2 text-center">
                 <div class="text-sm font-extrabold text-white">${companion.checkInsCount || 0}</div>
-                <div class="text-[9px] text-slate-500 uppercase tracking-wider">${t('checkInsCount') || 'Check-ins'}</div>
+                <div class="text-[10px] text-slate-500 uppercase tracking-wider">${t('checkInsCount') || 'Check-ins'}</div>
               </div>
               <div class="flex-1 py-3 px-2 text-center" id="companion-battery-row">
                 <div class="text-sm font-extrabold text-white">${companion.checkInInterval}min</div>
-                <div class="text-[9px] text-slate-500 uppercase tracking-wider">${t('checkInInterval') || 'Interval'}</div>
+                <div class="text-[10px] text-slate-500 uppercase tracking-wider">${t('checkInInterval') || 'Interval'}</div>
               </div>
             </div>
           </div>
@@ -837,7 +837,7 @@ async function updateBatteryDisplay() {
 
   el.innerHTML = `
     <div class="text-sm font-extrabold ${color}">${pct}%</div>
-    <div class="text-[9px] text-slate-500 uppercase tracking-wider">${t('batteryLevel') || 'Battery'}</div>
+    <div class="text-[10px] text-slate-500 uppercase tracking-wider">${t('batteryLevel') || 'Battery'}</div>
   `
 }
 
