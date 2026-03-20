@@ -43,10 +43,25 @@ export default {
         return new Response(JSON.stringify({ ...directCoords, resolvedUrl: target }), { headers })
       }
 
+      // Pre-extract place name and ftid from the ORIGINAL URL before any fetch
+      // (Google often blocks server-side fetches with captcha, so we need this fallback)
+      const originalPlace = extractPlaceName(target) || extractQueryPlace(target)
+      const originalFtid = extractFtid(target)
+
+      // Strategy 0b: If we have an ftid from the original URL, try embed resolution FIRST
+      // (this bypasses captcha since embed endpoint is more permissive)
+      if (originalFtid) {
+        const embedCoords = await resolveViaEmbed(originalFtid, originalPlace)
+        if (embedCoords) {
+          return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: target, method: 'embed' }), { headers })
+        }
+      }
+
       // Strategy 1: Follow redirects manually to capture each Location header
       let currentUrl = target
       let finalUrl = target
       const visitedUrls = []
+      let gotCaptcha = false
 
       for (let i = 0; i < 10; i++) {
         const res = await fetch(currentUrl, {
@@ -63,6 +78,12 @@ export default {
           currentUrl = location.startsWith('http') ? location : new URL(location, currentUrl).href
           finalUrl = currentUrl
 
+          // Detect Google captcha/sorry redirect
+          if (currentUrl.includes('/sorry/') || currentUrl.includes('google.com/sorry')) {
+            gotCaptcha = true
+            break
+          }
+
           // Try extracting coords from each redirect URL
           const coords = extractCoordsFromUrl(currentUrl)
           if (coords) {
@@ -71,42 +92,48 @@ export default {
           continue
         }
 
-        // Got a 200 (or other non-redirect) — try extracting from URL
+        // Detect captcha page
         finalUrl = res.url || currentUrl
+        if (finalUrl.includes('/sorry/') || finalUrl.includes('google.com/sorry')) {
+          gotCaptcha = true
+          break
+        }
+
         const coordsFromUrl = extractCoordsFromUrl(finalUrl)
         if (coordsFromUrl) {
           return new Response(JSON.stringify({ ...coordsFromUrl, resolvedUrl: finalUrl }), { headers })
         }
 
-        // Try extracting from the page HTML (Google Maps embeds coords in JS data)
         const html = await res.text()
+
+        // Check if HTML is a captcha page
+        if (html.includes('google.com/sorry') || html.includes('unusual traffic')) {
+          gotCaptcha = true
+          break
+        }
+
         const htmlCoords = extractCoordsFromHtml(html)
         if (htmlCoords) {
           return new Response(JSON.stringify({ ...htmlCoords, resolvedUrl: finalUrl }), { headers })
         }
 
-        // Strategy 1b: Use Google Maps embed endpoint for EXACT place coordinates
-        // When URL has a place ftid like !1s0x...!  the embed returns exact coords
         const ftid = extractFtid(finalUrl) || extractFtid(html)
         if (ftid) {
           const embedCoords = await resolveViaEmbed(ftid, extractPlaceName(finalUrl))
           if (embedCoords) {
-            return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: finalUrl }), { headers })
+            return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: finalUrl, method: 'embed' }), { headers })
           }
         }
 
-        // Try extracting a place name and geocoding it server-side
         const place = extractPlaceName(finalUrl) || extractPlaceFromHtml(html)
         if (place) {
-          // Try server-side geocoding (no CORS issues) before falling back to client
           const geocoded = await geocodeAddress(place)
           if (geocoded) {
-            return new Response(JSON.stringify({ ...geocoded, resolvedUrl: finalUrl }), { headers })
+            return new Response(JSON.stringify({ ...geocoded, resolvedUrl: finalUrl, method: 'geocode' }), { headers })
           }
           return new Response(JSON.stringify({ place, resolvedUrl: finalUrl }), { headers })
         }
 
-        // If we got a 404 (dead Dynamic Link), check all visited redirect URLs
         if (res.status === 404) {
           for (const visited of visitedUrls) {
             const coordsFromVisited = extractCoordsFromUrl(visited)
@@ -119,80 +146,64 @@ export default {
         break
       }
 
-      // Strategy 2: Try with redirect: 'follow' as fallback
-      const followRes = await fetch(target, {
-        redirect: 'follow',
-        headers: browserHeaders,
-      })
-      const followUrl = followRes.url
-      if (followUrl && followUrl !== target) {
-        const coords = extractCoordsFromUrl(followUrl)
-        if (coords) {
-          return new Response(JSON.stringify({ ...coords, resolvedUrl: followUrl }), { headers })
+      // Strategy 2: If Google blocked us with captcha, use pre-extracted place name
+      // to geocode directly (no need to fetch the page)
+      if (gotCaptcha && originalPlace) {
+        const geocoded = await geocodeAddress(originalPlace)
+        if (geocoded) {
+          return new Response(JSON.stringify({ ...geocoded, resolvedUrl: target, method: 'geocode-fallback' }), { headers })
         }
-
-        const html = await followRes.text()
-        const htmlCoords = extractCoordsFromHtml(html)
-        if (htmlCoords) {
-          return new Response(JSON.stringify({ ...htmlCoords, resolvedUrl: followUrl }), { headers })
-        }
-
-        // Try embed resolution from ftid in the HTML
-        const ftid = extractFtid(followUrl) || extractFtid(html)
-        if (ftid) {
-          const embedCoords = await resolveViaEmbed(ftid, extractPlaceName(followUrl))
-          if (embedCoords) {
-            return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: followUrl }), { headers })
-          }
-        }
-
-        const place = extractPlaceName(followUrl) || extractPlaceFromHtml(html)
-        if (place) {
-          const geocoded = await geocodeAddress(place)
-          if (geocoded) {
-            return new Response(JSON.stringify({ ...geocoded, resolvedUrl: followUrl }), { headers })
-          }
-          return new Response(JSON.stringify({ place, resolvedUrl: followUrl }), { headers })
-        }
+        return new Response(JSON.stringify({ place: originalPlace, resolvedUrl: target, method: 'place-only' }), { headers })
       }
 
-      // Strategy 3: For full Google Maps URLs, try fetching with consent cookie
-      // Google Maps sometimes requires consent to show content
-      if (isGoogleMaps) {
+      // Strategy 3: Try with redirect: 'follow' as fallback (only if not captcha'd)
+      if (!gotCaptcha) {
         try {
-          const consentRes = await fetch(target, {
+          const followRes = await fetch(target, {
             redirect: 'follow',
-            headers: {
-              ...browserHeaders,
-              'Cookie': 'CONSENT=YES+; NID=1',
-            },
+            headers: browserHeaders,
           })
-          const consentUrl = consentRes.url || target
-          const consentCoords = extractCoordsFromUrl(consentUrl)
-          if (consentCoords) {
-            return new Response(JSON.stringify({ ...consentCoords, resolvedUrl: consentUrl }), { headers })
-          }
-          const consentHtml = await consentRes.text()
-          const consentHtmlCoords = extractCoordsFromHtml(consentHtml)
-          if (consentHtmlCoords) {
-            return new Response(JSON.stringify({ ...consentHtmlCoords, resolvedUrl: consentUrl }), { headers })
-          }
-          const ftid = extractFtid(consentUrl) || extractFtid(consentHtml)
-          if (ftid) {
-            const embedCoords = await resolveViaEmbed(ftid, extractPlaceName(consentUrl))
-            if (embedCoords) {
-              return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: consentUrl }), { headers })
+          const followUrl = followRes.url
+          if (followUrl && followUrl !== target && !followUrl.includes('/sorry/')) {
+            const coords = extractCoordsFromUrl(followUrl)
+            if (coords) {
+              return new Response(JSON.stringify({ ...coords, resolvedUrl: followUrl }), { headers })
+            }
+
+            const html = await followRes.text()
+            if (!html.includes('google.com/sorry') && !html.includes('unusual traffic')) {
+              const htmlCoords = extractCoordsFromHtml(html)
+              if (htmlCoords) {
+                return new Response(JSON.stringify({ ...htmlCoords, resolvedUrl: followUrl }), { headers })
+              }
+
+              const ftid = extractFtid(followUrl) || extractFtid(html)
+              if (ftid) {
+                const embedCoords = await resolveViaEmbed(ftid, extractPlaceName(followUrl))
+                if (embedCoords) {
+                  return new Response(JSON.stringify({ ...embedCoords, resolvedUrl: followUrl, method: 'embed' }), { headers })
+                }
+              }
+
+              const place = extractPlaceName(followUrl) || extractPlaceFromHtml(html)
+              if (place) {
+                const geocoded = await geocodeAddress(place)
+                if (geocoded) {
+                  return new Response(JSON.stringify({ ...geocoded, resolvedUrl: followUrl, method: 'geocode' }), { headers })
+                }
+              }
             }
           }
-          const place = extractPlaceName(consentUrl) || extractPlaceFromHtml(consentHtml)
-          if (place) {
-            const geocoded = await geocodeAddress(place)
-            if (geocoded) {
-              return new Response(JSON.stringify({ ...geocoded, resolvedUrl: consentUrl }), { headers })
-            }
-            return new Response(JSON.stringify({ place, resolvedUrl: consentUrl }), { headers })
-          }
-        } catch { /* consent fetch failed */ }
+        } catch { /* follow fetch failed */ }
+      }
+
+      // Strategy 4: Last resort — geocode the original place name
+      if (originalPlace) {
+        const geocoded = await geocodeAddress(originalPlace)
+        if (geocoded) {
+          return new Response(JSON.stringify({ ...geocoded, resolvedUrl: target, method: 'geocode-lastresort' }), { headers })
+        }
+        return new Response(JSON.stringify({ place: originalPlace, resolvedUrl: target, method: 'place-only' }), { headers })
       }
 
       return new Response(JSON.stringify({
@@ -361,6 +372,40 @@ function extractPlaceName(url) {
   if (placeMatch) {
     return decodeURIComponent(placeMatch[1].replace(/\+/g, ' '))
   }
+  return null
+}
+
+/**
+ * Extract a place name from query parameters (?q=, ?query=, ?destination=)
+ * or from /search/ path. Only returns non-coordinate values.
+ */
+function extractQueryPlace(url) {
+  try {
+    const parsed = new URL(url)
+    // Check query parameters
+    for (const key of ['q', 'query', 'destination', 'origin', 'saddr', 'daddr']) {
+      const val = parsed.searchParams.get(key)
+      if (val && !val.match(/^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/)) {
+        return decodeURIComponent(val.replace(/\+/g, ' '))
+      }
+    }
+    // Check /search/... path
+    const searchMatch = parsed.pathname.match(/\/search\/([^/]+)/)
+    if (searchMatch) {
+      const term = decodeURIComponent(searchMatch[1].replace(/\+/g, ' '))
+      if (!term.match(/^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/)) {
+        return term
+      }
+    }
+    // Check /dir/PlaceName/PlaceName (extract destination = last segment)
+    const dirMatch = parsed.pathname.match(/\/dir\/[^/]+\/([^/]+)/)
+    if (dirMatch) {
+      const term = decodeURIComponent(dirMatch[1].replace(/\+/g, ' '))
+      if (!term.match(/^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/)) {
+        return term
+      }
+    }
+  } catch { /* not a valid URL */ }
   return null
 }
 
