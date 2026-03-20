@@ -63,29 +63,11 @@
   if (!window.closeTitles) window.closeTitles = noop
   // openLeaderboard est aussi override via guard ci-dessus (ligne 2948)
 
-  // — SOS (beta) — guard only if not already defined by sos.js
-  window.openSOS = guard('sos')
-  if (!window.closeSOS) window.closeSOS = noop
-  if (!window.shareSOSLocation) window.shareSOSLocation = noop
-  if (!window.markSafe) window.markSafe = noop
-  if (!window.triggerSOS) window.triggerSOS = noop
-  if (!window.shareSOSLink) window.shareSOSLink = noop
-  if (!window.addEmergencyContact) window.addEmergencyContact = guard('sos')
-  if (!window.removeEmergencyContact) window.removeEmergencyContact = noop
-  if (!window.toggleCommunityAlerts) window.toggleCommunityAlerts = noop
-  if (!window.setCommunityRadius) window.setCommunityRadius = noop
-  if (!window.setCommunityGenderFilter) window.setCommunityGenderFilter = noop
-  if (!window.showCommunitySOSOnMap) window.showCommunitySOSOnMap = noop
+  // — SOS — LIVE (no longer beta, fully implemented)
+  // openSOS, closeSOS, shareSOSLocation etc. are defined by SOS.js — don't override
 
-  // — COMPAGNON (beta) —
-  window.showCompanionModal = guard('compagnon')
-  window.openCompanion = guard('compagnon')
-  window.startCompanion = guard('compagnon')
-  window.stopCompanion = noop
-  window.closeCompanionModal = noop
-  window.closeCompanion = noop
-  window.companionCheckIn = guard('compagnon')
-  window.companionSendAlert = guard('compagnon')
+  // — COMPAGNON / GARDIEN — LIVE (no longer beta, fully implemented)
+  // showCompanionModal, closeCompanionModal etc. are defined by Companion.js — don't override
 
   // — CHAT PAR ZONE (beta) — intercept changeTab('chat')
   const _origChangeTabBeta = window.changeTab
