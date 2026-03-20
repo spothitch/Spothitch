@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-11 (session 41 — Fix AddSpot/SpotDetail + audit complet + nettoyage profil)
+> Dernière mise à jour : 2026-03-21 (session 42 — SOS v4b redesign + hook background + audit auth)
 
 ---
 
@@ -15,6 +15,8 @@
 - `memory/errors.md` — Journal des erreurs et leçons
 - `memory/audits.md` — Base de données audits
 - `memory/feedback_max_background.md` — JAMAIS plus de 1 agent/bash en arrière-plan (crash session)
+- `memory/mockups-approved.md` — Index des mockups validés par Antoine (SOS v4b, etc.)
+- `memory/mockups/` — Fichiers HTML des mockups approuvés (sauvegardés sur GitHub)
 
 ---
 
@@ -128,7 +130,11 @@
 
 ## À venir — prochaine session
 
-- **Mode Gardien (Companion In-App)** : gardiens voient position live de l'autostoppeur sur la carte SpotHitch. Timer check-in. Nécessite plan Blaze + Cloud Functions.
+- **Phase 1 : Auth testable** — Vérifier inscription Google en prod, parcours complet inscription → profil → ami → message
+- **Phase 2 : SOS Firebase** — Sauvegarder contacts SOS dans Firebase (pas juste localStorage), lier aux vrais utilisateurs
+- **Phase 3 : Notifications réelles** — Tester push notifications entre 2 comptes (message privé, alerte SOS)
+- **Phase 4 : Test multi-utilisateurs** — 2 comptes test, amis, messages, SOS entre eux
+- **Gardien redesign** — Créer mockups pour le mode Gardien (même approche que SOS v4b)
 
 ---
 
@@ -157,6 +163,22 @@
 ---
 
 ## Dernières sessions (reconstitué depuis git log)
+
+### Session 2026-03-20/21 (session 42 — SOS V4B REDESIGN + HOOK BACKGROUND + AUDIT AUTH)
+- **Hook limit-background.sh** : max 1 tâche en arrière-plan à la fois (RÈGLE #21), empêche les crashs. Lit stdin (pas env var). Verrou /tmp/claude_bg_task.lock avec expiry 5 min.
+- **Hook block-git-add.sh corrigé** : lisait $CLAUDE_TOOL_INPUT (vide), maintenant lit stdin avec node.
+- **SOS v4b redesign complet** : réécriture totale de SOS.js (458 insertions, 442 suppressions)
+  - Écran intro (première ouverture) qui explique pourquoi configurer le SOS
+  - 2 onglets : Alertes (défaut) + Configuration (checklist + sidebars glissantes)
+  - Config par sidebar : contacts (SpotHitch push + SMS), faux appel (nom/délai/son), message d'alerte (canaux push/SMS/appel), communauté (rayon + recevoir les alertes), enregistrement (permissions micro/caméra), urgence (112 auto)
+  - Bouton "Tester le SOS" dans chaque config
+  - Mode discret supprimé (jugé inutile par Antoine)
+  - Plus d'onglet Contacts séparé (intégré dans config)
+- **Mockup sauvegardé** : `memory/mockups/sos-v4b-approved.html` poussé sur GitHub
+- **20 mockups HTML** créés (10 SOS + 10 Gardien) dans `mockups/` pour choix d'Antoine
+- **Audit auth/social/notifications complet** : auth email+Google OK, amis OK, DM OK, FCM OK, contacts SOS locaux seulement, alerte communauté non testée en prod
+- **CI** : tests intégration mis à jour pour v4b, 140 wiring + 125 integration passent
+- **RÈGLE #21 ajoutée dans CLAUDE.md** : max 1 background task
 
 ### Session 2026-03-10 (session 41 — FIX ADDSPOT BOUTONS + AUTOCOMPLETE + HOOKS)
 - **Fix boutons type spot** : classList.toggle('active') overridden par inline styles → mise à jour directe des styles inline dans selectSpotType

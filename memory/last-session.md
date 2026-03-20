@@ -1,13 +1,18 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-20 11:46
+Date : 2026-03-21 00:30
 
 ## Derniers commits
-0fa7510 feat: filter Telegram notifications for test & admin accounts
-7ebf145 fix: CI failures — import cycles false positive + obsolete chat E2E test
-1d5b2f2 fix: Worker handles Google captcha + geocodes from URL place names
-4c4065f fix: support ALL Google Maps URL formats for coordinate extraction
-a6c8d5f feat: auto-translate spots + remove broken extensions
+fix: update SOS integration tests for v4b redesign
+4e279cf feat: SOS v4b redesign — Alerts first + config sidebar
+c872cf1 chore: save approved SOS v4b mockup + background task limiter hook
+
+## À reprendre
+Phase 1-4 du plan auth/social/notifications :
+1. Vérifier auth Google en prod
+2. SOS contacts → Firebase
+3. Test notifications push entre 2 comptes
+4. Test multi-utilisateurs complet
 
 ## Note
 Reprendre avec : claude --continue
