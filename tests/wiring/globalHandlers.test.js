@@ -85,7 +85,7 @@ const MAIN_JS_HANDLERS = [
   // Friends
   'showFriends', 'openFriendsChat', 'showAddFriend', 'closeAddFriend',
   // Country chats + Guardian watch
-  'joinCountryChatAction', 'showAllCountryChats', 'openGuardianChat', 'callGuardianFriend',
+  'joinCountryChatAction', 'showAllCountryChats', 'leaveCountryChatAction', 'openGuardianChat', 'callGuardianFriend',
   'acceptFriendRequest', 'declineFriendRequest',
   'sendPrivateMessage', 'copyFriendLink',
   'openFriendChat', 'closeFriendChat', 'showFriendProfile',

@@ -1602,7 +1602,8 @@ export default {
   selectAtLeastOneFriend: 'Mindestens einen Freund auswählen',
   enterGroupName: 'Gib einen Namen für die Gruppe ein',
   memberAdded: 'Mitglied hinzugefügt!',
-  leaveGroup: 'Gruppe verlassen',
+  leaveGroup: 'Verlassen',
+  memberCount: 'Mitglieder',
   addToGroup: 'Zur Gruppe hinzufügen',
   groupConversation: 'Gruppenunterhaltung',
   noGroupsYet: 'Noch keine Gruppen',
@@ -2427,7 +2428,7 @@ export default {
   nearbyFriendsNearbyText: 'in der Naehe',
   nearbyFriendsEmpty: 'Keine Freunde in der Naehe',
   nearbyFriendsShareLocation: 'Meinen Standort teilen',
-  showOnMap: 'Auf der Karte anzeigen',
+  showOnMap: 'Auf Karte zeigen',
 
   // autoOfflineSync
   autoOfflineSyncUpdated: 'Offline-Daten aktualisiert',

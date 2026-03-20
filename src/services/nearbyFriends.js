@@ -489,7 +489,19 @@ window.toggleLocationSharing = () => {
     'info'
   );
 };
-window.showFriendOnMap = (friendId) => {
+window.showFriendOnMap = (friendId, lat, lng) => {
+  // If lat/lng are provided directly (e.g. from GuardianWatch), use them
+  if (lat && lng) {
+    window.changeTab?.('map')
+    setTimeout(() => {
+      const map = window._mapInstance || window.homeMapInstance
+      if (map) {
+        map.flyTo({ center: [lng, lat], zoom: 14, duration: 800 })
+      }
+    }, 500)
+    return
+  }
+  // Otherwise look up from friendsLocations state
   const state = getState();
   const friendsLocations = state.friendsLocations || [];
   const friend = friendsLocations.find((f) => f.userId === friendId);

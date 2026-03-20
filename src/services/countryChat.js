@@ -112,6 +112,32 @@ export async function joinCountryChat(countryCode) {
 }
 
 /**
+ * Leave a country chat group
+ * @param {string} countryCode - e.g. 'FR'
+ */
+export async function leaveCountryChat(countryCode) {
+  const state = getState()
+  const uid = state.user?.uid
+  if (!uid) return false
+
+  try {
+    const { doc, updateDoc, arrayRemove, increment } = await import('firebase/firestore')
+    const { db } = await import('./firebase.js')
+    if (!db) return false
+
+    const groupId = `country_${countryCode}`
+    await updateDoc(doc(db, 'groupConversations', groupId), {
+      members: arrayRemove(uid),
+      memberCount: increment(-1),
+    })
+    return true
+  } catch (err) {
+    console.error('[CountryChat] Failed to leave:', err.message)
+    return false
+  }
+}
+
+/**
  * Get list of popular country chats (by member count)
  */
 export async function getPopularCountryChats() {

@@ -9,6 +9,36 @@ import { icon } from '../../../utils/icons.js'
 import { escapeHTML } from '../../../utils/sanitize.js'
 import { getAvailableCountries } from '../../../services/countryChat.js'
 
+// Cache for member counts (populated async)
+const memberCountCache = {}
+
+/**
+ * Fetch member counts for visible country groups from Firestore
+ */
+async function fetchMemberCounts(countryCodes) {
+  try {
+    const { doc, getDoc } = await import('firebase/firestore')
+    const { db } = await import('../../../services/firebase.js')
+    if (!db) return
+
+    const promises = countryCodes.map(async (code) => {
+      try {
+        const groupRef = doc(db, 'groupConversations', `country_${code}`)
+        const snap = await getDoc(groupRef)
+        if (snap.exists()) {
+          const data = snap.data()
+          memberCountCache[code] = data.memberCount || data.members?.length || 0
+        }
+      } catch {
+        // Silently ignore per-country errors
+      }
+    })
+    await Promise.all(promises)
+  } catch {
+    // Firestore unavailable, keep cache empty
+  }
+}
+
 /**
  * Render the country chats section
  * @param {object} state
@@ -20,6 +50,11 @@ export function renderCountryChats(_state) {
   // Group by region
   const europe = countries.filter(c => ['FR', 'DE', 'ES', 'IT', 'NL', 'BE', 'PT', 'AT', 'CH', 'IE', 'PL', 'CZ', 'GB', 'SE', 'NO', 'DK', 'FI', 'HU', 'HR', 'RO', 'GR', 'BG', 'SK', 'SI'].includes(c.code))
 
+  const visibleCountries = europe.slice(0, 12)
+
+  // Trigger async fetch of member counts (will update on next render)
+  fetchMemberCounts(visibleCountries.map(c => c.code))
+
   return `
     <div class="px-4 py-3">
       <div class="flex items-center gap-2 mb-3">
@@ -28,15 +63,19 @@ export function renderCountryChats(_state) {
       </div>
 
       <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-        ${europe.slice(0, 12).map(c => `
+        ${visibleCountries.map(c => {
+          const count = memberCountCache[c.code]
+          const badge = count ? `<span class="absolute -top-1 -right-1 text-[9px] bg-amber-500 text-dark-primary rounded-full w-4 h-4 flex items-center justify-center font-bold">${count}</span>` : ''
+          return `
           <button
             onclick="joinCountryChatAction('${c.code}')"
-            class="shrink-0 flex flex-col items-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800/60 border border-white/[0.06] transition-colors"
+            class="relative shrink-0 flex flex-col items-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800/60 border border-white/[0.06] transition-colors"
           >
+            ${badge}
             <span class="text-xl">${c.flag}</span>
             <span class="text-[10px] text-slate-400 font-medium w-14 text-center truncate">${escapeHTML(c.name)}</span>
           </button>
-        `).join('')}
+        `}).join('')}
         <button
           onclick="showAllCountryChats()"
           class="shrink-0 flex flex-col items-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800/60 border border-white/[0.06] border-dashed transition-colors"
@@ -56,6 +95,18 @@ window.joinCountryChatAction = async (code) => {
   const result = await joinCountryChat(code)
   if (result) {
     showToast(t('joinedCountryChat') || 'Rejoint !', 'success')
+  }
+}
+
+// Handler: leave a country chat
+window.leaveCountryChatAction = async (code) => {
+  const { leaveCountryChat } = await import('../../../services/countryChat.js')
+  const { showToast } = await import('../../../services/notifications.js')
+  const result = await leaveCountryChat(code)
+  if (result) {
+    // Clear cached count so it refreshes on next render
+    delete memberCountCache[code]
+    showToast(t('leaveGroup') || 'Quitter', 'success')
   }
 }
 

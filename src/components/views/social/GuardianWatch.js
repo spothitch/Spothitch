@@ -102,6 +102,9 @@ function renderTimerCard(timer) {
         <button onclick="openGuardianChat('${escapeHTML(timer.userId)}')" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-700/50 border border-white/[0.06] text-sm font-medium text-slate-300 transition-colors">
           ${icon('send', 'w-4 h-4')} ${escapeHTML(t('message') || 'Message')}
         </button>
+        ${lat && lng ? `<button onclick="showFriendOnMap('${escapeHTML(timer.userId)}', ${lat}, ${lng})" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-700/50 border border-white/[0.06] text-sm font-medium text-slate-300 transition-colors">
+          ${icon('map', 'w-4 h-4')} ${escapeHTML(t('showOnMap') || 'Voir sur la carte')}
+        </button>` : ''}
         <button onclick="callGuardianFriend('${escapeHTML(timer.userId)}')" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-700/50 border border-white/[0.06] text-sm font-medium text-slate-300 transition-colors">
           ${icon('phone', 'w-4 h-4')} ${escapeHTML(t('call') || 'Appeler')}
         </button>
