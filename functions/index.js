@@ -54,6 +54,10 @@ const { checkAutoBan, onSpotHidden } = require('./moderation/autoBan')
 exports.checkAutoBan = checkAutoBan
 exports.onSpotHidden = onSpotHidden
 
+// ==================== Auto-translate spot content ====================
+const { autoTranslateSpot } = require('./notifications/autoTranslate')
+exports.autoTranslateSpot = autoTranslateSpot
+
 // ==================== Trust Score + Badges (server-side) ====================
 const { updateTrustOnSpot, updateTrustOnReport } = require('./moderation/trustScore')
 exports.updateTrustOnSpot = updateTrustOnSpot
