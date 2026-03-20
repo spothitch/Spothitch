@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>SOS v4b — Alertes d'abord, config en 2e</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,system-ui,sans-serif;max-width:390px;margin:0 auto;min-height:100vh}
+.screen{display:none;min-height:100vh;flex-direction:column}.screen.active{display:flex}
+
+/* INTRO */
+.intro{background:#0f1117;padding:1.5rem;justify-content:space-between}
+.intro-top{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.intro-icon{width:3.5rem;height:3.5rem;border-radius:50%;background:rgba(239,68,68,.06);border:1.5px solid rgba(239,68,68,.12);display:flex;align-items:center;justify-content:center;margin-bottom:1rem}
+.intro-icon svg{color:#ef4444;width:1.5rem;height:1.5rem}
+.intro-title{font-size:1.15rem;font-weight:800;margin-bottom:.3rem}
+.intro-desc{font-size:.78rem;color:#94a3b8;line-height:1.6;max-width:300px}
+.intro-features{text-align:left;max-width:300px;margin:1.5rem auto 0}
+.feat{display:flex;align-items:flex-start;gap:.6rem;padding:.45rem 0}
+.feat-ic{width:1.75rem;height:1.75rem;border-radius:.4rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.feat-ic svg{width:14px;height:14px}
+.feat-txt .ft{font-size:.76rem;font-weight:600}.feat-txt .fd{font-size:.62rem;color:#64748b;line-height:1.35}
+.fi-amber .feat-ic{background:rgba(245,158,11,.08)}.fi-amber svg{color:#f59e0b}
+.fi-red .feat-ic{background:rgba(239,68,68,.08)}.fi-red svg{color:#ef4444}
+.fi-blue .feat-ic{background:rgba(59,130,246,.08)}.fi-blue svg{color:#3b82f6}
+.fi-rose .feat-ic{background:rgba(244,63,94,.08)}.fi-rose svg{color:#f43f5e}
+.fi-green .feat-ic{background:rgba(34,197,94,.08)}.fi-green svg{color:#22c55e}
+.intro-cta{width:100%;max-width:300px;padding:.8rem;background:#f59e0b;border:none;border-radius:.8rem;color:#0f1117;font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:1.5rem}
+.intro-cta svg{width:18px;height:18px}
+.intro-cta:active{opacity:.9;transform:scale(.98)}
+.intro-skip{text-align:center;padding:.6rem;font-size:.7rem;color:#475569;cursor:pointer}
+
+/* MAIN */
+.main{background:#1a1d27}
+.header{padding:1rem 1.25rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid rgba(255,255,255,.05)}
+.header svg{color:#ef4444;width:18px;height:18px}.header h1{font-size:1rem;font-weight:800;flex:1}
+.close{width:1.75rem;height:1.75rem;border-radius:50%;background:rgba(255,255,255,.06);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.close svg{color:#94a3b8;width:14px;height:14px}
+
+/* 2 tabs only */
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.06);padding:0 1.25rem}
+.tab{flex:1;padding:.6rem 0;text-align:center;font-size:.75rem;font-weight:600;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;justify-content:center;gap:.3rem}
+.tab.active{color:#f59e0b;border-color:#f59e0b}
+.tab svg{width:14px;height:14px}
+.panel{display:none;flex:1;overflow-y:auto;padding:1.25rem}.panel.active{display:block}
+
+/* ALERT PANEL */
+.alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:.85rem}
+.alert-tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:.9rem;padding:.9rem .5rem;text-align:center;cursor:pointer;transition:all .15s}
+.alert-tile:active{transform:scale(.96);background:rgba(255,255,255,.08)}
+.at-ic{width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .45rem}
+.at-ic svg{width:20px;height:20px}
+.at-lbl{font-size:.78rem;font-weight:600}
+.at-sub{font-size:.6rem;color:#64748b;margin-top:.1rem}
+.t-amber .at-ic{background:rgba(245,158,11,.1)}.t-amber .at-ic svg{color:#f59e0b}
+.t-green .at-ic{background:rgba(34,197,94,.1)}.t-green .at-ic svg{color:#22c55e}
+.t-blue .at-ic{background:rgba(59,130,246,.1)}.t-blue .at-ic svg{color:#3b82f6}
+.t-rose .at-ic{background:rgba(244,63,94,.1)}.t-rose .at-ic svg{color:#f43f5e}
+
+.big-sos{width:100%;padding:.85rem;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:.85rem;color:#fca5a5;font-size:.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.big-sos svg{width:20px;height:20px;color:#ef4444}
+.big-sos:active{background:rgba(239,68,68,.15);border-color:#ef4444}
+.sos-info{font-size:.63rem;color:#475569;text-align:center;margin-top:.35rem;line-height:1.4}
+.safe-btn{width:100%;padding:.75rem;background:#22c55e;border:none;border-radius:.75rem;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.85rem}
+.safe-btn svg{width:18px;height:18px}
+.safe-btn:active{opacity:.9}
+
+/* CONFIG PANEL — checklist */
+.check-item{display:flex;align-items:center;gap:.6rem;padding:.7rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:.7rem;margin-bottom:.4rem;cursor:pointer;transition:all .15s}
+.check-item:active{background:rgba(255,255,255,.06)}
+.ci-ic{width:2.25rem;height:2.25rem;border-radius:.55rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ci-ic svg{width:16px;height:16px}
+.ci-mid{flex:1}.ci-mid .t{font-size:.78rem;font-weight:600}.ci-mid .d{font-size:.62rem;color:#64748b;margin-top:.05rem}
+.ci-st{width:1.5rem;height:1.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ci-st svg{width:12px;height:12px}
+.st-ok{background:rgba(34,197,94,.12)}.st-ok svg{color:#22c55e}
+.st-off{background:rgba(239,68,68,.08)}.st-off svg{color:#ef4444}
+.config-bar{text-align:center;padding:.5rem;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.08);border-radius:.5rem;margin-top:.5rem}
+.config-bar .cb-t{font-size:.72rem;font-weight:600;color:#f59e0b}
+.config-bar .cb-d{font-size:.6rem;color:#475569;margin-top:.1rem}
+.test-bar{margin-top:.65rem;padding:.6rem;background:rgba(59,130,246,.04);border:1px solid rgba(59,130,246,.08);border-radius:.5rem;display:flex;align-items:center;gap:.5rem;cursor:pointer}
+.test-bar:active{background:rgba(59,130,246,.08)}
+.test-bar svg{width:16px;height:16px;color:#3b82f6;flex-shrink:0}
+.test-bar .t{font-size:.73rem;font-weight:600;color:#93c5fd}
+.test-bar .d{font-size:.6rem;color:#475569}
+
+/* SIDEBAR */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10;display:none;opacity:0;transition:opacity .25s}.ov.open{display:block;opacity:1}
+.sb{position:fixed;right:0;top:0;bottom:0;width:88%;max-width:345px;background:#1a1d27;z-index:11;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;padding:1.25rem;display:none}
+.sb.open{transform:translateX(0);display:block}
+.sb-back{display:flex;align-items:center;gap:.3rem;font-size:.78rem;font-weight:600;color:#94a3b8;cursor:pointer;margin-bottom:1rem;background:none;border:none}
+.sb-back svg{width:16px;height:16px}
+.sb-title{font-size:1.05rem;font-weight:800;margin-bottom:.2rem}
+.sb-desc{font-size:.73rem;color:#64748b;margin-bottom:1rem;line-height:1.45}
+
+/* Shared form */
+.lbl{font-size:.65rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem;margin-top:.65rem}.lbl:first-child{margin-top:0}
+.input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:.45rem;padding:.48rem .55rem;color:#e2e8f0;font-size:.73rem;margin-bottom:.25rem}.input::placeholder{color:#475569}
+.pills{display:flex;gap:.3rem;flex-wrap:wrap}
+.pill{padding:.4rem .6rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:99px;font-size:.7rem;font-weight:500;cursor:pointer;transition:all .15s}
+.pill.active{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);color:#f59e0b}
+.pill:active{transform:scale(.95)}
+.hint{font-size:.6rem;color:#475569;margin-top:.3rem;line-height:1.4}
+.tgl-row{display:flex;align-items:center;justify-content:space-between;padding:.45rem 0}
+.tgl-row .l{font-size:.72rem;display:flex;align-items:center;gap:.3rem}
+.tgl-row .l svg{width:12px;height:12px;color:#f59e0b}
+.tgl{width:2.25rem;height:1.2rem;border-radius:99px;background:rgba(255,255,255,.1);position:relative;cursor:pointer;transition:background .2s}
+.tgl.on{background:#f59e0b}
+.tgl::after{content:'';position:absolute;width:.9rem;height:.9rem;border-radius:50%;background:#fff;top:.15rem;left:.15rem;transition:transform .2s}
+.tgl.on::after{transform:translateX(1.05rem)}
+textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:.45rem;padding:.45rem;color:#e2e8f0;font-size:.72rem;resize:none;height:3rem;font-family:inherit}textarea::placeholder{color:#475569}
+.perm-btn{display:flex;align-items:center;gap:.4rem;padding:.5rem .6rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:.5rem;cursor:pointer;width:100%;margin-bottom:.3rem}
+.perm-btn svg{width:14px;height:14px;flex-shrink:0}.perm-btn .txt{flex:1;font-size:.72rem}
+.perm-btn .ps{font-size:.55rem;font-weight:600;padding:.1rem .3rem;border-radius:99px}
+.ps-need{background:rgba(245,158,11,.12);color:#f59e0b}.ps-ok{background:rgba(34,197,94,.12);color:#22c55e}
+.ct{display:flex;align-items:center;gap:.5rem;padding:.5rem;background:rgba(255,255,255,.02);border-radius:.5rem;margin-bottom:.25rem}
+.ct-av{width:1.75rem;height:1.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0}
+.ct-app{background:linear-gradient(135deg,#f59e0b,#d97706)}.ct-sms{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.ct-mid{flex:1;min-width:0}.ct-mid .n{font-size:.73rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ct-mid .p{font-size:.62rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ct-badge{font-size:.5rem;padding:.1rem .3rem;border-radius:99px;font-weight:600;flex-shrink:0}
+.b-main{background:rgba(34,197,94,.1);color:#22c55e}.b-sms{background:rgba(59,130,246,.1);color:#3b82f6}
+.ct-del{cursor:pointer;flex-shrink:0}.ct-del svg{width:12px;height:12px;color:#475569}
+.add-row{display:flex;gap:.25rem;margin-top:.3rem}
+.add-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:.35rem;padding:.4rem .45rem;color:#e2e8f0;font-size:.7rem}.add-row input::placeholder{color:#475569}
+.add-row button{width:1.65rem;height:1.65rem;background:#f59e0b;border:none;border-radius:.35rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add-row button svg{width:12px;height:12px;color:#0f1117}
+.rcv-box{margin-top:.6rem;padding:.55rem;background:rgba(59,130,246,.04);border:1px solid rgba(59,130,246,.08);border-radius:.45rem}
+.test-section{margin-top:1rem;padding:.65rem;background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.08);border-radius:.55rem}
+.test-section .ts-t{font-size:.75rem;font-weight:700;color:#4ade80;display:flex;align-items:center;gap:.3rem;margin-bottom:.25rem}
+.test-section .ts-t svg{width:14px;height:14px}
+.test-section .ts-d{font-size:.62rem;color:#64748b;line-height:1.4;margin-bottom:.4rem}
+.test-btn{width:100%;padding:.5rem;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.15);border-radius:.45rem;color:#4ade80;font-size:.73rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.3rem}
+.test-btn svg{width:14px;height:14px}.test-btn:active{background:rgba(34,197,94,.18)}
+</style>
+</head><body>
+
+<!-- INTRO -->
+<div class="screen intro active" id="s-intro">
+  <div class="intro-top">
+    <div class="intro-icon"><i data-lucide="shield-alert"></i></div>
+    <div class="intro-title">Prépare ton SOS</div>
+    <div class="intro-desc">En cas de danger, chaque seconde compte. Configure tout maintenant pour ne rien avoir à faire en urgence.</div>
+    <div class="intro-features">
+      <div class="feat fi-amber"><div class="feat-ic"><i data-lucide="phone-incoming"></i></div><div class="feat-txt"><div class="ft">Faux appel</div><div class="fd">Simule un appel pour quitter une situation</div></div></div>
+      <div class="feat fi-red"><div class="feat-ic"><i data-lucide="shield"></i></div><div class="feat-txt"><div class="ft">Triple alerte</div><div class="fd">Push, SMS et appel en un geste</div></div></div>
+      <div class="feat fi-blue"><div class="feat-ic"><i data-lucide="radio"></i></div><div class="feat-txt"><div class="ft">Communauté</div><div class="fd">Les autostoppeurs proches sont prévenus</div></div></div>
+      <div class="feat fi-rose"><div class="feat-ic"><i data-lucide="mic"></i></div><div class="feat-txt"><div class="ft">Preuves</div><div class="fd">Enregistre audio et vidéo</div></div></div>
+      <div class="feat fi-green"><div class="feat-ic"><i data-lucide="phone-call"></i></div><div class="feat-txt"><div class="ft">Urgences</div><div class="fd">112 détecté selon ton pays</div></div></div>
+    </div>
+  </div>
+  <div>
+    <button class="intro-cta" onclick="go('s-main')"><i data-lucide="settings"></i> Configurer mon SOS</button>
+    <div class="intro-skip" onclick="go('s-main')">Configurer plus tard</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="screen main" id="s-main">
+  <div class="header"><i data-lucide="shield-alert"></i><h1>SOS</h1><button class="close"><i data-lucide="x"></i></button></div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)"><i data-lucide="zap"></i> Alertes</div>
+    <div class="tab" onclick="switchTab(1)"><i data-lucide="settings"></i> Configuration</div>
+  </div>
+
+  <!-- TAB 0: ALERTES (premier onglet) -->
+  <div class="panel active" id="p0">
+    <div class="alert-grid">
+      <div class="alert-tile t-amber"><div class="at-ic"><i data-lucide="phone-incoming"></i></div><div class="at-lbl">Faux appel</div><div class="at-sub">30s · Maman</div></div>
+      <div class="alert-tile t-green"><div class="at-ic"><i data-lucide="phone-call"></i></div><div class="at-lbl">112</div><div class="at-sub">Appel d'urgence</div></div>
+      <div class="alert-tile t-blue"><div class="at-ic"><i data-lucide="radio"></i></div><div class="at-lbl">Communauté</div><div class="at-sub">5 km</div></div>
+      <div class="alert-tile t-rose"><div class="at-ic"><i data-lucide="mic"></i></div><div class="at-lbl">Enregistrer</div><div class="at-sub">Audio · Vidéo</div></div>
+    </div>
+    <button class="big-sos"><i data-lucide="shield"></i> Alerter mes gardiens</button>
+    <div class="sos-info">Push + SMS + appel → <strong style="color:#94a3b8">Maman</strong>, <strong style="color:#94a3b8">Paul</strong> · Position GPS jointe</div>
+    <button class="safe-btn"><i data-lucide="check-circle"></i> Je suis en sécurité</button>
+  </div>
+
+  <!-- TAB 1: CONFIG (second onglet) -->
+  <div class="panel" id="p1">
+    <div class="check-item" onclick="openSB('sb-contacts')">
+      <div class="ci-ic" style="background:rgba(245,158,11,.08)"><i data-lucide="users" style="color:#f59e0b"></i></div>
+      <div class="ci-mid"><div class="t">Contacts d'urgence</div><div class="d">Maman (push), Paul (SMS)</div></div>
+      <div class="ci-st st-ok"><i data-lucide="check"></i></div>
+    </div>
+    <div class="check-item" onclick="openSB('sb-fake')">
+      <div class="ci-ic" style="background:rgba(245,158,11,.08)"><i data-lucide="phone-incoming" style="color:#f59e0b"></i></div>
+      <div class="ci-mid"><div class="t">Faux appel</div><div class="d">Maman · 30 sec · Son activé</div></div>
+      <div class="ci-st st-ok"><i data-lucide="check"></i></div>
+    </div>
+    <div class="check-item" onclick="openSB('sb-alert')">
+      <div class="ci-ic" style="background:rgba(239,68,68,.08)"><i data-lucide="shield" style="color:#ef4444"></i></div>
+      <div class="ci-mid"><div class="t">Message d'alerte</div><div class="d">Push · SMS · Appel</div></div>
+      <div class="ci-st st-ok"><i data-lucide="check"></i></div>
+    </div>
+    <div class="check-item" onclick="openSB('sb-community')">
+      <div class="ci-ic" style="background:rgba(59,130,246,.08)"><i data-lucide="radio" style="color:#3b82f6"></i></div>
+      <div class="ci-mid"><div class="t">Communauté</div><div class="d">Non configuré</div></div>
+      <div class="ci-st st-off"><i data-lucide="x"></i></div>
+    </div>
+    <div class="check-item" onclick="openSB('sb-record')">
+      <div class="ci-ic" style="background:rgba(244,63,94,.08)"><i data-lucide="mic" style="color:#f43f5e"></i></div>
+      <div class="ci-mid"><div class="t">Enregistrement</div><div class="d">Micro et caméra non autorisés</div></div>
+      <div class="ci-st st-off"><i data-lucide="x"></i></div>
+    </div>
+    <div class="check-item" onclick="openSB('sb-emergency')">
+      <div class="ci-ic" style="background:rgba(34,197,94,.08)"><i data-lucide="phone-call" style="color:#22c55e"></i></div>
+      <div class="ci-mid"><div class="t">Appel d'urgence</div><div class="d">112 Europe (détecté)</div></div>
+      <div class="ci-st st-ok"><i data-lucide="check"></i></div>
+    </div>
+    <div class="config-bar"><div class="cb-t">4/6 configurés</div><div class="cb-d">Appuie sur chaque élément pour le configurer</div></div>
+    <div class="test-bar" onclick="openSB('sb-test')">
+      <i data-lucide="play-circle"></i>
+      <div><div class="t">Tester le SOS</div><div class="d">Envoie une alerte test à un contact</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBARS -->
+<div class="ov" id="ov" onclick="closeSB()"></div>
+
+<div class="sb" id="sb-contacts">
+  <button class="sb-back" onclick="closeSB()"><i data-lucide="arrow-left"></i> Retour</button>
+  <div class="sb-title">Contacts d'urgence</div>
+  <div class="sb-desc">Contacts SpotHitch (notifiés par push) et contacts SMS (hors app).</div>
+  <div class="lbl">SpotHitch (push)</div>
+  <div class="ct"><div class="ct-av ct-app">MA</div><div class="ct-mid"><div class="n">Maman</div><div class="p">@maman_hitchhiker</div></div><div class="ct-badge b-main">Principal</div><div class="ct-del"><i data-lucide="trash-2"></i></div></div>
+  <div class="add-row"><input placeholder="Chercher un utilisateur..."><button><i data-lucide="plus"></i></button></div>
+  <div class="lbl">SMS (hors app)</div>
+  <div class="ct"><div class="ct-av ct-sms">PA</div><div class="ct-mid"><div class="n">Paul</div><div class="p">+33 6 98 76 54 32</div></div><div class="ct-badge b-sms">SMS</div><div class="ct-del"><i data-lucide="trash-2"></i></div></div>
+  <div class="add-row"><input placeholder="Nom"><input placeholder="Tél"><button><i data-lucide="plus"></i></button></div>
+  <div class="lbl">Contact principal (appelé en premier)</div>
+  <div class="pills"><div class="pill active" onclick="sp(this)">Maman</div><div class="pill" onclick="sp(this)">Paul</div></div>
+</div>
+
+<div class="sb" id="sb-fake">
+  <button class="sb-back" onclick="closeSB()"><i data-lucide="arrow-left"></i> Retour</button>
+  <div class="sb-title">Faux appel</div>
+  <div class="sb-desc">Simule un appel entrant crédible pour avoir un prétexte de partir.</div>
+  <div class="lbl">Nom affiché</div><input class="input" value="Maman">
+  <div class="lbl">Délai</div>
+  <div class="pills"><div class="pill" onclick="sp(this)">Direct</div><div class="pill active" onclick="sp(this)">30 sec</div><div class="pill" onclick="sp(this)">1 min</div><div class="pill" onclick="sp(this)">2 min</div><div class="pill" onclick="sp(this)">5 min</div></div>
+  <div class="lbl">Son</div>
+  <div class="tgl-row"><div class="l"><i data-lucide="volume-2"></i> Forcer son + vibration</div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+  <div class="hint">La vibration marche même en silencieux. Le son dépend des réglages du téléphone.</div>
+  <div class="test-section"><div class="ts-t"><i data-lucide="play-circle"></i> Tester</div><div class="ts-d">Lance un faux appel pour voir le résultat.</div><button class="test-btn"><i data-lucide="phone-incoming"></i> Lancer un test</button></div>
+</div>
+
+<div class="sb" id="sb-alert">
+  <button class="sb-back" onclick="closeSB()"><i data-lucide="arrow-left"></i> Retour</button>
+  <div class="sb-title">Message d'alerte</div>
+  <div class="sb-desc">Ce message est envoyé avec ta position GPS quand tu appuies sur "Alerter".</div>
+  <div class="lbl">Ton message</div><textarea placeholder="Ex: Je suis en autostop et j'ai besoin d'aide..." maxlength="200"></textarea>
+  <div class="lbl">Canaux</div>
+  <div class="tgl-row"><div class="l"><i data-lucide="bell"></i> Push (SpotHitch)</div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+  <div class="tgl-row"><div class="l"><i data-lucide="message-circle"></i> SMS</div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+  <div class="tgl-row"><div class="l"><i data-lucide="phone"></i> Appel au principal</div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+  <div class="test-section"><div class="ts-t"><i data-lucide="play-circle"></i> Tester l'alerte</div><div class="ts-d">Envoie un test à un contact.</div><button class="test-btn"><i data-lucide="send"></i> Test → Maman</button></div>
+</div>
+
+<div class="sb" id="sb-community">
+  <button class="sb-back" onclick="closeSB()"><i data-lucide="arrow-left"></i> Retour</button>
+  <div class="sb-title">Communauté</div>
+  <div class="sb-desc">Les autostoppeurs SpotHitch proches reçoivent ta position quand tu actives le SOS.</div>
+  <div class="tgl-row"><div class="l"><i data-lucide="radio"></i> Envoyer à la communauté</div><div class="tgl" onclick="this.classList.toggle('on')"></div></div>
+  <div class="lbl">Rayon</div>
+  <div class="pills"><div class="pill active" onclick="sp(this)">5 km</div><div class="pill" onclick="sp(this)">10 km</div><div class="pill" onclick="sp(this)">25 km</div><div class="pill" onclick="sp(this)">50 km</div></div>
+  <div class="rcv-box">
+    <div class="tgl-row" style="padding:.1rem 0"><div class="l" style="font-size:.72rem"><i data-lucide="heart"></i> Recevoir les alertes des autres</div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="hint" style="margin-top:.15rem">Sois notifié si quelqu'un a besoin d'aide près de toi.</div>
+  </div>
+</div>
+
+<div class="sb" id="sb-record">
+  <button class="sb-back" onclick="closeSB()"><i data-lucide="arrow-left"></i> Retour</button>
+  <div class="sb-title">Enregistrement</div>
+  <div class="sb-desc">Autorise maintenant pour ne pas perdre de temps en urgence.</div>
+  <div class="perm-btn" onclick="this.querySelector('.ps').textContent='OK';this.querySelector('.ps').className='ps ps-ok'"><i data-lucide="mic" style="color:#f43f5e"></i><div class="txt">Microphone</div><span class="ps ps-need">Autoriser</span></div>
+  <div class="perm-btn" onclick="this.querySelector('.ps').textContent='OK';this.querySelector('.ps').className='ps ps-ok'"><i data-lucide="video" style="color:#f43f5e"></i><div class="txt">Caméra</div><span class="ps ps-need">Autoriser</span></div>
+  <div class="lbl">Durée max</div>
+  <div class="pills"><div class="pill" onclick="sp(this)">2 min</div><div class="pill active" onclick="sp(this)">5 min</div><div class="pill" onclick="sp(this)">10 min</div><div class="pill" onclick="sp(this)">30 min</div></div>
+</div>
+
+<div class="sb" id="sb-emergency">
+  <button class="sb-back" onclick="closeSB()"><i data-lucide="arrow-left"></i> Retour</button>
+  <div class="sb-title">Appel d'urgence</div>
+  <div class="sb-desc">Détecté automatiquement selon ton pays.</div>
+  <div style="display:flex;align-items:center;gap:.6rem;padding:.65rem;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.1);border-radius:.55rem">
+    <i data-lucide="phone-call" style="color:#22c55e;width:20px;height:20px"></i>
+    <div><div style="font-size:1rem;font-weight:800">112</div><div style="font-size:.68rem;color:#64748b">Europe</div></div>
+  </div>
+  <div class="lbl" style="margin-top:.75rem">Autres</div>
+  <div class="pills"><div class="pill">911 USA</div><div class="pill">000 AUS</div><div class="pill">111 NZ</div></div>
+</div>
+
+<div class="sb" id="sb-test">
+  <button class="sb-back" onclick="closeSB()"><i data-lucide="arrow-left"></i> Retour</button>
+  <div class="sb-title">Tester le SOS</div>
+  <div class="sb-desc">Envoie une alerte test. Le message indiquera clairement que c'est un test.</div>
+  <div class="lbl">Choisir un contact</div>
+  <div class="check-item" style="margin-bottom:.3rem" onclick="this.style.borderColor='#f59e0b'"><div class="ct-av ct-app" style="width:2rem;height:2rem;font-size:.6rem">MA</div><div class="ci-mid"><div class="t">Maman</div><div class="d">Push SpotHitch</div></div></div>
+  <div class="check-item" onclick="this.style.borderColor='#3b82f6'"><div class="ct-av ct-sms" style="width:2rem;height:2rem;font-size:.6rem">PA</div><div class="ci-mid"><div class="t">Paul</div><div class="d">SMS</div></div></div>
+  <div class="lbl">Aperçu du message test</div>
+  <div style="padding:.55rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:.45rem;font-size:.7rem;color:#94a3b8;line-height:1.5">
+    <strong style="color:#f59e0b">[TEST]</strong> Ceci est un test du SOS SpotHitch. Aucune urgence.
+  </div>
+  <button class="test-btn" style="margin-top:.75rem;padding:.65rem;font-size:.78rem"><i data-lucide="send"></i> Envoyer le test</button>
+</div>
+
+<script>
+lucide.createIcons()
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function switchTab(i){document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i))}
+function openSB(id){document.getElementById(id).classList.add('open');document.getElementById('ov').classList.add('open')}
+function closeSB(){document.querySelectorAll('.sb').forEach(s=>s.classList.remove('open'));document.getElementById('ov').classList.remove('open')}
+function sp(el){el.closest('.pills').querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
+</script>
+</body></html>

@@ -14,6 +14,7 @@
 - `memory/decisions.md` — Historique des décisions
 - `memory/errors.md` — Journal des erreurs et leçons
 - `memory/audits.md` — Base de données audits
+- `memory/feedback_max_background.md` — JAMAIS plus de 1 agent/bash en arrière-plan (crash session)
 
 ---
 

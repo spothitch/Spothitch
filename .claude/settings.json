@@ -7,6 +7,19 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/block-git-add.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/limit-background.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/limit-background.sh"
           }
         ]
       }

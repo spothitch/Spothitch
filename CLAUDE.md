@@ -2,6 +2,14 @@
 
 > **RÈGLE #0 — AUCUNE PERMISSION** : NE JAMAIS demander la permission pour exécuter des commandes bash, lire des fichiers, ou faire des opérations techniques. AGIR directement. La seule exception = les décisions PRODUIT (ce qu'on construit, pas comment on le construit).
 
+> **RÈGLE #21 — MAXIMUM 1 TÂCHE EN ARRIÈRE-PLAN** (ABSOLUMENT OBLIGATOIRE) :
+> - JAMAIS plus de 1 agent ou commande bash en arrière-plan (`run_in_background`) en même temps
+> - Avant de lancer un agent ou une commande en arrière-plan → vérifier qu'il n'y en a PAS déjà un en cours
+> - Si un agent/commande tourne déjà en arrière-plan → ATTENDRE qu'il finisse avant d'en lancer un autre
+> - Préférer les appels en SÉQUENTIEL (un après l'autre) plutôt qu'en parallèle quand c'est des tâches lourdes
+> - Les appels parallèles légers (lecture de fichiers, grep, glob) restent OK car ils ne consomment pas de ressources
+> - Cette règle existe parce que trop de tâches en arrière-plan simultanées font CRASHER la session (crash du 2026-03-20)
+
 > **RÈGLE #1 — BRANCHES ET DEPLOY** :
 >
 > **Structure des branches (OBLIGATOIRE) :**
