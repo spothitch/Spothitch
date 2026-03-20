@@ -26,7 +26,9 @@ function getAllJsFiles(dir) {
 }
 
 function getImports(filePath) {
-  const content = readFileSync(filePath, 'utf-8')
+  let content = readFileSync(filePath, 'utf-8')
+  // Strip comments to avoid false positives (e.g. "Usage: import ... from './self'")
+  content = content.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
   const imports = []
   // Static imports: import { x } from './path'
   const importRegex = /import\s+(?:[\s\S]*?)\s+from\s+['"](\.[^'"]+)['"]/g
