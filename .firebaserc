@@ -1,0 +1,13 @@
+{
+  "projects": {},
+  "targets": {},
+  "etags": {
+    "spothitch": {
+      "extensionInstances": {
+        "firestore-bigquery-export": "a7ed40d067d3cee0ebf3d8c5616c5bcc7db50e8a518975169231b57798eb4b7d",
+        "firestore-translate-text": "13e16577401bf39a8a60875672432556b98d8b2effd65fbff18ba81df3bb0dc0",
+        "storage-resize-images": "93173dfa17f6208ce3f01d7a1928abfec445fd0fc0bd02de748aa6176f9816a8"
+      }
+    }
+  }
+}

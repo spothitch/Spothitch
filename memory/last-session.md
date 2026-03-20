@@ -1,13 +1,13 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-20 00:31
+Date : 2026-03-20 11:46
 
 ## Derniers commits
-db74c37 feat: add push notifications for spot activity + friend requests (briques 3-4)
-02ad667 feat: Cloud Functions infrastructure + DM push notifications (briques 1-2)
-a74f851 fix: remove cron schedule from CodeQL workflow
-33f2bad feat: remove legacy zone chat system (replaced by group conversations)
-2ca94e7 feat: achieve 100% handler coverage (35% → 100%, 733/733 handlers)
+0fa7510 feat: filter Telegram notifications for test & admin accounts
+7ebf145 fix: CI failures — import cycles false positive + obsolete chat E2E test
+1d5b2f2 fix: Worker handles Google captcha + geocodes from URL place names
+4c4065f fix: support ALL Google Maps URL formats for coordinate extraction
+a6c8d5f feat: auto-translate spots + remove broken extensions
 
 ## Note
 Reprendre avec : claude --continue
