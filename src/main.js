@@ -326,6 +326,9 @@ async function init() {
           const fb = await getFirebase()
           const firebaseOk = fb.initializeFirebase()
 
+          // Initialize App Check (anti-bot, non-blocking)
+          import('./services/appCheck.js').then(ac => ac.initAppCheck()).catch(() => {})
+
           // Initialize Remote Config (non-blocking, uses defaults if fails)
           import('./services/remoteConfig.js').then(rc => rc.initRemoteConfig()).catch(() => {})
 
