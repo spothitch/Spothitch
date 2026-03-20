@@ -31,6 +31,11 @@ const _defaults = {
   announcement_text: '',
   announcement_active: false,
 
+  // Beta
+  beta_invite_required: true,
+  force_update_version: '',
+  feedback_prompt_enabled: false,
+
   // Analytics
   enable_posthog: false,
 }
