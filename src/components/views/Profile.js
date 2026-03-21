@@ -1390,15 +1390,7 @@ window.toggleSettingsSection = (sectionId) => {
 
 // startTutorial is defined in main.js (canonical owner — includes tab change + step action)
 
-window.handleLogout = async () => {
-  try {
-    const { logOut } = await import('../../services/firebase.js')
-    await logOut()
-    window.showToast?.(t('logoutSuccess') || 'Déconnexion réussie', 'success')
-  } catch (error) {
-    console.error('Logout failed:', error)
-  }
-}
+// handleLogout — canonical in authIdentity.js (includes subscription cleanup)
 
 // setLanguage is defined in main.js (single source of truth)
 
@@ -1509,6 +1501,7 @@ window.removeLanguage = (idx) => {
   langs.splice(idx, 1)
   localStorage.setItem('spothitch_languages', JSON.stringify(langs))
   syncProfileToFirestore({ languages: langs })
+  window.showToast?.(t('languageRemoved') || 'Langue supprimée', 'info')
   window._forceRender?.()
 }
 
@@ -1520,13 +1513,22 @@ window.cycleLanguageLevel = (idx) => {
   langs[idx].level = levels[(levels.indexOf(cur) + 1) % levels.length]
   localStorage.setItem('spothitch_languages', JSON.stringify(langs))
   syncProfileToFirestore({ languages: langs })
+  const levelLabels = { debutant: t('levelBeginner') || 'Débutant', courant: t('levelFluent') || 'Courant', natif: t('levelNative') || 'Natif' }
+  window.showToast?.(levelLabels[langs[idx].level] || langs[idx].level, 'info')
   window._forceRender?.()
 }
 
 // D3: Social links handler
 window.saveSocialLink = async (network, value) => {
+  // Sanitize: strip HTML/JS, limit length, allow only safe characters
+  const sanitized = (value || '').trim()
+    .replace(/<[^>]*>/g, '')
+    .replace(/[<>"'`;(){}]/g, '')
+    .slice(0, 200)
+  const allowedNetworks = ['instagram', 'snapchat', 'tiktok', 'twitter', 'facebook', 'youtube', 'linkedin', 'website']
+  if (!allowedNetworks.includes(network)) return
   const social = JSON.parse(localStorage.getItem('spothitch_social_links') || '{}')
-  social[network] = value.trim()
+  social[network] = sanitized
   localStorage.setItem('spothitch_social_links', JSON.stringify(social))
   syncProfileToFirestore({ socialLinks: social })
 }
@@ -1540,19 +1542,32 @@ window.addProfilePhoto = async (input) => {
     window.showToast?.('Maximum 6 photos', 'warning')
     return
   }
-  // Compress to WebP-like quality using canvas
+  // Compress aggressively to avoid hitting localStorage 5MB limit
+  // Max 200px (thumbnail), JPEG 0.5 quality = ~10-20KB per photo
   const img = new Image()
   img.onload = () => {
     const canvas = document.createElement('canvas')
-    const maxSize = 400
+    const maxSize = 200
     const scale = Math.min(maxSize / img.width, maxSize / img.height, 1)
     canvas.width = img.width * scale
     canvas.height = img.height * scale
     const ctx = canvas.getContext('2d')
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-    const dataUrl = canvas.toDataURL('image/webp', 0.7) || canvas.toDataURL('image/jpeg', 0.7)
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.5)
+    // Safety check: reject if single photo > 100KB
+    if (dataUrl.length > 100000) {
+      window.showToast?.(t('photoTooLarge') || 'Photo too large, try a smaller image', 'warning')
+      return
+    }
     photos.push(dataUrl)
-    localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
+    try {
+      localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
+    } catch (e) {
+      photos.pop()
+      window.showToast?.(t('storageFull') || 'Storage full, remove a photo first', 'warning')
+      return
+    }
+    window.showToast?.(t('photoAdded') || 'Photo added', 'success')
     window._forceRender?.()
   }
   img.src = URL.createObjectURL(file)
