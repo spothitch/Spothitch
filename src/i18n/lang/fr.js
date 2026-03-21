@@ -4554,6 +4554,7 @@ export default {
   cityDemoTryBtn: 'Tester la démo',
   cityDemoCloseBtn: 'Fermer',
   // Demo: generic
+  demoPreviewBanner: 'Aperçu. Les noms et chiffres sont fictifs.',
   demoIntroBtn: 'Découvrir la démo',
   // Demo: Points
   pointsDemoIntroTitle: 'Points, Classement & Récompenses',

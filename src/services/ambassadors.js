@@ -4,83 +4,10 @@ import { t } from '../i18n/index.js'
 
 const STORAGE_KEY = 'spothitch_ambassadors'
 
-// Sample demo ambassadors
-const DEMO_AMBASSADORS = [
-  {
-    userId: 'demo_paris_1',
-    userName: 'Sophie Martin',
-    userAvatar: '🇫🇷',
-    city: 'Paris',
-    country: 'France',
-    bio: 'Hitchhiking around Europe since 2018. Happy to help with Paris spots!',
-    languages: ['fr', 'en', 'es'],
-    availability: 'available',
-    registeredAt: Date.now() - 86400000 * 180,
-    spotsCreated: 23,
-    checkins: 47
-  },
-  {
-    userId: 'demo_berlin_1',
-    userName: 'Max Schmidt',
-    userAvatar: '🇩🇪',
-    city: 'Berlin',
-    country: 'Germany',
-    bio: 'Local hitchhiker and guide. Know all the best spots around Berlin!',
-    languages: ['de', 'en'],
-    availability: 'available',
-    registeredAt: Date.now() - 86400000 * 365,
-    spotsCreated: 45,
-    checkins: 89
-  },
-  {
-    userId: 'demo_barcelona_1',
-    userName: 'Carlos García',
-    userAvatar: '🇪🇸',
-    city: 'Barcelona',
-    country: 'Spain',
-    bio: 'Traveled to 30+ countries by thumb. Love helping new hitchhikers!',
-    languages: ['es', 'en', 'fr'],
-    availability: 'busy',
-    registeredAt: Date.now() - 86400000 * 270,
-    spotsCreated: 31,
-    checkins: 52
-  },
-  {
-    userId: 'demo_london_1',
-    userName: 'Emma Thompson',
-    userAvatar: '🇬🇧',
-    city: 'London',
-    country: 'United Kingdom',
-    bio: 'Weekend hitchhiker, happy to share tips for leaving London.',
-    languages: ['en'],
-    availability: 'available',
-    registeredAt: Date.now() - 86400000 * 90,
-    spotsCreated: 12,
-    checkins: 18
-  },
-  {
-    userId: 'demo_rome_1',
-    userName: 'Marco Rossi',
-    userAvatar: '🇮🇹',
-    city: 'Rome',
-    country: 'Italy',
-    bio: 'Hitchhiking enthusiast. Can help with spots and safety tips in Rome.',
-    languages: ['it', 'en'],
-    availability: 'unavailable',
-    registeredAt: Date.now() - 86400000 * 200,
-    spotsCreated: 19,
-    checkins: 34
-  }
-]
-
-// Initialize storage with demo data if empty
+// No demo data — ambassadors are real community members only
 function initAmbassadors() {
   const stored = Storage.get(STORAGE_KEY)
-  if (!stored || stored.length === 0) {
-    Storage.set(STORAGE_KEY, DEMO_AMBASSADORS)
-    return DEMO_AMBASSADORS
-  }
-  return stored
+  return stored || []
 }
 
 // Get all ambassadors or filter by city

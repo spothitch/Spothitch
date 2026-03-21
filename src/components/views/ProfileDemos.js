@@ -47,6 +47,9 @@ const _cIntro = 'px-5 py-7'
 const _overlayStyle = 'background:rgba(0,0,0,0.85);backdrop-filter:blur(8px)'
 const _btnStyle = 'background:linear-gradient(135deg,#fbbf24,#d97706)'
 
+// Banner shown on all demo overlays to clarify content is illustrative
+const _previewBanner = `<div class="bg-amber-500/20 border border-amber-500/30 rounded-xl px-3 py-2 mb-3 text-center"><span class="text-amber-400 text-xs font-semibold">👁️ ${t('demoPreviewBanner') || 'Aperçu. Les noms et chiffres sont fictifs.'}</span></div>`
+
 function _createDemo(id) {
   document.getElementById(id)?.remove()
   const overlay = document.createElement('div')
@@ -63,6 +66,8 @@ window.showPointsDemo = () => {
   const ov = _createDemo('points-demo-overlay')
   ov.innerHTML = `
     <div class="${_c.wrap}">
+      ${_previewBanner}
+      ${_previewBanner}
       <button onclick="closePointsDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
       <div id="points-demo-intro" class="${_c.intro} ${_cIntro}">
         <div class="text-5xl mb-3">🏆</div>
@@ -183,6 +188,8 @@ window.showJournalDemo = () => {
   const ov = _createDemo('journal-demo-overlay')
   ov.innerHTML = `
     <div class="${_c.wrap}">
+      ${_previewBanner}
+      ${_previewBanner}
       <button onclick="closeJournalDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
       <div id="journal-demo-intro" class="${_c.intro} ${_cIntro}">
         <div class="text-5xl mb-3">📔</div>
@@ -284,6 +291,8 @@ window.showSocialDemo = () => {
   const ov = _createDemo('social-demo-overlay')
   ov.innerHTML = `
     <div class="${_c.wrap}">
+      ${_previewBanner}
+      ${_previewBanner}
       <button onclick="closeSocialDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
       <div id="social-demo-intro" class="${_c.intro} ${_cIntro}">
         <div class="text-5xl mb-3">👥</div>
@@ -377,6 +386,8 @@ window.showCompanionDemo = () => {
   const ov = _createDemo('companion-demo-overlay')
   ov.innerHTML = `
     <div class="${_c.wrap}">
+      ${_previewBanner}
+      ${_previewBanner}
       <button onclick="closeCompanionDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
       <div id="companion-demo-intro" class="${_c.intro} ${_cIntro}">
         <div class="text-5xl mb-3">🛡️</div>
@@ -487,6 +498,8 @@ window.showHostelsDemo = () => {
   const ov = _createDemo('hostels-demo-overlay')
   ov.innerHTML = `
     <div class="${_c.wrap}">
+      ${_previewBanner}
+      ${_previewBanner}
       <button onclick="closeHostelsDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
       <div id="hostels-demo-intro" class="${_c.intro} ${_cIntro}">
         <div class="text-5xl mb-3">🏨</div>
@@ -570,6 +583,8 @@ window.showSpotDemo = () => {
   const ov = _createDemo('spot-demo-overlay')
   ov.innerHTML = `
     <div class="${_c.wrap}">
+      ${_previewBanner}
+      ${_previewBanner}
       <button onclick="closeSpotDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
       <div id="spot-demo-intro" class="${_c.intro} ${_cIntro}">
         <div class="text-5xl mb-3">📍</div>

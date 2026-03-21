@@ -4608,6 +4608,7 @@ export default {
   cityDemoTryBtn: 'Demo testen',
   cityDemoCloseBtn: 'Schließen',
   // Demo: generic
+  demoPreviewBanner: 'Vorschau. Namen und Zahlen sind fiktiv.',
   demoIntroBtn: 'Demo entdecken',
   // Demo: Points
   pointsDemoIntroTitle: 'Punkte, Rangliste & Belohnungen',

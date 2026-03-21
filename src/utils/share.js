@@ -76,7 +76,7 @@ ${t('joinMeOnSpotHitch') || 'Rejoins-moi sur SpotHitch !'}`;
  */
 export function shareApp() {
   const title = t('shareAppTitle') || 'SpotHitch - La communauté des autostoppeurs';
-  const text = t('shareAppText') || '🚗👍 Découvre SpotHitch, l\'app pour trouver les meilleurs spots d\'autostop dans le monde ! Plus de 100 spots vérifiés, guides par pays, et une communauté active.';
+  const text = t('shareAppText') || '🚗👍 Découvre SpotHitch, l\'app pour trouver les meilleurs spots d\'autostop partagés par la communauté. Guides par pays et planificateur de voyage.';
   const url = APP_URL;
 
   return share({ title, text, url });

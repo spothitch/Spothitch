@@ -278,7 +278,7 @@
 
 ## Vue du Projet
 
-**SpotHitch v2.0** - La communauté des autostoppeurs. PWA pour trouver et partager les meilleurs spots d'auto-stop (14 669 spots, 137 pays).
+**SpotHitch v2.0** - La communauté des autostoppeurs. PWA pour trouver et partager les meilleurs spots d'auto-stop. Spots 100% communautaires via Firestore.
 
 Site : **spothitch.com** (GitHub Pages, auto-deploy via GitHub Actions)
 
