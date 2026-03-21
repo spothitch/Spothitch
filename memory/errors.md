@@ -1264,3 +1264,23 @@ Chaque erreur suit ce format :
 - **Leçon** : **Tout handler utilisé dans un onclick d'un modal lazy-loaded DOIT avoir un stub défini dans un fichier statique (handlers/ ou main.js).** Et tout setState qui change l'apparence d'un modal DOIT appeler _forceRender.
 - **Fichiers** : src/handlers/authIdentity.js, src/components/modals/Auth.js
 - **Statut** : CORRIGÉ
+
+### ERR-107 — SOS config sidebar invisible (CSS stacking context)
+- **Date** : 2026-03-21
+- **Gravité** : CRITIQUE
+- **Description** : Les 6 sidebars de configuration SOS (contacts, faux appel, message, communauté, enregistrement, urgence) ne s'affichaient jamais. L'utilisateur cliquait sur un élément de config et rien ne se passait visuellement. La configuration SOS était donc inaccessible.
+- **Cause racine** : Les sidebars utilisaient `position: fixed` avec `z-index: 61`, mais le `body` avait `position: fixed` + `overflow: hidden` qui créait un contexte de confinement. Les éléments fixed à l'intérieur étaient clippés par le body.
+- **Correction** : Remplacé le mécanisme de sidebar glissante par un remplacement inline du contenu du panneau Configuration. Quand l'utilisateur clique sur un item, le contenu du panneau est remplacé par le formulaire correspondant. Bouton "Retour" restaure la checklist originale. Supprimé les éléments overlay/panel fixes.
+- **Leçon** : **JAMAIS utiliser `position: fixed` pour des éléments enfants quand le `body` a `position: fixed` ou `overflow: hidden`. Préférer le remplacement de contenu inline plutôt que des overlays/sidebars positionnées en fixed.** Toujours vérifier les screenshots Playwright des sidebars/overlays avant de push.
+- **Fichiers** : src/components/modals/SOS.js
+- **Statut** : CORRIGÉ
+
+### ERR-108 — Fox scripts port 5173 au lieu de 3000
+- **Date** : 2026-03-21
+- **Gravité** : MAJEUR
+- **Description** : Les 24 scripts Fox/checks utilisaient `localhost:5173` en dur, mais Vite est configuré sur le port 3000 (vite.config.js). Le Fox échouait systématiquement avec `ERR_CONNECTION_REFUSED`, bloquant les push vers main.
+- **Cause racine** : Le port par défaut de Vite était 5173 à l'origine. Quand il a été changé à 3000 dans vite.config.js, les scripts Fox n'ont pas été mis à jour.
+- **Correction** : Remplacement de `localhost:5173` par `localhost:3000` dans les 24 fichiers scripts.
+- **Leçon** : **Quand on change le port du serveur de dev, chercher TOUTES les occurrences du port dans les scripts avec `grep -r "localhost:PORT" scripts/`.**
+- **Fichiers** : scripts/fox.mjs, scripts/checks/*.mjs, scripts/visual-check.mjs, scripts/screenshot-all-light.cjs
+- **Statut** : CORRIGÉ

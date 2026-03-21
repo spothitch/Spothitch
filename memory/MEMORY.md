@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-21 (session 42 — SOS v4b redesign + hook background + audit auth)
+> Dernière mise à jour : 2026-03-21 (session 43 — backup Chromebook + tests optimaux + fix SOS sidebar)
 
 ---
 
@@ -81,7 +81,8 @@
 - **Site live** : spothitch.com (GitHub Pages, HTTPS actif, cert expire 2026-05-13)
 - **Spots** : 14 669 spots dans 137 pays (données importées, attribution par spot uniquement)
 - **Langues** : FR, EN, ES, DE
-- **Tests** : 35 fichiers, 1276 assertions (wiring + integration + unit), E2E Playwright, La Fourmi 191 tests/23 niveaux
+- **Tests** : 42 fichiers, 1328 assertions (wiring + integration + unit), E2E Playwright (37 fichiers dont userChains, errorHandling, performance), La Fourmi 191 tests/23 niveaux
+- **Backup** : cron 5min vers github.com/spothitch/chromebook-backup (sessions Claude, SSH, .env.local, config gh)
 
 ---
 
@@ -130,11 +131,12 @@
 
 ## À venir — prochaine session
 
-- **Phase 1 : Auth testable** — Vérifier inscription Google en prod, parcours complet inscription → profil → ami → message
+- **Push main** — Le dernier push main a réussi (Fox port fix). Vérifier que le CI complet passe sur main (y compris les E2E bloquants).
 - **Phase 2 : SOS Firebase** — Sauvegarder contacts SOS dans Firebase (pas juste localStorage), lier aux vrais utilisateurs
 - **Phase 3 : Notifications réelles** — Tester push notifications entre 2 comptes (message privé, alerte SOS)
 - **Phase 4 : Test multi-utilisateurs** — 2 comptes test, amis, messages, SOS entre eux
 - **Gardien redesign** — Créer mockups pour le mode Gardien (même approche que SOS v4b)
+- **Fix SOS sur main** — Le fix sidebar SOS (ERR-107) est sur dev mais pas encore sur main
 
 ---
 
@@ -163,6 +165,28 @@
 ---
 
 ## Dernières sessions (reconstitué depuis git log)
+
+### Session 2026-03-21 (session 43 — BACKUP CHROMEBOOK + TESTS OPTIMAUX + FIX SOS SIDEBAR)
+- **Backup automatique Chromebook** : repo privé `spothitch/chromebook-backup`, cron toutes les 5min. Sauvegarde sessions Claude, clés SSH, .env.local, config gh, mémoire projet. Script `restore.sh` + `setup-spothitch.sh` fusionné pour restauration complète après crash Linux.
+- **Audit complet tests CI** : analyse de tous les tests (1403 unit + 37 E2E). Constat : les tests vérifient que le HTML contient des mots, pas que les features marchent réellement.
+- **CI optimisé** :
+  - E2E Core/Features/Comprehensive/Stress **bloquent** maintenant le deploy (avant : ignorés)
+  - E2E Comprehensive + Stress tournent aussi sur `dev` (avant : seulement `main`)
+  - RGPD audit + i18n check devenus bloquants (avant : `continue-on-error: true`)
+- **Tests supprimés (796 lignes inutiles)** : modalFlags.test.js, storage.test.js, spots.test.js
+- **E2E améliorés avec résultats réels** :
+  - Recherche : vérifie que la carte se déplace vers Berlin (coordonnées 50-55°N)
+  - Zoom : vérifie que le niveau de zoom change réellement
+  - Thème : vérifie que la couleur de fond change + persiste dans le state
+  - Navigation : vérifie que le contenu change par onglet (pas juste aria-selected)
+- **3 nouveaux fichiers E2E** :
+  - `userChains.spec.js` : enchaînements séquentiels (recherche→spot→retour, persistance state, reload)
+  - `errorHandling.spec.js` : coupures réseau, données corrompues, GPS refusé
+  - `performance.spec.js` : temps de chargement, CLS, vitesse tabs, overflow mobile, touch targets
+- **Fix SOS sidebar (ERR-107)** : les 6 sections de configuration SOS étaient invisibles (CSS stacking context). Remplacé la sidebar `position: fixed` par un remplacement inline du contenu du panneau Configuration. Toutes les sections fonctionnent maintenant.
+- **Fix Fox port (ERR-108)** : 24 scripts Fox hardcodés sur port 5173 au lieu de 3000 (port Vite réel). Score Fox : 58 → 92/100.
+- **Fix wiring** : ajout signIn/signUp dans MAIN_JS_HANDLERS (QG 100/100)
+- **Fix tests SOS integration** : clé localStorage `spothitch_sos_disclaimer_seen` → `spothitch_sos_intro_seen` (6 tests corrigés)
 
 ### Session 2026-03-20/21 (session 42 — SOS V4B REDESIGN + HOOK BACKGROUND + AUDIT AUTH)
 - **Hook limit-background.sh** : max 1 tâche en arrière-plan à la fois (RÈGLE #21), empêche les crashs. Lit stdin (pas env var). Verrou /tmp/claude_bg_task.lock avec expiry 5 min.

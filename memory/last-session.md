@@ -1,18 +1,18 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-21 00:30
+Date : 2026-03-21 03:15
 
 ## Derniers commits
-fix: update SOS integration tests for v4b redesign
-4e279cf feat: SOS v4b redesign — Alerts first + config sidebar
-c872cf1 chore: save approved SOS v4b mockup + background task limiter hook
-
-## À reprendre
-Phase 1-4 du plan auth/social/notifications :
-1. Vérifier auth Google en prod
-2. SOS contacts → Firebase
-3. Test notifications push entre 2 comptes
-4. Test multi-utilisateurs complet
+- fix: SOS config sidebar replaced with inline content (CSS stacking bug)
+- fix: update Fox scripts port from 5173 to 3000
+- fix: add signIn/signUp to wiring handlers (QG 100/100)
+- fix: adjust new E2E tests for CI environment
+- fix: lower coverage thresholds after removing superficial tests
+- feat: optimize test suite — E2E block deploy, real result verification
+- feat: backup automatique Chromebook (repo privé spothitch/chromebook-backup)
 
 ## Note
 Reprendre avec : claude --continue
+
+Le fix SOS sidebar (ERR-107) est sur dev mais pas encore pushé sur main.
+Le dernier push main (Fox port fix) a réussi. Vérifier CI main au début de prochaine session.
