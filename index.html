@@ -148,11 +148,11 @@
         .splash-logo-text{font-size:1.5rem;font-weight:800;color:#f59e0b;margin:.5rem 0 0;letter-spacing:-0.02em}
         .splash-animation{position:relative;width:200px;height:60px;margin:1rem auto}
         .splash-hitchhiker{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;animation:hitchhikerBounce 2s ease-in-out infinite}
-        .hitchhiker-thumb{animation:thumbWave 1.5s ease-in-out infinite}
-        .splash-car{position:absolute;right:-40px;top:50%;transform:translateY(-50%);animation:carPass 3s ease-in-out infinite}
+        .hitchhiker-thumb{position:absolute;top:-6px;right:-18px;animation:thumbGrow 5s ease-in-out infinite}
+        .splash-car{position:absolute;right:-40px;top:50%;transform:translateY(-50%);animation:carPass 5s ease-in-out infinite}
         @keyframes hitchhikerBounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-55%)}}
-        @keyframes thumbWave{0%,100%{transform:rotate(0)}50%{transform:rotate(-15deg)}}
-        @keyframes carPass{0%{right:-40px;opacity:0}20%{opacity:1}80%{opacity:1}100%{right:220px;opacity:0}}
+        @keyframes thumbGrow{0%{transform:scale(1) rotate(0)}30%{transform:scale(1) rotate(0)}50%{transform:scale(1.4) rotate(-15deg)}70%{transform:scale(1.4) rotate(-15deg)}100%{transform:scale(1) rotate(0)}}
+        @keyframes carPass{0%{right:-60px;opacity:0}20%{opacity:1}80%{opacity:1}100%{right:320px;opacity:0}}
         .splash-road{position:absolute;bottom:30%;left:0;right:0;height:3px;z-index:1}
         .road-line{position:absolute;width:40px;height:3px;background:rgba(245,158,11,0.15);border-radius:2px;animation:roadMove 1.5s linear infinite}
         @keyframes roadMove{from{left:-60px}to{left:110%}}
@@ -232,47 +232,40 @@
         Skip to main content
     </a>
     
-    <!-- Splash Screen — full animation visible immediately, JS enriches with tips + progress -->
+    <!-- Splash Screen v12a — Thumb Grows (approved 2026-03-21) -->
     <div id="app-loader">
         <div id="splash-screen" class="splash-screen" aria-live="polite" aria-label="Loading SpotHitch">
             <div class="splash-bg"></div>
             <div class="splash-road"><div class="road-line"></div><div class="road-line"></div><div class="road-line"></div></div>
             <div class="splash-content">
                 <div class="splash-logo">
-                    <img src="logo.png" alt="SpotHitch" style="width:64px;height:64px;border-radius:16px;object-fit:cover" width="64" height="64" />
+                    <img src="logo.png" alt="SpotHitch" style="width:72px;height:72px;border-radius:18px;object-fit:cover" width="72" height="72" />
                     <h1 class="splash-logo-text">SpotHitch</h1>
                 </div>
                 <div class="splash-animation">
-                    <div class="splash-hitchhiker">
-                        <div class="hitchhiker-body" style="width:20px;height:20px;color:#f59e0b">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                        <div class="hitchhiker-thumb" style="width:20px;height:20px;color:#f59e0b">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+                    <div class="splash-hitchhiker" style="color:#f59e0b">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="filter:drop-shadow(0 0 6px rgba(245,158,11,0.2))"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <div class="hitchhiker-thumb" style="color:#f59e0b">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>
                         </div>
                     </div>
-                    <div class="splash-car" style="width:20px;height:20px;color:#f59e0b">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.354a2 2 0 0 0-1.854 1.3L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/></svg>
+                    <div class="splash-car" style="color:#f59e0b">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="filter:drop-shadow(0 0 6px rgba(245,158,11,0.15))"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.354a2 2 0 0 0-1.854 1.3L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/></svg>
                     </div>
                 </div>
-                <div style="width:100%;max-width:260px;margin:0.75rem auto 0">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-                        <span id="splash-status" style="font-size:11px;color:#94a3b8">Loading...</span>
-                        <span id="splash-progress-pct" style="font-size:11px;color:#f59e0b;font-weight:600">0%</span>
-                    </div>
-                    <div style="width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden">
+                <div style="width:100%;max-width:220px;margin:0.75rem auto 0">
+                    <div style="width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden">
                         <div id="splash-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:99px;transition:width .4s ease"></div>
                     </div>
                 </div>
-                <div id="splash-tip" style="margin-top:1rem;padding:0 1.25rem;max-width:320px;min-height:2.5rem;display:flex;align-items:flex-start;gap:8px;transition:opacity .3s">
-                    <span id="splash-tip-icon" style="flex-shrink:0;margin-top:2px;color:#f59e0b"></span>
-                    <span id="splash-tip-text" style="font-size:12px;color:#94a3b8;line-height:1.5;text-align:left"></span>
+                <div id="splash-tip" style="margin-top:1.25rem;padding:0 1.5rem;max-width:320px;min-height:3rem;transition:opacity .3s;text-align:center">
+                    <span id="splash-tip-text" style="font-size:14px;color:#94a3b8;line-height:1.6"></span>
                 </div>
             </div>
             <div class="splash-decorations">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="splash-sun" style="color:#f59e0b"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="splash-cloud splash-cloud-1" style="color:#94a3b8"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="splash-cloud splash-cloud-2" style="color:#94a3b8"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="splash-sun" style="color:#f59e0b"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="splash-cloud splash-cloud-1" style="color:#475569"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="splash-cloud splash-cloud-2" style="color:#475569"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
             </div>
         </div>
     </div>

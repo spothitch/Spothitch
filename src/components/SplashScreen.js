@@ -114,19 +114,8 @@ function _getProgress() {
 function _updateProgress() {
   const pct = _getProgress()
   const bar = document.getElementById('splash-progress-fill')
-  const pctEl = document.getElementById('splash-progress-pct')
-  const statusEl = document.getElementById('splash-status')
 
   if (bar) bar.style.width = pct + '%'
-  if (pctEl) pctEl.textContent = pct + '%'
-
-  // Update status label
-  if (statusEl) {
-    if (!_loadingSteps.mapModule) statusEl.textContent = labels.map + '...'
-    else if (!_loadingSteps.mapReady) statusEl.textContent = labels.map + '...'
-    else if (!_loadingSteps.spotsLoaded) statusEl.textContent = labels.spots + '...'
-    else statusEl.textContent = labels.app + '...'
-  }
 
   // Check if all done
   if (pct >= 100) {
@@ -218,28 +207,22 @@ export function initSplashScreen() {
     textEl.textContent = tips[0].text
   }
 
-  // Update status label to localized text
-  const statusEl = document.getElementById('splash-status')
-  if (statusEl) statusEl.textContent = labels.map + '...'
-
-  // Rotate tips every 3.5 seconds
+  // Rotate tips every 4 seconds
   _currentTipIndex = 0
   _tipInterval = setInterval(() => {
     _currentTipIndex = (_currentTipIndex + 1) % tips.length
     const tip = tips[_currentTipIndex]
     const tipEl = document.getElementById('splash-tip')
     const textEl = document.getElementById('splash-tip-text')
-    const iconEl = document.getElementById('splash-tip-icon')
 
     if (tipEl && textEl) {
       tipEl.style.opacity = '0'
       setTimeout(() => {
         textEl.textContent = tip.text
-        if (iconEl) iconEl.innerHTML = icon(tip.icon, 'w-4 h-4')
         tipEl.style.opacity = '1'
       }, 300)
     }
-  }, 3500)
+  }, 4000)
 
   // Minimum display time: 2.5s (enough to read at least 1 tip)
   _minTimeElapsed = false
