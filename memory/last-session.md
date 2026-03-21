@@ -1,18 +1,19 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-21 03:15
+Date : 2026-03-21 11:37
 
 ## Derniers commits
-- fix: SOS config sidebar replaced with inline content (CSS stacking bug)
-- fix: update Fox scripts port from 5173 to 3000
-- fix: add signIn/signUp to wiring handlers (QG 100/100)
-- fix: adjust new E2E tests for CI environment
-- fix: lower coverage thresholds after removing superficial tests
-- feat: optimize test suite — E2E block deploy, real result verification
-- feat: backup automatique Chromebook (repo privé spothitch/chromebook-backup)
+d6b5a9e fix: register new DM/search handlers in wiring test (QG 100/100)
+5a55780 chore: update memory files — session 43 (backup, tests, SOS fix)
+5c45e64 Merge branch 'feature/fix-sos-sidebar' into dev
+39b9001 fix: SOS config sidebar replaced with inline content (CSS stacking bug)
+fa5ef7f feat: expose sendDirectMessageTo + searchUsersGlobal for multi-user tests
+
+## À reprendre
+1. Splash screen intelligent (3-4s) avec barre de progression réelle + tips défilants
+2. Gardien redesign (mockups comme SOS v4b)
+3. Vérifier signup complet en prod
 
 ## Note
+CI 15/15 vert. Multi-user 30/34 OK. Comptes CI : ci-alice/bob/charlie/diana@spothitch.com
 Reprendre avec : claude --continue
-
-Le fix SOS sidebar (ERR-107) est sur dev mais pas encore pushé sur main.
-Le dernier push main (Fox port fix) a réussi. Vérifier CI main au début de prochaine session.

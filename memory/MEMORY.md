@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-21 (session 43 — backup Chromebook + tests optimaux + fix SOS sidebar)
+> Dernière mise à jour : 2026-03-21 (session 42b — SOS v4b + CSP fix + auth fixes + comptes CI + multi-user 30/34)
 
 ---
 
@@ -131,12 +131,9 @@
 
 ## À venir — prochaine session
 
-- **Push main** — Le dernier push main a réussi (Fox port fix). Vérifier que le CI complet passe sur main (y compris les E2E bloquants).
-- **Phase 2 : SOS Firebase** — Sauvegarder contacts SOS dans Firebase (pas juste localStorage), lier aux vrais utilisateurs
-- **Phase 3 : Notifications réelles** — Tester push notifications entre 2 comptes (message privé, alerte SOS)
-- **Phase 4 : Test multi-utilisateurs** — 2 comptes test, amis, messages, SOS entre eux
-- **Gardien redesign** — Créer mockups pour le mode Gardien (même approche que SOS v4b)
-- **Fix SOS sur main** — Le fix sidebar SOS (ERR-107) est sur dev mais pas encore sur main
+- **Splash screen intelligent** — Transformer le splash en vrai écran de chargement (3-4s) avec barre de progression réelle + tips/conseils qui défilent. Pendant ce temps : précharger MapLibre, style carte, spots Firebase, GPS, auth. Quand la barre finit → carte instantanée, zéro écran blanc.
+- **Gardien redesign** — Créer mockups pour le mode Gardien (même approche que SOS v4b), sauvegarder dans memory/mockups/
+- **Fix signup re-render** — Le setAuthMode('register') fonctionne maintenant (fingerprint fix) mais à vérifier en prod que l'inscription complète marche
 
 ---
 
@@ -165,6 +162,21 @@
 ---
 
 ## Dernières sessions (reconstitué depuis git log)
+
+### Session 2026-03-20/21 (session 42b — SOS V4B + AUTH FIXES + MULTI-USER TESTS + COMPTES CI)
+- **Hook limit-background** : max 1 tâche en arrière-plan (RÈGLE #21), empêche crashs Chromebook
+- **SOS v4b redesign complet** : réécriture totale. Intro explicative + 2 onglets (Alertes en 1er, Config en 2e) + 7 sidebars glissantes (contacts, faux appel, message, communauté, enregistrement, urgence, test). Mode discret supprimé.
+- **20 mockups HTML** créés (10 SOS + 10 Gardien). Mockup approuvé sauvegardé dans `memory/mockups/sos-v4b-approved.html`
+- **Bug critique CSP** : `https://www.google.com` manquait dans script-src → reCAPTCHA Enterprise bloqué → TOUTE l'auth email/password cassée en prod (ERR-105)
+- **Bug signup** : `authMode` pas dans le modal fingerprint → cliquer "Sign up" ne basculait pas le formulaire (ERR-106)
+- **Auth stubs** : setAuthMode/signIn/signUp avaient des stubs pour le lazy-load race condition
+- **Contacts SOS Firebase** : emergencyContacts + config SOS syncés dans `users/{uid}/syncData/local`, restaurés sur nouveau téléphone
+- **Comptes test recréés** : 4 comptes CI (alice, bob, charlie, diana) créés via le formulaire signup du site (JAMAIS via auth:import). Mot de passe dans GitHub Secret `E2E_TEST_PASSWORD`
+- **Multi-user test** : 30 OK, 0 FAIL, 4 SKIP (eventual consistency Firestore). Auth, amis, DM, SOS complet, faux appel, notifications, sync Firebase, logout/reconnect
+- **Handlers exposés** : `sendDirectMessageTo`, `getConversationWith`, `searchUsersGlobal` pour les tests
+- **67 clés i18n** ajoutées en 4 langues (FR/EN/ES/DE) pour SOS v4b
+- **CI** : 15/15 jobs verts sur main, QG 100/100, déployé spothitch.com
+- **Audit perf carte** : bottleneck identifié (OpenFreeMap style 800ms-3s, MapLibre 200-500ms, Firebase spots 1-2s). Solution proposée : splash screen intelligent avec barre de progression réelle + tips
 
 ### Session 2026-03-21 (session 43 — BACKUP CHROMEBOOK + TESTS OPTIMAUX + FIX SOS SIDEBAR)
 - **Backup automatique Chromebook** : repo privé `spothitch/chromebook-backup`, cron toutes les 5min. Sauvegarde sessions Claude, clés SSH, .env.local, config gh, mémoire projet. Script `restore.sh` + `setup-spothitch.sh` fusionné pour restauration complète après crash Linux.
