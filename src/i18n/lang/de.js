@@ -88,6 +88,8 @@ export default {
   levelNative: 'Muttersprachler',
   validateMyCheckin: 'Meinen Check-in bestätigen',
   checkinValidated: 'Check-in bestätigt!',
+  checkinAlreadyToday: 'Du hast diesen Spot heute bereits bestätigt',
+  cannotReviewOwnSpot: 'Du kannst deinen eigenen Spot nicht bewerten',
   checkinError: 'Fehler beim Check-in',
 
   // Ratings

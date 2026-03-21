@@ -79,6 +79,7 @@ window.openSpotDetail = window.selectSpot; // alias for services that use openSp
 // Ignore close calls within 600ms of opening to prevent the open→close→reopen flicker.
 let _spotDetailOpenedAt = 0
 let _origSelectSpot = null
+let _selectSpotRequestId = 0
 
 // Deferred setup: runs when _appInternals is available (after main.js init)
 function _ensureSelectSpotOverride() {
@@ -89,13 +90,19 @@ function _ensureSelectSpotOverride() {
   internals.actions.selectSpot = async (spot) => {
     if (spot) {
       _spotDetailOpenedAt = Date.now()
+      // Cancel stale requests: only the latest selectSpot call shows its result
+      const requestId = ++_selectSpotRequestId
       // Load live Firebase data BEFORE showing the modal
       try {
         const { fetchSpotValidations, mergeSpotData } = await import('../services/spotLiveData.js')
         const validations = await fetchSpotValidations(spot.id)
+        // Abort if a newer request was started while we were fetching
+        if (requestId !== _selectSpotRequestId) return
         const enriched = mergeSpotData({ ...spot, _liveLoaded: false }, validations)
         if (enriched) spot = enriched
       } catch { /* offline — show static data */ }
+      // Final check: still the latest request?
+      if (requestId !== _selectSpotRequestId) return
     }
     _origSelectSpot(spot)
   }
@@ -312,11 +319,19 @@ window.submitReview = async (spotId) => {
   const t = window.t
   const { getFirebase } = window._appInternals
   if (!window.requireProfile('review')) return
+
+  // Prevent self-review: user cannot review their own spot
+  const spot = window.getState().selectedSpot
+  const currentUid = window.getState().currentUser?.uid || window.getState().userProfile?.uid
+  if (currentUid && spot?.creatorId === currentUid) {
+    window.showToast(t('cannotReviewOwnSpot') || 'Tu ne peux pas noter ton propre spot', 'warning')
+    return
+  }
+
   const comment = document.getElementById('review-comment')?.value
   const rating = window.getState().currentRating || 4
   if (comment) {
     // Proximity check for reviews
-    const spot = window.getState().selectedSpot
     const spotLat = spot?.coordinates?.lat || spot?.lat
     const spotLng = spot?.coordinates?.lng || spot?.lng
     if (spotLat && spotLng) {

@@ -299,6 +299,15 @@ export function registerCheckinHandlers() {
     const spot = state.checkinSpot;
     if (!spot) return;
 
+    // Rate limit: max 1 check-in per spot per 24h per user
+    const checkinKey = `spothitch_checkin_${spot.id}_${state.user?.uid || 'anon'}`
+    const lastCheckin = parseInt(localStorage.getItem(checkinKey) || '0', 10)
+    if (Date.now() - lastCheckin < 24 * 60 * 60 * 1000) {
+      const { showToast: toast } = await import('../../services/notifications.js')
+      toast(t('checkinAlreadyToday') || 'Tu as déjà validé ce spot aujourd\'hui', 'warning')
+      return
+    }
+
     // Proximity check: user must be near the spot
     const spotLat = spot.coordinates?.lat || spot.lat
     const spotLng = spot.coordinates?.lng || spot.lng
@@ -354,6 +363,9 @@ export function registerCheckinHandlers() {
       // Record check-in and add points
       recordCheckin();
       addPoints(points);
+
+      // Record check-in timestamp for rate limiting
+      localStorage.setItem(checkinKey, String(Date.now()))
 
       // Close modal and show success
       window.closeCheckinModal();
