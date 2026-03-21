@@ -313,7 +313,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        phase: [1]
+        phase: [1, 2]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
