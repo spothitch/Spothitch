@@ -417,7 +417,15 @@ async function runAudit(themeMode = 'both') {
 
     try {
       await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 20000 })
-      await page.waitForTimeout(3000)
+      // Wait for app to be fully loaded (splash screen removed)
+      await page.waitForSelector('#app.loaded', { timeout: 10000 }).catch(() => {})
+      await page.evaluate(() => {
+        const splash = document.getElementById('splash-screen')
+        if (splash) splash.remove()
+        const app = document.getElementById('app')
+        if (app && !app.classList.contains('loaded')) app.classList.add('loaded')
+      })
+      await page.waitForTimeout(2000)
 
       // Dismiss any popups
       try {
