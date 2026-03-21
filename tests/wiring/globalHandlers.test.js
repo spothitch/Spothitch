@@ -194,6 +194,8 @@ const MAIN_JS_HANDLERS = [
   // Direct Messages (defined in directMessages.js)
   'openConversation', 'closeConversation', 'sendDM',
   'shareDMSpot', 'shareDMPosition', 'deleteDMConversation',
+  'sendDirectMessageTo', 'getConversationWith',
+  'searchUsersGlobal',
   // Events (defined in events.js)
   'openCreateEvent', 'closeCreateEvent', 'submitCreateEvent',
   'joinEvent', 'leaveEvent', 'deleteEventAction',
