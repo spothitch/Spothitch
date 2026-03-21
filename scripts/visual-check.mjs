@@ -5,7 +5,7 @@
  * Used as part of the pre-push quality checklist (CLAUDE.md Rule #14)
  *
  * Usage: node scripts/visual-check.mjs [--serve]
- *   --serve: Start a dev server automatically (otherwise expects localhost:3000)
+ *   --serve: Start a dev server automatically (otherwise expects localhost:4173)
  *
  * Output: Screenshots saved to audit-screenshots/visual-check-*.png
  */
@@ -19,7 +19,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const SCREENSHOT_DIR = join(ROOT, 'audit-screenshots')
 const VIEWPORT = { width: 390, height: 844 }
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = 'http://localhost:4173'
 
 // Ensure screenshot directory exists
 if (!existsSync(SCREENSHOT_DIR)) mkdirSync(SCREENSHOT_DIR, { recursive: true })

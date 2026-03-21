@@ -22,7 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..', '..')
 const REPORT_DIR = join(ROOT, 'audit-screenshots')
 const VIEWPORT = { width: 390, height: 844 }
-const BASE_URL = process.env.APP_URL || 'http://localhost:3000'
+const BASE_URL = process.env.APP_URL || 'http://localhost:4173'
 
 if (!existsSync(REPORT_DIR)) mkdirSync(REPORT_DIR, { recursive: true })
 

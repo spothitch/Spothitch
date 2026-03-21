@@ -80,7 +80,7 @@ const SCREENS = [
     localStorage.setItem('spothitch_tutorial_complete', '1')
   })
 
-  await page.goto('http://localhost:3000', { waitUntil: 'networkidle', timeout: 30000 })
+  await page.goto('http://localhost:4173', { waitUntil: 'networkidle', timeout: 30000 })
   await page.evaluate(() => document.body.classList.add('light-theme'))
   await page.waitForTimeout(1500)
 
