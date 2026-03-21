@@ -1,0 +1,61 @@
+SPOTHITCH — BRAND COLORS
+========================
+
+JAUNE DORÉ (mains / logo)
+  HEX:  #F0A830
+  RGB:  240, 168, 48
+  HSL:  38°, 87%, 56%
+
+BLEU MARINE (fond principal)
+  HEX:  #0F1B2D
+  RGB:  15, 27, 45
+  HSL:  216°, 50%, 12%
+
+NOIR CONTOUR (outline logo sur fond clair)
+  HEX:  #0F141E
+  RGB:  15, 20, 30
+  HSL:  220°, 33%, 9%
+
+BLANC (texte sur fond sombre)
+  HEX:  #FFFFFF
+  RGB:  255, 255, 255
+
+---
+
+UTILISATION DES VERSIONS DU LOGO
+=================================
+
+FOND CLAIR (blanc, beige, gris clair...) :
+  → Utiliser les fichiers "outlined-transparent-*"
+  → Le contour noir rend le logo lisible
+
+FOND SOMBRE (bleu marine, noir, gris foncé...) :
+  → Utiliser les fichiers "no-outline-transparent-*" ou "navy-background-*"
+  → Pas besoin de contour, le fond fait le travail
+
+APP / PWA (manifest.json) :
+  → icon-192 et icon-512 obligatoires
+  → Utiliser "navy-background-192x192.png" et "navy-background-512x512.png"
+
+iOS APP STORE :
+  → Utiliser "ios-rounded-1024x1024.png"
+
+FAVICON :
+  → Utiliser "favicon.ico"
+
+IMPRESSION / MARKETING :
+  → Utiliser les versions 2048x2048
+
+---
+
+FICHIERS INCLUS
+===============
+
+outlined-transparent-*    = Logo avec contour lisse 8px, fond transparent
+no-outline-transparent-*  = Logo sans contour, fond transparent  
+navy-background-*         = Logo sur fond bleu marine (#0F1B2D)
+white-background-*        = Logo avec contour sur fond blanc
+ios-rounded-*             = Coins arrondis style iOS
+favicon.ico               = Multi-taille pour navigateurs
+
+Tailles: 16, 32, 48, 72, 96, 128, 144, 152, 180, 192, 384, 512, 1024, 2048
