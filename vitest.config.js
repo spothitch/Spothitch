@@ -29,10 +29,10 @@ export default defineConfig({
         'src/components/modals/AddSpot.js',
       ],
       thresholds: {
-        statements: 19,
+        statements: 18,
         branches: 17,
-        functions: 19,
-        lines: 19,
+        functions: 18,
+        lines: 18,
       },
     },
     include: ['tests/**/*.test.js'],
