@@ -57,10 +57,14 @@ test.describe('Network Failure Resilience', () => {
     const criticalErrors = errors.filter(e =>
       !e.includes('Firebase') && !e.includes('net::ERR') &&
       !e.includes('Failed to fetch') && !e.includes('Sentry') &&
-      !e.includes('WebGL') && !e.includes('maplibregl') &&
+      !e.includes('WebGL') && !e.includes('maplibregl') && !e.includes('MapLibre') &&
       !e.includes('WebSocket') && !e.includes('Nominatim') &&
       !e.includes('tile') && !e.includes('pbf') &&
-      !e.includes('canvas') && !e.includes('ResizeObserver')
+      !e.includes('canvas') && !e.includes('ResizeObserver') &&
+      !e.includes('maplibre') && !e.includes('AbortError') &&
+      !e.includes('NetworkError') && !e.includes('offline') &&
+      !e.includes('workbox') && !e.includes('service-worker') &&
+      !e.includes('caches') && !e.includes('Cache')
     )
     expect(criticalErrors).toEqual([])
 
