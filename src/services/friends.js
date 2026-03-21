@@ -267,6 +267,9 @@ export async function removeFriend(friendId) {
   }
 }
 
+// Expose searchUsers globally for tests and external callers
+window.searchUsersGlobal = async (query) => searchUsers(query)
+
 export default {
   subscribeFriendsList,
   unsubscribeFriendsList,

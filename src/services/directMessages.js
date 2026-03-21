@@ -568,6 +568,20 @@ window.shareDMPosition = async (recipientId) => {
   )
 }
 
+// Programmatic DM send (for tests and external callers)
+window.sendDirectMessageTo = async (recipientId, text) => {
+  const result = await sendDirectMessage(recipientId, text)
+  return result
+}
+
+// Get conversation with a user (for tests)
+window.getConversationWith = async (recipientId) => {
+  const msgs = getConversationMessages(recipientId)
+  const list = getConversationsList()
+  const conv = list.find(c => c.recipientId === recipientId || c.recipientName === recipientId)
+  return conv || (msgs.length > 0 ? { messages: msgs } : null)
+}
+
 window.deleteDMConversation = async (recipientId) => {
   if (window.confirm(t('confirmDeleteConversation') || 'Supprimer cette conversation ?')) {
     await deleteConversation(recipientId)
