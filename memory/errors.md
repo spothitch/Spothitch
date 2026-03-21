@@ -1244,3 +1244,23 @@ Chaque erreur suit ce format :
 - **Leçon** : **Les modules critiques (spotLoader, firebase) doivent être importés statiquement, pas dynamiquement.** Le lazy loading est pour les modals et vues, pas pour les services de données. Le debounce carte doit être < 300ms pour une UX fluide.
 - **Fichiers** : src/main.js, src/services/spotLoader.js
 - **Statut** : CORRIGÉ
+
+### ERR-105 — CSP bloque reCAPTCHA Enterprise → auth cassée en prod (CRITIQUE)
+- **Date** : 2026-03-21
+- **Gravité** : CRITIQUE
+- **Description** : La Content Security Policy dans index.html n'autorisait pas https://www.google.com dans script-src. Le script reCAPTCHA Enterprise (requis par Firebase App Check) ne pouvait pas se charger. Résultat : TOUTE connexion email/mot de passe échouait avec "Network error" en production.
+- **Cause racine** : Quand App Check avec reCAPTCHA Enterprise a été activé, le domaine www.google.com n'a pas été ajouté à la CSP. Seul www.gstatic.com était autorisé.
+- **Correction** : Ajout de `https://www.google.com` dans script-src ET frame-src de la CSP.
+- **Leçon** : **Quand on active un service Google (App Check, reCAPTCHA, Analytics), TOUJOURS vérifier que la CSP autorise ses domaines.** Tester l'auth en prod après chaque changement de CSP. Les erreurs CSP sont silencieuses (pas de toast, juste une erreur console).
+- **Fichiers** : index.html
+- **Statut** : CORRIGÉ
+
+### ERR-106 — setAuthMode ne re-rend pas le modal Auth (lazy-load race)
+- **Date** : 2026-03-21
+- **Gravité** : MAJEUR
+- **Description** : Cliquer sur "Sign up" dans le modal Auth ne basculait pas le formulaire. Le state authMode passait à "register" mais le DOM ne changeait pas. Aussi, signIn/signUp n'étaient pas définis avant le chargement complet de Auth.js.
+- **Cause racine** : 1) setAuthMode faisait setState sans _forceRender, et le fingerprint de render ne détectait pas le changement. 2) Pas de stubs pour signIn/signUp avant le lazy-load.
+- **Correction** : 1) Ajout _forceRender() après setState dans setAuthMode. 2) Stubs dans authIdentity.js qui lazy-importent Auth.js et délèguent.
+- **Leçon** : **Tout handler utilisé dans un onclick d'un modal lazy-loaded DOIT avoir un stub défini dans un fichier statique (handlers/ ou main.js).** Et tout setState qui change l'apparence d'un modal DOIT appeler _forceRender.
+- **Fichiers** : src/handlers/authIdentity.js, src/components/modals/Auth.js
+- **Statut** : CORRIGÉ
