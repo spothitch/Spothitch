@@ -787,13 +787,13 @@ function _getConfigContent(section) {
       return `${backBtn}
         <div class="${titleCls}">${t('sosCommunity') || 'Communauté'}</div>
         <div class="${descCls}">${t('sosCommunityConfigDesc') || 'Les autostoppeurs SpotHitch proches reçoivent ta position quand tu actives le SOS.'}</div>
-        <div class="flex items-center justify-between py-2"><span class="text-[13px] flex items-center gap-1.5">${icon('radio', 'w-3 h-3 text-blue-500')} ${t('sosSendToCommunity') || 'Envoyer à la communauté'}</span><div onclick="toggleCommunityAlerts()" class="w-9 h-5 rounded-full ${getCommunityAlertSettings().receiveAlerts ? 'bg-amber-500' : 'bg-white/10'} relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] ${getCommunityAlertSettings().receiveAlerts ? 'right-[3px]' : 'left-[3px]'}"></span></div></div>
+        <div class="flex items-center justify-between py-2"><span class="text-[13px] flex items-center gap-1.5">${icon('radio', 'w-3 h-3 text-blue-500')} ${t('sosSendToCommunity') || 'Envoyer à la communauté'}</span><div onclick="toggleCommunityAlerts()" role="button" tabindex="0" class="w-9 h-5 rounded-full ${getCommunityAlertSettings().receiveAlerts ? 'bg-amber-500' : 'bg-white/10'} relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] ${getCommunityAlertSettings().receiveAlerts ? 'right-[3px]' : 'left-[3px]'}"></span></div></div>
         <div class="${labelCls}">${t('sosRadius') || 'Rayon'}</div>
         <div class="flex gap-1.5 flex-wrap">
           ${[5, 10, 25, 50].map(r => `<button onclick="setCommunityRadius('broadcastRadius',${r});sosOpenConfig('community')" class="px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${(getCommunityAlertSettings().broadcastRadius || 10) === r ? 'bg-amber-500/[0.12] border-amber-500/30 text-amber-500' : 'bg-white/[0.04] border-white/[0.06] text-slate-400'}" type="button">${r} km</button>`).join('')}
         </div>
         <div class="mt-4 p-3 bg-blue-500/[0.04] border border-blue-500/[0.08] rounded-lg">
-          <div class="flex items-center justify-between py-1"><span class="text-[13px] flex items-center gap-1.5">${icon('heart', 'w-3 h-3 text-blue-400')} ${t('sosReceiveAlerts') || 'Recevoir les alertes des autres'}</span><div onclick="toggleCommunityAlerts()" class="w-9 h-5 rounded-full ${getCommunityAlertSettings().receiveAlerts ? 'bg-amber-500' : 'bg-white/10'} relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] ${getCommunityAlertSettings().receiveAlerts ? 'right-[3px]' : 'left-[3px]'}"></span></div></div>
+          <div class="flex items-center justify-between py-1"><span class="text-[13px] flex items-center gap-1.5">${icon('heart', 'w-3 h-3 text-blue-400')} ${t('sosReceiveAlerts') || 'Recevoir les alertes des autres'}</span><div onclick="toggleCommunityAlerts()" role="button" tabindex="0" class="w-9 h-5 rounded-full ${getCommunityAlertSettings().receiveAlerts ? 'bg-amber-500' : 'bg-white/10'} relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] ${getCommunityAlertSettings().receiveAlerts ? 'right-[3px]' : 'left-[3px]'}"></span></div></div>
           <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">${t('sosReceiveAlertsHint') || 'Sois notifié si un autostoppeur proche a besoin d\'aide.'}</p>
         </div>`
 
@@ -865,7 +865,7 @@ function _renderConfigContact(contact, index, primaryIdx) {
         <div class="text-[12px] font-semibold text-slate-200 truncate">${escapeHTML(contact.name)}</div>
         <div class="text-[10px] text-slate-500 truncate">${escapeHTML(contact.phone || contact.username || '')}</div>
       </div>
-      ${index === primaryIdx ? `<span class="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-500/[0.12] text-emerald-500 shrink-0">${t('sosPrimaryContact') || 'Principal'}</span>` : ''}
+      ${index === primaryIdx ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-500/[0.12] text-emerald-500 shrink-0">${t('sosPrimaryContact') || 'Principal'}</span>` : ''}
       <button onclick="removeEmergencyContact(${index})" class="w-6 h-6 flex items-center justify-center shrink-0" type="button">${icon('trash-2', 'w-3 h-3 text-slate-500')}</button>
     </div>
   `

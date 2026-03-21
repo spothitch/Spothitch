@@ -224,6 +224,9 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_sos_custom_msg', category: DataCategory.SECURITY, description: 'Custom SOS alert message', sensitive: true },
   { key: 'spothitch_sos_primary', category: DataCategory.SECURITY, description: 'Primary emergency contact', sensitive: true },
   { key: 'spothitch_sos_last_pos', category: DataCategory.SECURITY, description: 'Last known GPS position for SOS', sensitive: true },
+  { key: 'spothitch_sos_intro_seen', category: DataCategory.SETTINGS, description: 'SOS v4b intro screen seen flag' },
+  { key: 'spothitch_sos_fake_name', category: DataCategory.SETTINGS, description: 'SOS fake call display name' },
+  { key: 'spothitch_sos_fake_delay', category: DataCategory.SETTINGS, description: 'SOS fake call delay in seconds' },
 
   // === COMPANION v2 ===
   { key: 'spothitch_companion', category: DataCategory.SECURITY, description: 'Companion mode settings and trusted contacts', sensitive: true },
