@@ -183,9 +183,12 @@ for (const tab of tabs) {
       }
     })
 
-    // Navigate to app
+    // Navigate to app and wait for splash to finish
     await page.goto('/')
-    await page.waitForTimeout(1000)
+    await Promise.race([
+      page.waitForSelector('#app.loaded', { timeout: 10000 }),
+      page.waitForTimeout(8000),
+    ]).catch(() => {})
 
     // Dismiss onboarding
     await dismissOnboarding(page)

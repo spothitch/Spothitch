@@ -30,6 +30,10 @@ test.describe('Map View', () => {
     const zoomInBtn = page.locator('[onclick*="homeZoomIn"]').first()
     await expect(zoomInBtn).toBeVisible({ timeout: 15000 })
 
+    // Wait for map to be fully loaded (splash may delay map init)
+    await page.waitForFunction(() => window.homeMapInstance?.getZoom, { timeout: 15000 }).catch(() => {})
+    await page.waitForTimeout(500)
+
     // Get zoom level BEFORE
     const zoomBefore = await page.evaluate(() => {
       const map = window.homeMapInstance
