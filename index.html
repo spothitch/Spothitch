@@ -141,6 +141,31 @@
         @keyframes spin{to{transform:rotate(360deg)}}
         #app{opacity:0;transition:opacity .3s}
         #app.loaded{opacity:1}
+        .splash-screen{position:fixed;inset:0;z-index:9999;overflow:hidden}
+        .splash-bg{position:absolute;inset:0;background:linear-gradient(180deg,#0f1520 0%,#1a2332 50%,#0f1520 100%)}
+        .splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+        .splash-logo{text-align:center;margin-bottom:1rem}
+        .splash-logo-text{font-size:1.5rem;font-weight:800;color:#f59e0b;margin:.5rem 0 0;letter-spacing:-0.02em}
+        .splash-animation{position:relative;width:200px;height:60px;margin:1rem auto}
+        .splash-hitchhiker{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;animation:hitchhikerBounce 2s ease-in-out infinite}
+        .hitchhiker-thumb{animation:thumbWave 1.5s ease-in-out infinite}
+        .splash-car{position:absolute;right:-40px;top:50%;transform:translateY(-50%);animation:carPass 3s ease-in-out infinite}
+        @keyframes hitchhikerBounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-55%)}}
+        @keyframes thumbWave{0%,100%{transform:rotate(0)}50%{transform:rotate(-15deg)}}
+        @keyframes carPass{0%{right:-40px;opacity:0}20%{opacity:1}80%{opacity:1}100%{right:220px;opacity:0}}
+        .splash-road{position:absolute;bottom:30%;left:0;right:0;height:3px;z-index:1}
+        .road-line{position:absolute;width:40px;height:3px;background:rgba(245,158,11,0.15);border-radius:2px;animation:roadMove 1.5s linear infinite}
+        @keyframes roadMove{from{left:-60px}to{left:110%}}
+        .splash-decorations{position:absolute;inset:0;z-index:1;pointer-events:none}
+        .splash-sun{position:absolute;top:15%;right:15%;animation:sunPulse 3s ease-in-out infinite}
+        @keyframes sunPulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+        .splash-cloud{position:absolute;opacity:.3}
+        .splash-cloud-1{top:20%;left:10%;animation:cloudDrift1 8s linear infinite}
+        .splash-cloud-2{top:35%;right:15%;animation:cloudDrift2 10s linear infinite}
+        @keyframes cloudDrift1{from{transform:translateX(0)}to{transform:translateX(30px)}}
+        @keyframes cloudDrift2{from{transform:translateX(0)}to{transform:translateX(-20px)}}
+        .splash-exit{animation:splashFadeOut .4s ease forwards}
+        @keyframes splashFadeOut{to{opacity:0;transform:scale(1.05)}}
         .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     </style>
 
@@ -207,27 +232,47 @@
         Skip to main content
     </a>
     
-    <!-- Splash Screen — visible immediately, no JS needed -->
+    <!-- Splash Screen — full animation visible immediately, JS enriches with tips + progress -->
     <div id="app-loader">
-        <div id="splash-screen" style="position:fixed;inset:0;background:linear-gradient(180deg,#0f1520 0%,#0a1018 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999">
-            <!-- Logo -->
-            <div style="text-align:center;margin-bottom:1.5rem">
-                <img src="logo.png" alt="SpotHitch" style="width:64px;height:64px;border-radius:16px;object-fit:cover" width="64" height="64" />
-                <h1 style="font-size:1.5rem;font-weight:800;color:#f59e0b;margin:0.5rem 0 0;font-family:system-ui,-apple-system,sans-serif;letter-spacing:-0.02em">SpotHitch</h1>
-            </div>
-            <!-- Progress bar -->
-            <div style="width:100%;max-width:260px;padding:0 1.5rem">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-                    <span id="splash-status" style="font-size:11px;color:#94a3b8">Loading...</span>
-                    <span id="splash-progress-pct" style="font-size:11px;color:#f59e0b;font-weight:600">0%</span>
+        <div id="splash-screen" class="splash-screen" aria-live="polite" aria-label="Loading SpotHitch">
+            <div class="splash-bg"></div>
+            <div class="splash-road"><div class="road-line"></div><div class="road-line"></div><div class="road-line"></div></div>
+            <div class="splash-content">
+                <div class="splash-logo">
+                    <img src="logo.png" alt="SpotHitch" style="width:64px;height:64px;border-radius:16px;object-fit:cover" width="64" height="64" />
+                    <h1 class="splash-logo-text">SpotHitch</h1>
                 </div>
-                <div style="width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden">
-                    <div id="splash-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:99px;transition:width .4s ease"></div>
+                <div class="splash-animation">
+                    <div class="splash-hitchhiker">
+                        <div class="hitchhiker-body" style="width:20px;height:20px;color:#f59e0b">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="hitchhiker-thumb" style="width:20px;height:20px;color:#f59e0b">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+                        </div>
+                    </div>
+                    <div class="splash-car" style="width:20px;height:20px;color:#f59e0b">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.354a2 2 0 0 0-1.854 1.3L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/></svg>
+                    </div>
+                </div>
+                <div style="width:100%;max-width:260px;margin:0.75rem auto 0">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                        <span id="splash-status" style="font-size:11px;color:#94a3b8">Loading...</span>
+                        <span id="splash-progress-pct" style="font-size:11px;color:#f59e0b;font-weight:600">0%</span>
+                    </div>
+                    <div style="width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden">
+                        <div id="splash-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:99px;transition:width .4s ease"></div>
+                    </div>
+                </div>
+                <div id="splash-tip" style="margin-top:1rem;padding:0 1.25rem;max-width:320px;min-height:2.5rem;display:flex;align-items:flex-start;gap:8px;transition:opacity .3s">
+                    <span id="splash-tip-icon" style="flex-shrink:0;margin-top:2px;color:#f59e0b"></span>
+                    <span id="splash-tip-text" style="font-size:12px;color:#94a3b8;line-height:1.5;text-align:left"></span>
                 </div>
             </div>
-            <!-- Tip placeholder (JS fills with real tips) -->
-            <div id="splash-tip" style="margin-top:1.25rem;padding:0 1.5rem;max-width:320px;min-height:2.5rem;display:flex;align-items:flex-start;gap:8px;transition:opacity .3s">
-                <span id="splash-tip-text" style="font-size:12px;color:#64748b;line-height:1.5;text-align:center;width:100%"></span>
+            <div class="splash-decorations">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="splash-sun" style="color:#f59e0b"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="splash-cloud splash-cloud-1" style="color:#94a3b8"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="splash-cloud splash-cloud-2" style="color:#94a3b8"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
             </div>
         </div>
     </div>
