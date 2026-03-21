@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-21 (session 42b — SOS v4b + CSP fix + auth fixes + comptes CI + multi-user 30/34)
+> Dernière mise à jour : 2026-03-21 (session multi-user Phase 1 complète — 35/35 tests, 12 fixes app, fake data cleanup, Fox fixes)
 
 ---
 
@@ -20,9 +20,9 @@
 
 ---
 
-## CRITIQUE — Données spots importées
+## CRITIQUE — Spots = 100% communautaires
 
-**Les données spots importées (14 669 spots) seront SUPPRIMÉES avant le lancement public.** SpotHitch repart de ZÉRO avec uniquement les spots créés par la communauté. NE JAMAIS mentionner ces chiffres dans le marketing/teasing. Antoine l'a répété plusieurs fois — c'est une décision ferme. Les mentions d'attribution ont été nettoyées le 2026-03-13 (seule l'attribution par spot dans SpotDetail est conservée).
+**Les spots sont uniquement ceux créés par la communauté via Firestore.** Il n'y a AUCUNE donnée importée dans l'app. ZÉRO donnée fictive ou nombre inventé. Antoine insiste : rien de faux dans l'app. Les faux ambassadeurs, faux chiffres de spots, et faux profils démo ont été supprimés le 2026-03-21. Les démos de features futures affichent un bandeau "Aperçu. Les noms et chiffres sont fictifs." en 4 langues.
 
 ---
 
@@ -78,19 +78,21 @@
 - **Version** : 2.0.0
 - **Commits** : 432+
 - **Premier commit** : 2025-12-23
-- **Site live** : spothitch.com (GitHub Pages, HTTPS actif, cert expire 2026-05-13)
-- **Spots** : 14 669 spots dans 137 pays (données importées, attribution par spot uniquement)
+- **Site live** : spothitch.com (Cloudflare Pages, HTTPS actif)
+- **Spots** : 100% communautaires via Firestore (aucune donnée importée)
 - **Langues** : FR, EN, ES, DE
-- **Tests** : 42 fichiers, 1328 assertions (wiring + integration + unit), E2E Playwright (37 fichiers dont userChains, errorHandling, performance), La Fourmi 191 tests/23 niveaux
+- **Tests** : 87 wiring, 38 E2E spec files, 35 multi-user Phase 1 tests, ~497 E2E tests total
+- **Multi-user testing** : Phase 1 (Auth & Profil) complète 35/35. Phases 2-10 à venir.
 - **Backup** : cron 5min vers github.com/spothitch/chromebook-backup (sessions Claude, SSH, .env.local, config gh)
+- **E2E credentials** : `node scripts/setup-env.mjs` recrée .env.local depuis ~/.claude/ (survit aux crashs)
 
 ---
 
 ## Ce qui est configuré et marche
 
-- Build Vite + deploy GitHub Pages automatique (GitHub Actions)
+- Build Vite + deploy Cloudflare Pages automatique (GitHub Actions)
 - Carte MapLibre GL JS avec clustering + OpenFreeMap
-- Chargement lazy des spots par pays (JSON dans public/data/spots/)
+- Spots chargés depuis Firestore (100% communautaires)
 - PWA installable avec Service Worker (vite-plugin-pwa)
 - Système i18n lazy-loaded par langue
 - Gamification complète (points, badges, niveaux, leagues, VIP, quizz, défis)

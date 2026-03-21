@@ -1284,3 +1284,63 @@ Chaque erreur suit ce format :
 - **Leçon** : **Quand on change le port du serveur de dev, chercher TOUTES les occurrences du port dans les scripts avec `grep -r "localhost:PORT" scripts/`.**
 - **Fichiers** : scripts/fox.mjs, scripts/checks/*.mjs, scripts/visual-check.mjs, scripts/screenshot-all-light.cjs
 - **Statut** : CORRIGÉ
+
+### ERR-113 — loginAsAdmin sans protection en production
+- **Date** : 2026-03-21
+- **Gravité** : CRITIQUE
+- **Description** : `window.loginAsAdmin()` accessible depuis la console navigateur en production, permettant à n'importe qui de devenir admin
+- **Cause racine** : Pas de guard VITE_SHOW_BETA sur la fonction
+- **Correction** : Ajout de `if (!import.meta.env.VITE_SHOW_BETA) return` au début du handler
+- **Leçon** : **Toute fonction admin/debug DOIT être protégée par un guard environnement. Scanner `window.*admin*` avant chaque release.**
+- **Fichiers** : src/components/modals/Auth.js
+- **Statut** : CORRIGÉ
+
+### ERR-114 — Session Firebase ne persiste pas au reload
+- **Date** : 2026-03-21
+- **Gravité** : CRITIQUE
+- **Description** : L'utilisateur était déconnecté après chaque refresh de page
+- **Cause racine** : `setPersistence(browserLocalPersistence)` jamais appelé. Firebase utilisait la persistence par défaut (inMemory dans certains contextes)
+- **Correction** : Ajout de `setPersistence(auth, browserLocalPersistence)` dans `initializeFirebase()`
+- **Leçon** : **Toujours configurer explicitement la persistence Firebase Auth. Ne pas dépendre du défaut.**
+- **Fichiers** : src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-115 — saveSocialLink sans sanitization
+- **Date** : 2026-03-21
+- **Gravité** : MAJEUR
+- **Description** : On pouvait injecter du HTML/JS dans les liens sociaux du profil
+- **Cause racine** : Aucune validation ou sanitization de l'input
+- **Correction** : Strip HTML tags, caractères dangereux, validation du nom de réseau, limite 200 chars
+- **Leçon** : **Tout input utilisateur qui sera affiché dans le DOM DOIT être sanitizé. Scanner les `.innerHTML` et `textContent` qui utilisent des données user.**
+- **Fichiers** : src/components/views/Profile.js
+- **Statut** : CORRIGÉ
+
+### ERR-116 — handleLogout défini deux fois
+- **Date** : 2026-03-21
+- **Gravité** : MAJEUR
+- **Description** : handleLogout existait dans authIdentity.js (avec cleanup subscriptions) ET Profile.js (sans cleanup). La version exécutée dépendait de l'ordre de chargement.
+- **Cause racine** : Profile.js est lazy-loaded et écrasait la version canonique
+- **Correction** : Supprimé le doublon dans Profile.js, gardé la version authIdentity.js
+- **Leçon** : **JAMAIS deux définitions du même handler window.*. Grep `window.NOM =` pour vérifier l'unicité avant d'ajouter un handler.**
+- **Fichiers** : src/components/views/Profile.js, src/handlers/authIdentity.js
+- **Statut** : CORRIGÉ
+
+### ERR-117 — Photos profil risquaient de crasher localStorage
+- **Date** : 2026-03-21
+- **Gravité** : MAJEUR
+- **Description** : 6 photos à 400px/0.7 JPEG = ~3-4MB. localStorage a une limite de 5MB. Crash silencieux possible.
+- **Cause racine** : Compression insuffisante et pas de gestion d'erreur quota
+- **Correction** : Réduit à 200px/0.5 JPEG (~10-20KB/photo), ajout try/catch sur setItem avec message "Stockage plein"
+- **Leçon** : **Ne JAMAIS stocker d'images en base64 dans localStorage sans limite de taille. Prévoir la migration vers Firebase Storage.**
+- **Fichiers** : src/components/views/Profile.js
+- **Statut** : CORRIGÉ
+
+### ERR-118 — Données fictives visibles par les utilisateurs
+- **Date** : 2026-03-21
+- **Gravité** : MAJEUR
+- **Description** : "Plus de 100 spots vérifiés" dans le texte de partage, 5 faux ambassadeurs (Sophie Martin, Max Schmidt...), fausses stats admin (150 spots, 500 checkins)
+- **Cause racine** : Données démo hardcodées sans mention qu'elles sont fictives
+- **Correction** : Supprimé les faux chiffres, faux ambassadeurs, fausses stats. Ajouté bandeau "Aperçu fictif" sur les démos.
+- **Leçon** : **ZÉRO donnée fictive présentée comme réelle. Antoine insiste : rien de faux dans l'app. Les démos doivent être clairement identifiées.**
+- **Fichiers** : src/utils/share.js, src/services/ambassadors.js, src/components/modals/Auth.js, src/components/views/ProfileDemos.js
+- **Statut** : CORRIGÉ
