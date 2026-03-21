@@ -1228,7 +1228,7 @@ function initHomeMap(state) {
             updateSpotsOnMap(Array.from(spotsMap.values()))
           }
         }
-      } catch { /* Firestore unavailable — static spots still work */ }
+      } catch (err) { console.warn('[Spots] Firestore load failed:', err?.message || err) }
 
       // Mark spots as loaded for splash progress
       try { const { markLoaded } = await import('./SplashScreen.js'); markLoaded('spotsLoaded') } catch { /* splash already hidden */ }
