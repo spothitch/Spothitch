@@ -38,7 +38,7 @@ export default defineConfig({
     // PWA Plugin
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png', 'og-image.png'],
+      includeAssets: ['favicon.png', 'favicon.ico', 'apple-touch-icon.png', 'og-image.png'],
       manifest: {
         name: 'SpotHitch',
         short_name: 'SpotHitch',
@@ -57,7 +57,8 @@ export default defineConfig({
           { src: 'icon-152.png', sizes: '152x152', type: 'image/png' },
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: 'icon-384.png', sizes: '384x384', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ],
         shortcuts: [
           {
