@@ -796,6 +796,23 @@ function initHomeMap(state) {
   // Load MapLibre CSS on first map init
   loadMapCSS()
 
+  // Check WebGL support before loading MapLibre
+  const _supportsWebGL = (() => {
+    try {
+      const c = document.createElement('canvas')
+      return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')))
+    } catch { return false }
+  })()
+
+  if (!_supportsWebGL) {
+    container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center p-6">
+      <div class="text-4xl mb-3">🗺️</div>
+      <p class="text-white font-semibold mb-2">${t('mapNotSupported') || 'La carte n\'est pas disponible sur ce navigateur'}</p>
+      <p class="text-slate-400 text-sm">${t('mapNotSupportedHint') || 'Utilise un navigateur plus récent pour voir la carte interactive'}</p>
+    </div>`
+    return
+  }
+
   import('maplibre-gl').then(async (maplibreModule) => {
     if (container.dataset.initialized === 'true') return
     container.dataset.initialized = 'true'
@@ -820,11 +837,13 @@ function initHomeMap(state) {
       attributionControl: false,
     })
 
-    // Compat methods for external callers (Map.js, main.js)
+    // Compat method: accepts [lat, lng] array or {lat, lng} object
+    // NOTE: setView uses [lat, lng] order (geographic), flyTo uses [lng, lat] (GeoJSON)
     map.setView = function (latLng, z) {
       const lat = Array.isArray(latLng) ? latLng[0] : latLng.lat
       const lng = Array.isArray(latLng) ? latLng[1] : latLng.lng
-      this.flyTo({ center: [lng, lat], zoom: z, duration: 800 })
+      if (!isFinite(lat) || !isFinite(lng)) return
+      try { this.flyTo({ center: [lng, lat], zoom: z, duration: 800 }) } catch { /* */ }
     }
     map.invalidateSize = function () { this.resize() }
 
@@ -1141,7 +1160,7 @@ function initHomeMap(state) {
       const LONG_PRESS_MS = 600
       const MAX_MOVE_PX = 10
 
-      map.getCanvas().addEventListener('touchstart', (e) => {
+      const _onTouchStart = (e) => {
         if (e.touches.length !== 1) return
         longPressStart = { x: e.touches[0].clientX, y: e.touches[0].clientY }
         longPressTimer = setTimeout(() => {
@@ -1149,14 +1168,12 @@ function initHomeMap(state) {
           const point = [longPressStart.x - rect.left, longPressStart.y - rect.top]
           const lngLat = map.unproject(point)
           if (navigator.vibrate) navigator.vibrate(30)
-          // Show confirmation bubble instead of opening AddSpot directly
           showCreateSpotBubble(map, lngLat)
           longPressTimer = null
           longPressStart = null
         }, LONG_PRESS_MS)
-      }, { passive: true })
-
-      map.getCanvas().addEventListener('touchmove', (e) => {
+      }
+      const _onTouchMove = (e) => {
         if (!longPressTimer || !longPressStart) return
         const dx = e.touches[0].clientX - longPressStart.x
         const dy = e.touches[0].clientY - longPressStart.y
@@ -1165,15 +1182,28 @@ function initHomeMap(state) {
           longPressTimer = null
           longPressStart = null
         }
-      }, { passive: true })
-
-      map.getCanvas().addEventListener('touchend', () => {
+      }
+      const _onTouchEnd = () => {
         if (longPressTimer) {
           clearTimeout(longPressTimer)
           longPressTimer = null
         }
         longPressStart = null
-      }, { passive: true })
+      }
+
+      map.getCanvas().addEventListener('touchstart', _onTouchStart, { passive: true })
+      map.getCanvas().addEventListener('touchmove', _onTouchMove, { passive: true })
+      map.getCanvas().addEventListener('touchend', _onTouchEnd, { passive: true })
+
+      // Cleanup: remove listeners + timers when tab changes or page unloads
+      window._cleanupMapListeners = () => {
+        if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null }
+        try {
+          map.getCanvas()?.removeEventListener('touchstart', _onTouchStart)
+          map.getCanvas()?.removeEventListener('touchmove', _onTouchMove)
+          map.getCanvas()?.removeEventListener('touchend', _onTouchEnd)
+        } catch { /* map may be destroyed */ }
+      }
 
       // Initial load: show community spots from state
       loadSpotsForView()
@@ -1246,6 +1276,15 @@ function initHomeMap(state) {
     setTimeout(() => map.resize(), 200)
   }).catch((err) => {
     console.warn('Home map init failed:', err)
+    // Show fallback message instead of blank screen
+    if (container) {
+      container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center p-6">
+        <div class="text-4xl mb-3">⚠️</div>
+        <p class="text-white font-semibold mb-2">${t('mapLoadError') || 'La carte n\'a pas pu charger'}</p>
+        <p class="text-slate-400 text-sm mb-4">${t('mapLoadErrorHint') || 'Vérifie ta connexion et réessaie'}</p>
+        <button onclick="location.reload()" class="btn btn-primary text-sm px-4 py-2">${t('retry') || 'Réessayer'}</button>
+      </div>`
+    }
   })
 }
 

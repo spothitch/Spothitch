@@ -1010,6 +1010,10 @@ window.goBack = goBack
 
 // Navigation
 window.changeTab = (tab) => {
+  // Cleanup map listeners when leaving map tab
+  if (tab !== 'map' && window._cleanupMapListeners) {
+    window._cleanupMapListeners()
+  }
   actions.changeTab(tab);
   trackPageView(tab);
   announceViewChange(tab);

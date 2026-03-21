@@ -72,6 +72,7 @@ function _buildSuggestionHTML(results) {
     </div>`
 }
 
+let _searchRequestId = 0
 window.homeSearchDestination = (query) => {
   const t = window.t || ((k) => k)
   clearTimeout(homeDestDebounce)
@@ -81,6 +82,7 @@ window.homeSearchDestination = (query) => {
     container.classList.add('hidden')
     return
   }
+  const requestId = ++_searchRequestId
   homeDestDebounce = setTimeout(async () => {
     // Show loading indicator
     container.classList.remove('hidden')
@@ -98,7 +100,8 @@ window.homeSearchDestination = (query) => {
         biasLat: userLoc?.lat || null,
         biasLng: userLoc?.lng || null,
       })
-      // Check input still matches (user may have typed more)
+      // Discard stale results (user typed more or started new search)
+      if (requestId !== _searchRequestId) return
       const currentInput = document.getElementById('home-destination')
       if (currentInput && currentInput.value.trim() !== query.trim()) return
       if (results?.length > 0) {
@@ -109,6 +112,10 @@ window.homeSearchDestination = (query) => {
       }
     } catch (e) {
       container.classList.add('hidden')
+      // Show toast if network error (not just empty results)
+      if (e?.message?.includes('fetch') || e?.message?.includes('network') || !navigator.onLine) {
+        window.showToast?.(t('searchFailed') || 'Recherche indisponible, vérifie ta connexion', 'warning')
+      }
     }
   }, 100)
 }
@@ -131,7 +138,10 @@ window.homeSelectPlace = async (lat, lng, name) => {
   window.setState({ homeSearchLabel: name })
 
   if (window.homeMapInstance) {
-    try { window.homeMapInstance.setView([lat, lng], 12) } catch { /* map not ready */ }
+    // Use current zoom if already zoomed in more than 12, otherwise default to 12
+    const currentZoom = window.homeMapInstance.getZoom?.() || 5
+    const targetZoom = Math.max(12, currentZoom)
+    try { window.homeMapInstance.setView([lat, lng], targetZoom) } catch { /* */ }
   }
 
   // Actively load spots for the searched area (cancel if newer request started)
