@@ -37,6 +37,7 @@ const MAIN_JS_HANDLERS = [
   'sosOpenConfig', 'sosCloseConfig',
   // Auth
   'openAuth', 'closeAuth', 'setAuthMode',
+  'signIn', 'signUp',
   'handleGoogleSignIn', 'handleFacebookSignIn', 'handleAppleSignIn',
   'handleForgotPassword', 'handleLogout', 'requireAuth',
   // Age Verification
