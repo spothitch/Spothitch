@@ -9,7 +9,7 @@
 
 import { chromium } from 'playwright'
 
-const APP_URL = process.env.APP_URL || 'http://localhost:5173'
+const APP_URL = process.env.APP_URL || 'http://localhost:3000'
 const TEST_PASSWORD = process.env.E2E_TEST_PASSWORD
 
 export default async function firebaseIntegrationCheck() {

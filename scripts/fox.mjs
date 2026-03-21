@@ -34,7 +34,7 @@
  *   node scripts/ultimate-check.mjs --quick      # Layers 4-6 only (~30s)
  *   node scripts/ultimate-check.mjs --layer=4    # Run specific layer
  *
- * Requires: dev server running on localhost:5173
+ * Requires: dev server running on localhost:3000
  */
 
 import { execSync } from 'child_process'
@@ -170,7 +170,7 @@ async function main() {
       try {
         const net = await import('net')
         const portInUse = await new Promise((resolve) => {
-          const s = net.createConnection({ port: 5173 })
+          const s = net.createConnection({ port: 3000 })
           s.on('connect', () => { s.destroy(); resolve(true) })
           s.on('error', () => resolve(false))
         })

@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..', '..')
 const REPORT_DIR = join(ROOT, 'audit-screenshots')
-const BASE_URL = process.env.APP_URL || 'http://localhost:5173'
+const BASE_URL = process.env.APP_URL || 'http://localhost:3000'
 
 if (!existsSync(REPORT_DIR)) mkdirSync(REPORT_DIR, { recursive: true })
 
