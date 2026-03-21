@@ -302,6 +302,50 @@ jobs:
           name: e2e-stress-report
           path: playwright-report/
 
+  e2e-multi-user:
+    name: E2E Multi-User (Phase ${{ matrix.phase }})
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        phase: [1]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - name: Run multi-user phase ${{ matrix.phase }}
+        run: npx playwright test --project=chromium e2e/multi-user-phase${{ matrix.phase }}*.spec.js
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_CI }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-multi-user-phase${{ matrix.phase }}-report
+          path: playwright-report/
+
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
