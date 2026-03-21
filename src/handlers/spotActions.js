@@ -64,11 +64,13 @@ window.selectSpot = async (idOrSpot) => {
     }
     // Show spot detail (awaits live data before rendering)
     await actions.selectSpot(spot)
-    // Center map
+    // Center map (validate coords first)
     const lat = spot.coordinates?.lat || spot.lat
     const lng = spot.coordinates?.lng || spot.lng
-    if (lat && lng && window.homeMapInstance) {
-      window.homeMapInstance.flyTo({ center: [lng, lat], zoom: 14, duration: 800 })
+    if (lat && lng && isFinite(lat) && isFinite(lng) && window.homeMapInstance) {
+      try {
+        window.homeMapInstance.flyTo({ center: [lng, lat], zoom: 14, duration: 800 })
+      } catch { /* map not ready */ }
     }
   }
 };

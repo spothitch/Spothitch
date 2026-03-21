@@ -8,6 +8,12 @@ window.openCityPanel = async (citySlug, cityName, lat, lng, countryCode, country
   const { actions } = window._appInternals
   const parsedLat = parseFloat(lat)
   const parsedLng = parseFloat(lng)
+  // Validate coordinates
+  const validLat = isFinite(parsedLat) && parsedLat >= -90 && parsedLat <= 90
+  const validLng = isFinite(parsedLng) && parsedLng >= -180 && parsedLng <= 180
+  if (!validLat || !validLng) return
+  // Validate country code
+  if (countryCode && !/^[A-Za-z]{2}$/.test(countryCode)) countryCode = ''
 
   // Force-load the country's spots before building city info
   try {

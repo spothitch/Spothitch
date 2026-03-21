@@ -7,8 +7,13 @@ import { escapeHTML, escapeJSString } from '../utils/sanitize.js'
 
 // Country code (ISO 2-letter) to flag emoji
 function countryCodeToFlag(cc) {
-  if (!cc || cc.length !== 2) return ''
+  if (!cc || cc.length !== 2 || !/^[A-Za-z]{2}$/.test(cc)) return ''
   return String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0)))
+}
+
+// Validate coordinates are finite numbers within Earth bounds
+function isValidCoord(lat, lng) {
+  return isFinite(lat) && isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
 }
 
 // Home search with debounce — search a place, show city panel option, center map
@@ -19,7 +24,7 @@ function _buildSuggestionHTML(results) {
   if (!results?.length) return ''
 
   // Build places list (left column)
-  const places = results.map((r, i) => {
+  const places = results.filter(r => isValidCoord(Number(r.lat), Number(r.lng))).map((r, i) => {
     const shortName = escapeHTML(r.fullName || r.name || '')
     const cityName = escapeHTML(r.name || '')
     const countryName = escapeHTML(r.countryName || '')
@@ -114,21 +119,26 @@ window.homeSelectFirstSuggestion = () => {
 }
 
 // Select a place → center map there + actively load spots for the area
+let _selectPlaceRequestId = 0
 window.homeSelectPlace = async (lat, lng, name) => {
+  // Validate coordinates
+  if (!isValidCoord(lat, lng)) return
+
+  const requestId = ++_selectPlaceRequestId
   const input = document.getElementById('home-destination')
   if (input) input.value = name
   document.getElementById('home-dest-suggestions')?.classList.add('hidden')
   window.setState({ homeSearchLabel: name })
 
   if (window.homeMapInstance) {
-    window.homeMapInstance.setView([lat, lng], 12)
+    try { window.homeMapInstance.setView([lat, lng], 12) } catch { /* map not ready */ }
   }
 
-  // Actively load spots for the searched area (don't rely solely on moveend)
+  // Actively load spots for the searched area (cancel if newer request started)
   try {
     const { loadSpotsInRadius } = await import('../services/spotLoader.js')
     await loadSpotsInRadius(lat, lng, 50)
-    // Trigger map refresh to show loaded spots
+    if (requestId !== _selectPlaceRequestId) return // stale request
     if (window._refreshMapSpots) window._refreshMapSpots()
     if (window._refreshCountryBubbles) window._refreshCountryBubbles()
   } catch { /* spots will load via moveend fallback */ }
