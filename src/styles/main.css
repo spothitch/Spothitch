@@ -1914,57 +1914,46 @@ textarea[aria-invalid="true"] {
 
 .splash-hitchhiker {
   position: absolute;
-  left: 20%;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: hitchhikerBounce 1s ease-in-out infinite;
-}
-
-.hitchhiker-body {
-  font-size: 3rem;
+  left: 22%;
+  bottom: 22%;
   color: #f59e0b;
+  animation: hitchhikerBounce 2s ease-in-out infinite;
 }
 
 .hitchhiker-thumb {
   position: absolute;
-  top: -5px;
-  right: -20px;
-  font-size: 1.5rem;
-  color: #10b981;
-  animation: thumbWave 0.6s ease-in-out infinite;
-  transform-origin: bottom center;
+  top: -6px;
+  right: -18px;
+  color: #f59e0b;
+  animation: thumbGrow 5s ease-in-out infinite;
 }
 
 @keyframes hitchhikerBounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  50% { transform: translateY(-6px); }
 }
 
-@keyframes thumbWave {
-  0%, 100% { transform: rotate(-5deg); }
-  50% { transform: rotate(15deg); }
+@keyframes thumbGrow {
+  0% { transform: scale(1) rotate(0); }
+  30% { transform: scale(1) rotate(0); }
+  50% { transform: scale(1.4) rotate(-15deg); }
+  70% { transform: scale(1.4) rotate(-15deg); }
+  100% { transform: scale(1) rotate(0); }
 }
 
 /* Car animation */
 .splash-car {
   position: absolute;
-  right: -80px;
-  bottom: 5px;
-  font-size: 2.5rem;
+  top: 32%;
   color: #f59e0b;
-  animation: carDrive 3s ease-in-out infinite;
+  animation: carPass 5s ease-in-out infinite;
 }
 
-@keyframes carDrive {
-  0% { transform: translateX(100px); opacity: 0; }
+@keyframes carPass {
+  0% { right: -60px; opacity: 0; }
   20% { opacity: 1; }
-  45% { transform: translateX(-80px); opacity: 1; }
-  50% { transform: translateX(-80px) scaleX(-1); opacity: 1; }
-  55% { transform: translateX(-80px) scaleX(-1); opacity: 1; }
   80% { opacity: 1; }
-  100% { transform: translateX(-200px) scaleX(-1); opacity: 0; }
+  100% { right: 320px; opacity: 0; }
 }
 
 /* Loading message */
