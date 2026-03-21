@@ -6,6 +6,8 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import {
   getAuth,
+  setPersistence,
+  browserLocalPersistence,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -133,6 +135,8 @@ export function initializeFirebase() {
     // Avoid re-initializing if already done
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
+    // Ensure session persists across page reloads and browser restarts
+    setPersistence(auth, browserLocalPersistence).catch(() => {})
     // Force Firebase Auth language to match the app's language (FR/EN/ES/DE)
     try {
       const savedState = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')

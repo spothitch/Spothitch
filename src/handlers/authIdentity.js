@@ -82,6 +82,9 @@ if (!window.handleForgotPassword) {
     const t = window.t
     const email = document.querySelector('[name="email"]')?.value || document.getElementById('auth-email')?.value
     if (!email) { window.showToast(t('enterEmailFirst') || 'Enter your email first', 'warning'); return }
+    // Validate email format before sending
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) { window.showToast(t('invalidEmail') || 'Invalid email format', 'warning'); return }
     const fb = await getFirebase()
     fb.initializeFirebase()
     const result = await fb.resetPassword(email)
@@ -106,7 +109,8 @@ if (!window.handleLogout) {
     const fb = await getFirebase()
     await fb.logOut()
     actions.setUser(null)
-    window.setState({ currentUser: null, userProfile: null, isAdmin: false })
+    window.setState({ currentUser: null, userProfile: null, isAdmin: false, isLoggedIn: false })
+    window.showToast?.(window.t('logoutSuccess') || 'Déconnexion réussie', 'success')
   }
 }
 // Progressive Auth Gate — exposed globally
@@ -131,6 +135,13 @@ window.requireAuth = (actionName) => {
     authPendingAction: actionName,
     showAuthReason: reasonMap[actionName] || t('loginRequired'),
   })
+  // Auto-clear pending action after 5 minutes (prevents stale state)
+  setTimeout(() => {
+    const current = window.getState?.()?.authPendingAction
+    if (current === actionName) {
+      window.setState?.({ authPendingAction: null })
+    }
+  }, 5 * 60 * 1000)
   return false
 }
 
@@ -148,15 +159,8 @@ window.showAgeVerification = () => window.openAgeVerification();
 
 // Identity Verification handlers (Security - Progressive Trust System 0-5)
 window.openIdentityVerification = () => {
-  // Reset modal state
-  // Use a non-enumerable, non-configurable property to reduce exposure
-  // (extensions can still access it via Object.getOwnPropertyDescriptor, but casual window.X won't list it)
-  if (!window._ivState) {
-    Object.defineProperty(window, '_ivState', {
-      value: {}, writable: true, enumerable: false, configurable: false,
-    })
-  }
-  window._ivState = {
+  // Reset modal state (use simple property, configurable for clean resets)
+  const freshState = {
     currentStep: 'overview',
     phoneNumber: '',
     verificationCode: '',
@@ -169,10 +173,10 @@ window.openIdentityVerification = () => {
     selfieWithIdPhoto: null,
     isLoading: false,
     error: null,
-  };
-  // Keep alias for backward compat but clear photos after submission
-  window.identityVerificationState = window._ivState;
-  window.setState({ showIdentityVerification: true });
+  }
+  window._ivState = freshState
+  window.identityVerificationState = freshState
+  window.setState({ showIdentityVerification: true })
 };
 // closeIdentityVerification — canonical in IdentityVerification.js
 window.showIdentityVerification = () => window.openIdentityVerification();

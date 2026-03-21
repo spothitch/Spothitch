@@ -868,8 +868,13 @@ window.handleForgotPassword = async () => {
 
 /**
  * Login as admin without Firebase (demo mode)
+ * Protected: only available in beta/dev builds
  */
 window.loginAsAdmin = async () => {
+  if (!import.meta.env.VITE_SHOW_BETA) {
+    console.warn('loginAsAdmin is only available in beta builds')
+    return
+  }
   try {
     const { setState, getState } = await import('../../stores/state.js')
     const { showSuccess } = await import('../../services/notifications.js')
