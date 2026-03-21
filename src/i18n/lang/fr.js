@@ -89,7 +89,14 @@ export default {
   validateMyCheckin: 'Valider mon passage',
   checkinValidated: 'Check-in validé !',
   checkinAlreadyToday: 'Tu as déjà validé ce spot aujourd\'hui',
+  checkinNoGPS: 'Active la localisation pour valider ce spot',
+  checkinTooFar: 'Tu dois être à moins de 500m de ce spot',
   cannotReviewOwnSpot: 'Tu ne peux pas noter ton propre spot',
+  reviewTooShort: 'Ton avis doit faire au moins 10 caractères',
+  reviewProfanity: 'Ton avis contient un langage inapproprié',
+  reviewAlreadySubmitted: 'Tu as déjà publié un avis pour ce spot',
+  reviewTooFar: 'Tu dois être passé à proximité de ce spot pour laisser un avis',
+  duplicateSpotWarning: 'Un spot existe déjà à moins de 500m. Es-tu sûr de vouloir en créer un nouveau ?',
   checkinError: 'Erreur lors du check-in',
 
   // Ratings

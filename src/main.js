@@ -483,6 +483,7 @@ async function init() {
         try { const { initNearbyFriendsTracking } = await import('./services/nearbyFriends.js'); initNearbyFriendsTracking() } catch (e) { /* optional */ }
         try { const { initProximityAlerts } = await import('./services/proximityAlerts.js'); initProximityAlerts() } catch (e) { /* optional */ }
         try { const { initProximityNotify } = await import('./services/proximityNotify.js'); initProximityNotify() } catch (e) { /* optional */ }
+        try { const { startLocationTracking } = await import('./services/locationHistory.js'); startLocationTracking() } catch (e) { /* optional */ }
         try { const { initPostHog } = await import('./utils/posthog.js'); initPostHog() } catch (e) { /* optional */ }
 
         // Request persistent storage (prevents browser from evicting IDB data)

@@ -9,20 +9,20 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['lat', 'lng', 'createdAt'])
         && request.resource.data.lat is number
         && request.resource.data.lng is number;
-      // Creator can update any allowed field
+      // Spots are IMMUTABLE after creation — creator cannot modify
+      // Only admin can edit spot core data (coordinates, type, city)
       // Any authenticated user can update ONLY validation/rating counters
-      // Admin can update anything
       allow update: if request.auth != null
         && (
           // Admin: full access
           request.auth.token.email == 'antoine.v.ville@gmail.com'
           || request.auth.token.email == 'ci-admin@spothitch.com'
-          // Creator: can update any field
-          || request.auth.uid == resource.data.creatorId
-          // Other users: only validation/rating counter fields
+          // Any authenticated user: only validation/rating counter fields
           || request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                'validationCount', 'testCount', 'ratings', 'averageRating',
-               'totalRatings', 'updatedAt', 'lastValidatedAt', 'lastTestedAt'
+               'totalRatings', 'updatedAt', 'lastValidatedAt', 'lastTestedAt',
+               'lastValidated', 'lastTested', 'lastValidatedBy', 'lastTestedBy',
+               'checkins', 'verified', 'userValidations'
              ])
         );
       // Only admin can delete spots
@@ -31,9 +31,13 @@ service cloud.firestore {
             || request.auth.token.email == 'ci-admin@spothitch.com');
 
       // Spot reviews subcollection
+      // Self-review blocked: creator cannot review their own spot
+      // One review per user per spot enforced by reviewId = "{userId}"
       match /reviews/{reviewId} {
         allow read: if true;
-        allow create: if request.auth != null;
+        allow create: if request.auth != null
+          && request.auth.uid != resource.data.creatorId
+          && request.resource.data.userId == request.auth.uid;
         allow update, delete: if request.auth != null
           && request.auth.uid == resource.data.userId;
       }

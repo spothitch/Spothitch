@@ -308,15 +308,21 @@ export function registerCheckinHandlers() {
       return
     }
 
-    // Proximity check: user must be near the spot
+    // Proximity check: must have been within 500m in last 24h (GPS history)
     const spotLat = spot.coordinates?.lat || spot.lat
     const spotLng = spot.coordinates?.lng || spot.lng
+    let checkinConfidence = 'no_history'
     if (spotLat && spotLng) {
-      const { checkProximity } = await import('../../services/proximityVerification.js')
-      const proximity = checkProximity(spotLat, spotLng, state.userLocation)
+      const { verifyProximity } = await import('../../services/locationHistory.js')
+      const proximity = await verifyProximity(spotLat, spotLng, 'checkin')
+      checkinConfidence = proximity.confidence
       if (!proximity.allowed) {
         const { showToast: toast } = await import('../../services/notifications.js')
-        toast(t('proximityRequired') || `Tu dois être à moins de 5 km de ce spot (${proximity.distanceKm} km)`, 'error')
+        if (proximity.confidence === 'no_history') {
+          toast(t('checkinNoGPS') || 'Active la localisation pour valider ce spot', 'warning')
+        } else {
+          toast(t('checkinTooFar') || `Tu dois être à moins de 500m de ce spot (${proximity.closestM}m)`, 'error')
+        }
         return
       }
     }
@@ -331,7 +337,7 @@ export function registerCheckinHandlers() {
       if (state.checkinPhotoData) points += 5; // Bonus for photo
       if (Object.values(state.checkinChars || {}).filter(Boolean).length >= 3) points += 5; // Bonus for details
 
-      // Save validation data with auto temporal info
+      // Save validation data with auto temporal info + confidence level
       const now = new Date()
       const validationData = {
         spotId: spot.id,
@@ -341,6 +347,7 @@ export function registerCheckinHandlers() {
         characteristics: state.checkinChars,
         comment: document.getElementById('checkin-comment')?.value || '',
         hasPhoto: !!state.checkinPhotoData,
+        confidence: checkinConfidence, // 'verified_on_spot', 'position_confirmed', 'no_history'
         timestamp: now.toISOString(),
         // Auto-collected temporal data (no user input needed)
         dayOfWeek: now.getDay(),

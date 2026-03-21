@@ -2034,6 +2034,27 @@ window.handleAddSpot = async (event) => {
     showError(t('directionRequired'))
     return
   }
+
+  // Duplicate detection: check if a spot exists within 500m
+  if (!window.spotFormData._duplicateConfirmed) {
+    const allSpots = window.getState?.()?.spots || []
+    const { distanceMeters } = await import('../../services/locationHistory.js')
+    const nearby = allSpots.filter(s => {
+      const sLat = s.coordinates?.lat || s.lat
+      const sLng = s.coordinates?.lng || s.lng
+      if (!sLat || !sLng) return false
+      return distanceMeters(lat, lng, sLat, sLng) < 500
+    })
+    if (nearby.length > 0) {
+      const nearbyNames = nearby.map(s => s.city || s.departureCity || 'Spot').join(', ')
+      const userConfirmed = confirm(
+        (t('duplicateSpotWarning') || `Un spot existe déjà à moins de 500m (${nearbyNames}). Es-tu sûr de vouloir en créer un nouveau ? Si oui, tu devras expliquer pourquoi à un admin.`)
+      )
+      if (!userConfirmed) return
+      window.spotFormData._duplicateConfirmed = true
+      window.spotFormData._duplicateNearbyIds = nearby.map(s => s.id)
+    }
+  }
   if (!window.spotFormData.method) {
     showError(t('methodRequired'))
     return

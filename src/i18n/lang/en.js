@@ -89,7 +89,14 @@ export default {
   validateMyCheckin: 'Validate my check-in',
   checkinValidated: 'Check-in validated!',
   checkinAlreadyToday: 'You already checked in at this spot today',
+  checkinNoGPS: 'Enable location to validate this spot',
+  checkinTooFar: 'You must be within 500m of this spot',
   cannotReviewOwnSpot: 'You cannot review your own spot',
+  reviewTooShort: 'Your review must be at least 10 characters',
+  reviewProfanity: 'Your review contains inappropriate language',
+  reviewAlreadySubmitted: 'You already submitted a review for this spot',
+  reviewTooFar: 'You must have been near this spot to leave a review',
+  duplicateSpotWarning: 'A spot already exists within 500m. Are you sure you want to create a new one?',
   checkinError: 'Error during check-in',
 
   // Ratings

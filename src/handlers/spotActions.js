@@ -328,23 +328,46 @@ window.submitReview = async (spotId) => {
     return
   }
 
-  const comment = document.getElementById('review-comment')?.value
+  const comment = (document.getElementById('review-comment')?.value || '').trim()
   const rating = window.getState().currentRating || 4
+
+  // Minimum length
+  if (!comment || comment.length < 10) {
+    window.showToast(t('reviewTooShort') || 'Ton avis doit faire au moins 10 caractères', 'warning')
+    return
+  }
+
+  // Basic profanity filter (FR/EN)
+  const PROFANITY = ['putain', 'merde', 'connard', 'salope', 'enculé', 'fuck', 'shit', 'bitch', 'asshole', 'bastard']
+  const lower = comment.toLowerCase()
+  if (PROFANITY.some(w => lower.includes(w))) {
+    window.showToast(t('reviewProfanity') || 'Ton avis contient un langage inapproprié', 'warning')
+    return
+  }
+
+  // 1 review per user per spot (check localStorage)
+  const reviewKey = `spothitch_review_${spotId}_${currentUid}`
+  if (localStorage.getItem(reviewKey)) {
+    window.showToast(t('reviewAlreadySubmitted') || 'Tu as déjà publié un avis pour ce spot', 'warning')
+    return
+  }
+
   if (comment) {
-    // Proximity check for reviews
+    // Proximity check for reviews (2km)
     const spotLat = spot?.coordinates?.lat || spot?.lat
     const spotLng = spot?.coordinates?.lng || spot?.lng
     if (spotLat && spotLng) {
-      const { checkProximity } = await import('../services/proximityVerification.js')
-      const proximity = checkProximity(spotLat, spotLng, window.getState().userLocation)
+      const { verifyProximity } = await import('../services/locationHistory.js')
+      const proximity = await verifyProximity(spotLat, spotLng, 'validation')
       if (!proximity.allowed) {
-        window.showToast(t('proximityRequired') || 'Tu es trop loin de ce spot pour valider.', 'error')
+        window.showToast(t('reviewTooFar') || 'Tu dois être passé à proximité de ce spot pour laisser un avis', 'error')
         return
       }
     }
     try {
       const fb1 = await getFirebase()
       await fb1.saveCommentToFirebase({ spotId, text: comment, rating })
+      localStorage.setItem(reviewKey, Date.now().toString())
       const { recordReview } = await import('../services/gamification.js')
       recordReview()
       window.showToast(t('reviewPublished') || 'Avis publié !', 'success')
