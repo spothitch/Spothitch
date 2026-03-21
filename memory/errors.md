@@ -1344,3 +1344,53 @@ Chaque erreur suit ce format :
 - **Leçon** : **ZÉRO donnée fictive présentée comme réelle. Antoine insiste : rien de faux dans l'app. Les démos doivent être clairement identifiées.**
 - **Fichiers** : src/utils/share.js, src/services/ambassadors.js, src/components/modals/Auth.js, src/components/views/ProfileDemos.js
 - **Statut** : CORRIGÉ
+
+### ERR-119 — Coordonnées invalides acceptées par flyTo/setView
+- **Date** : 2026-03-22
+- **Gravité** : CRITIQUE
+- **Description** : NaN, Infinity ou coordonnées hors limites (-90/+90, -180/+180) passaient dans flyTo et setView sans validation, causant crash ou blocage de la carte
+- **Cause racine** : Aucune validation des coordonnées avant les appels MapLibre
+- **Correction** : Ajout de isValidCoord() dans mapHome.js + isFinite checks dans App.js setView + try/catch sur tous les flyTo
+- **Leçon** : **TOUTE coordonnée passée à MapLibre DOIT être validée avec isFinite + range check. Ajouter try/catch autour de chaque flyTo.**
+- **Fichiers** : src/handlers/mapHome.js, src/components/App.js, src/handlers/spotActions.js, src/handlers/cityPanel.js
+- **Statut** : CORRIGÉ
+
+### ERR-120 — Race condition dans homeSelectPlace
+- **Date** : 2026-03-22
+- **Gravité** : CRITIQUE
+- **Description** : Clics rapides sur plusieurs villes causaient des requêtes concurrentes. La dernière arrivée écrasait les résultats plus récents.
+- **Cause racine** : Pas de guard d'annulation sur les appels async
+- **Correction** : Ajout de _selectPlaceRequestId qui s'incrémente à chaque appel. Les résultats périmés sont ignorés.
+- **Leçon** : **Tout appel async déclenché par un clic utilisateur DOIT avoir un mécanisme d'annulation (request ID, AbortController).**
+- **Fichiers** : src/handlers/mapHome.js
+- **Statut** : CORRIGÉ
+
+### ERR-121 — Event listeners carte jamais nettoyés
+- **Date** : 2026-03-22
+- **Gravité** : MAJEUR
+- **Description** : Les touchstart/touchmove/touchend sur le canvas de la carte s'accumulaient à chaque changement d'onglet. Après 5 changements, un clic déclenchait le handler 5 fois.
+- **Cause racine** : addEventListener sans removeEventListener correspondant
+- **Correction** : Fonctions nommées + window._cleanupMapListeners() appelé dans changeTab
+- **Leçon** : **Chaque addEventListener DOIT avoir un cleanup correspondant. Utiliser des fonctions nommées, pas des lambdas anonymes.**
+- **Fichiers** : src/components/App.js, src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-122 — Pas de fallback quand MapLibre/WebGL ne charge pas
+- **Date** : 2026-03-22
+- **Gravité** : MAJEUR
+- **Description** : Sur les navigateurs sans WebGL ou quand MapLibre échoue, l'utilisateur voyait un écran blanc sans message d'erreur.
+- **Cause racine** : Le catch ne faisait qu'un console.warn, aucun feedback UI
+- **Correction** : Détection WebGL avant import + message fallback avec bouton "Réessayer" dans le catch
+- **Leçon** : **Tout composant critique (carte, auth) DOIT avoir un fallback UI visible en cas d'erreur de chargement.**
+- **Fichiers** : src/components/App.js
+- **Statut** : CORRIGÉ
+
+### ERR-123 — Résultats de recherche périmés affichés
+- **Date** : 2026-03-22
+- **Gravité** : MODÉRÉ
+- **Description** : En tapant vite dans la barre de recherche, les résultats d'une requête précédente pouvaient écraser les résultats plus récents.
+- **Cause racine** : Pas de mécanisme pour identifier quelle requête est la plus récente
+- **Correction** : Ajout de _searchRequestId incrémenté à chaque recherche, résultats ignorés si l'ID ne correspond plus
+- **Leçon** : **Les debounce sur des appels API async DOIVENT inclure un ID de requête pour ignorer les réponses périmées.**
+- **Fichiers** : src/handlers/mapHome.js
+- **Statut** : CORRIGÉ

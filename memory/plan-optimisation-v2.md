@@ -46,3 +46,17 @@
 - [ ] **Migrer photos profil vers Firebase Storage** : grosse migration, à planifier séparément.
 - [ ] **Lazy-load markers carte** : ne charger que les spots dans le viewport. MapLibre gère déjà le clustering.
 - [ ] **Compression Brotli** : côté serveur (Cloudflare le fait déjà automatiquement).
+
+## FAIT — Phase 8 Map Optimizations (2026-03-22)
+
+- [x] WebGL detection + fallback message ✅
+- [x] MapLibre crash recovery (message + bouton Réessayer) ✅
+- [x] Nettoyage event listeners au changement d'onglet ✅
+- [x] Timer long-press nettoyé au changement d'onglet ✅
+- [x] Validation coordonnées sur tous les flyTo/setView (isFinite + range) ✅
+- [x] Toast sur échec recherche (erreur réseau) ✅
+- [x] Debounce recherche avec request ID (résultats périmés ignorés) ✅
+- [x] Respect du zoom actuel quand on sélectionne une ville ✅
+- [x] Validation country code (regex A-Z) ✅
+- [x] Race condition guard sur homeSelectPlace ✅
+- [x] i18n : 5 clés carte en FR/EN/ES/DE ✅

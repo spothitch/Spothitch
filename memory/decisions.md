@@ -136,3 +136,14 @@
 | loginAsAdmin protégé | Guard VITE_SHOW_BETA | Inaccessible en production. | 2026-03-21 |
 | Firebase session persistence | setPersistence(browserLocalPersistence) | L'utilisateur ne se déconnecte plus au refresh. | 2026-03-21 |
 | App native future | React Native prévu | Pour tracking GPS arrière-plan, notifications push fiables, performance. | 2026-03-21 |
+
+## Décisions Phase 8 — Carte & Navigation (2026-03-22)
+
+| Décision | Choix | Raison | Date |
+|----------|-------|--------|------|
+| WebGL fallback | Message + suggestion navigateur récent | 5-10% des vieux Android n'ont pas WebGL. Mieux qu'un écran blanc. | 2026-03-22 |
+| MapLibre crash recovery | Message d'erreur + bouton Réessayer | L'utilisateur sait quoi faire au lieu de voir du vide | 2026-03-22 |
+| Cleanup listeners au changement d'onglet | Fonctions nommées + _cleanupMapListeners() | Empêche l'accumulation et la fuite mémoire | 2026-03-22 |
+| Request ID sur recherche et sélection | Incrémente un compteur, ignore les résultats périmés | Empêche les race conditions sans AbortController | 2026-03-22 |
+| Respect du zoom utilisateur | Math.max(12, currentZoom) quand on clique une ville | Si l'utilisateur est zoomé à 15, on ne force pas à 12 | 2026-03-22 |
+| Toast sur échec recherche | Seulement si erreur réseau (pas si 0 résultats) | L'utilisateur sait que c'est un problème de connexion, pas d'absence de données | 2026-03-22 |
