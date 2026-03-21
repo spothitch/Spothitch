@@ -88,6 +88,8 @@ export default {
   levelNative: 'Native',
   validateMyCheckin: 'Validate my check-in',
   checkinValidated: 'Check-in validated!',
+  checkinAlreadyToday: 'You already checked in at this spot today',
+  cannotReviewOwnSpot: 'You cannot review your own spot',
   checkinError: 'Error during check-in',
 
   // Ratings

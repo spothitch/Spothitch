@@ -925,8 +925,19 @@ window.setExperienceDate = (mode) => {
 window.updateExperienceDate = () => {
   const monthEl = document.getElementById('exp-month')
   const yearEl = document.getElementById('exp-year')
-  if (monthEl) window.spotFormData.experienceMonth = parseInt(monthEl.value, 10)
-  if (yearEl) window.spotFormData.experienceYear = parseInt(yearEl.value, 10)
+  const now = new Date()
+  let month = monthEl ? parseInt(monthEl.value, 10) : now.getMonth() + 1
+  let year = yearEl ? parseInt(yearEl.value, 10) : now.getFullYear()
+  // Clamp to valid range: not in the future, not before 2000
+  if (year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth() + 1)) {
+    year = now.getFullYear()
+    month = now.getMonth() + 1
+  }
+  if (year < 2000) year = 2000
+  if (month < 1) month = 1
+  if (month > 12) month = 12
+  window.spotFormData.experienceMonth = month
+  window.spotFormData.experienceYear = year
   delete window.spotFormData.experienceDay
 }
 
@@ -2009,7 +2020,9 @@ window.handleAddSpot = async (event) => {
   // Validation — ALL fields mandatory EXCEPT photo (bonus points)
   const { showError } = await import('../../services/notifications.js')
 
-  if (!window.spotFormData.lat || !window.spotFormData.lng) {
+  const lat = Number(window.spotFormData.lat)
+  const lng = Number(window.spotFormData.lng)
+  if (!lat || !lng || !isFinite(lat) || !isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
     showError(t('positionRequired') || 'Position obligatoire')
     return
   }
