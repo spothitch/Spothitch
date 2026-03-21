@@ -54,8 +54,18 @@ async function _doSync() {
     const roadmapVotes = _getJSON('spothitch_roadmap_votes', {})
     const featureOpinions = _getJSON('spothitch_feature_opinions', {})
 
+    // SOS contacts + config
+    const stateRaw = _getJSON('state', {})
+    const emergencyContacts = Array.isArray(stateRaw.emergencyContacts) ? stateRaw.emergencyContacts.slice(-20) : []
+    const sosPrimary = _getStr('spothitch_sos_primary')
+    const sosFakeName = _getStr('spothitch_sos_fake_name')
+    const sosFakeDelay = _getStr('spothitch_sos_fake_delay')
+    const sosCustomMsg = _getStr('spothitch_sos_custom_msg')
+
     // Write to users/{uid}/syncData (merge to avoid overwriting other fields)
     await setDoc(doc(db, 'users', user.uid, 'syncData', 'local'), {
+      emergencyContacts, // SOS contacts synced to Firebase
+      sosConfig: { primary: sosPrimary, fakeName: sosFakeName, fakeDelay: sosFakeDelay, customMsg: sosCustomMsg },
       checkinHistory: checkinHistory.slice(-200), // Cap at 200 entries
       dailyStreak,
       dailyLastClaim,
@@ -191,6 +201,23 @@ export async function hydrateAllFromFirestore(userId) {
     if (d.featureOpinions && Object.keys(d.featureOpinions).length > 0) {
       const local = _getJSON('spothitch_feature_opinions', {})
       _setJSON('spothitch_feature_opinions', { ...local, ...d.featureOpinions })
+    }
+
+    // SOS contacts: Firebase wins if local is empty (new device)
+    if (Array.isArray(d.emergencyContacts) && d.emergencyContacts.length > 0) {
+      const stateRaw = _getJSON('state', {})
+      const localContacts = Array.isArray(stateRaw.emergencyContacts) ? stateRaw.emergencyContacts : []
+      if (localContacts.length === 0) {
+        setState({ emergencyContacts: d.emergencyContacts })
+      }
+    }
+
+    // SOS config: restore if local is empty
+    if (d.sosConfig) {
+      if (d.sosConfig.primary && !_getStr('spothitch_sos_primary')) _setStr('spothitch_sos_primary', d.sosConfig.primary)
+      if (d.sosConfig.fakeName && !_getStr('spothitch_sos_fake_name')) _setStr('spothitch_sos_fake_name', d.sosConfig.fakeName)
+      if (d.sosConfig.fakeDelay && !_getStr('spothitch_sos_fake_delay')) _setStr('spothitch_sos_fake_delay', d.sosConfig.fakeDelay)
+      if (d.sosConfig.customMsg && !_getStr('spothitch_sos_custom_msg')) _setStr('spothitch_sos_custom_msg', d.sosConfig.customMsg)
     }
   } catch {
     // Silent fail — localStorage remains source of truth
