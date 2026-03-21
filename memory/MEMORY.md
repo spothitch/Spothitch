@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-21 (session multi-user Phase 1 complète — 35/35 tests, 12 fixes app, fake data cleanup, Fox fixes)
+> Dernière mise à jour : 2026-03-21 (session multi-user Phase 1+2 complètes, data integrity overhaul, optimisations V2)
 
 ---
 
@@ -17,6 +17,9 @@
 - `memory/feedback_max_background.md` — JAMAIS plus de 1 agent/bash en arrière-plan (crash session)
 - `memory/mockups-approved.md` — Index des mockups validés par Antoine (SOS v4b, etc.)
 - `memory/mockups/` — Fichiers HTML des mockups approuvés (sauvegardés sur GitHub)
+- `memory/multi-user-phase1-results.md` — Résultats Phase 1 (Auth, 35/35, 12 fixes)
+- `memory/multi-user-phase2-results.md` — Résultats Phase 2 (Spots, 37/37, 5 fixes + data integrity)
+- `memory/plan-optimisation-v2.md` — Plan optimisation V2 (19 points maintenant, 10 points futur/app native)
 
 ---
 
@@ -81,8 +84,9 @@
 - **Site live** : spothitch.com (Cloudflare Pages, HTTPS actif)
 - **Spots** : 100% communautaires via Firestore (aucune donnée importée)
 - **Langues** : FR, EN, ES, DE
-- **Tests** : 87 wiring, 38 E2E spec files, 35 multi-user Phase 1 tests, ~497 E2E tests total
-- **Multi-user testing** : Phase 1 (Auth & Profil) complète 35/35. Phases 2-10 à venir.
+- **Tests** : 87 wiring, 39 E2E spec files, 72 multi-user tests (Phase 1: 35, Phase 2: 37), ~534 E2E total
+- **Multi-user testing** : Phase 1 (Auth) 35/35 ✅ + Phase 2 (Spots) 37/37 ✅. Phases 3-10 à venir.
+- **Data integrity** : spots immuables, GPS history 24h, check-in 500m, validation 2km, niveaux confiance, filtre profanité, détection doublons
 - **Backup** : cron 5min vers github.com/spothitch/chromebook-backup (sessions Claude, SSH, .env.local, config gh)
 - **E2E credentials** : `node scripts/setup-env.mjs` recrée .env.local depuis ~/.claude/ (survit aux crashs)
 

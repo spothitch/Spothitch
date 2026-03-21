@@ -6,14 +6,14 @@
 ## MAINTENANT (à implémenter cette session)
 
 ### Intégrité des données
-- [ ] 1. **Spots immuables** : verrouiller Firestore rules (créateur ne peut plus modifier après publication)
-- [ ] 2. **Historique GPS local** : enregistrer positions quand l'app est ouverte, stocker dans IndexedDB, garder 24h
-- [ ] 3. **Vérification check-in** : doit avoir été à <500m du spot dans les 24h
-- [ ] 4. **Vérification validation** : doit avoir été à <2km du spot dans les 24h
-- [ ] 5. **Niveau de confiance check-in** : GPS <500m = "Vérifié sur place", GPS <2km = "Position confirmée", pas de GPS = "Non vérifié"
-- [ ] 6. **1 review par user par spot** + longueur min 10 chars + filtre profanité
+- [x] 1. **Spots immuables** ✅ 2026-03-21
+- [x] 2. **Historique GPS local** ✅ 2026-03-21 (src/services/locationHistory.js)
+- [x] 3. **Vérification check-in 500m** ✅ 2026-03-21
+- [x] 4. **Vérification validation 2km** ✅ 2026-03-21
+- [x] 5. **Niveau de confiance check-in** ✅ 2026-03-21
+- [x] 6. **1 review par user par spot + 10 chars + profanité** ✅ 2026-03-21
 - [ ] 7. **Signalement de reviews** (bouton signaler sur chaque review)
-- [ ] 8. **Détection doublons** : si spot à <500m d'un existant → message "Un spot existe déjà ici" avec choix : valider l'existant / créer quand même (avec justification envoyée à l'admin)
+- [x] 8. **Détection doublons 500m** ✅ 2026-03-21
 
 ### Performance
 - [ ] 9. **TTL cache 1h** sur les données pays IndexedDB

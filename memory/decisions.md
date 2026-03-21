@@ -119,3 +119,20 @@
 | OpenFreeMap | Tuiles carte | Illimité | Gratuit |
 | MyMemory | Traduction in-app | 5000 mots/jour | Gratuit |
 | Sentry | Monitoring erreurs | 5K events/mois (free) | Gratuit |
+
+## Décisions Session Multi-User (2026-03-21)
+
+| Décision | Choix | Raison | Date |
+|----------|-------|--------|------|
+| Spots immuables | Créateur ne peut plus modifier après publication | Empêche vandalisme et manipulation de coordonnées. Seul admin modifie. | 2026-03-21 |
+| Check-in 500m | GPS actuel ou historique 24h | Distance réaliste pour être au spot. Marge pour imprécision GPS. | 2026-03-21 |
+| Validation 2km | GPS actuel ou historique 24h | On peut passer en voiture et confirmer l'existence du spot. | 2026-03-21 |
+| GPS historique PWA | Foreground only, 1 position/min, 24h rétention | iOS bloque le background. App native nécessaire pour tracking permanent. | 2026-03-21 |
+| Niveaux confiance check-in | verified_on_spot (<500m), position_confirmed (<2km), no_history | Transparence : l'utilisateur voit la fiabilité de chaque validation. | 2026-03-21 |
+| Reviews 10 chars min + profanité | Filtre basique FR/EN | Qualité minimale des avis. À enrichir avec ES/DE. | 2026-03-21 |
+| 1 review par user par spot | localStorage + Firestore ID | Empêche le spam de reviews. | 2026-03-21 |
+| Détection doublons 500m | Confirmation utilisateur + info admin | Évite les doublons mais permet les spots direction opposée avec justification. | 2026-03-21 |
+| Zéro données fictives | Tout supprimé : faux ambassadeurs, faux chiffres, faux profils | Antoine insiste : rien de faux. Les démos ont un bandeau "Aperçu fictif". | 2026-03-21 |
+| loginAsAdmin protégé | Guard VITE_SHOW_BETA | Inaccessible en production. | 2026-03-21 |
+| Firebase session persistence | setPersistence(browserLocalPersistence) | L'utilisateur ne se déconnecte plus au refresh. | 2026-03-21 |
+| App native future | React Native prévu | Pour tracking GPS arrière-plan, notifications push fiables, performance. | 2026-03-21 |
