@@ -8,6 +8,31 @@ window.openAuth = (reason) => {
   if (reason) updates.showAuthReason = reason
   window.setState(updates)
 }
+
+// Auth stubs — overridden by Auth.js when lazy-loaded
+// These ensure onclick handlers work even before Auth.js finishes loading
+if (!window.setAuthMode) {
+  window.setAuthMode = (mode) => window.setState({ authMode: mode })
+}
+if (!window.signIn) {
+  const _stubSignIn = async () => {
+    try {
+      await import('../components/modals/Auth.js')
+      // Auth.js defines window.signIn — call it if it replaced the stub
+      if (window.signIn !== _stubSignIn) window.signIn()
+    } catch { /* no-op */ }
+  }
+  window.signIn = _stubSignIn
+}
+if (!window.signUp) {
+  const _stubSignUp = async () => {
+    try {
+      await import('../components/modals/Auth.js')
+      if (window.signUp !== _stubSignUp) window.signUp()
+    } catch { /* no-op */ }
+  }
+  window.signUp = _stubSignUp
+}
 if (!window.closeAuth) {
   window.closeAuth = () => window.setState({ showAuth: false, authPendingAction: null, showAuthReason: null })
 }

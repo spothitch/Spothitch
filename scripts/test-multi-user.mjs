@@ -13,9 +13,9 @@ import { chromium } from 'playwright'
 
 const BASE_URL = 'http://localhost:5173'
 
-// Test accounts (email/password) — create these in Firebase console first
-const USER_A = { email: 'test-alice@spothitch.com', password: 'TestAlice2026!', name: 'Alice Test' }
-const USER_B = { email: 'test-bob@spothitch.com', password: 'TestBob2026!', name: 'Bob Test' }
+// Test accounts (already created in Firebase — see functions/config/ignoredAccounts.js)
+const USER_A = { email: 'ci-alice@spothitch.com', password: 'CiAlice2026!', name: 'Alice CI' }
+const USER_B = { email: 'ci-bob@spothitch.com', password: 'CiBob2026!', name: 'Bob CI' }
 
 const results = []
 function log(test, status, detail = '') {
