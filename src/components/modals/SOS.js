@@ -248,11 +248,7 @@ function renderSOSMain(state) {
       </div>
     </div>
 
-    <!-- ═══ CONFIG SIDEBARS (rendered outside modal for z-index) ═══ -->
-    <div id="sos-config-overlay" class="fixed inset-0 z-[60] bg-black/60 hidden" onclick="sosCloseConfig()"></div>
-    <div id="sos-config-panel" class="fixed right-0 top-0 bottom-0 w-[88%] max-w-[345px] bg-dark-primary z-[61] transform translate-x-full transition-transform duration-300 overflow-y-auto hidden">
-      <div id="sos-config-content" class="p-5"></div>
-    </div>
+    <!-- Config sections are rendered inline in the config tab panel -->
   `
 }
 
@@ -672,33 +668,31 @@ window.sosBroadcastCommunity = async () => {
   window.showToast?.(t('sosCommunityAlertSent') || 'Alerte envoyée à la communauté', 'success')
 }
 
-// ── v4b: Config sidebar ──────────────────────────────────────────────────────
+// ── v4b: Config inline (replaces panel content instead of sidebar) ───────────
 window.sosOpenConfig = (section) => {
-  const overlay = document.getElementById('sos-config-overlay')
-  const panel = document.getElementById('sos-config-panel')
-  const content = document.getElementById('sos-config-content')
-  if (!overlay || !panel || !content) return
+  const panel = document.querySelector('[data-sos-panel="1"]')
+  if (!panel) return
 
-  content.innerHTML = _getConfigContent(section)
-  overlay.classList.remove('hidden')
-  panel.classList.remove('hidden')
-  requestAnimationFrame(() => {
-    panel.style.transform = 'translateX(0)'
-  })
+  // Save original content for "back" navigation
+  if (!window._sosConfigOriginal) {
+    window._sosConfigOriginal = panel.innerHTML
+  }
 
-  // Re-init lucide icons in sidebar
+  panel.innerHTML = `<div class="p-5">${_getConfigContent(section)}</div>`
+
+  // Re-init icons
   if (window.lucide?.createIcons) window.lucide.createIcons()
 }
 
 window.sosCloseConfig = () => {
-  const overlay = document.getElementById('sos-config-overlay')
-  const panel = document.getElementById('sos-config-panel')
-  if (!panel || !overlay) return
-  panel.style.transform = 'translateX(100%)'
-  setTimeout(() => {
-    overlay.classList.add('hidden')
-    panel.classList.add('hidden')
-  }, 300)
+  const panel = document.querySelector('[data-sos-panel="1"]')
+  if (!panel || !window._sosConfigOriginal) return
+
+  panel.innerHTML = window._sosConfigOriginal
+  window._sosConfigOriginal = null
+
+  // Re-init icons
+  if (window.lucide?.createIcons) window.lucide.createIcons()
 }
 
 function _getConfigContent(section) {
