@@ -70,28 +70,42 @@ test.describe('Profile - Settings', () => {
     const themeToggle = page.locator('[role="switch"]').first()
     await expect(themeToggle).toBeVisible({ timeout: 5000 })
 
-    // Get theme class BEFORE toggle
+    // REAL RESULT: capture actual background color BEFORE toggle
+    const bgBefore = await page.evaluate(() =>
+      getComputedStyle(document.body).backgroundColor
+    )
     const classesBefore = await page.evaluate(() => document.body.className)
 
     await themeToggle.click()
     await page.waitForTimeout(500)
 
-    // Theme class or background-color MUST have changed
+    // REAL RESULT: background color MUST have changed visually
+    const bgAfter = await page.evaluate(() =>
+      getComputedStyle(document.body).backgroundColor
+    )
     const classesAfter = await page.evaluate(() => document.body.className)
-    const bgBefore = await page.evaluate(() => {
-      // Return computed background from body or root
-      return getComputedStyle(document.documentElement).backgroundColor ||
-             getComputedStyle(document.body).backgroundColor
+
+    // Verify ACTUAL visual change (not just class or aria)
+    const bgChanged = bgBefore !== bgAfter
+    const classChanged = classesBefore !== classesAfter
+    expect(bgChanged || classChanged).toBe(true)
+
+    // Verify theme persisted in state
+    const themeState = await page.evaluate(() => {
+      const raw = localStorage.getItem('spothitch_v4_state')
+      return raw ? JSON.parse(raw).theme : null
     })
+    expect(themeState).toBe('light')
 
-    // Either class changed (dark-theme/light-theme toggle) or aria-checked changed
-    const ariaState = await themeToggle.getAttribute('aria-checked')
-    const themeChanged = classesBefore !== classesAfter
-    expect(themeChanged || ariaState !== null).toBe(true)
-
-    // Toggle back
+    // Toggle back and verify it goes back to dark
     await themeToggle.click()
-    await page.waitForTimeout(300)
+    await page.waitForTimeout(500)
+
+    const themeAfterReset = await page.evaluate(() => {
+      const raw = localStorage.getItem('spothitch_v4_state')
+      return raw ? JSON.parse(raw).theme : null
+    })
+    expect(themeAfterReset).toBe('dark')
   })
 
   test('should have language selector', async ({ page }) => {

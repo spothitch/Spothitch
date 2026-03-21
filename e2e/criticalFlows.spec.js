@@ -60,6 +60,16 @@ test.describe('Search - Autocomplete Suggestions', () => {
     const searchInput = page.locator('#home-destination')
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
+    // Capture map center BEFORE search
+    const centerBefore = await page.evaluate(() => {
+      const map = window.homeMapInstance
+      if (map && map.getCenter) {
+        const c = map.getCenter()
+        return { lat: c.lat, lng: c.lng }
+      }
+      return null
+    })
+
     await searchInput.fill('Berlin')
     await searchInput.dispatchEvent('input')
 
@@ -68,8 +78,13 @@ test.describe('Search - Autocomplete Suggestions', () => {
 
     const firstSuggestion = suggestions.locator('button').first()
     await expect(firstSuggestion).toBeVisible({ timeout: 5000 })
+
+    // Verify suggestion text contains something relevant
+    const suggestionText = await firstSuggestion.textContent()
+    expect(suggestionText.toLowerCase()).toContain('berlin')
+
     await firstSuggestion.click({ force: true })
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1500)
 
     // Click elsewhere to dismiss suggestions if still visible
     await page.locator('#home-map').click({ force: true }).catch(() => {})
@@ -78,6 +93,29 @@ test.describe('Search - Autocomplete Suggestions', () => {
     // Search input should have selected location name
     const value = await searchInput.inputValue()
     expect(value.length).toBeGreaterThan(0)
+
+    // REAL RESULT: map center should have moved to Berlin area (~52.5°N, ~13.4°E)
+    const centerAfter = await page.evaluate(() => {
+      const map = window.homeMapInstance
+      if (map && map.getCenter) {
+        const c = map.getCenter()
+        return { lat: c.lat, lng: c.lng }
+      }
+      return null
+    })
+
+    if (centerBefore && centerAfter) {
+      // Map should have moved (center coordinates changed)
+      const moved = Math.abs(centerAfter.lat - centerBefore.lat) > 0.5 ||
+                    Math.abs(centerAfter.lng - centerBefore.lng) > 0.5
+      expect(moved).toBe(true)
+
+      // Berlin is roughly at lat 52.5, lng 13.4
+      expect(centerAfter.lat).toBeGreaterThan(50)
+      expect(centerAfter.lat).toBeLessThan(55)
+      expect(centerAfter.lng).toBeGreaterThan(11)
+      expect(centerAfter.lng).toBeLessThan(16)
+    }
   })
 
   test('should search on Enter key without crash', async ({ page }) => {
