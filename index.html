@@ -207,10 +207,28 @@
         Skip to main content
     </a>
     
-    <!-- App Loader — minimal dark background while JS loads (splash screen takes over) -->
+    <!-- Splash Screen — visible immediately, no JS needed -->
     <div id="app-loader">
-        <div style="text-align:center">
-            <div style="color:#94a3b8;font-size:13px;margin-top:8px" id="loader-text"></div>
+        <div id="splash-screen" style="position:fixed;inset:0;background:linear-gradient(180deg,#0f1520 0%,#0a1018 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999">
+            <!-- Logo -->
+            <div style="text-align:center;margin-bottom:1.5rem">
+                <img src="logo.png" alt="SpotHitch" style="width:64px;height:64px;border-radius:16px;object-fit:cover" width="64" height="64" />
+                <h1 style="font-size:1.5rem;font-weight:800;color:#f59e0b;margin:0.5rem 0 0;font-family:system-ui,-apple-system,sans-serif;letter-spacing:-0.02em">SpotHitch</h1>
+            </div>
+            <!-- Progress bar -->
+            <div style="width:100%;max-width:260px;padding:0 1.5rem">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                    <span id="splash-status" style="font-size:11px;color:#94a3b8">Loading...</span>
+                    <span id="splash-progress-pct" style="font-size:11px;color:#f59e0b;font-weight:600">0%</span>
+                </div>
+                <div style="width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden">
+                    <div id="splash-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:99px;transition:width .4s ease"></div>
+                </div>
+            </div>
+            <!-- Tip placeholder (JS fills with real tips) -->
+            <div id="splash-tip" style="margin-top:1.25rem;padding:0 1.5rem;max-width:320px;min-height:2.5rem;display:flex;align-items:flex-start;gap:8px;transition:opacity .3s">
+                <span id="splash-tip-text" style="font-size:12px;color:#64748b;line-height:1.5;text-align:center;width:100%"></span>
+            </div>
         </div>
     </div>
 

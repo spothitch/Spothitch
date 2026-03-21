@@ -205,10 +205,24 @@ export function initSplashScreen() {
   const loader = document.getElementById('app-loader')
   if (!loader) return
 
-  loader.innerHTML = renderSplashScreen()
+  // The splash HTML is already in index.html (instant display).
+  // If it's missing (edge case), inject it.
+  if (!document.getElementById('splash-screen')) {
+    loader.innerHTML = renderSplashScreen()
+  }
   loader.classList.remove('hidden')
 
-  // Rotate tips every 3 seconds
+  // Set first tip immediately
+  const textEl = document.getElementById('splash-tip-text')
+  if (textEl && !textEl.textContent) {
+    textEl.textContent = tips[0].text
+  }
+
+  // Update status label to localized text
+  const statusEl = document.getElementById('splash-status')
+  if (statusEl) statusEl.textContent = labels.map + '...'
+
+  // Rotate tips every 3.5 seconds
   _currentTipIndex = 0
   _tipInterval = setInterval(() => {
     _currentTipIndex = (_currentTipIndex + 1) % tips.length

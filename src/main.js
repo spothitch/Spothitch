@@ -196,12 +196,9 @@ async function init() {
     resolveGpsReady()
   }
 
-  // Initialize splash screen only if user has already seen the landing carousel
-  // (no need for 2 loading screens stacked on each other)
-  const landingSeen = localStorage.getItem('spothitch_landing_v2')
-  if (landingSeen) {
-    initSplashScreen();
-  }
+  // Initialize splash screen (tips + progress tracking)
+  // The splash HTML is already in index.html for instant display
+  initSplashScreen();
 
   // Always preload map module during initial loading (onboarding or splash)
   // so MapLibre is ready when user opens the map tab
