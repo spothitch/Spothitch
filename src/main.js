@@ -19,14 +19,16 @@ async function getFirebase() {
 import { initNotifications, showToast } from './services/notifications.js';
 import { initOfflineHandler } from './services/offline.js';
 function preloadMap() {
-  const doPreload = () => {
-    import('maplibre-gl').catch(() => {})
-  }
-  if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(doPreload)
-  } else {
-    setTimeout(doPreload, 2000)
-  }
+  // Start MapLibre download IMMEDIATELY (not idle/2s delay)
+  import('maplibre-gl').then(() => {
+    markLoaded('mapModule')
+  }).catch(() => {
+    markLoaded('mapModule') // Don't block progress on error
+  })
+  // Preload OpenFreeMap style in parallel (fetch only, browser caches it)
+  fetch('https://tiles.openfreemap.org/styles/liberty', { mode: 'cors' })
+    .then(() => markLoaded('mapStyle'))
+    .catch(() => markLoaded('mapStyle'))
 }
 
 function preloadTabChunks() {
@@ -48,7 +50,7 @@ import { t, setLanguage, initI18n } from './i18n/index.js';
 import { renderApp, afterRender, getActiveTabPanelId, renderActiveView, renderModals, renderOverlays } from './components/App.js';
 import { renderHeader } from './components/Header.js';
 import { renderNavigation } from './components/Navigation.js';
-import { initSplashScreen, hideSplashScreen } from './components/SplashScreen.js';
+import { initSplashScreen, hideSplashScreen, markLoaded } from './components/SplashScreen.js';
 
 // Data
 import { sampleSpots } from './data/spots.js';
@@ -527,11 +529,14 @@ async function init() {
       console.warn('Error handlers skipped:', e.message);
     }
 
-    // Hide loader — wait for GPS if returning user (max 3s), instant for new users
+    // Mark app as ready — splash will hide when all steps complete + min time elapsed
+    markLoaded('appReady')
+    // GPS ready (non-blocking for splash, but mark it)
     if (savedPos) {
-      await gpsReadyPromise
+      gpsReadyPromise.then(() => {}).catch(() => {})
     }
-    hideLoader();
+    // Fallback: force hide after 6s max (safety net)
+    setTimeout(() => hideLoader(), 6000)
 
     // Register service worker
     registerServiceWorker();

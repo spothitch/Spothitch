@@ -702,7 +702,7 @@ export function afterRender(state) {
   // Map init + controls: only when map tab is active
   const activePanel = getActiveTabPanelId(state)
   if (activePanel === 'map') {
-    setTimeout(() => initHomeMap(state), 100)
+    initHomeMap(state)
     ensureMapControls(state)
     if (window._ensureLegendOverlay) window._ensureLegendOverlay(state.showMapLegend)
     updateSpotCounter()
@@ -1129,6 +1129,9 @@ function initHomeMap(state) {
     }
 
     map.on('load', async () => {
+      // Mark map as ready for splash progress
+      try { const { markLoaded } = await import('./SplashScreen.js'); markLoaded('mapReady') } catch { /* splash already hidden */ }
+
       // Hide map loading spinner
       const mapLoader = document.getElementById('map-loading-indicator')
       if (mapLoader) { mapLoader.style.opacity = '0'; setTimeout(() => mapLoader.remove(), 500) }
@@ -1196,6 +1199,9 @@ function initHomeMap(state) {
           }
         }
       } catch { /* Firestore unavailable — static spots still work */ }
+
+      // Mark spots as loaded for splash progress
+      try { const { markLoaded } = await import('./SplashScreen.js'); markLoaded('spotsLoaded') } catch { /* splash already hidden */ }
     })
 
     // Debounce spot loading on map move
