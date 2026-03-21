@@ -11,11 +11,12 @@
 
 import { chromium } from 'playwright'
 
-const BASE_URL = 'http://localhost:5173'
+// Use prod or local — App Check blocks localhost on prod build
+const BASE_URL = process.env.TEST_URL || 'https://spothitch.com'
 
-// Test accounts (already created in Firebase — see functions/config/ignoredAccounts.js)
-const USER_A = { email: 'ci-alice@spothitch.com', password: 'CiAlice2026!', name: 'Alice CI' }
-const USER_B = { email: 'ci-bob@spothitch.com', password: 'CiBob2026!', name: 'Bob CI' }
+// Test accounts (created via Firebase CLI — password: CiTest2026!)
+const USER_A = { email: 'ci-alice-new@spothitch.com', password: 'CiTest2026!', name: 'Alice Test' }
+const USER_B = { email: 'ci-bob-new@spothitch.com', password: 'CiTest2026!', name: 'Bob Test' }
 
 const results = []
 function log(test, status, detail = '') {

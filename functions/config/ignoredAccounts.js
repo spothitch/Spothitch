@@ -13,6 +13,8 @@ const IGNORED_EMAILS = [
   'ci-bob@spothitch.com',
   'ci-charlie@spothitch.com',
   'ci-diana@spothitch.com',
+  'ci-alice-new@spothitch.com',
+  'ci-bob-new@spothitch.com',
 ]
 
 /**

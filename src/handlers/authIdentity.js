@@ -12,7 +12,10 @@ window.openAuth = (reason) => {
 // Auth stubs — overridden by Auth.js when lazy-loaded
 // These ensure onclick handlers work even before Auth.js finishes loading
 if (!window.setAuthMode) {
-  window.setAuthMode = (mode) => window.setState({ authMode: mode })
+  window.setAuthMode = (mode) => {
+    window.setState({ authMode: mode })
+    window._forceRender?.()
+  }
 }
 if (!window.signIn) {
   const _stubSignIn = async () => {

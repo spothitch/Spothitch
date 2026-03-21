@@ -371,6 +371,7 @@ window.authMode = 'login'
 window.setAuthMode = (mode) => {
   import('../../stores/state.js').then(({ setState }) => {
     setState({ authMode: mode })
+    window._forceRender?.()
   })
 }
 
