@@ -670,6 +670,8 @@ export default {
   levelNative: 'Nativo',
   validateMyCheckin: 'Validar mi paso',
   checkinValidated: '¡Check-in validado!',
+  checkinAlreadyToday: 'Ya validaste este spot hoy',
+  cannotReviewOwnSpot: 'No puedes valorar tu propio spot',
   checkinError: 'Error durante el check-in',
   rate: 'Valorar',
   review: 'Opinión',
