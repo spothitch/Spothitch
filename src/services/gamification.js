@@ -103,17 +103,10 @@ export function addPoints(pts, _reason = '') {
     }
   }
 
-  // Check for VIP level up
+  // Check for VIP level up (confetti disabled — causes bugs)
   const newVipLevel = getVipLevel(newPoints);
   if (newVipLevel.id !== vipLevel.id) {
-    if (window.showSuccessAnimation) {
-      window.showSuccessAnimation((t('newVipLevel') || 'Nouveau niveau VIP :') + ` ${newVipLevel.name} !`, {
-        emoji: newVipLevel.icon,
-        confetti: true,
-      });
-    } else {
-      showToast(`${newVipLevel.icon} ${t('newVipLevel') || 'Nouveau niveau VIP :'} ${newVipLevel.name} !`, 'success');
-    }
+    showToast(`${newVipLevel.icon} ${t('newVipLevel') || 'Nouveau niveau VIP :'} ${newVipLevel.name} !`, 'success');
   }
 
   // Check badges
@@ -271,53 +264,18 @@ export function checkBadges() {
  * Show badge popup notification
  * @param {Object} badge - Badge object
  */
-function showBadgePopup(badge) {
-  // Use the enhanced animation if available, otherwise fallback to toast
-  if (window.showBadgeUnlock) {
-    window.showBadgeUnlock(badge);
-  } else {
-    showToast(`${badge.icon} ${t('badgeUnlocked') || 'Badge débloqué :'} ${badge.name}`, 'success', 5000);
-  }
-
-  // Store for modal display
-  setState({
-    newBadge: badge,
-    showBadgePopup: true,
-  });
-
-  // Auto-hide after 5 seconds
-  setTimeout(() => {
-    setState({ showBadgePopup: false, newBadge: null });
-  }, 5000);
+function showBadgePopup(_badge) {
+  // DISABLED: badge popups and confetti cause bugs and slow down the app.
+  // Will be re-enabled when the badge system is properly redesigned.
 }
 
 /**
  * Show title unlock notification
  * @param {Object} title - Title object
  */
-function showTitleUnlock(title) {
-  // Use the enhanced animation if available, otherwise fallback to toast
-  if (window.showTitleUnlock) {
-    window.showTitleUnlock(title);
-  } else if (window.showSuccessAnimation) {
-    window.showSuccessAnimation((t('newTitle') || 'Nouveau titre :') + ` ${title.name} !`, {
-      emoji: title.emoji,
-      confetti: true,
-    });
-  } else {
-    showToast(`${title.emoji} ${t('newTitle') || 'Nouveau titre :'} ${title.name} !`, 'success', 5000);
-  }
-
-  // Store for modal display
-  setState({
-    newTitle: title,
-    showTitlePopup: true,
-  });
-
-  // Auto-hide after 5 seconds
-  setTimeout(() => {
-    setState({ showTitlePopup: false, newTitle: null });
-  }, 5000);
+function showTitleUnlock(_title) {
+  // DISABLED: title popups and confetti cause bugs and slow down the app.
+  // Will be re-enabled when properly redesigned.
 }
 
 /**
