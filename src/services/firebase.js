@@ -295,6 +295,8 @@ export function setupGISOverlay(overlayContainer, onResult) {
         iframe.style.position = 'absolute'
         iframe.style.top = '0'
         iframe.style.left = '0'
+        // GIS iframe rendered — enable pointer events so clicks hit the real Google button
+        overlayContainer.style.pointerEvents = 'auto'
       }
       // Also make the container div from GIS fill the space
       const gisDiv = overlayContainer.firstElementChild
@@ -307,25 +309,37 @@ export function setupGISOverlay(overlayContainer, onResult) {
       }
     })
   }).catch(() => {
-    // GIS unavailable — the regular onclick handler will be used
+    // GIS unavailable — overlay stays pointer-events:none, clicks fall through to button onclick
   })
 }
 
 /**
- * Sign in with Google using Firebase signInWithPopup.
+ * Sign in with Google using Firebase signInWithPopup (desktop) or signInWithRedirect (mobile).
  *
  * This is the FALLBACK method, used when GIS overlay is not available
  * (script blocked, GIS not loaded). It briefly shows a Firebase
  * intermediate page before redirecting to Google.
  *
- * IMPORTANT: This function uses ONE method only (no chaining).
- * The GIS overlay (setupGISOverlay) is the primary method and
- * bypasses this function entirely when it works.
+ * On mobile, popups are frequently blocked by browsers, so we use
+ * signInWithRedirect instead. The result is picked up on app restart
+ * via checkRedirectResult().
  */
 export async function signInWithGoogle() {
   try {
     window._authInProgress = true
     const provider = new GoogleAuthProvider()
+
+    // Mobile: use redirect (popups are unreliable on mobile browsers)
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    if (isMobile) {
+      sessionStorage.setItem('spothitch_auth_redirect', '1')
+      const { signInWithRedirect } = await import('firebase/auth')
+      await signInWithRedirect(auth, provider)
+      // Page will reload — result handled by checkRedirectResult() on next load
+      return { success: false, error: 'redirect-in-progress' }
+    }
+
+    // Desktop: use popup
     const result = await signInWithPopup(auth, provider)
     window._authInProgress = false
     if (result?.user) {
@@ -334,6 +348,15 @@ export async function signInWithGoogle() {
     return { success: false, error: 'no-user' }
   } catch (error) {
     window._authInProgress = false
+    // If popup was blocked, try redirect as fallback
+    if (error.code === 'auth/popup-blocked') {
+      try {
+        sessionStorage.setItem('spothitch_auth_redirect', '1')
+        const { signInWithRedirect } = await import('firebase/auth')
+        await signInWithRedirect(auth, new GoogleAuthProvider())
+        return { success: false, error: 'redirect-in-progress' }
+      } catch { /* redirect also failed */ }
+    }
     return { success: false, error: error.code || error.message }
   }
 }
