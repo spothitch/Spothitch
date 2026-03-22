@@ -5020,7 +5020,7 @@ export default {
   pendingShort: 'en att.',
   validatedSpots: 'Validés',
   validatedShort: 'validés',
-  offlinePanelTitle: 'Spots hors-ligne',
+  offlinePanelTitle: 'Données hors-ligne',
   offlineSaved: 'Sauvé',
   americas: 'Amériques',
   asia: 'Asie',

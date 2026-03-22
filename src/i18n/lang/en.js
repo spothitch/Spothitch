@@ -5018,7 +5018,7 @@ export default {
   pendingShort: 'pending',
   validatedSpots: 'Validated',
   validatedShort: 'validated',
-  offlinePanelTitle: 'Offline spots',
+  offlinePanelTitle: 'Offline data',
   offlineSaved: 'Saved',
   americas: 'Americas',
   asia: 'Asia',

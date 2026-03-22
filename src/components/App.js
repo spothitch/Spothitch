@@ -241,12 +241,19 @@ function renderOfflinePanel(state) {
     } catch { return '🌍' }
   }
 
-  // Spot counts per country from spotIndex (loaded by openOfflinePanel)
-  const spotIndex = state._spotIndex || null
-  // Build a code→count map from the array-based index
+  // Spot counts per country: from Firestore state spots + spotIndex fallback
   const spotCounts = {}
+  const stateSpots = state.spots || []
+  for (const s of stateSpots) {
+    const code = s.country || s.countryCode
+    if (code) spotCounts[code] = (spotCounts[code] || 0) + 1
+  }
+  // Merge with spotIndex if available (legacy JSON data)
+  const spotIndex = state._spotIndex || null
   if (spotIndex?.countries) {
-    for (const c of spotIndex.countries) spotCounts[c.code] = c.count || 0
+    for (const c of spotIndex.countries) {
+      if (!spotCounts[c.code]) spotCounts[c.code] = c.count || 0
+    }
   }
 
   // Split: top 3 by spot count + rest alphabetically
@@ -329,8 +336,8 @@ function renderOfflinePanel(state) {
       <div class="flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-slate-600"></div></div>
       <!-- Header -->
       <div class="px-4 pb-3">
-        <h2 class="text-base font-bold">${t('offlinePanelTitle') || 'Spots hors-ligne'}</h2>
-        <p class="text-xs text-slate-400 mt-0.5">${t('offlineHint') || 'Télécharge des pays pour les consulter sans internet'}</p>
+        <h2 class="text-base font-bold">${t('offlinePanelTitle') || 'Données hors-ligne'}</h2>
+        <p class="text-xs text-slate-400 mt-0.5">${t('offlineHint') || 'Télécharge spots, carte et stations pour voyager sans internet'}</p>
       </div>
       <!-- Country list -->
       <div class="overflow-y-auto max-h-[calc(70vh-140px)]">

@@ -1014,6 +1014,9 @@ window.changeTab = (tab) => {
   if (tab !== 'map' && window._cleanupMapListeners) {
     window._cleanupMapListeners()
   }
+  // Close panels that shouldn't persist across tabs
+  const { showOfflinePanel } = getState()
+  if (showOfflinePanel) setState({ showOfflinePanel: false })
   actions.changeTab(tab);
   trackPageView(tab);
   announceViewChange(tab);

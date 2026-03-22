@@ -5073,7 +5073,7 @@ export default {
   pendingShort: 'ausst.',
   validatedSpots: 'Validiert',
   validatedShort: 'valid.',
-  offlinePanelTitle: 'Offline-Spots',
+  offlinePanelTitle: 'Offline-Daten',
   offlineSaved: 'Gespeichert',
   americas: 'Amerika',
   asia: 'Asien',
