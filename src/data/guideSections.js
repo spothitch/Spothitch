@@ -782,4 +782,294 @@ export const guideSectionsData = {
       ],
     },
   },
+
+  // ==================== SPAIN ====================
+  ES: {
+    laws: {
+      filterTypes: ['q', 'c', 'a'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est légal sur les routes nationales et secondaires en Espagne. Il est interdit sur les autoroutes (autopistas) et voies express (autovías) par l\'article 125 du Règlement Général de Circulation.' },
+        { type: 'sub', title: 'Amendes' },
+        { type: 'text', text: 'Amende de 80 € pour l\'autostoppeur ET le conducteur qui le prend sur une route interdite. Certaines municipalités appliquent des amendes plus élevées (jusqu\'à 3 000 € dans certains cas locaux).' },
+        { type: 'sub', title: 'En pratique' },
+        { type: 'text', text: 'Les stations-service et aires de repos sur autoroute sont autorisées. Beaucoup d\'Espagnols (et certains policiers) croient à tort que l\'autostop est totalement illégal.' },
+        { type: 'warn', text: '⚠️ La Guardia Civil enlève activement les autostoppeurs des péages. Les employés des sociétés d\'autoroute aussi.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'L\'Espagne est l\'un des pays les plus difficiles d\'Europe pour l\'autostop. Le temps d\'attente moyen est de 60 à 120 minutes. Prévois maximum 300 à 350 km par jour.' },
+        { type: 'sub', title: 'Méthode obligatoire' },
+        { type: 'text', text: 'Aborder les conducteurs directement aux stations-service est quasi obligatoire. Le pouce au bord de la route ne fonctionne presque pas en Espagne. Approche poliment : "Hola, vas a...?"' },
+        { type: 'sub', title: 'Différences régionales' },
+        { type: 'kv', items: [
+          { k: 'Galice, Asturies, Estrémadure', v: 'Plus facile', color: 'green' },
+          { k: 'Aragon, Navarre', v: 'Correct', color: 'green' },
+          { k: 'Andalousie intérieure', v: 'Difficile (stations désertes)', color: 'amber' },
+          { k: 'Catalogne', v: 'Très difficile', color: 'red' },
+          { k: 'Pays basque', v: 'Très difficile', color: 'red' },
+        ]},
+        { type: 'sub', title: 'Astuce frontière' },
+        { type: 'text', text: 'La Jonquera (frontière française) est l\'un des plus grands arrêts routiers d\'Europe. Idéal pour trouver un trajet longue distance avant d\'entrer en Espagne.' },
+        { type: 'warn', text: '⚠️ Pendant la sieste (14h-17h), le trafic chute fortement. Évite de faire du stop pendant ces heures, surtout en été.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'L\'Espagne est globalement sûre (23ème au Global Peace Index). Le risque principal pour les voyageurs est le pickpocket dans les grandes villes, pas l\'autostop.' },
+        { type: 'sub', title: 'Contexte historique' },
+        { type: 'text', text: 'L\'affaire des filles d\'Alcàsser (1992), où 3 adolescentes ont été assassinées en faisant du stop, a profondément traumatisé la société espagnole et contribue à la méfiance envers l\'autostop qui persiste aujourd\'hui.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [
+          { k: 'Urgences', v: '112' },
+          { k: 'Guardia Civil (routes, rural)', v: '062' },
+          { k: 'Police nationale (villes)', v: '091' },
+        ]},
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c', 'a'],
+      blocks: [
+        { type: 'text', text: 'L\'Espagne est considérée comme l\'un des pays les plus sûrs pour les voyageuses solo en général. Plusieurs femmes ayant fait du stop seules rapportent des expériences positives.' },
+        { type: 'sub', title: 'Retours d\'expérience' },
+        { type: 'text', text: 'Une voyageuse a fait plus de 300 trajets en 7 mois dans 7 pays, avec seulement 2 incidents mineurs (geste déplacé, conversation inappropriée), tous gérés par un refus ferme. Le fait d\'être une femme peut être un avantage : les conducteurs s\'arrêtent souvent par souci de ta sécurité.' },
+        { type: 'rule', icon: '👨‍👩‍👧', text: 'Privilégie les couples et les familles. Refuse les voitures avec plusieurs hommes.' },
+        { type: 'rule', icon: '📍', text: 'Partage ton itinéraire en temps réel sur Google Maps avec un proche.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'L\'espagnol (castillan) est indispensable. Seulement 22% des Espagnols parlent anglais. L\'Espagne est l\'un des pays d\'Europe de l\'Ouest avec le plus faible niveau d\'anglais. En dehors des zones touristiques, ne compte pas sur l\'anglais.' },
+        { type: 'sub', title: 'Langues régionales' },
+        { type: 'text', text: 'Le catalan, le basque et le galicien sont co-officiels dans leurs régions. Quelques mots dans la langue locale aident beaucoup.' },
+        { type: 'sub', title: 'Phrases utiles' },
+        { type: 'phrase', items: [
+          { local: 'Hola, vas a...?', meaning: 'Bonjour, tu vas à... ?' },
+          { local: 'Me puedes llevar?', meaning: 'Tu peux m\'emmener ?' },
+          { local: 'Gracias, buen viaje!', meaning: 'Merci, bon voyage !' },
+          { local: 'Me puedes dejar aquí?', meaning: 'Tu peux me déposer ici ?' },
+        ]},
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Budget routard en Espagne : environ 38 à 50 € par jour. Le sud (Séville, Cadix, Grenade) est nettement moins cher que le nord.' },
+        { type: 'sub', title: 'Manger pas cher' },
+        { type: 'rule', icon: '🍽️', text: 'Menú del día : 8 à 15 € pour un repas 3 plats. Les restaurants sont légalement obligés de le proposer.' },
+        { type: 'rule', icon: '🍺', text: 'Tapas gratuites avec la boisson en Castille, Andalousie et Castille-La Manche.' },
+        { type: 'rule', icon: '🥖', text: 'Pintxos au Pays basque : 1 à 2 € pièce.' },
+        { type: 'rule', icon: '🛒', text: 'Supermarchés : Mercadona, Carrefour, Lidl. Repas complet pour 5 à 10 €.' },
+        { type: 'warn', text: '⚠️ La nourriture aux aires d\'autoroute est très chère. Achète en ville.' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q', 'a'],
+      blocks: [
+        { type: 'text', text: 'Le camping sauvage est interdit en Espagne. Les amendes vont de 30 à 3 000 € selon la région. Mais le bivouac (dormir sans tente) est plus toléré en montagne.' },
+        { type: 'sub', title: 'Par région' },
+        { type: 'kv', items: [
+          { k: 'Galice, Cantabrie, Asturies, Navarre', v: 'Plus tolérant', color: 'green' },
+          { k: 'Pyrénées, Aragon (montagne)', v: 'Bivouac toléré', color: 'green' },
+          { k: 'Intérieur rural', v: 'Police dit juste de partir', color: 'amber' },
+          { k: 'Côtes touristiques, plages', v: 'Zéro tolérance', color: 'red' },
+          { k: 'Baléares, Canaries', v: 'Zéro tolérance', color: 'red' },
+        ]},
+        { type: 'sub', title: 'Alternatives' },
+        { type: 'rule', icon: '⛪', text: 'Albergues de peregrinos sur le Camino de Santiago : hébergement très bon marché avec un passeport de pèlerin.' },
+        { type: 'rule', icon: '🛋️', text: 'Couchsurfing : communauté active à Madrid et Barcelone.' },
+        { type: 'rule', icon: '🏕️', text: 'Campings : 10 à 18 €/nuit pour 2 avec tente. La plupart ont une piscine.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'L\'Espagne a le 4ème plus grand réseau autoroutier au monde. Beaucoup d\'Espagnols utilisent BlaBlaCar au lieu de faire du stop.' },
+        { type: 'sub', title: 'Options' },
+        { type: 'transport', items: [
+          { emoji: '🚗', name: 'BlaBlaCar', detail: 'Très populaire en Espagne', price: '~5 €/100 km' },
+          { emoji: '🚗', name: 'Amovens', detail: 'Concurrent espagnol, zéro commission', price: '' },
+          { emoji: '🚌', name: 'ALSA', detail: 'Principale compagnie de bus espagnole', price: 'dès 10 €' },
+          { emoji: '🚌', name: 'FlixBus', detail: '', price: 'dès 5 €' },
+          { emoji: '🚄', name: 'Ouigo / Iryo', detail: 'TGV low-cost espagnols', price: 'dès 9 €' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le printemps et l\'automne sont les meilleures saisons. L\'été est le pire moment pour faire du stop en Espagne.' },
+        { type: 'sub', title: 'Aperçu par mois' },
+        { type: 'season', months: [
+          { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+          { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'good' },
+          { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'great' },
+          { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'ok' },
+        ]},
+        { type: 'warn', text: '⚠️ Juillet et août : chaleur extrême (40°C+ à l\'intérieur), sieste qui tue le trafic, prix au maximum. Attendre au bord de la route sous 40°C est insoutenable.' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'La culture de l\'autostop n\'a jamais vraiment existé en Espagne. Sous Franco, les mouvements de jeunesse n\'ont pas pris racine comme dans le reste de l\'Europe. Quand l\'Espagne s\'est ouverte, les voitures étaient déjà abordables.' },
+        { type: 'sub', title: 'Ce qui marche' },
+        { type: 'rule', icon: '🗣️', text: 'L\'approche directe aux stations-service est quasi obligatoire. Le pouce au bord de la route est vu comme inhabituel.' },
+        { type: 'rule', icon: '😊', text: 'Les Espagnols sont chaleureux et généreux une fois le contact établi. La barrière, c\'est le premier arrêt.' },
+        { type: 'rule', icon: '🕐', text: 'Adapte-toi aux horaires espagnols : déjeuner vers 14h, dîner après 21h. La sieste (14h-17h) réduit le trafic.' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Mar', day: '⟳', name: 'Las Fallas (Valence)', desc: 'Sculptures géantes brûlées, feux d\'artifice.' },
+          { month: 'Mar-Avr', day: '⟳', name: 'Semana Santa', desc: 'Processions dans tout le pays, surtout Séville.' },
+          { month: 'Avr', day: '⟳', name: 'Feria de Abril (Séville)', desc: 'Danse flamenco, chevaux, tenues traditionnelles.' },
+          { month: 'Juil', day: '6-14', name: 'San Fermín (Pampelune)', desc: 'Course de taureaux dans les rues.' },
+          { month: 'Août', day: '⟳', name: 'La Tomatina (Buñol)', desc: 'Bataille de tomates géante.' },
+          { month: 'Août', day: '15', name: 'Assomption', desc: 'Jour férié, beaucoup de monde sur les routes.' },
+        ]},
+      ],
+    },
+  },
+
+  // ==================== PORTUGAL ====================
+  PT: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est légal au Portugal. Marcher sur les autoroutes (autoestradas) est interdit, mais il n\'y a pas d\'amende spécifique pour les autostoppeurs. La police peut te demander de quitter la zone ou t\'offrir un trajet.' },
+        { type: 'text', text: 'Les stations-service et aires de péage sont les meilleurs endroits. Demander des trajets y est autorisé et recommandé.' },
+        { type: 'warn', text: '⚠️ Les autostoppeurs ne sont pas toujours couverts par l\'assurance automobile standard au Portugal. C\'est l\'une des raisons pour lesquelles certains conducteurs hésitent à s\'arrêter.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Le Portugal est plus facile que l\'Espagne pour l\'autostop, mais reste un défi. Le temps d\'attente médian est d\'environ 40 minutes. Le trajet le plus long enregistré par un voyageur est de 460 km (Ourique à Porto).' },
+        { type: 'sub', title: 'Méthode' },
+        { type: 'text', text: 'L\'approche directe fonctionne mieux : "Bonjour, excusez-moi de vous déranger, je vais à... est-ce que par hasard vous allez dans la même direction ?" Les Portugais répondent mieux à une conversation polie qu\'au pouce levé.' },
+        { type: 'sub', title: 'Différences régionales' },
+        { type: 'kv', items: [
+          { k: 'Axe Lisbonne-Coimbra-Porto', v: 'Le plus facile', color: 'green' },
+          { k: 'Algarve (côte sud)', v: 'Correct (touristes)', color: 'green' },
+          { k: 'Intérieur nord', v: 'Plus long', color: 'amber' },
+          { k: 'Zones frontalières avec l\'Espagne', v: 'Trafic très faible', color: 'red' },
+        ]},
+        { type: 'sub', title: 'Quitter Lisbonne' },
+        { type: 'text', text: 'Sortir de Lisbonne en stop est difficile. Prends le train jusqu\'à Vila Franca de Xira (2,20 €, 30 min) pour accéder au péage de l\'A1 et à la route nationale.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'Le Portugal est classé 5ème pays le plus sûr d\'Europe et parmi les plus sûrs au monde. Les crimes violents sont très rares. Le principal risque est le pickpocket à Lisbonne (tram 28) et dans les zones touristiques de Porto.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [
+          { k: 'Urgences', v: '112' },
+        ]},
+        { type: 'text', text: 'La police est divisée en PSP (zones urbaines) et GNR (zones rurales). Lisbonne a un commissariat de police touristique à la gare de Rossio avec des agents multilingues.' },
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c', 'a'],
+      blocks: [
+        { type: 'text', text: 'Le Portugal est considéré comme l\'un des meilleurs pays au monde pour les voyageuses solo. Plusieurs femmes rapportent ne s\'être jamais senties harcelées.' },
+        { type: 'text', text: 'Les hommes portugais sont décrits comme respectueux : quand ils flirtent, c\'est fait avec classe et ils acceptent facilement un "non" poli. Les conductrices et les couples offrent souvent des trajets par solidarité.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le portugais est la langue officielle. Le niveau d\'anglais est bien meilleur qu\'en Espagne : le Portugal est classé parmi les meilleurs pays non anglophones. L\'anglais est enseigné dès le primaire. L\'espagnol est largement compris grâce aux racines communes.' },
+        { type: 'sub', title: 'Phrases utiles' },
+        { type: 'phrase', items: [
+          { local: 'Olá, pode dar-me boleia até...?', meaning: 'Bonjour, pouvez-vous m\'emmener à... ?' },
+          { local: 'Fala inglês?', meaning: 'Parlez-vous anglais ?' },
+          { local: 'Obrigado / Obrigada', meaning: 'Merci (homme / femme)' },
+          { local: 'Pode ajudar-me?', meaning: 'Pouvez-vous m\'aider ?' },
+        ]},
+        { type: 'tip', text: '💡 Les Portugais s\'illuminent quand les visiteurs font l\'effort de parler quelques mots de portugais. Même un simple "Olá" fait une grande différence.' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le Portugal est l\'un des pays les plus abordables d\'Europe de l\'Ouest. Budget routard : environ 35 à 50 € par jour. En dehors de Lisbonne et Porto, les prix baissent considérablement.' },
+        { type: 'sub', title: 'Manger pas cher' },
+        { type: 'rule', icon: '🍽️', text: 'Prato do dia (plat du jour) : 8 à 12 € avec soupe, plat, dessert et parfois un verre de vin.' },
+        { type: 'rule', icon: '🛒', text: 'Supermarchés : Pingo Doce, Continente, Lidl, Aldi. Repas préparés disponibles.' },
+        { type: 'sub', title: 'Hébergement' },
+        { type: 'kv', items: [
+          { k: 'Auberges de jeunesse', v: '15 à 25 €/nuit' },
+        ]},
+        { type: 'text', text: 'La région de l\'Alentejo est particulièrement abordable. Porto est décrit comme "vraiment abordable pour l\'Europe de l\'Ouest".' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q', 'a'],
+      blocks: [
+        { type: 'text', text: 'Depuis juillet 2021, le camping sauvage et le bivouac sont effectivement interdits au Portugal. Amendes : 120 à 600 € (jusqu\'à 36 000 € pour infractions graves en zones protégées).' },
+        { type: 'sub', title: 'Zones' },
+        { type: 'kv', items: [
+          { k: 'Algarve et Lisbonne', v: 'Application stricte', color: 'red' },
+          { k: 'Côte atlantique', v: 'Application stricte', color: 'red' },
+          { k: 'Nord intérieur et montagne', v: 'Plus tolérant si discret', color: 'amber' },
+        ]},
+        { type: 'sub', title: 'Alternatives gratuites ou pas chères' },
+        { type: 'rule', icon: '🚒', text: 'Bombeiros (casernes de pompiers) : certaines offrent des lits gratuits aux voyageurs qui demandent poliment. Apporte ton sac de couchage.' },
+        { type: 'rule', icon: '🛋️', text: 'Couchsurfing : communauté active à Lisbonne et Porto.' },
+        { type: 'rule', icon: '🌾', text: 'Portugal EasyCamp : séjours chez des agriculteurs et viticulteurs, souvent moins cher que les campings.' },
+        { type: 'tip', text: '💡 Les groupes Facebook "Boleia" + nom de ville permettent de trouver des trajets et parfois des hébergements chez l\'habitant.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Le réseau ferroviaire portugais est limité mais les bus sont fiables et abordables.' },
+        { type: 'sub', title: 'Options' },
+        { type: 'transport', items: [
+          { emoji: '🚌', name: 'Rede Expressos', detail: 'Principale compagnie de bus, 202 villes', price: 'dès 5 €' },
+          { emoji: '🚌', name: 'FlixBus', detail: 'Lisbonne-Porto dès 9 €', price: 'dès 5 €' },
+          { emoji: '🚗', name: 'BlaBlaCar', detail: 'Populaire pour l\'interurbain', price: '' },
+          { emoji: '🚗', name: 'Boleia.net', detail: 'Plateforme portugaise de covoiturage', price: '' },
+          { emoji: '🚃', name: 'CP (trains)', detail: 'Trains régionaux abordables autour de Lisbonne', price: 'dès 2,20 €' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le printemps et le début de l\'automne sont les meilleures périodes. L\'été est très chaud à l\'intérieur et très touristique sur la côte.' },
+        { type: 'sub', title: 'Aperçu par mois' },
+        { type: 'season', months: [
+          { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+          { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'good' },
+          { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'great' },
+          { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'ok' },
+        ]},
+        { type: 'text', text: 'L\'Algarve (sud) reste doux même en hiver (15-20°C). Le nord et le centre sont pluvieux de novembre à mars.' },
+        { type: 'warn', text: '⚠️ Le Portugal est TRÈS venteux, surtout sur la côte. Prévois du vent fort, même en été. La nuit, le vent côtier peut être glacial.' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Les Portugais sont décrits comme très chaleureux et accueillants, mais l\'autostop n\'est pas dans leur culture. Les automobilistes locaux s\'arrêtent rarement. Les touristes étrangers (surtout en été dans l\'Algarve) sont plus susceptibles de prendre des autostoppeurs.' },
+        { type: 'sub', title: 'Ce qui marche' },
+        { type: 'rule', icon: '🗣️', text: 'L\'approche directe et polie est cruciale. Les Portugais valorisent l\'interaction personnelle.' },
+        { type: 'rule', icon: '📋', text: 'Un panneau avec ta destination améliore tes chances.' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Fév', day: '⟳', name: 'Carnaval', desc: 'Grandes célébrations, surtout à Torres Vedras et Loule.' },
+          { month: 'Juin', day: '12-13', name: 'Santo António (Lisbonne)', desc: 'Fête du saint patron, sardines grillées, défilés.' },
+          { month: 'Juin', day: '23-24', name: 'São João (Porto)', desc: 'Plus grande fête de Porto, feux, musique, marteaux en plastique.' },
+          { month: 'Juil', day: '⟳', name: 'NOS Alive (Lisbonne)', desc: 'Festival de musique international.' },
+          { month: 'Août', day: '⟳', name: 'Festival do Sudoeste', desc: 'Festival de musique dans l\'Alentejo.' },
+          { month: 'Oct', day: '5', name: 'Jour de la République', desc: 'Jour férié national.' },
+        ]},
+        { type: 'tip', text: '💡 Un trajet en autostop au Portugal peut facilement devenir une visite guidée improvisée. Un voyageur a reçu un tour de ville spontané de 4 heures par un local de Porto.' },
+      ],
+    },
+  },
 }
