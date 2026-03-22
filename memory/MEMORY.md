@@ -187,7 +187,10 @@
   - Score de confiance : ratio GPS/non-GPS par utilisateur. Minimum 1/3 (33%) après 3 validations. En dessous : validations pas envoyées à Firebase + message d'avertissement
   - Compteurs localStorage + sync Firestore pour persistance
   - 7 clés i18n en 4 langues (FR/EN/ES/DE)
-- **CI** : tous les jobs verts pour chaque commit sur main
+- **Confetti/badges désactivés** : toutes les animations de badges, titres et confetti sont désactivées (bugs, lenteurs). Les badges sont toujours gagnés silencieusement.
+- **6 outils de vérification ajoutés** : CodeRabbit (IA code review), DeepSource (5000+ règles), Aikido (sécurité npm) installés comme apps GitHub. Lighthouse CI ajouté au pipeline. StrykerJS + Argos CI installés en local. Protection RÈGLE #22 (zéro cron, zéro StrykerJS dans CI) avec hook pre-commit.
+- **Guides pays v17 (Social Feed)** : nouveau design avec cercles stories, 10 catégories (Lois, Facilité, Sécurité, Femmes, Langue, Budget, Dormir, Transport, Saison, Culture), descriptions épinglées, filter chips communautaires, forum vide prêt. France remplie avec données vérifiées multi-sources.
+- **CI** : tous les jobs verts pour chaque commit sur main (18 jobs dont nouveau Lighthouse)
 
 ### Session 2026-03-20/21 (session 42b — SOS V4B + AUTH FIXES + MULTI-USER TESTS + COMPTES CI)
 - **Hook limit-background** : max 1 tâche en arrière-plan (RÈGLE #21), empêche crashs Chromebook

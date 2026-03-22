@@ -90,6 +90,7 @@ const initialState = {
   showGuidesOverlay: false,
   showOfflinePanel: false,
   guideSection: 'start',
+  guideActiveSection: 'laws',
 
   // Checkin Modal
   checkinSpot: null,

@@ -81,7 +81,7 @@ const MAIN_JS_HANDLERS = [
   'removeTripStep', 'moveTripStep', 'clearTripSteps',
   // Guides
   'showGuides', 'showCountryDetail', 'showSafetyPage',
-  'setGuideSection', 'selectGuide', 'filterGuides',
+  'setGuideSection', 'setGuideActiveSection', 'selectGuide', 'filterGuides',
   // Guide contributions
   'openGuideCategory', 'setGuideRating', 'submitGuideContribution',
   'deleteGuideContribution', 'addCustomGuideCategory', 'submitCustomCategory',
