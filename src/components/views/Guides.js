@@ -673,7 +673,134 @@ function renderLegalitySection() {
   `
 }
 
-// ==================== COUNTRY DETAIL ====================
+// ==================== COUNTRY DETAIL (v17 — Social Feed Design) ====================
+
+/** Render a structured content block from guide sections data */
+function renderGuideBlock(block) {
+  switch (block.type) {
+    case 'text':
+      return `<p class="text-sm text-slate-300 leading-relaxed mb-1.5">${escapeHTML(block.text)}</p>`
+    case 'sub':
+      return `<p class="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mt-3 mb-1">${escapeHTML(block.title)}</p>`
+    case 'rule':
+      return `<div class="flex gap-2 py-1"><span class="text-sm shrink-0 mt-0.5">${block.icon}</span><p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(block.text)}</p></div>`
+    case 'tip':
+      return `<div class="px-3 py-2 bg-amber-500/5 border-l-[3px] border-amber-500 rounded-r-lg mt-2 text-sm text-amber-400 leading-relaxed">${escapeHTML(block.text)}</div>`
+    case 'warn':
+      return `<div class="px-3 py-2 bg-red-500/5 border-l-[3px] border-red-500 rounded-r-lg mt-2 text-sm text-red-400 leading-relaxed">${escapeHTML(block.text)}</div>`
+    case 'info':
+      return `<div class="px-3 py-2 bg-blue-500/5 border-l-[3px] border-blue-500 rounded-r-lg mt-2 text-sm text-blue-400 leading-relaxed">${escapeHTML(block.text)}</div>`
+    case 'kv':
+      return (block.items || []).map(item =>
+        `<div class="flex justify-between items-center py-1 border-b border-white/5 last:border-0">
+          <span class="text-sm text-slate-400">${escapeHTML(item.k)}</span>
+          <span class="text-sm font-semibold ${item.color === 'green' ? 'text-emerald-400' : item.color === 'red' ? 'text-red-400' : item.color === 'amber' ? 'text-amber-400' : 'text-white'}">${escapeHTML(item.v)}</span>
+        </div>`
+      ).join('')
+    case 'phrase':
+      return (block.items || []).map(item =>
+        `<div class="flex justify-between items-center py-1.5 border-b border-white/5 last:border-0">
+          <span class="text-sm font-semibold text-amber-400">"${escapeHTML(item.local)}"</span>
+          <span class="text-xs text-slate-500 ml-2 shrink-0">${escapeHTML(item.meaning)}</span>
+        </div>`
+      ).join('')
+    case 'transport':
+      return (block.items || []).map(item =>
+        `<div class="flex items-center gap-3 py-1.5 border-b border-white/5 last:border-0">
+          <span class="text-lg">${item.emoji}</span>
+          <div class="flex-1 min-w-0">
+            <span class="text-sm font-medium">${escapeHTML(item.name)}</span>
+            ${item.detail ? `<br><span class="text-xs text-slate-500">${escapeHTML(item.detail)}</span>` : ''}
+          </div>
+          <span class="text-sm text-emerald-400 font-medium shrink-0">${escapeHTML(item.price)}</span>
+        </div>`
+      ).join('')
+    case 'event':
+      return (block.items || []).map(item =>
+        `<div class="flex gap-3 py-1.5 border-b border-white/5 last:border-0">
+          <div class="bg-amber-500/10 rounded px-1.5 py-0.5 text-center shrink-0">
+            <div class="text-[8px] text-amber-500 uppercase font-semibold">${escapeHTML(item.month)}</div>
+            <div class="text-sm font-extrabold text-amber-500">${escapeHTML(item.day)}</div>
+          </div>
+          <div>
+            <div class="text-sm font-semibold">${escapeHTML(item.name)}</div>
+            <div class="text-xs text-slate-500">${escapeHTML(item.desc)}</div>
+          </div>
+        </div>`
+      ).join('')
+    case 'season':
+      return `<div class="flex gap-0.5 my-2">${(block.months || []).map(m =>
+        `<div class="flex-1 text-center py-1 rounded text-[10px] font-semibold ${
+          m.level === 'great' ? 'bg-emerald-500/20 text-emerald-400'
+          : m.level === 'good' ? 'bg-emerald-500/10 text-emerald-400'
+          : m.level === 'ok' ? 'bg-amber-500/10 text-amber-400'
+          : 'bg-red-500/10 text-red-400'
+        }">${escapeHTML(m.name)}</div>`
+      ).join('')}</div>`
+    default:
+      return ''
+  }
+}
+
+/** Render a full section's pinned content */
+function renderGuideSectionPinned(sectionData, cat) {
+  if (!sectionData || !sectionData.blocks) return ''
+  return `
+    <div class="p-4 bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/15 rounded-2xl mb-3 relative">
+      <div class="absolute top-3 right-3 text-[10px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full font-semibold">📌 Guide</div>
+      <h3 class="text-base font-extrabold mb-2 flex items-center gap-2">
+        <span class="text-lg">${cat.emoji}</span>
+        ${escapeHTML(t(cat.labelKey) || cat.fallback)}
+      </h3>
+      ${sectionData.blocks.map(renderGuideBlock).join('')}
+    </div>
+  `
+}
+
+/** Render filter chips for community posts */
+function renderGuideFilterChips(sectionData, _countryCode, _catId) {
+  const types = sectionData?.filterTypes || ['q', 'c']
+  const chipDefs = {
+    q: { label: '❓ Questions', cls: 'q' },
+    c: { label: '💡 Conseils', cls: 'c' },
+    a: { label: '⚠️ Alertes', cls: 'a' },
+    b: { label: '🎯 Bons plans', cls: 'b' },
+  }
+  return `
+    <div class="flex gap-1.5 overflow-x-auto scrollbar-none py-1 sticky top-0 z-10 bg-[#0f1117]">
+      <span class="px-3 py-1.5 rounded-full text-xs font-semibold border border-amber-500/25 text-amber-500 bg-amber-500/5 cursor-pointer shrink-0">Tout <span class="text-[10px] opacity-70">0</span></span>
+      ${types.map(tp => {
+        const d = chipDefs[tp]
+        return d ? `<span class="guide-chip-${d.cls} px-3 py-1.5 rounded-full text-xs font-semibold border border-white/8 text-slate-500 bg-white/2 cursor-pointer shrink-0">${d.label} <span class="text-[10px] opacity-70">0</span></span>` : ''
+      }).join('')}
+    </div>
+  `
+}
+
+/** Render the empty community state */
+function renderGuideEmptyForum(catId) {
+  const emojis = { laws: '💬', hitchhiking: '🗺️', safety: '🛡️', women: '💪', language: '🗣️', budget: '💶', sleep: '🏕️', transport: '🚌', season: '📅', culture: '🎭' }
+  const messages = {
+    laws: 'Partage ton expérience avec les lois !',
+    hitchhiking: 'Partage tes astuces pour trouver des trajets !',
+    safety: 'Un conseil sécurité à partager ?',
+    women: 'Ton expérience compte. Aide d\'autres voyageuses !',
+    language: 'Partage une phrase qui t\'a aidé !',
+    budget: 'Un bon plan budget à partager ?',
+    sleep: 'Partage tes spots pour dormir !',
+    transport: 'Un transport pas cher à recommander ?',
+    season: 'Une expérience saisonnière à partager ?',
+    culture: 'Une rencontre marquante à raconter ?',
+  }
+  return `
+    <div class="text-center py-6">
+      <div class="text-3xl mb-2 opacity-60">${emojis[catId] || '💬'}</div>
+      <p class="text-sm text-slate-500 mb-3">${t('guideNoContribution') || 'Aucune contribution pour le moment.'}<br>${escapeHTML(messages[catId] || '')}</p>
+      <button onclick="openGuideCategory('${escapeJSString(window._guideDetailCode || '')}', '${escapeJSString(catId)}')" class="inline-block px-4 py-2 bg-blue-500 text-white rounded-full text-xs font-semibold cursor-pointer">+ ${t('guideContribute') || 'Contribuer'}</button>
+    </div>
+  `
+}
+
 export function renderCountryDetail(guideOrCode) {
   const guide = typeof guideOrCode === 'string' ? getGuideByCode(guideOrCode) : guideOrCode
   if (!guide) return ''
@@ -681,175 +808,136 @@ export function renderCountryDetail(guideOrCode) {
   const state = window.getState?.() || {}
   const openCategory = state.guideOpenCategory || null
   const userTips = getUserGuideTips(guide.code)
-  const contribCount = userTips.length
-  const communityPending = (getCommunityPendingCounts()[guide.code]) || 0
+  const activeSection = state.guideActiveSection || GUIDE_CATEGORIES[0]?.id || 'laws'
+
+  // Store for the empty forum contribute button
+  window._guideDetailCode = guide.code
+
+  const activeCat = GUIDE_CATEGORIES.find(c => c.id === activeSection) || GUIDE_CATEGORIES[0]
+  const sectionData = guide.sections?.[activeSection]
 
   return `
-    <div class="space-y-4">
-      <button
-        onclick="selectGuide(null)"
-        class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
-      >
-        ${icon('arrow-left', 'w-5 h-5')}
-        ${t('backToGuides') || 'Retour aux guides'}
-      </button>
-
+    <div class="flex flex-col h-full">
       <!-- Header -->
-      <div class="card p-5 text-center">
-        <span class="text-5xl mb-3 block">${guide.flag}</span>
-        <h2 class="text-xl font-bold mb-1">${escapeHTML(getGuideName(guide))}</h2>
-        <p class="text-sm text-slate-400">
-          ${contribCount > 0
-            ? `${contribCount}/7 ${t('guideContribCount') || 'catégories contribuées'}`
-            : communityPending > 0
-              ? (t('guideNoPersonalContrib') || 'Tu n\'as pas encore contribué')
-              : (t('guideNoContribution') || 'Aucune contribution pour le moment')
-          }
-        </p>
-        ${communityPending > 0 ? `
-        <p class="text-xs text-amber-400 mt-1">
-          ${icon('clock', 'w-3 h-3 inline mr-1')}${communityPending === 1
-            ? (t('guideCommunityPending1') || '1 contribution en attente de validation')
-            : (t('guideCommunityPending') || '{count} contribution(s) en attente de validation').replace('{count}', communityPending)
-          }
-        </p>` : ''}
+      <div class="flex items-center gap-2 px-4 py-2.5 border-b border-white/5">
+        <button onclick="selectGuide(null)" class="text-slate-400 hover:text-white text-sm">←</button>
+        <span class="text-xl">${guide.flag}</span>
+        <h1 class="text-sm font-extrabold flex-1">${escapeHTML(getGuideName(guide))}</h1>
+        ${guide.legality === 'legal' ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold">✓ ' + (t('guideLegal') || 'Légal') + '</span>' : ''}
       </div>
 
-      <!-- Category grid -->
-      <div class="grid grid-cols-2 gap-3">
-        ${GUIDE_CATEGORIES.map(cat => {
-          const userTip = userTips.find(tip => tip.category === cat.id)
-          const isOpen = openCategory === cat.id
-          return `
-            <button
-              onclick="openGuideCategory('${escapeJSString(guide.code)}', '${cat.id}')"
-              class="card p-3 text-left transition-all ${isOpen ? 'border-primary-500/50 bg-primary-500/10' : 'hover:border-white/20'}"
-            >
-              <div class="flex items-center gap-2 mb-1.5">
-                <div class="w-8 h-8 rounded-lg ${userTip ? 'bg-emerald-500/20' : 'bg-white/10'} flex items-center justify-center">
-                  ${icon(cat.icon, `w-4 h-4 ${userTip ? 'text-emerald-400' : 'text-slate-400'}`)}
-                </div>
-                <span class="text-xs font-medium leading-tight">${t(cat.labelKey) || cat.fallback}</span>
-              </div>
-              ${userTip ? `
-                ${cat.ratingEnabled && userTip.rating ? `<div class="flex items-center gap-0.5 mb-1">
-                  ${renderStarsStatic(userTip.rating)}
-                </div>` : ''}
-                <p class="text-xs text-slate-400 line-clamp-2">${escapeHTML(userTip.text)}</p>
-                ${userTip.status === 'pending' ? `<span class="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-500/20 text-amber-400">${t('guideTipPending') || 'En attente de validation'}</span>` : ''}
-              ` : `
-                <p class="text-xs text-slate-500">${t('guideTipCTA') || 'Partage ton expérience...'}</p>
-              `}
-            </button>
-          `
-        }).join('')}
+      <!-- Stories nav -->
+      <div class="flex gap-2 px-3 py-2.5 overflow-x-auto scrollbar-none border-b border-white/5">
+        ${GUIDE_CATEGORIES.map(cat => `
+          <button
+            onclick="setGuideActiveSection('${cat.id}')"
+            class="flex flex-col items-center gap-1 min-w-[44px] shrink-0"
+          >
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 transition-all ${
+              activeSection === cat.id
+                ? 'border-amber-500 bg-amber-500/10'
+                : 'border-white/10'
+            }">
+              ${cat.emoji}
+            </div>
+            <span class="text-[10px] ${activeSection === cat.id ? 'text-amber-500 font-semibold' : 'text-slate-500'} whitespace-nowrap">${(t(cat.labelKey) || cat.fallback).split(' ')[0]}</span>
+          </button>
+        `).join('')}
       </div>
 
-      <!-- Add custom category button -->
-      <button
-        onclick="addCustomGuideCategory('${escapeJSString(guide.code)}')"
-        class="w-full card p-3 flex items-center justify-center gap-2 text-sm text-primary-400 hover:bg-primary-500/10 transition-colors"
-      >
-        ${icon('plus', 'w-4 h-4')}
-        ${t('guideAddCategory') || 'Ajouter une catégorie'}
-      </button>
-
-      <!-- Custom categories already contributed -->
-      ${userTips.filter(tip => tip.customCategory).map(tip => `
-        <div class="card p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-sm font-medium">${escapeHTML(tip.customCategoryName || tip.category)}</span>
-            <button onclick="deleteGuideContribution('${escapeJSString(tip.id)}')" class="text-xs text-danger-400 hover:text-danger-300">
-              ${icon('trash', 'w-3.5 h-3.5')}
-            </button>
+      <!-- Section content (scrollable) -->
+      <div class="flex-1 overflow-y-auto px-4 py-3" id="guide-section-feed">
+        <!-- Pinned description -->
+        ${sectionData ? renderGuideSectionPinned(sectionData, activeCat) : `
+          <div class="p-4 bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/15 rounded-2xl mb-3">
+            <h3 class="text-base font-extrabold mb-2 flex items-center gap-2">
+              <span class="text-lg">${activeCat.emoji}</span>
+              ${escapeHTML(t(activeCat.labelKey) || activeCat.fallback)}
+            </h3>
+            <p class="text-sm text-slate-400">${t('guideNoData') || 'Pas encore de données pour cette section. Les contributions de la communauté aideront à la remplir.'}</p>
           </div>
-          <div class="flex items-center gap-0.5 mb-1">${renderStarsStatic(tip.rating)}</div>
-          <p class="text-xs text-slate-400">${escapeHTML(tip.text)}</p>
-          ${tip.status === 'pending' ? `<span class="inline-block mt-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-500/20 text-amber-400">${t('guideTipPending') || 'En attente de validation'}</span>` : ''}
-        </div>
-      `).join('')}
+        `}
 
-      <!-- Inline form (if a category is open) -->
-      ${openCategory ? renderGuideCategoryForm(guide.code, openCategory, userTips) : ''}
+        <!-- Filter chips -->
+        ${renderGuideFilterChips(sectionData, guide.code, activeSection)}
 
-      <!-- Custom category form -->
-      ${state.guideCustomCategoryOpen ? renderCustomCategoryForm(guide.code) : ''}
+        <!-- Community posts (from Firebase) -->
+        ${renderCommunityTipsByCategory(guide.code, activeSection, state)}
 
-      <!-- Approved community tips -->
-      <div id="guide-community-tips" class="space-y-2">
-        ${renderCommunityTipsSection(guide.code, state)}
+        <!-- Inline form (if this category is open) -->
+        ${openCategory === activeSection ? renderGuideCategoryForm(guide.code, openCategory, userTips) : ''}
       </div>
 
-      <!-- Bottom padding -->
-      <div class="h-8"></div>
+      <!-- Compose bar -->
+      <div class="flex items-center gap-2 px-4 py-2.5 bg-white/2 border-t border-white/5">
+        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs text-slate-500 shrink-0">?</div>
+        <button
+          onclick="openGuideCategory('${escapeJSString(guide.code)}', '${escapeJSString(activeSection)}')"
+          class="flex-1 bg-white/5 border border-white/8 rounded-full px-4 py-2 text-sm text-slate-500 text-left cursor-pointer"
+        >
+          ${t('guideTipCTA') || 'Partage ton expérience...'}
+        </button>
+        <button
+          onclick="openGuideCategory('${escapeJSString(guide.code)}', '${escapeJSString(activeSection)}')"
+          class="px-3 py-2 bg-blue-500 rounded-full text-xs text-white font-semibold cursor-pointer"
+        >
+          ${t('guideTipSubmit') || 'Publier'}
+        </button>
+      </div>
     </div>
   `
 }
 
-// ==================== COMMUNITY TIPS SECTION ====================
-
-// Cache for community tips per country
-const _communityTipsCache = {}
-
-function renderCommunityTipsSection(countryCode, _state) {
+/** Render community tips filtered by category */
+function renderCommunityTipsByCategory(countryCode, categoryId, _state) {
   const tips = _communityTipsCache[countryCode]
   const currentUser = getCurrentUser()
 
   // Trigger async load if not cached
   if (!tips) {
     loadPublicGuideTips(countryCode).then(loaded => {
-      // Filter: only approved tips from OTHER users
       const othersTips = loaded.filter(tip =>
         tip.status === 'approved' && (!currentUser || tip.userId !== currentUser.uid)
       )
       _communityTipsCache[countryCode] = othersTips
       if (othersTips.length > 0) {
-        // Force re-render
         const s = window.getState?.() || {}
         window.setState?.({ _communityTipsLoaded: (s._communityTipsLoaded || 0) + 1 })
       }
     })
-    return '' // Loading...
   }
 
-  if (tips.length === 0) return ''
+  // Filter by current category
+  const catTips = (tips || []).filter(tip => tip.category === categoryId)
 
-  // Group tips by category
-  const byCategory = {}
-  for (const tip of tips) {
-    const cat = tip.customCategory ? tip.customCategoryName : tip.category
-    if (!byCategory[cat]) byCategory[cat] = []
-    byCategory[cat].push(tip)
+  if (catTips.length === 0) {
+    return renderGuideEmptyForum(categoryId)
   }
 
-  const catLabel = (catId) => {
-    const found = GUIDE_CATEGORIES.find(c => c.id === catId)
-    return found ? (t(found.labelKey) || found.fallback) : catId
-  }
-
-  return `
-    <div class="mt-4">
-      <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
-        ${icon('users', 'w-4 h-4 text-emerald-400')}
-        ${t('guideCommunityTips') || 'Conseils de la communauté'} (${tips.length})
-      </h3>
-      <div class="space-y-2">
-        ${Object.entries(byCategory).map(([catId, catTips]) => `
-          <div class="card p-3">
-            <div class="text-xs font-medium text-emerald-400 mb-2">${catLabel(catId)}</div>
-            ${catTips.map(tip => `
-              <div class="mb-2 last:mb-0">
-                ${tip.rating ? `<div class="flex items-center gap-0.5 mb-0.5">${renderStarsStatic(tip.rating)}</div>` : ''}
-                <p class="text-xs text-slate-300">${escapeHTML(tip.text)}</p>
-                <p class="text-[10px] text-slate-500 mt-0.5">${escapeHTML(tip.username || 'Anonyme')}</p>
-              </div>
-            `).join('')}
-          </div>
-        `).join('')}
+  return catTips.map(tip => `
+    <div class="p-3 bg-white/2 border border-white/5 rounded-xl mb-2 border-l-[3px] ${
+      tip.category === categoryId ? 'border-l-blue-500' : 'border-l-transparent'
+    }">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+          ${escapeHTML((tip.username || 'A').slice(0, 2).toUpperCase())}
+        </div>
+        <span class="text-xs font-semibold flex-1">${escapeHTML(tip.username || 'Anonyme')}</span>
+        <span class="text-[10px] text-slate-500">${tip.createdAt ? new Date(tip.createdAt).toLocaleDateString() : ''}</span>
+      </div>
+      <p class="text-sm leading-relaxed mb-1">${escapeHTML(tip.text)}</p>
+      <div class="flex items-center gap-3 text-xs text-slate-500">
+        <span class="cursor-pointer">👍 ${tip.upvotes || 0}</span>
+        <span class="cursor-pointer">💬 0</span>
       </div>
     </div>
-  `
+  `).join('')
 }
+
+// ==================== COMMUNITY TIPS SECTION ====================
+
+// Cache for community tips per country
+const _communityTipsCache = {}
 
 // Render safety page (kept for backward compatibility)
 export function renderSafety() {
@@ -858,11 +946,7 @@ export function renderSafety() {
 
 // ==================== CONTRIBUTION FORM HELPERS ====================
 
-function renderStarsStatic(rating) {
-  return Array.from({ length: 5 }, (_, i) =>
-    `<span class="text-sm ${i < rating ? 'text-amber-400' : 'text-slate-600'}">★</span>`
-  ).join('')
-}
+
 
 function renderStarRating(currentRating, categoryId) {
   return `
@@ -939,59 +1023,18 @@ function renderGuideCategoryForm(countryCode, categoryId, userTips) {
   `
 }
 
-function renderCustomCategoryForm(_countryCode) {
-  const rating = window._guideFormRating ?? 0
-  return `
-    <div class="card p-4 space-y-3 border border-amber-500/30 bg-amber-500/5">
-      <div class="flex items-center justify-between">
-        <h3 class="font-medium text-sm flex items-center gap-2">
-          ${icon('plus', 'w-4 h-4 text-amber-400')}
-          ${t('guideAddCategory') || 'Ajouter une catégorie'}
-        </h3>
-        <button onclick="window.setState?.({guideCustomCategoryOpen:false})" class="text-slate-400 hover:text-white">
-          ${icon('x', 'w-4 h-4')}
-        </button>
-      </div>
-
-      <!-- Custom name -->
-      <input
-        type="text"
-        id="guide-custom-name"
-        class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
-        placeholder="${t('guideCustomCategoryName') || 'Nom de la catégorie...'}"
-        maxlength="50"
-      />
-
-      <!-- Star rating -->
-      ${renderStarRating(rating, 'custom')}
-
-      <!-- Text -->
-      <div>
-        <textarea
-          id="guide-custom-text"
-          class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-amber-500/50"
-          rows="3"
-          placeholder="${t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...'}"
-          maxlength="500"
-        ></textarea>
-        <p class="text-xs text-slate-500 mt-1 text-right"><span id="guide-custom-char-count">0</span>/500</p>
-      </div>
-
-      <!-- Submit -->
-      <button
-        onclick="submitCustomCategory()"
-        class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
-      >
-        ${icon('send', 'w-4 h-4')}
-        ${t('guideTipSubmit') || 'Envoyer'}
-      </button>
-    </div>
-  `
-}
-
 // ==================== GLOBAL HANDLERS ====================
 window.setGuideSection = (section) => {
   window.setState?.({ guideSection: section })
+}
+
+window.setGuideActiveSection = (sectionId) => {
+  window.setState?.({ guideActiveSection: sectionId, guideOpenCategory: null })
+  // Scroll feed to top
+  setTimeout(() => {
+    const feed = document.getElementById('guide-section-feed')
+    if (feed) feed.scrollTop = 0
+  }, 50)
 }
 // selectGuide and filterGuides are defined in Travel.js (authoritative source)
 

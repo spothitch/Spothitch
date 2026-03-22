@@ -189,16 +189,8 @@
   - 7 clés i18n en 4 langues (FR/EN/ES/DE)
 - **Confetti/badges désactivés** : toutes les animations de badges, titres et confetti sont désactivées (bugs, lenteurs). Les badges sont toujours gagnés silencieusement.
 - **6 outils de vérification ajoutés** : CodeRabbit (IA code review), DeepSource (5000+ règles), Aikido (sécurité npm) installés comme apps GitHub. Lighthouse CI ajouté au pipeline. StrykerJS + Argos CI installés en local. Protection RÈGLE #22 (zéro cron, zéro StrykerJS dans CI) avec hook pre-commit.
-- **Recherche guides pays** : données vérifiées pour ~35 pays (légalité, transports alternatifs, sécurité, culture, festivals, langues). 1er mockup guide France (v1-cards-scroll) créé.
+- **Guides pays v17 (Social Feed)** : nouveau design avec cercles stories, 10 catégories (Lois, Facilité, Sécurité, Femmes, Langue, Budget, Dormir, Transport, Saison, Culture), descriptions épinglées, filter chips communautaires, forum vide prêt. France remplie avec données vérifiées multi-sources.
 - **CI** : tous les jobs verts pour chaque commit sur main (18 jobs dont nouveau Lighthouse)
-
-## À venir (prochaine session)
-- **11 mockups guides pays** : Antoine a demandé 11 variantes supplémentaires du guide France avec designs différents
-- **Amélioration tests existants** : passer de "existe" à "marche" (comportemental)
-- **Argos CI** : ajouter les screenshots de référence pour comparaison visuelle pixel par pixel
-- **Guides pays** : discussion sur le contenu à mettre, puis implémentation pour les 30+ pays
-- **Guides visuels** : augmenter le contraste des icônes de catégorie (actuellement quasi invisibles)
-- **Étoiles guides** : décider si toutes les catégories ont des étoiles ou seulement "Facilité"
 
 ### Session 2026-03-20/21 (session 42b — SOS V4B + AUTH FIXES + MULTI-USER TESTS + COMPTES CI)
 - **Hook limit-background** : max 1 tâche en arrière-plan (RÈGLE #21), empêche crashs Chromebook
