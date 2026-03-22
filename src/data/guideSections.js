@@ -1072,4 +1072,280 @@ export const guideSectionsData = {
       ],
     },
   },
+
+  // ==================== ITALY ====================
+  IT: {
+    laws: {
+      filterTypes: ['q', 'c', 'a'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est interdit sur les autoroutes (autostrade) en Italie, y compris les bretelles d\'accès, les aires de service et les parkings d\'autoroute. C\'est l\'un des rares pays d\'Europe avec une interdiction aussi stricte.' },
+        { type: 'sub', title: 'Amendes' },
+        { type: 'text', text: 'Amende de 21 à 168 € pour l\'autostoppeur. Le conducteur qui s\'arrête risque aussi une amende. L\'application varie selon les régions et les agents.' },
+        { type: 'sub', title: 'Ce qui est autorisé' },
+        { type: 'rule', icon: '✅', text: 'Demander un trajet en abordant directement les conducteurs aux stations-service (Autogrill). C\'est la méthode qui fonctionne.' },
+        { type: 'rule', icon: '✅', text: 'Faire du stop sur les routes nationales (strade statali) et secondaires.' },
+        { type: 'rule', icon: '🚫', text: 'Faire le pouce sur les autoroutes, bretelles, péages, et aires de service d\'autoroute.' },
+        { type: 'warn', text: '⚠️ Beaucoup d\'Italiens et même certains policiers pensent que l\'autostop est totalement illégal. Place-toi avant les panneaux "no autostop" aux entrées d\'autoroute.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'L\'Italie est l\'un des pays les plus difficiles d\'Europe occidentale pour l\'autostop. Les temps d\'attente de 1 à 2 heures sont fréquents. La stratégie gagnante : progresser d\'Autogrill en Autogrill en abordant les conducteurs directement.' },
+        { type: 'sub', title: 'Différences nord/sud' },
+        { type: 'kv', items: [
+          { k: 'Sud de l\'Italie (Calabre, Sicile)', v: 'Plus facile, gens accueillants', color: 'green' },
+          { k: 'Sardaigne', v: 'Bon (hospitalité locale)', color: 'green' },
+          { k: 'Frioul-Vénétie Julienne, Tyrol du Sud', v: 'Correct', color: 'green' },
+          { k: 'Nord industriel (Milan, Turin)', v: 'Difficile, gens pressés', color: 'red' },
+          { k: 'Alpes (tunnels)', v: 'Très difficile (pas d\'arrêt)', color: 'red' },
+        ]},
+        { type: 'sub', title: 'Astuce pancarte' },
+        { type: 'text', text: 'Un panneau en italien avec "Siamo bravi" (on est sympas) a prouvé son efficacité. Écris une ville à 200-300 km, pas ta destination finale. Les étrangers (Français, Allemands, Polonais) en transit s\'arrêtent plus que les Italiens.' },
+        { type: 'tip', text: '💡 En Sicile, tu peux monter gratuitement sur le ferry à Villa San Giovanni : les billets sont par véhicule, pas par passager.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'L\'Italie est globalement sûre pour le voyage. Aucun incident violent lié à l\'autostop n\'a été rapporté dans les sources consultées. Le risque principal est légal (amendes), pas physique.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [
+          { k: 'Urgences européen', v: '112' },
+          { k: 'Carabinieri', v: '112' },
+          { k: 'Police', v: '113' },
+          { k: 'Pompiers', v: '115' },
+          { k: 'Ambulance', v: '118' },
+        ]},
+        { type: 'text', text: 'Aux abords des grandes villes (surtout Rome), les femmes seules peuvent être confondues avec des prostituées. Évite de faire du stop dans ces zones.' },
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c', 'a'],
+      blocks: [
+        { type: 'text', text: 'L\'Italie n\'est pas dangereuse pour les femmes, mais les regards insistants et l\'attention non désirée sont courants, surtout dans le sud. Des voyageuses ont traversé l\'Italie en stop sans incident, y compris la Sicile.' },
+        { type: 'sub', title: 'Conseils spécifiques' },
+        { type: 'rule', icon: '👕', text: 'Habille-toi de façon sobre : pas de maquillage, pas de bijoux, chaussures de randonnée, look "aventurière".' },
+        { type: 'rule', icon: '👨‍👩‍👧', text: 'Préfère les couples et les familles. Les conductrices sont rares mais très sûres.' },
+        { type: 'rule', icon: '📱', text: 'Prends la plaque en photo de façon visible (le conducteur voit que tu le fais). Ça rassure tout le monde.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'L\'italien est essentiel. La majorité des Italiens ne parlent pas anglais, surtout en dehors des zones touristiques. Même quelques mots d\'italien transforment complètement l\'interaction.' },
+        { type: 'sub', title: 'Phrases utiles' },
+        { type: 'phrase', items: [
+          { local: 'Cerco un passaggio per...', meaning: 'Je cherche un trajet vers...' },
+          { local: 'Vado a...', meaning: 'Je vais à...' },
+          { local: 'Area servizio', meaning: 'Aire de service' },
+          { local: 'Grazie mille!', meaning: 'Merci beaucoup !' },
+        ]},
+        { type: 'tip', text: '💡 Les gestes sont essentiels en Italie. La communication physique aide énormément quand les mots manquent.' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Budget routard en Italie : environ 18 à 30 € par jour avec de la discipline. Les régions intérieures (Basilicate, Molise, Calabre) sont nettement moins chères que les côtes et les villes touristiques.' },
+        { type: 'sub', title: 'Manger pas cher' },
+        { type: 'rule', icon: '🍕', text: 'Pizza al taglio (à la part) : 1 à 2,50 €. Focaccia : 0,80 €. Arancini : 2 €.' },
+        { type: 'rule', icon: '🛒', text: 'Supermarchés : LIDL, Carrefour, COOP. Pâtes + sauce = ~3 €/repas en cuisine d\'auberge.' },
+        { type: 'sub', title: 'Générosité' },
+        { type: 'text', text: 'Plusieurs voyageurs rapportent que des conducteurs italiens ont spontanément offert des repas, de l\'hébergement ou même de l\'argent sans qu\'on leur demande.' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q', 'a'],
+      blocks: [
+        { type: 'text', text: 'Le camping sauvage est interdit en Italie. Amendes : 100 à 500 €. Mais le bivouac (coucher du soleil au lever, pas de tente) est toléré en montagne.' },
+        { type: 'sub', title: 'Exceptions' },
+        { type: 'rule', icon: '✅', text: 'Trentin-Haut-Adige : bivouac autorisé jusqu\'à 24h.' },
+        { type: 'rule', icon: '✅', text: 'Val d\'Aoste : bivouac autorisé au-dessus de 2 500 m.' },
+        { type: 'rule', icon: '🚫', text: 'Plages : application stricte partout.' },
+        { type: 'sub', title: 'Alternatives' },
+        { type: 'rule', icon: '🛋️', text: 'Couchsurfing : actif dans les villes universitaires (Turin, Pise, Padoue).' },
+        { type: 'rule', icon: '🌾', text: 'WWOOF / Workaway : travail à la ferme en échange du logement et des repas.' },
+        { type: 'text', text: 'En Sardaigne et en Sicile, les locaux invitent parfois spontanément les voyageurs chez eux.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'L\'Italie a des alternatives de transport abordables quand le stop ne fonctionne pas.' },
+        { type: 'sub', title: 'Options' },
+        { type: 'transport', items: [
+          { emoji: '🚌', name: 'FlixBus / MarinoBus', detail: 'Réseau étendu, 60-80% moins cher que le train', price: 'dès 5 €' },
+          { emoji: '🚗', name: 'BlaBlaCar', detail: 'Très utilisé en Italie', price: '' },
+          { emoji: '🚄', name: 'Italo', detail: 'Trains grande vitesse privés (Rome-Florence-Venise)', price: 'dès 9 €' },
+          { emoji: '🚃', name: 'Trenitalia régional', detail: 'Trains lents mais abordables', price: '' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le printemps et le début de l\'automne sont les meilleures périodes. Évite octobre-novembre (tout ferme) et août (Ferragosto, chaos routier).' },
+        { type: 'sub', title: 'Aperçu par mois' },
+        { type: 'season', months: [
+          { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+          { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'ok' }, { name: 'Sep', level: 'great' },
+          { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'ok' },
+        ]},
+        { type: 'text', text: 'En été, les touristes étrangers (Français, Allemands) traversant le nord sont plus susceptibles de s\'arrêter que les Italiens eux-mêmes.' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Les Italiens ont une perception négative de l\'autostop. Beaucoup considèrent que seuls les vagabonds font du stop. Mais une fois le contact établi, l\'hospitalité italienne est sincère et généreuse, surtout dans le sud et sur les îles.' },
+        { type: 'sub', title: 'Ce qui marche' },
+        { type: 'rule', icon: '🗣️', text: 'Parler italien, même mal, change tout. L\'approche directe aux Autogrill est obligatoire.' },
+        { type: 'rule', icon: '😊', text: 'Le contact humain d\'abord : sourire, discussion, regard. Puis seulement la demande de trajet.' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Fév', day: '⟳', name: 'Carnevale di Venezia', desc: 'Masques, costumes, 10 jours de festivités.' },
+          { month: 'Avr', day: '25', name: 'Festa della Liberazione', desc: 'Jour férié, célébrations nationales.' },
+          { month: 'Mai', day: '⟳', name: 'Giro d\'Italia', desc: 'Tour cycliste, ambiance sur les routes.' },
+          { month: 'Juil', day: '2+16', name: 'Palio di Siena', desc: 'Course de chevaux médiévale dans la ville.' },
+          { month: 'Août', day: '15', name: 'Ferragosto', desc: 'Toute l\'Italie en vacances. Routes chargées.' },
+          { month: 'Déc', day: '⟳', name: 'Mercatini di Natale', desc: 'Marchés de Noël, surtout en Trentin.' },
+        ]},
+      ],
+    },
+  },
+
+  // ==================== GREECE ====================
+  GR: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'Il n\'y a pas de loi spécifique interdisant l\'autostop en Grèce. Sur les autoroutes, c\'est interdit comme dans le reste de l\'UE, mais sur les routes normales c\'est toléré. Les amendes (100-150 €) sont rares et appliquées de façon incohérente.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'La Grèce est nettement plus facile que l\'Italie ou l\'Espagne pour l\'autostop. Les temps d\'attente varient de quelques minutes à une heure. En zones rurales et sur les îles, les locaux font eux-mêmes du stop.' },
+        { type: 'sub', title: 'Par zone' },
+        { type: 'kv', items: [
+          { k: 'Crète (surtout ouest/sud)', v: 'Très facile', color: 'green' },
+          { k: 'Îles rurales', v: 'Facile (peu de bus)', color: 'green' },
+          { k: 'Routes rurales continent', v: 'Facile', color: 'green' },
+          { k: 'Axes interurbains (Athènes-Thessalonique)', v: 'Plus difficile', color: 'amber' },
+          { k: 'Sortir d\'Athènes', v: 'Très difficile', color: 'red' },
+        ]},
+        { type: 'sub', title: 'Méthode' },
+        { type: 'text', text: 'En Crète, le pouce levé n\'est pas toujours compris. Utilise plutôt un geste de la main pour signaler aux voitures de s\'arrêter, comme si tu étais pressé. Un panneau en grec ET en anglais augmente tes chances.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'La Grèce est l\'un des pays les plus sûrs d\'Europe pour les voyageurs. Aucun incident négatif lié à l\'autostop n\'a été rapporté dans les dizaines de sources consultées. Les conducteurs grecs offrent spontanément nourriture, boissons et hébergement.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [
+          { k: 'Urgences', v: '112' },
+          { k: 'Police', v: '100' },
+          { k: 'Ambulance', v: '166' },
+          { k: 'Pompiers', v: '199' },
+        ]},
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c', 'a'],
+      blocks: [
+        { type: 'text', text: 'La Grèce est considérée comme l\'une des meilleures destinations au monde pour les voyageuses solo. L\'attitude envers les femmes seules est décrite comme celle d\'un "grand cousin protecteur" plutôt qu\'intrusive.' },
+        { type: 'text', text: 'Plusieurs femmes rapportent avoir marché seules la nuit, pris des bus entre villages et embarqué sur des ferries tôt le matin sans aucun problème. Aucun incident négatif n\'a été rapporté dans les sources consultées.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le grec est la langue officielle. L\'anglais est bien parlé dans les zones touristiques et par les jeunes (enseigné à l\'école dès le primaire). En zone rurale, c\'est plus limité. Beaucoup de Grecs parlent aussi allemand (diaspora).' },
+        { type: 'sub', title: 'Phrases utiles' },
+        { type: 'phrase', items: [
+          { local: 'Kalimera', meaning: 'Bonjour' },
+          { local: 'Efcharistó', meaning: 'Merci' },
+          { local: 'Parakaló', meaning: 'S\'il vous plaît / De rien' },
+          { local: 'Boríte na me páte sto...?', meaning: 'Pouvez-vous m\'emmener à... ?' },
+        ]},
+        { type: 'tip', text: '💡 Quelques mots de grec déclenchent des réactions très chaleureuses. Les Grecs apprécient énormément l\'effort.' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'La Grèce est abordable pour les routards. Budget : 22 à 42 € par jour. Moins cher que l\'Italie. Les îles moins touristiques (Naxos, Paros, Ios) offrent les meilleurs rapports qualité-prix.' },
+        { type: 'sub', title: 'Manger pas cher' },
+        { type: 'rule', icon: '🥙', text: 'Gyros : moins de 5 €. Souvlaki : 2-3 €.' },
+        { type: 'rule', icon: '🛒', text: 'Supermarchés : feta, pita, yaourt, tomates, olives. Très bon marché.' },
+        { type: 'sub', title: 'Transport' },
+        { type: 'text', text: 'Bus KTEL : environ 5 €/100 km (tarifs fixés par le gouvernement). Ferries pour les îles : abordables, réserve 2-3 mois à l\'avance pour les routes populaires.' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q', 'a'],
+      blocks: [
+        { type: 'text', text: 'Le camping sauvage est officiellement interdit en Grèce. Amende : 150 €, pouvant aller jusqu\'à 3 000 € + 3 mois de prison dans les zones touristiques ou réserves naturelles.' },
+        { type: 'sub', title: 'En pratique' },
+        { type: 'text', text: 'L\'interdiction s\'applique du lever au coucher du soleil. Dormir la nuit et remballer au matin est largement toléré en basse saison et loin des zones touristiques. Les plages isolées sont faciles à trouver.' },
+        { type: 'sub', title: 'Alternatives' },
+        { type: 'rule', icon: '🛋️', text: 'Couchsurfing : communauté active à Athènes et Thessalonique.' },
+        { type: 'rule', icon: '🏠', text: 'Invitations spontanées : les Grecs invitent régulièrement les voyageurs à dîner ou dormir chez eux, surtout en zone rurale et sur les îles.' },
+        { type: 'sub', title: 'Hébergement' },
+        { type: 'kv', items: [
+          { k: 'Auberges Athènes', v: '9 à 25 €/nuit' },
+          { k: 'Auberges îles', v: '20 à 25 €/nuit' },
+          { k: 'Studios sur Booking', v: 'dès 10 €/pers/nuit' },
+        ]},
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Le réseau de bus KTEL est si bon marché que l\'autostop est parfois moins nécessaire en Grèce.' },
+        { type: 'sub', title: 'Options' },
+        { type: 'transport', items: [
+          { emoji: '🚌', name: 'KTEL (bus interurbain)', detail: 'Réseau étendu, même les petits villages. Tarifs fixés par l\'État.', price: '~5 €/100 km' },
+          { emoji: '⛴️', name: 'Ferries', detail: 'Essentiels pour les îles. Ferries de nuit = économiser un hébergement.', price: '10 à 50 €' },
+          { emoji: '🚃', name: 'Trains', detail: 'Réseau limité mais jusqu\'à 50% moins cher que le bus', price: '' },
+          { emoji: '🚗', name: 'BlaBlaCar', detail: 'Disponible en Grèce', price: '' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'La fenêtre idéale va de fin mai à début octobre. Juin et septembre sont le point idéal : temps estival sans chaleur extrême ni foules.' },
+        { type: 'sub', title: 'Aperçu par mois' },
+        { type: 'season', months: [
+          { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+          { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'ok' }, { name: 'Sep', level: 'great' },
+          { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+        ]},
+        { type: 'warn', text: '⚠️ De novembre à mars, la plupart des îles ferment (hôtels, restaurants, ferries réduits). Le continent reste accessible mais il y a très peu de touristes sur les routes.' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'La Grèce est le pays de la philoxenia (l\'amour des étrangers). C\'est une valeur culturelle profonde qui remonte à la Grèce antique : Zeus Xenios protégeait les voyageurs, et tout étranger pouvait être un dieu déguisé.' },
+        { type: 'sub', title: 'En pratique' },
+        { type: 'text', text: 'Les conducteurs qui s\'arrêtent hébergent souvent les voyageurs gratuitement, les invitent à dîner, leur font visiter la région. Un voyageur a résumé : "Ils n\'avaient pas grand-chose, ils ne vivaient pas une vie de luxe. Mais ce qu\'ils avaient, ils le partageaient."' },
+        { type: 'rule', icon: '🎁', text: 'Accepte les invitations (refuser peut sembler un rejet). Apporte un petit cadeau (pâtisseries, vin) si tu es invité chez quelqu\'un.' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Fév-Mar', day: '⟳', name: 'Apokries (Carnaval)', desc: 'Patras a le plus grand carnaval de Grèce.' },
+          { month: 'Avr', day: '⟳', name: 'Pâques orthodoxe', desc: 'La plus grande fête de Grèce. Agneaux rôtis, feux d\'artifice.' },
+          { month: 'Juin', day: '⟳', name: 'Festival d\'Athènes', desc: 'Théâtre, musique, danse à l\'Odéon d\'Hérode Atticus.' },
+          { month: 'Août', day: '15', name: 'Assomption (Dekapentavgoustos)', desc: 'Plus grande fête estivale. Pèlerinages, fêtes sur les îles.' },
+          { month: 'Oct', day: '28', name: 'Jour du Non (Ochi)', desc: 'Fête nationale, défilés militaires.' },
+        ]},
+        { type: 'tip', text: '💡 Dicton crétois : "Un invité dans la maison est un cadeau de Dieu." En zone rurale, l\'arrivée d\'un étranger est encore un événement spécial.' },
+      ],
+    },
+  },
 }
