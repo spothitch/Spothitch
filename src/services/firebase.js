@@ -592,6 +592,18 @@ const SPOT_ALLOWED_FIELDS = [
   'name', 'dataSource',
 ]
 
+/**
+ * Convert experienceDate {year, month, day?} to ISO string.
+ * Falls back to current date if invalid.
+ */
+function experienceDateToISO(expDate) {
+  if (!expDate || !expDate.year || !expDate.month) return new Date().toISOString()
+  const day = expDate.day || 15 // mid-month if no day specified
+  const d = new Date(expDate.year, expDate.month - 1, day, 12, 0, 0)
+  if (isNaN(d.getTime())) return new Date().toISOString()
+  return d.toISOString()
+}
+
 export async function addSpot(spotData) {
   try {
     if (!checkWriteRateLimit('addSpot', 5).allowed) {
@@ -629,8 +641,8 @@ export async function addSpot(spotData) {
       verified: false,
       validationCount: 1,
       testCount: 1,
-      lastValidated: new Date().toISOString(),
-      lastTested: new Date().toISOString(),
+      lastValidated: experienceDateToISO(safeData.experienceDate),
+      lastTested: experienceDateToISO(safeData.experienceDate),
       lastValidatedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
       lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
     }));
@@ -1189,13 +1201,15 @@ export async function addValidation(data) {
     }))
 
     // Update spot stats — increment testCount (full experience) + checkins
+    const expISO = experienceDateToISO(data.experienceDate)
+    const expDate = expISO.split('T')[0]
     try {
       await updateDoc(spotRef, {
         testCount: increment(1),
         checkins: increment(1),
-        lastTested: new Date().toISOString(),
+        lastTested: expISO,
         lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
-        lastUsed: new Date().toISOString().split('T')[0],
+        lastUsed: expDate,
       })
     } catch {
       // If updateDoc fails (no doc), try setDoc with merge
@@ -1203,7 +1217,7 @@ export async function addValidation(data) {
         await setDoc(spotRef, {
           testCount: 1,
           checkins: 1,
-          lastTested: new Date().toISOString(),
+          lastTested: expISO,
           lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
         }, { merge: true })
       } catch { /* non-blocking */ }

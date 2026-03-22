@@ -36,11 +36,17 @@ export async function fetchSpotValidations(spotId) {
 
     const validations = snapshot.docs.map(doc => {
       const d = doc.data()
+      // Prefer experienceDate (when the user actually hitchhiked) over createdAt (when they submitted)
+      let date = d.createdAt?.toDate?.()?.toISOString?.() || d.timestamp || null
+      if (d.experienceDate?.year && d.experienceDate?.month) {
+        const day = d.experienceDate.day || 15
+        const expD = new Date(d.experienceDate.year, d.experienceDate.month - 1, day, 12, 0, 0)
+        if (!isNaN(expD.getTime())) date = expD.toISOString()
+      }
       return {
         ...d,
         id: doc.id,
-        // Normalize createdAt to ISO string
-        date: d.createdAt?.toDate?.()?.toISOString?.() || d.timestamp || null,
+        date,
       }
     })
 
