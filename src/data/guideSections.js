@@ -1822,4 +1822,241 @@ export const guideSectionsData = {
       ],
     },
   },
+
+  // ==================== UNITED KINGDOM ====================
+  GB: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est légal au Royaume-Uni. Marcher sur les autoroutes (motorways) est interdit. Le stop se fait depuis le bas des bretelles d\'accès (slip roads) et aux aires de service (motorway services).' },
+        { type: 'sub', title: 'Par nation' },
+        { type: 'rule', icon: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', text: 'Écosse : autorisé même sur les voies express à double chaussée (A9, A90). Camping sauvage légal.' },
+        { type: 'rule', icon: '🏴󠁧󠁢󠁷󠁬󠁳󠁿', text: 'Pays de Galles : aucune restriction spécifique. Mentalité rurale accueillante.' },
+        { type: 'rule', icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', text: 'Angleterre : légal mais moins pratiqué et moins facile.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Le Royaume-Uni est très variable selon la région. Un sondage AA montre que seulement 9% des automobilistes britanniques s\'arrêteraient. Mais en Écosse et au Pays de Galles, c\'est nettement plus facile.' },
+        { type: 'sub', title: 'Par région' },
+        { type: 'kv', items: [
+          { k: 'Highlands d\'Écosse', v: 'Excellent (1 voiture sur 5)', color: 'green' },
+          { k: 'Pays de Galles rural', v: 'Bon et agréable', color: 'green' },
+          { k: 'Sud-ouest de l\'Angleterre', v: 'Correct', color: 'green' },
+          { k: 'Nord de l\'Angleterre', v: 'Moyen', color: 'amber' },
+          { k: 'Sud-est / Londres', v: 'Très difficile', color: 'red' },
+        ]},
+        { type: 'text', text: 'La NC500 (North Coast 500) en Écosse est excellente en été : touristes du monde entier. Fort William est un hub idéal. En Angleterre, les anciens étudiants des années 70-80 sont les plus susceptibles de s\'arrêter.' },
+        { type: 'tip', text: '💡 Utilise les noms d\'autoroute (M4, M1) sur ton panneau plutôt que les noms de ville. C\'est la convention britannique pour le stop longue distance.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'Le Royaume-Uni est globalement sûr. La peur médiatique dépasse largement le risque réel. La police est généralement compréhensive et peut même t\'aider à trouver un meilleur spot.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [
+          { k: 'Urgences', v: '999 ou 112' },
+        ]},
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c', 'a'],
+      blocks: [
+        { type: 'text', text: 'Les hommes sont 4 fois plus susceptibles de s\'arrêter pour un autostoppeur que les femmes. Paradoxalement, beaucoup de conducteurs disent qu\'ils s\'arrêteraient pour une femme mais pas pour un homme seul.' },
+        { type: 'text', text: 'Des voyageuses ont traversé l\'Écosse et le Pays de Galles seules sans problème. Une blogueuse allemande décrit le camping sauvage en Écosse comme "probablement la façon la plus sûre de dormir".' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Aucune barrière. L\'anglais est partout. Certains accents régionaux (Highlands écossais, Pays de Galles rural) peuvent être épais, mais la communication n\'est jamais un problème.' },
+        { type: 'text', text: 'Au Royaume-Uni, on dit "lift" pour un trajet et "lorry" pour un camion.' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le Royaume-Uni est cher, mais l\'autostop aide considérablement. Monnaie : livre sterling (GBP).' },
+        { type: 'sub', title: 'Manger pas cher' },
+        { type: 'rule', icon: '🛒', text: 'Aldi et Lidl pour les courses. Menus early-bird dans les restaurants avant 18h.' },
+        { type: 'sub', title: 'Hébergement' },
+        { type: 'kv', items: [
+          { k: 'Auberges YHA (dortoir)', v: '15 à 30 £/nuit' },
+        ]},
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q', 'a'],
+      blocks: [
+        { type: 'text', text: 'Les règles varient considérablement selon la nation.' },
+        { type: 'sub', title: 'Écosse' },
+        { type: 'rule', icon: '✅', text: 'Camping sauvage LÉGAL presque partout (Scottish Outdoor Access Code). Exception : parc de Loch Lomond en été (permis requis).' },
+        { type: 'rule', icon: '✅', text: 'Bothies : cabanes de berger semi-abandonnées, gratuites, entretenues par la Mountain Bothies Association.' },
+        { type: 'sub', title: 'Angleterre et Pays de Galles' },
+        { type: 'rule', icon: '🚫', text: 'Camping sauvage techniquement interdit (violation civile, pas criminelle). Exception : Dartmoor National Park (zones désignées).' },
+        { type: 'rule', icon: '✅', text: 'Nearly Wild Camping : réseau de 100+ sites accueillant les campeurs en quête de nature.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'transport', items: [
+          { emoji: '🚌', name: 'Megabus', detail: 'Bus interurbains très bon marché', price: 'dès 1 £' },
+          { emoji: '🚌', name: 'National Express', detail: 'Plus grand réseau de bus longue distance', price: 'dès 2 £' },
+          { emoji: '🚌', name: 'FlixBus', detail: 'Lignes majeures', price: 'dès 5 £' },
+          { emoji: '🚗', name: 'BlaBlaCar', detail: 'Covoiturage', price: '' },
+        ]},
+        { type: 'tip', text: '💡 Les ferries (Dover, Holyhead) facturent par véhicule. Tu peux traverser gratuitement en trouvant un conducteur avec de la place.' },
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'season', months: [
+          { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+          { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+          { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+        ]},
+        { type: 'warn', text: '⚠️ En Écosse, les midges (moucherons) sont féroces de mai à septembre, pires en juillet-août. L\'huile "Avon Skin So Soft" est un répulsif prouvé.' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop était très populaire au Royaume-Uni dans les années 70-80 (50% des plus de 55 ans l\'ont fait). Seulement 7% des 18-24 ans l\'ont essayé. La pratique est vue comme dépassée mais ceux qui s\'arrêtent sont souvent d\'anciens autostoppeurs nostalgiques.' },
+        { type: 'sub', title: 'Ce qui marche' },
+        { type: 'rule', icon: '😁', text: 'Un grand sourire et un contact visuel avec chaque conducteur. Porter des vêtements distinctifs attire l\'attention positive.' },
+        { type: 'rule', icon: '📋', text: 'Aux aires de service, approche les conducteurs qui entrent/sortent du bâtiment, pas à la pompe ("health and safety" oblige).' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Juin', day: '⟳', name: 'Glastonbury Festival', desc: 'Plus grand festival de musique du monde, Somerset.' },
+          { month: 'Août', day: '⟳', name: 'Edinburgh Fringe', desc: 'Plus grand festival d\'arts au monde, 3 semaines.' },
+          { month: 'Nov', day: '5', name: 'Bonfire Night', desc: 'Feux d\'artifice dans tout le pays.' },
+        ]},
+      ],
+    },
+  },
+
+  // ==================== IRELAND ====================
+  IE: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est légal en Irlande sauf sur les autoroutes (motorways). En pratique, même sur les voies express, la police (Gardaí) intervient rarement. Si elle le fait, c\'est pour te diriger vers un endroit plus sûr.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'L\'Irlande est l\'un des meilleurs pays d\'Europe pour l\'autostop. Le temps d\'attente moyen est de 5 minutes. Un journaliste irlandais rapporte avoir été régulièrement pris en stop en moins d\'une minute. Les voitures freinent parfois en te voyant au bord de la route, sans même que tu fasses le geste.' },
+        { type: 'sub', title: 'Pourquoi ça marche si bien' },
+        { type: 'text', text: 'Beaucoup de zones rurales n\'ont pas de transport en commun. Donner des trajets fait partie de la vie quotidienne. Les Irlandais sont sociables et apprécient la conversation. Un nouvel autostoppeur = un nouveau partenaire de discussion.' },
+        { type: 'sub', title: 'Par zone' },
+        { type: 'kv', items: [
+          { k: 'Côte ouest (Wild Atlantic Way)', v: 'Excellent', color: 'green' },
+          { k: 'Petites villes rurales', v: 'Excellent (gens curieux)', color: 'green' },
+          { k: 'Routes nationales (R)', v: 'Très bon', color: 'green' },
+          { k: 'Ronds-points d\'autoroute', v: 'Bon (< 5 min)', color: 'green' },
+          { k: 'Dublin / Cork / Limerick', v: 'Difficile de démarrer', color: 'amber' },
+        ]},
+        { type: 'tip', text: '💡 Beaucoup de petits trajets vont plus vite qu\'attendre un long trajet. Un panneau avec le nom de la prochaine ville réduit le temps d\'attente. Pars tôt le matin pour attraper les camions.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'L\'Irlande est considérée comme l\'un des pays les plus sûrs au monde pour les voyageurs. L\'autostop est décrit comme "une méthode ancestrale et généralement très sûre de se déplacer". Aucun incident significatif rapporté dans toutes les sources consultées.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [
+          { k: 'Urgences', v: '112 ou 999' },
+          { k: 'Gardaí (police)', v: '112' },
+        ]},
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'Irlande est considérée comme l\'un des pays les plus sûrs pour les voyageuses solo. Plusieurs blogueuses rapportent des expériences positives. 80% des trajets viennent d\'hommes, mais les précautions standard s\'appliquent.' },
+        { type: 'text', text: 'Une blogueuse française a parcouru le Wild Atlantic Way en stop avec une amie, avec des temps d\'attente de 5 à 15 minutes.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'L\'anglais est la langue quotidienne partout en Irlande. Le gaélique irlandais (Gaeilge) n\'est parlé quotidiennement que par ~4% de la population, dans les zones Gaeltacht (côte ouest). Même là, tout le monde parle anglais.' },
+        { type: 'phrase', items: [
+          { local: 'Dia dhuit', meaning: 'Bonjour (en gaélique)' },
+          { local: 'Go raibh maith agat', meaning: 'Merci (en gaélique)' },
+        ]},
+        { type: 'tip', text: '💡 Quelques mots de gaélique dans les zones rurales de l\'ouest créent une chaleur immédiate avec les locaux.' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'L\'Irlande est modérément chère. La combinaison autostop + camping rend le voyage très abordable. Un voyageur espagnol a exploré l\'Irlande "avec un budget très serré en utilisant l\'autostop, le camping et les invitations des locaux".' },
+        { type: 'sub', title: 'Hébergement' },
+        { type: 'kv', items: [
+          { k: 'Auberges (dortoir)', v: '20 à 50 €/nuit' },
+          { k: 'B&B avec petit-déjeuner', v: '60 à 80 €/nuit' },
+        ]},
+        { type: 'rule', icon: '🛒', text: 'Aldi et Lidl pour les courses. Menus early-bird dans les restaurants avant 18h.' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le camping sauvage est toléré et largement non réglementé en Irlande. Des champs vides sont disponibles "à quelques minutes de n\'importe quelle ville". Demander l\'autorisation aux fermiers est recommandé mais ils s\'en fichent souvent.' },
+        { type: 'rule', icon: '✅', text: 'Camping gratuit dans les champs non cultivés (avec permission implicite).' },
+        { type: 'rule', icon: '🚫', text: 'Évite les champs avec des cultures ou du bétail.' },
+        { type: 'rule', icon: '🚫', text: 'Pas de feu visible depuis les routes ou les maisons.' },
+        { type: 'warn', text: '⚠️ L\'Irlande est très humide. Une tente avec une imperméabilité élevée (>3000mm) est essentielle. Le défi n\'est pas la pluie forte mais la bruine persistante qui peut durer des jours.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'transport', items: [
+          { emoji: '🚌', name: 'Bus Éireann', detail: 'Service national de bus', price: '' },
+          { emoji: '🚌', name: 'Dublin Coach / GoBus / Citylink', detail: 'Bus interurbains moins chers', price: '' },
+          { emoji: '🚗', name: 'BlaBlaCar', detail: 'Actif en Irlande', price: '' },
+          { emoji: '🚃', name: 'Irish Rail', detail: 'Réseau limité, prix modérés', price: '' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'season', months: [
+          { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+          { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+          { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+        ]},
+        { type: 'text', text: 'Mai-juin : meilleure météo, plus longues journées. Septembre-octobre : moins de touristes, prix plus bas, couleurs d\'automne. La météo irlandaise est extrêmement imprévisible : il peut pleuvoir à tout moment de l\'année.' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est profondément ancré dans la culture irlandaise. Dans les zones rurales sans transport en commun, donner des trajets fait partie de la vie quotidienne depuis des décennies. Les Irlandais sont sociables et accueillants.' },
+        { type: 'sub', title: 'Ce qui marche' },
+        { type: 'rule', icon: '🗣️', text: 'Les Irlandais adorent discuter. Sois ouvert à la conversation, pose des questions sur la région.' },
+        { type: 'rule', icon: '🎒', text: 'Garde ton sac petit. Les gros sacs font peur. Solo ou en duo seulement (3+ = quasi impossible).' },
+        { type: 'sub', title: 'Référence culturelle' },
+        { type: 'text', text: 'Le livre "Round Ireland With a Fridge" de Tony Hawks raconte comment il a fait du stop autour de l\'Irlande avec un frigo. Il n\'a eu aucun problème de sécurité et illustre parfaitement la tradition irlandaise de l\'autostop.' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Mar', day: '17', name: 'St Patrick\'s Day', desc: 'Fête nationale. Festivités dans tout le pays et dans le monde.' },
+          { month: 'Mai', day: '⟳', name: 'Fleadh Cheoil', desc: 'Festival de musique traditionnelle irlandaise.' },
+          { month: 'Sep', day: '⟳', name: 'Galway Oyster Festival', desc: 'Festival des huîtres, le plus ancien food festival d\'Irlande.' },
+          { month: 'Oct', day: '⟳', name: 'Bram Stoker Festival (Dublin)', desc: 'Festival Halloween, le berceau d\'Halloween est irlandais.' },
+        ]},
+        { type: 'tip', text: '💡 Un journaliste irlandais a été pris en stop par des bouchers, des apiculteurs, des prêtres, des informaticiens. Toute la société irlandaise participe.' },
+      ],
+    },
+  },
 }
