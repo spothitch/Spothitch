@@ -2571,4 +2571,426 @@ export const guideSectionsData = {
       ]},
     ]},
   },
+
+  // ==================== ROMANIA ====================
+  RO: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Roumanie. Depuis ~2014, il est interdit aux conducteurs de demander de l\'argent pour prendre des autostoppeurs (le stop payant est illégal). Interdit sur les autoroutes. En pratique, tout le monde fait du stop.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Très facile. L\'un des pays les plus favorables au stop en Europe. Temps d\'attente : 2 minutes à 1h30 selon le lieu. Le stop est un mode de transport courant (transports en commun limités, peu d\'autoroutes). Tu peux être en concurrence avec des locaux aux sorties de ville.' },
+      { type: 'text', text: 'Les Roumains utilisent des codes de 2 lettres pour les départements sur les panneaux (ex: CJ = Cluj). Utilise un panneau. Les ronds-points aux sorties de ville et les routes nationales (E) fonctionnent le mieux.' },
+      { type: 'warn', text: '⚠️ Certains conducteurs illégaux ciblent les étrangers et demandent des tarifs gonflés (jusqu\'à 100 €). Dis toujours "fără bani" (sans argent) ou "nu am bani" (je n\'ai pas d\'argent) AVANT de monter.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Globalement sûr. Plusieurs voyageurs rapportent des mois de voyage sans incident. Les conducteurs roumains sont notoirement agressifs au volant (dépassements dangereux, vitesse élevée). Attache ta ceinture. Chiens errants fréquents en zone rurale.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Généralement sûr pour les femmes seules. Une voyageuse a passé 2 mois en solo sans incident. Deux conductrices ont un jour emmené une autostoppeuse de Sibiu à Bucarest, payé ses repas et lui ont offert des cadeaux. Les zones rurales sont accueillantes.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le roumain est une langue romane (alphabet latin). Les francophones, italophones et hispanophones ont un avantage significatif. Les jeunes en ville parlent bien anglais. En rural et avec les conducteurs plus âgés, la communication peut être difficile. Le hongrois est parlé en Transylvanie.' },
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'L\'un des pays les moins chers d\'Europe. Budget routard : moins de 30 €/jour. Auberge : ~10 €/nuit. Repas au restaurant : 7-10 €. BlaBlaCar est populaire et abordable.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est LÉGAL sur les terres publiques (pas dans les parcs nationaux, réserves naturelles, ni le Delta du Danube). Attention aux ours dans les Carpates. Couchsurfing actif, surtout à Cluj-Napoca et Bucarest. TrustRoots populaire chez les autostoppeurs.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚗', name: 'BlaBlaCar', detail: 'Très populaire en Roumanie', price: '' },
+        { emoji: '🚌', name: 'FlixBus', detail: 'Routes principales', price: 'dès 5 €' },
+        { emoji: '🚃', name: 'Trains', detail: 'Lents mais bon marché', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Avril-octobre : idéal. La Transfăgărășan (plus belle route de montagne) n\'est ouverte que de juin à octobre. Hiver : routes dangereuses, jours courts.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le stop est profondément ancré dans la culture roumaine. C\'est un mode de transport courant, pas juste pour les voyageurs. Les sorties de ville ont des zones de récupération dédiées. Les conducteurs sont incroyablement amicaux, généreux et curieux envers les étrangers. La Transylvanie est la région la plus accueillante.' },
+      { type: 'event', items: [
+        { month: 'Août', day: '⟳', name: 'Untold Festival (Cluj)', desc: 'L\'un des plus grands festivals de musique d\'Europe de l\'Est.' },
+        { month: 'Sep', day: '⟳', name: 'George Enescu Festival (Bucarest)', desc: 'Festival de musique classique de renommée mondiale.' },
+      ]},
+    ]},
+  },
+
+  // ==================== BULGARIA ====================
+  BG: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Aucune loi n\'interdit l\'autostop en Bulgarie sauf sur les rares tronçons de vraie autoroute. C\'est un héritage de l\'époque socialiste, largement accepté.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Très facile, surtout sur l\'axe Sofia-Plovdiv (corridor Europe-Turquie). L\'est-ouest est plus facile que le nord-sud. En été, la côte de la Mer Noire est populaire mais avec de la concurrence.' },
+      { type: 'text', text: 'Les routiers (TIR) sont nombreux et prêts à prendre des passagers. Attention en été (35°C+) : les camions doivent se garer de 13h à 21h. Pars tôt le matin.' },
+      { type: 'warn', text: '⚠️ Écris ta destination en CYRILLIQUE. Ça améliore considérablement les chances que les conducteurs s\'arrêtent.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Globalement sûr mais avec des avertissements spécifiques. Conduite agressive courante. La police peut contrôler les passeports et potentiellement chercher des pots-de-vin près des frontières. Les détenteurs de passeports occidentaux sont rarement embêtés.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+      { type: 'tip', text: '💡 En Bulgarie, les gestes de tête pour "oui" et "non" sont inversés par rapport à l\'Occident (hochement = non, secouement = oui). Beaucoup de Bulgares se sont adaptés aux conventions occidentales, mais la confusion est fréquente.' },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'Généralement sûr pour les voyageuses solo. Criminalité faible, locaux serviables.' },
+      { type: 'warn', text: '⚠️ Sur les grands axes (Sofia-Istanbul, Sofia-Varna), des travailleuses du sexe sont présentes au bord des routes. Les femmes doivent s\'habiller sobrement et s\'éloigner de ces zones. Utilise uniquement le pouce levé (agiter la main peut être confondu avec un signal de sollicitation).' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le bulgare utilise l\'alphabet cyrillique, ce qui constitue une barrière significative. L\'anglais est limité en dehors des grandes villes. La communication repose souvent sur les gestes. Les conducteurs offrent fréquemment du rakia (eau-de-vie artisanale) comme geste social.' },
+      { type: 'phrase', items: [
+        { local: 'Avtostop', meaning: 'Autostop' },
+        { local: 'Blagodarya', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Parmi les pays les moins chers d\'Europe. Budget routard : ~30 €/jour. Repas copieux au restaurant pour moins de 15 €. Auberge : 8-12 €/nuit.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage techniquement interdit mais largement toléré en dehors des zones touristiques, villes et réserves naturelles. Amende jusqu\'à 1000 € en zone protégée. Les feux sont strictement interdits en dehors des foyers publics. Krapets (frontière roumaine) a une zone de camping sauvage gratuit sur la plage.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les groupes Facebook de covoiturage sont plus populaires que BlaBlaCar en Bulgarie. Plus rapides et moins chers que les bus. Bus et minibus connectent la plupart des villes. Trains existants mais lents.' },
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le stop a des racines socialistes. Beaucoup de conducteurs plus âgés sont nostalgiques et accueillants. Les conducteurs sont curieux, gentils et hospitaliers. Le rakia est partagé comme geste social.' },
+      { type: 'event', items: [
+        { month: 'Juin', day: '⟳', name: 'Festival des Roses (Kazanlak)', desc: 'Célébration de la récolte des roses, tradition séculaire.' },
+        { month: 'Juil', day: '⟳', name: 'Juillet Morning (côte)', desc: 'Rassemblement hippie au lever du soleil sur les plages de la Mer Noire.' },
+      ]},
+    ]},
+  },
+
+  // ==================== LITHUANIA ====================
+  LT: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop sur les autoroutes n\'est pas explicitement interdit (mais marcher dessus l\'est). En pratique, les autostoppeurs se tiennent près des autoroutes sans problème. Les écoliers marchent le long des routes, donc les conducteurs sont habitués.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'La Lituanie est décrite comme un "paradis pour l\'autostop". Temps d\'attente : 30 à 90 minutes, sous 30 minutes en duo. Le Vilnius Hitch-hiking Club est actif depuis 1996.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Aucune préoccupation majeure. Classé niveau 1 (le plus sûr) par le Département d\'État américain. Voyager à deux réduit le risque de ~90%.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Les pays baltes sont décrits comme un "paradis pour les autostoppeuses" et "très favorables aux femmes".' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le lituanien est la langue principale. Les anglophones sont limités en dehors de Vilnius. Les conducteurs sont amicaux malgré la barrière linguistique. Une carte SIM coûte ~0,30 € aux kiosques (utile pour les apps de traduction).' },
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Budget routard : ~45 €/jour. Les trains sont extrêmement bon marché (souvent moins de 2 €/trajet).' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est LÉGAL en Lituanie, sauf dans les réserves naturelles, zones urbaines, plages et propriétés privées.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Lux Express', detail: 'Bus entre capitales baltes', price: '~25 €' },
+        { emoji: '🚃', name: 'Trains', detail: 'Vilnius-Riga direct (depuis 2023), très bon marché', price: 'dès 2 €' },
+        { emoji: '🤝', name: 'Vaziuojam.lt', detail: 'Plateforme lituanienne de covoiturage', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'bad' },
+        { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'good' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+      ]},
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Culture d\'autostop établie. Le Vilnius Hitch-hiking Club (autostop.lt) fonctionne depuis 1996. Les gens sont timides mais amicaux. Comparable à la Pologne en termes de culture du stop.' },
+    ]},
+  },
+
+  // ==================== LATVIA ====================
+  LV: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Aucune loi n\'interdit l\'autostop en Lettonie. Autorisé tant que tu ne mets pas la sécurité routière en danger.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Assez facile. Les gens sont habitués aux autostoppeurs sur les routes principales (E67/Via Baltica) et en zone rurale. Beaucoup de jeunes Lettons font du stop en été pour aller aux festivals ou rentrer chez eux.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Sûr et calme. Niveau 1 du Département d\'État américain. Les conditions routières se détériorent en hiver/début de printemps.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Population divisée entre lettophones et russophones. La plupart des adultes connaissent les deux. Les jeunes parlent généralement bien anglais. WiFi gratuit dans presque toutes les villes (bibliothèques, centres-villes).' },
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Budget routard : ~45 €/jour. Trains souvent sous 2 €/trajet.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est LÉGAL en Lettonie sauf interdiction explicite. Interdit dans les réserves naturelles, parcs nationaux, dunes avec végétation et plages urbaines. Propriété privée : permission du propriétaire requise.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Lux Express', detail: 'Riga-Tallinn (~4h, ~20 €), Riga-Vilnius (~4h30, ~25 €)', price: 'dès 15 €' },
+        { emoji: '📱', name: 'Groupes Facebook', detail: 'Covoiturage par route (très populaire)', price: '' },
+        { emoji: '🚗', name: 'BlaBlaCar', detail: 'Actif en Lettonie', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'bad' },
+        { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'good' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+      ]},
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'autostop est une pratique acceptée. Les Lettons sont réservés mais serviables. Pas de contrôles aux frontières Schengen avec l\'Estonie et la Lituanie.' },
+      { type: 'event', items: [
+        { month: 'Juin', day: '23-24', name: 'Jāņi (Līgo)', desc: 'Solstice d\'été, feux de joie, couronnes de fleurs, la plus grande fête lettone.' },
+      ]},
+    ]},
+  },
+
+  // ==================== ESTONIA ====================
+  EE: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Estonie. Obligation légale la nuit : tu DOIS porter un réflecteur lumineux sur les routes sombres. Les gilets de sécurité sont recommandés mais peuvent faire croire aux conducteurs que tu es policier.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Relativement bon. Temps d\'attente : 5-10 minutes typiquement, parfois 30-90 minutes. Les voitures s\'arrêtent sur les autoroutes et les petites routes. Tous les types de véhicules s\'arrêtent : voitures, camions, tracteurs, même des taxis qui rentrent chez eux.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Très sûr. Niveau 1 du Département d\'État américain. Les crimes liés au stop sont "rares". Attention aux conducteurs en état d\'ébriété : évite les voitures où les occupants semblent ivres.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Les pays baltes sont décrits comme un "paradis pour les autostoppeuses". Tallinn est très sûr pour les voyageuses solo.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'estonien et le russe sont les langues principales. L\'anglais est bien parlé par les jeunes et les actifs. Les conversations se font en estonien, russe ou anglais selon le conducteur.' },
+      { type: 'phrase', items: [
+        { local: 'Aitäh sõidu eest', meaning: 'Merci pour le trajet' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Budget routard : ~45 €/jour. Trains extrêmement bon marché. L\'eau du robinet et des puits est potable partout en Estonie.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est LÉGAL en Estonie sauf sur propriété privée, dans les parcs nationaux ou les zones militaires. Emporte de la nourriture : peu d\'aires de service en bord de route.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Lux Express', detail: 'Tallinn-Riga (~4h)', price: 'dès 15 €' },
+        { emoji: '⛴️', name: 'Ferries', detail: 'Vers les îles (Saaremaa, Hiiumaa)', price: '' },
+      ]},
+      { type: 'text', text: 'Pays très connecté numériquement (e-Estonia). Les apps de traduction et cartes en ligne fonctionnent parfaitement partout.' },
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'bad' },
+        { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'ok' },
+        { name: 'Oct', level: 'bad' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Été uniquement fiable (quasi 24h de lumière en juin). Hiver : neige, froid, obscurité. Certaines routes passent de 110 à 90 km/h en hiver.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Estoniens sont réservés mais serviables. Les îles (Kihnu, Saaremaa) préservent des modes de vie traditionnels et offrent des expériences d\'autostop uniques.' },
+      { type: 'event', items: [
+        { month: 'Juin', day: '23-24', name: 'Jaanipäev (Saint-Jean)', desc: 'Solstice d\'été, feux de joie. Plus grande fête estonienne.' },
+      ]},
+    ]},
+  },
+
+  // ==================== TURKEY ====================
+  TR: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop ("otostop") n\'est pas explicitement illégal en Turquie, mais il est interdit sur les autoroutes (otoban). En pratique, l\'application est très laxiste et les gens font du stop sur les routes routinièrement.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'La Turquie est décrite comme un "paradis pour les autostoppeurs" par toutes les sources. Le temps d\'attente dépasse rarement 15 minutes sur les routes fréquentées.' },
+      { type: 'sub', title: 'Par région (du plus facile au plus difficile)' },
+      { type: 'kv', items: [
+        { k: 'Sud-est anatolien', v: 'La 1ère voiture s\'arrête', color: 'green' },
+        { k: 'Côte de la Mer Noire', v: 'Très facile', color: 'green' },
+        { k: 'Anatolie centrale', v: '~20 min d\'attente', color: 'green' },
+        { k: 'Côte méditerranéenne', v: 'Plus long (jusqu\'à 2h)', color: 'amber' },
+        { k: 'Istanbul', v: 'Très difficile (peut prendre 10h)', color: 'red' },
+      ]},
+      { type: 'text', text: 'En zone rurale, marcher sur une route suffit : les conducteurs s\'arrêtent d\'eux-mêmes sans que tu lèves le pouce.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Dans 99% des cas, le stop se passe bien. En Turquie orientale, la police peut être méfiante envers les étrangers (tensions PKK). Ils sont sérieux mais offrent du thé et du respect.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+      { type: 'warn', text: '⚠️ Évite les régions frontalières avec la Syrie et l\'Irak. Le ministère des Affaires étrangères déconseille ces zones.' },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'Le sujet le plus documenté. La Turquie est considérée comme "pas pour les autostoppeuses débutantes" si tu es seule. Le code vestimentaire est crucial : pantalons longs, manches aux coudes minimum.' },
+      { type: 'text', text: 'Les expériences varient énormément selon la tenue, le comportement, les compétences linguistiques et la région. Recommandation de toutes les sources : plus sûr en couple ou en groupe.' },
+      { type: 'phrase', items: [
+        { local: 'Çok ayıp', meaning: 'C\'est très mal (pour repousser un comportement)' },
+        { local: 'Evliyim', meaning: 'Je suis marié(e)' },
+      ]},
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Très peu de gens parlent anglais (~20% des conducteurs). Google Traduction avec fonction vocale est essentiel. Le turc est "relativement facile à apprendre et à prononcer". Enregistre un message pré-traduit expliquant ton voyage.' },
+      { type: 'phrase', items: [
+        { local: 'Otostop', meaning: 'Autostop' },
+        { local: 'Param yok', meaning: 'Je n\'ai pas d\'argent' },
+        { local: 'Nereye gidiyorsunuz?', meaning: 'Où allez-vous ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Budget routard : 25-45 €/jour. Repas traditionnel : 3-5 €. Auberge : 5-15 €/nuit. Les conducteurs achètent fréquemment du thé, de la nourriture et même des repas complets. "Nourriture et thé à profusion."' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage existe dans une zone grise légale. Techniquement interdit mais l\'application est laxiste. Généralement toléré en zones rurales et forestières. Interdit sur certaines plages (sites de nidification des tortues). Les invitations chez les conducteurs sont extrêmement courantes.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Dolmuş (minibus partagé)', detail: 'Très bon marché, pas d\'horaire, lève la main pour l\'arrêter', price: '1-3 €' },
+        { emoji: '🚌', name: 'Bus interurbains', detail: 'Modernes, confortables, service à bord, climatisés', price: '' },
+      ]},
+      { type: 'tip', text: '💡 ~30% des chauffeurs de bus interurbains te donneront un trajet gratuit si tu expliques que tu n\'as pas d\'argent.' },
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'good' },
+        { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'ok' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'good' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Avril est le meilleur mois. Printemps et automne idéaux. Été : très chaud (35°C+ sur la côte sud et à l\'intérieur). Hiver : froid à l\'intérieur, doux sur la côte sud.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'hospitalité turque est légendaire. Le thé est offert à chaque arrêt. Les conducteurs achètent des repas, font des visites improvisées et t\'invitent chez eux. Accepter la nourriture/boisson crée un lien. Refuser peut offenser.' },
+      { type: 'event', items: [
+        { month: 'Avr', day: '23', name: 'Fête de la Souveraineté nationale', desc: 'Jour férié, célébrations dans tout le pays.' },
+        { month: 'Avr-Mai', day: '⟳', name: 'Ramadan et Aïd', desc: 'Dates variables. Pendant le Ramadan, les gens jeûnent de jour. L\'Aïd est très festif.' },
+        { month: 'Oct', day: '29', name: 'Fête de la République', desc: 'Plus grande fête nationale turque.' },
+      ]},
+    ]},
+  },
+
+  // ==================== GEORGIA ====================
+  GE: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Aucune restriction légale sur l\'autostop en Géorgie. Contrairement à la plupart des pays européens, personne ne s\'inquiète si tu fais du stop directement sur les autoroutes.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Facile la plupart du temps. Temps d\'attente moyen : ~30 minutes. En zone rurale, les conducteurs s\'arrêtent même sans que tu lèves le pouce : marcher avec un sac à dos suffit. Les voitures de police offrent aussi des trajets et aident à organiser la suite.' },
+      { type: 'tip', text: '💡 L\'hospitalité géorgienne est incroyable. Les conducteurs t\'invitent à manger, à boire et à dormir chez eux régulièrement.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Globalement sûr. Le principal risque est la conduite agressive (vitesse élevée, règles de circulation ignorées). Les routes de montagne peuvent être dangereuses. Refuser l\'alcool (surtout le chacha, eau-de-vie nationale) peut offenser en zone rurale.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'Score de sécurité 4.5/5 pour les voyageuses solo (top 35 mondial). Les hommes géorgiens "ont tendance à avoir beaucoup de respect pour les femmes" mais peuvent être insistants. Sois ferme et ils s\'arrêteront.' },
+      { type: 'text', text: 'Un incident documenté : un conducteur a essayé d\'emmener une autostoppeuse chez ses parents pour la présenter. Elle a réussi à descendre. Recommandation : voyager à deux quand possible.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Les plus âgés parlent russe, les jeunes (<30 ans) parlent plus anglais, surtout à Tbilissi et Batoumi. Les villages peuvent n\'avoir que des locuteurs géorgiens. Bonne couverture mobile pour les apps de traduction.' },
+      { type: 'phrase', items: [
+        { local: 'Gamarjoba', meaning: 'Bonjour' },
+        { local: 'Madloba', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Ultra-budget possible : ~6 €/jour (camping + stop + cuisine). Budget confortable : ~30 €/jour. Auberge à Tbilissi : dès 5 €/nuit. Repas complet : 3-5 €. Métro/bus à Tbilissi : quelques centimes.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est légal en Géorgie sur les terres publiques. Interdit sur propriété privée sans permission. Spots populaires gratuits : Kazbegi, vallée de Juta, lac Udziro en Racha, Svanétie. Les invitations chez l\'habitant sont fréquentes.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Marshrutka (minivans partagés)', detail: 'Colonne vertébrale du transport. Très bon marché.', price: '1-7 €' },
+        { emoji: '🚃', name: 'Trains', detail: 'Réseau soviétique. Tbilissi-Batoumi rapide. Tbilissi-Zugdidi de nuit.', price: '4-15 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Fin juin à fin septembre : idéal pour le trek et le stop en montagne (Grand Caucase ouvert juillet-août). Fin septembre à début novembre : 15-20°C en ville, couleurs d\'automne.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'hospitalité géorgienne est considérée comme l\'une des meilleures au monde. Les conducteurs invitent spontanément à manger, boire et dormir. Le chacha (eau-de-vie de raisin) est la boisson nationale. La cuisine géorgienne est riche : vin, khinkali (raviolis), khachapuri (pain au fromage).' },
+      { type: 'event', items: [
+        { month: 'Oct', day: '14', name: 'Tbilisoba', desc: 'Fête de Tbilissi. Musique, danse, gastronomie dans toute la ville.' },
+        { month: 'Oct', day: '⟳', name: 'Rtveli (vendanges)', desc: 'Récolte du raisin. La Géorgie est le berceau du vin (8000 ans).' },
+      ]},
+    ]},
+  },
+
+  // ==================== ARMENIA ====================
+  AM: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Arménie. Aucune restriction documentée. Utilise le pouce levé (paume vers le bas = tu veux un taxi).' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Plusieurs sources classent l\'Arménie comme l\'un des meilleurs pays au monde pour l\'autostop. Temps d\'attente moyen : 5-10 minutes, parfois sous 5 minutes. Un voyageur ayant visité 26 pays a classé l\'Arménie n°1.' },
+      { type: 'text', text: 'Les locaux font aussi du stop car les transports en commun sont limités et les minivans bondés. C\'est un mode de transport normal. En zone reculée, le trafic peut être très faible (1h+ d\'attente).' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'L\'Arménie est classée 8ème pays le plus sûr au monde (Numbeo 2025). Les voyageurs "se sentaient plus en sécurité qu\'en France". La police est "gentille et serviable".' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+      { type: 'warn', text: '⚠️ Évite les zones frontalières avec l\'Azerbaïdjan (mines, tensions militaires). Le tronçon Nojemberyan-Idjevan est spécifiquement déconseillé.' },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'La peur s\'estompe d\'année en année. Des demandes en mariage par les conducteurs sont documentées par plusieurs sources. Un conducteur a essayé d\'emmener une autostoppeuse chez ses parents pour la présenter. Préfère les voitures avec femmes ou enfants. Évite de voyager seule dans les zones isolées du sud.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le russe est la langue étrangère la plus courante, parlée par presque tout le monde. Essentiel en dehors d\'Erevan. L\'anglais est rare, surtout en zone rurale. L\'alphabet arménien est unique et la langue très difficile à apprendre.' },
+      { type: 'phrase', items: [
+        { local: 'Barev', meaning: 'Bonjour' },
+        { local: 'Shnorhakalutyun', meaning: 'Merci' },
+        { local: 'Anvchar?', meaning: 'Gratuit ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Ultra-budget possible : ~7 €/jour. Budget confortable : 25-45 €/jour. Auberge : 8-18 €/nuit. Repas local : 3-5 €. Métro d\'Erevan : < 0,20 €. Les conducteurs offrent souvent cola, glace ou repas complets gratuitement.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est légal sur toutes les terres publiques sans permis. Sûr dans la plupart des régions sauf près de la frontière azerbaïdjanaise. Il fait froid à partir d\'octobre. Attention aux loups, animaux sauvages et chiens errants. Les locaux sont curieux et peuvent t\'inviter chez eux pour un café.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Marshrutkas', detail: 'Minivans bondés mais bon marché. Couvrent la plupart des routes.', price: '0,30-1 €' },
+        { emoji: '🚌', name: 'Bus', detail: 'Uniquement les grandes villes', price: '' },
+      ]},
+      { type: 'warn', text: '⚠️ Pouce levé = autostop. Paume vers le bas = taxi. Clarifie AVANT de monter pour éviter qu\'on te demande de l\'argent.' },
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Mai-juin et septembre-octobre : idéal (22-26°C). Été : chaud en plaine (jusqu\'à 40°C) mais idéal en montagne. Hiver : froid, neige en montagne, pas recommandé pour le stop.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'hospitalité arménienne est considérée parmi les meilleures au monde. Les conducteurs s\'arrêtent sans qu\'on le demande, achètent des boissons, invitent à manger et présentent leur famille. Les communautés kurdes du sud de l\'Arménie sont "exceptionnellement hospitalières". Accepter la nourriture/boisson montre ta bonne volonté.' },
+      { type: 'event', items: [
+        { month: 'Avr', day: '24', name: 'Jour du Souvenir', desc: 'Commémoration du génocide arménien. Processions à Erevan.' },
+        { month: 'Sep-Oct', day: '⟳', name: 'Areni Wine Festival', desc: 'Festival du vin dans le village d\'Areni, berceau du plus vieux vignoble connu.' },
+      ]},
+    ]},
+  },
 }
