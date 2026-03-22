@@ -255,6 +255,7 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_guide_nudge_seen', category: DataCategory.SETTINGS, description: 'Flag — user has dismissed the guide tip nudge modal globally, do not show again' },
   { key: 'spothitch_guide_nudge_countries', category: DataCategory.SETTINGS, description: 'JSON array of country codes where user dismissed the guide nudge (per-country dismiss)' },
   { key: 'spothitch_username', category: DataCategory.PROFILE, description: 'Cached username for offline display' },
+  { key: 'spothitch_last_username_change', category: DataCategory.PROFILE, description: 'Timestamp of last username change (60-day cooldown)' },
   { key: 'spothitch_last_position', category: DataCategory.CACHE, description: 'Last known GPS position for instant map centering on reload', sensitive: true },
 
   // === ANALYTICS ===

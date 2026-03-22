@@ -599,6 +599,9 @@ window.saveProfileEdits = async () => {
  */
 async function _propagateUsernameToSpots(uid, newUsername) {
   try {
+    const { getCurrentUser } = await import('./firebase.js')
+    const user = getCurrentUser()
+    if (!user || user.uid !== uid) return // Auth guard: ERR-002
     const { getFirestore, collection, query, where, getDocs, updateDoc, doc } = await import('firebase/firestore')
     const { getApp } = await import('firebase/app')
     const db = getFirestore(getApp())
