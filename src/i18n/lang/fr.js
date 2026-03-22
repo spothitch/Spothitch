@@ -4710,6 +4710,9 @@ export default {
   completeYourProfile: 'Complète ton profil',
   completeProfileDesc: 'Choisis un pseudo unique pour que les autres voyageurs te reconnaissent',
   usernameHint: 'Ton pseudo sera visible par les autres. Tu pourras le changer plus tard.',
+  usernameChangeInfo: 'Modifiable une fois tous les 60 jours',
+  usernameLocked: 'Modifiable dans {days} jours',
+  usernameCooldown: 'Tu pourras changer ton pseudo dans {days} jours',
   // SpotDetail — design final
   spotExistsSubtext: 'Ce spot existe',
   giveOpinionSubtext: 'Donner mon avis',

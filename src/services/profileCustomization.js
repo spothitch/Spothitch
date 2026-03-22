@@ -454,15 +454,27 @@ export function renderCustomizationModal(state) {
               ${svgUser}
               <span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">${t('username') || 'Pseudo'}</span>
             </div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <span style="color:#475569;font-size:16px">@</span>
-              <input type="text" id="edit-username" value="${escapeHTML(username)}"
-                style="flex:1;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:15px;outline:none"
-                placeholder="${t('usernamePlaceholder') || 'ton_pseudo'}"
-                maxlength="20"
-              />
-            </div>
-            <p style="font-size:10px;color:#475569;margin-top:4px">${t('usernameHint') || '3 à 20 caractères, lettres et chiffres'}</p>
+            ${(() => {
+              const lastChange = localStorage.getItem('spothitch_last_username_change')
+              const daysSince = lastChange ? (Date.now() - Number(lastChange)) / (1000 * 60 * 60 * 24) : 999
+              const locked = daysSince < 60
+              const daysLeft = locked ? Math.ceil(60 - daysSince) : 0
+              return `
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="color:#475569;font-size:16px">@</span>
+                  <input type="text" id="edit-username" value="${escapeHTML(username)}"
+                    style="flex:1;background:transparent;border:none;border-bottom:1px solid ${locked ? '#475569' : '#334155'};padding:8px 0;color:${locked ? '#64748b' : '#e2e8f0'};font-size:15px;outline:none"
+                    placeholder="${t('usernamePlaceholder') || 'ton_pseudo'}"
+                    maxlength="20"
+                    ${locked ? 'disabled' : ''}
+                  />
+                </div>
+                <p style="font-size:10px;color:${locked ? '#f59e0b' : '#475569'};margin-top:4px">
+                  ${locked
+                    ? (t('usernameLocked')?.replace('{days}', daysLeft) || 'Modifiable dans ' + daysLeft + ' jours')
+                    : (t('usernameChangeInfo') || 'Modifiable une fois tous les 60 jours')}
+                </p>`
+            })()}
           </div>
 
           <!-- Bio -->
@@ -528,15 +540,35 @@ window.saveProfileEdits = async () => {
     const { setState: setStateFn, getState: getStateFn } = await import('../stores/state.js')
     const currentUsername = getStateFn().username
     if (username !== currentUsername) {
+      // 60-day cooldown check
+      try {
+        const lastChange = localStorage.getItem('spothitch_last_username_change')
+        if (lastChange) {
+          const daysSince = (Date.now() - Number(lastChange)) / (1000 * 60 * 60 * 24)
+          if (daysSince < 60) {
+            const daysLeft = Math.ceil(60 - daysSince)
+            const { showError } = await import('./notifications.js')
+            showError(t('usernameCooldown')?.replace('{days}', daysLeft) || `Tu pourras changer ton pseudo dans ${daysLeft} jours`)
+            return
+          }
+        }
+      } catch { /* no-op */ }
+
       // Check availability + reserve
       try {
         const { updateUserProfile, getCurrentUser } = await import('./firebase.js')
         const user = getCurrentUser()
         if (user) {
-          await updateUserProfile(user.uid, { username, displayName: username })
+          const profileUpdate = { username, displayName: username, lastUsernameChange: new Date().toISOString() }
+          await updateUserProfile(user.uid, profileUpdate)
+          // Propagate new username to all spots created by this user
+          _propagateUsernameToSpots(user.uid, username).catch(() => {})
         }
         setStateFn({ username })
-        try { localStorage.setItem('spothitch_username', username) } catch { /* no-op */ }
+        try {
+          localStorage.setItem('spothitch_username', username)
+          localStorage.setItem('spothitch_last_username_change', String(Date.now()))
+        } catch { /* no-op */ }
       } catch (e) {
         const { showError } = await import('./notifications.js')
         showError(t('usernameError') || 'Erreur lors du changement de pseudo')
@@ -559,6 +591,25 @@ window.saveProfileEdits = async () => {
     const { showError } = await import('./notifications.js')
     showError(t('usernameInvalid') || 'Pseudo : 3 à 20 caractères')
   }
+}
+
+/**
+ * Propagate username change to all spots created by this user.
+ * Updates the 'creator' field on each spot document in Firestore.
+ */
+async function _propagateUsernameToSpots(uid, newUsername) {
+  try {
+    const { getFirestore, collection, query, where, getDocs, updateDoc, doc } = await import('firebase/firestore')
+    const { getApp } = await import('firebase/app')
+    const db = getFirestore(getApp())
+    const q = query(collection(db, 'spots'), where('creatorId', '==', uid))
+    const snap = await getDocs(q)
+    const batch = []
+    snap.forEach(d => {
+      batch.push(updateDoc(doc(db, 'spots', d.id), { creator: newUsername }))
+    })
+    await Promise.all(batch)
+  } catch { /* offline or permissions — non-blocking */ }
 }
 
 window.selectProfilePhoto = async (index) => {

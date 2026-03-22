@@ -4706,6 +4706,9 @@ export default {
   completeYourProfile: 'Completa tu perfil',
   completeProfileDesc: 'Elige un nombre de usuario único para que otros viajeros te reconozcan',
   usernameHint: 'Tu nombre de usuario será visible para otros. Puedes cambiarlo después.',
+  usernameChangeInfo: 'Modificable una vez cada 60 días',
+  usernameLocked: 'Modificable en {days} días',
+  usernameCooldown: 'Podrás cambiar tu nombre en {days} días',
   // SpotDetail — diseño final
   spotExistsSubtext: 'Este spot existe',
   giveOpinionSubtext: 'Dar mi opinión',
