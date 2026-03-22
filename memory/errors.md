@@ -1414,3 +1414,43 @@ Chaque erreur suit ce format :
 - **Leçon** : **JAMAIS deux attributs identiques sur un élément HTML. Lors d'un refactoring style→class, TOUJOURS vérifier si un class="" existe déjà et AJOUTER les classes au premier. Ajouter un scan automatique (grep pour 'class=.*\nclass=') dans les checks pré-commit.**
 - **Fichiers** : src/components/modals/SpotDetail.js, src/components/Landing.js
 - **Statut** : CORRIGÉ
+
+### ERR-126 — CSP header _headers désynchronisé du meta tag → Firestore timeout → spots invisibles
+- **Date** : 2026-03-22
+- **Gravité** : CRITIQUE
+- **Description** : Les 25 spots communautaires ne s'affichaient pas sur la carte. Firestore timeout après 10s.
+- **Cause racine** : Le fichier `public/_headers` (CSP Cloudflare) manquait `https://www.google.com` dans script-src et frame-src, alors que le meta tag dans index.html l'avait. Quand les 2 CSP sont présentes, le navigateur applique les 2 → la plus restrictive gagne → script reCAPTCHA bloqué → Firestore ne connecte pas.
+- **Correction** : Aligné _headers avec index.html. Ajouté google.com dans script-src, frame-src, et connect-src.
+- **Leçon** : **TOUJOURS garder _headers et index.html CSP synchronisés. Après tout changement CSP, modifier les DEUX fichiers. Idéalement, garder la CSP dans un seul endroit.**
+- **Fichiers** : public/_headers, index.html
+- **Statut** : CORRIGÉ
+
+### ERR-127 — Bouton Google Auth ne faisait rien (GIS overlay vide bloquait les clics)
+- **Date** : 2026-03-22
+- **Gravité** : CRITIQUE
+- **Description** : Cliquer sur "Continuer avec Google" ne déclenchait rien.
+- **Cause racine** : Le div `#gis-overlay` avait `pointer-events: auto` dès le départ. Quand GIS ne chargeait pas (pas d'iframe), ce div vide interceptait tous les clics → le bouton en dessous avec `onclick="handleGoogleSignIn()"` ne recevait jamais le clic.
+- **Correction** : Overlay commence avec `pointer-events: none`. Activé à `auto` UNIQUEMENT après que l'iframe GIS soit rendu. Ajouté signInWithRedirect comme fallback mobile.
+- **Leçon** : **Un overlay transparent DOIT commencer en pointer-events:none et ne s'activer que quand son contenu est prêt. JAMAIS pointer-events:auto sur un conteneur vide.**
+- **Fichiers** : src/components/modals/Auth.js, src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-128 — Panneau offline persiste sur tous les onglets
+- **Date** : 2026-03-22
+- **Gravité** : MAJEUR
+- **Description** : Après avoir ouvert le panneau hors-ligne depuis la carte, il restait visible sur Social et Voyage.
+- **Cause racine** : `showOfflinePanel` n'était pas remis à `false` dans `changeTab()`.
+- **Correction** : Ajouté `showOfflinePanel: false` dans changeTab. Aussi corrigé les compteurs de spots (utilisent maintenant les spots Firestore par pays au lieu du spotIndex vide).
+- **Leçon** : **Les panneaux/modals qui appartiennent à un onglet doivent être fermés dans changeTab(). Vérifier après chaque nouveau panneau.**
+- **Fichiers** : src/main.js, src/components/App.js
+- **Statut** : CORRIGÉ
+
+### ERR-129 — Favicon trop petit (mains à 59% de l'espace)
+- **Date** : 2026-03-22
+- **Gravité** : MINEUR
+- **Description** : Le favicon dans les onglets Chrome était minuscule comparé aux autres apps.
+- **Cause racine** : Le logo source a 104px de padding transparent autour des mains (59% de contenu). Aussi, la version sans contour était invisible sur fond blanc.
+- **Correction** : Trim du padding + version outlined-transparent. Mains remplissent 85% de l'espace.
+- **Leçon** : **Pour les favicons, TOUJOURS trim le padding du logo source. Utiliser outlined-transparent (avec contour) pour les petites tailles (< 96px). Voir memory/feedback_favicon_outlined.md.**
+- **Fichiers** : public/favicon.png, public/favicon.ico, public/favicon-16.png
+- **Statut** : CORRIGÉ

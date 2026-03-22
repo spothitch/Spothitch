@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-22 (SOS icons fix, SpotDetail bg fix, duplicate-attrs scanner)
+> Dernière mise à jour : 2026-03-22 (CSP fix Firestore, Google Auth fix, spot tiers, username cooldown, offline panel fix, favicon)
 
 ---
 
