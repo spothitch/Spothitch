@@ -180,23 +180,34 @@ export function renderProximityAlert(spot) {
 window.quickValidateSpot = async (spotId) => {
   const state = getState()
 
-  // GPS proximity check — find the spot coordinates
-  const spot = (state.spots || []).find(s => String(s.id) === String(spotId)) || state.selectedSpot
+  // Find spot coordinates
+  const spot = (state.spots || []).find(
+    s => String(s.id) === String(spotId),
+  ) || state.selectedSpot
   const spotLat = spot?.coordinates?.lat || spot?.lat
   const spotLng = spot?.coordinates?.lng || spot?.lng
 
-  let gpsVerified = false
-  let gpsDistance = null
+  // GPS check + confirmation dialog if not nearby
+  const {
+    checkGpsForAction, updateTrustCounters, isValidationTrusted,
+  } = await import('./gpsTrust.js')
+  const gpsResult = await checkGpsForAction(spotLat, spotLng, 'validation')
 
-  if (spotLat && spotLng) {
-    try {
-      const { verifyProximity } = await import('./locationHistory.js')
-      const proximity = await verifyProximity(spotLat, spotLng, 'validation')
-      if (proximity.allowed) {
-        gpsVerified = true
-        gpsDistance = proximity.closestM
-      }
-    } catch { /* GPS unavailable, continue without */ }
+  if (!gpsResult.proceed) return // user cancelled
+
+  const { gpsVerified, gpsDistance } = gpsResult
+
+  // Update trust counters
+  updateTrustCounters(gpsVerified)
+
+  // Block if trust ratio too low
+  if (!isValidationTrusted()) {
+    showToast(
+      t('enableGpsForValidation')
+        || 'Active le GPS pour que tes validations soient comptées',
+      'warning',
+    )
+    return
   }
 
   const checkinHistory = state.checkinHistory || []
@@ -213,13 +224,19 @@ window.quickValidateSpot = async (spotId) => {
     proximityAlertSpot: null,
   })
 
-  const gpsMsg = gpsVerified ? ` (${t('gpsVerified') || 'GPS vérifié'} · ${gpsDistance}m)` : ''
-  showToast((t('thanksForValidation') || 'Merci pour la validation !') + gpsMsg, 'success')
+  const gpsMsg = gpsVerified
+    ? ` (${t('gpsVerified') || 'GPS vérifié'} · ${gpsDistance}m)`
+    : ''
+  showToast(
+    (t('thanksForValidation') || 'Merci pour la validation !') + gpsMsg,
+    'success',
+  )
 
   // Persist to Firebase (non-blocking)
   try {
     const { quickValidateSpot: fbQuickValidate } = await import('./firebase.js')
-    fbQuickValidate(spotId, { gpsVerified, gpsDistance }).catch(err => console.error('Validation sync failed:', err))
+    fbQuickValidate(spotId, { gpsVerified, gpsDistance })
+      .catch(err => console.error('Validation sync failed:', err))
   } catch { /* offline or Firebase not loaded */ }
 }
 

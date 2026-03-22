@@ -5059,4 +5059,12 @@ export default {
   'featureName_evenements': 'Événements',
   'featureName_auberges': 'Auberges',
   'featureName_villes': 'Guides villes',
+  // GPS Trust
+  gpsCantConfirmTitle: 'Position non confirmée',
+  gpsCantConfirmMessage: 'On ne peut pas confirmer ta position. Es-tu bien à côté de ce spot ?',
+  yesImHere: 'Oui, je suis sur place',
+  chooseAnotherDate: 'Choisir une autre date',
+  enableGpsForValidation: 'Active le GPS pour que tes validations soient comptées',
+  gpsVerified: 'GPS vérifié',
+  gpsVerifiedSpot: 'Vérifié sur place',
 }

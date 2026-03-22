@@ -5112,4 +5112,12 @@ export default {
   'featureName_evenements': 'Veranstaltungen',
   'featureName_auberges': 'Herbergen',
   'featureName_villes': 'Stadtführer',
+  // GPS Trust
+  gpsCantConfirmTitle: 'Position nicht bestätigt',
+  gpsCantConfirmMessage: 'Wir können deine Position nicht bestätigen. Bist du an diesem Spot?',
+  yesImHere: 'Ja, ich bin hier',
+  chooseAnotherDate: 'Anderes Datum wählen',
+  enableGpsForValidation: 'Aktiviere GPS, damit deine Validierungen zählen',
+  gpsVerified: 'GPS bestätigt',
+  gpsVerifiedSpot: 'Vor Ort bestätigt',
 }

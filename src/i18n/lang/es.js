@@ -5054,4 +5054,12 @@ export default {
   'featureName_evenements': 'Eventos',
   'featureName_auberges': 'Albergues',
   'featureName_villes': 'Guías de ciudades',
+  // GPS Trust
+  gpsCantConfirmTitle: 'Posición no confirmada',
+  gpsCantConfirmMessage: 'No podemos confirmar tu posición. ¿Estás en este spot?',
+  yesImHere: 'Sí, estoy aquí',
+  chooseAnotherDate: 'Elegir otra fecha',
+  enableGpsForValidation: 'Activa el GPS para que tus validaciones cuenten',
+  gpsVerified: 'GPS verificado',
+  gpsVerifiedSpot: 'Verificado en el lugar',
 }

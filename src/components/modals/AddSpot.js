@@ -2166,11 +2166,26 @@ window.handleAddSpot = async (event) => {
           month: window.spotFormData.experienceMonth || (new Date().getMonth() + 1),
           ...(window.spotFormData.experienceDay ? { day: window.spotFormData.experienceDay } : {}),
         },
+        // GPS verification from openTestSpot check
+        gpsVerified: !!window.spotFormData._gpsVerifiedOnOpen,
+        gpsDistance: window.spotFormData._gpsDistance || null,
       }
       if (uploadedUrls.length > 0) {
         validationData.photoUrl = uploadedUrls[0]
         validationData.photos = uploadedUrls
       }
+
+      // Update GPS trust counters
+      try {
+        const { updateTrustCounters, isValidationTrusted } = await import('../../services/gpsTrust.js')
+        updateTrustCounters(!!window.spotFormData._gpsVerifiedOnOpen)
+        if (!isValidationTrusted()) {
+          const { showToast } = await import('../../services/notifications.js')
+          showToast(t('enableGpsForValidation') || 'Active le GPS pour que tes validations soient comptées', 'warning')
+          // Still save locally but don't send to Firebase
+          return
+        }
+      } catch { /* non-blocking */ }
 
       const { addValidation } = await import('../../services/firebase.js')
       if (typeof addValidation === 'function') {
@@ -2323,6 +2338,26 @@ window.handleAddSpot = async (event) => {
         ...(window.spotFormData.experienceDay ? { day: window.spotFormData.experienceDay } : {}),
       },
       destinations,
+    }
+
+    // GPS check for spot creation when date = today
+    const expYear = window.spotFormData.experienceYear || new Date().getFullYear()
+    const expMonth = window.spotFormData.experienceMonth || (new Date().getMonth() + 1)
+    const isToday = expYear === new Date().getFullYear()
+      && expMonth === (new Date().getMonth() + 1)
+    if (isToday && window.spotFormData.lat && window.spotFormData.lng) {
+      try {
+        const { verifyProximity } = await import('../../services/locationHistory.js')
+        const proximity = await verifyProximity(
+          window.spotFormData.lat,
+          window.spotFormData.lng,
+          'validation',
+        )
+        if (proximity.allowed) {
+          spotData.gpsVerified = true
+          spotData.gpsDistance = proximity.closestM
+        }
+      } catch { /* GPS unavailable */ }
     }
 
     const result = await addSpot(spotData)

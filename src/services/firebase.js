@@ -645,6 +645,12 @@ export async function addSpot(spotData) {
       lastTested: experienceDateToISO(safeData.experienceDate),
       lastValidatedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
       lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
+      // GPS verification at creation
+      ...(spotData.gpsVerified ? {
+        lastGpsVerified: new Date().toISOString(),
+        lastGpsVerifiedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
+        lastGpsDistance: spotData.gpsDistance || 0,
+      } : {}),
     }));
     return { success: true, id: docRef.id };
   } catch (error) {

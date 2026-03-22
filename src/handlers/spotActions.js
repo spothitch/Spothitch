@@ -193,37 +193,72 @@ window.closeAddSpot = () => {
 window.openTestSpot = async (spotId) => {
   const { getState, setState } = await import('../stores/state.js')
   const state = getState()
-  const spot = (state.spots || []).find(s => String(s.id) === String(spotId)) || state.selectedSpot
+  const spot = (state.spots || []).find(
+    s => String(s.id) === String(spotId),
+  ) || state.selectedSpot
 
   // Pre-fill form from existing spot
   const lat = spot?.coordinates?.lat ?? spot?.lat ?? null
   const lng = spot?.coordinates?.lng ?? spot?.lng ?? spot?.lon ?? null
+
+  // GPS proximity check before opening
+  let gpsVerifiedOnOpen = false
+  let gpsDistanceOnOpen = null
+  let forceCustomDate = false
+
+  if (lat && lng) {
+    const { checkGpsForAction } = await import('../services/gpsTrust.js')
+    const gpsResult = await checkGpsForAction(lat, lng, 'validation')
+    if (!gpsResult.proceed) {
+      if (gpsResult.chooseDate) {
+        forceCustomDate = true // will open date picker
+      } else {
+        return // user cancelled
+      }
+    }
+    gpsVerifiedOnOpen = gpsResult.gpsVerified
+    gpsDistanceOnOpen = gpsResult.gpsDistance
+  }
+
   // Strip "#N" suffix from spot names (e.g. "Namur #1" → "Namur")
   const rawFrom = spot?.from || spot?.departureCity || spot?.fromCity || null
-  const cleanCity = rawFrom ? rawFrom.replace(/\s*#\d+$/, '').trim() : null
+  const cleanCity = rawFrom
+    ? rawFrom.replace(/\s*#\d+$/, '').trim()
+    : null
   window.spotFormData = {
     photos: [],
     lat, lng,
     spotType: spot?.spotType || 'custom',
-    ratings: { safety: 0, traffic: 0, accessibility: 0 },
-    tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
+    ratings: {
+      safety: 0, traffic: 0, accessibility: 0,
+    },
+    tags: {
+      shelter: false, waterFood: false, toilets: false,
+      visibility: false, stoppingSpace: false,
+    },
     country: spot?.country || null,
     countryName: spot?.countryName || null,
     departureCity: cleanCity,
     departureCityCoords: spot?.departureCityCoords || null,
-    directionCity: null, // User fills their own direction
+    directionCity: null,
     directionCityCoords: null,
     locationName: spot?.locationName || spot?.from || null,
     roadNumber: spot?.roadNumber || null,
     positionSource: 'existing_spot',
-    method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
-    rideResult: null, stationName: spot?.stationName || '', extraDestinations: [],
+    method: null, groupSize: null, timeOfDay: null,
+    waitTime: null, season: null,
+    rideResult: null, stationName: spot?.stationName || '',
+    extraDestinations: [],
+    // GPS verification flags for submission
+    _gpsVerifiedOnOpen: gpsVerifiedOnOpen,
+    _gpsDistance: gpsDistanceOnOpen,
+    _forceCustomDate: forceCustomDate,
   }
 
   setState({
     showAddSpot: true,
     addSpotPreview: false,
-    addSpotStep: 1, // Start at step 1 so user can add photos
+    addSpotStep: 1,
     addSpotType: spot?.spotType || 'custom',
     addSpotValidateId: spotId,
   })
