@@ -70,8 +70,8 @@ exports.onSOSAlert = onDocumentCreated(
               webpush: {
                 fcmOptions: { link: 'https://spothitch.com' },
                 notification: {
-                  icon: 'https://spothitch.com/icons/icon-192x192.png',
-                  badge: 'https://spothitch.com/icons/badge-72x72.png',
+                  icon: 'https://spothitch.com/icon-192.png',
+                  badge: 'https://spothitch.com/icon-72.png',
                   tag: `sos-emergency-${userId}`,
                   requireInteraction: true,
                   vibrate: [300, 100, 300, 100, 300, 100, 300],
