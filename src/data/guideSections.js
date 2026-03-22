@@ -5969,4 +5969,439 @@ export const guideSectionsData = {
       { type: 'text', text: 'La Corée du Sud est un mélange unique de tradition et d\'ultra-modernité. Le kimchi, le barbecue coréen (samgyeopsal) et le soju sont des institutions. La K-pop et les dramas ont conquis le monde. Les Coréens sont curieux et enthousiastes envers les étrangers qui font du stop.' },
     ]},
   },
+  // ==================== PAKISTAN ====================
+  PK: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal au Pakistan. Le transport informel est un mode de vie. Les jingle trucks (camions décorés) prennent des passagers avec plaisir.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Pakistan est considéré par de nombreux voyageurs comme le pays le plus hospitalier au monde. Les conducteurs refusent systématiquement l\'argent, insistent pour payer le repas et offrent l\'hébergement. Temps d\'attente : 5-15 min.' },
+      { type: 'kv', items: [
+        { k: 'Karakoram Highway (KKH)', v: 'Mythique. Plus belle route du monde.', color: 'green' },
+        { k: 'Hunza Valley', v: 'Paradis. Tout le monde s\'arrête.', color: 'green' },
+        { k: 'Baloutchistan', v: 'Déconseillé (sécurité)', color: 'red' },
+      ]},
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le nord (Hunza, Gilgit-Baltistan, Swat) est très sûr. Évite le Baloutchistan, le sud du KPK et les zones tribales.' },
+      { type: 'kv', items: [{ k: 'Rescue', v: '1122' }, { k: 'Police', v: '15' }] },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'Le Pakistan est conservateur. Shalwar kameez recommandé. Voyager en duo avec un homme est fortement recommandé. Le Hunza est plus ouvert.' },
+      { type: 'rule', icon: '👕', text: 'Shalwar kameez + dupatta fortement recommandé.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'ourdou est la langue nationale. L\'anglais est bien parlé par les éduqués. Le punjabi, le pashto sont les langues régionales.' },
+      { type: 'phrase', items: [
+        { local: 'Assalam o alaikum', meaning: 'Paix sur vous' },
+        { local: 'Shukriya', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Très bon marché. Budget serré : 8-15 €/jour. Les conducteurs paient souvent le repas.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Les guesthouses : 3-10 €. Les familles invitent très souvent chez elles. Au Hunza, les homestays sont la norme.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Natco', detail: 'Bus de la KKH (Islamabad-Hunza)', price: '3-15 €' },
+        { emoji: '🚛', name: 'Jingle trucks', detail: 'Camions superbement décorés, lent mais culturel', price: 'Souvent gratuit' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'good' },
+        { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'ok' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'good' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Avril-mai et septembre-octobre : idéal pour le nord. La KKH ferme parfois en hiver (Khunjerab 4 693m). Le sud est brûlant en été.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le chai (thé au lait) est offert à toute heure. Les conducteurs font des détours de 100 km pour t\'aider. Le biryani et les naans sont des institutions. Le cricket est la religion nationale.' },
+    ]},
+  },
+  // ==================== MALAYSIA ====================
+  MY: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Malaisie. Les conducteurs s\'arrêtent facilement, surtout pour les étrangers.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'La Malaisie est facile pour l\'autostop. Les Malaisiens sont accueillants et curieux. Temps d\'attente : 15-30 min. Les stations Petronas et Shell sont les meilleurs spots.' },
+      { type: 'kv', items: [
+        { k: 'Péninsulaire (KL-Penang)', v: 'Bon trafic, facile', color: 'green' },
+        { k: 'Bornéo (Sabah, Sarawak)', v: 'Plus difficile, moins de trafic', color: 'amber' },
+      ]},
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Pays sûr. Évite l\'est de Sabah (kidnappings). Les arnaques de taxi sont le principal risque.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '999' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Sûr pour les femmes. Société multiculturelle et respectueuse. Habillement modeste dans les zones malaises/musulmanes.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Bahasa melayu officiel. L\'anglais est très répandu (ex-colonie britannique). Le mandarin et le tamoul aussi parlés.' },
+      { type: 'phrase', items: [
+        { local: 'Terima kasih', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Bon marché. Budget serré : 15-25 €/jour. Le nasi lemak : 1-2 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Hostels et guesthouses : 5-15 €. Camping dans les parcs nationaux (Taman Negara, Kinabalu).' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus Express', detail: 'Réseau étendu et bon marché', price: '3-15 €' },
+        { emoji: '✈️', name: 'AirAsia', detail: 'Low-cost de référence en Asie, hub KL', price: '15-50 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'good' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'good' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'good' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Tropical toute l\'année (28-33°C). Côte est : mousson novembre-février. Côte ouest praticable toute l\'année.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Melting-pot : mosquées, temples chinois, temples hindous coexistent. La nourriture est le ciment social : mamak, hawker centers. Le teh tarik (thé tiré) est l\'art national.' },
+    ]},
+  },
+  // ==================== TAIWAN ====================
+  TW: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal à Taïwan. Les Taïwanais sont extrêmement accueillants et s\'arrêtent facilement pour les étrangers.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Taïwan est excellent pour l\'autostop. Les Taïwanais sont curieux et adorent aider. Temps d\'attente : 10-20 min. Le pays est petit (395 km) et les conducteurs font des détours pour t\'aider.' },
+      { type: 'text', text: 'La côte est (Taroko Gorge, Hualien, Taitung) est la plus scenic. Les aires de repos sur les autoroutes sont les meilleurs spots.' },
+      { type: 'tip', text: '💡 Les Taïwanais invitent souvent à manger, visiter et dormir chez eux. Offre un cadeau de ton pays.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'L\'un des pays les plus sûrs d\'Asie. Criminalité quasi inexistante.' },
+      { type: 'kv', items: [{ k: 'Police', v: '110' }, { k: 'Urgences', v: '119' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Très sûr pour les femmes. Société progressiste (premier mariage gay légalisé en Asie, 2019).' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Mandarin (caractères traditionnels). Anglais limité hors Taipei. Google Translate utile.' },
+      { type: 'phrase', items: [
+        { local: 'Nǐ hǎo', meaning: 'Bonjour' },
+        { local: 'Xièxiè', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Modérément cher. Budget serré : 20-35 €/jour. Les marchés de nuit : repas 2-4 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Hostels : 10-20 €. Camping dans les montagnes. Temples accueillent parfois les voyageurs.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚄', name: 'THSR (TGV)', detail: 'Taipei-Kaohsiung en 1h30', price: '15-40 €' },
+        { emoji: '🚂', name: 'TRA', detail: 'Train local, côte est magnifique', price: '3-15 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'ok' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'good' },
+      ]},
+      { type: 'text', text: 'Avril-mai et octobre-novembre : idéal. Typhons juillet-septembre. Hiver doux (15-20°C).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Marchés de nuit parmi les meilleurs au monde. Le bubble tea a été inventé ici. Temples spectaculaires. Gens parmi les plus aimables d\'Asie.' },
+    ]},
+  },
+  // ==================== LEBANON ====================
+  LB: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal au Liban. Le service (taxi partagé) est le transport principal. Lever la main arrête des voitures.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Liban est petit (170 km) et facile pour le stop. Les Libanais sont extrêmement accueillants. Temps d\'attente : 5-15 min. Le service (taxi partagé) est si bon marché que le stop gratuit est un luxe.' },
+      { type: 'rule', icon: '💰', text: 'Beaucoup de voitures qui s\'arrêtent sont des services (taxis partagés). Clarifie si c\'est gratuit.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'La sécurité fluctue. Zones touristiques (Beyrouth, Byblos, Baalbek) généralement sûres. Vérifie la situation actuelle.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }, { k: 'Croix-Rouge', v: '140' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le Liban est le pays le plus libéral du Levant. Beyrouth est cosmopolite. Le harcèlement est moins intense que dans les pays voisins.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Arabe libanais, français très répandu, anglais aussi. Beaucoup parlent 3 langues.' },
+      { type: 'phrase', items: [
+        { local: 'Kifak/Kifik?', meaning: 'Comment ça va ?' },
+        { local: 'Merci ktir', meaning: 'Merci beaucoup' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Crise économique. Budget serré en dollars : 15-30 €/jour. Shawarma de rue : 1-2 $.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Hostels : 10-20 $. Camping dans les montagnes (Qadisha, Cèdres). Les Libanais invitent facilement.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Service / Van', detail: 'Taxis partagés, transport principal', price: '0,50-3 $' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'good' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Avril-juin et septembre-novembre : idéal. Ski le matin, plage l\'après-midi (proverbe libanais).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Mosquées et églises côte à côte. Cuisine libanaise parmi les meilleures au monde (mezze, taboulé, hummus). Vie nocturne à Beyrouth. Café et narguilé sont des institutions.' },
+    ]},
+  },
+  // ==================== PANAMA ====================
+  PA: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal au Panama. Pratique courante en zone rurale. Hub de transit entre Amériques.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Panama est faisable en stop. La Panaméricaine traverse le pays avec un bon trafic. Temps d\'attente : 15-30 min.' },
+      { type: 'warn', text: '⚠️ Le Darién Gap est une jungle sans route entre Panama et Colombie. Passage en bateau ou avion uniquement.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Relativement sûr. Évite Colón et le Darién.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '911' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Modérément sûr pour les femmes. Zones touristiques sûres.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Espagnol principal. Anglais assez répandu (influence américaine du canal).' },
+      { type: 'phrase', items: [
+        { local: '¿Me da un ride?', meaning: 'Vous me prenez ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Dollar américain. Plus cher que les voisins. Budget serré : 20-35 $/jour.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Hostels à Bocas del Toro et Boquete : 8-15 $. Camping sur les îles San Blas.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus', detail: 'Réseau étendu', price: '2-15 $' },
+        { emoji: '⛴️', name: 'Voilier vers Colombie', detail: '5 jours via San Blas', price: '350-500 $' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'ok' }, { name: 'Sep', level: 'bad' },
+        { name: 'Oct', level: 'bad' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Décembre-avril : saison sèche. Mai-novembre : pluies l\'après-midi.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le canal de Panama est une merveille d\'ingénierie. Les Kunas vivent sur des îles paradisiaques (San Blas) avec leur propre gouvernement. Ceviche et ron sont les piliers de la gastronomie.' },
+    ]},
+  },
+  // ==================== GHANA ====================
+  GH: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le transport informel (tro-tros) est le mode principal. Le stop gratuit est possible mais le transport payant est la norme.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Ghana est l\'un des pays les plus accueillants d\'Afrique de l\'Ouest. Les tro-tros sont omniprésents et très bon marché. Le stop gratuit fonctionne avec camions et pickups en zone rurale.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'L\'un des pays les plus stables d\'Afrique. Criminalité touristique basse.' },
+      { type: 'kv', items: [{ k: 'Police', v: '191' }, { k: 'Ambulance', v: '193' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Relativement sûr pour les femmes. Société respectueuse.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Anglais officiel et largement parlé. Le twi (Akan) est la langue locale principale.' },
+      { type: 'phrase', items: [
+        { local: 'Akwaaba', meaning: 'Bienvenue (twi)' },
+        { local: 'Medaase', meaning: 'Merci (twi)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Modérément cher pour l\'Afrique. Budget serré : 15-25 €/jour. Le jollof rice : 1-3 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Guesthouses : 5-15 €. Camping possible sur les plages du Cape Coast.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Tro-tro', detail: 'Minibus omniprésents, bon marché', price: '0,50-3 €' },
+        { emoji: '🚌', name: 'STC / VIP Bus', detail: 'Plus confortables', price: '3-10 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'bad' },
+        { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'ok' }, { name: 'Sep', level: 'ok' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Novembre-mars : saison sèche, idéale. Mai-juin : grande saison des pluies.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: '"Porte de retour" pour la diaspora africaine (Cape Coast Castle). Le jollof rice est une fierté nationale. Le kente cloth est le tissu traditionnel. Démocratie stable.' },
+    ]},
+  },
+  // ==================== UGANDA ====================
+  UG: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Transport informel (boda-bodas, matatus) omniprésent. Le stop gratuit fonctionne avec les camions.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: '"The Pearl of Africa" est accueillant. Les camions sur les routes principales prennent des passagers. Les boda-bodas sont partout mais dangereux.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Globalement sûr. Évite la frontière congolaise et le Karamoja. Les gorilles de Bwindi sont dans une zone sûre.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '999 / 112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Modérément sûr. Zones touristiques sûres. Habillement modeste en zone rurale.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Anglais et swahili officiels. Anglais bien parlé. Luganda langue locale principale.' },
+      { type: 'phrase', items: [
+        { local: 'Oli otya?', meaning: 'Comment ça va ? (luganda)' },
+        { local: 'Webale', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Bon marché (sauf gorilles : 700 $/permis). Budget serré : 15-25 €/jour. Le rolex (chapati+omelette) : 0,50 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Guesthouses : 5-15 €. Camping dans les parcs nationaux (organisé et sûr).' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🏍️', name: 'Boda-boda', detail: 'Motos-taxis omniprésentes, rapides mais dangereuses', price: '0,30-3 €' },
+        { emoji: '🚐', name: 'Matatu', detail: 'Minibus entre villes', price: '2-8 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'bad' }, { name: 'Mai', level: 'bad' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'good' },
+      ]},
+      { type: 'text', text: 'Juin-septembre et décembre-février : saisons sèches.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: '"La perle de l\'Afrique" (Churchill). Gorilles de montagne (Bwindi), chimpanzés (Kibale), sources du Nil (Jinja).' },
+    ]},
+  },
+  // ==================== RWANDA ====================
+  RW: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le stop n\'est pas traditionnel mais le pays est petit et très bien organisé. Les motos-taxis et bus sont le transport principal.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le pays le plus propre et organisé d\'Afrique. Petit (26 000 km²) et se traverse en quelques heures. Les motos-taxis sont omniprésentes et bon marché.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'L\'un des pays les plus sûrs d\'Afrique. Criminalité très basse, propre et organisé.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Sûr pour les femmes. Plus haut taux de femmes au parlement au monde (>60%).' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Kinyarwanda, français et anglais officiels. Les trois sont utilisés.' },
+      { type: 'phrase', items: [
+        { local: 'Muraho', meaning: 'Bonjour' },
+        { local: 'Murakoze', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Modérément cher. Budget serré : 20-30 €/jour. Gorilles : 1 500 $/permis.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Guesthouses : 10-20 €. Scène hostel en développement à Kigali.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🏍️', name: 'Moto-taxi', detail: 'Transport principal, casques obligatoires', price: '0,30-2 €' },
+        { emoji: '🚌', name: 'Bus', detail: 'Bus modernes entre villes', price: '2-8 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'bad' }, { name: 'Mai', level: 'bad' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'good' },
+      ]},
+      { type: 'text', text: 'Juin-septembre et décembre-février : saisons sèches. Climat tempéré toute l\'année (20-27°C).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Transformation remarquable depuis 1994. Sacs plastiques interdits depuis 2008. Umuganda (travail communautaire mensuel). Gorilles (Volcanoes NP). Café excellent.' },
+    ]},
+  },
+  // ==================== MALAWI ====================
+  MW: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal. "The warm heart of Africa" : accueil exceptionnel.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Un des meilleurs pays d\'Afrique pour le stop. Les Malawites sont extraordinairement accueillants. Temps d\'attente : 15-30 min. Camions et pickups s\'arrêtent facilement.' },
+      { type: 'text', text: 'Le lac Malawi (3ème plus grand d\'Afrique) est l\'attraction principale.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Très sûr. Criminalité touristique très rare.' },
+      { type: 'kv', items: [{ k: 'Police', v: '997' }, { k: 'Ambulance', v: '998' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Sûr pour les femmes. "The warm heart of Africa" s\'applique à tous.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Anglais et chichewa officiels. Anglais bien parlé.' },
+      { type: 'phrase', items: [
+        { local: 'Moni', meaning: 'Bonjour' },
+        { local: 'Zikomo', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Très bon marché. Budget serré : 10-20 €/jour. Le nsima avec relish : < 1 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Lodges et guesthouses : 5-15 €. Camping sur les plages du lac Malawi : magnifique.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Minibus', detail: 'Transport principal, attendent d\'être pleins', price: '1-5 €' },
+        { emoji: '⛴️', name: 'Ilala Ferry', detail: 'Ferry mythique sur le lac (3 jours)', price: '5-20 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'good' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Mai-octobre : saison sèche, idéale. Lac baignable toute l\'année (24-28°C).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: '"The warm heart of Africa" n\'est pas un slogan vide. Lac Malawi = paradis d\'eau douce. Gule Wamkulu (danse des masques Chewa, UNESCO).' },
+    ]},
+  },
 }
