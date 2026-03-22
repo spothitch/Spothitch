@@ -176,8 +176,7 @@ export function renderSpotDetail(state) {
 
       <!-- Modal -->
       <div
-        class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl"
-        class="bg-dark-primary"
+        class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl bg-dark-primary"
         onclick="event.stopPropagation()"
       >
         <!-- ========== PHOTO HERO 200px ========== -->
