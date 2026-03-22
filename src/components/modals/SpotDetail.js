@@ -374,6 +374,14 @@ export function renderSpotDetail(state) {
               <div class="text-xs text-slate-200">${(spot.liveLastTested || spot.lastTested) ? formatRelativeDate(spot.liveLastTested || spot.lastTested) : '—'}${displayName(spot.liveLastTestedBy || spot.lastTestedBy)}</div>
             </div>
           </div>
+          ${spot.lastGpsVerified ? `
+          <div class="px-4 pb-3">
+            <div class="flex items-center gap-2 bg-emerald-500/[0.06] border border-emerald-500/[0.12] rounded-lg py-2 px-3">
+              ${icon('map-pin', 'w-3.5 h-3.5 text-emerald-400 shrink-0')}
+              <div class="text-[11px] text-emerald-400 font-medium">${t('gpsVerifiedSpot') || 'Vérifié sur place'}</div>
+              <div class="text-[10px] text-slate-500 ml-auto">${formatRelativeDate(spot.lastGpsVerified)}${spot.lastGpsDistance != null ? ` · ${spot.lastGpsDistance}m` : ''}${displayName(spot.lastGpsVerifiedBy)}</div>
+            </div>
+          </div>` : ''}
 
           <!-- Ratings (3 colored boxes) -->
           ${(safety || traffic || access) ? `

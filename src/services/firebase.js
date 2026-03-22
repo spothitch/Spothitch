@@ -1035,7 +1035,7 @@ export async function releaseUsername(oldUsername) {
  * Increments validationCount + updates lastValidated
  * @param {string} spotId - Spot ID
  */
-export async function quickValidateSpot(spotId) {
+export async function quickValidateSpot(spotId, options = {}) {
   try {
     const user = getCurrentUser()
     if (!user) return { success: false, error: 'not_authenticated' }
@@ -1043,6 +1043,7 @@ export async function quickValidateSpot(spotId) {
     const sid = String(spotId)
     const spotRef = doc(db, 'spots', sid)
     const { increment } = await import('firebase/firestore')
+    const userName = user.displayName || user.email?.split('@')[0] || 'Anonyme'
 
     // Ensure spot document exists
     try {
@@ -1052,14 +1053,28 @@ export async function quickValidateSpot(spotId) {
       }
     } catch { /* non-blocking */ }
 
+    // Build update — include GPS verification if available
+    const update = {
+      validationCount: increment(1),
+      lastValidated: new Date().toISOString(),
+      lastValidatedBy: userName,
+    }
+    if (options.gpsVerified) {
+      update.lastGpsVerified = new Date().toISOString()
+      update.lastGpsVerifiedBy = userName
+      update.lastGpsDistance = options.gpsDistance || 0
+    }
+
     try {
-      await updateDoc(spotRef, {
-        validationCount: increment(1),
-        lastValidated: new Date().toISOString(),
-        lastValidatedBy: user.displayName || user.email?.split('@')[0] || 'Anonyme',
-      })
+      await updateDoc(spotRef, update)
     } catch {
-      try { await setDoc(spotRef, { validationCount: 1, lastValidated: new Date().toISOString(), lastValidatedBy: user.displayName || 'Anonyme' }, { merge: true }) } catch { /* non-blocking */ }
+      try {
+        await setDoc(spotRef, {
+          validationCount: 1,
+          lastValidated: new Date().toISOString(),
+          lastValidatedBy: userName,
+        }, { merge: true })
+      } catch { /* non-blocking */ }
     }
 
     // Log the validation
@@ -1067,8 +1082,10 @@ export async function quickValidateSpot(spotId) {
     await addDoc(validationsRef, {
       type: 'quick_validate',
       userId: user.uid,
-      userName: user.displayName || 'Anonyme',
+      userName,
       createdAt: serverTimestamp(),
+      gpsVerified: !!options.gpsVerified,
+      gpsDistance: options.gpsDistance || null,
     }).catch(() => {})
 
     return { success: true }
@@ -1203,22 +1220,29 @@ export async function addValidation(data) {
     // Update spot stats — increment testCount (full experience) + checkins
     const expISO = experienceDateToISO(data.experienceDate)
     const expDate = expISO.split('T')[0]
+    const userName = user?.displayName || user?.email?.split('@')[0] || 'Anonyme'
+    const update = {
+      testCount: increment(1),
+      checkins: increment(1),
+      lastTested: expISO,
+      lastTestedBy: userName,
+      lastUsed: expDate,
+    }
+    // GPS verification badge on the spot
+    if (data.gpsVerified) {
+      update.lastGpsVerified = new Date().toISOString()
+      update.lastGpsVerifiedBy = userName
+      update.lastGpsDistance = data.gpsDistance || 0
+    }
     try {
-      await updateDoc(spotRef, {
-        testCount: increment(1),
-        checkins: increment(1),
-        lastTested: expISO,
-        lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
-        lastUsed: expDate,
-      })
+      await updateDoc(spotRef, update)
     } catch {
-      // If updateDoc fails (no doc), try setDoc with merge
       try {
         await setDoc(spotRef, {
           testCount: 1,
           checkins: 1,
           lastTested: expISO,
-          lastTestedBy: user?.displayName || user?.email?.split('@')[0] || 'Anonyme',
+          lastTestedBy: userName,
         }, { merge: true })
       } catch { /* non-blocking */ }
     }

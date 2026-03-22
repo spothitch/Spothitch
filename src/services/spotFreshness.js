@@ -100,7 +100,10 @@ export function getSpotFreshness(spot) {
  * @returns {Object} { labelKey, icon, bgClass, textClass, borderClass }
  */
 export function getSpotAge(spot) {
-  const lastDate = spot?.lastTested || spot?.lastValidated || spot?.lastCheckin || spot?.lastUsed || spot?.createdAt
+  // Prefer GPS-verified date (highest confidence), then tested, validated
+  const lastDate = spot?.lastGpsVerified || spot?.lastTested
+    || spot?.lastValidated || spot?.lastCheckin
+    || spot?.lastUsed || spot?.createdAt
   if (!lastDate) {
     return { labelKey: 'unknownAge', icon: 'clock', bgClass: 'bg-slate-500/20', textClass: 'text-slate-400', borderClass: 'border-slate-500/30' }
   }

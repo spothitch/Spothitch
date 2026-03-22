@@ -143,6 +143,12 @@ export function mergeSpotData(staticSpot, validations) {
   const liveLastTestedBy = mostRecentTest?.userName || staticSpot.lastTestedBy || ''
   const liveLastValidatedBy = mostRecentValidation?.userName || staticSpot.lastValidatedBy || ''
 
+  // Find most recent GPS-verified validation
+  const gpsValidation = allValidations.find(v => v.gpsVerified)
+  const liveLastGpsVerified = gpsValidation?.date || staticSpot.lastGpsVerified || null
+  const liveLastGpsVerifiedBy = gpsValidation?.userName || staticSpot.lastGpsVerifiedBy || null
+  const liveLastGpsDistance = gpsValidation?.gpsDistance ?? staticSpot.lastGpsDistance ?? null
+
   // Live comments from community validations
   const firebaseComments = allValidations
     .filter(v => v.comment)
@@ -192,6 +198,12 @@ export function mergeSpotData(staticSpot, validations) {
     liveComments,
     liveDestinations,
     _liveLoaded: true,
+  }
+  // Merge GPS verification data from live validations
+  if (liveLastGpsVerified) {
+    result.lastGpsVerified = liveLastGpsVerified
+    result.lastGpsVerifiedBy = liveLastGpsVerifiedBy
+    result.lastGpsDistance = liveLastGpsDistance
   }
 
   return result

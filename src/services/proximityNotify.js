@@ -179,23 +179,47 @@ export function renderProximityAlert(spot) {
  */
 window.quickValidateSpot = async (spotId) => {
   const state = getState()
+
+  // GPS proximity check — find the spot coordinates
+  const spot = (state.spots || []).find(s => String(s.id) === String(spotId)) || state.selectedSpot
+  const spotLat = spot?.coordinates?.lat || spot?.lat
+  const spotLng = spot?.coordinates?.lng || spot?.lng
+
+  let gpsVerified = false
+  let gpsDistance = null
+
+  if (spotLat && spotLng) {
+    try {
+      const { verifyProximity } = await import('./locationHistory.js')
+      const proximity = await verifyProximity(spotLat, spotLng, 'validation')
+      if (proximity.allowed) {
+        gpsVerified = true
+        gpsDistance = proximity.closestM
+      }
+    } catch { /* GPS unavailable, continue without */ }
+  }
+
   const checkinHistory = state.checkinHistory || []
   const newCheckin = {
     id: `checkin_${Date.now()}_${crypto.getRandomValues(new Uint32Array(1))[0].toString(36)}`,
     spotId,
     type: 'quick_validation',
     timestamp: new Date().toISOString(),
+    gpsVerified,
+    gpsDistance,
   }
   setState({
     checkinHistory: [newCheckin, ...checkinHistory],
     proximityAlertSpot: null,
   })
-  showToast(t('thanksForValidation'), 'success')
+
+  const gpsMsg = gpsVerified ? ` (${t('gpsVerified') || 'GPS vérifié'} · ${gpsDistance}m)` : ''
+  showToast((t('thanksForValidation') || 'Merci pour la validation !') + gpsMsg, 'success')
 
   // Persist to Firebase (non-blocking)
   try {
     const { quickValidateSpot: fbQuickValidate } = await import('./firebase.js')
-    fbQuickValidate(spotId).catch(err => console.error('Validation sync failed:', err))
+    fbQuickValidate(spotId, { gpsVerified, gpsDistance }).catch(err => console.error('Validation sync failed:', err))
   } catch { /* offline or Firebase not loaded */ }
 }
 
