@@ -2348,4 +2348,227 @@ export const guideSectionsData = {
       ]},
     ]},
   },
+
+  // ==================== POLAND ====================
+  PL: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Pologne sur les routes normales. Il a été officiellement organisé par l\'Office national du tourisme de 1958 au milieu des années 90 ("Akcja Autostop"), avec des carnets, des coupons et une loterie pour les conducteurs.' },
+      { type: 'rule', icon: '🚫', text: 'Interdit sur les autoroutes et voies express. Autorisé aux stations-service, péages et bretelles d\'accès.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Historiquement l\'un des pays les plus favorables au stop en Europe. Temps d\'attente moyen : 15 min à 1h. Cependant, des rapports récents (2023) montrent une dégradation : 30 min à 3h d\'attente, les Polonais sont de plus en plus réticents à s\'arrêter hors des zones désignées.' },
+      { type: 'sub', title: 'Astuce réseau' },
+      { type: 'text', text: 'La Pologne a "trop de routes" (4-5 itinéraires possibles pour chaque destination). Accepte les trajets dans la direction générale plutôt que l\'itinéraire exact. Les routiers utilisent parfois la CB radio pour t\'organiser ton prochain trajet.' },
+      { type: 'tip', text: '💡 Affiche ton sac à dos bien visible pour ressembler à un "autostoppeur professionnel". Ça rassure les conducteurs polonais.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Pays sûr, parmi les 25 les plus sûrs au monde. La police est amicale envers les autostoppeurs qui respectent les règles.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+      { type: 'warn', text: '⚠️ Dans le nord de la Pologne en été, des prostituées se tiennent au bord des routes. Les femmes seules peuvent être confondues. Conseil : ne pas porter de vêtements révélateurs, mettre le sac à dos devant soi.' },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'La Pologne est classée 12ème pays le plus sûr pour les voyageuses solo (note 4.7/5). Plusieurs blogueuses rapportent se sentir en sécurité. Voir l\'avertissement ci-dessus pour le nord du pays en été.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: '~24% parlent anglais, ~20% russe, ~12% allemand. Les jeunes (77% des étudiants) parlent des langues étrangères. Les routiers parlent souvent uniquement polonais. Les Polonais répondent très positivement aux étrangers qui essaient le polonais.' },
+      { type: 'phrase', items: [
+        { local: 'Dzień dobry', meaning: 'Bonjour' },
+        { local: 'Dziękuję', meaning: 'Merci' },
+        { local: 'Skąd najlepiej łapać stopa do...?', meaning: 'Où est le meilleur endroit pour faire du stop vers... ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'L\'un des pays les moins chers de l\'UE. Budget routard : 25-35 €/jour. Auberge : 13-16 €/nuit. Repas local : 5-7 €. Les MOP (aires de repos routières) offrent des douches gratuites avec eau chaude.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Depuis mai 2021, 600 000 hectares répartis dans 425 zones forestières sont légalement ouverts au camping (max 9 personnes, max 2 nuits). Utilise l\'app mBDL pour trouver les zones légales (zones orange).' },
+      { type: 'rule', icon: '✅', text: '425 zones forestières légales pour le camping (app mBDL)' },
+      { type: 'rule', icon: '🚫', text: 'Interdit dans les parcs nationaux et réserves naturelles (surtout les Tatras)' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'FlixBus / PolskiBus', detail: 'Extrêmement bon marché (promos dès 0,23 €)', price: 'dès 1 €' },
+        { emoji: '🚗', name: 'BlaBlaCar', detail: 'Très populaire ("e-autostop")', price: '' },
+        { emoji: '📱', name: 'jakdojade.pl', detail: 'App pour tous les transports en commun polonais', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'good' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Été : optimal. Hiver : très difficile (jusqu\'à -20°C, jours courts, visibilité réduite).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Culture profonde de l\'autostop enracinée dans le programme officiel communiste (1958-1995). Beaucoup de conducteurs actuels ont fait du stop dans leur jeunesse. Les Polonais semblent froids au premier contact mais se réchauffent vite.' },
+      { type: 'event', items: [
+        { month: 'Août', day: '⟳', name: 'Pol\'and\'Rock Festival', desc: 'Plus grand festival gratuit d\'Europe (ex-Woodstock Pologne), 750 000 personnes.' },
+        { month: 'Nov', day: '1', name: 'Toussaint (Wszystkich Świętych)', desc: 'Cimetières illuminés de bougies. Spectacle unique.' },
+        { month: 'Déc', day: '⟳', name: 'Marchés de Noël', desc: 'Cracovie et Wrocław ont les plus beaux.' },
+      ]},
+    ]},
+  },
+
+  // ==================== CZECH REPUBLIC ====================
+  CZ: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal sur les routes normales en Tchéquie. Interdit directement sur les autoroutes et voies express. Autorisé aux bretelles d\'accès et stations-service.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'L\'un des pays les plus favorables au stop en Europe. Sur les routes normales, un trajet arrive généralement en 10 minutes. C\'est un pays de transit avec beaucoup de trafic international et de routiers.' },
+      { type: 'text', text: 'Aux entrées d\'autoroute près des villes, tu peux te retrouver avec 3 à 6 autres autostoppeurs. Les trajets sont donnés dans l\'ordre d\'arrivée ou par destination.' },
+      { type: 'tip', text: '💡 Toutes les autoroutes tchèques (1, 2, 5, 8, 11) mènent à/de Prague. Évite de te retrouver coincé avant Prague : entre dans la ville et repars.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Sûr. La criminalité se résume aux pickpockets dans les zones touristiques. La police allemande contrôle parfois les documents à la frontière tchèco-allemande.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Les conducteurs plus âgés : uniquement tchèque, parfois russe, rarement allemand. Les jeunes : au moins un anglais de base. Les routiers sont amicaux et parlent généralement tchèque + un peu d\'allemand.' },
+      { type: 'phrase', items: [
+        { local: 'Dobrý den', meaning: 'Bonjour' },
+        { local: 'Jedete do...?', meaning: 'Allez-vous à... ?' },
+        { local: 'Děkuji', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Budget routard : 35-55 €/jour. Prague est nettement plus cher que le reste du pays. Monnaie : couronne tchèque (CZK), pas l\'euro. Camping très bon marché (~3 € dans certaines villes).' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage interdit mais le bivouac d\'une nuit est toléré (sac de couchage, hamac, bivy sack, pas de tente). Ne laisse aucune trace. Interdit dans les parcs nationaux et réserves.' },
+      { type: 'rule', icon: '✅', text: 'Abris en bois gratuits ("bouda" ou "útulna") disponibles dans certaines zones de randonnée.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'RegioJet', detail: 'Bus tchèque bon marché et confortable (CZ, SK, PL, AT, HU)', price: 'dès 5 €' },
+        { emoji: '🚌', name: 'FlixBus', detail: 'Réseau étendu', price: 'dès 5 €' },
+        { emoji: '🚗', name: 'BlaBlaCar', detail: 'Actif en Tchéquie', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'good' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Été : optimal, surtout sur l\'axe Tchéquie-Croatie (destination de vacances préférée des Tchèques). Les marchés de Noël de Prague attirent du trafic en hiver.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Forte tradition d\'autostop, socialement accepté comme "forme de transport quotidienne". Un groupe Facebook connecte les autostoppeurs tchèques et slovaques.' },
+      { type: 'event', items: [
+        { month: 'Juil', day: '⟳', name: 'Colours of Ostrava', desc: 'Festival de musique multiculturel, Ostrava.' },
+        { month: 'Déc', day: '⟳', name: 'Marchés de Noël de Prague', desc: 'Parmi les plus beaux d\'Europe.' },
+      ]},
+    ]},
+  },
+
+  // ==================== SLOVAKIA ====================
+  SK: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal sur les routes normales en Slovaquie. Interdit sur les autoroutes. Attention : la police slovaque verbalise les autostoppeurs pris sur les autoroutes (plus strict que les pays voisins). Utilise les stations-service et bretelles d\'accès.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Avis contradictoires. Certains trouvent la Slovaquie "très facile" (moins de 30 min d\'attente). D\'autres la notent difficile (5/10) avec des attentes jusqu\'à 2h. Ça dépend probablement de la localisation et de la saison.' },
+      { type: 'text', text: 'Le pays est assez montagneux (60%+ du territoire), ce qui crée beaucoup d\'opportunités naturelles. Les autoroutes D1 et E77 sont les meilleurs axes. Bratislava est un carrefour central de l\'Europe centrale.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Pays sûr. La meilleure combinaison : voyager en duo mixte (homme-femme).' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'anglais et l\'allemand sont parlés par certains, surtout les jeunes. Le russe est compris par les plus âgés mais "pas nécessairement apprécié". Dans le sud : le hongrois est utile. Le slovaque de base est très apprécié.' },
+      { type: 'phrase', items: [
+        { local: 'Dobrý deň', meaning: 'Bonjour' },
+        { local: 'Idete do...?', meaning: 'Allez-vous à... ?' },
+        { local: 'Ďakujem', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Budget routard : 40-50 €/jour. Auberge : 16-22 €/nuit. Repas local : 8-10 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage officiellement interdit mais toléré en dehors des parcs nationaux (surtout les Tatras). Le bivouac d\'urgence (sac de couchage + bâche, pas de tente) ne pose généralement pas de problème.' },
+      { type: 'text', text: 'stopar.sk est le plus grand site d\'autostoppeurs en Slovaquie.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'RegioJet', detail: 'Bus tchèque avec routes slovaques étendues', price: '' },
+        { emoji: '🚌', name: 'FlixBus', detail: 'Couvre la Slovaquie', price: 'dès 5 €' },
+        { emoji: '🤝', name: 'stopar.sk', detail: 'Plateforme locale de covoiturage', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'good' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Été : optimal. Hiver : attentes nettement plus longues, froid rigoureux en montagne. Le dimanche : les magasins ferment (tradition religieuse), transports en commun réduits.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Slovaques sont décrits comme "incroyablement amicaux" et font de leur mieux pour te mettre à l\'aise. Certains invitent les autostoppeurs à déjeuner en famille ou à boire un verre avec des amis. Le paiement n\'est jamais demandé.' },
+      { type: 'event', items: [
+        { month: 'Juil', day: '⟳', name: 'Pohoda Festival', desc: 'Plus grand festival de musique de Slovaquie, Trenčín.' },
+      ]},
+    ]},
+  },
+
+  // ==================== HUNGARY ====================
+  HU: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Hongrie. Longue tradition : un sondage de 2021 montre que 65% des Hongrois ont fait du stop ou pris des autostoppeurs dans leur jeunesse. Interdit sur les autoroutes comme piéton.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Relativement facile, surtout en zone rurale. Temps d\'attente rarement supérieur à 90 minutes en été. Les stations-service sont les meilleurs spots.' },
+      { type: 'sub', title: 'Particularités' },
+      { type: 'rule', icon: '📋', text: 'Un panneau avec ta destination est NÉCESSAIRE. Beaucoup de Hongrois ne comprennent pas le geste du pouce comme un signe d\'autostop.' },
+      { type: 'text', text: 'Certains conducteurs roumains et hongrois peuvent demander un paiement. Refuse poliment et attends un autre trajet. Les trajets en camion sont très rares (raisons d\'assurance).' },
+      { type: 'warn', text: '⚠️ La nuit, les conducteurs ont peur de TOI. Fais du stop uniquement de jour.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Sûr et stable politiquement. L\'eau du robinet est potable partout.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'La plus grande barrière linguistique des 4 pays. Le hongrois est une langue finno-ougrienne, sans lien avec les langues slaves ou germaniques. Moins de gens parlent des langues étrangères que dans les pays voisins. Un guide de conversation hongrois est fortement recommandé.' },
+      { type: 'phrase', items: [
+        { local: 'Jó napot', meaning: 'Bonjour' },
+        { local: 'Köszönöm', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Budget routard : 25-45 €/jour. Budapest est bon marché pour une capitale européenne. Auberge (dortoir) : dès ~10 €. Repas local : 6-7 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage légalement autorisé mais très restreint : maximum 24h au même endroit. Interdit dans les parcs nationaux (patrouilles fréquentes de gardes forestiers). Interdiction de feux en période sèche.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'FlixBus', detail: 'Réseau étendu depuis Budapest', price: 'dès 5 €' },
+        { emoji: '🚗', name: 'BlaBlaCar', detail: 'Actif en Hongrie', price: '' },
+        { emoji: '🚃', name: 'Trains', detail: 'Bien connectés dans l\'UE, pass Interrail valable', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Printemps et automne : idéal. Été : beaucoup de trafic (Sziget Festival, tourisme au lac Balaton) mais peut être très chaud (+35°C en juillet). Les marchés de Noël de Budapest attirent du trafic en hiver.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Longue tradition d\'autostop (65% des Hongrois l\'ont pratiqué). Les ruraux sont très amicaux et serviables. Demande tes trajets vers Budapest plutôt qu\'autour : les conducteurs en transit (roumains, serbes, bulgares, turcs) contournent souvent la ville par le périphérique.' },
+      { type: 'event', items: [
+        { month: 'Août', day: '⟳', name: 'Sziget Festival (Budapest)', desc: 'L\'un des plus grands festivals de musique d\'Europe, sur une île du Danube.' },
+        { month: 'Août', day: '⟳', name: 'Festival du Balaton', desc: 'Été au lac Balaton, beaucoup de trafic dans la région.' },
+        { month: 'Déc', day: '⟳', name: 'Marchés de Noël de Budapest', desc: 'Parmi les plus beaux d\'Europe.' },
+      ]},
+    ]},
+  },
 }
