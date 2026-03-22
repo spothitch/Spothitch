@@ -10,6 +10,16 @@
 > - Les appels parallèles légers (lecture de fichiers, grep, glob) restent OK car ils ne consomment pas de ressources
 > - Cette règle existe parce que trop de tâches en arrière-plan simultanées font CRASHER la session (crash du 2026-03-20)
 
+> **RÈGLE #22 — GITHUB ACTIONS : ZÉRO CRON, ZÉRO ABUS** (ABSOLUMENT OBLIGATOIRE) :
+> - Le compte GitHub a DÉJÀ été bloqué par GitHub pour violation des Terms of Service (Actions utilisées pour du "general computing")
+> - **JAMAIS de `schedule:` ou `cron:` dans les workflows GitHub Actions** — c'est ce qui a causé le blocage
+> - **JAMAIS de StrykerJS dans GitHub Actions** — trop long (20-30 min), risque d'être vu comme du "general computing". StrykerJS = LOCAL UNIQUEMENT (`npm run test:mutate`)
+> - **Chaque job GitHub Actions DOIT directement** build, tester ou déployer le code de SpotHitch. Rien d'autre.
+> - **JAMAIS d'Actions qui appellent des sites externes** sauf pour le deploy Cloudflare et les outils de CI légitimes (Lighthouse, Codecov, Argos)
+> - **Les outils tiers (CodeRabbit, DeepSource, Aikido) sont des Apps GitHub**, pas des Actions. Ils tournent sur les serveurs des fournisseurs, pas sur GitHub. C'est OK.
+> - En cas de doute → NE PAS ajouter le job dans le CI. Demander à Antoine.
+> - Référence : https://docs.github.com/fr/site-policy/github-terms/github-terms-for-additional-products-and-features#actions
+
 > **RÈGLE #1 — BRANCHES ET DEPLOY** :
 >
 > **Structure des branches (OBLIGATOIRE) :**

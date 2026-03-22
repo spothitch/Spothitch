@@ -14,4 +14,27 @@ if [ "$BRANCH" = "dev" ] || [ "$BRANCH" = "main" ] || [ "$BRANCH" = "staging" ];
   exit 1
 fi
 
+# Guard: block dangerous GitHub Actions patterns (account was banned before)
+STAGED_WORKFLOWS=$(git diff --cached --name-only -- '.github/workflows/*.yml' '.github/workflows/*.yaml')
+if [ -n "$STAGED_WORKFLOWS" ]; then
+  if git diff --cached -- $STAGED_WORKFLOWS | grep -qE '^\+.*\b(schedule|cron)\b'; then
+    echo ""
+    echo "🚫 BLOQUÉ — Tentative d'ajout de schedule/cron dans GitHub Actions !"
+    echo ""
+    echo "   Le compte GitHub a été banni pour ça. INTERDIT."
+    echo "   StrykerJS et les tâches longues = en local uniquement."
+    echo ""
+    exit 1
+  fi
+  if git diff --cached -- $STAGED_WORKFLOWS | grep -qE '^\+.*stryker'; then
+    echo ""
+    echo "🚫 BLOQUÉ — StrykerJS détecté dans GitHub Actions !"
+    echo ""
+    echo "   Trop long (20-30 min). Risque de ban GitHub."
+    echo "   Lancer StrykerJS en local : npm run test:mutate"
+    echo ""
+    exit 1
+  fi
+fi
+
 npx lint-staged
