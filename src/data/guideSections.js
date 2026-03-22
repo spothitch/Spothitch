@@ -2059,4 +2059,293 @@ export const guideSectionsData = {
       ],
     },
   },
+
+  // ==================== CROATIA ====================
+  HR: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Croatie. Tu peux faire du stop aux stations de péage. La police ne s\'en préoccupe généralement pas.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Modéré à facile en été sur la côte (rarement plus de 20 min d\'attente). Difficile en hiver quand les villes côtières deviennent des "villes fantômes". Les péages sont les meilleurs spots.' },
+      { type: 'sub', title: 'Astuce côtière' },
+      { type: 'text', text: 'Les routes secondaires le long de la côte fonctionnent mieux que les autoroutes car les locaux les prennent pour éviter les péages. Les files d\'attente aux frontières le weekend (10+ km) créent des opportunités uniques.' },
+      { type: 'warn', text: '⚠️ MINES TERRESTRES dans le centre de la Croatie (pas sur la côte). Vérifie toujours la carte des champs de mines (misportal.hcr.hr) avant de quitter les routes balisées.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Globalement sûr. La côte est entièrement déminée. Les routes côtières peuvent être dangereuses (montagne d\'un côté, falaise de l\'autre). Prudence en tant que piéton.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'La Croatie est considérée comme une excellente destination pour les voyageuses solo. Des femmes rapportent se sentir en sécurité même assises dans un parc la nuit. Pour le stop, voyager à deux est recommandé.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le croate est la langue officielle. 95% des 15-34 ans parlent une langue étrangère (surtout l\'anglais). L\'italien est largement connu sur la côte.' },
+      { type: 'phrase', items: [
+        { local: 'Mogu li dobiti prijevoz do...?', meaning: 'Puis-je avoir un trajet vers... ?' },
+        { local: 'Hvala!', meaning: 'Merci !' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Plus cher que les autres pays des Balkans, surtout en été sur la côte. Burek : ~1 €. Auberges : 15-25 €/nuit. Repas : 5-10 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q', 'a'], blocks: [
+      { type: 'text', text: 'Le camping sauvage n\'est pas autorisé (amendes). Couchsurfing fonctionne bien. Campings abordables disponibles. Visite en mai/juin/septembre pour des prix plus bas.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus interurbains', detail: 'Réseau étendu et abordable', price: '' },
+        { emoji: '⛴️', name: 'Katamarans pour les îles', detail: 'Plus rapides et moins chers que les car-ferries', price: '' },
+        { emoji: '🚗', name: 'BlaBlaCar (blablacar.hr)', detail: 'Actif en Croatie', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Mai-juin et septembre : idéal (beau temps, moins bondé, moins cher). Juillet-août : facile pour les trajets mais très bondé et cher sur la côte.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Croates sont décrits comme "extrêmement ouverts, amicaux et hospitaliers". Les 3 S du stop en Croatie : sourire, crème solaire et une feuille avec ta destination.' },
+      { type: 'event', items: [
+        { month: 'Juil', day: '⟳', name: 'Ultra Europe (Split)', desc: 'Festival de musique électronique, 150 000 visiteurs.' },
+        { month: 'Juil-Août', day: '⟳', name: 'Festival d\'été de Dubrovnik', desc: 'Théâtre, musique, danse pendant 6 semaines.' },
+      ]},
+    ]},
+  },
+
+  // ==================== SLOVENIA ====================
+  SI: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal et pratiqué en Slovénie. Interdit de traverser les autoroutes à pied. Le pays est assez petit pour être traversé en ~3 heures.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Bon pays pour l\'autostop. Temps d\'attente généralement inférieur à 15 minutes. Les conducteurs sont contents de voir des autostoppeurs et racontent souvent leurs propres histoires de stop quand ils étaient jeunes.' },
+      { type: 'tip', text: '💡 La Slovénie abrite le seul Musée de l\'Autostop au monde, créé par Miran Ipavec qui a parcouru plus de 300 000 km en stop.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Très sûr. La Slovénie est l\'un des pays les plus sûrs d\'Europe. Pas de mines terrestres. Aucune préoccupation spécifique pour les autostoppeurs.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Excellent niveau d\'anglais. La majorité des Slovènes parlent aussi allemand et un peu d\'italien. Deux salutations régionales : "Živjo" (Ljubljana) et "Zdravo" (Maribor).' },
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Plus cher que les autres pays des Balkans mais moins que l\'Europe de l\'Ouest. Le vélo-partage de Ljubljana : 1 €/semaine ou 3 €/AN. Bus : 1,30 € (90 min). Auberges : 15-25 €/nuit.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage officiellement interdit mais la loi est rarement appliquée tant que tu ne fais pas de feu. Demande aux propriétaires l\'autorisation de camper dans leur jardin. Couchsurfing actif à Ljubljana.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus', detail: 'Réseau bien connecté', price: '' },
+        { emoji: '🚗', name: 'BlaBlaCar', detail: 'Actif en Slovénie', price: '' },
+        { emoji: '🚲', name: 'Vélo-partage Ljubljana', detail: 'Incroyablement bon marché', price: '3 €/an' },
+      ]},
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'autostop est culturellement accepté et nostalgique en Slovénie. Les conducteurs racontent leurs histoires de jeunesse. Les jeunes comprennent et pratiquent. C\'est décrit comme le pays le plus "hitchhiker-friendly" des Balkans.' },
+      { type: 'event', items: [
+        { month: 'Fév', day: '⟳', name: 'Kurentovanje (Ptuj)', desc: 'Plus grand carnaval de Slovénie, masques traditionnels Kurent.' },
+        { month: 'Juin', day: '⟳', name: 'Festival de Ljubljana', desc: 'Musique, théâtre, danse dans la vieille ville.' },
+      ]},
+    ]},
+  },
+
+  // ==================== ALBANIA ====================
+  AL: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Aucune loi contre l\'autostop en Albanie. Attention : près de la frontière grecque (Kakavia), des "mafias de taxis" prétendent faussement que le stop est illégal pour te forcer à prendre un taxi. Marche au-delà des stations de taxi avant de lever le pouce.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'L\'Albanie est un vrai paradis pour l\'autostop et le pays le plus facile des Balkans. Temps d\'attente généralement sous 15 minutes. Des voitures passent environ toutes les 5 minutes sur les routes principales.' },
+      { type: 'sub', title: 'Distinction cruciale' },
+      { type: 'text', text: 'Beaucoup de voitures qui s\'arrêtent sont en fait des taxis privés informels. Dis clairement "autostop, jo lek" (autostop, pas d\'argent) en montrant ton pouce pour éviter les malentendus.' },
+      { type: 'text', text: 'Certains conducteurs offrent spontanément de l\'argent AUX autostoppeurs. L\'hospitalité albanaise est légendaire.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Globalement sûr. La criminalité violente envers les touristes est quasi inexistante. Les conducteurs font des détours pour aider. Attention aux conditions routières (routes en mauvais état, conduite imprévisible) et au faible trafic dans les montagnes du nord.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Plusieurs sources confirment que l\'Albanie est sûre pour les voyageuses solo. Le harcèlement de rue est "bien moins fréquent qu\'en France". Des femmes ayant fait du stop seules rapportent des expériences positives avec des temps d\'attente de 15-20 minutes.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'albanais est une langue unique (pas slave). Les jeunes urbains parlent anglais couramment. Ne t\'attends pas à l\'anglais chez les plus de 30 ans. L\'italien et le grec sont courants. L\'allemand compris par certains (diaspora en Allemagne/Suisse).' },
+      { type: 'phrase', items: [
+        { local: 'Autostop, jo lek', meaning: 'Autostop, pas d\'argent' },
+        { local: 'Faleminderit', meaning: 'Merci' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le pays le moins cher des Balkans. Un voyageur a passé 14 jours pour moins de 200 €. Auberge : ~10 €/nuit avec petit-déjeuner. Les furgons (minibus) couvrent le pays pour quelques euros.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est officiellement autorisé en Albanie, l\'un des rares pays européens. Évite les parcs nationaux, réserves, propriétés privées et bâtiments gouvernementaux. Les plages au nord de Durrës sont adaptées au camping en tente.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Furgons (minibus)', detail: 'Colonne vertébrale du transport albanais. Pas d\'horaire fixe, lève la main pour les arrêter.', price: '~3,50 €/120 km' },
+        { emoji: '🚌', name: 'Bus réguliers', detail: 'Lignes principales entre grandes villes', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Mai-juin et septembre-octobre : idéal. Les routes de montagne du nord peuvent être impraticables en hiver.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: '"Plus le pays est pauvre, plus les gens sont gentils et accueillants." L\'Albanie illustre parfaitement cet adage. Les conducteurs font des kilomètres de détour pour aider, offrent des repas, du raki, du café, des souvenirs et même de l\'argent. Le concept de "besa" (code d\'honneur sacré et d\'hospitalité) est profondément ancré.' },
+      { type: 'event', items: [
+        { month: 'Mar', day: '14', name: 'Dita e Verës (Elbasan)', desc: 'Fête du printemps, la plus ancienne tradition albanaise.' },
+        { month: 'Août', day: '⟳', name: 'Kala Festival (Dhermi)', desc: 'Festival de musique sur une plage de la Riviera albanaise.' },
+      ]},
+    ]},
+  },
+
+  // ==================== SERBIA ====================
+  RS: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop sur les autoroutes est "mal vu mais tu n\'auras pas de problèmes". La police dirige les autostoppeurs vers les bretelles de sortie. Les stations de péage sont considérées comme des lieux de stop normaux et légaux.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Difficile. Temps d\'attente moyen : 2-3 heures. Aborder les conducteurs directement aux petites stations-service fonctionne nettement mieux que le pouce au bord de la route. De jour, c\'est faisable. La nuit, c\'est très dur (mauvais éclairage des routes).' },
+      { type: 'tip', text: '💡 La meilleure stratégie en Serbie : alterner autostop et bus bon marché. Les bus locaux entre petites villes servent de "tremplins" quand le stop ne marche pas.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Sûr de jour. Les conducteurs serbes sont amicaux une fois qu\'ils s\'arrêtent.' },
+      { type: 'warn', text: '⚠️ La nuit, des attaques sur les aires de stationnement sont signalées occasionnellement. Arrête-toi dans des stations-service 24h ou des motels après la tombée de la nuit.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le serbe est la langue principale (alphabets cyrillique et latin). L\'anglais progresse chez les jeunes mais reste limité en zone rurale. Les locuteurs de langues slaves (tchèque, slovaque, polonais, russe) ont un avantage linguistique.' },
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Bon marché par rapport à la Hongrie ou l\'Europe de l\'Ouest. Pljeskavica (plat local) : 2-3 €. Auberge : 8-12 €/nuit. Vol vers Niš : parfois 10 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage officiellement interdit mais "généralement toléré". Couchsurfing actif à Belgrade. Auberges très abordables.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus', detail: 'Couvrent tout le pays, bon marché', price: '' },
+        { emoji: '🚗', name: 'BlaBlaCar (blablacar.rs)', detail: 'Actif en Serbie', price: '' },
+      ]},
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Serbes sont décrits comme "amicaux et très ouverts aux rencontres" une fois le contact établi. Le défi est de les faire s\'arrêter. Le mix stop + bus bon marché est la meilleure stratégie.' },
+      { type: 'event', items: [
+        { month: 'Juil', day: '⟳', name: 'EXIT Festival (Novi Sad)', desc: 'L\'un des plus grands festivals de musique d\'Europe, dans la forteresse de Petrovaradin.' },
+        { month: 'Août', day: '⟳', name: 'Guča Trumpet Festival', desc: 'Festival de trompette et de musique balkanique. 600 000 visiteurs.' },
+      ]},
+    ]},
+  },
+
+  // ==================== BOSNIA AND HERZEGOVINA ====================
+  BA: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Bosnie-Herzégovine. La police ne te causera pas de problèmes.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Variable selon les sources et les endroits. Certains voyageurs n\'ont jamais attendu plus de 10 minutes (route Split-Mostar-Sarajevo). D\'autres ont eu de très longues attentes. Le faible taux de propriété automobile signifie moins de véhicules longue distance.' },
+      { type: 'warn', text: '⚠️ MINES TERRESTRES. Ne quitte JAMAIS les routes pour aller dans les buissons ou les structures abandonnées dans des zones que tu ne connais pas. Certaines maisons sont encore piégées depuis la guerre.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Globalement sûr pour les autostoppeurs. Décrit comme "plus sûr que la Belgique" par des sources néerlandaises. L\'hospitalité est remarquablement chaleureuse envers les étrangers.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le bosniaque, le croate et le serbe sont tous parlés (mutuellement compréhensibles). Beaucoup de résidents parlent anglais grâce à l\'émigration post-guerre. Mentionner d\'où tu viens aide à créer la confiance, car beaucoup de Bosniens ont des proches émigrés.' },
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'L\'un des pays les moins chers des Balkans. Burek : ~1 €. Auberge à Sarajevo : 10-15 €/nuit. Les cigarettes (<3 €/paquet) sont utiles comme cadeau de remerciement.' },
+      { type: 'tip', text: '💡 "KM" sur les panneaux peut signifier la monnaie (Mark Convertible), pas des kilomètres !' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage officiellement interdit mais généralement toléré. Les locaux sont incroyablement hospitaliers : des fermiers offrent douches et café aux campeurs, des conducteurs invitent les autostoppeurs à dormir chez eux.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Bus et trains très bon marché. Peu d\'autoroutes. La combinaison stop + transports en commun est l\'approche recommandée.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Bosniens sont "très chaleureux et amicaux" avec une fierté à accueillir les touristes. Les conducteurs emmènent les autostoppeurs chez eux pour manger et boire un café, dépassent leur destination pour les déposer à un meilleur endroit.' },
+      { type: 'rule', icon: '🚬', text: 'Offrir quelques cigarettes en descendant de voiture est un geste de remerciement puissant qui transcende les barrières linguistiques.' },
+      { type: 'event', items: [
+        { month: 'Août', day: '⟳', name: 'Sarajevo Film Festival', desc: 'Festival de cinéma international fondé pendant le siège.' },
+      ]},
+    ]},
+  },
+
+  // ==================== MONTENEGRO ====================
+  ME: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Aucune restriction légale spécifique sur l\'autostop trouvée. Pas de rapports d\'interférence policière.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Difficile. Le Monténégro est régulièrement cité comme l\'un des pays les plus difficiles des Balkans pour l\'autostop. Les Monténégrins n\'aiment pas prendre les autostoppeurs. La plupart des voyageurs qui réussissent sont pris par des Albanais ou d\'autres étrangers, pas par des locaux.' },
+      { type: 'text', text: 'Le trafic est clairsemé, les routes de montagne sinueuses rendent l\'arrêt difficile. L\'approche directe aux stations-service fonctionne mieux que le pouce au bord de la route.' },
+      { type: 'tip', text: '💡 Le ferry de Kotor est gratuit et fait économiser beaucoup de temps pour rejoindre Podgorica.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Pays sûr. Contrairement à ses voisins, le Monténégro a évité les conflits des années 90, donc pas de mines terrestres. Les routes côtières étroites et les tunnels sont le principal risque physique pour les piétons.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le monténégrin (essentiellement identique au serbe/bosniaque/croate). Beaucoup de gens sont plus à l\'aise en italien qu\'en anglais. Le russe est aussi compris (nombreux résidents russes en été).' },
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Milieu de gamme pour les Balkans (plus cher que l\'Albanie/Bosnie, moins cher que la Croatie). Auberges : 12-20 €/nuit. Repas : 5-8 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage officiellement interdit mais toléré si tu te comportes normalement et évites les plages et zones touristiques. Un voyageur a séjourné via Couchsurfing sur une île privée déserte sans eau courante ni électricité.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus', detail: 'Option la plus fiable, couvrent la plupart des routes', price: '' },
+        { emoji: '⛴️', name: 'Ferry de Kotor', detail: 'Gratuit, essentiel pour rejoindre Podgorica', price: 'gratuit' },
+      ]},
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Hospitalité mitigée. Les voyageurs français rapportent que "l\'hospitalité monténégrine ne s\'est pas présentée" et la plupart des rencontres étaient avec des expatriés. Cependant, certains Monténégrins individuels sont "extrêmement amicaux". Le consensus : le Monténégro n\'est pas une culture favorable au stop comparé à ses voisins.' },
+    ]},
+  },
+
+  // ==================== NORTH MACEDONIA ====================
+  MK: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Aucune loi spécifique contre l\'autostop trouvée. Pas de rapports d\'interférence policière.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Facile. Décrit comme "l\'un des meilleurs pays européens pour l\'autostop". Temps d\'attente généralement sous 20-30 minutes. Aux stations-service près de Skopje, les trajets arrivent en 5-10 minutes.' },
+      { type: 'text', text: 'Défi : les routes rurales/de montagne avec très peu de trafic (moins de 100 voitures/heure). Quand le trafic est faible, prépare-toi à marcher longtemps avec le pouce levé.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Très sûr. Les locaux sont non seulement accueillants mais souvent protecteurs envers les visiteurs.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le macédonien (slave) et l\'albanais sont les langues principales. L\'anglais progresse mais reste limité en dehors de Skopje et Ohrid. Les abréviations des plaques sont utiles : SK=Skopje, OH=Ohrid, BT=Bitola.' },
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Très bon marché. Parmi les pays les plus abordables des Balkans. Auberges : 8-12 €/nuit.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Camping sauvage officiellement interdit mais "généralement toléré" (même schéma que Serbie/Bosnie). Les voyageurs sont parfois invités à dormir chez les familles.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Réseau de bus couvrant les routes principales. Minibus type furgon dans certaines zones. Bus internationaux vers l\'Albanie (Ohrid-Pogradec), le Kosovo, la Serbie et la Grèce.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les gens sont "extrêmement amicaux et particulièrement fascinés par les voyageurs". Les conducteurs montrent un intérêt sincère et offrent leur aide sans attendre de paiement. L\'ambiance est décrite comme "gemächlich" (tranquille, sans précipitation).' },
+      { type: 'event', items: [
+        { month: 'Juil', day: '⟳', name: 'Ohrid Summer Festival', desc: 'Musique, théâtre et danse au bord du lac Ohrid, site UNESCO.' },
+      ]},
+    ]},
+  },
 }
