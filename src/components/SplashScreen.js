@@ -129,10 +129,15 @@ const _loadingSteps = {
   appReady: false,    // App render complete
 }
 
+// Only these steps block the splash — the rest update the progress bar
+// but don't prevent the app from showing. spotsLoaded and mapStyle are
+// non-blocking because spots can appear a moment later and mapStyle
+// is already a prerequisite of mapReady.
+const _requiredSteps = new Set(['mapModule', 'mapReady', 'appReady'])
+
 let _currentTipIndex = 0
 let _tipInterval = null
-let _minTimeElapsed = false
-let _allReady = false
+let _hidden = false
 
 /**
  * Mark a loading step as complete and update the progress bar.
@@ -157,15 +162,9 @@ function _updateProgress() {
 
   if (bar) bar.style.width = pct + '%'
 
-  // Check if all done
-  if (pct >= 100) {
-    _allReady = true
-    _tryHide()
-  }
-}
-
-function _tryHide() {
-  if (_allReady && _minTimeElapsed) {
+  // Hide as soon as all REQUIRED steps are done — no forced delay
+  if (!_hidden && [..._requiredSteps].every(s => _loadingSteps[s])) {
+    _hidden = true
     hideSplashScreen()
   }
 }
@@ -263,12 +262,7 @@ export function initSplashScreen() {
     }
   }, 4000)
 
-  // Minimum display time: 2.5s (enough to read at least 1 tip)
-  _minTimeElapsed = false
-  setTimeout(() => {
-    _minTimeElapsed = true
-    _tryHide()
-  }, 2500)
+  _hidden = false
 }
 
 // ─── Hide ───────────────────────────────────────────────────────────────────
@@ -278,29 +272,20 @@ export function hideSplashScreen() {
     _tipInterval = null
   }
 
-  // Ensure progress shows 100% before hiding
-  const bar = document.getElementById('splash-progress-fill')
-  const pctEl = document.getElementById('splash-progress-pct')
-  if (bar) bar.style.width = '100%'
-  if (pctEl) pctEl.textContent = '100%'
+  const loader = document.getElementById('app-loader')
+  const splash = document.getElementById('splash-screen')
+  const app = document.getElementById('app')
 
-  // Short delay to let 100% be visible
-  setTimeout(() => {
-    const loader = document.getElementById('app-loader')
-    const splash = document.getElementById('splash-screen')
-    const app = document.getElementById('app')
-
-    if (splash) {
-      splash.classList.add('splash-exit')
-      // Remove splash from DOM after animation to unblock clicks on map controls
-      setTimeout(() => splash.remove(), 600)
-    }
-    if (loader) {
-      loader.classList.add('hidden')
-      setTimeout(() => loader.remove(), 500)
-    }
-    if (app) app.classList.add('loaded')
-  }, 300)
+  if (splash) {
+    splash.classList.add('splash-exit')
+    // Remove from DOM after fade-out animation (400ms in CSS)
+    setTimeout(() => splash.remove(), 450)
+  }
+  if (loader) {
+    loader.classList.add('hidden')
+    setTimeout(() => loader.remove(), 450)
+  }
+  if (app) app.classList.add('loaded')
 }
 
 // ─── Legacy compat ──────────────────────────────────────────────────────────
