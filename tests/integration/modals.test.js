@@ -938,8 +938,7 @@ describe('Integration: GuideContributions', () => {
     const { renderCountryDetail } = await import('../../src/components/views/Guides.js')
     setState({ selectedCountryGuide: 'FR' })
     const html = renderCountryDetail('FR')
-    expect(html).toContain('openGuideCategory') // category grid exists in onclick
-    expect(html).toContain('openGuideCategory')
-    expect(html).toContain('addCustomGuideCategory')
+    expect(html).toContain('openGuideCategory') // contribute button exists
+    expect(html).toContain('setGuideActiveSection') // stories nav exists
   })
 })

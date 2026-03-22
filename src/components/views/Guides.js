@@ -719,7 +719,7 @@ function renderGuideBlock(block) {
       return (block.items || []).map(item =>
         `<div class="flex gap-3 py-1.5 border-b border-white/5 last:border-0">
           <div class="bg-amber-500/10 rounded px-1.5 py-0.5 text-center shrink-0">
-            <div class="text-[8px] text-amber-500 uppercase font-semibold">${escapeHTML(item.month)}</div>
+            <div class="text-[10px] text-amber-500 uppercase font-semibold">${escapeHTML(item.month)}</div>
             <div class="text-sm font-extrabold text-amber-500">${escapeHTML(item.day)}</div>
           </div>
           <div>
