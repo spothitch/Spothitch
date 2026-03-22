@@ -4255,4 +4255,1116 @@ export const guideSectionsData = {
       ]},
     ]},
   },
+  // ==================== TUNISIA ====================
+  TN: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Tunisie. Aucune restriction. La pratique est courante chez les locaux, surtout en zone rurale. Les "louages" (taxis collectifs) sont le transport principal mais le stop fonctionne bien.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'La Tunisie est facile pour l\'autostop. Le pays est petit (780 km nord-sud) et les Tunisiens sont accueillants. Temps d\'attente : 10-30 min. Les conducteurs s\'arrêtent facilement, surtout pour les étrangers.' },
+      { type: 'rule', icon: '🚛', text: 'Les camions prennent des passagers sur les longues distances (attention : certains attendent un pourboire).' },
+      { type: 'rule', icon: '⛽', text: 'Les stations-service aux sorties de villes sont les meilleurs spots.' },
+      { type: 'text', text: 'Le sud (Tozeur, Douz, Tataouine) a peu de trafic mais tout le monde s\'arrête. Le nord et la côte ont plus de circulation.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'La Tunisie est globalement sûre pour les voyageurs. Évite les zones frontalières avec la Libye et l\'Algérie (Kasserine, Jendouba). Les arnaques touristiques existent dans les médinas.' },
+      { type: 'kv', items: [{ k: 'Police', v: '197' }, { k: 'SAMU', v: '190' }, { k: 'Urgences', v: '112' }] },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'Le harcèlement de rue est fréquent en Tunisie. Les femmes voyageant seules en stop rapportent des expériences mixtes. Voyager en duo est fortement recommandé. Les zones touristiques (Sidi Bou Saïd, Hammamet) sont plus détendues.' },
+      { type: 'rule', icon: '👫', text: 'Voyager en duo est fortement recommandé.' },
+      { type: 'rule', icon: '👕', text: 'Habille-toi de façon conservatrice en dehors des zones balnéaires.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'arabe tunisien (derja) est la langue locale. Le français est très répandu (quasi tout le monde le parle). L\'anglais progresse chez les jeunes.' },
+      { type: 'phrase', items: [
+        { local: 'Bahi / Barcha', meaning: 'Bien / Beaucoup' },
+        { local: 'Yaatik essaha', meaning: 'Merci (que Dieu te donne la santé)' },
+        { local: 'Win temchi?', meaning: 'Où tu vas ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Très bon marché. Budget serré : 15-25 €/jour. Le couscous du vendredi est souvent partagé gratuitement.' },
+      { type: 'kv', items: [
+        { k: 'Repas local', v: '2-5 TND (0,60-1,50 €)' },
+        { k: 'Hostel', v: '20-50 TND (6-15 €)' },
+        { k: 'Louage (100 km)', v: '5-10 TND (1,50-3 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est toléré dans le sud et les zones rurales. Les Tunisiens invitent facilement les voyageurs chez eux. Les auberges de jeunesse sont bon marché.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Louage', detail: 'Taxi collectif entre villes. Attend d\'être plein. Rapide et bon marché.', price: '1-5 €' },
+        { emoji: '🚂', name: 'SNCFT (train)', detail: 'Réseau limité mais bon marché', price: '1-5 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'good' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'good' },
+        { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'ok' }, { name: 'Sep', level: 'good' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'good' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Mars-mai et septembre-novembre : idéal. L\'été est chaud (40°C+ dans le sud). L\'hiver est doux sur la côte mais frais dans les montagnes.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'hospitalité tunisienne est sincère. Le thé à la menthe et le café turc sont offerts généreusement. Le couscous du vendredi est un rituel familial. Les Tunisiens sont fiers de leur histoire (Carthage) et aiment en parler.' },
+    ]},
+  },
+  // ==================== MEXICO ====================
+  MX: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop ("pedir aventón" ou "pedir raid") est légal au Mexique. Aucune restriction. Pratique courante en zone rurale. Les communautés indigènes font du stop régulièrement.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Mexique est bon pour l\'autostop en dehors des zones à risque. Les Mexicains sont accueillants et curieux envers les étrangers. Temps d\'attente : 15-45 min. Les camions prennent régulièrement des passagers.' },
+      { type: 'sub', title: 'Meilleures zones' },
+      { type: 'kv', items: [
+        { k: 'Oaxaca / Chiapas', v: 'Excellent, communautés accueillantes', color: 'green' },
+        { k: 'Yucatán', v: 'Bon, touristique, bon trafic', color: 'green' },
+        { k: 'Baja California', v: 'Faisable, peu de trafic dans le désert', color: 'amber' },
+        { k: 'Nord (Sinaloa, Tamaulipas, Chihuahua)', v: 'Déconseillé (cartels)', color: 'red' },
+      ]},
+      { type: 'rule', icon: '⛽', text: 'Les casetas (péages) et les stations Pemex sont les meilleurs spots.' },
+      { type: 'rule', icon: '🚛', text: 'Les "tráilers" (camions) font de longues distances. Aborde les conducteurs aux stations-service.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'La sécurité varie énormément selon les régions. Le sud (Oaxaca, Chiapas, Yucatán) et le centre (Guanajuato, Puebla) sont les plus sûrs. Évite absolument le nord-ouest (Sinaloa), le Tamaulipas et les zones frontalières problématiques.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '911' }, { k: 'Police touristique', v: '078' }] },
+      { type: 'warn', text: '⚠️ Ne voyage JAMAIS de nuit sur les routes du nord du Mexique. Renseigne-toi localement et auprès d\'autres voyageurs (iOverlander, groupes Facebook) sur les zones à éviter.' },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'Le machisme est présent au Mexique. Les femmes voyageant seules en stop rapportent des expériences mixtes. Le sud est plus sûr. Voyager en duo est fortement recommandé.' },
+      { type: 'rule', icon: '👫', text: 'Voyager avec un(e) compagnon(ne) est fortement recommandé.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'espagnol est indispensable. L\'anglais est rare en dehors des zones touristiques (Cancún, Playa del Carmen). 68 langues indigènes sont encore parlées.' },
+      { type: 'phrase', items: [
+        { local: '¿Me da un aventón / raid?', meaning: 'Vous me prenez en stop ?' },
+        { local: '¿Hasta dónde va?', meaning: 'Jusqu\'où allez-vous ?' },
+        { local: '¡Gracias, que le vaya bien!', meaning: 'Merci, bonne route !' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Mexique est bon marché. Budget serré : 15-25 €/jour.' },
+      { type: 'kv', items: [
+        { k: 'Tacos de rue', v: '10-30 MXN (0,50-1,50 €)' },
+        { k: 'Comida corrida (menu du jour)', v: '50-100 MXN (2,50-5 €)' },
+        { k: 'Hostel', v: '150-400 MXN (7-20 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible sur les plages du Pacifique et dans les zones rurales. Les hamacs sont une alternative populaire sur la côte. Les Mexicains invitent parfois les voyageurs chez eux.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'ADO / ETN', detail: 'Bus longue distance luxueux. ADO couvre le sud, ETN le centre.', price: '5-40 €' },
+        { emoji: '🚐', name: 'Colectivos', detail: 'Minibus locaux, très bon marché', price: '0,30-2 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'ok' }, { name: 'Sep', level: 'bad' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Novembre à avril : saison sèche, idéale. Juin-octobre : saison des pluies (averses l\'après-midi). Septembre : ouragans sur les côtes. Le Yucatán est chaud et humide toute l\'année.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Mexicains sont chaleureux et fiers de leur culture. La nourriture est centrale (tacos, mole, tamales). Le mezcal et la tequila sont partagés généreusement. Le Día de los Muertos (2 novembre) est un moment culturel unique.' },
+      { type: 'event', items: [
+        { month: 'Nov', day: '1-2', name: 'Día de los Muertos', desc: 'Fête des morts. Autels, offrandes, cimetières décorés. Oaxaca est le meilleur endroit.' },
+        { month: 'Sep', day: '15-16', name: 'Fiestas Patrias', desc: 'Fête de l\'indépendance. Le "Grito" à minuit, feux d\'artifice, fêtes partout.' },
+      ]},
+    ]},
+  },
+  // ==================== BRAZIL ====================
+  BR: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop ("carona" ou "pedir carona") est légal au Brésil. Aucune restriction. La pratique est moins courante qu\'en Amérique hispanique mais fonctionne, surtout dans le sud.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Brésil est possible pour l\'autostop mais les distances sont immenses (le 5ème plus grand pays du monde). Temps d\'attente : 30 min-2h. Le sud (Rio Grande do Sul, Santa Catarina, Paraná) est le plus facile.' },
+      { type: 'kv', items: [
+        { k: 'Sud (RS, SC, PR)', v: 'Le meilleur, culture européenne, accueillant', color: 'green' },
+        { k: 'Minas Gerais', v: 'Bon, gens chaleureux', color: 'green' },
+        { k: 'Nordeste (Bahia côte)', v: 'Faisable, camions', color: 'amber' },
+        { k: 'Amazonie', v: 'Quasi impossible par route, bateaux fluviaux à la place', color: 'red' },
+      ]},
+      { type: 'rule', icon: '⛽', text: 'Les postos de gasolina (stations-service) sont les meilleurs spots. Aborde les camionneurs aux restaurants routiers.' },
+      { type: 'rule', icon: '🚛', text: 'Les camionneurs ("caminhoneiros") sont ta meilleure option pour les longues distances.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'La sécurité dépend de la région. Le sud et les zones rurales sont sûrs. Évite les favelas et les banlieues des grandes villes (São Paulo, Rio). Ne fais pas de stop la nuit.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '190 (police) / 192 (SAMU)' }] },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'Le harcèlement de rue existe au Brésil. Les femmes voyageant seules en stop rapportent des expériences variables. Le sud est plus sûr. Voyager en duo est recommandé.' },
+      { type: 'rule', icon: '👫', text: 'Voyager en duo est recommandé, surtout dans le nord et le nordeste.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le portugais brésilien est la langue unique. L\'espagnol est partiellement compris mais ne parle PAS espagnol (c\'est perçu comme impoli). L\'anglais est rare en dehors des grandes villes.' },
+      { type: 'phrase', items: [
+        { local: 'Oi, tudo bem?', meaning: 'Salut, ça va ?' },
+        { local: 'Carona, por favor', meaning: 'Un stop, s\'il vous plaît' },
+        { local: 'Obrigado/a', meaning: 'Merci (masc./fém.)' },
+        { local: 'Pra onde você vai?', meaning: 'Où allez-vous ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Brésil est modérément cher pour l\'Amérique du Sud. Budget serré : 20-35 €/jour. Le sud est moins cher que Rio ou São Paulo.' },
+      { type: 'kv', items: [
+        { k: 'Prato feito (assiette du jour)', v: '15-30 BRL (3-6 €)' },
+        { k: 'Hostel', v: '40-100 BRL (8-20 €)' },
+        { k: 'Açaí (bol)', v: '10-20 BRL (2-4 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible sur les plages désertes et en zone rurale. Les campings sont bon marché dans le sud. Les pousadas (guesthouses) offrent un bon rapport qualité-prix.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus longue distance', detail: 'Réseau excellent. Leito = couchette. Semi-leito = inclinable.', price: '10-60 €' },
+        { emoji: '✈️', name: 'Vols intérieurs', detail: 'GOL, LATAM, Azul. Souvent moins cher que le bus pour les longues distances.', price: '20-100 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'good' }, { name: 'Fév', level: 'good' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'good' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'good' }, { name: 'Déc', level: 'good' },
+      ]},
+      { type: 'text', text: 'Le Brésil est immense : le climat varie du tropical au subtropical. Le sud est tempéré. Mars-mai et septembre-novembre sont idéaux pour la plupart des régions. L\'été (décembre-février) est la saison des pluies dans le centre-sud.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Brésiliens sont parmi les gens les plus chaleureux du monde. La musique (samba, forró, MPB) est omniprésente. Le churrasco (barbecue) est un rituel social. Les Brésiliens adorent faire la fête et accueillir les étrangers.' },
+      { type: 'event', items: [
+        { month: 'Fév-Mar', day: '⟳', name: 'Carnaval', desc: 'Le plus grand carnaval du monde. Rio, Salvador et Olinda sont les meilleurs. Transport chaotique.' },
+        { month: 'Jun', day: '⟳', name: 'Festas Juninas', desc: 'Fêtes de la Saint-Jean. Danses, feux de joie, nourriture de rue dans tout le Nordeste.' },
+      ]},
+    ]},
+  },
+  // ==================== PERU ====================
+  PE: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal au Pérou. Pratique courante en zone rurale. Les locaux font aussi du stop ("pedir jalada") car les transports sont limités dans les Andes.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Pérou est bon pour l\'autostop, surtout dans les Andes. Temps d\'attente : 20 min-1h. Les camions sont le transport principal en montagne. Attention : beaucoup de conducteurs attendent un paiement (transport informel). Clarifie "gratis" avant de monter.' },
+      { type: 'rule', icon: '🚛', text: 'Les camions dans les Andes s\'arrêtent facilement. Place-toi aux contrôles routiers (garitas).' },
+      { type: 'rule', icon: '⛽', text: 'Les grifos (stations-service) aux sorties de villes sont les meilleurs spots.' },
+      { type: 'kv', items: [
+        { k: 'Vallée Sacrée / Cusco', v: 'Facile, touristique', color: 'green' },
+        { k: 'Andes rurales', v: 'Camions, peu de trafic mais tout s\'arrête', color: 'green' },
+        { k: 'Panaméricaine (côte)', v: 'Bon trafic, camions longue distance', color: 'green' },
+        { k: 'Lima (sortie)', v: 'Difficile, bus jusqu\'à la sortie', color: 'red' },
+      ]},
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Pérou est globalement sûr en dehors de Lima et de certaines zones frontalières (VRAEM). Les Andes et le sud touristique (Cusco, Arequipa) sont sûrs.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '105 (police) / 116 (pompiers)' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le machisme existe mais le sud touristique est relativement sûr pour les femmes. Voyager en duo est recommandé dans les zones rurales.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'espagnol est la langue principale. Le quechua et l\'aymara sont parlés dans les Andes. L\'anglais est rare en dehors de Cusco et Lima.' },
+      { type: 'phrase', items: [
+        { local: '¿Me da una jalada?', meaning: 'Vous me prenez en stop ?' },
+        { local: 'Gratis, por favor', meaning: 'Gratuit, s\'il vous plaît' },
+        { local: '¡Gracias, caserito!', meaning: 'Merci, ami ! (péruvianisme)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Pérou est bon marché. Budget serré : 12-20 €/jour. Les menus (almuerzo) sont copieux et bon marché.' },
+      { type: 'kv', items: [
+        { k: 'Menú (repas complet)', v: '5-12 PEN (1-3 €)' },
+        { k: 'Hostel', v: '20-60 PEN (5-15 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est toléré dans les Andes et les zones rurales. Demande la permission aux communautés locales. Les hospedajes (guesthouses basiques) sont très bon marché.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Cruz del Sur / Oltursa', detail: 'Bus longue distance confortables', price: '5-40 €' },
+        { emoji: '🚐', name: 'Combi / Colectivo', detail: 'Transport local, très bon marché, routes de montagne', price: '0,30-3 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Mai à septembre : saison sèche dans les Andes, idéale. Décembre-mars : saison des pluies (routes coupées en montagne). La côte est sèche toute l\'année.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Péruviens sont accueillants et fiers de leur gastronomie (le Pérou est la capitale culinaire d\'Amérique du Sud). Le ceviche, le lomo saltado et le pisco sour sont des institutions. Les communautés andines ont une forte culture du partage.' },
+      { type: 'event', items: [
+        { month: 'Jun', day: '24', name: 'Inti Raymi (Cusco)', desc: 'Fête du Soleil inca. Reconstitution spectaculaire à Sacsayhuamán.' },
+      ]},
+    ]},
+  },
+  // ==================== BOLIVIA ====================
+  BO: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Bolivie. Pratique très courante car beaucoup de communautés rurales n\'ont pas de transport régulier. Les camions sont un mode de transport normal dans les Andes.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'La Bolivie est un bon pays pour l\'autostop. Les conducteurs de camion prennent des passagers régulièrement (souvent contre un paiement modeste). Clarifie si c\'est gratuit. Temps d\'attente : 15-45 min. L\'Altiplano a peu de trafic mais les gens s\'arrêtent.' },
+      { type: 'kv', items: [
+        { k: 'La Paz-Oruro-Potosí', v: 'Bon trafic, route principale', color: 'green' },
+        { k: 'Yungas / Amazonie', v: 'Camions, peu de trafic, aventure', color: 'amber' },
+        { k: 'Salar de Uyuni', v: 'Très peu de trafic, organise avec un tour', color: 'amber' },
+      ]},
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'La Bolivie est sûre pour les voyageurs. Le principal risque est le mal d\'altitude (La Paz est à 3 640m, le Salar à 3 650m). Les routes de montagne sont dangereuses (virages, précipices, pas de garde-fous).' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '110 (police) / 118 (ambulance)' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'La Bolivie est relativement sûre pour les femmes. Les communautés indigènes sont respectueuses. Voyager en duo est recommandé dans les zones isolées.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'espagnol est la langue principale. Le quechua et l\'aymara sont très parlés dans les Andes. L\'anglais est rare.' },
+      { type: 'phrase', items: [
+        { local: '¿Me lleva?', meaning: 'Vous m\'emmenez ?' },
+        { local: '¿Es gratis?', meaning: 'C\'est gratuit ?' },
+        { local: 'Jallalla!', meaning: 'Vive ! (aymara, expression positive)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'La Bolivie est le pays le moins cher d\'Amérique du Sud. Budget serré : 8-15 €/jour. Almuerzo complet : 1-2 €. Hostel : 3-8 €/nuit.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible partout dans les zones rurales et l\'Altiplano. Les nuits sont très froides en altitude (jusqu\'à -15°C). Un bon sac de couchage est indispensable.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus / Flota', detail: 'Bus longue distance, routes souvent en terre', price: '3-15 €' },
+        { emoji: '🚐', name: 'Trufi / Micro', detail: 'Transport local en minibus', price: '0,15-1 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Mai à septembre : saison sèche, idéale. Décembre-mars : pluies intenses, routes coupées, Salar inondé (mais miroir d\'eau spectaculaire).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'La Bolivie a la plus grande proportion de population indigène d\'Amérique du Sud (62%). La culture aymara et quechua est vivante. La feuille de coca est sacrée et omniprésente (mâcher la coca = normal, pas de drogue). Les Cholitas (femmes en habit traditionnel) sont une fierté nationale.' },
+    ]},
+  },
+  // ==================== ECUADOR ====================
+  EC: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Équateur. Pratique courante. Le pays est petit (640 km nord-sud) et se traverse facilement. La monnaie est le dollar américain.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'L\'Équateur est facile pour l\'autostop. Le pays est petit et les Équatoriens sont accueillants. Temps d\'attente : 15-30 min. Les pickups ("camionetas") prennent souvent des passagers (parfois contre un paiement modeste).' },
+      { type: 'rule', icon: '🛻', text: 'Les camionetas (pickups) s\'arrêtent facilement. Monte dans la benne, c\'est normal et courant.' },
+      { type: 'rule', icon: '⛽', text: 'Les péages et les stations-service sont les meilleurs spots.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'L\'Équateur est moyennement sûr. Les zones touristiques (Quito centro, Cuenca, Baños) sont sûres. Évite la frontière colombienne (Esmeraldas, Sucumbíos) et les quartiers sud de Guayaquil.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '911' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'Équateur est modérément sûr pour les femmes. Les Andes sont plus sûres que la côte. Voyager en duo est recommandé.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'espagnol est la langue principale. Le kichwa est parlé dans les Andes. L\'anglais est limité aux zones touristiques.' },
+      { type: 'phrase', items: [
+        { local: '¿Me da un jalón?', meaning: 'Vous me prenez en stop ? (Équateur)' },
+        { local: '¡Chevere!', meaning: 'Génial !' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'L\'Équateur utilise le dollar américain. Budget serré : 15-25 $/jour. Les almuerzos (menu du jour) coûtent 2-3 $. Hostel : 8-15 $/nuit.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible dans les Andes et la forêt amazonienne. Les hospedajes (guesthouses) sont très bon marché.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus', detail: 'Réseau étendu et bon marché. Les bus s\'arrêtent partout.', price: '1 $/heure de trajet' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'good' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Juin-septembre : saison sèche dans les Andes. La côte est sèche de juin à novembre. L\'Amazonie est humide toute l\'année.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'Équateur est incroyablement diversifié pour un petit pays : côte, Andes, Amazonie et Galápagos. Les marchés indigènes (Otavalo) sont spectaculaires. Le cuy (cochon d\'Inde) est un plat traditionnel dans les Andes.' },
+    ]},
+  },
+  // ==================== URUGUAY ====================
+  UY: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Uruguay. Pratique acceptée et culturellement normale. Le pays est petit (660 km est-ouest) et sûr.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'L\'Uruguay est facile et sûr pour l\'autostop. Le pays est petit et les Uruguayens sont décontractés et accueillants. Temps d\'attente : 15-30 min. Les routes principales (Ruta 1, Ruta 5) ont un bon trafic.' },
+      { type: 'text', text: 'Les stations Ancap et les péages sont les meilleurs spots. En été (janvier-février), la côte (Punta del Diablo, Cabo Polonio) est très fréquentée par les Argentins et le stop est facile.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'L\'Uruguay est le pays le plus sûr d\'Amérique du Sud. Le taux de criminalité est bas en dehors de certains quartiers de Montevideo.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '911' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'Uruguay est considéré comme sûr pour les femmes voyageant seules. Le pays est progressiste (premier en Amérique latine à légaliser le cannabis et le mariage gay).' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'espagnol rioplatense (comme l\'Argentine, avec "vos" et "sh"). Le portuñol est parlé à la frontière brésilienne. L\'anglais est limité.' },
+      { type: 'phrase', items: [
+        { local: '¿Me llevás?', meaning: 'Tu m\'emmènes ?' },
+        { local: 'Ta, gracias', meaning: 'OK, merci (uruguayanisme)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'L\'Uruguay est plus cher que l\'Argentine. Budget serré : 20-35 €/jour. Les parilladas (grillades) sont copieuses.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est toléré sur les plages et en zone rurale. Cabo Polonio est un village sans électricité accessible uniquement en 4x4, idéal pour le camping.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus (CUTCSA, COT)', detail: 'Réseau étendu et fiable', price: '5-25 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'bad' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'ok' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Novembre à mars : idéal. L\'hiver (juin-août) est frais (5-15°C) mais pas rigoureux.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le maté est la religion nationale. Les Uruguayens se baladent avec leur thermos et leur maté partout. L\'asado du dimanche est sacré. Le pays est décontracté et progressiste. Le tango (candombe) est aussi important qu\'en Argentine.' },
+    ]},
+  },
+  // ==================== VIETNAM ====================
+  VN: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop n\'est pas un concept formel au Vietnam. Il n\'y a pas de loi contre mais la pratique n\'existe pas culturellement. Les Vietnamiens qui s\'arrêtent ne comprennent pas forcément que c\'est gratuit.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Vietnam est un cas particulier. Le stop classique (pouce levé) ne fonctionne pas car le concept n\'existe pas. Mais les Vietnamiens sont naturellement serviables et te proposeront de l\'aide si tu sembles perdu. Beaucoup de voyageurs font le Vietnam en moto (Easy Rider) plutôt qu\'en stop.' },
+      { type: 'rule', icon: '🏍️', text: 'Les motos-taxis (xe ôm) s\'arrêtent constamment. Clarifie que c\'est gratuit si quelqu\'un s\'arrête.' },
+      { type: 'rule', icon: '🚛', text: 'Les camions sur la Highway 1 prennent parfois des passagers. Aborde les conducteurs aux arrêts.' },
+      { type: 'text', text: 'Le nord montagneux (Ha Giang, Sapa) est plus facile car il y a moins de transport public et les gens s\'arrêtent naturellement.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Vietnam est un pays très sûr. La criminalité violente est quasi inexistante. Les pickpockets et les arnaques (taxis, tours) sont les principaux risques. Le trafic est chaotique mais les accidents graves impliquant des piétons sont rares.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '113 (police) / 115 (ambulance)' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le Vietnam est sûr pour les femmes voyageant seules. Le harcèlement est rare. Les Vietnamiennes sont indépendantes et respectées dans la société.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le vietnamien est la langue unique. 6 tons rendent la prononciation très difficile. L\'anglais progresse chez les jeunes dans les grandes villes mais reste très limité en zone rurale. Le français est compris par quelques anciens.' },
+      { type: 'phrase', items: [
+        { local: 'Xin chào', meaning: 'Bonjour' },
+        { local: 'Cảm ơn', meaning: 'Merci' },
+        { local: 'Đi... được không?', meaning: 'Aller à... possible ?' },
+        { local: 'Miễn phí', meaning: 'Gratuit' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Vietnam est très bon marché. Budget serré : 10-20 €/jour même sans stop. Le phở de rue coûte 1-2 €.' },
+      { type: 'kv', items: [
+        { k: 'Phở / Bánh mì', v: '20 000-40 000 VND (0,80-1,60 €)' },
+        { k: 'Hostel', v: '100 000-200 000 VND (4-8 €)' },
+        { k: 'Bus Sleeper (longue distance)', v: '100 000-300 000 VND (4-12 €)' },
+        { k: 'Bia hơi (bière fraîche)', v: '5 000-10 000 VND (0,20-0,40 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible dans les montagnes du nord. Les nhà nghỉ (guesthouses) sont si bon marché (3-5 €) que le camping n\'est pas nécessaire. Les familles dans les villages de montagne accueillent parfois les voyageurs.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus Sleeper', detail: 'Bus-couchettes longue distance, réseau étendu', price: '4-15 €' },
+        { emoji: '🚂', name: 'Reunification Express', detail: 'Train Hanoï-HCMV (30h). Lent mais scenic.', price: '15-40 €' },
+        { emoji: '🏍️', name: 'Moto', detail: 'Beaucoup de backpackers achètent une moto (300-500 $) et la revendent en fin de voyage.', price: '' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'good' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'bad' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'good' },
+      ]},
+      { type: 'text', text: 'Le Vietnam s\'étend sur 1 650 km : le nord a des saisons (froid en hiver), le centre a les typhons (septembre-novembre), le sud est tropical (sec décembre-avril). Mars-mai : bon pour tout le pays.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Vietnamiens sont curieux, souriants et accueillants. Le café (cà phê sữa đá = café glacé au lait concentré) est une institution. La nourriture de rue est parmi les meilleures au monde. Les Vietnamiens adorent inviter les étrangers à trinquer (un, hai, ba, dzô ! = 1, 2, 3, santé !).' },
+      { type: 'event', items: [
+        { month: 'Jan-Fév', day: '⟳', name: 'Tết (Nouvel An lunaire)', desc: 'La plus grande fête. Le pays ferme pendant une semaine. Transport chaotique avant/après.' },
+      ]},
+    ]},
+  },
+  // ==================== LAOS ====================
+  LA: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop n\'est pas réglementé au Laos. Le concept est inconnu mais le transport informel (monter dans les camions, pickups) est courant dans les zones rurales.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Laos est un pays tranquille où le stop informel fonctionne. Le trafic est faible (le Laos est peu motorisé) mais les conducteurs s\'arrêtent facilement. Temps d\'attente : 20 min-1h+. Dans les zones reculées, le trafic peut être quasi nul.' },
+      { type: 'rule', icon: '🛻', text: 'Les pickups et les camions sont les véhicules les plus courants sur les routes de campagne.' },
+      { type: 'text', text: 'Les sǎwngthǎew (camions-bus avec bancs à l\'arrière) s\'arrêtent partout et coûtent presque rien. C\'est un "stop payant" très bon marché.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Laos est un pays très sûr. La criminalité est très basse. Le principal risque est les UXO (bombes non explosées datant de la guerre du Vietnam) dans les zones rurales. Ne t\'éloigne JAMAIS des sentiers battus dans la campagne.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '1195 (ambulance) / 1191 (police)' }] },
+      { type: 'warn', text: '⚠️ Le Laos est le pays le plus bombardé de l\'histoire. 30% des bombes n\'ont pas explosé. Ne t\'aventure JAMAIS hors des sentiers en zone rurale.' },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le Laos est sûr pour les femmes voyageant seules. La culture bouddhiste est respectueuse. Les incidents sont très rares.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le lao est la langue officielle (très proche du thaï, mutuellement intelligible). L\'anglais est très limité. Le français est compris par quelques anciens (ex-colonie française).' },
+      { type: 'phrase', items: [
+        { local: 'Sabaidee', meaning: 'Bonjour' },
+        { local: 'Khop chai', meaning: 'Merci' },
+        { local: 'Pai... dai bor?', meaning: 'Aller à... possible ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Laos est très bon marché. Budget serré : 10-20 €/jour. Le sticky rice (riz gluant) avec du laap (salade de viande) coûte moins de 1 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible mais attention aux UXO. Les guesthouses sont très bon marché (3-8 €). Les temples accueillent parfois les voyageurs.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Sǎwngthǎew', detail: 'Camions avec bancs. Principal transport rural.', price: '1-5 €' },
+        { emoji: '🚌', name: 'Bus VIP', detail: 'Longue distance, réseau en développement', price: '5-15 €' },
+        { emoji: '🛥️', name: 'Slow Boat', detail: 'Bateau sur le Mékong (Luang Prabang-Huay Xai, 2 jours)', price: '15-25 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'bad' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Novembre à février : idéal (frais et sec). Mars-mai : très chaud. Juin-octobre : mousson (routes inondées, certaines routes coupées).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le Laos est le pays le plus détendu d\'Asie du Sud-Est. "Bor pen nyang" (pas de problème) est le mantra national. Le bouddhisme Theravada imprègne la culture. L\'offrande matinale aux moines (tak bat) à Luang Prabang est un moment sacré.' },
+    ]},
+  },
+  // ==================== CAMBODIA ====================
+  KH: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop n\'est pas réglementé au Cambodge. Le concept n\'existe pas formellement mais le transport informel est courant. Les conducteurs s\'arrêtent facilement si tu fais signe.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Cambodge fonctionne en stop informel. Les pickups, camions et motos s\'arrêtent facilement. Beaucoup de conducteurs attendent un petit paiement (transport informel). Clarifie. Le réseau de bus est limité dans les zones rurales.' },
+      { type: 'text', text: 'Les routes principales (Phnom Penh-Siem Reap, Phnom Penh-Sihanoukville) ont du trafic. Les routes secondaires sont souvent en mauvais état.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Cambodge est sûr pour les voyageurs. Évite les zones frontalières avec la Thaïlande (Preah Vihear) et les mines antipersonnel dans les zones rurales (ne quitte pas les sentiers).' },
+      { type: 'kv', items: [{ k: 'Urgences / Police', v: '117' }, { k: 'Ambulance', v: '119' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le Cambodge est globalement sûr pour les femmes voyageant seules. La société est respectueuse. Évite les zones de fête (Sihanoukville) la nuit.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le khmer est la langue officielle. L\'anglais est répandu dans les zones touristiques (Siem Reap, Phnom Penh). Le français est compris par quelques anciens.' },
+      { type: 'phrase', items: [
+        { local: 'Sok sabay', meaning: 'Bonjour / Ça va' },
+        { local: 'Aw kun', meaning: 'Merci' },
+        { local: 'Tov... baan te?', meaning: 'Aller à... possible ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Cambodge est très bon marché. Budget serré : 10-20 $/jour. Le dollar américain est la monnaie de facto (le riel est utilisé pour la petite monnaie).' },
+      { type: 'kv', items: [
+        { k: 'Repas local', v: '1-3 $' },
+        { k: 'Hostel', v: '3-8 $/nuit' },
+        { k: 'Bière Angkor', v: '0,50 $ (happy hour)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Les guesthouses sont si bon marché (3-5 $) que le camping n\'est pas nécessaire. Le camping sauvage est possible dans les zones rurales.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus', detail: 'Réseau en développement. Giant Ibis et Mekong Express sont fiables.', price: '5-15 $' },
+        { emoji: '🛥️', name: 'Bateau', detail: 'Phnom Penh-Siem Reap par le Tonlé Sap', price: '25-35 $' },
+        { emoji: '🛺', name: 'Tuk-tuk', detail: 'Transport local omniprésent', price: '1-5 $' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'ok' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'bad' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Novembre à février : idéal (frais et sec). Mars-mai : très chaud (38°C+). Juin-octobre : mousson (routes inondées dans les zones rurales).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Les Cambodgiens sont souriants et résilients malgré l\'histoire tragique (Khmers rouges). Angkor Wat est une fierté nationale. Les conducteurs sont curieux et accueillants. Ne parle jamais de politique ou des Khmers rouges de façon légère.' },
+    ]},
+  },
+  // ==================== NEPAL ====================
+  NP: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop n\'est pas réglementé au Népal. Le transport informel (monter sur les toits de bus, dans les camions) est un mode de vie normal dans les zones de montagne.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Népal est facile pour le stop informel. Les camions et les pickups s\'arrêtent facilement. En montagne, le trafic est faible mais tout le monde s\'arrête. Les Népalais sont extrêmement accueillants.' },
+      { type: 'rule', icon: '🚛', text: 'Les camions Tata sur les routes de montagne prennent des passagers (souvent contre un petit paiement). Clarifie avant.' },
+      { type: 'rule', icon: '🏔️', text: 'Dans les régions de trek (Annapurna, Everest), le transport est par jeep ou à pied. Pas de stop traditionnel.' },
+      { type: 'text', text: 'La vallée de Katmandou et les routes du Terai (plaine du sud) ont plus de trafic. La route Katmandou-Pokhara est la plus fréquentée.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Népal est un pays sûr et pacifique. La criminalité envers les touristes est très rare. Les routes de montagne sont le principal danger (précipices, routes non goudronnées, conducteurs audacieux).' },
+      { type: 'kv', items: [{ k: 'Police touristique', v: '1144' }, { k: 'Urgences', v: '102 (police) / 103 (ambulance)' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le Népal est considéré comme sûr pour les femmes voyageant seules. Les Népalais sont respectueux. Quelques cas de harcèlement en zone rurale mais globalement positif.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le népalais est la langue officielle. L\'anglais est assez répandu dans les zones touristiques (Katmandou, Pokhara, régions de trek). Les guides de trek parlent anglais.' },
+      { type: 'phrase', items: [
+        { local: 'Namaste', meaning: 'Bonjour (mains jointes devant la poitrine)' },
+        { local: 'Dhanyabad', meaning: 'Merci' },
+        { local: 'Kati paisa?', meaning: 'Combien ça coûte ?' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Népal est très bon marché. Budget serré : 10-20 €/jour. Le dhal bhat (riz et lentilles) est le plat national : 1-2 €, à volonté dans beaucoup de restaurants.' },
+      { type: 'kv', items: [
+        { k: 'Dhal bhat', v: '200-500 NPR (1-3 €)' },
+        { k: 'Guesthouse', v: '300-1 000 NPR (2-7 €)' },
+        { k: 'Bus local', v: '100-500 NPR (0,70-3 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible dans les zones de montagne. Les tea houses sur les circuits de trek offrent hébergement et repas bon marché. Les guesthouses en ville sont très abordables.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Bus local / Tourist Bus', detail: 'Les bus locaux sont bondés mais bon marché. Les tourist bus sont plus confortables.', price: '2-15 €' },
+        { emoji: '🛩️', name: 'Vol intérieur', detail: 'Nécessaire pour Lukla (Everest). Vues spectaculaires.', price: '100-200 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'good' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'bad' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'ok' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'good' },
+      ]},
+      { type: 'text', text: 'Octobre-novembre : idéal (ciel dégagé, vues sur l\'Himalaya). Mars-mai : bon aussi (rhododendrons en fleurs). Juin-septembre : mousson (routes coupées, leeches en montagne).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le Népal est un mélange unique d\'hindouisme et de bouddhisme. Les Népalais sont parmi les gens les plus souriants du monde. Le dhal bhat est "l\'énergie" : deux fois par jour, à volonté. Le trekking est une industrie nationale et les guides sont d\'une gentillesse remarquable.' },
+      { type: 'event', items: [
+        { month: 'Oct', day: '⟳', name: 'Dashain', desc: 'La plus grande fête népalaise (15 jours). Cerfs-volants, familles réunies. Transport très chargé.' },
+      ]},
+    ]},
+  },
+  // ==================== KAZAKHSTAN ====================
+  KZ: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal au Kazakhstan. Aucune restriction. Le transport informel est courant car le pays est immense (9ème plus grand au monde) et les transports publics sont limités entre les villes.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Kazakhstan est bon pour l\'autostop. Les distances sont immenses (Almaty-Astana : 1 200 km) mais les conducteurs font de longues distances. Temps d\'attente : 15-45 min sur les routes principales. En zone rurale, le trafic est très faible.' },
+      { type: 'rule', icon: '🚛', text: 'Les camions sont les meilleurs pour les longues distances. Aborde les conducteurs aux stations-service.' },
+      { type: 'rule', icon: '💰', text: 'Beaucoup de conducteurs attendent un paiement (transport informel courant). Clarifie "besplatno" (gratuit) avant de monter.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Kazakhstan est sûr. La police peut faire des contrôles (aie ton passeport). Les routes sont longues et droites, la chaleur et le vent sont les vrais ennemis.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }, { k: 'Police', v: '102' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le Kazakhstan est relativement sûr pour les femmes. La société est plus laïque que les voisins d\'Asie centrale. Voyager en duo est recommandé dans les zones rurales isolées.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le kazakh et le russe sont les deux langues officielles. Le russe est parlé par presque tout le monde. L\'anglais est très rare. Le russe est indispensable.' },
+      { type: 'phrase', items: [
+        { local: 'Salam', meaning: 'Bonjour (kazakh)' },
+        { local: 'Rakhmet / Spasibo', meaning: 'Merci (kazakh / russe)' },
+        { local: 'Besplatno', meaning: 'Gratuit (russe)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Kazakhstan est modérément cher pour l\'Asie centrale. Budget serré : 15-25 €/jour. Les bazars sont bon marché pour la nourriture.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est facile dans les steppes infinies (personne pour te déranger). Les yourtes des nomades sont parfois ouvertes aux voyageurs. En ville, les hostels sont bon marché.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚂', name: 'Train', detail: 'Réseau soviétique étendu, trains de nuit', price: '10-30 €' },
+        { emoji: '🚌', name: 'Bus', detail: 'Entre les grandes villes', price: '5-20 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Mai-juin et septembre : idéal. L\'été est chaud dans les steppes (40°C+). L\'hiver est extrême (jusqu\'à -40°C à Astana). Le printemps voit les steppes fleurir.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le Kazakhstan mélange culture nomade et modernité. Le koumiss (lait de jument fermenté) et le beshbarmak (viande avec pâtes) sont les plats traditionnels. L\'hospitalité nomade (offrir le thé, le repas, un lit) est profondément ancrée.' },
+    ]},
+  },
+  // ==================== KYRGYZSTAN ====================
+  KG: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal au Kirghizistan. Pratique très courante. Le pays est montagneux et les transports publics limités. Le transport informel est un mode de vie.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Kirghizistan est l\'un des meilleurs pays d\'Asie centrale pour l\'autostop. Les Kirghiz sont accueillants et curieux. Temps d\'attente : 10-30 min sur les routes principales. En montagne, le trafic est faible mais tout le monde s\'arrête.' },
+      { type: 'text', text: 'La route Bichkek-Osh (via le col de Teo-Ashuu à 3 500m) est un classique. Le tour du lac Issyk-Kul est facile en été.' },
+      { type: 'rule', icon: '💰', text: 'Les marshrutkas (taxis collectifs) s\'arrêtent partout. Clarifie "besplatno" car certains conducteurs privés attendent un paiement.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Kirghizistan est sûr. La criminalité est basse. Les routes de montagne sont le principal danger (cols à 3 000m+, pas de garde-fous).' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }, { k: 'Police', v: '102' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le Kirghizistan est modérément sûr pour les femmes seules. L\'enlèvement de mariée (ala kachuu) existe encore en zone rurale (pas contre les étrangères mais culturellement troublant). Les zones touristiques sont sûres.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le kirghiz et le russe sont les langues officielles. Le russe est compris partout. L\'anglais est très limité. Le russe de base est indispensable.' },
+      { type: 'phrase', items: [
+        { local: 'Salam', meaning: 'Bonjour (kirghiz)' },
+        { local: 'Rakhmat', meaning: 'Merci (kirghiz)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Kirghizistan est très bon marché. Budget serré : 10-20 €/jour. Le logement en yourte via CBT (Community Based Tourism) : 10-15 €/nuit avec repas.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est légal et facile dans les montagnes et les jailoos (pâturages d\'altitude). Les yourtes des bergers accueillent souvent les voyageurs. Le réseau CBT organise des séjours en yourte authentiques.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Marshrutka', detail: 'Minibus entre villes, bon marché', price: '1-5 €' },
+        { emoji: '🚗', name: 'Taxi partagé', detail: 'Plus rapide que le bus, attend d\'être plein', price: '3-10 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'bad' },
+      ]},
+      { type: 'text', text: 'Juin à septembre : idéal. Les cols de montagne sont ouverts. L\'été au lac Issyk-Kul est magnifique. L\'hiver ferme les cols et le stop devient difficile.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'La culture nomade kirghize est vivante. Le koumiss (lait de jument) et le beshbarmak sont les traditions culinaires. L\'hospitalité est sacrée : refuser le thé est impoli. Les jeux équestres (kok-boru, chasse à l\'aigle) sont spectaculaires.' },
+    ]},
+  },
+  // ==================== UZBEKISTAN ====================
+  UZ: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Ouzbékistan. Le transport informel est très courant. Beaucoup de voitures privées fonctionnent comme des taxis informels (surtout les Daewoo Matiz et Chevrolet Lacetti).' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'L\'Ouzbékistan fonctionne en stop semi-payant. Lever la main au bord de la route arrête des voitures privées qui font taxi. Clarifie "besplatno" (gratuit) AVANT de monter. Temps d\'attente : 5-15 min en ville, 15-30 min entre les villes.' },
+      { type: 'text', text: 'La route de la Soie (Tachkent-Samarkand-Boukhara-Khiva) est bien desservie. Les taxis partagés sont si bon marché qu\'ils rendent le stop gratuit moins nécessaire.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'L\'Ouzbékistan est très sûr. Le pays est autoritaire et la criminalité est très basse. Les contrôles de police sont fréquents (aie ton passeport et ton enregistrement).' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '112' }, { k: 'Police', v: '102' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'Ouzbékistan est sûr pour les femmes voyageant seules. La société est conservatrice mais respectueuse. Les voyageuses rapportent des expériences positives.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'ouzbek est la langue officielle. Le russe est très répandu (surtout à Tachkent). L\'anglais est limité aux zones touristiques (Samarkand, Boukhara).' },
+      { type: 'phrase', items: [
+        { local: 'Assalomu alaykum', meaning: 'Bonjour (formel)' },
+        { local: 'Rahmat', meaning: 'Merci' },
+        { local: 'Bepul', meaning: 'Gratuit' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'L\'Ouzbékistan est très bon marché. Budget serré : 10-20 €/jour. Le plov (riz pilaf) est le plat national : 1-2 € dans un chaikhana (salon de thé).' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Les hostels et B&B sont bon marché (5-15 €). Les chaikhanas (salons de thé) permettent parfois de dormir sur les tapchans (lits de repos extérieurs). Le camping sauvage est possible dans les zones rurales.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚂', name: 'Afrosiyob (TGV)', detail: 'Train rapide Tachkent-Samarkand-Boukhara', price: '5-15 €' },
+        { emoji: '🚗', name: 'Taxi partagé', detail: 'Voitures privées entre villes, attend d\'être plein', price: '2-10 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'good' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Avril-mai et septembre-octobre : idéal (20-28°C). L\'été est brûlant (45°C+). L\'hiver est froid dans les montagnes.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'Ouzbékistan est le cœur de la Route de la Soie. Samarkand, Boukhara et Khiva sont des merveilles architecturales. L\'hospitalité est sacrée. Le plov du jeudi est un événement social. Les mariages (souvent 300+ invités) sont des occasions de fête et les étrangers y sont parfois invités spontanément.' },
+    ]},
+  },
+  // ==================== JORDAN ====================
+  JO: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Jordanie. Pratique courante. Les Jordaniens sont parmi les peuples les plus hospitaliers du Moyen-Orient. Le pays est petit (450 km nord-sud) et sûr.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'La Jordanie est excellente pour l\'autostop. Les Jordaniens s\'arrêtent très facilement et sont curieux des étrangers. Temps d\'attente : 5-15 min. Beaucoup de conducteurs refusent l\'argent et insistent pour t\'inviter à manger.' },
+      { type: 'kv', items: [
+        { k: 'King\'s Highway (route des rois)', v: 'Magnifique, bon trafic', color: 'green' },
+        { k: 'Amman-Aqaba', v: 'Trafic dense, facile', color: 'green' },
+        { k: 'Wadi Rum-Aqaba', v: 'Peu de trafic mais tout s\'arrête', color: 'amber' },
+      ]},
+      { type: 'tip', text: '💡 Les Jordaniens donnent souvent leur numéro de téléphone et insistent pour t\'aider pendant tout ton séjour.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'La Jordanie est très sûre. Le pays est stable et la criminalité est basse. La police est présente et bienveillante. Évite la frontière syrienne (nord-est).' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '911' }, { k: 'Police touristique', v: '1-800-22-228' }] },
+    ]},
+    women: { filterTypes: ['q', 'c', 'a'], blocks: [
+      { type: 'text', text: 'La Jordanie est relativement sûre pour les femmes. L\'hospitalité jordanienne s\'applique à tous. Habille-toi de façon conservatrice (surtout hors d\'Amman). Quelques regards insistants mais les incidents sont rares.' },
+      { type: 'rule', icon: '👕', text: 'Vêtements couvrant les épaules et les genoux, surtout en zone rurale.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'arabe jordanien est la langue principale. L\'anglais est très répandu, surtout à Amman et dans les zones touristiques. Beaucoup de Jordaniens parlent couramment anglais.' },
+      { type: 'phrase', items: [
+        { local: 'Marhaba / Ahlan', meaning: 'Bonjour / Bienvenue' },
+        { local: 'Shukran', meaning: 'Merci' },
+        { local: 'Inshallah', meaning: 'Si Dieu le veut (utilisé constamment)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'La Jordanie est modérément chère. Budget serré : 20-35 €/jour. Le Jordan Pass (70+ JOD) inclut Petra et le visa.' },
+      { type: 'kv', items: [
+        { k: 'Falafel / shawarma', v: '0,50-1,50 JOD (0,70-2 €)' },
+        { k: 'Hostel', v: '8-20 JOD (10-25 €)' },
+        { k: 'Petra (entrée)', v: '50 JOD (70 €) ou inclus dans le Jordan Pass' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible dans le Wadi Rum (expérience inoubliable sous les étoiles) et dans les zones rurales. Les Bédouins invitent souvent les voyageurs sous leur tente pour le thé et parfois la nuit.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'JETT Bus', detail: 'Bus longue distance fiables', price: '3-10 JOD' },
+        { emoji: '🚐', name: 'Minibus', detail: 'Transport local entre villes, attendent d\'être pleins', price: '0,50-3 JOD' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'good' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'ok' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Mars-mai et octobre-novembre : idéal (20-28°C). L\'été est brûlant (35-45°C, surtout Aqaba et Wadi Rum). L\'hiver est frais et pluvieux à Amman.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'hospitalité jordanienne est exceptionnelle. Le "Ahlan wa sahlan" (bienvenue) est sincère. Les Bédouins dans le Wadi Rum offrent le thé (chai), le mansaf (plat national au yaourt) et des histoires. Refuser l\'invitation est impoli. Petra est une merveille du monde.' },
+    ]},
+  },
+  // ==================== OMAN ====================
+  OM: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal à Oman. Le concept est peu formalisé mais lever la main au bord de la route fonctionne très bien. Les Omanais sont naturellement serviables.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Oman est excellent pour l\'autostop. Les Omanais sont extrêmement accueillants et s\'arrêtent très facilement. Temps d\'attente : 5-15 min sur les routes principales. En zone rurale (wadis, montagnes), le trafic est faible mais tout le monde s\'arrête.' },
+      { type: 'text', text: 'Les conducteurs font des détours importants pour t\'aider, offrent le repas et parfois l\'hébergement. Le stop est presque trop facile : les voitures s\'arrêtent avant même que tu lèves le pouce.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Oman est l\'un des pays les plus sûrs au monde. Le taux de criminalité est quasi nul. Le sultan est vénéré et le pays est très ordonné.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '9999' }, { k: 'Police', v: '9999' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Oman est sûr pour les femmes voyageant seules. La société est conservatrice mais respectueuse. Habille-toi de façon modeste (épaules et genoux couverts). Les Omanais sont courtois et le harcèlement est rare.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'arabe omanais est la langue principale. L\'anglais est largement parlé, surtout à Mascate et dans les zones touristiques. Pas de barrière linguistique majeure.' },
+      { type: 'phrase', items: [
+        { local: 'As-salaam alaikum', meaning: 'Paix sur vous (salutation universelle)' },
+        { local: 'Shukran jazeelan', meaning: 'Merci beaucoup' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Oman est modérément cher. Budget serré : 25-40 €/jour. L\'essence est très bon marché. Les restaurants omanais traditionnels sont abordables.' },
+      { type: 'kv', items: [
+        { k: 'Repas local', v: '1-3 OMR (2,50-7,50 €)' },
+        { k: 'Hostel', v: '5-15 OMR (12-37 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est légal et populaire à Oman. Les wadis (vallées) et les plages sont des spots magnifiques. Beaucoup d\'Omanais campent eux-mêmes le week-end. Le ciel étoilé dans le désert est spectaculaire.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Mwasalat (bus)', detail: 'Réseau de bus en expansion, principal transport public', price: '0,50-5 OMR' },
+        { emoji: '🚗', name: 'Location de voiture', detail: 'Souvent la meilleure option pour explorer les wadis et les montagnes', price: '10-20 OMR/jour' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'bad' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'ok' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Octobre à mars : idéal (25-30°C). L\'été est brûlant (45°C+) et le stop est déconseillé. Le Dhofar (Salalah) a une saison de mousson unique (khareef) en été : verdoyant et frais.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Oman est un pays raffiné et accueillant. Le café omanais (qahwa) et les dattes sont offerts à chaque rencontre. Le pays est fier de sa tolérance (mosquées, églises et temples coexistent). L\'encens (frankincense) est un cadeau traditionnel. Les Omanais en dishdasha blanc et kumma sont élégants et courtois.' },
+    ]},
+  },
+  // ==================== SENEGAL ====================
+  SN: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal au Sénégal. Le concept de "teranga" (hospitalité) fait que les conducteurs s\'arrêtent naturellement. Le transport informel est le mode principal en zone rurale.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Sénégal est bon pour l\'autostop grâce à la teranga (hospitalité légendaire). Les conducteurs s\'arrêtent facilement. Beaucoup de transport est informel : les "sept-places" (taxis collectifs) et les ndiaga ndiaye (minibus) s\'arrêtent partout.' },
+      { type: 'rule', icon: '🚛', text: 'Les camions prennent des passagers sur les longues distances (Dakar-Saint-Louis, Dakar-Ziguinchor).' },
+      { type: 'rule', icon: '💰', text: 'Beaucoup de conducteurs attendent un paiement. Clarifie avant de monter. La distinction stop gratuit / transport payant est floue.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Sénégal est l\'un des pays les plus stables et sûrs d\'Afrique de l\'Ouest. La criminalité envers les touristes est basse. Évite les zones frontalières de la Casamance (sud).' },
+      { type: 'kv', items: [{ k: 'Police', v: '17' }, { k: 'Pompiers / SAMU', v: '18' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le Sénégal est relativement sûr pour les femmes mais le harcèlement de rue existe, surtout à Dakar. La teranga protège les voyageuses. Habille-toi de façon modeste en zone rurale.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'Le français est la langue officielle et presque tout le monde le parle. Le wolof est la langue locale la plus répandue. Les francophones n\'ont aucune barrière linguistique.' },
+      { type: 'phrase', items: [
+        { local: 'Nanga def?', meaning: 'Comment ça va ? (wolof)' },
+        { local: 'Jërëjëf', meaning: 'Merci (wolof)' },
+        { local: 'Inshallah', meaning: 'Si Dieu le veut' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Sénégal est modérément cher pour l\'Afrique de l\'Ouest. Budget serré : 15-25 €/jour. Le thiéboudienne (riz au poisson) est le plat national.' },
+      { type: 'kv', items: [
+        { k: 'Repas local', v: '500-1 500 CFA (0,75-2,30 €)' },
+        { k: 'Auberge', v: '5 000-15 000 CFA (7-23 €)' },
+        { k: 'Sept-place (100 km)', v: '2 000-4 000 CFA (3-6 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible sur les plages et en brousse. Les campements (guesthouses rurales) sont bon marché et conviviaux. Les Sénégalais invitent facilement les voyageurs chez eux.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Sept-place / Ndiaga Ndiaye', detail: 'Taxis collectifs et minibus, réseau étendu', price: '1-6 €' },
+        { emoji: '🚂', name: 'TER Dakar', detail: 'Train express récent Dakar-AIBD', price: '1-3 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'great' },
+        { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'ok' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'bad' },
+        { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Novembre à mai : saison sèche, idéale. Juillet-octobre : saison des pluies (hivernage), routes inondées en zone rurale.' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'La teranga (hospitalité) est l\'âme du Sénégal. Le thé à la menthe (ataya) en trois services est un rituel social incontournable. Le thiéboudienne est un plat communautaire partagé dans un grand bol. La musique (mbalax, Youssou N\'Dour) rythme la vie quotidienne.' },
+    ]},
+  },
+  // ==================== NAMIBIA ====================
+  NAM: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Namibie. Pratique courante car le pays est immense et les transports publics quasi inexistants en dehors des lignes principales.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'La Namibie est faisable en stop mais les distances sont immenses et le trafic très faible. Le pays est le 2ème moins densément peuplé au monde (3 hab/km²). Temps d\'attente : 30 min-3h, parfois plus sur les routes secondaires.' },
+      { type: 'kv', items: [
+        { k: 'B1/B2 (axes principaux)', v: 'Trafic modéré, faisable', color: 'green' },
+        { k: 'Routes vers Sossusvlei', v: 'Peu de trafic, longue attente possible', color: 'amber' },
+        { k: 'Nord-est (Caprivi Strip)', v: 'Faisable mais isolé', color: 'amber' },
+      ]},
+      { type: 'rule', icon: '💧', text: 'TOUJOURS avoir au moins 5 litres d\'eau. La déshydratation dans le désert est le danger n°1.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'La Namibie est sûre en zone rurale. Windhoek a des quartiers à éviter la nuit. Le principal danger est la nature : chaleur, distances, animaux sauvages (éléphants sur les routes dans le nord).' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '10111' }, { k: 'Ambulance', v: '211111' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'La Namibie est relativement sûre pour les femmes. Les zones touristiques sont sûres. Voyager en duo est recommandé pour les zones isolées (Skeleton Coast, Kaokoveld).' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'anglais est la langue officielle et largement parlé. L\'afrikaans est courant chez les populations blanches et coloured. L\'oshiwambo est la langue bantoue la plus parlée.' },
+      { type: 'phrase', items: [
+        { local: 'Moro', meaning: 'Bonjour (oshiwambo)' },
+        { local: 'Tangi unene', meaning: 'Merci beaucoup (oshiwambo)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'La Namibie est modérément chère. Budget serré : 20-35 €/jour. L\'entrée des parcs nationaux (Etosha, Sossusvlei) est abordable.' },
+      { type: 'kv', items: [
+        { k: 'Camping (parc national)', v: '150-300 NAD (8-16 €)' },
+        { k: 'Repas local', v: '50-150 NAD (3-8 €)' },
+        { k: 'Backpacker hostel', v: '150-350 NAD (8-19 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est toléré dans le désert et les zones rurales (demande la permission aux fermes). Les campings dans les parcs nationaux (NWR) sont bien équipés. Le ciel étoilé namibien est parmi les plus purs au monde.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚌', name: 'Intercape', detail: 'Bus longue distance, réseau limité', price: '200-600 NAD' },
+        { emoji: '🚐', name: 'Minibus / Combis', detail: 'Transport local entre villes', price: '50-200 NAD' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'ok' }, { name: 'Fév', level: 'ok' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'great' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'ok' },
+      ]},
+      { type: 'text', text: 'Mai à octobre : saison sèche, idéale (jours chauds, nuits fraîches). La saison des pluies (novembre-avril) rend certaines pistes impraticables. Etosha est meilleur en saison sèche (animaux aux points d\'eau).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'La Namibie est un pays de contrastes : dunes du Namib, Skeleton Coast, Etosha. La culture est diverse (Himba, San, Herero, Ovambo). Le braai (barbecue) est aussi important qu\'en Afrique du Sud. Le game jerky (biltong) est le snack de route.' },
+    ]},
+  },
+  // ==================== KENYA ====================
+  KE: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop n\'est pas formellement réglementé au Kenya. Le transport informel (matatus) est le mode principal. Lever la main au bord de la route arrête n\'importe quel véhicule.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'Le Kenya fonctionne en transport semi-informel. Les matatus (minibus) sont partout et très bon marché. Pour le stop gratuit, les camions sur la route Nairobi-Mombasa ou Nairobi-Naivasha prennent des passagers. Clarifie "free" ou "bure" avant de monter.' },
+      { type: 'rule', icon: '💰', text: 'La distinction entre stop gratuit et transport payant est floue. Clarifie toujours avant.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'Le Kenya est globalement sûr en dehors de certaines zones. Évite le nord-est (frontière somalienne), les bidonvilles de Nairobi et la côte nord (Lamu) sans information récente.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '999 / 112' }, { k: 'Police', v: '999' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Les femmes voyageant seules au Kenya rapportent des expériences mixtes. Les zones touristiques (Masai Mara, Amboseli) sont sûres. Les matatus sont une alternative plus sûre au stop.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'anglais et le swahili sont les langues officielles. L\'anglais est bien parlé (langue d\'éducation). Le swahili est la langue du quotidien.' },
+      { type: 'phrase', items: [
+        { local: 'Jambo / Habari', meaning: 'Bonjour / Comment ça va (swahili)' },
+        { local: 'Asante sana', meaning: 'Merci beaucoup' },
+        { local: 'Bure', meaning: 'Gratuit' },
+        { local: 'Hakuna matata', meaning: 'Pas de souci (oui, c\'est réel !)' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le Kenya est modérément cher (surtout les safaris). Budget serré hors safari : 15-25 €/jour. Les nyama choma (grillades) sont copieuses.' },
+      { type: 'kv', items: [
+        { k: 'Repas local', v: '200-500 KES (1,50-4 €)' },
+        { k: 'Hostel', v: '800-2 000 KES (6-15 €)' },
+        { k: 'Matatu (100 km)', v: '200-500 KES (1,50-4 €)' },
+      ]},
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est déconseillé (animaux sauvages). Les campings dans les parcs sont sûrs et bien organisés. Les backpacker hostels sont bien développés à Nairobi et sur la côte.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Matatu', detail: 'Minibus omniprésents, musique à fond, expérience unique', price: '1-5 €' },
+        { emoji: '🚂', name: 'Madaraka Express (SGR)', detail: 'Train moderne Nairobi-Mombasa (4h30)', price: '10-30 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'bad' }, { name: 'Mai', level: 'bad' }, { name: 'Jun', level: 'good' },
+        { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'great' },
+        { name: 'Oct', level: 'good' }, { name: 'Nov', level: 'ok' }, { name: 'Déc', level: 'good' },
+      ]},
+      { type: 'text', text: 'Janvier-février et juin-octobre : saison sèche, idéale. Juillet-octobre : grande migration au Masai Mara. Avril-mai : grandes pluies (routes impraticables en zone rurale).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'Le Kenya est un pays vibrant et diversifié (42 tribus). Les Masai sont emblématiques mais le pays est bien plus que ça. Le nyama choma (viande grillée) et l\'ugali (pâte de maïs) sont les plats quotidiens. Les Kenyans sont accueillants et fiers de leur faune.' },
+    ]},
+  },
+  // ==================== ETHIOPIA ====================
+  ET: {
+    laws: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'L\'autostop est légal en Éthiopie. Le transport informel (monter dans les camions Isuzu) est courant. Les conducteurs s\'arrêtent facilement mais attendent souvent un paiement.' },
+    ]},
+    hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
+      { type: 'text', text: 'L\'Éthiopie est un cas particulier. Le stop fonctionne mais la distinction gratuit/payant est très floue. Les camions prennent des passagers régulièrement. Clarifie "free, no birr" avant de monter. En zone rurale, tu es une attraction : des foules d\'enfants crient "You! You! Money!"' },
+      { type: 'text', text: 'Les routes principales (Addis-Bahir Dar, Addis-Lalibela) sont goudronnées. Les pistes dans le Simien ou le Danakil nécessitent un véhicule organisé.' },
+    ]},
+    safety: { filterTypes: ['c', 'a'], blocks: [
+      { type: 'text', text: 'La sécurité dépend de la région. Les zones touristiques (Lalibela, Gondar, Omo Valley) sont sûres. Évite les zones de conflit (Tigray, certaines parties d\'Oromia/Amhara). Vérifie la situation actuelle.' },
+      { type: 'kv', items: [{ k: 'Urgences', v: '911 / 991' }] },
+    ]},
+    women: { filterTypes: ['q', 'c'], blocks: [
+      { type: 'text', text: 'Le harcèlement de rue est courant en Éthiopie. Les femmes voyageant seules rapportent des expériences difficiles. Voyager en duo est fortement recommandé.' },
+    ]},
+    language: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'text', text: 'L\'amharique est la langue officielle (alphabet ge\'ez unique). L\'anglais est enseigné à l\'école mais peu parlé en zone rurale. Apprends quelques mots d\'amharique.' },
+      { type: 'phrase', items: [
+        { local: 'Selam', meaning: 'Bonjour' },
+        { local: 'Amesegenalehu', meaning: 'Merci' },
+        { local: 'Nefsih / Free', meaning: 'Gratuit' },
+      ]},
+    ]},
+    budget: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'L\'Éthiopie est bon marché. Budget serré : 10-20 €/jour. L\'injera (galette spongieuse) avec des wots (ragoûts) est le plat quotidien : 1-3 €.' },
+    ]},
+    sleep: { filterTypes: ['b', 'q'], blocks: [
+      { type: 'text', text: 'Le camping sauvage est possible mais demande la permission localement. Les pensions (hotels basiques) coûtent 2-8 €. Les monastères orthodoxes accueillent parfois les voyageurs.' },
+    ]},
+    transport: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'transport', items: [
+        { emoji: '🚐', name: 'Minibus', detail: 'Principal transport entre villes, attendent d\'être pleins (parfois des heures)', price: '1-10 €' },
+        { emoji: '🚌', name: 'Selam Bus', detail: 'Bus longue distance, plus confortables', price: '5-15 €' },
+      ]},
+    ]},
+    season: { filterTypes: ['c', 'q'], blocks: [
+      { type: 'season', months: [
+        { name: 'Jan', level: 'great' }, { name: 'Fév', level: 'great' }, { name: 'Mar', level: 'good' },
+        { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'bad' },
+        { name: 'Jul', level: 'bad' }, { name: 'Aoû', level: 'bad' }, { name: 'Sep', level: 'ok' },
+        { name: 'Oct', level: 'great' }, { name: 'Nov', level: 'great' }, { name: 'Déc', level: 'great' },
+      ]},
+      { type: 'text', text: 'Octobre à mars : saison sèche, idéale. Juin-septembre : grandes pluies (routes impraticables). Janvier : Timkat (Épiphanie éthiopienne), la plus grande fête. L\'Éthiopie a son propre calendrier (13 mois, 7-8 ans de décalage).' },
+    ]},
+    culture: { filterTypes: ['c', 'b'], blocks: [
+      { type: 'text', text: 'L\'Éthiopie est unique en Afrique : jamais colonisée, calendrier propre, alphabet propre, église orthodoxe ancienne. La cérémonie du café est un rituel social qui dure 30-60 minutes (3 tasses obligatoires). L\'injera se mange avec les mains. L\'hospitalité est sincère mais les enfants mendiants sont un défi.' },
+      { type: 'event', items: [
+        { month: 'Jan', day: '19', name: 'Timkat (Épiphanie)', desc: 'La plus grande fête religieuse. Processions spectaculaires à Gondar et Lalibela.' },
+      ]},
+    ]},
+  },
 }
