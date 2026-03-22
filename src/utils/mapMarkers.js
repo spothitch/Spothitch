@@ -3,17 +3,16 @@
  * "Split net + couronne 3 pointes + anneau fin doré"
  *
  * 4 tiers:
- *   Grey (#94a3b8)  — Spot non vérifié ("à vérifier")
- *   Blue (#3b82f6)  — Spot SpotHitch communauté (créé ou utilisé par nos users)
+ *   Grey (#94a3b8)  — Ancien (pas validé/utilisé depuis 2+ ans)
+ *   Blue (#3b82f6)  — Récent (activité dans les 2 dernières années)
  *   Green (#22c55e) — Fiable (3+ tests communauté AND 3+ validations)
- *   Gold overlay    — Certifié ambassadeur (couronne + anneau doré)
+ *   Gold overlay    — Populaire (10+ utilisations, couronne + anneau doré)
  *
  * Modifiers:
  *   -station        — Split vertical gauche=couleur / droite=rouge (station-service)
- *   -gold           — Couronne 3 pointes + anneau doré (ambassadeur certifié)
+ *   -gold           — Couronne 3 pointes + anneau doré (10+ utilisations)
  *
- * Transition grey→blue : UNIQUEMENT quand quelqu'un a UTILISÉ le spot (type='test'),
- * pas juste validé en passant.
+ * Un spot vert (fiable) repasse en gris s'il n'a pas été validé/utilisé depuis 2 ans.
  *
  * NOTE: Le rouge = station-service, PAS dangereux.
  */
@@ -124,15 +123,41 @@ export async function registerMarkerImages(map) {
 }
 
 /**
+ * Check if a spot has been validated or used in the last 2 years.
+ * Uses lastValidated, lastTested, or createdAt as fallback.
+ */
+function isRecentActivity(spot) {
+  const TWO_YEARS_MS = 2 * 365.25 * 24 * 60 * 60 * 1000
+  const now = Date.now()
+  // Check multiple date fields (Firestore Timestamp or ISO string)
+  const dates = [spot.lastValidated, spot.lastTested, spot.lastValidatedAt, spot.lastTestedAt]
+  for (const d of dates) {
+    if (!d) continue
+    const ts = typeof d === 'string' ? new Date(d).getTime()
+      : d?.seconds ? d.seconds * 1000
+      : typeof d === 'number' ? d : 0
+    if (ts > 0 && (now - ts) < TWO_YEARS_MS) return true
+  }
+  // Fallback: createdAt (new spots are "recent" by definition)
+  const created = spot.createdAt
+  if (created) {
+    const ts = typeof created === 'string' ? new Date(created).getTime()
+      : created?.seconds ? created.seconds * 1000
+      : typeof created === 'number' ? created : 0
+    if (ts > 0 && (now - ts) < TWO_YEARS_MS) return true
+  }
+  return false
+}
+
+/**
  * Determine the marker image name for a spot.
  * Tier logic:
- *   - Grey: Not yet tested by SpotHitch community
- *   - Blue: SpotHitch community spot (created or used by our users)
- *   - Green: Reliable (3+ community tests AND 3+ validations)
- *   - Gold overlay: ambassadorVerified = true
+ *   - Grey: Ancien (no validation/use in 2+ years)
+ *   - Blue: Récent (activity within last 2 years)
+ *   - Green: Fiable (3+ community tests AND 3+ validations AND recent)
+ *   - Gold overlay: Populaire (10+ uses, crown + gold ring)
  *
- * Transition grey→blue happens ONLY when someone actually USED the spot
- * (type='test' validation), NOT just validated/passed by.
+ * A green (reliable) spot goes back to grey if inactive for 2+ years.
  *
  * @param {Object} spot — Spot data object
  * @param {boolean} isFav — Is this a user favorite?
@@ -142,11 +167,21 @@ export function getMarkerType(spot, isFav) {
   if (isFav) return 'marker-fav'
 
   const isStation = spot.spotType === 'gas_station'
-  const isGold = spot.ambassadorVerified === true
+  const recent = isRecentActivity(spot)
   const liveTestCount = spot.liveTestCount || 0
   const validationCount = spot.validationCount || spot.userValidations || 0
+  const totalUses = spot.checkins || spot.totalUses || liveTestCount || 0
+  const isGold = totalUses >= 10
 
-  // GREEN: 3+ community tests AND 3+ validations
+  // GREY: not used/validated in 2+ years (even if previously green)
+  if (!recent) {
+    if (isGold && isStation) return 'marker-gray-gold-station'
+    if (isGold) return 'marker-gray-gold'
+    if (isStation) return 'marker-gray-station'
+    return 'marker-gray'
+  }
+
+  // GREEN: 3+ community tests AND 3+ validations AND recent
   if (liveTestCount >= 3 && validationCount >= 3) {
     if (isGold && isStation) return 'marker-green-gold-station'
     if (isGold) return 'marker-green-gold'
@@ -154,7 +189,7 @@ export function getMarkerType(spot, isFav) {
     return 'marker-green'
   }
 
-  // BLUE: default community spot
+  // BLUE: recent community spot (default)
   if (isGold && isStation) return 'marker-blue-gold-station'
   if (isGold) return 'marker-blue-gold'
   if (isStation) return 'marker-blue-station'
@@ -183,11 +218,11 @@ export function buildLegendHTML(t) {
 
   return `
 <div class="text-xs font-bold mb-1.5">${t('mapLegend') || 'Légende'}</div>
-${row(c('#94a3b8'), t('legendInherited') || 'Hérité')}
-${row(c('#3b82f6'), t('legendNew') || 'Nouveau')}
+${row(c('#94a3b8'), t('legendOld') || 'Ancien (2+ ans)')}
+${row(c('#3b82f6'), t('legendRecent') || 'Récent')}
 ${row(c('#22c55e'), t('reliableSpot') || 'Fiable')}
-${row(sp('#94a3b8', '#ef4444'), t('legendWithStation') || 'Avec station-service')}
-${row(g('#f59e0b'), t('legendCertified') || 'Certifié')}
+${row(sp('#3b82f6', '#ef4444'), t('legendWithStation') || 'Avec station-service')}
+${row(g('#f59e0b'), t('legendPopular') || 'Populaire (10+ utilisations)')}
 ${row(heart(), t('favorite') || 'Favori')}
 `
 }
