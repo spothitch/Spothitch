@@ -3,6 +3,8 @@
  * Hitchhiking guides by country
  */
 
+import { guideSectionsData } from './guideSections.js'
+
 export const countryGuides = [
   {
     code: 'FR',
@@ -2274,6 +2276,13 @@ export const countryGuides = [
     emergencyNumbers: { police: '110', ambulance: '115', fire: '125', universal: '112' },
   },
 ]
+
+// Enrich guides with v17 sections data from guideSections.js
+for (const guide of countryGuides) {
+  if (guideSectionsData[guide.code] && !guide.sections) {
+    guide.sections = guideSectionsData[guide.code]
+  }
+}
 
 /**
  * Get guide by country code
