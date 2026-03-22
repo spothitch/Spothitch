@@ -169,8 +169,7 @@ export function renderLanding() {
 
           <button
             onclick="closeLanding()"
-            class="w-full max-w-[280px] flex items-center justify-center gap-2 py-3 rounded-xl text-slate-500 font-medium text-[12px] relative z-10 cursor-pointer"
-            class="bg-white/[0.02] border border-white/[0.07]"
+            class="w-full max-w-[280px] flex items-center justify-center gap-2 py-3 rounded-xl text-slate-500 font-medium text-[12px] relative z-10 cursor-pointer bg-white/[0.02] border border-white/[0.07]"
             type="button"
           >
             ${t('slide7SkipBtn')}
