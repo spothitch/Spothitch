@@ -1348,4 +1348,478 @@ export const guideSectionsData = {
       ],
     },
   },
+
+  // ==================== NORWAY ====================
+  NO: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est légal en Norvège. Interdit sur les autoroutes elles-mêmes mais autorisé aux bretelles d\'accès, stations-service et routes secondaires. Depuis 2024, presque tous les ferries côtiers sont gratuits pour les piétons.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'La Norvège fonctionne bien pour l\'autostop mais la progression est lente à cause des routes sinueuses de montagne et du trafic clairsemé. Prévois ~500 km/jour maximum.' },
+        { type: 'sub', title: 'Différences nord/sud' },
+        { type: 'kv', items: [
+          { k: 'Nord (Lofoten, Tromsø, Nordkapp)', v: 'Excellent (5-30 min)', color: 'green' },
+          { k: 'Centre (Trondheim)', v: 'Correct', color: 'green' },
+          { k: 'Sud (Oslo, Stavanger)', v: 'Difficile (jusqu\'à 2h)', color: 'amber' },
+        ]},
+        { type: 'text', text: 'Les Lofoten sont un paradis pour l\'autostop : une seule route principale (E10), paysages spectaculaires, conducteurs accueillants. Dans le nord, beaucoup de conducteurs n\'ont jamais vu d\'autostoppeur.' },
+        { type: 'tip', text: '💡 Aux ferries, approche les conducteurs AVANT l\'embarquement plutôt qu\'après. Ils attendent et ont le temps de discuter.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'La Norvège est l\'un des pays les plus sûrs au monde. Le principal risque est la météo et l\'isolement (longues distances entre les villes, froid, pluie, neige), pas les gens.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [
+          { k: 'Urgences', v: '112' },
+          { k: 'Police', v: '02800' },
+          { k: 'Ambulance', v: '113' },
+        ]},
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'La Scandinavie est décrite comme "la région parfaite pour essayer l\'autostop en tant que femme". Le statut de la femme dans la société nordique est très élevé. Plusieurs voyageuses solo confirment n\'avoir jamais été harcelées.' },
+        { type: 'text', text: 'Des femmes ont traversé la Norvège seules en stop (Bergen → Nordkapp) sans aucun problème. Une voyageuse a même été invitée chez une conductrice pour des gaufres et du canoë.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Presque tous les Norvégiens parlent anglais couramment. Aucune barrière de langue.' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'La Norvège est extrêmement chère. Les prix alimentaires sont environ le double de ceux de la France, même dans les supermarchés discount (Rema 1000, Kiwi). Un repas au restaurant est prohibitif pour un routard.' },
+        { type: 'text', text: 'La combinaison autostop + camping sauvage (gratuit grâce à l\'Allemannsretten) + cuisine au réchaud est la seule stratégie viable pour voyager à petit budget.' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'L\'Allemannsretten (droit de tout un chacun) est inscrit dans la loi norvégienne de 1957. Tu peux camper gratuitement sur les terres non cultivées (forêts, montagnes, landes, rivages) sans autorisation.' },
+        { type: 'sub', title: 'Règles' },
+        { type: 'rule', icon: '✅', text: 'Camping gratuit jusqu\'à 2 nuits au même endroit.' },
+        { type: 'rule', icon: '✅', text: 'Cueillette de baies et champignons autorisée.' },
+        { type: 'rule', icon: '🚫', text: 'Rester à minimum 150 m des habitations.' },
+        { type: 'rule', icon: '🚫', text: 'Pas de feu en pleine nature.' },
+        { type: 'rule', icon: '🚫', text: 'Pas sur les terres cultivées.' },
+        { type: 'warn', text: '⚠️ Aux Lofoten, des restrictions locales existent à cause du surtourisme. Renseigne-toi localement.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'transport', items: [
+          { emoji: '⛴️', name: 'Ferries côtiers', detail: 'Gratuits pour les piétons depuis 2024', price: 'gratuit' },
+          { emoji: '🚌', name: 'Vy Bus4You', detail: 'Bus interurbains abordables', price: '' },
+          { emoji: '🚌', name: 'FlixBus', detail: 'Quelques lignes en Norvège', price: 'dès 5 €' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'season', months: [
+          { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'bad' },
+          { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'ok' },
+          { name: 'Oct', level: 'bad' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+        ]},
+        { type: 'text', text: 'Juin à août : soleil de minuit au nord du cercle polaire. Journées quasi infinies. Septembre : épaule (plus froid, moins de trafic). Hiver : extrêmement difficile (nuit polaire, froid, verglas, très peu de voitures).' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Les Norvégiens sont réservés au premier contact mais serviables. Dans le nord, les gens sont nettement plus chaleureux et accueillants. Les conducteurs vont parfois faire un détour pour t\'amener au bon endroit.' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Mai', day: '17', name: 'Syttende Mai', desc: 'Fête nationale. Défilés, costumes traditionnels dans tout le pays.' },
+          { month: 'Juin', day: '23', name: 'Sankthansaften', desc: 'Feux de la Saint-Jean sur les plages et fjords.' },
+          { month: 'Juil', day: '⟳', name: 'Midnight Sun Marathon (Tromsø)', desc: 'Marathon sous le soleil de minuit.' },
+        ]},
+      ],
+    },
+  },
+
+  // ==================== SWEDEN ====================
+  SE: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est légal en Suède. Interdit sur les autoroutes mais autorisé aux bretelles et stations-service. La réputation de "pays où c\'est interdit" est un mythe : personne ne t\'ennuiera.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'La Suède a une mauvaise réputation parmi les autostoppeurs, mais les voyageurs expérimentés disent que "ce n\'est vraiment pas aussi mauvais que tout le monde le dit". Temps d\'attente moyen : ~30 minutes. Le nord est nettement plus facile que le sud.' },
+        { type: 'text', text: 'Une voyageuse solo a parcouru 2 600 km à travers la Suède : les 9 trajets ont tous été positifs. L\'approche directe aux stations-service fonctionne mieux que le pouce au bord de la route.' },
+        { type: 'tip', text: '💡 Consulte rasta.nu pour localiser les grandes stations-service (Rasta) le long des autoroutes. Ce sont les meilleurs spots.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'Pays très sûr. Aucun incident rapporté par les autostoppeurs. Le principal risque est les longues distances dans le nord avec peu de voitures.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'La Suède est l\'un des pays les plus égalitaires au monde. Les femmes sont prises en stop plus rapidement que les hommes. La Scandinavie est décrite comme "la région parfaite pour essayer l\'autostop en tant que femme".' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Presque tous les Suédois parlent anglais couramment. Aucune barrière de langue. Le mot suédois pour autostop est "lifta".' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Cher mais un peu moins que la Norvège. Supermarchés discount : Lidl, Willys, ICA Maxi. Cuisiner soi-même est essentiel.' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'L\'Allemansrätten (droit d\'accès public) est inscrit dans la Constitution suédoise depuis 1994. Tu peux planter ta tente sur n\'importe quel terrain non cultivé pour 1-2 nuits sans autorisation.' },
+        { type: 'sub', title: 'Règles' },
+        { type: 'rule', icon: '✅', text: '1-2 nuits au même endroit, pas sur terrain clôturé ou cultivé.' },
+        { type: 'rule', icon: '✅', text: 'Cueillette de baies, champignons et fleurs sauvages autorisée.' },
+        { type: 'rule', icon: '🚫', text: 'Rester à 150-200 m des habitations.' },
+        { type: 'rule', icon: '🚫', text: 'Feux de camp uniquement quand les conditions sont sûres (interdictions fréquentes en été).' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'transport', items: [
+          { emoji: '🚌', name: 'FlixBus / FlixTrain', detail: 'Opère en Suède', price: 'dès 5 €' },
+          { emoji: '🚃', name: 'SJ (trains suédois)', detail: 'Réserve à l\'avance pour des réductions', price: '' },
+          { emoji: '🤝', name: 'Skjutsgruppen.nu', detail: 'Plateforme suédoise de covoiturage', price: '' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'season', months: [
+          { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+          { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'good' },
+          { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+        ]},
+        { type: 'text', text: 'Juin à août : longues journées, temps doux, maximum de trafic. Attention aux moustiques en Laponie (juin-juillet). Hiver : difficile (-20°C dans le nord, obscurité).' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Les Suédois sont introvertis et ne t\'approcheront pas, mais ils sont serviables quand TU les abordes. Dans le nord, les gens "ne laisseront pas un étranger geler dehors". Enlève tes chaussures quand tu entres chez quelqu\'un ou dans la cabine d\'un camion.' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Juin', day: '⟳', name: 'Midsommar', desc: 'Solstice d\'été. Danse autour du mât, couronnes de fleurs, fête nationale.' },
+          { month: 'Août', day: '⟳', name: 'Crayfish Party (Kräftskiva)', desc: 'Fêtes d\'écrevisses en plein air dans tout le pays.' },
+          { month: 'Déc', day: '13', name: 'Lucia', desc: 'Processions aux bougies, chants traditionnels.' },
+        ]},
+      ],
+    },
+  },
+
+  // ==================== ICELAND ====================
+  IS: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est parfaitement légal et socialement accepté en Islande. Aucune restriction. C\'est une pratique courante, surtout sur la Route 1 (Ring Road).' },
+        { type: 'warn', text: '⚠️ La police des frontières peut demander une preuve de fonds suffisants (carte bancaire ou espèces). L\'entrée peut être refusée sans.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'L\'Islande est très facile pour l\'autostop en été. Temps d\'attente moyen : 5 à 30 minutes sur la Ring Road. Les Islandais ET les touristes en voiture de location s\'arrêtent.' },
+        { type: 'sub', title: 'Par zone' },
+        { type: 'kv', items: [
+          { k: 'Ring Road (Route 1)', v: 'Très facile', color: 'green' },
+          { k: 'Reykjavik → Akranes (bus + stop)', v: 'Facile', color: 'green' },
+          { k: 'Fjords de l\'Ouest', v: 'Très difficile (locaux réservés)', color: 'red' },
+          { k: 'Intérieur / Highlands', v: 'Quasi impossible (pas de trafic)', color: 'red' },
+        ]},
+        { type: 'text', text: 'Ne tente pas de sortir de Reykjavik en stop directement. Prends un bus jusqu\'à Akranes et commence de là. Les stations N1 sont les centres sociaux des villages et de bons spots.' },
+        { type: 'tip', text: '💡 Samferda.is : plateforme islandaise de covoiturage où tu peux partager les frais d\'essence.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'L\'Islande est classée n°1 mondial en sécurité pour les voyageuses solo (note 4.9/5). Crime quasi inexistant. Le vrai danger est la météo : elle change en quelques minutes, et être bloqué loin d\'une ville par temps arctique est le risque principal.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'Islande est la référence mondiale en matière d\'égalité des genres et de sécurité pour les femmes. Plusieurs voyageuses font du stop régulièrement sans aucun problème. Les automobilistes veulent souvent t\'aider ENCORE PLUS parce que tu es une femme.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'Presque tous les Islandais parlent anglais couramment. Aucune barrière de langue. Les touristes de toutes nationalités offrent aussi des trajets.' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'L\'Islande est le pays nordique le plus cher. Budget minimum : 60 à 100 €/jour. L\'autostop est la stratégie clé pour réduire le principal poste de dépense (la location de voiture, très chère). Monnaie : couronne islandaise (ISK). Le supermarché le moins cher est Bonus.' },
+        { type: 'sub', title: 'Hébergement' },
+        { type: 'kv', items: [
+          { k: 'Campings officiels', v: '5 à 25 €/nuit' },
+          { k: 'Auberges (dortoir Reykjavik)', v: 'dès ~30 €/nuit' },
+        ]},
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q', 'a'],
+      blocks: [
+        { type: 'text', text: 'Le camping sauvage avec tente est autorisé uniquement en zone inhabitée, pour 1 nuit, avec maximum 3 tentes, et s\'il n\'y a pas de panneau d\'interdiction. Les camping-cars DOIVENT rester dans les campings officiels (loi de 2015).' },
+        { type: 'warn', text: '⚠️ Depuis 2017, les règles ont été durcies à cause du comportement de certains touristes. En zone habitée (sud de l\'Islande), le camping hors campings est interdit.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Pas de chemin de fer en Islande. Les bus existent mais sont chers et peu fréquents.' },
+        { type: 'sub', title: 'Options' },
+        { type: 'transport', items: [
+          { emoji: '🤝', name: 'Samferda.is', detail: 'Covoiturage islandais, partage des frais d\'essence', price: '' },
+          { emoji: '✈️', name: 'Vols intérieurs', detail: 'Reykjavik-Akureyri (Icelandair Connect)', price: '' },
+          { emoji: '⛴️', name: 'Ferry Smyril Line', detail: 'Danemark → Féroé → Islande (Seyðisfjörður)', price: '' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'season', months: [
+          { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'bad' },
+          { name: 'Avr', level: 'bad' }, { name: 'Mai', level: 'ok' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'ok' },
+          { name: 'Oct', level: 'bad' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+        ]},
+        { type: 'text', text: 'Juin à août exclusivement. Quasi 24h de lumière, plus de trafic (touristes), températures douces (10-15°C). Mai et septembre possibles mais plus froids et moins de voitures. Hiver : quasi impossible (obscurité, tempêtes, très peu de voitures).' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Les Islandais sont accueillants et confiants grâce à l\'isolement historique et à la petite population (~370 000). Le tourisme est une industrie majeure, donc les locaux sont habitués aux visiteurs. Les Islandais en gros 4x4 s\'arrêtent plus souvent que les touristes en voiture de location (souvent pleines).' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Fév', day: '⟳', name: 'Þorrablót', desc: 'Festival gastronomique viking avec plats traditionnels.' },
+          { month: 'Juin', day: '17', name: 'Fête nationale', desc: 'Célébration de l\'indépendance, défilés.' },
+          { month: 'Août', day: '⟳', name: 'Þjóðhátíð (Vestmannaeyjar)', desc: 'Plus grand festival d\'Islande, musique et feux de camp.' },
+        ]},
+      ],
+    },
+  },
+
+  // ==================== FINLAND ====================
+  FI: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est légal en Finlande. Interdit sur les autoroutes (moottoritie) et certaines voies express (moottoriliikennetie). Autorisé aux bretelles d\'accès (souvent avec un arrêt de bus) et aux stations-service.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'La Finlande est un pays mitigé pour l\'autostop. Les Finlandais sont introvertis et hésitent à prendre des inconnus. Le sud et les villes (Helsinki, Tampere) sont difficiles. Mais plus tu montes vers le nord (Laponie), plus ça devient facile.' },
+        { type: 'sub', title: 'Paradoxe lapon' },
+        { type: 'text', text: 'En Laponie, il y a parfois seulement 5 voitures par heure sur les routes secondaires. Mais les conducteurs font de très longues distances et apprécient la compagnie. Ils s\'arrêtent plus facilement, surtout par mauvais temps (compassion).' },
+        { type: 'tip', text: '💡 Les conducteurs finlandais ont besoin d\'un espace sûr pour s\'arrêter. Positionne-toi là où il y a clairement de la place pour se garer.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'La Finlande est l\'un des pays les plus sûrs au monde. Aucun incident rapporté par les autostoppeurs. Les Lapons sont décrits comme "parmi les gens les plus sympathiques et les plus serviables".' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'La Finlande et la Scandinavie sont décrites comme "la région parfaite pour essayer l\'autostop en tant que femme". Le statut de la femme dans la société nordique est très élevé et tu ne seras harcelée nulle part.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'La plupart des Finlandais parlent anglais, surtout les jeunes et en ville. Le finnois et le suédois sont les langues officielles. Le finnois est très différent des langues scandinaves et difficile à apprendre.' },
+        { type: 'phrase', items: [
+          { local: 'Kiitos paljon', meaning: 'Merci beaucoup' },
+          { local: 'Kyyti', meaning: 'Un trajet' },
+        ]},
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Les courses alimentaires sont très chères par rapport au reste de l\'Europe. La combinaison autostop + camping sauvage (Jokamiehenoikeus) + cuisine au réchaud est la stratégie budget.' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le Jokamiehenoikeus (droit de tout un chacun) permet de camper gratuitement sur les terres non cultivées. Tu peux cueillir des baies, des champignons et pêcher à la canne.' },
+        { type: 'rule', icon: '✅', text: 'Camping gratuit sur terrain non cultivé, 1-2 nuits.' },
+        { type: 'rule', icon: '🚫', text: 'Les feux de camp ne font PAS partie du Jokamiehenoikeus. Uniquement aux emplacements désignés.' },
+        { type: 'rule', icon: '🚫', text: 'Dans les parcs nationaux : uniquement dans les zones de tente désignées.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'transport', items: [
+          { emoji: '🚌', name: 'Onnibus', detail: 'Bus longue distance, très bon marché', price: 'dès 1 €' },
+          { emoji: '🚌', name: 'FlixBus', detail: 'Quelques lignes en Finlande', price: 'dès 5 €' },
+          { emoji: '🚃', name: 'VR (trains finlandais)', detail: 'Réserve à l\'avance pour des réductions', price: '' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'season', months: [
+          { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'bad' },
+          { name: 'Avr', level: 'ok' }, { name: 'Mai', level: 'good' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'ok' },
+          { name: 'Oct', level: 'bad' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+        ]},
+        { type: 'warn', text: '⚠️ En juin-juillet en Laponie, les moustiques sont un problème majeur. Prévois du répulsif et une moustiquaire.' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Les Finlandais sont réservés mais les rencontres sont chaleureuses une fois le contact établi. En Laponie, les gens sont particulièrement accueillants. Un voyageur résume : "mon foi en l\'humanité a été restaurée".' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Fév', day: '⟳', name: 'Marché de Jokkmokk', desc: 'Marché sami historique en Laponie (aussi côté suédois).' },
+          { month: 'Juin', day: '⟳', name: 'Juhannus (Midsommar)', desc: 'Solstice d\'été, feux de joie, saunas, lac.' },
+          { month: 'Juil', day: '⟳', name: 'Wife Carrying Championship', desc: 'Course de portage de femme à Sonkajärvi. Oui, c\'est réel.' },
+          { month: 'Déc', day: '⟳', name: 'Village du Père Noël (Rovaniemi)', desc: 'Tourisme hivernal, aurores boréales.' },
+        ]},
+      ],
+    },
+  },
+
+  // ==================== DENMARK ====================
+  DK: {
+    laws: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'L\'autostop est légal au Danemark sauf sur les autoroutes (piétons interdits). Tu peux faire du stop depuis les bretelles d\'accès. Contrôles aux frontières possibles : aie toujours ton passeport.' },
+      ],
+    },
+    hitchhiking: {
+      filterTypes: ['q', 'c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Le Danemark est l\'un des meilleurs pays d\'Europe pour l\'autostop, comparable à la Serbie. Temps d\'attente : 10 à 20 minutes maximum. Les gens sont détendus et t\'emmènent où tu veux.' },
+        { type: 'text', text: 'Les trajets sont courts (quelques dizaines de km jusqu\'à la prochaine ville) donc prévois plusieurs lifts par jour. Les ferries font partie de l\'expérience : ils sont souvent gratuits pour les piétons ou facturés par véhicule.' },
+        { type: 'tip', text: '💡 Le terrain plat et le réseau routier dense rendent le Danemark très accessible. C\'est un excellent pays pour débuter en autostop.' },
+      ],
+    },
+    safety: {
+      filterTypes: ['c', 'a'],
+      blocks: [
+        { type: 'text', text: 'Pays très sûr. Les conducteurs danois sont décrits comme sympathiques, généreux et ouverts. Jeunes, vieux, hommes, femmes : tout le monde s\'arrête.' },
+        { type: 'sub', title: 'Numéros d\'urgence' },
+        { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
+      ],
+    },
+    women: {
+      filterTypes: ['q', 'c'],
+      blocks: [
+        { type: 'text', text: 'Le Danemark est sûr pour les femmes qui font du stop seules. Les trajets viennent de personnes de tous âges et genres. Une mère avec sa fille de 12 ans a pris une autostoppeuse en voiture, montrant que la pratique est assez normalisée.' },
+      ],
+    },
+    language: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'text', text: 'TOUS les conducteurs parlent anglais. Dans l\'ouest et le sud du pays, beaucoup parlent aussi allemand. La communication est zéro problème.' },
+      ],
+    },
+    budget: {
+      filterTypes: ['b', 'q'],
+      blocks: [
+        { type: 'text', text: 'Le Danemark est le moins cher des 5 pays nordiques, mais reste cher par rapport au reste de l\'Europe. Supermarchés discount : Netto, Rema 1000, Lidl. La street food (hot-dogs, shawarma) est relativement abordable.' },
+      ],
+    },
+    sleep: {
+      filterTypes: ['b', 'q', 'a'],
+      blocks: [
+        { type: 'text', text: 'Le Danemark n\'a PAS de droit d\'accès à la nature comme la Norvège ou la Suède. Le camping sauvage est interdit (amende 40-135 €). Mais il existe des alternatives légales gratuites.' },
+        { type: 'sub', title: 'Alternatives gratuites' },
+        { type: 'rule', icon: '✅', text: 'Fri Teltning : 275+ zones de camping gratuit dans les forêts domaniales. 1 nuit max, 2 petites tentes max, pas de voiture.' },
+        { type: 'rule', icon: '✅', text: 'Shelterplads : abris forestiers gratuits disponibles dans de nombreuses forêts.' },
+        { type: 'rule', icon: '✅', text: 'Naturlagerplätze : sites nature chez des agriculteurs ou en terrain communal, ~3 €/nuit, max 2 nuits.' },
+      ],
+    },
+    transport: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'transport', items: [
+          { emoji: '🚌', name: 'FlixBus', detail: 'Réseau étendu au Danemark', price: 'dès 5 €' },
+          { emoji: '🚃', name: 'DSB (trains danois)', detail: 'Billets Orange (achat anticipé = très bon marché)', price: '' },
+          { emoji: '⛴️', name: 'Ferries', detail: 'Entre les îles, certains gratuits pour les piétons', price: '' },
+          { emoji: '🚲', name: 'Vélo', detail: 'Le Danemark est plat avec d\'excellentes pistes cyclables', price: '' },
+        ]},
+      ],
+    },
+    season: {
+      filterTypes: ['c', 'q'],
+      blocks: [
+        { type: 'season', months: [
+          { name: 'Jan', level: 'bad' }, { name: 'Fév', level: 'bad' }, { name: 'Mar', level: 'ok' },
+          { name: 'Avr', level: 'good' }, { name: 'Mai', level: 'great' }, { name: 'Jun', level: 'great' },
+          { name: 'Jul', level: 'great' }, { name: 'Aoû', level: 'great' }, { name: 'Sep', level: 'good' },
+          { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
+        ]},
+        { type: 'text', text: 'Mai à septembre. Le Danemark a un climat plus doux que les autres pays nordiques. Été : 15-22°C, longues journées. Hiver : pas recommandé (froid, humide, sombre, peu de voitures).' },
+      ],
+    },
+    culture: {
+      filterTypes: ['c', 'b'],
+      blocks: [
+        { type: 'text', text: 'Les Danois sont les plus détendus de tous les Nordiques pour l\'autostop. Amicaux, ouverts, serviables. Un directeur d\'entreprise a invité des autostoppeurs pour un café et des biscuits maison chez lui, puis les a conduits 30 km jusqu\'à leur destination.' },
+        { type: 'sub', title: 'Événements' },
+        { type: 'event', items: [
+          { month: 'Juin', day: '23', name: 'Sankt Hans Aften', desc: 'Feux de la Saint-Jean sur les plages. Tradition nationale.' },
+          { month: 'Juil', day: '⟳', name: 'Roskilde Festival', desc: 'Plus grand festival de musique d\'Europe du Nord, 130 000 personnes.' },
+          { month: 'Déc', day: '⟳', name: 'Marchés de Noël (Tivoli)', desc: 'Tivoli Gardens à Copenhague, féerique.' },
+        ]},
+      ],
+    },
+  },
 }
