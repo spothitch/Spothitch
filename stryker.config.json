@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "vitest",
+  "vitest": {
+    "configFile": "vitest.config.js"
+  },
+  "coverageAnalysis": "perTest",
+  "mutate": [
+    "src/stores/state.js",
+    "src/utils/storage.js",
+    "src/services/gpsTrust.js",
+    "src/services/locationHistory.js",
+    "src/services/spotFreshness.js"
+  ],
+  "reporters": ["clear-text", "progress"],
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 50
+  },
+  "incremental": true,
+  "concurrency": 2
+}

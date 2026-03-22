@@ -248,6 +248,11 @@
 - [x] Carte de partage visuelle (WhatsApp, lien, screenshot) — branchée session 11
 - [x] Téléchargement offline par pays (sélecteur dans settings)
 - [x] Alertes de proximité spots (GPS, rayon configurable) — toggle branché session 11
+- [x] Historique positions GPS (IndexedDB, 24h, 1min interval) — `locationHistory.js`
+- [x] Vérification GPS sur validation spot (< 2km) avec popup confirmation si pas de GPS — session 44
+- [x] Badge "Vérifié sur place" (GPS) affiché dans SpotDetail quand au moins une validation GPS confirmée — session 44
+- [x] Score de confiance GPS par utilisateur (ratio 1/3 minimum, grace period 3 validations) — `gpsTrust.js` session 44
+- [x] Dates d'expérience cohérentes (lastValidated/lastTested = date d'expérience, pas date de soumission) — session 44
 - [x] Badging API (badge compteur messages non-lus)
 - [x] Optimisations Lighthouse (preconnect, dns-prefetch, fetchpriority)
 

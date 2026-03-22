@@ -1,0 +1,14 @@
+version = 1
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  environment = ["browser", "es2022"]
+  plugins = ["react"]
+  dialect = "vanilla"
+
+[[transformers]]
+name = "prettier"
+enabled = true

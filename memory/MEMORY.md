@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-22 (Phase 1+2+8 complètes, data integrity, map optimizations, 10 fixes carte)
+> Dernière mise à jour : 2026-03-22 (SOS icons fix, SpotDetail bg fix, duplicate-attrs scanner)
 
 ---
 
@@ -21,6 +21,7 @@
 - `memory/multi-user-phase2-results.md` — Résultats Phase 2 (Spots, 37/37, 5 fixes + data integrity)
 - `memory/multi-user-phase8-results.md` — Résultats Phase 8 (Carte, 36/36, 4 fixes critiques + 10 optimisations)
 - `memory/plan-optimisation-v2.md` — Plan optimisation V2 (19 points maintenant, 10 points futur/app native)
+- `memory/feedback_favicon_outlined.md` — Toujours utiliser outlined-transparent pour favicons (invisible sans contour sur fond blanc)
 
 ---
 
@@ -170,6 +171,23 @@
 ---
 
 ## Dernières sessions (reconstitué depuis git log)
+
+### Session 2026-03-22 (session 44 — SOS ICONS + SPOTDETAIL FIX + GPS TRUST SYSTEM)
+- **Comparaison mockup SOS v4b vs app** : audit visuel complet avec screenshots Playwright (mockup HTML + app en prod). Identifié 9 icônes manquantes.
+- **9 icônes Lucide ajoutées** (ERR-124) : shield-alert, phone-incoming, phone-call, radio, mic, video, volume-2, play-circle, trash-2. Icônes utilisées dans SOS.js mais jamais enregistrées dans icons.js.
+- **Fix SpotDetail fond transparent** (ERR-125) : double attribut `class=""` → `bg-dark-primary` ignoré. Cause : commit 4356651 (optimization phases 1-6).
+- **Fix Landing.js** : 2 autres doublons `class=""` corrigés (bouton skip + input alpha code).
+- **Scanner automatique duplicate-attrs** : `scripts/check-duplicate-attrs.mjs` intégré dans lint-staged + CI job Lint.
+- **Dates d'expérience cohérentes** : `lastValidated`/`lastTested` utilisent maintenant `experienceDate` (quand l'utilisateur a VRAIMENT fait du stop) au lieu de la date de soumission. Modifié dans `firebase.js` (addSpot, addValidation) et `spotLiveData.js`.
+- **Badge GPS "Vérifié sur place"** : quand un utilisateur valide/teste un spot en étant physiquement proche (< 2km), le spot reçoit un badge vert avec la date et la distance. Champs Firestore : `lastGpsVerified`, `lastGpsVerifiedBy`, `lastGpsDistance`. Affiché dans SpotDetail.
+- **Système GPS Trust complet** (`src/services/gpsTrust.js`) :
+  - "Disponible" : GPS vérifié → si pas proche, popup confirmation "Oui je suis sur place" ou "Annuler"
+  - "Mon expérience" : GPS vérifié avant ouverture du formulaire, option "Choisir une autre date"
+  - Création de spot : GPS auto-check si date = aujourd'hui
+  - Score de confiance : ratio GPS/non-GPS par utilisateur. Minimum 1/3 (33%) après 3 validations. En dessous : validations pas envoyées à Firebase + message d'avertissement
+  - Compteurs localStorage + sync Firestore pour persistance
+  - 7 clés i18n en 4 langues (FR/EN/ES/DE)
+- **CI** : tous les jobs verts pour chaque commit sur main
 
 ### Session 2026-03-20/21 (session 42b — SOS V4B + AUTH FIXES + MULTI-USER TESTS + COMPTES CI)
 - **Hook limit-background** : max 1 tâche en arrière-plan (RÈGLE #21), empêche crashs Chromebook

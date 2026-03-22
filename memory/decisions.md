@@ -147,3 +147,15 @@
 | Request ID sur recherche et sélection | Incrémente un compteur, ignore les résultats périmés | Empêche les race conditions sans AbortController | 2026-03-22 |
 | Respect du zoom utilisateur | Math.max(12, currentZoom) quand on clique une ville | Si l'utilisateur est zoomé à 15, on ne force pas à 12 | 2026-03-22 |
 | Toast sur échec recherche | Seulement si erreur réseau (pas si 0 résultats) | L'utilisateur sait que c'est un problème de connexion, pas d'absence de données | 2026-03-22 |
+
+## Décisions Session 44 — GPS Trust & Dates (2026-03-22)
+
+| Décision | Choix | Raison | Date |
+|----------|-------|--------|------|
+| Dates d'expérience | lastValidated/lastTested = experienceDate | La date de soumission n'a pas de sens si l'expérience date d'il y a un mois | 2026-03-22 |
+| GPS obligatoire pour "Disponible" | Vérification GPS + popup confirmation si pas proche | "Disponible" = on est sur place, le GPS doit confirmer | 2026-03-22 |
+| Confirmation manuelle si GPS échoue | Popup "Oui je suis sur place" sans badge | Le GPS peut échouer même quand on est là (tunnel, forêt) | 2026-03-22 |
+| Ratio de confiance GPS 1/3 | Min 33% des validations avec GPS après 3 total | Bloque le spam depuis le canapé sans punir les GPS capricieux | 2026-03-22 |
+| Grace period 3 validations | Les 3 premières sont toujours acceptées | Nouveau utilisateur ne doit pas être bloqué immédiatement | 2026-03-22 |
+| Badge GPS sur le spot (pas l'user) | lastGpsVerified sur le document spot | Le badge dit "quelqu'un a été physiquement ici récemment" | 2026-03-22 |
+| Scanner duplicate class attrs | lint-staged + CI | Empêche définitivement les attributs HTML dupliqués (bug ERR-125) | 2026-03-22 |
