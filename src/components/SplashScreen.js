@@ -290,7 +290,11 @@ export function hideSplashScreen() {
     const splash = document.getElementById('splash-screen')
     const app = document.getElementById('app')
 
-    if (splash) splash.classList.add('splash-exit')
+    if (splash) {
+      splash.classList.add('splash-exit')
+      // Remove splash from DOM after animation to unblock clicks on map controls
+      setTimeout(() => splash.remove(), 600)
+    }
     if (loader) {
       loader.classList.add('hidden')
       setTimeout(() => loader.remove(), 500)
