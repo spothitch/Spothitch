@@ -32,7 +32,8 @@
   },
   "lint-staged": {
     "src/**/*.js": [
-      "eslint --max-warnings 0"
+      "eslint --max-warnings 0",
+      "node scripts/check-duplicate-attrs.mjs"
     ]
   },
   "dependencies": {

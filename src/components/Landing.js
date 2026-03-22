@@ -127,11 +127,10 @@ export function renderLanding() {
               type="text"
               id="alpha-code-input"
               placeholder="${t('alphaCodePlaceholder')}"
-              class="w-full max-w-[280px] bg-white/[0.04] border-[1.5px] border-white/[0.08] rounded-xl px-4 py-3.5 text-white text-center text-sm font-semibold tracking-[3px] outline-none focus:border-primary-500 placeholder-slate-700 mb-2"
+              class="w-full max-w-[280px] bg-white/[0.04] border-[1.5px] border-white/[0.08] rounded-xl px-4 py-3.5 text-white text-center text-sm font-semibold tracking-[3px] outline-none focus:border-primary-500 placeholder-slate-700 mb-2 shadow-none"
               onkeydown="if(event.key==='Enter') validateAlphaCode()"
               autocomplete="off"
               spellcheck="false"
-              class="shadow-none"
             />
             <div id="alpha-code-error" class="text-red-400 text-xs mb-2 hidden">${t('alphaCodeWrong')}</div>
 

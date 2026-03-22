@@ -201,6 +201,9 @@
 >   - Utiliser `escapeJSString()` pour les onclick, JAMAIS `.replace(/'/g, "\\'")` (ERR-019)
 >   - JAMAIS `innerHTML` avec des variables non échappées — utiliser `textContent` (ERR-019)
 >   - JAMAIS `Math.random()` pour des IDs de sécurité — utiliser `crypto.getRandomValues()` (ERR-019)
+>   - Quand on utilise `icon('nom')` → vérifier que le nom existe dans ICON_MAP de `src/utils/icons.js` (ERR-124)
+>   - JAMAIS deux attributs `class=""` sur le même élément HTML — lors d'un refactoring `style=""` → Tailwind, AJOUTER les classes au `class` existant, pas en créer un second (ERR-125)
+>   - Après TOUT refactoring style→class, lancer le scan duplicate-class pour vérifier : `python3 -c "import glob; [vérification]"` (ERR-125)
 
 > **RÈGLE #11 — AUDIT COMPLET AVANT LIVRAISON** :
 > - À la fin de chaque session ou avant une livraison majeure, exécuter EN PARALLÈLE :

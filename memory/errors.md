@@ -1394,3 +1394,23 @@ Chaque erreur suit ce format :
 - **Leçon** : **Les debounce sur des appels API async DOIVENT inclure un ID de requête pour ignorer les réponses périmées.**
 - **Fichiers** : src/handlers/mapHome.js
 - **Statut** : CORRIGÉ
+
+### ERR-124 — 9 icônes SOS manquantes dans icons.js (carrés/cercles vides)
+- **Date** : 2026-03-22
+- **Gravité** : MAJEUR
+- **Description** : Les tuiles et boutons du SOS affichaient des formes colorées vides au lieu des symboles Lucide (shield-alert, phone-incoming, phone-call, radio, mic, video, volume-2, play-circle, trash-2). Les icônes étaient utilisées dans SOS.js mais jamais enregistrées dans icons.js.
+- **Cause racine** : Lors du redesign SOS v4b (session 42b), les icônes ont été référencées dans le code SOS.js mais pas ajoutées au registre icons.js. La fonction icon() retourne un SVG vide quand le nom n'est pas trouvé.
+- **Correction** : Ajout des 9 imports Lucide + 9 entrées ICON_MAP dans icons.js.
+- **Leçon** : **Quand on utilise icon('nom') dans un composant, TOUJOURS vérifier que le nom existe dans ICON_MAP de icons.js. Faire un grep rapide avant de push.**
+- **Fichiers** : src/utils/icons.js
+- **Statut** : CORRIGÉ
+
+### ERR-125 — Attribut class="" dupliqué sur éléments HTML (fond transparent SpotDetail + Landing)
+- **Date** : 2026-03-22
+- **Gravité** : MAJEUR
+- **Description** : Le SpotDetail avait un fond transparent (on voyait le header à travers). Le bouton "Skip" du Landing manquait son fond et sa bordure. Causé par deux attributs class="" sur le même élément HTML.
+- **Cause racine** : Le commit 4356651 (optimization phases 1-6) a converti des style="" inline en classes Tailwind, mais les a placées dans un SECOND attribut class="" au lieu de les ajouter au premier. HTML ignore silencieusement les attributs dupliqués.
+- **Correction** : Fusion des deux class="" en un seul attribut. Scan complet du code pour trouver tous les doublons (2 trouvés : SpotDetail.js + Landing.js).
+- **Leçon** : **JAMAIS deux attributs identiques sur un élément HTML. Lors d'un refactoring style→class, TOUJOURS vérifier si un class="" existe déjà et AJOUTER les classes au premier. Ajouter un scan automatique (grep pour 'class=.*\nclass=') dans les checks pré-commit.**
+- **Fichiers** : src/components/modals/SpotDetail.js, src/components/Landing.js
+- **Statut** : CORRIGÉ

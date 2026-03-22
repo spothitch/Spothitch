@@ -18,6 +18,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run lint
+      - name: Check duplicate HTML attributes
+        run: node scripts/check-duplicate-attrs.mjs
 
   test:
     name: Unit Tests
