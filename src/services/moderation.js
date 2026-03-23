@@ -522,6 +522,9 @@ async function initMisplacedMap() {
 }
 
 window.submitCurrentReport = async () => {
+  if (window.submitCurrentReport._busy) return
+  window.submitCurrentReport._busy = true
+  try {
   const state = getState()
   const reason = _selectedReportReason || state.selectedReportReason
   const details = document.getElementById('report-details')?.value || ''
@@ -552,6 +555,7 @@ window.submitCurrentReport = async () => {
     _misplacedMarker = null
     window.closeReport()
   }
+  } finally { window.submitCurrentReport._busy = false }
 }
 
 export default {

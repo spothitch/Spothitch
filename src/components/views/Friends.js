@@ -314,7 +314,7 @@ export function renderAddFriendModal() {
               placeholder="${t('searchUsername') || 'Rechercher un pseudo...'}"
               class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white
                      placeholder-slate-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
-              oninput="searchUsers(this.value)"
+              onkeydown="if(event.key==='Enter')addFriendByName()"
             />
             <div id="user-search-results" class="absolute top-full left-0 right-0 mt-1 hidden"></div>
           </div>

@@ -111,9 +111,12 @@ export function renderCommunityTips(countryCode) {
 
 // Global handlers
 window.submitCommunityTip = (countryCode) => {
+  if (window.submitCommunityTip._busy) return
+  window.submitCommunityTip._busy = true
+  setTimeout(() => { window.submitCommunityTip._busy = false }, 2000)
   const input = document.getElementById('community-tip-input')
   const text = input?.value?.trim()
-  if (!text) return
+  if (!text) { window.submitCommunityTip._busy = false; return }
 
   addTip(countryCode, text)
   input.value = ''

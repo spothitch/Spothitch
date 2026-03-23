@@ -1302,9 +1302,12 @@ window.closeEditTrip = () => {
 }
 
 window.submitEditTrip = () => {
+  if (window.submitEditTrip._busy) return
+  window.submitEditTrip._busy = true
+  setTimeout(() => { window.submitEditTrip._busy = false }, 2000)
   const state = window.getState?.()
   const tripIndex = state?.editTripIndex
-  if (tripIndex == null) return
+  if (tripIndex == null) { window.submitEditTrip._busy = false; return }
 
   const savedTrips = getSavedTrips()
   const trip = savedTrips[tripIndex]

@@ -37,6 +37,9 @@ window.setHostelCategory = (category) => {
 };
 
 window.submitHostelRec = async (city) => {
+  if (window.submitHostelRec._busy) return
+  window.submitHostelRec._busy = true
+  setTimeout(() => { window.submitHostelRec._busy = false }, 2000)
   const t = window.t
   const { scheduleRender } = window._appInternals
   const hostelName = document.getElementById('hostel-name')?.value?.trim();

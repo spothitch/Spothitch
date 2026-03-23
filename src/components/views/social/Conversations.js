@@ -460,6 +460,9 @@ window.toggleFriendForGroup = async (friendId) => {
 }
 
 window.createGroupConversation = async () => {
+  if (window.createGroupConversation._busy) return
+  window.createGroupConversation._busy = true
+  setTimeout(() => { window.createGroupConversation._busy = false }, 2000)
   const { t: tFn } = await import('../../../i18n/index.js')
   const { getState, setState } = await import('../../../stores/state.js')
   const state = getState()

@@ -295,9 +295,11 @@ export function registerCheckinHandlers() {
   };
 
   window.submitCheckin = async () => {
+    if (window.submitCheckin._busy) return
+    window.submitCheckin._busy = true
     const state = getState();
     const spot = state.checkinSpot;
-    if (!spot) return;
+    if (!spot) { window.submitCheckin._busy = false; return }
 
     // Rate limit: max 1 check-in per spot per 24h per user
     const checkinKey = `spothitch_checkin_${spot.id}_${state.user?.uid || 'anon'}`
@@ -305,7 +307,7 @@ export function registerCheckinHandlers() {
     if (Date.now() - lastCheckin < 24 * 60 * 60 * 1000) {
       const { showToast: toast } = await import('../../services/notifications.js')
       toast(t('checkinAlreadyToday') || 'Tu as déjà validé ce spot aujourd\'hui', 'warning')
-      return
+      window.submitCheckin._busy = false; return
     }
 
     // Proximity check: must have been within 500m in last 24h (GPS history)
@@ -323,7 +325,7 @@ export function registerCheckinHandlers() {
         } else {
           toast(t('checkinTooFar') || `Tu dois être à moins de 500m de ce spot (${proximity.closestM}m)`, 'error')
         }
-        return
+        window.submitCheckin._busy = false; return
       }
     }
 
@@ -385,7 +387,7 @@ export function registerCheckinHandlers() {
     } catch (error) {
       console.error('Checkin error:', error);
       showToast(t('checkinError') || 'Erreur lors du check-in', 'error');
-    }
+    } finally { window.submitCheckin._busy = false }
   };
 }
 
