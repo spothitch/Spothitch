@@ -753,7 +753,7 @@ function getModalFingerprint(state) {
     state.showBadgeDetail, state.selectedBadgeId,
     state.navigationActive, state.showDonation, state.showDonationThankYou,
     state.showAmbassadorSuccess, state.showContactAmbassador, !!state.selectedAmbassador,
-    state.showProfileCustomization, state.showNearbyFriends, state.showReport,
+    state.showProfileCustomization, state.showNearbyFriends, state.showReport, state.selectedReportReason,
     state.showCompanionModal, state.showMyData, state.showAdmin,
     state.showFeatureSlides, state.showFeatureIntro,
   ].join('|')

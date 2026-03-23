@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-23 (94 guides pays, i18n 4 langues, nettoyage témoignages, 30 bugs identifiés)
+> Dernière mise à jour : 2026-03-23 (96 guides pays 4 langues, 30/30 bugs corrigés, nameEs/nameDe, COUNTRY_CENTERS 96 pays, dead code supprimé)
 
 ---
 

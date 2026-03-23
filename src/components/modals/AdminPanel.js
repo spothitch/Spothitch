@@ -1260,9 +1260,9 @@ window.adminRelocateSpot = async (reportId, targetId, lat, lng) => {
       'coordinates.lng': lng,
       relocatedAt: serverTimestamp(),
       relocatedFrom: 'misplaced_report',
-    }).catch(() => {})
+    })
     await updateDoc(doc(db, 'reports', reportId), { status: 'confirmed', resolvedAt: serverTimestamp() })
-    window.showToast?.(t('adminReportRelocated') || 'Spot relocated successfully', 'success')
+    window.showToast?.(t('adminReportRelocated') || 'Spot déplacé avec succès', 'success')
     window.loadAdminReports()
   } catch (err) {
     console.error('Error relocating spot:', err)

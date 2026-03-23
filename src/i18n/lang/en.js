@@ -97,7 +97,7 @@ export default {
   reviewAlreadySubmitted: 'You already submitted a review for this spot',
   reviewTooFar: 'You must have been near this spot to leave a review',
   duplicateSpotWarning: 'A spot already exists within 500m. Are you sure you want to create a new one?',
-  nearbySpotFound: 'Nearby spot found',
+  nearbySpotFound: 'Nearby spot',
   nearbySpotDescription: 'A spot already exists near this location. You can add your experience to it or create a new spot.',
   nearbySpotExisting: 'Existing spots within 500m:',
   giveReview: 'My review',
