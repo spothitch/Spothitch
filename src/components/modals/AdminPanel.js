@@ -583,8 +583,8 @@ function renderToolsTab(state) {
         <button onclick="changeTab('social'); closeAdminPanel();" class="admin-btn">
           ${icon('messages-square', 'w-5 h-5 text-amber-400')} ${t('chat') || 'Chat'}
         </button>
-        <button onclick="openReport(); closeAdminPanel();" class="admin-btn">
-          ${icon('flag', 'w-5 h-5 text-red-400')} ${t('report') || 'Signalement'}
+        <button onclick="setAdminTab('reports');" class="admin-btn">
+          ${icon('flag', 'w-5 h-5 text-red-400')} ${t('adminTabReports') || 'Signalements'}
         </button>
       </div>
     </div>
@@ -855,6 +855,62 @@ function renderReportsTab(state) {
     </div>`
 }
 
+// Patched renderReportsTab — enhanced version with filters, guide reports merge, view links
+// eslint-disable-next-line no-func-assign
+renderReportsTab = function(state) {
+  const reports = state.adminReportsData
+  const guideReports = state.adminGuideReportsData || []
+  const reportFilter = state.adminReportFilter || 'all'
+  const statusFilter = state.adminReportStatusFilter || 'pending'
+
+  if (!reports && !state._adminReportsLoading) {
+    setState({ _adminReportsLoading: true })
+    window.loadAdminReports()
+    return `<div class="text-center py-12"><div class="text-2xl mb-3 animate-pulse">🚩</div><p class="text-slate-400 text-sm">${t('loading') || 'Chargement...'}</p></div>`
+  }
+  if (!reports) return `<div class="text-center py-12"><div class="text-2xl mb-3 animate-pulse">🚩</div><p class="text-slate-400 text-sm">${t('loading') || 'Chargement...'}</p></div>`
+
+  const allReports = [...reports]
+  guideReports.forEach(gr => allReports.push({ id: gr.id, type: 'guide', targetId: gr.countryCode || '', reason: 'guide_error', severity: 'medium', description: gr.error || gr.reason || '', reporterName: gr.reportedBy || gr.userId || 'Anonyme', status: gr.status || 'pending', createdAt: gr.timestamp || gr.createdAt || null }))
+
+  const typeFiltered = reportFilter === 'all' ? allReports : allReports.filter(r => (r.type || 'spot') === reportFilter)
+  const filtered = statusFilter === 'all' ? typeFiltered : typeFiltered.filter(r => (r.status || 'pending') === statusFilter)
+  const pending = allReports.filter(r => r.status === 'pending')
+  const confirmed = allReports.filter(r => r.status === 'confirmed')
+  const dismissed = allReports.filter(r => r.status === 'dismissed')
+  const tc = { all: allReports.length, spot: 0, user: 0, message: 0, guide: 0 }
+  allReports.forEach(r => { const k = r.type || 'spot'; if (tc[k] !== undefined) tc[k]++ })
+
+  const SEV = { low: 'text-slate-400 bg-slate-500/20', medium: 'text-amber-400 bg-amber-500/20', high: 'text-orange-400 bg-orange-500/20', critical: 'text-red-400 bg-red-500/20' }
+  const ICONS = { misplaced: '📍', inaccurate: '⚠️', dangerous: '💀', inappropriate: '🚫', duplicate: '📋', closed: '🔒', spam: '📢', harassment: '👤', fake: '👁️', hate: '🔥', other: 'ℹ️', guide_error: '📝' }
+  const TYPES = { spot: 'Spots', user: 'Utilisateurs', message: 'Messages', guide: 'Guides' }
+
+  const kpi = `<div class="grid grid-cols-3 gap-2 mb-3"><button onclick="setAdminReportStatusFilter('pending')" class="card p-2.5 text-center cursor-pointer ${statusFilter === 'pending' ? 'ring-1 ring-amber-500' : ''}"><div class="text-xl font-bold text-amber-400">${pending.length}</div><div class="text-[10px] text-slate-400">${t('adminReportsPending') || 'En attente'}</div></button><button onclick="setAdminReportStatusFilter('confirmed')" class="card p-2.5 text-center cursor-pointer ${statusFilter === 'confirmed' ? 'ring-1 ring-emerald-500' : ''}"><div class="text-xl font-bold text-emerald-400">${confirmed.length}</div><div class="text-[10px] text-slate-400">${t('adminReportsConfirmed') || 'Confirmés'}</div></button><button onclick="setAdminReportStatusFilter('dismissed')" class="card p-2.5 text-center cursor-pointer ${statusFilter === 'dismissed' ? 'ring-1 ring-slate-500' : ''}"><div class="text-xl font-bold text-slate-400">${dismissed.length}</div><div class="text-[10px] text-slate-400">${t('adminReportsDismissed') || 'Rejetés'}</div></button></div>`
+
+  const chips = ['all', 'spot', 'user', 'message', 'guide'].map(k => `<button onclick="setAdminReportFilter('${k}')" class="px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${reportFilter === k ? 'bg-amber-500 text-black' : 'bg-white/5 text-slate-400 hover:bg-white/10'}">${k === 'all' ? 'Tout' : TYPES[k] || k}${(tc[k] || 0) > 0 ? ' (' + tc[k] + ')' : ''}</button>`).join('')
+  const filters = `<div class="flex gap-1.5 overflow-x-auto scrollbar-none mb-3 pb-1">${chips}<button onclick="setAdminReportStatusFilter('all')" class="px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'}">Tous statuts</button></div>`
+
+  const list = filtered.length === 0 ? `<div class="text-center py-6 text-slate-500 text-sm">${t('adminReportsNone') || 'Aucun signalement'}</div>` : filtered.slice(0, 100).map(r => {
+    const ri = ICONS[r.reason] || '🚩', sv = SEV[r.severity] || SEV.low
+    const d = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString() : r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ''
+    const sb = r.status === 'pending' ? '<span class="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400">En attente</span>' : r.status === 'confirmed' ? '<span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400">Confirmé</span>' : '<span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-500/20 text-slate-400">Rejeté</span>'
+    let vb = ''
+    if (r.type === 'spot' && r.targetId) vb = `<button onclick="adminViewSpot('${escapeJSString(r.targetId)}')" class="text-[10px] px-2 py-0.5 rounded bg-primary-500/20 text-primary-400">Voir le spot</button>`
+    else if (r.type === 'user' && r.targetId) vb = `<button onclick="showFriendProfile('${escapeJSString(r.targetId)}')" class="text-[10px] px-2 py-0.5 rounded bg-primary-500/20 text-primary-400">Voir le profil</button>`
+    else if (r.type === 'guide' && r.targetId) vb = `<button onclick="showCountryDetail('${escapeJSString(r.targetId)}');closeAdminPanel()" class="text-[10px] px-2 py-0.5 rounded bg-primary-500/20 text-primary-400">Voir le guide</button>`
+    let ab = ''
+    if (r.status === 'pending') {
+      if (r.type === 'guide') ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">Traité</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+      else if (r.reason === 'misplaced' && r.suggestedLat) ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminRelocateSpot('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}',${r.suggestedLat},${r.suggestedLng})" class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400">📍 Déplacer</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+      else if (r.type === 'user') ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">Suspendre</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+      else ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">Masquer</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+    }
+    return `<div class="py-2.5 border-b border-slate-700/50"><div class="flex items-start gap-2"><div class="text-base mt-0.5">${ri}</div><div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap"><span class="font-medium text-sm">${escapeHTML(r.reason || 'autre')}</span><span class="px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-slate-300">${escapeHTML(r.type || 'spot')}</span><span class="px-1.5 py-0.5 rounded text-[10px] ${sv}">${r.severity || 'low'}</span>${sb}</div><div class="text-[10px] text-slate-500 mt-0.5">${escapeHTML(r.reporterName || 'Anonyme')} · ${d}</div>${r.description ? '<p class="text-xs text-slate-300 mt-1 line-clamp-2">' + escapeHTML(r.description) + '</p>' : ''}${vb ? '<div class="mt-1.5">' + vb + '</div>' : ''}${ab}</div></div></div>`
+  }).join('')
+
+  return `${kpi}${filters}<div class="card p-3 mb-4"><div class="flex items-center justify-between mb-2"><h4 class="text-sm font-bold text-slate-200">${filtered.length} signalements</h4><button onclick="loadAdminReports()" class="text-xs text-amber-400 hover:underline">${icon('refresh-cw', 'w-3 h-3')} Rafraîchir</button></div><div class="max-h-[50vh] overflow-y-auto">${list}</div></div>`
+}
+
 // ==================== MAIN RENDER ====================
 
 export function renderAdminPanel(state) {
@@ -1118,19 +1174,39 @@ window.adminExportState = () => {
 
 // ==================== REPORTS HANDLERS ====================
 
+window.setAdminReportFilter = (filter) => setState({ adminReportFilter: filter })
+window.setAdminReportStatusFilter = (filter) => setState({ adminReportStatusFilter: filter })
+window.adminViewSpot = async (spotId) => {
+  try {
+    const { getFirestore, doc, getDoc } = await import('firebase/firestore')
+    const { getApp } = await import('firebase/app')
+    const db = getFirestore(getApp())
+    const snap = await getDoc(doc(db, 'spots', spotId))
+    if (snap.exists()) setState({ selectedSpot: { id: snap.id, ...snap.data() }, showAdminPanel: false })
+    else window.showToast?.('Spot introuvable', 'error')
+  } catch (err) { window.showToast?.('Erreur', 'error') }
+}
+
 window.loadAdminReports = async () => {
   try {
-    window.showToast?.(t('loading') || 'Chargement...', 'info')
     const { getFirestore, collection, getDocs, query, orderBy, limit } = await import('firebase/firestore')
     const { getApp } = await import('firebase/app')
     const db = getFirestore(getApp())
-    const q = query(collection(db, 'reports'), orderBy('createdAt', 'desc'), limit(100))
+    const q = query(collection(db, 'reports'), orderBy('createdAt', 'desc'), limit(200))
     const snapshot = await getDocs(q)
     const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-    setState({ adminReportsData: docs })
-    window.showToast?.(`${docs.length} signalement${docs.length > 1 ? 's' : ''}`, 'success')
+    let guideReports = []
+    try {
+      const gq = query(collection(db, 'guide_reports'), orderBy('timestamp', 'desc'), limit(50))
+      const gSnap = await getDocs(gq)
+      guideReports = gSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    } catch (_e) { /* guide_reports may not have index */ }
+    const total = docs.length + guideReports.length
+    setState({ adminReportsData: docs, adminGuideReportsData: guideReports, _adminReportsLoading: false })
+    window.showToast?.(`${total} signalement${total > 1 ? 's' : ''} chargé${total > 1 ? 's' : ''}`, 'success')
   } catch (err) {
     console.error('Error loading reports:', err)
+    setState({ _adminReportsLoading: false })
     window.showToast?.(t('loadingError') || 'Erreur de chargement', 'error')
   }
 }

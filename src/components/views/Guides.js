@@ -900,7 +900,7 @@ export function renderCountryDetail(guideOrCode) {
 
       <!-- Compose bar -->
       <div class="flex items-center gap-2 px-4 py-2.5 bg-white/2 border-t border-white/5">
-        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs text-slate-500 shrink-0">?</div>
+        <button onclick="reportGuideError('${escapeJSString(guide.code)}')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors shrink-0" title="${t('reportGuideError') || 'Signaler une erreur'}" aria-label="${t('reportGuideError') || 'Signaler une erreur'}">${icon('flag', 'w-3.5 h-3.5')}</button>
         <button
           onclick="openGuideCategory('${escapeJSString(guide.code)}', '${escapeJSString(activeSection)}')"
           class="flex-1 bg-white/5 border border-white/8 rounded-full px-4 py-2 text-sm text-slate-500 text-left cursor-pointer"

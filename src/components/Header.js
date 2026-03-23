@@ -24,11 +24,12 @@ export function renderHeader(state) {
           ${state.isAdmin ? `
           <button
             onclick="openAdminPanel()"
-            class="w-11 h-11 rounded-full bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 hover:scale-105 transition-colors flex items-center justify-center"
+            class="relative w-11 h-11 rounded-full bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 hover:scale-105 transition-colors flex items-center justify-center"
             aria-label="${t('adminPanel') || 'Panneau Admin'}"
             title="${t('adminPanel') || 'Panneau Admin'}"
           >
             ${icon('shield', 'w-5 h-5')}
+            ${(state.adminReportsData || []).filter(r => r.status === 'pending').length > 0 ? `<span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">${(state.adminReportsData || []).filter(r => r.status === 'pending').length}</span>` : ''}
           </button>
           ` : ''}
           <!-- Companion Button -->

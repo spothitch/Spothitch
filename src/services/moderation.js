@@ -397,7 +397,7 @@ export function renderReportModal(state) {
 window.openReport = (type, targetId) => {
   setState({
     showReport: true,
-    reportType: type,
+    reportType: (type || 'spot').toLowerCase(),
     reportTargetId: targetId,
     selectedReportReason: null,
   });

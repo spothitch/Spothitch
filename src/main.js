@@ -1327,10 +1327,14 @@ window.openTitles = () => setState({ showTitles: true });
 window.closeTitles = () => setState({ showTitles: false });
 
 // Report / moderation handlers (moderation.js is lazy-loaded)
+// All report handlers need stubs so onclick="" in the modal HTML works
+async function _loadModeration() {
+  const mod = await import('./services/moderation.js')
+  return mod
+}
 if (!window.openReport) {
   window.openReport = async (type, targetId) => {
-    const mod = await import('./services/moderation.js')
-    mod.renderReportModal // ensure module side-effects run (registers window.openReport)
+    await _loadModeration()
     window.openReport(type, targetId)
   }
 }
@@ -1339,6 +1343,18 @@ if (!window.closeReport) {
     showReport: false, reportType: null,
     reportTargetId: null, selectedReportReason: null,
   })
+}
+if (!window.selectReportReason) {
+  window.selectReportReason = async (reason) => {
+    await _loadModeration()
+    window.selectReportReason(reason)
+  }
+}
+if (!window.submitCurrentReport) {
+  window.submitCurrentReport = async () => {
+    await _loadModeration()
+    window.submitCurrentReport()
+  }
 }
 
 // Nearby friends handlers — lazy-loaded

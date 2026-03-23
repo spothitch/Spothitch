@@ -228,6 +228,7 @@ function renderDMMessage(msg, state) {
     `
   }
 
+  const msgId = msg.id || msg.createdAt || ''
   return `
     <div class="flex ${isSent ? 'justify-end' : 'justify-start'}">
       <div class="max-w-[80%] ${isSent ? 'bg-primary-500/20' : 'bg-white/5'} rounded-2xl px-4 py-2 ${isSent ? 'rounded-br-md' : 'rounded-bl-md'}">
@@ -238,9 +239,10 @@ function renderDMMessage(msg, state) {
           </div>
         ` : ''}
         ${content}
-        <time class="text-xs text-slate-400 mt-1 block ${isSent ? 'text-right' : ''}">
-          ${formatTime(msg.createdAt)}
-        </time>
+        <div class="flex items-center ${isSent ? 'justify-end' : 'justify-between'} mt-1">
+          <time class="text-xs text-slate-400">${formatTime(msg.createdAt)}</time>
+          ${!isSent ? `<button onclick="openReport('message', '${escapeHTML(String(msgId))}')" class="text-slate-600 hover:text-red-400 transition-colors ml-2 p-0.5" title="${t('report') || 'Signaler'}" aria-label="${t('report') || 'Signaler'}">${icon('flag', 'w-3 h-3')}</button>` : ''}
+        </div>
       </div>
     </div>
   `
@@ -325,9 +327,10 @@ function renderFBGroupMessage(msg, state) {
           </div>
         ` : ''}
         <p class="text-sm text-white">${escapeHTML(msg.text || '')}</p>
-        <time class="text-xs text-slate-400 mt-1 block ${isSent ? 'text-right' : ''}">
-          ${formatTime(msg.createdAt)}
-        </time>
+        <div class="flex items-center ${isSent ? 'justify-end' : 'justify-between'} mt-1">
+          <time class="text-xs text-slate-400">${formatTime(msg.createdAt)}</time>
+          ${!isSent ? `<button onclick="openReport('message', '${escapeHTML(String(msg.id || msg.createdAt || ''))}')" class="text-slate-600 hover:text-red-400 transition-colors ml-2 p-0.5" title="${t('report') || 'Signaler'}" aria-label="${t('report') || 'Signaler'}">${icon('flag', 'w-3 h-3')}</button>` : ''}
+        </div>
       </div>
     </div>
   `

@@ -416,21 +416,9 @@ window.submitReview = async (spotId) => {
   }
 };
 window.setRating = (rating) => window.setState({ currentRating: rating });
-window.reportSpotAction = async (spotId) => {
-  const t = window.t
-  const { getFirebase } = window._appInternals
-  const reason = prompt(t('reportReason') || 'Raison du signalement ?');
-  if (reason) {
-    try {
-      const fb2 = await getFirebase()
-      const result = await fb2.reportSpot(spotId, reason);
-      if (result?.success === false) throw new Error(result.error || 'Report failed')
-      window.showToast(t('reportSent') || 'Signalement envoyé', 'success');
-    } catch (err) {
-      console.error('Report failed:', err)
-      window.showToast(t('reportNetworkError') || 'Signalement non envoyé. Vérifie ta connexion.', 'error');
-    }
-  }
+// reportSpotAction → delegates to the modal report system (openReport)
+window.reportSpotAction = (spotId) => {
+  window.openReport('SPOT', String(spotId))
 };
 
 // Navigation GPS handlers
