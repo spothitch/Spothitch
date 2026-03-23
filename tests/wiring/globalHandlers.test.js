@@ -463,6 +463,12 @@ const MAIN_JS_HANDLERS = [
   'showCommunitySOSOnMap',
   // Guide form type (session 2026-03-24)
   'setGuideFormType',
+  // Internal handlers used in onclick (audit complet session 2026-03-24)
+  '_createSpotFromBubble', // popup carte → créer spot
+  '__forceUpdate',         // banner mise à jour
+  '_showGmapsTipFull',     // lien aide Google Maps dans AddSpot
+  '_toggleExec',           // handler de tous les toggles on/off
+  '_dismissGmapsTip',      // fermer tip Google Maps
 ]
 
 MAIN_JS_HANDLERS.forEach(h => KNOWN_HANDLERS.add(h))
