@@ -1,19 +1,13 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-21 11:37
+Date : 2026-03-23 18:10
 
 ## Derniers commits
-d6b5a9e fix: register new DM/search handlers in wiring test (QG 100/100)
-5a55780 chore: update memory files — session 43 (backup, tests, SOS fix)
-5c45e64 Merge branch 'feature/fix-sos-sidebar' into dev
-39b9001 fix: SOS config sidebar replaced with inline content (CSS stacking bug)
-fa5ef7f feat: expose sendDirectMessageTo + searchUsersGlobal for multi-user tests
-
-## À reprendre
-1. Splash screen intelligent (3-4s) avec barre de progression réelle + tips défilants
-2. Gardien redesign (mockups comme SOS v4b)
-3. Vérifier signup complet en prod
+38a30dd feat: security tools setup (Argos + CodeRabbit config + Aikido)
+90bc476 fix: remove Aikido CI job (already runs via GitHub App)
+4afad46 feat: add Aikido Security scan job in CI
+48e9c57 feat: Argos visual regression + CodeRabbit config
+4406a67 fix: apply CodeRabbit review feedback on Argos CI job
 
 ## Note
-CI 15/15 vert. Multi-user 30/34 OK. Comptes CI : ci-alice/bob/charlie/diana@spothitch.com
 Reprendre avec : claude --continue

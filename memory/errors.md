@@ -1,6 +1,6 @@
 # errors.md - Journal des erreurs et corrections SpotHitch
 
-> Dernière mise à jour : 2026-03-19
+> Dernière mise à jour : 2026-03-23
 > IMPORTANT : Après CHAQUE bug trouvé ou corrigé, ajouter une entrée ici.
 > Le Plan Wolf analyse ce fichier pour éviter les régressions.
 
@@ -1454,3 +1454,70 @@ Chaque erreur suit ce format :
 - **Leçon** : **Pour les favicons, TOUJOURS trim le padding du logo source. Utiliser outlined-transparent (avec contour) pour les petites tailles (< 96px). Voir memory/feedback_favicon_outlined.md.**
 - **Fichiers** : public/favicon.png, public/favicon.ico, public/favicon-16.png
 - **Statut** : CORRIGÉ
+
+### ERR-130 — Guides i18n : legalityText toujours en français
+- **Date** : 2026-03-23
+- **Gravité** : CRITIQUE
+- **Description** : `guide.legalityText` affiché directement dans la liste des pays. `legalityTextEn` existe mais n'est jamais utilisé. Les utilisateurs EN/ES/DE voient du français.
+- **Cause racine** : Guides.js ligne 693 utilise `guide.legalityText` sans vérifier la langue.
+- **Correction** : À FAIRE. Utiliser `legalityTextEn` pour non-FR, ajouter `legalityTextEs`/`legalityTextDe`.
+- **Leçon** : Toujours vérifier la langue avant d'afficher un texte qui a des variantes par langue.
+- **Fichiers** : src/components/views/Guides.js
+- **Statut** : À FAIRE
+
+### ERR-131 — Guides i18n : enrichGuidesWithSections ne nettoie pas les anciennes sections
+- **Date** : 2026-03-23
+- **Gravité** : CRITIQUE
+- **Description** : Au changement de langue, les sections de l'ancienne langue persistent si le nouveau fichier ne contient pas le pays.
+- **Cause racine** : `enrichGuidesWithSections()` fait `guide.sections = sectionsData[guide.code]` sans d'abord faire `delete guide.sections`.
+- **Correction** : À FAIRE. Ajouter `guide.sections = undefined` avant l'enrichissement.
+- **Fichiers** : src/data/guides.js
+- **Statut** : À FAIRE
+
+### ERR-132 — Guides : NAM et IDN codes ISO-3 au lieu d'ISO-2
+- **Date** : 2026-03-23
+- **Gravité** : CRITIQUE
+- **Description** : Namibie (NAM) et Indonésie (IDN) utilisent des codes ISO-3 au lieu d'ISO-2 (NA, ID). Casse COUNTRY_CENTERS, COUNTRY_LANG et UNIVERSAL_PHRASES pour ces pays.
+- **Correction** : À FAIRE. Renommer en NA et ID dans tous les fichiers.
+- **Fichiers** : src/data/guides.js, src/data/guideSections-*.js
+- **Statut** : À FAIRE
+
+### ERR-133 — Guides : 58 pays manquants dans COUNTRY_CENTERS
+- **Date** : 2026-03-23
+- **Gravité** : MAJEUR
+- **Description** : Seulement 38/96 pays ont des coordonnées. Le tri par proximité géographique est cassé pour 58 pays.
+- **Correction** : À FAIRE. Ajouter les coordonnées pour tous les pays.
+- **Fichiers** : src/components/views/Guides.js
+- **Statut** : À FAIRE
+
+### ERR-134 — Guides : hardcoded French strings dans Guides.js
+- **Date** : 2026-03-23
+- **Gravité** : MAJEUR
+- **Description** : 10 messages d'encouragement, labels filtres ("Conseils", "Alertes", "Bons plans", "Tout"), "Anonyme", "📌 Guide" sont hardcodés en français, pas via t().
+- **Correction** : À FAIRE. Passer par t() avec fallback.
+- **Fichiers** : src/components/views/Guides.js
+- **Statut** : À FAIRE
+
+### ERR-135 — Guides : compteur /7 au lieu de /10
+- **Date** : 2026-03-23
+- **Gravité** : MAJEUR
+- **Description** : Les cards pays affichent "X/7" mais il y a 10 catégories de guide.
+- **Correction** : À FAIRE. Utiliser GUIDE_CATEGORIES.length au lieu de 7.
+- **Fichiers** : src/components/views/Guides.js ligne 458
+- **Statut** : À FAIRE
+
+### ERR-136 — Guides : noms de pays sans accents français
+- **Date** : 2026-03-23
+- **Gravité** : MAJEUR
+- **Description** : 20+ noms de pays sans accents ("Bresil", "Thailande", "Ethiopie"...) et 23+ legalityText sans accents dans guides.js.
+- **Correction** : À FAIRE. Ajouter les accents sur tous les noms et textes français.
+- **Fichiers** : src/data/guides.js
+- **Statut** : À FAIRE
+
+### ERR-137 — Guides UI : rectangle contribution moche
+- **Date** : 2026-03-23
+- **Gravité** : MAJEUR
+- **Description** : Sous chaque catégorie du guide pays, un rectangle de contribution est visible et laid comparé au mockup HTML original. Le formulaire ne propose que "envoyer un conseil" au lieu de 4 types (question/conseil/alerte/bon plan).
+- **Correction** : À FAIRE. Redesigner selon le mockup, ajouter le choix de type.
+- **Fichiers** : src/components/views/Guides.js
+- **Statut** : À FAIRE
