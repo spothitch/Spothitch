@@ -801,9 +801,19 @@ function renderCommunityTipsByCategory(countryCode, categoryId, _state) {
         <span class="text-[10px] text-slate-500">${tip.createdAt ? new Date(tip.createdAt).toLocaleDateString() : ''}</span>
       </div>
       <p class="text-sm leading-relaxed mb-1">${escapeHTML(tip.text)}</p>
-      <div class="flex items-center gap-3 text-xs text-slate-500">
-        <span class="cursor-pointer">👍 ${tip.upvotes || 0}</span>
-        <span class="cursor-pointer">💬 0</span>
+      <div class="flex items-center gap-1.5 mt-1" id="vote-community-${escapeHTML(tip.id || '')}">
+        <button
+          type="button"
+          onclick="voteCommunityTip('${escapeJSString(tip.id || '')}', 'up')"
+          class="px-2 py-0.5 rounded-full text-xs transition-colors bg-white/5 text-slate-400 hover:bg-emerald-500/20 hover:text-emerald-400"
+          aria-label="${t('tipUseful') || 'Utile'}"
+        >👍 ${tip.upvotes || 0}</button>
+        <button
+          type="button"
+          onclick="voteCommunityTip('${escapeJSString(tip.id || '')}', 'down')"
+          class="px-2 py-0.5 rounded-full text-xs transition-colors bg-white/5 text-slate-400 hover:bg-red-500/20 hover:text-red-400"
+          aria-label="${t('tipNotUseful') || 'Pas utile'}"
+        >👎 ${tip.downvotes || 0}</button>
       </div>
     </div>
   `).join('')
@@ -1067,7 +1077,36 @@ document.addEventListener('input', (e) => {
   }
 })
 
-// Alias removed per rule #8b (no aliases)
+// Vote on community tips (Firestore)
+window.voteCommunityTip = async (tipId, direction) => {
+  if (!tipId) return
+  try {
+    const { getFirestore, doc, updateDoc, increment } = await import('firebase/firestore')
+    const { getApp } = await import('firebase/app')
+    const db = getFirestore(getApp())
+    const field = direction === 'up' ? 'upvotes' : 'downvotes'
+    await updateDoc(doc(db, 'guideTips', tipId), {
+      [field]: increment(1),
+    })
+    // Update button visually
+    const btn = document.querySelector(
+      `#vote-community-${CSS.escape(tipId)} button[onclick*="${direction}"]`
+    )
+    if (btn) {
+      const num = parseInt(btn.textContent.match(/\d+/)?.[0] || '0', 10)
+      const emoji = direction === 'up' ? '👍' : '👎'
+      btn.textContent = `${emoji} ${num + 1}`
+      btn.classList.remove('bg-white/5', 'text-slate-400')
+      btn.classList.add(
+        direction === 'up' ? 'bg-emerald-500/20' : 'bg-red-500/20',
+        direction === 'up' ? 'text-emerald-400' : 'text-red-400'
+      )
+      btn.disabled = true
+    }
+  } catch {
+    // Silent fail
+  }
+}
 
 // Admin: approve/reject guide tips
 window.adminApproveGuideTip = async (tipId) => {
