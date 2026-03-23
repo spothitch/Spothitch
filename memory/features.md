@@ -1,6 +1,6 @@
 # features.md - Inventaire complet des fonctionnalités SpotHitch
 
-> Dernière mise à jour : 2026-03-18
+> Dernière mise à jour : 2026-03-23
 > IMPORTANT : Vérifier ce fichier AVANT de proposer une feature — elle existe peut-être déjà !
 
 ---
@@ -141,7 +141,13 @@
 - [x] Score de confiance 11 facteurs : ancienneté, spots, vérifications, avis, identité, votes, photos profil, réseaux sociaux, bio, langues, check-ins
 - [x] Vérification d'âge (modal confirmation)
 - [x] Blocage utilisateur (bloquer/débloquer, liste)
-- [x] Système de signalement (spots, utilisateurs, contenu + raison)
+- [x] Système de signalement complet : spots (7 raisons), utilisateurs (5), messages (5), guides (erreur)
+- [x] Signalement : stubs lazy-load pour selectReportReason/submitCurrentReport
+- [x] Signalement : bouton sur messages chat (DM + groupe)
+- [x] Signalement : bouton erreur sur fiches guides pays
+- [x] Signalement : reportSpotAction redirigé vers modal moderne (suppression legacy prompt)
+- [x] Admin signalements : auto-load, filtres type/statut, liens "Voir le spot/profil/guide", badge compteur header
+- [x] Admin signalements : fusion guide_reports + reports dans un seul onglet
 - [x] Disclaimer SOS
 - [x] Consentement compagnon
 
@@ -278,6 +284,13 @@
 - [x] Sentry → GitHub Issues intégration native (pas de workflow custom)
 - [x] Visual Check script (screenshots automatiques Playwright, viewport 390x844)
 - [x] Pill toggle unifié (👍/👎) via src/utils/toggle.js (renderToggle + renderToggleCompact)
+- [x] 14 couches de vérification indépendantes (session 45, 2026-03-23) :
+  - CodeRabbit (review AI sur PR, en français, .coderabbit.yaml)
+  - DeepSource (qualité, sécurité, secrets, .deepsource.toml)
+  - Aikido Security (packages npm malveillants, CVEs, via GitHub App PR checks)
+  - Argos CI (régression visuelle pixel par pixel sur PR, ARGOS_TOKEN configuré)
+  - CodeQL (analyse sécurité sur chaque push)
+  - StrykerJS (mutation testing, local uniquement : npm run test:mutate)
 
 ## Monétisation (préparé mais pas activé)
 

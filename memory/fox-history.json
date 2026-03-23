@@ -596,5 +596,31 @@
         "max": 100
       }
     ]
+  },
+  {
+    "date": "2026-03-23T12:44:40.880Z",
+    "mode": "quick",
+    "score": 93,
+    "duration": 267.8,
+    "layers": [
+      {
+        "layer": 4,
+        "name": "VISUAL INVARIANTS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 5,
+        "name": "FUNCTIONAL FLOWS",
+        "score": 79,
+        "max": 100
+      },
+      {
+        "layer": 6,
+        "name": "SHARE TARGET",
+        "score": 100,
+        "max": 100
+      }
+    ]
   }
 ]

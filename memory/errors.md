@@ -1521,3 +1521,22 @@ Chaque erreur suit ce format :
 - **Correction** : À FAIRE. Redesigner selon le mockup, ajouter le choix de type.
 - **Fichiers** : src/components/views/Guides.js
 - **Statut** : À FAIRE
+
+### ERR-138 — Handlers signalement undefined (selectReportReason, submitCurrentReport)
+- **Date** : 2026-03-23
+- **Gravité** : CRITIQUE
+- **Description** : Les boutons de signalement ne fonctionnaient pas. selectReportReason et submitCurrentReport étaient undefined car moderation.js est lazy-loadé et n'avait pas de stubs dans main.js. L'icône map-pin-off manquait dans ICON_MAP. Le type était en majuscule (SPOT) ce qui cassait le mapping de sévérité.
+- **Cause racine** : moderation.js enregistre les handlers window.* à l'import, mais comme le module est lazy-loadé, ils n'existent pas avant le premier appel à openReport. Les onclick dans le HTML de la modal appelaient des fonctions inexistantes.
+- **Correction** : Ajout stubs _loadModeration() dans main.js. Ajout MapPinOff dans icons.js. Normalisation type en minuscule. Suppression legacy reportSpotAction (prompt).
+- **Leçon** : Quand un module lazy-loadé enregistre des handlers window.*, TOUS ces handlers doivent avoir un stub dans main.js qui charge le module d'abord. Ne JAMAIS supposer qu'un onclick="" dans du HTML lazy-rendu trouvera son handler.
+- **Fichiers** : src/main.js, src/services/moderation.js, src/utils/icons.js, src/handlers/spotActions.js
+- **Statut** : CORRIGÉ
+
+### ERR-139 — Formulaire AddSpot traite les validations de spots existants comme des créations
+- **Date** : 2026-03-23
+- **Gravité** : MAJEUR
+- **Description** : Quand un utilisateur utilise un spot existant et veut donner son avis, le formulaire s'ouvre en mode création. À la soumission, si un spot existe dans les 500m, une alerte native confirm() apparaît au lieu d'une modal SpotHitch. L'utilisateur ne peut pas choisir de valider le spot existant. Les données de validation (temps d'attente, note, direction) ne sont pas agrégées sur le spot existant.
+- **Cause racine** : Le formulaire AddSpot n'a pas de mode "validation/avis". La détection de proximité utilise confirm() natif au lieu d'une modal intégrée. Pas de logique d'agrégation des données (moyennes sécurité, trafic, directions multiples).
+- **Correction** : À FAIRE (session suivante). Ajouter mode validation dans AddSpot, remplacer confirm() par modal SpotHitch, implémenter l'agrégation des données.
+- **Fichiers** : src/components/modals/AddSpot.js
+- **Statut** : À FAIRE
