@@ -97,6 +97,11 @@ export default {
   reviewAlreadySubmitted: 'Tu as déjà publié un avis pour ce spot',
   reviewTooFar: 'Tu dois être passé à proximité de ce spot pour laisser un avis',
   duplicateSpotWarning: 'Un spot existe déjà à moins de 500m. Es-tu sûr de vouloir en créer un nouveau ?',
+  nearbySpotFound: 'Spot à proximité',
+  nearbySpotDescription: 'Un spot existe déjà près de cet endroit. Tu peux ajouter ton expérience dessus ou créer un nouveau spot.',
+  nearbySpotExisting: 'Spots existants à moins de 500m :',
+  giveReview: 'Mon avis',
+  createNewSpotAnyway: 'Créer un nouveau spot quand même',
   checkinError: 'Erreur lors du check-in',
 
   // Ratings

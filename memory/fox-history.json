@@ -622,5 +622,83 @@
         "max": 100
       }
     ]
+  },
+  {
+    "date": "2026-03-23T13:10:57.732Z",
+    "mode": "quick",
+    "score": 67,
+    "duration": 82,
+    "layers": [
+      {
+        "layer": 4,
+        "name": "VISUAL INVARIANTS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 5,
+        "name": "FUNCTIONAL FLOWS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 6,
+        "name": "SHARE TARGET",
+        "score": 0,
+        "max": 100
+      }
+    ]
+  },
+  {
+    "date": "2026-03-23T13:16:56.100Z",
+    "mode": "quick",
+    "score": 67,
+    "duration": 304.5,
+    "layers": [
+      {
+        "layer": 4,
+        "name": "VISUAL INVARIANTS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 5,
+        "name": "FUNCTIONAL FLOWS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 6,
+        "name": "SHARE TARGET",
+        "score": 0,
+        "max": 100
+      }
+    ]
+  },
+  {
+    "date": "2026-03-23T13:34:29.806Z",
+    "mode": "quick",
+    "score": 67,
+    "duration": 138.5,
+    "layers": [
+      {
+        "layer": 4,
+        "name": "VISUAL INVARIANTS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 5,
+        "name": "FUNCTIONAL FLOWS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 6,
+        "name": "SHARE TARGET",
+        "score": 0,
+        "max": 100
+      }
+    ]
   }
 ]

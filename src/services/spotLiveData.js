@@ -181,10 +181,44 @@ export function mergeSpotData(staticSpot, validations) {
       destCounts[v.directionCity] = (destCounts[v.directionCity] || 0) + 1
     }
   }
+  // Include static spot direction
+  if (staticSpot.directionCity) {
+    destCounts[staticSpot.directionCity] = (destCounts[staticSpot.directionCity] || 0) + 1
+  }
   for (const [city, count] of Object.entries(destCounts)) {
     liveDestinations.push({ city, count })
   }
   liveDestinations.sort((a, b) => b.count - a.count)
+
+  // Aggregated methods (thumb, sign, asking)
+  const methodCounts = {}
+  if (staticSpot.method) methodCounts[staticSpot.method] = (methodCounts[staticSpot.method] || 0) + 1
+  for (const v of allValidations) {
+    if (v.method) methodCounts[v.method] = (methodCounts[v.method] || 0) + 1
+  }
+  const liveMethods = Object.entries(methodCounts)
+    .map(([method, count]) => ({ method, count }))
+    .sort((a, b) => b.count - a.count)
+
+  // Aggregated group sizes
+  const groupCounts = {}
+  if (staticSpot.groupSize) groupCounts[staticSpot.groupSize] = (groupCounts[staticSpot.groupSize] || 0) + 1
+  for (const v of allValidations) {
+    if (v.groupSize) groupCounts[v.groupSize] = (groupCounts[v.groupSize] || 0) + 1
+  }
+  const liveGroupSizes = Object.entries(groupCounts)
+    .map(([groupSize, count]) => ({ groupSize, count }))
+    .sort((a, b) => b.count - a.count)
+
+  // Aggregated time of day
+  const timeCounts = {}
+  if (staticSpot.timeOfDay) timeCounts[staticSpot.timeOfDay] = (timeCounts[staticSpot.timeOfDay] || 0) + 1
+  for (const v of allValidations) {
+    if (v.timeOfDay) timeCounts[v.timeOfDay] = (timeCounts[v.timeOfDay] || 0) + 1
+  }
+  const liveTimesOfDay = Object.entries(timeCounts)
+    .map(([timeOfDay, count]) => ({ timeOfDay, count }))
+    .sort((a, b) => b.count - a.count)
 
   const result = {
     ...staticSpot,
@@ -197,6 +231,9 @@ export function mergeSpotData(staticSpot, validations) {
     liveLastValidatedBy,
     liveComments,
     liveDestinations,
+    liveMethods,
+    liveGroupSizes,
+    liveTimesOfDay,
     _liveLoaded: true,
   }
   // Merge GPS verification data from live validations
