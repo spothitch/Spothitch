@@ -5,7 +5,8 @@
  */
 
 import { t } from '../../i18n/index.js'
-import { countryGuides, getGuideByCode, getUniversalPhrases } from '../../data/guides.js'
+import { countryGuides, getGuideByCode, getUniversalPhrases, initGuideSections } from '../../data/guides.js'
+import { clearGuideSectionsCache } from '../../data/guideSectionsLoader.js'
 import { icon } from '../../utils/icons.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
 import { renderTipVoteButtons, renderSuggestionForm } from '../../services/feedbackService.js'
@@ -223,9 +224,38 @@ const GUIDE_SECTIONS = [
   { id: 'safety', icon: 'shield', color: 'emerald', labelKey: 'guideSafety', fallback: 'Sécurité' },
 ]
 
+// Track if sections are loaded for current language
+let _guideSectionsLoaded = false
+let _guideSectionsLang = null
+
+export async function ensureGuideSectionsLoaded() {
+  const lang = window.getState?.()?.lang || 'fr'
+  if (_guideSectionsLoaded && _guideSectionsLang === lang) return
+  clearGuideSectionsCache()
+  await initGuideSections()
+  _guideSectionsLoaded = true
+  _guideSectionsLang = lang
+}
+
+// Auto-load on first render and re-render when done
+let _guideSectionsInitStarted = false
+
 export function renderGuides(state) {
   const activeSection = state.guideSection || 'start'
   const selectedGuide = state.selectedCountryGuide ? getGuideByCode(state.selectedCountryGuide) : null
+
+  // Trigger async load of guide sections (language-aware)
+  const currentLang = state.lang || 'fr'
+  if (!_guideSectionsInitStarted || _guideSectionsLang !== currentLang) {
+    _guideSectionsInitStarted = true
+    ensureGuideSectionsLoaded().then(() => {
+      // Re-render only if we're still on guides tab
+      const s = window.getState?.()
+      if (s?.activeTab === 'voyage' || s?.selectedCountryGuide) {
+        window.setState?.({ _guideSectionsReady: Date.now() })
+      }
+    })
+  }
 
   if (selectedGuide) {
     return renderCountryDetail(selectedGuide)

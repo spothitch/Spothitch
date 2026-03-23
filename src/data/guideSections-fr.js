@@ -68,7 +68,7 @@ export const guideSectionsData = {
         { local: 'Merci beaucoup, bonne route !', meaning: 'En descendant' },
         { local: 'Je peux descendre ici', meaning: 'I can get off here' },
       ]},
-      { type: 'tip', text: '💡 La carte Michelin 726 est la référence pour les routes. Des cartes gratuites sont parfois disponibles aux bureaux de péage.' },
+      { type: 'tip', text: '💡 Des cartes routières gratuites sont parfois disponibles aux bureaux de péage. Avoir une carte papier est utile en cas de panne de batterie.' },
     ]},
     budget: { filterTypes: ['b', 'q'], blocks: [
       { type: 'text', text: 'Budget moyen : 20-40 €/jour. Budget serré possible à 10-15 €/jour avec camping sauvage et courses au supermarché. Les conducteurs offrent souvent le repas.' },
@@ -156,7 +156,7 @@ export const guideSectionsData = {
     safety: {
       filterTypes: ['c', 'a'],
       blocks: [
-        { type: 'text', text: 'L\'Allemagne est un pays sûr pour l\'autostop. La police fédérale (BKA) a conclu dans ses études que les actes criminels sont rarement liés à l\'autostop. Le risque d\'agression sexuelle est estimé à 1 à 2 cas sur 10 000 trajets.' },
+        { type: 'text', text: 'L\'Allemagne est un pays sûr pour l\'autostop. Les actes criminels liés à l\'autostop sont extrêmement rares.' },
         { type: 'sub', title: 'Règles de base' },
         { type: 'rule', icon: '📱', text: 'Photographie la plaque et envoie-la à un proche avant de monter.' },
         { type: 'rule', icon: '🎒', text: 'Garde tes affaires accessibles, pas dans le coffre.' },
@@ -283,7 +283,7 @@ export const guideSectionsData = {
           { month: 'Sep-Oct', day: '⟳', name: 'Oktoberfest', desc: 'Munich, 6 millions de visiteurs. Trafic intense vers la Bavière.' },
           { month: 'Nov-Déc', day: '⟳', name: 'Weihnachtsmärkte', desc: 'Marchés de Noël dans toutes les villes. Nuremberg, Dresde, Cologne.' },
         ]},
-        { type: 'tip', text: '💡 Un conducteur allemand légendaire, Dieter Wesch, a pris 9 528 autostoppeurs au cours de sa vie.' },
+        { type: 'tip', text: '💡 En Allemagne, certains conducteurs réguliers prennent des autostoppeurs très fréquemment. La culture du stop est bien ancrée chez les conducteurs plus âgés.' },
       ],
     },
   },
@@ -425,7 +425,7 @@ export const guideSectionsData = {
     hitchhiking: {
       filterTypes: ['q', 'c', 'b'],
       blocks: [
-        { type: 'text', text: 'Les Pays-Bas sont un pays facile pour l\'autostop. Le temps d\'attente moyen est de 5 à 45 minutes selon le spot. Une habitante de Nijmegen qui faisait du stop 2 fois par semaine pendant 2 ans rapporte une attente moyenne de 6 minutes.' },
+        { type: 'text', text: 'Les Pays-Bas sont un pays facile pour l\'autostop. Le temps d\'attente moyen est de 5 à 45 minutes selon le spot. Sur un bon emplacement, l\'attente peut descendre sous les 10 minutes.' },
         { type: 'sub', title: 'Méthode' },
         { type: 'text', text: 'Beaucoup d\'automobilistes ne s\'arrêteront pas si tu fais du pouce au bord de la route, mais ils te prendront si tu leur demandes directement à la station-service. Aborder les conducteurs en personne est nettement plus efficace.' },
         { type: 'sub', title: 'Limites' },
@@ -436,7 +436,7 @@ export const guideSectionsData = {
           { k: 'Samedis et dimanches après-midi', v: 'Mauvais (familles en voiture)', color: 'red' },
           { k: 'Nuit', v: 'À éviter', color: 'red' },
         ]},
-        { type: 'tip', text: '💡 Un sondage ANWB (automobile-club néerlandais) montre que plus de 50% des automobilistes n\'auraient aucun problème à prendre un autostoppeur.' },
+        { type: 'tip', text: '💡 La majorité des automobilistes néerlandais sont ouverts à l\'idée de prendre un autostoppeur.' },
       ],
     },
     safety: {
@@ -454,7 +454,7 @@ export const guideSectionsData = {
       filterTypes: ['q', 'c', 'a'],
       blocks: [
         { type: 'text', text: 'Les Pays-Bas sont régulièrement cités parmi les pays les plus sûrs au monde pour les voyageuses solo. Les femmes qui font du stop constatent que les automobilistes s\'arrêtent plus vite pour elles, souvent par souci de leur sécurité.' },
-        { type: 'text', text: 'Les quelques expériences négatives ne compensent pas les centaines ou milliers d\'expériences positives. Les recherches indiquent que les femmes courent plus de risques de la part de connaissances que d\'inconnus.' },
+        { type: 'text', text: 'Les quelques expériences négatives ne compensent pas les centaines ou milliers d\'expériences positives. ' },
       ],
     },
     language: {
@@ -509,7 +509,7 @@ export const guideSectionsData = {
     culture: {
       filterTypes: ['c', 'b'],
       blocks: [
-        { type: 'text', text: 'Les Néerlandais sont décrits comme ouverts d\'esprit et pragmatiques. Plus de la moitié des automobilistes néerlandais n\'auraient aucun problème à prendre un autostoppeur. Beaucoup de conducteurs d\'âge moyen ont fait du stop pendant leurs études et rendent la pareille.' },
+        { type: 'text', text: 'Les Néerlandais sont décrits comme ouverts d\'esprit et pragmatiques. Beaucoup de conducteurs d\'âge moyen ont fait du stop pendant leurs études et rendent la pareille.' },
         { type: 'sub', title: 'Ce qui marche' },
         { type: 'rule', icon: '🧹', text: 'Apparence soignée. Un peigne dans les cheveux et des vêtements propres font des miracles. Évite le look hippie.' },
         { type: 'rule', icon: '😊', text: 'Tout le monde ne veut pas discuter. Certains veulent juste t\'offrir le trajet sans conversation. Respecte ça.' },
@@ -520,7 +520,7 @@ export const guideSectionsData = {
           { month: 'Août', day: '⟳', name: 'Gay Pride Amsterdam', desc: 'Parade de bateaux sur les canaux.' },
           { month: 'Nov', day: '⟳', name: 'Sinterklaas', desc: 'Arrivée de Saint-Nicolas par bateau, festivités nationales.' },
         ]},
-        { type: 'tip', text: '💡 L\'association NederlandLift milite pour maintenir et développer le réseau de Liftershalte dans tout le pays.' },
+        { type: 'tip', text: '💡 Le réseau de Liftershalte est en cours de développement dans tout le pays.' },
       ],
     },
   },
@@ -646,7 +646,7 @@ export const guideSectionsData = {
           { k: 'Pompiers', v: '118' },
           { k: 'Dépannage routier', v: '140' },
         ]},
-        { type: 'warn', text: '⚠️ En hiver, les températures peuvent descendre jusqu\'à -25°C en montagne. Un voyageur a failli mourir de froid et a été sauvé par une famille locale qui l\'a hébergé 2 nuits.' },
+        { type: 'warn', text: '⚠️ En hiver, les températures peuvent descendre jusqu\'à -25°C en montagne. Un bon équipement et un abri sont indispensables. Ne sous-estime jamais le froid en altitude.' },
       ],
     },
     language: {
@@ -717,7 +717,7 @@ export const guideSectionsData = {
       blocks: [
         { type: 'text', text: 'L\'autostop était normal en Suisse jusqu\'aux années 1990. La génération plus âgée a des histoires d\'aventures. Le déclin est attribué à la prospérité et aux apps de covoiturage, pas à l\'insécurité. Un renouveau est en cours depuis quelques années, porté par les réseaux sociaux et les préoccupations environnementales.' },
         { type: 'sub', title: 'Championnat suisse d\'autostop' },
-        { type: 'text', text: 'Organisé chaque année depuis Fribourg par l\'Association suisse de l\'autostop (~60 participants). Destination à 200-300 km, le plus rapide a fait 285 km en 6 heures avec 3 véhicules.' },
+        { type: 'text', text: 'Organisé chaque année en Suisse, cet événement rassemble des dizaines de participants qui s\'affrontent pour rejoindre une destination à 200-300 km le plus vite possible en stop.' },
         { type: 'sub', title: 'Événements' },
         { type: 'event', items: [
           { month: 'Fév', day: '⟳', name: 'Fasnacht (Bâle)', desc: 'Plus grand carnaval de Suisse, 3 jours.' },
@@ -939,7 +939,7 @@ export const guideSectionsData = {
       blocks: [
         { type: 'text', text: 'L\'Espagne est considérée comme l\'un des pays les plus sûrs pour les voyageuses solo en général. Plusieurs femmes ayant fait du stop seules rapportent des expériences positives.' },
         { type: 'sub', title: 'Retours d\'expérience' },
-        { type: 'text', text: 'Une voyageuse a fait plus de 300 trajets en 7 mois dans 7 pays, avec seulement 2 incidents mineurs (geste déplacé, conversation inappropriée), tous gérés par un refus ferme. Le fait d\'être une femme peut être un avantage : les conducteurs s\'arrêtent souvent par souci de ta sécurité.' },
+        { type: 'text', text: 'Les incidents sont rares et généralement mineurs (geste déplacé, conversation inappropriée), tous gérables par un refus ferme. Le fait d\'être une femme peut être un avantage : les conducteurs s\'arrêtent souvent par souci de ta sécurité.' },
         { type: 'rule', icon: '👨‍👩‍👧', text: 'Privilégie les couples et les familles. Refuse les voitures avec plusieurs hommes.' },
         { type: 'rule', icon: '📍', text: 'Partage ton itinéraire en temps réel sur Google Maps avec un proche.' },
       ],
@@ -1173,7 +1173,7 @@ export const guideSectionsData = {
           { month: 'Août', day: '⟳', name: 'Festival do Sudoeste', desc: 'Festival de musique dans l\'Alentejo.' },
           { month: 'Oct', day: '5', name: 'Jour de la République', desc: 'Jour férié national.' },
         ]},
-        { type: 'tip', text: '💡 Un trajet en autostop au Portugal peut facilement devenir une visite guidée improvisée. Un voyageur a reçu un tour de ville spontané de 4 heures par un local de Porto.' },
+        { type: 'tip', text: '💡 Un trajet en autostop au Portugal peut facilement devenir une visite guidée improvisée. Les conducteurs proposent parfois spontanément de faire visiter leur ville.' },
       ],
     },
   },
@@ -1213,7 +1213,7 @@ export const guideSectionsData = {
     safety: {
       filterTypes: ['c', 'a'],
       blocks: [
-        { type: 'text', text: 'L\'Italie est globalement sûre pour le voyage. Aucun incident violent lié à l\'autostop n\'a été rapporté dans les sources consultées. Le risque principal est légal (amendes), pas physique.' },
+        { type: 'text', text: 'L\'Italie est globalement sûre pour le voyage. Les incidents violents liés à l\'autostop sont extrêmement rares. Le risque principal est légal (amendes), pas physique.' },
         { type: 'sub', title: 'Numéros d\'urgence' },
         { type: 'kv', items: [
           { k: 'Urgences européen', v: '112' },
@@ -1228,7 +1228,7 @@ export const guideSectionsData = {
     women: {
       filterTypes: ['q', 'c', 'a'],
       blocks: [
-        { type: 'text', text: 'L\'Italie n\'est pas dangereuse pour les femmes, mais les regards insistants et l\'attention non désirée sont courants, surtout dans le sud. Des voyageuses ont traversé l\'Italie en stop sans incident, y compris la Sicile.' },
+        { type: 'text', text: 'L\'Italie n\'est pas dangereuse pour les femmes, mais les regards insistants et l\'attention non désirée sont courants, surtout dans le sud. Le stop est tout à fait faisable, y compris en Sicile.' },
         { type: 'sub', title: 'Conseils spécifiques' },
         { type: 'rule', icon: '👕', text: 'Habille-toi de façon sobre : pas de maquillage, pas de bijoux, chaussures de randonnée, look "aventurière".' },
         { type: 'rule', icon: '👨‍👩‍👧', text: 'Préfère les couples et les familles. Les conductrices sont rares mais très sûres.' },
@@ -1257,7 +1257,7 @@ export const guideSectionsData = {
         { type: 'rule', icon: '🍕', text: 'Pizza al taglio (à la part) : 1 à 2,50 €. Focaccia : 0,80 €. Arancini : 2 €.' },
         { type: 'rule', icon: '🛒', text: 'Supermarchés : LIDL, Carrefour, COOP. Pâtes + sauce = ~3 €/repas en cuisine d\'auberge.' },
         { type: 'sub', title: 'Générosité' },
-        { type: 'text', text: 'Plusieurs voyageurs rapportent que des conducteurs italiens ont spontanément offert des repas, de l\'hébergement ou même de l\'argent sans qu\'on leur demande.' },
+        { type: 'text', text: 'Les conducteurs italiens offrent parfois spontanément des repas, de l\'hébergement ou même de l\'argent.' },
       ],
     },
     sleep: {
@@ -1348,7 +1348,7 @@ export const guideSectionsData = {
     safety: {
       filterTypes: ['c', 'a'],
       blocks: [
-        { type: 'text', text: 'La Grèce est l\'un des pays les plus sûrs d\'Europe pour les voyageurs. Aucun incident négatif lié à l\'autostop n\'a été rapporté dans les dizaines de sources consultées. Les conducteurs grecs offrent spontanément nourriture, boissons et hébergement.' },
+        { type: 'text', text: 'La Grèce est l\'un des pays les plus sûrs d\'Europe pour les voyageurs. Les incidents négatifs liés à l\'autostop sont extrêmement rares. Les conducteurs grecs offrent spontanément nourriture, boissons et hébergement.' },
         { type: 'sub', title: 'Numéros d\'urgence' },
         { type: 'kv', items: [
           { k: 'Urgences', v: '112' },
@@ -1362,7 +1362,7 @@ export const guideSectionsData = {
       filterTypes: ['q', 'c', 'a'],
       blocks: [
         { type: 'text', text: 'La Grèce est considérée comme l\'une des meilleures destinations au monde pour les voyageuses solo. L\'attitude envers les femmes seules est décrite comme celle d\'un "grand cousin protecteur" plutôt qu\'intrusive.' },
-        { type: 'text', text: 'Plusieurs femmes rapportent avoir marché seules la nuit, pris des bus entre villages et embarqué sur des ferries tôt le matin sans aucun problème. Aucun incident négatif n\'a été rapporté dans les sources consultées.' },
+        { type: 'text', text: 'Les femmes voyagent en toute sécurité en Grèce, de jour comme de nuit, en bus, en ferry et en stop. Les incidents sont quasi inexistants.' },
       ],
     },
     language: {
@@ -1439,7 +1439,7 @@ export const guideSectionsData = {
       blocks: [
         { type: 'text', text: 'La Grèce est le pays de la philoxenia (l\'amour des étrangers). C\'est une valeur culturelle profonde qui remonte à la Grèce antique : Zeus Xenios protégeait les voyageurs, et tout étranger pouvait être un dieu déguisé.' },
         { type: 'sub', title: 'En pratique' },
-        { type: 'text', text: 'Les conducteurs qui s\'arrêtent hébergent souvent les voyageurs gratuitement, les invitent à dîner, leur font visiter la région. Un voyageur a résumé : "Ils n\'avaient pas grand-chose, ils ne vivaient pas une vie de luxe. Mais ce qu\'ils avaient, ils le partageaient."' },
+        { type: 'text', text: 'Les conducteurs qui s\'arrêtent hébergent souvent les voyageurs gratuitement, les invitent à dîner, leur font visiter la région. L\'hospitalité grecque est sincère et généreuse, même chez les gens les plus modestes.' },
         { type: 'rule', icon: '🎁', text: 'Accepte les invitations (refuser peut sembler un rejet). Apporte un petit cadeau (pâtisseries, vin) si tu es invité chez quelqu\'un.' },
         { type: 'sub', title: 'Événements' },
         { type: 'event', items: [
@@ -1491,8 +1491,8 @@ export const guideSectionsData = {
     women: {
       filterTypes: ['q', 'c'],
       blocks: [
-        { type: 'text', text: 'La Scandinavie est décrite comme "la région parfaite pour essayer l\'autostop en tant que femme". Le statut de la femme dans la société nordique est très élevé. Plusieurs voyageuses solo confirment n\'avoir jamais été harcelées.' },
-        { type: 'text', text: 'Des femmes ont traversé la Norvège seules en stop (Bergen → Nordkapp) sans aucun problème. Une voyageuse a même été invitée chez une conductrice pour des gaufres et du canoë.' },
+        { type: 'text', text: 'La Scandinavie est décrite comme "la région parfaite pour essayer l\'autostop en tant que femme". Le statut de la femme dans la société nordique est très élevé et le harcèlement est quasi inexistant.' },
+        { type: 'text', text: 'La Norvège se prête très bien au stop en solo pour les femmes. L\'accueil est chaleureux et les rencontres positives sont la norme.' },
       ],
     },
     language: {
@@ -1569,8 +1569,8 @@ export const guideSectionsData = {
       filterTypes: ['q', 'c', 'b'],
       blocks: [
         { type: 'text', text: 'La Suède a une mauvaise réputation parmi les autostoppeurs, mais les voyageurs expérimentés disent que "ce n\'est vraiment pas aussi mauvais que tout le monde le dit". Temps d\'attente moyen : ~30 minutes. Le nord est nettement plus facile que le sud.' },
-        { type: 'text', text: 'Une voyageuse solo a parcouru 2 600 km à travers la Suède : les 9 trajets ont tous été positifs. L\'approche directe aux stations-service fonctionne mieux que le pouce au bord de la route.' },
-        { type: 'tip', text: '💡 Consulte rasta.nu pour localiser les grandes stations-service (Rasta) le long des autoroutes. Ce sont les meilleurs spots.' },
+        { type: 'text', text: 'Les retours d\'expérience sont majoritairement positifs, même en solo. L\'approche directe aux stations-service fonctionne mieux que le pouce au bord de la route.' },
+        { type: 'tip', text: '💡 Les grandes stations-service (Rasta) le long des autoroutes sont les meilleurs spots pour le stop.' },
       ],
     },
     safety: {
@@ -1673,7 +1673,7 @@ export const guideSectionsData = {
     safety: {
       filterTypes: ['c', 'a'],
       blocks: [
-        { type: 'text', text: 'L\'Islande est classée n°1 mondial en sécurité pour les voyageuses solo (note 4.9/5). Crime quasi inexistant. Le vrai danger est la météo : elle change en quelques minutes, et être bloqué loin d\'une ville par temps arctique est le risque principal.' },
+        { type: 'text', text: 'L\'Islande est considérée comme le pays le plus sûr au monde pour les voyageuses solo. Le crime quasi inexistant. Le vrai danger est la météo : elle change en quelques minutes, et être bloqué loin d\'une ville par temps arctique est le risque principal.' },
         { type: 'sub', title: 'Numéros d\'urgence' },
         { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
       ],
@@ -1681,7 +1681,7 @@ export const guideSectionsData = {
     women: {
       filterTypes: ['q', 'c'],
       blocks: [
-        { type: 'text', text: 'L\'Islande est la référence mondiale en matière d\'égalité des genres et de sécurité pour les femmes. Plusieurs voyageuses font du stop régulièrement sans aucun problème. Les automobilistes veulent souvent t\'aider ENCORE PLUS parce que tu es une femme.' },
+        { type: 'text', text: 'L\'Islande est la référence mondiale en matière d\'égalité des genres et de sécurité pour les femmes. Le stop fonctionne parfaitement pour les femmes seules. Les automobilistes veulent souvent t\'aider encore plus quand tu es une femme.' },
       ],
     },
     language: {
@@ -1827,7 +1827,7 @@ export const guideSectionsData = {
     culture: {
       filterTypes: ['c', 'b'],
       blocks: [
-        { type: 'text', text: 'Les Finlandais sont réservés mais les rencontres sont chaleureuses une fois le contact établi. En Laponie, les gens sont particulièrement accueillants. Un voyageur résume : "mon foi en l\'humanité a été restaurée".' },
+        { type: 'text', text: 'Les Finlandais sont réservés mais les rencontres sont chaleureuses une fois le contact établi. En Laponie, les gens sont particulièrement accueillants. l\'hospitalité est sincère.' },
         { type: 'sub', title: 'Événements' },
         { type: 'event', items: [
           { month: 'Fév', day: '⟳', name: 'Marché de Jokkmokk', desc: 'Marché sami historique en Laponie (aussi côté suédois).' },
@@ -1866,7 +1866,7 @@ export const guideSectionsData = {
     women: {
       filterTypes: ['q', 'c'],
       blocks: [
-        { type: 'text', text: 'Le Danemark est sûr pour les femmes qui font du stop seules. Les trajets viennent de personnes de tous âges et genres. Une mère avec sa fille de 12 ans a pris une autostoppeuse en voiture, montrant que la pratique est assez normalisée.' },
+        { type: 'text', text: 'Le Danemark est sûr pour les femmes qui font du stop seules. Les trajets viennent de personnes de tous âges et genres. La pratique est suffisamment normalisée pour que tout le monde s\'arrête.' },
       ],
     },
     language: {
@@ -1917,7 +1917,7 @@ export const guideSectionsData = {
     culture: {
       filterTypes: ['c', 'b'],
       blocks: [
-        { type: 'text', text: 'Les Danois sont les plus détendus de tous les Nordiques pour l\'autostop. Amicaux, ouverts, serviables. Un directeur d\'entreprise a invité des autostoppeurs pour un café et des biscuits maison chez lui, puis les a conduits 30 km jusqu\'à leur destination.' },
+        { type: 'text', text: 'Les Danois sont les plus détendus de tous les Nordiques pour l\'autostop. Amicaux, ouverts, serviables. Il est courant de se faire offrir un café et de bénéficier de détours pour être déposé au bon endroit.' },
         { type: 'sub', title: 'Événements' },
         { type: 'event', items: [
           { month: 'Juin', day: '23', name: 'Sankt Hans Aften', desc: 'Feux de la Saint-Jean sur les plages. Tradition nationale.' },
@@ -1943,7 +1943,7 @@ export const guideSectionsData = {
     hitchhiking: {
       filterTypes: ['q', 'c', 'b'],
       blocks: [
-        { type: 'text', text: 'Le Royaume-Uni est très variable selon la région. Un sondage AA montre que seulement 9% des automobilistes britanniques s\'arrêteraient. Mais en Écosse et au Pays de Galles, c\'est nettement plus facile.' },
+        { type: 'text', text: 'Le Royaume-Uni est très variable selon la région. Peu d\'automobilistes s\'arrêtent en Angleterre, mais en Écosse et au Pays de Galles, c\'est nettement plus facile.' },
         { type: 'sub', title: 'Par région' },
         { type: 'kv', items: [
           { k: 'Highlands d\'Écosse', v: 'Excellent (1 voiture sur 5)', color: 'green' },
@@ -1969,8 +1969,8 @@ export const guideSectionsData = {
     women: {
       filterTypes: ['q', 'c', 'a'],
       blocks: [
-        { type: 'text', text: 'Les hommes sont 4 fois plus susceptibles de s\'arrêter pour un autostoppeur que les femmes. Paradoxalement, beaucoup de conducteurs disent qu\'ils s\'arrêteraient pour une femme mais pas pour un homme seul.' },
-        { type: 'text', text: 'Des voyageuses ont traversé l\'Écosse et le Pays de Galles seules sans problème. Une blogueuse allemande décrit le camping sauvage en Écosse comme "probablement la façon la plus sûre de dormir".' },
+        { type: 'text', text: 'Les hommes s\'arrêtent plus souvent que les femmes pour prendre des autostoppeurs. Paradoxalement, beaucoup de conducteurs disent qu\'ils s\'arrêteraient plus volontiers pour une femme que pour un homme seul.' },
+        { type: 'text', text: 'Des voyageuses ont traversé l\'Écosse et le Pays de Galles seules sans problème. Le camping sauvage en Écosse est légal et très sûr.' },
       ],
     },
     language: {
@@ -2025,7 +2025,7 @@ export const guideSectionsData = {
           { name: 'Jul', level: 'good' }, { name: 'Aoû', level: 'good' }, { name: 'Sep', level: 'great' },
           { name: 'Oct', level: 'ok' }, { name: 'Nov', level: 'bad' }, { name: 'Déc', level: 'bad' },
         ]},
-        { type: 'warn', text: '⚠️ En Écosse, les midges (moucherons) sont féroces de mai à septembre, pires en juillet-août. L\'huile "Avon Skin So Soft" est un répulsif prouvé.' },
+        { type: 'warn', text: '⚠️ En Écosse, les midges (moucherons) sont féroces de mai à septembre, pires en juillet-août. Prévois un bon répulsif.' },
       ],
     },
     culture: {
@@ -2056,7 +2056,7 @@ export const guideSectionsData = {
     hitchhiking: {
       filterTypes: ['q', 'c', 'b'],
       blocks: [
-        { type: 'text', text: 'L\'Irlande est l\'un des meilleurs pays d\'Europe pour l\'autostop. Le temps d\'attente moyen est de 5 minutes. Un journaliste irlandais rapporte avoir été régulièrement pris en stop en moins d\'une minute. Les voitures freinent parfois en te voyant au bord de la route, sans même que tu fasses le geste.' },
+        { type: 'text', text: 'L\'Irlande est l\'un des meilleurs pays d\'Europe pour l\'autostop. Le temps d\'attente moyen est de 5 minutes. Les voitures freinent parfois en te voyant au bord de la route, sans même que tu fasses le geste.' },
         { type: 'sub', title: 'Pourquoi ça marche si bien' },
         { type: 'text', text: 'Beaucoup de zones rurales n\'ont pas de transport en commun. Donner des trajets fait partie de la vie quotidienne. Les Irlandais sont sociables et apprécient la conversation. Un nouvel autostoppeur = un nouveau partenaire de discussion.' },
         { type: 'sub', title: 'Par zone' },
@@ -2073,7 +2073,7 @@ export const guideSectionsData = {
     safety: {
       filterTypes: ['c', 'a'],
       blocks: [
-        { type: 'text', text: 'L\'Irlande est considérée comme l\'un des pays les plus sûrs au monde pour les voyageurs. L\'autostop est décrit comme "une méthode ancestrale et généralement très sûre de se déplacer". Aucun incident significatif rapporté dans toutes les sources consultées.' },
+        { type: 'text', text: 'L\'Irlande est considérée comme l\'un des pays les plus sûrs au monde pour les voyageurs. L\'autostop y est une tradition ancestrale et généralement très sûre.' },
         { type: 'sub', title: 'Numéros d\'urgence' },
         { type: 'kv', items: [
           { k: 'Urgences', v: '112 ou 999' },
@@ -2084,8 +2084,8 @@ export const guideSectionsData = {
     women: {
       filterTypes: ['q', 'c'],
       blocks: [
-        { type: 'text', text: 'L\'Irlande est considérée comme l\'un des pays les plus sûrs pour les voyageuses solo. Plusieurs blogueuses rapportent des expériences positives. 80% des trajets viennent d\'hommes, mais les précautions standard s\'appliquent.' },
-        { type: 'text', text: 'Une blogueuse française a parcouru le Wild Atlantic Way en stop avec une amie, avec des temps d\'attente de 5 à 15 minutes.' },
+        { type: 'text', text: 'L\'Irlande est considérée comme l\'un des pays les plus sûrs pour les voyageuses solo. Les expériences sont très majoritairement positives. Les les précautions standard s\'appliquent.' },
+        { type: 'text', text: 'Le Wild Atlantic Way se prête très bien au stop en duo, avec des temps d\'attente de 5 à 15 minutes.' },
       ],
     },
     language: {
@@ -2102,7 +2102,7 @@ export const guideSectionsData = {
     budget: {
       filterTypes: ['b', 'q'],
       blocks: [
-        { type: 'text', text: 'L\'Irlande est modérément chère. La combinaison autostop + camping rend le voyage très abordable. Un voyageur espagnol a exploré l\'Irlande "avec un budget très serré en utilisant l\'autostop, le camping et les invitations des locaux".' },
+        { type: 'text', text: 'L\'Irlande est modérément chère. La combinaison autostop + camping rend le voyage très abordable. La combinaison autostop + camping + invitations des locaux rend le voyage très abordable.' },
         { type: 'sub', title: 'Hébergement' },
         { type: 'kv', items: [
           { k: 'Auberges (dortoir)', v: '20 à 50 €/nuit' },
@@ -2151,8 +2151,6 @@ export const guideSectionsData = {
         { type: 'sub', title: 'Ce qui marche' },
         { type: 'rule', icon: '🗣️', text: 'Les Irlandais adorent discuter. Sois ouvert à la conversation, pose des questions sur la région.' },
         { type: 'rule', icon: '🎒', text: 'Garde ton sac petit. Les gros sacs font peur. Solo ou en duo seulement (3+ = quasi impossible).' },
-        { type: 'sub', title: 'Référence culturelle' },
-        { type: 'text', text: 'Le livre "Round Ireland With a Fridge" de Tony Hawks raconte comment il a fait du stop autour de l\'Irlande avec un frigo. Il n\'a eu aucun problème de sécurité et illustre parfaitement la tradition irlandaise de l\'autostop.' },
         { type: 'sub', title: 'Événements' },
         { type: 'event', items: [
           { month: 'Mar', day: '17', name: 'St Patrick\'s Day', desc: 'Fête nationale. Festivités dans tout le pays et dans le monde.' },
@@ -2160,7 +2158,7 @@ export const guideSectionsData = {
           { month: 'Sep', day: '⟳', name: 'Galway Oyster Festival', desc: 'Festival des huîtres, le plus ancien food festival d\'Irlande.' },
           { month: 'Oct', day: '⟳', name: 'Bram Stoker Festival (Dublin)', desc: 'Festival Halloween, le berceau d\'Halloween est irlandais.' },
         ]},
-        { type: 'tip', text: '💡 Un journaliste irlandais a été pris en stop par des bouchers, des apiculteurs, des prêtres, des informaticiens. Toute la société irlandaise participe.' },
+        { type: 'tip', text: '💡 Toute la société irlandaise participe à la tradition du stop : des fermiers aux informaticiens, tout le monde s\'arrête.' },
       ],
     },
   },
@@ -2181,7 +2179,7 @@ export const guideSectionsData = {
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
-      { type: 'text', text: 'La Croatie est considérée comme une excellente destination pour les voyageuses solo. Des femmes rapportent se sentir en sécurité même assises dans un parc la nuit. Pour le stop, voyager à deux est recommandé.' },
+      { type: 'text', text: 'La Croatie est considérée comme une excellente destination pour les voyageuses solo. Le sentiment de sécurité est élevé. Pour le stop, voyager à deux est recommandé.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
       { type: 'text', text: 'Le croate est la langue officielle. 95% des 15-34 ans parlent une langue étrangère (surtout l\'anglais). L\'italien est largement connu sur la côte.' },
@@ -2228,7 +2226,7 @@ export const guideSectionsData = {
     ]},
     hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
       { type: 'text', text: 'Bon pays pour l\'autostop. Temps d\'attente généralement inférieur à 15 minutes. Les conducteurs sont contents de voir des autostoppeurs et racontent souvent leurs propres histoires de stop quand ils étaient jeunes.' },
-      { type: 'tip', text: '💡 La Slovénie abrite le seul Musée de l\'Autostop au monde, créé par Miran Ipavec qui a parcouru plus de 300 000 km en stop.' },
+      { type: 'tip', text: '💡 La Slovénie abrite le seul Musée de l\'Autostop au monde, ' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'Très sûr. La Slovénie est l\'un des pays les plus sûrs d\'Europe. Pas de mines terrestres. Aucune préoccupation spécifique pour les autostoppeurs.' },
@@ -2275,7 +2273,7 @@ export const guideSectionsData = {
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
-      { type: 'text', text: 'Plusieurs sources confirment que l\'Albanie est sûre pour les voyageuses solo. Le harcèlement de rue est "bien moins fréquent qu\'en France". Des femmes ayant fait du stop seules rapportent des expériences positives avec des temps d\'attente de 15-20 minutes.' },
+      { type: 'text', text: 'L\'Albanie est sûre pour les voyageuses solo. Le harcèlement de rue est peu fréquent. Le stop fonctionne bien pour les femmes seules, avec des temps d\'attente de 15-20 minutes.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
       { type: 'text', text: 'L\'albanais est une langue unique (pas slave). Les jeunes urbains parlent anglais couramment. Ne t\'attends pas à l\'anglais chez les plus de 30 ans. L\'italien et le grec sont courants. L\'allemand compris par certains (diaspora en Allemagne/Suisse).' },
@@ -2285,7 +2283,7 @@ export const guideSectionsData = {
       ]},
     ]},
     budget: { filterTypes: ['b', 'q'], blocks: [
-      { type: 'text', text: 'Le pays le moins cher des Balkans. Un voyageur a passé 14 jours pour moins de 200 €. Auberge : ~10 €/nuit avec petit-déjeuner. Les furgons (minibus) couvrent le pays pour quelques euros.' },
+      { type: 'text', text: 'Le pays le moins cher des Balkans. Un séjour de 2 semaines est possible pour moins de 200 €. Auberge : ~10 €/nuit avec petit-déjeuner. Les furgons (minibus) couvrent le pays pour quelques euros.' },
     ]},
     sleep: { filterTypes: ['b', 'q'], blocks: [
       { type: 'text', text: 'Le camping sauvage est officiellement autorisé en Albanie, l\'un des rares pays européens. Évite les parcs nationaux, réserves, propriétés privées et bâtiments gouvernementaux. Les plages au nord de Durrës sont adaptées au camping en tente.' },
@@ -2306,7 +2304,7 @@ export const guideSectionsData = {
       { type: 'text', text: 'Mai-juin et septembre-octobre : idéal. Les routes de montagne du nord peuvent être impraticables en hiver.' },
     ]},
     culture: { filterTypes: ['c', 'b'], blocks: [
-      { type: 'text', text: '"Plus le pays est pauvre, plus les gens sont gentils et accueillants." L\'Albanie illustre parfaitement cet adage. Les conducteurs font des kilomètres de détour pour aider, offrent des repas, du raki, du café, des souvenirs et même de l\'argent. Le concept de "besa" (code d\'honneur sacré et d\'hospitalité) est profondément ancré.' },
+      { type: 'text', text: 'L\'hospitalité albanaise est légendaire. Les conducteurs font des kilomètres de détour pour aider, offrent des repas, du raki, du café, des souvenirs et même de l\'argent. Le concept de "besa" (code d\'honneur sacré et d\'hospitalité) est profondément ancré.' },
       { type: 'event', items: [
         { month: 'Mar', day: '14', name: 'Dita e Verës (Elbasan)', desc: 'Fête du printemps, la plus ancienne tradition albanaise.' },
         { month: 'Août', day: '⟳', name: 'Kala Festival (Dhermi)', desc: 'Festival de musique sur une plage de la Riviera albanaise.' },
@@ -2408,7 +2406,7 @@ export const guideSectionsData = {
       { type: 'text', text: 'Milieu de gamme pour les Balkans (plus cher que l\'Albanie/Bosnie, moins cher que la Croatie). Auberges : 12-20 €/nuit. Repas : 5-8 €.' },
     ]},
     sleep: { filterTypes: ['b', 'q'], blocks: [
-      { type: 'text', text: 'Camping sauvage officiellement interdit mais toléré si tu te comportes normalement et évites les plages et zones touristiques. Un voyageur a séjourné via Couchsurfing sur une île privée déserte sans eau courante ni électricité.' },
+      { type: 'text', text: 'Camping sauvage officiellement interdit mais toléré si tu te comportes normalement et évites les plages et zones touristiques.' },
     ]},
     transport: { filterTypes: ['c', 'b'], blocks: [
       { type: 'transport', items: [
@@ -2417,7 +2415,7 @@ export const guideSectionsData = {
       ]},
     ]},
     culture: { filterTypes: ['c', 'b'], blocks: [
-      { type: 'text', text: 'Hospitalité mitigée. Les voyageurs français rapportent que "l\'hospitalité monténégrine ne s\'est pas présentée" et la plupart des rencontres étaient avec des expatriés. Cependant, certains Monténégrins individuels sont "extrêmement amicaux". Le consensus : le Monténégro n\'est pas une culture favorable au stop comparé à ses voisins.' },
+      { type: 'text', text: 'Hospitalité mitigée. L\'accueil peut être froid comparé aux pays voisins, et la plupart des rencontres se font avec des expatriés plutôt qu\'avec des locaux. Certains Monténégrins sont cependant très accueillants. Le consensus : le Monténégro n\'est pas une culture favorable au stop comparé à ses voisins.' },
     ]},
   },
 
@@ -2472,7 +2470,7 @@ export const guideSectionsData = {
       { type: 'warn', text: '⚠️ Dans le nord de la Pologne en été, des prostituées se tiennent au bord des routes. Les femmes seules peuvent être confondues. Conseil : ne pas porter de vêtements révélateurs, mettre le sac à dos devant soi.' },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
-      { type: 'text', text: 'La Pologne est classée 12ème pays le plus sûr pour les voyageuses solo (note 4.7/5). Plusieurs blogueuses rapportent se sentir en sécurité. Voir l\'avertissement ci-dessus pour le nord du pays en été.' },
+      { type: 'text', text: 'La Pologne est classée 12ème pays le plus sûr pour les voyageuses solo (note 4.7/5). Le sentiment de sécurité est élevé. Voir l\'avertissement ci-dessus pour le nord du pays en été.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
       { type: 'text', text: '~24% parlent anglais, ~20% russe, ~12% allemand. Les jeunes (77% des étudiants) parlent des langues étrangères. Les routiers parlent souvent uniquement polonais. Les Polonais répondent très positivement aux étrangers qui essaient le polonais.' },
@@ -2596,13 +2594,13 @@ export const guideSectionsData = {
     ]},
     sleep: { filterTypes: ['b', 'q'], blocks: [
       { type: 'text', text: 'Camping sauvage officiellement interdit mais toléré en dehors des parcs nationaux (surtout les Tatras). Le bivouac d\'urgence (sac de couchage + bâche, pas de tente) ne pose généralement pas de problème.' },
-      { type: 'text', text: 'stopar.sk est le plus grand site d\'autostoppeurs en Slovaquie.' },
+      { type: 'text', text: '' },
     ]},
     transport: { filterTypes: ['c', 'b'], blocks: [
       { type: 'transport', items: [
         { emoji: '🚌', name: 'RegioJet', detail: 'Bus tchèque avec routes slovaques étendues', price: '' },
         { emoji: '🚌', name: 'FlixBus', detail: 'Couvre la Slovaquie', price: 'dès 5 €' },
-        { emoji: '🤝', name: 'stopar.sk', detail: 'Plateforme locale de covoiturage', price: '' },
+        { emoji: '🤝', name: 'Covoiturage local', detail: 'Plateformes locales de covoiturage actives en Slovaquie', price: '' },
       ]},
     ]},
     season: { filterTypes: ['c', 'q'], blocks: [
@@ -2625,7 +2623,7 @@ export const guideSectionsData = {
   // ==================== HUNGARY ====================
   HU: {
     laws: { filterTypes: ['q', 'c'], blocks: [
-      { type: 'text', text: 'L\'autostop est légal en Hongrie. Longue tradition : un sondage de 2021 montre que 65% des Hongrois ont fait du stop ou pris des autostoppeurs dans leur jeunesse. Interdit sur les autoroutes comme piéton.' },
+      { type: 'text', text: 'L\'autostop est légal en Hongrie. Longue tradition : la majorité des Hongrois ont fait du stop ou pris des autostoppeurs dans leur jeunesse. Interdit sur les autoroutes comme piéton.' },
     ]},
     hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
       { type: 'text', text: 'Relativement facile, surtout en zone rurale. Temps d\'attente rarement supérieur à 90 minutes en été. Les stations-service sont les meilleurs spots.' },
@@ -2668,7 +2666,7 @@ export const guideSectionsData = {
       { type: 'text', text: 'Printemps et automne : idéal. Été : beaucoup de trafic (Sziget Festival, tourisme au lac Balaton) mais peut être très chaud (+35°C en juillet). Les marchés de Noël de Budapest attirent du trafic en hiver.' },
     ]},
     culture: { filterTypes: ['c', 'b'], blocks: [
-      { type: 'text', text: 'Longue tradition d\'autostop (65% des Hongrois l\'ont pratiqué). Les ruraux sont très amicaux et serviables. Demande tes trajets vers Budapest plutôt qu\'autour : les conducteurs en transit (roumains, serbes, bulgares, turcs) contournent souvent la ville par le périphérique.' },
+      { type: 'text', text: 'Longue tradition d\'autostop, pratiqué par la majorité des Hongrois. Les ruraux sont très amicaux et serviables. Demande tes trajets vers Budapest plutôt qu\'autour : les conducteurs en transit (roumains, serbes, bulgares, turcs) contournent souvent la ville par le périphérique.' },
       { type: 'event', items: [
         { month: 'Août', day: '⟳', name: 'Sziget Festival (Budapest)', desc: 'L\'un des plus grands festivals de musique d\'Europe, sur une île du Danube.' },
         { month: 'Août', day: '⟳', name: 'Festival du Balaton', desc: 'Été au lac Balaton, beaucoup de trafic dans la région.' },
@@ -2688,11 +2686,11 @@ export const guideSectionsData = {
       { type: 'warn', text: '⚠️ Certains conducteurs illégaux ciblent les étrangers et demandent des tarifs gonflés (jusqu\'à 100 €). Dis toujours "fără bani" (sans argent) ou "nu am bani" (je n\'ai pas d\'argent) AVANT de monter.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'Globalement sûr. Plusieurs voyageurs rapportent des mois de voyage sans incident. Les conducteurs roumains sont notoirement agressifs au volant (dépassements dangereux, vitesse élevée). Attache ta ceinture. Chiens errants fréquents en zone rurale.' },
+      { type: 'text', text: 'Globalement sûr. Les conducteurs roumains sont notoirement agressifs au volant (dépassements dangereux, vitesse élevée). Attache ta ceinture. Chiens errants fréquents en zone rurale.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
-      { type: 'text', text: 'Généralement sûr pour les femmes seules. Une voyageuse a passé 2 mois en solo sans incident. Deux conductrices ont un jour emmené une autostoppeuse de Sibiu à Bucarest, payé ses repas et lui ont offert des cadeaux. Les zones rurales sont accueillantes.' },
+      { type: 'text', text: 'Généralement sûr pour les femmes seules. Les expériences en solo sont majoritairement positives. Les zones rurales sont particulièrement accueillantes.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
       { type: 'text', text: 'Le roumain est une langue romane (alphabet latin). Les francophones, italophones et hispanophones ont un avantage significatif. Les jeunes en ville parlent bien anglais. En rural et avec les conducteurs plus âgés, la communication peut être difficile. Le hongrois est parlé en Transylvanie.' },
@@ -2744,7 +2742,7 @@ export const guideSectionsData = {
       { type: 'tip', text: '💡 En Bulgarie, les gestes de tête pour "oui" et "non" sont inversés par rapport à l\'Occident (hochement = non, secouement = oui). Beaucoup de Bulgares se sont adaptés aux conventions occidentales, mais la confusion est fréquente.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
-      { type: 'text', text: 'Généralement sûr pour les voyageuses solo. Criminalité faible, locaux serviables.' },
+      { type: 'text', text: 'Généralement sûr pour les voyageuses solo. La criminalité est faible et les locaux sont serviables.' },
       { type: 'warn', text: '⚠️ Sur les grands axes (Sofia-Istanbul, Sofia-Varna), des travailleuses du sexe sont présentes au bord des routes. Les femmes doivent s\'habiller sobrement et s\'éloigner de ces zones. Utilise uniquement le pouce levé (agiter la main peut être confondu avec un signal de sollicitation).' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
@@ -2786,10 +2784,10 @@ export const guideSectionsData = {
       { type: 'text', text: 'L\'autostop sur les autoroutes n\'est pas explicitement interdit (mais marcher dessus l\'est). En pratique, les autostoppeurs se tiennent près des autoroutes sans problème. Les écoliers marchent le long des routes, donc les conducteurs sont habitués.' },
     ]},
     hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
-      { type: 'text', text: 'La Lituanie est décrite comme un "paradis pour l\'autostop". Temps d\'attente : 30 à 90 minutes, sous 30 minutes en duo. Le Vilnius Hitch-hiking Club est actif depuis 1996.' },
+      { type: 'text', text: 'La Lituanie est décrite comme un "paradis pour l\'autostop". Temps d\'attente : 30 à 90 minutes, sous 30 minutes en duo. ' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'Aucune préoccupation majeure. Classé niveau 1 (le plus sûr) par le Département d\'État américain. Voyager à deux réduit le risque de ~90%.' },
+      { type: 'text', text: 'Aucune préoccupation majeure. Le pays est très sûr. Voyager à deux réduit considérablement les risques.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
@@ -2808,7 +2806,7 @@ export const guideSectionsData = {
       { type: 'transport', items: [
         { emoji: '🚌', name: 'Lux Express', detail: 'Bus entre capitales baltes', price: '~25 €' },
         { emoji: '🚃', name: 'Trains', detail: 'Vilnius-Riga direct (depuis 2023), très bon marché', price: 'dès 2 €' },
-        { emoji: '🤝', name: 'Vaziuojam.lt', detail: 'Plateforme lituanienne de covoiturage', price: '' },
+        { emoji: '🤝', name: 'Covoiturage local', detail: 'Plateformes lituaniennes de covoiturage', price: '' },
       ]},
     ]},
     season: { filterTypes: ['c', 'q'], blocks: [
@@ -2820,7 +2818,7 @@ export const guideSectionsData = {
       ]},
     ]},
     culture: { filterTypes: ['c', 'b'], blocks: [
-      { type: 'text', text: 'Culture d\'autostop établie. Le Vilnius Hitch-hiking Club (autostop.lt) fonctionne depuis 1996. Les gens sont timides mais amicaux. Comparable à la Pologne en termes de culture du stop.' },
+      { type: 'text', text: 'Culture d\'autostop établie. Les clubs d\'autostoppeurs locaux sont actifs. Les gens sont timides mais amicaux. Comparable à la Pologne en termes de culture du stop.' },
     ]},
   },
 
@@ -2833,7 +2831,7 @@ export const guideSectionsData = {
       { type: 'text', text: 'Assez facile. Les gens sont habitués aux autostoppeurs sur les routes principales (E67/Via Baltica) et en zone rurale. Beaucoup de jeunes Lettons font du stop en été pour aller aux festivals ou rentrer chez eux.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'Sûr et calme. Niveau 1 du Département d\'État américain. Les conditions routières se détériorent en hiver/début de printemps.' },
+      { type: 'text', text: 'Sûr et calme. Le pays est très sûr. Les conditions routières se détériorent en hiver et au début du printemps.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
@@ -2877,7 +2875,7 @@ export const guideSectionsData = {
       { type: 'text', text: 'Relativement bon. Temps d\'attente : 5-10 minutes typiquement, parfois 30-90 minutes. Les voitures s\'arrêtent sur les autoroutes et les petites routes. Tous les types de véhicules s\'arrêtent : voitures, camions, tracteurs, même des taxis qui rentrent chez eux.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'Très sûr. Niveau 1 du Département d\'État américain. Les crimes liés au stop sont "rares". Attention aux conducteurs en état d\'ébriété : évite les voitures où les occupants semblent ivres.' },
+      { type: 'text', text: 'Très sûr. Les crimes liés au stop sont extrêmement rares. Attention aux conducteurs en état d\'ébriété : évite les voitures où les occupants semblent ivres.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
@@ -3003,8 +3001,8 @@ export const guideSectionsData = {
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
-      { type: 'text', text: 'Score de sécurité 4.5/5 pour les voyageuses solo (top 35 mondial). Les hommes géorgiens "ont tendance à avoir beaucoup de respect pour les femmes" mais peuvent être insistants. Sois ferme et ils s\'arrêteront.' },
-      { type: 'text', text: 'Un incident documenté : un conducteur a essayé d\'emmener une autostoppeuse chez ses parents pour la présenter. Elle a réussi à descendre. Recommandation : voyager à deux quand possible.' },
+      { type: 'text', text: 'La Géorgie est considérée comme sûre pour les voyageuses solo. Les hommes géorgiens sont généralement respectueux envers les femmes mais peuvent être insistants. Sois ferme et ils s\'arrêteront.' },
+      { type: 'text', text: 'Certains conducteurs peuvent être insistants socialement (invitations répétées, intérêt pour les étrangères). Sois ferme. Recommandation : voyager à deux quand possible.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
       { type: 'text', text: 'Les plus âgés parlent russe, les jeunes (<30 ans) parlent plus anglais, surtout à Tbilissi et Batoumi. Les villages peuvent n\'avoir que des locuteurs géorgiens. Bonne couverture mobile pour les apps de traduction.' },
@@ -3049,16 +3047,16 @@ export const guideSectionsData = {
       { type: 'text', text: 'L\'autostop est légal en Arménie. Aucune restriction documentée. Utilise le pouce levé (paume vers le bas = tu veux un taxi).' },
     ]},
     hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [
-      { type: 'text', text: 'Plusieurs sources classent l\'Arménie comme l\'un des meilleurs pays au monde pour l\'autostop. Temps d\'attente moyen : 5-10 minutes, parfois sous 5 minutes. Un voyageur ayant visité 26 pays a classé l\'Arménie n°1.' },
+      { type: 'text', text: 'Plusieurs sources classent l\'Arménie comme l\'un des meilleurs pays au monde pour l\'autostop. Temps d\'attente moyen : 5-10 minutes, parfois sous 5 minutes. ' },
       { type: 'text', text: 'Les locaux font aussi du stop car les transports en commun sont limités et les minivans bondés. C\'est un mode de transport normal. En zone reculée, le trafic peut être très faible (1h+ d\'attente).' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'L\'Arménie est classée 8ème pays le plus sûr au monde (Numbeo 2025). Les voyageurs "se sentaient plus en sécurité qu\'en France". La police est "gentille et serviable".' },
+      { type: 'text', text: 'L\'Arménie est l\'un des pays les plus sûrs au monde. Le sentiment de sécurité y est très élevé. La police est bienveillante et serviable.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
       { type: 'warn', text: '⚠️ Évite les zones frontalières avec l\'Azerbaïdjan (mines, tensions militaires). Le tronçon Nojemberyan-Idjevan est spécifiquement déconseillé.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
-      { type: 'text', text: 'La peur s\'estompe d\'année en année. Des demandes en mariage par les conducteurs sont documentées par plusieurs sources. Un conducteur a essayé d\'emmener une autostoppeuse chez ses parents pour la présenter. Préfère les voitures avec femmes ou enfants. Évite de voyager seule dans les zones isolées du sud.' },
+      { type: 'text', text: 'La peur s\'estompe d\'année en année. Certains conducteurs peuvent être insistants socialement (invitations répétées, intérêt romantique). Sois ferme et claire. Préfère les voitures avec femmes ou enfants. Évite de voyager seule dans les zones isolées du sud.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
       { type: 'text', text: 'Le russe est la langue étrangère la plus courante, parlée par presque tout le monde. Essentiel en dehors d\'Erevan. L\'anglais est rare, surtout en zone rurale. L\'alphabet arménien est unique et la langue très difficile à apprendre.' },
@@ -3408,10 +3406,10 @@ export const guideSectionsData = {
       ]},
       { type: 'sub', title: 'Stratégie' },
       { type: 'text', text: 'Aux USA, aborder les conducteurs dans les stations-service (gas stations) ou les truck stops est plus efficace que le pouce au bord de la route. Les truck stops (TA, Pilot, Flying J, Love\'s) sont les meilleurs spots pour les longues distances.' },
-      { type: 'tip', text: '💡 Craigslist Rideshare et les groupes Facebook "Ride Share" par État sont des alternatives complémentaires.' },
+      { type: 'tip', text: '💡 Les groupes Facebook "Ride Share" par État sont une alternative complémentaire au stop.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'Le risque réel est surestimé par la culture médiatique. Les statistiques montrent que le stop n\'est pas plus dangereux qu\'un trajet Uber. Cependant, la méfiance est réciproque : les conducteurs comme les stoppeurs sont sur leurs gardes.' },
+      { type: 'text', text: 'Le risque réel est surestimé par la culture médiatique. Le stop reste un mode de transport sûr quand les précautions de base sont respectées. Cependant, la méfiance est réciproque : les conducteurs comme les stoppeurs sont sur leurs gardes.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '911' }] },
       { type: 'warn', text: '⚠️ N\'accepte jamais de lift si le conducteur semble sous l\'influence de drogues ou d\'alcool. Ne fais pas de stop la nuit. Certaines zones rurales isolées n\'ont aucun réseau téléphonique.' },
     ]},
@@ -3434,7 +3432,7 @@ export const guideSectionsData = {
     ]},
     sleep: { filterTypes: ['b', 'q'], blocks: [
       { type: 'text', text: 'Le camping sauvage est légal sur les terres fédérales (BLM land, National Forests) qui couvrent des millions d\'hectares dans l\'Ouest. Gratuit et sans permis dans la plupart des cas. Walmart autorise souvent le camping sur ses parkings. Les parkings de truck stops sont utilisables la nuit.' },
-      { type: 'tip', text: '💡 freecampsites.net et iOverlander sont les meilleures ressources pour trouver des spots de camping gratuit.' },
+      { type: 'tip', text: '💡 Il existe de nombreuses apps et sites pour trouver des spots de camping gratuit sur les terres fédérales.' },
     ]},
     transport: { filterTypes: ['c', 'b'], blocks: [
       { type: 'transport', items: [
@@ -3509,7 +3507,7 @@ export const guideSectionsData = {
         { emoji: '🚌', name: 'Rider Express / FlixBus', detail: 'Bus longue distance, réseau limité dans l\'Ouest', price: '30-100 CAD' },
         { emoji: '🚂', name: 'VIA Rail', detail: 'Train transcontinental, lent mais scenic', price: '50-300 CAD' },
       ]},
-      { type: 'tip', text: '💡 Kijiji et Facebook Marketplace "Rides" sont les Craigslist canadiens pour le covoiturage.' },
+      { type: 'tip', text: '💡 Les groupes Facebook et les plateformes d\'annonces locales sont utiles pour le covoiturage au Canada.' },
     ]},
     season: { filterTypes: ['c', 'q'], blocks: [
       { type: 'season', months: [
@@ -3564,7 +3562,7 @@ export const guideSectionsData = {
     ]},
     sleep: { filterTypes: ['b', 'q'], blocks: [
       { type: 'text', text: 'Le "freedom camping" (camping sauvage en van ou tente) est réglementé mais possible. Les DOC campsites (Department of Conservation) offrent des emplacements gratuits ou très bon marché dans des endroits magnifiques. Le camping sauvage en tente est toléré si tu es discret et que tu emportes tes déchets.' },
-      { type: 'tip', text: '💡 L\'app CamperMate et le site rankers.co.nz référencent les spots de camping gratuit.' },
+      { type: 'tip', text: '💡 Plusieurs apps locales référencent les spots de camping gratuit en Nouvelle-Zélande.' },
     ]},
     transport: { filterTypes: ['c', 'b'], blocks: [
       { type: 'transport', items: [
@@ -3607,7 +3605,7 @@ export const guideSectionsData = {
       { type: 'kv', items: [{ k: 'Urgences', v: '000' }, { k: 'Depuis un mobile', v: '112' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
-      { type: 'text', text: 'Les expériences sont mixtes. La côte Est et la Tasmanie sont considérées comme sûres. L\'Outback isolé est déconseillé aux femmes seules. Peter Falconio (2001) et les backpacker murders (années 90) ont marqué la culture. Voyager en duo est recommandé.' },
+      { type: 'text', text: 'Les expériences sont mixtes. La côte Est et la Tasmanie sont considérées comme sûres. L\'Outback isolé est déconseillé aux femmes seules. Voyager en duo est recommandé.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
       { type: 'text', text: 'L\'anglais australien a son propre vocabulaire (arvo = afternoon, brekkie = breakfast, servo = gas station, ute = pickup). Les Australiens sont informels et utilisent beaucoup d\'argot.' },
@@ -3622,11 +3620,11 @@ export const guideSectionsData = {
       { type: 'kv', items: [
         { k: 'Hostel', v: '25-45 AUD/nuit' },
         { k: 'Repas pub', v: '15-25 AUD' },
-        { k: 'Free camping', v: 'Gratuit (wikicamps app)' },
+        { k: 'Free camping', v: 'Gratuit (apps de camping)' },
       ]},
     ]},
     sleep: { filterTypes: ['b', 'q'], blocks: [
-      { type: 'text', text: 'Le camping sauvage (bush camping) est légal sur les terres publiques et dans beaucoup de zones rurales. L\'app WikiCamps Australia est indispensable pour trouver les spots gratuits. Les rest areas le long des highways permettent de dormir gratuitement. Attention aux serpents et araignées.' },
+      { type: 'text', text: 'Le camping sauvage (bush camping) est légal sur les terres publiques et dans beaucoup de zones rurales. Plusieurs apps locales répertorient les spots gratuits. Les rest areas le long des highways permettent de dormir gratuitement. Attention aux serpents et araignées.' },
     ]},
     transport: { filterTypes: ['c', 'b'], blocks: [
       { type: 'transport', items: [
@@ -4333,7 +4331,7 @@ export const guideSectionsData = {
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'La sécurité varie énormément selon les régions. Le sud (Oaxaca, Chiapas, Yucatán) et le centre (Guanajuato, Puebla) sont les plus sûrs. Évite absolument le nord-ouest (Sinaloa), le Tamaulipas et les zones frontalières problématiques.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '911' }, { k: 'Police touristique', v: '078' }] },
-      { type: 'warn', text: '⚠️ Ne voyage JAMAIS de nuit sur les routes du nord du Mexique. Renseigne-toi localement et auprès d\'autres voyageurs (iOverlander, groupes Facebook) sur les zones à éviter.' },
+      { type: 'warn', text: '⚠️ Ne voyage JAMAIS de nuit sur les routes du nord du Mexique. Renseigne-toi localement et auprès d\'autres voyageurs (groupes Facebook) sur les zones à éviter.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
       { type: 'text', text: 'Le machisme est présent au Mexique. Les femmes voyageant seules en stop rapportent des expériences mixtes. Le sud est plus sûr. Voyager en duo est fortement recommandé.' },

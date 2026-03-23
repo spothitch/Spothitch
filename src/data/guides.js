@@ -3,7 +3,7 @@
  * Hitchhiking guides by country
  */
 
-import { guideSectionsData } from './guideSections.js'
+import { getGuideSections, loadGuideSections } from './guideSectionsLoader.js'
 
 export const countryGuides = [
   {
@@ -3142,11 +3142,26 @@ export const countryGuides = [
   },
 ]
 
-// Enrich guides with v17 sections data from guideSections.js
-for (const guide of countryGuides) {
-  if (guideSectionsData[guide.code] && !guide.sections) {
-    guide.sections = guideSectionsData[guide.code]
+/**
+ * Enrich guides with sections data for the current language
+ * Call this after loadGuideSections() resolves
+ */
+export function enrichGuidesWithSections() {
+  const sectionsData = getGuideSections()
+  if (!sectionsData) return
+  for (const guide of countryGuides) {
+    if (sectionsData[guide.code]) {
+      guide.sections = sectionsData[guide.code]
+    }
   }
+}
+
+/**
+ * Load sections for current language and enrich guides
+ */
+export async function initGuideSections() {
+  await loadGuideSections()
+  enrichGuidesWithSections()
 }
 
 /**
