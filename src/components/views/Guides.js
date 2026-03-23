@@ -254,6 +254,9 @@ export function renderGuides(state) {
       if (s?.activeTab === 'voyage' || s?.selectedCountryGuide) {
         window.setState?.({ _guideSectionsReady: Date.now() })
       }
+    }).catch(() => {
+      // Silent fallback: sections stay empty, guide shows "no data" message
+      _guideSectionsInitStarted = false
     })
   }
 
@@ -386,6 +389,7 @@ function renderStartSection() {
 
 // Country center coordinates for proximity sorting
 const COUNTRY_CENTERS = {
+  // Europe
   FR: [46.6, 2.3], DE: [51.2, 10.4], ES: [40.4, -3.7], IT: [41.9, 12.5],
   NL: [52.1, 5.3], BE: [50.5, 4.5], PT: [39.4, -8.2], AT: [47.5, 13.2],
   CH: [46.8, 8.2], GB: [51.5, -0.1], IE: [53.4, -8.2], PL: [51.9, 19.1],
@@ -394,8 +398,29 @@ const COUNTRY_CENTERS = {
   HU: [47.2, 19.5], SK: [48.7, 19.7], SI: [46.1, 15.0], BG: [42.7, 25.5],
   LT: [55.2, 23.9], LV: [56.9, 24.1], EE: [58.6, 25.0], LU: [49.8, 6.1],
   RS: [44.0, 21.0], BA: [43.9, 17.7], ME: [42.7, 19.4], MK: [41.5, 22.0],
-  AL: [41.3, 20.2], TR: [39.9, 32.9], MA: [31.8, -7.1], GE: [42.3, 43.4],
-  IL: [31.0, 34.9], NZ: [-41.3, 174.8],
+  AL: [41.3, 20.2], IS: [64.9, -18.1], BY: [53.9, 27.6], MD: [47.0, 28.9],
+  UA: [48.4, 31.2], XK: [42.6, 20.9],
+  // Middle East / Caucasus
+  TR: [39.9, 32.9], GE: [42.3, 43.4], AM: [40.1, 44.5], IL: [31.0, 34.9],
+  IR: [32.4, 53.7], JO: [31.2, 36.8], OM: [21.5, 55.9], LB: [33.9, 35.5],
+  // Africa
+  MA: [31.8, -7.1], TN: [34.0, 9.0], EG: [26.8, 30.8], SN: [14.5, -14.5],
+  GH: [7.9, -1.0], KE: [-0.5, 37.9], ET: [9.1, 40.5], TZ: [-6.4, 34.9],
+  UG: [1.4, 32.3], RW: [-1.9, 29.9], MW: [-13.3, 34.3], ZA: [-30.6, 22.9],
+  NAM: [-22.6, 17.1],
+  // Americas
+  US: [37.1, -95.7], CA: [56.1, -106.3], MX: [23.6, -102.5], CU: [21.5, -80.0],
+  GT: [15.8, -90.2], CR: [10.0, -84.2], PA: [8.5, -80.8], CO: [4.6, -74.3],
+  EC: [-1.8, -78.2], PE: [-9.2, -75.0], BO: [-16.3, -63.6], BR: [-14.2, -51.9],
+  CL: [-35.7, -71.5], AR: [-38.4, -63.6], UY: [-32.5, -55.8],
+  // Asia
+  TH: [15.9, 100.9], IN: [20.6, 78.9], NP: [28.4, 84.1], LK: [7.9, 80.8],
+  VN: [14.1, 108.3], LA: [19.9, 102.5], KH: [12.6, 105.0], MM: [19.8, 96.1],
+  JP: [36.2, 138.3], KR: [35.9, 127.8], TW: [23.7, 121.0], PH: [12.9, 121.8],
+  IDN: [-0.8, 113.9], MY: [4.2, 101.9], MN: [46.9, 103.8], PK: [30.4, 69.3],
+  KZ: [48.0, 68.0], KG: [41.2, 74.8], UZ: [41.4, 64.6], TJ: [38.9, 71.3],
+  // Oceania
+  NZ: [-41.3, 174.8], AU: [-25.3, 133.8],
 }
 
 function getDistanceToCountry(countryCode, userLat, userLng) {
@@ -455,7 +480,7 @@ function renderCountriesSection() {
               <div>
                 <div class="font-bold">${getGuideName(guide)}</div>
                 ${contribCount > 0
-                  ? `<div class="text-xs text-emerald-400">${contribCount}/7 ${icon('check', 'w-3 h-3 inline')}</div>`
+                  ? `<div class="text-xs text-emerald-400">${contribCount}/${GUIDE_CATEGORIES.length} ${icon('check', 'w-3 h-3 inline')}</div>`
                   : communityPending > 0
                     ? `<div class="text-xs text-amber-400">${icon('clock', 'w-3 h-3 inline mr-1')}${communityPending === 1
                         ? (t('guideCommunityPending1') || '1 contribution en attente de validation')
@@ -777,7 +802,7 @@ function renderGuideSectionPinned(sectionData, cat) {
   if (!sectionData || !sectionData.blocks) return ''
   return `
     <div class="p-4 bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/15 rounded-2xl mb-3 relative">
-      <div class="absolute top-3 right-3 text-[10px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full font-semibold">📌 Guide</div>
+      <div class="absolute top-3 right-3 text-[10px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full font-semibold">📌 ${t('guideOfficialBadge') || 'Guide'}</div>
       <h3 class="text-base font-extrabold mb-2 flex items-center gap-2">
         <span class="text-lg">${cat.emoji}</span>
         ${escapeHTML(t(cat.labelKey) || cat.fallback)}
@@ -791,14 +816,14 @@ function renderGuideSectionPinned(sectionData, cat) {
 function renderGuideFilterChips(sectionData, _countryCode, _catId) {
   const types = sectionData?.filterTypes || ['q', 'c']
   const chipDefs = {
-    q: { label: '❓ Questions', cls: 'q' },
-    c: { label: '💡 Conseils', cls: 'c' },
-    a: { label: '⚠️ Alertes', cls: 'a' },
-    b: { label: '🎯 Bons plans', cls: 'b' },
+    q: { label: `❓ ${t('guideChipQuestions') || 'Questions'}`, cls: 'q' },
+    c: { label: `💡 ${t('guideChipTips') || 'Conseils'}`, cls: 'c' },
+    a: { label: `⚠️ ${t('guideChipAlerts') || 'Alertes'}`, cls: 'a' },
+    b: { label: `🎯 ${t('guideChipDeals') || 'Bons plans'}`, cls: 'b' },
   }
   return `
     <div class="flex gap-1.5 overflow-x-auto scrollbar-none py-1 sticky top-0 z-10 bg-[#0f1117]">
-      <span class="px-3 py-1.5 rounded-full text-xs font-semibold border border-amber-500/25 text-amber-500 bg-amber-500/5 cursor-pointer shrink-0">Tout <span class="text-[10px] opacity-70">0</span></span>
+      <span class="px-3 py-1.5 rounded-full text-xs font-semibold border border-amber-500/25 text-amber-500 bg-amber-500/5 cursor-pointer shrink-0">${t('guideChipAll') || 'Tout'} <span class="text-[10px] opacity-70">0</span></span>
       ${types.map(tp => {
         const d = chipDefs[tp]
         return d ? `<span class="guide-chip-${d.cls} px-3 py-1.5 rounded-full text-xs font-semibold border border-white/8 text-slate-500 bg-white/2 cursor-pointer shrink-0">${d.label} <span class="text-[10px] opacity-70">0</span></span>` : ''
@@ -811,16 +836,16 @@ function renderGuideFilterChips(sectionData, _countryCode, _catId) {
 function renderGuideEmptyForum(catId) {
   const emojis = { laws: '💬', hitchhiking: '🗺️', safety: '🛡️', women: '💪', language: '🗣️', budget: '💶', sleep: '🏕️', transport: '🚌', season: '📅', culture: '🎭' }
   const messages = {
-    laws: 'Partage ton expérience avec les lois !',
-    hitchhiking: 'Partage tes astuces pour trouver des trajets !',
-    safety: 'Un conseil sécurité à partager ?',
-    women: 'Ton expérience compte. Aide d\'autres voyageuses !',
-    language: 'Partage une phrase qui t\'a aidé !',
-    budget: 'Un bon plan budget à partager ?',
-    sleep: 'Partage tes spots pour dormir !',
-    transport: 'Un transport pas cher à recommander ?',
-    season: 'Une expérience saisonnière à partager ?',
-    culture: 'Une rencontre marquante à raconter ?',
+    laws: t('guideForumLaws') || 'Partage ton expérience avec les lois !',
+    hitchhiking: t('guideForumHitchhiking') || 'Partage tes astuces pour trouver des trajets !',
+    safety: t('guideForumSafety') || 'Un conseil sécurité à partager ?',
+    women: t('guideForumWomen') || 'Ton expérience compte. Aide d\'autres voyageuses !',
+    language: t('guideForumLanguage') || 'Partage une phrase qui t\'a aidé !',
+    budget: t('guideForumBudget') || 'Un bon plan budget à partager ?',
+    sleep: t('guideForumSleep') || 'Partage tes spots pour dormir !',
+    transport: t('guideForumTransport') || 'Un transport pas cher à recommander ?',
+    season: t('guideForumSeason') || 'Une expérience saisonnière à partager ?',
+    culture: t('guideForumCulture') || 'Une rencontre marquante à raconter ?',
   }
   return `
     <div class="text-center py-6">
@@ -952,7 +977,7 @@ function renderCommunityTipsByCategory(countryCode, categoryId, _state) {
         <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
           ${escapeHTML((tip.username || 'A').slice(0, 2).toUpperCase())}
         </div>
-        <span class="text-xs font-semibold flex-1">${escapeHTML(tip.username || 'Anonyme')}</span>
+        <span class="text-xs font-semibold flex-1">${escapeHTML(tip.username || t('guideAnonymous') || 'Anonyme')}</span>
         <span class="text-[10px] text-slate-500">${tip.createdAt ? new Date(tip.createdAt).toLocaleDateString() : ''}</span>
       </div>
       <p class="text-sm leading-relaxed mb-1">${escapeHTML(tip.text)}</p>
@@ -1203,7 +1228,7 @@ document.addEventListener('input', (e) => {
   }
 })
 
-window.submitGuideTip = window.submitGuideContribution
+// Alias removed per rule #8b (no aliases)
 
 // Admin: approve/reject guide tips
 window.adminApproveGuideTip = async (tipId) => {
