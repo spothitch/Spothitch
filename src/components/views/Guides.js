@@ -21,6 +21,8 @@ import { getState } from '../../stores/state.js'
  */
 function getGuideName(guide) {
   const lang = getState()?.lang || 'fr'
+  if (lang === 'es' && guide.nameEs) return guide.nameEs
+  if (lang === 'de' && guide.nameDe) return guide.nameDe
   if (lang !== 'fr' && guide.nameEn) return guide.nameEn
   return guide.name
 }
@@ -232,12 +234,14 @@ const GUIDE_SECTIONS = [
 
 // Track if sections are loaded for current language
 let _guideSectionsLoaded = false
+let _currentGuideCode = ''
 let _guideSectionsLang = null
 
 export async function ensureGuideSectionsLoaded() {
   const lang = window.getState?.()?.lang || 'fr'
   if (_guideSectionsLoaded && _guideSectionsLang === lang) return
   clearGuideSectionsCache()
+  _communityTipsCache = {}
   await initGuideSections()
   _guideSectionsLoaded = true
   _guideSectionsLang = lang
@@ -859,7 +863,7 @@ function renderGuideEmptyForum(catId) {
     <div class="text-center py-6">
       <div class="text-3xl mb-2 opacity-60">${emojis[catId] || '💬'}</div>
       <p class="text-sm text-slate-500 mb-3">${t('guideNoContribution') || 'Aucune contribution pour le moment.'}<br>${escapeHTML(messages[catId] || '')}</p>
-      <button onclick="openGuideCategory('${escapeJSString(window._guideDetailCode || '')}', '${escapeJSString(catId)}')" class="inline-block px-4 py-2 bg-blue-500 text-white rounded-full text-xs font-semibold cursor-pointer">+ ${t('guideContribute') || 'Contribuer'}</button>
+      <button onclick="openGuideCategory('${escapeJSString(_currentGuideCode || '')}', '${escapeJSString(catId)}')" class="inline-block px-4 py-2 bg-blue-500 text-white rounded-full text-xs font-semibold cursor-pointer">+ ${t('guideContribute') || 'Contribuer'}</button>
     </div>
   `
 }
@@ -874,7 +878,7 @@ export function renderCountryDetail(guideOrCode) {
   const activeSection = state.guideActiveSection || GUIDE_CATEGORIES[0]?.id || 'laws'
 
   // Store for the empty forum contribute button
-  window._guideDetailCode = guide.code
+  _currentGuideCode = guide.code
 
   const activeCat = GUIDE_CATEGORIES.find(c => c.id === activeSection) || GUIDE_CATEGORIES[0]
   const sectionData = guide.sections?.[activeSection]
@@ -1000,7 +1004,7 @@ function renderCommunityTipsByCategory(countryCode, categoryId, _state) {
 // ==================== COMMUNITY TIPS SECTION ====================
 
 // Cache for community tips per country
-const _communityTipsCache = {}
+let _communityTipsCache = {}
 
 // Render safety page (kept for backward compatibility)
 export function renderSafety() {
