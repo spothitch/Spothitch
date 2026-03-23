@@ -11,7 +11,7 @@ import { icon } from '../utils/icons.js'
 // Report types - labels are now translated dynamically
 export const REPORT_TYPES = {
   SPOT: {
-    MISPLACED: { id: 'misplaced', labelKey: 'reportMisplaced', icon: 'map-pin-off', severity: 'medium' },
+    MISPLACED: { id: 'misplaced', labelKey: 'reportMisplaced', icon: 'map-pin', severity: 'medium' },
     INACCURATE: { id: 'inaccurate', labelKey: 'reportInaccurate', icon: 'circle-alert', severity: 'medium' },
     DANGEROUS: { id: 'dangerous', labelKey: 'reportDangerous', icon: 'skull', severity: 'high' },
     INAPPROPRIATE: { id: 'inappropriate', labelKey: 'reportInappropriate', icon: 'ban', severity: 'high' },
@@ -58,11 +58,12 @@ export const SEVERITY_LEVELS = {
 export async function submitReport(type, targetId, reason, details = {}) {
   const state = getState();
   const userId = state.user?.uid || 'anonymous';
+  const normalizedType = (type || 'spot').toLowerCase()
 
   // Check for duplicate reports
   const recentReports = state.userReports || [];
   const duplicateReport = recentReports.find(r =>
-    r.type === type && r.targetId === targetId && r.reason === reason &&
+    r.type === normalizedType && r.targetId === targetId && r.reason === reason &&
     Date.now() - new Date(r.timestamp).getTime() < 24 * 60 * 60 * 1000 // 24 hours
   );
 
@@ -77,12 +78,12 @@ export async function submitReport(type, targetId, reason, details = {}) {
     user: REPORT_TYPES.USER,
     message: REPORT_TYPES.MESSAGE,
   };
-  const reasonInfo = reportTypeMap[type]?.[(reason || '').toUpperCase()] || { severity: 'low' };
+  const reasonInfo = reportTypeMap[normalizedType]?.[(reason || '').toUpperCase()] || { severity: 'low' };
 
   // Create report
   const report = {
     id: generateReportId(),
-    type,
+    type: normalizedType,
     targetId,
     reason,
     severity: reasonInfo.severity,
@@ -108,7 +109,7 @@ export async function submitReport(type, targetId, reason, details = {}) {
   // Track user's reports
   const userReports = state.userReports || [];
   userReports.push({
-    type,
+    type: normalizedType,
     targetId,
     reason,
     timestamp: report.timestamp,
@@ -126,7 +127,7 @@ export async function submitReport(type, targetId, reason, details = {}) {
     if (!auth.currentUser) throw new Error('Not authenticated')
 
     const firestoreReport = {
-      type: type,
+      type: normalizedType,
       targetId: targetId,
       reason: reason,
       severity: reasonInfo.severity,
@@ -147,12 +148,12 @@ export async function submitReport(type, targetId, reason, details = {}) {
 
     // If spot report, increment report counter on the spot
     // Auto-hide spot after 3 reports (community moderation)
-    if (type === 'spot' || type === 'SPOT') {
+    if (normalizedType === 'spot') {
       const { updateDoc, doc, increment, getDoc } = await import('firebase/firestore')
       const spotRef = doc(db, 'spots', targetId)
       await updateDoc(spotRef, {
         reports: increment(1),
-      }).catch(() => {})
+      }).catch(e => console.warn('[Moderation] Report count increment failed:', e))
       // Check if threshold reached → auto-hide
       try {
         const spotSnap = await getDoc(spotRef)
@@ -161,7 +162,7 @@ export async function submitReport(type, targetId, reason, details = {}) {
           await updateDoc(spotRef, { hidden: true, hiddenReason: 'auto_moderation', hiddenAt: new Date().toISOString() })
           console.log(`[Moderation] Spot ${targetId} auto-hidden after ${reportCount} reports`)
         }
-      } catch (e) { /* best-effort */ }
+      } catch (e) { console.warn('[Moderation] Auto-hide check failed:', e) }
     }
   } catch (err) {
     console.error('Failed to persist report to Firebase:', err)
@@ -397,7 +398,7 @@ export function renderReportModal(state) {
 window.openReport = (type, targetId) => {
   setState({
     showReport: true,
-    reportType: type,
+    reportType: (type || 'spot').toLowerCase(),
     reportTargetId: targetId,
     selectedReportReason: null,
   });
@@ -430,6 +431,7 @@ window.selectReportReason = (reason) => {
     _misplacedMapInstance = null
   }
   _misplacedMarker = null
+  _suggestedCoords = null
   // setState triggers render → map container is in HTML when reason === 'misplaced'
   setState({ selectedReportReason: reason })
 
@@ -453,11 +455,18 @@ let _misplacedMapInstance = null
 async function initMisplacedMap() {
   const container = document.getElementById('report-misplaced-map')
   if (!container) return
-  // Already initialized on this DOM element
-  if (container.dataset.init) return
+  // Skip if already initialized AND map instance still alive
+  if (container.dataset.init && _misplacedMapInstance) return
   container.dataset.init = '1'
 
-  const maplibregl = (await import('maplibre-gl')).default
+  let maplibregl
+  try {
+    maplibregl = (await import('maplibre-gl')).default
+  } catch (err) {
+    console.error('[Report] Failed to load maplibre:', err)
+    container.removeAttribute('data-init')
+    return
+  }
 
   // Verify container still exists after async import
   if (!document.getElementById('report-misplaced-map')) return
@@ -525,7 +534,7 @@ window.submitCurrentReport = async () => {
   const reportDetails = { description: details }
 
   // Include suggested coordinates for misplaced reports
-  if (reason === 'misplaced' && _suggestedCoords) {
+  if (reason === 'misplaced' && _suggestedCoords && isFinite(_suggestedCoords.lat) && isFinite(_suggestedCoords.lng)) {
     reportDetails.suggestedLat = _suggestedCoords.lat
     reportDetails.suggestedLng = _suggestedCoords.lng
     reportDetails.additionalInfo = `Suggested location: ${_suggestedCoords.lat.toFixed(5)}, ${_suggestedCoords.lng.toFixed(5)}`
