@@ -461,6 +461,8 @@ const MAIN_JS_HANDLERS = [
   'setCommunityRadius',
   'setCommunityGenderFilter',
   'showCommunitySOSOnMap',
+  // Guide form type (session 2026-03-24)
+  'setGuideFormType',
 ]
 
 MAIN_JS_HANDLERS.forEach(h => KNOWN_HANDLERS.add(h))
