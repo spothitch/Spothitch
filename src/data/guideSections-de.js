@@ -4864,7 +4864,7 @@ export const guideSectionsData = {
     culture: { filterTypes: ['c', 'b'], blocks: [{ type: 'text', text: 'Teranga ist die Seele des Senegals. Ataya (Pfefferminztee) in drei Aufgüssen ist ein unverzichtbares Ritual. Thiéboudienne wird aus einer großen Schüssel geteilt.' }] },
   },
   // ==================== NAMIBIA ====================
-  NAM: {
+  NA: {
     laws: { filterTypes: ['q', 'c'], blocks: [{ type: 'text', text: 'Trampen ist in Namibia legal. Das Land ist riesig und der öffentliche Nahverkehr quasi inexistent.' }] },
     hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [{ type: 'text', text: 'Machbar aber riesige Entfernungen und sehr geringer Verkehr (2. dünnst besiedeltes Land der Welt). Wartezeit: 30 Min-3h+.' }, { type: 'rule', icon: '💧', text: 'IMMER mindestens 5 Liter Wasser dabei haben.' }] },
     safety: { filterTypes: ['c', 'a'], blocks: [{ type: 'text', text: 'Sicher in ländlichen Gebieten. Hauptgefahr ist die Natur: Hitze, Entfernungen, Wildtiere.' }, { type: 'kv', items: [{ k: 'Notfälle', v: '10111' }] }] },
@@ -4928,7 +4928,7 @@ export const guideSectionsData = {
     culture: { filterTypes: ['c', 'b'], blocks: [{ type: 'text', text: 'Zutiefst buddhistisch. Goldene Pagoden (Shwedagon) spektakulär. Birmanen sind lächelnd und großzügig. Laphet Yay (Milchtee) ist das Nationalgetränk.' }] },
   },
   // ==================== INDONESIA ====================
-  IDN: {
+  ID: {
     laws: { filterTypes: ['q', 'c'], blocks: [{ type: 'text', text: 'Kein formelles Trampkonzept. Informeller Transport ist die Norm: Ojek, Bemos, Angkots.' }] },
     hitchhiking: { filterTypes: ['q', 'c', 'b'], blocks: [{ type: 'text', text: 'Größter Archipel der Welt (17.000 Inseln). Klassisches Trampen schwierig, da informelle Transporte allgegenwärtig und sehr günstig sind. In ländlichen Gebieten (Sumatra, Kalimantan) nehmen LKWs Passagiere mit.' }] },
     safety: { filterTypes: ['c', 'a'], blocks: [{ type: 'text', text: 'Generell sicher. Extrem gastfreundlich. Meide Papua (Konflikte).' }, { type: 'kv', items: [{ k: 'Notfälle', v: '112' }] }] },

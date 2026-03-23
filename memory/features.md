@@ -74,18 +74,23 @@
 
 ## Guides pays
 
-- [x] 53 guides pays (difficulté, légalité, phrases, événements, numéros d'urgence)
+- [x] 94 guides pays enrichis (10 sections : lois, autostop, sécurité, femmes, langue, budget, camping, transport, saisons, culture)
+- [x] Traduction 4 langues (FR/EN/ES/DE) avec chargement dynamique par langue (code-splitting Vite)
+- [x] guideSectionsLoader.js : charge uniquement le fichier de la langue active, cache en mémoire
+- [x] Nettoyage contenu : 67 témoignages/pubs/références personnelles supprimés, tout est factuel et générique
 - [x] Conseils communautaires (ajout + vote up/down)
 - [x] Vote utile/pas utile avec compteur affiché + feedback instantané DOM (pas de toast flottant)
 - [x] Formulaire de suggestion de conseils par section
 - [x] Service feedback centralisé (feedbackService.js, localStorage)
 - [x] Barre de recherche carte avec padding corrigé (plus de chevauchement icône)
-- [x] Étiquette culturelle par pays (salutations, pourboire, do's/don'ts — 20 pays)
-- [x] Informations visa par pays (EU/US, durée, visa à l'arrivée — 20 pays)
-- [x] Informations devise par pays (monnaie, taux, paiement, budget — 20 pays)
-- [x] Détail pays en 3 sous-onglets : Info, Culture, Pratique
+- [x] Étiquette culturelle par pays (salutations, pourboire, do's/don'ts — 20 pays, dead code actuellement)
+- [x] Informations visa par pays (EU/US, durée, visa à l'arrivée — 20 pays, dead code actuellement)
+- [x] Informations devise par pays (monnaie, taux, paiement, budget — 20 pays, dead code actuellement)
+- [x] Sections guides simplifiées : 3 onglets (Débuter, Pays, Sécurité)
 - [x] Suggestions villes Photon API (plus rapide que Nominatim, 100ms debounce)
-- [x] Sections guides simplifiées : 3 onglets (Débuter, Pays, Sécurité) — phrases/événements/légalité dans chaque pays
+- [ ] **30 bugs identifiés** (5 critiques, 13 majeurs, 12 mineurs) à corriger prochaine session
+- [ ] UI contribution : rectangle moche sous chaque catégorie, choix de type manquant (question/conseil/alerte/bon plan)
+- [ ] Uniformisation des phrases utiles par pays
 
 ## Gamification
 

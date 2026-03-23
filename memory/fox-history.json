@@ -544,5 +544,57 @@
         "max": 100
       }
     ]
+  },
+  {
+    "date": "2026-03-23T09:45:44.480Z",
+    "mode": "quick",
+    "score": 67,
+    "duration": 16.1,
+    "layers": [
+      {
+        "layer": 4,
+        "name": "VISUAL INVARIANTS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 5,
+        "name": "FUNCTIONAL FLOWS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 6,
+        "name": "SHARE TARGET",
+        "score": 0,
+        "max": 100
+      }
+    ]
+  },
+  {
+    "date": "2026-03-23T10:04:24.629Z",
+    "mode": "quick",
+    "score": 92,
+    "duration": 968.9,
+    "layers": [
+      {
+        "layer": 4,
+        "name": "VISUAL INVARIANTS",
+        "score": 100,
+        "max": 100
+      },
+      {
+        "layer": 5,
+        "name": "FUNCTIONAL FLOWS",
+        "score": 75,
+        "max": 100
+      },
+      {
+        "layer": 6,
+        "name": "SHARE TARGET",
+        "score": 100,
+        "max": 100
+      }
+    ]
   }
 ]

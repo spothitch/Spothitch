@@ -4809,7 +4809,7 @@ export const guideSectionsData = {
     ]},
   },
   // ==================== NAMIBIA ====================
-  NAM: {
+  NA: {
     laws: { filterTypes: ['q', 'c'], blocks: [
       { type: 'text', text: 'El autostop es legal en Namibia. Práctica habitual porque el país es inmenso y los transportes públicos casi inexistentes fuera de las líneas principales.' },
     ]},
@@ -5022,7 +5022,7 @@ export const guideSectionsData = {
     ]},
   },
   // ==================== INDONESIA ====================
-  IDN: {
+  ID: {
     laws: { filterTypes: ['q', 'c'], blocks: [
       { type: 'text', text: 'El autostop no es un concepto formal en Indonesia. El transporte informal es la norma: moto-taxis (ojek), bemos, angkots. Los conductores paran si haces señas pero a menudo esperan un pago.' },
     ]},

@@ -4692,7 +4692,7 @@ export const guideSectionsData = {
     ]},
   },
   // ==================== NAMIBIA ====================
-  NAM: {
+  NA: {
     laws: { filterTypes: ['q', 'c'], blocks: [
       { type: 'text', text: 'Hitchhiking is legal in Namibia. Common practice as the country is immense and public transport is virtually non-existent outside main routes.' },
     ]},
@@ -4905,7 +4905,7 @@ export const guideSectionsData = {
     ]},
   },
   // ==================== INDONESIA ====================
-  IDN: {
+  ID: {
     laws: { filterTypes: ['q', 'c'], blocks: [
       { type: 'text', text: 'Hitchhiking is not a formal concept in Indonesia. Informal transport is the norm: motorbike taxis (ojek), bemos, angkots. Drivers stop if you wave but often expect payment.' },
     ]},
