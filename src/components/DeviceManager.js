@@ -99,7 +99,7 @@ export function renderDeviceManager() {
         class="absolute inset-0 bg-black/60 backdrop-blur-sm"
         aria-hidden="true"
         onclick="closeDeviceManager()"
-       role="button" tabindex="0"></div>
+       role="button" tabindex="0" aria-label="Fermer"></div>
 
       <!-- Modal -->
       <div

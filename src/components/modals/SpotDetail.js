@@ -216,7 +216,7 @@ export function renderSpotDetail(state) {
 
           <!-- Stats glassmorphism bar (clickable) -->
           <div class="mx-3 mt-2.5 bg-[rgba(22,27,40,0.9)] backdrop-blur-xl rounded-[14px] p-3.5 flex justify-around border border-slate-800">
-            <div class="text-center cursor-pointer" onclick="document.getElementById('spot-detail-panel')?.classList.toggle('hidden')" role="button" tabindex="0">
+            <div class="text-center cursor-pointer" onclick="document.getElementById('spot-detail-panel')?.classList.toggle('hidden')" role="button" tabindex="0" aria-label="${t('toggleDetails') || 'Voir les détails'}">
               <div class="text-[22px] font-bold" style="color:${successRate != null ? (successRate >= 50 ? '#22c55e' : '#ef4444') : '#e2e8f0'}">${successRate != null ? successRate + '%' : '—'}</div>
               <div class="text-[10px] text-slate-500">${t('successRate') || 'Réussite'}</div>
               ${successRate != null && successRate < 100 ? `<div class="text-[10px] text-red-500 mt-px cursor-pointer">${100 - successRate}% ${t('failRate') || 'échec'} ↓</div>` : ''}
@@ -227,7 +227,7 @@ export function renderSpotDetail(state) {
               <div class="text-[10px] text-slate-500">${t('waitTimeLabel') || 'Attente'}</div>
             </div>
             <div class="w-px bg-slate-800"></div>
-            <div class="text-center cursor-pointer" onclick="document.getElementById('spot-people-panel')?.classList.toggle('hidden')" role="button" tabindex="0">
+            <div class="text-center cursor-pointer" onclick="document.getElementById('spot-people-panel')?.classList.toggle('hidden')" role="button" tabindex="0" aria-label="${t('toggleValidations') || 'Voir les validations'}">
               <div class="text-[22px] font-bold text-primary-500">${validatedCount || '—'}</div>
               <div class="text-[10px] text-slate-500">${t('usageCount') || 'Validations'}</div>
               ${availableCount > 0 ? `<div class="text-[10px] text-primary-500 mt-px cursor-pointer">+ ${availableCount} ${t('availabilityCount') || 'dispo.'} ↓</div>` : ''}

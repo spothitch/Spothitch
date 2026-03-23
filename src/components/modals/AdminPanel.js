@@ -1247,6 +1247,7 @@ window.adminDismissReport = async (reportId) => {
 }
 
 window.adminRelocateSpot = async (reportId, targetId, lat, lng) => {
+  if (!isFinite(Number(lat)) || !isFinite(Number(lng))) return
   const { auth } = await import('../../services/firebase.js')
   if (!auth.currentUser || !getState().isAdmin) { window.showToast?.(t('unauthorized') || 'Not authorized', 'error'); return }
   try {

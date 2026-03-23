@@ -1904,7 +1904,7 @@ window.showSpotSummary = async () => {
   overlay.id = 'spot-summary-overlay'
   overlay.className = 'fixed inset-0 z-[60] flex items-center justify-center p-4'
   overlay.innerHTML = `
-    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeSpotSummary()" role="button" tabindex="0"></div>
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeSpotSummary()" role="button" tabindex="0" aria-label="Fermer"></div>
     <div class="relative bg-[#0f1520] border border-[#1e293b] rounded-xl max-w-[400px] w-full max-h-[80vh] overflow-y-auto p-5" onclick="event.stopPropagation()">
       <h3 class="text-lg font-semibold text-slate-200 mb-4 text-center">${state.addSpotValidateId ? (t('summaryTitle') || 'Récapitulatif') : (t('summaryTitle') || 'Récapitulatif du spot')}</h3>
 
@@ -1962,6 +1962,7 @@ window.closeSpotSummary = () => {
 
 // Handler: check Street View availability during spot creation
 window.checkStreetViewForNewSpot = (lat, lng) => {
+  if (!isFinite(Number(lat)) || !isFinite(Number(lng))) return
   // Open Street View so user can check manually
   const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0`
   window.open(url, '_blank', 'noopener,noreferrer')
