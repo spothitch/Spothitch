@@ -156,6 +156,26 @@ jobs:
         run: |
           npx @lhci/cli autorun --collect.staticDistDir=dist --collect.numberOfRuns=1 --assert.preset=lighthouse:recommended --assert.assertions.categories:performance=off --assert.assertions.categories:accessibility=warn --assert.assertions.categories:best-practices=warn --assert.assertions.categories:seo=warn || echo "Lighthouse warnings (non-blocking for now)"
 
+  aikido-security:
+    name: Aikido Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+      - name: Aikido Security Scan
+        uses: AikidoSec/github-actions-workflow@v1.0.13
+        with:
+          secret-key: ${{ secrets.AIKIDO_SECRET_KEY }}
+          fail-on-timeout: false
+          fail-on-dependency-scan: true
+          fail-on-sast-scan: false
+          fail-on-iac-scan: false
+          minimum-severity: 'HIGH'
+          timeout-seconds: 180
+          post-scan-status-comment: 'on'
+          post-sast-review-comments: 'on'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
   argos-visual:
     name: Argos Visual Regression
     runs-on: ubuntu-latest
