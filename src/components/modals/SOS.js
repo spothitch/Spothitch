@@ -719,14 +719,14 @@ function _getConfigContent(section) {
         ${contacts.filter(c => c.type === 'app').map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('') || ''}
         <div class="flex gap-1.5 mt-1.5">
           <input type="text" id="sos-cfg-app-search" class="input-field flex-1 text-[12px] min-w-0" placeholder="${t('sosSearchUser') || 'Chercher un utilisateur SpotHitch...'}">
-          <button onclick="addEmergencyContact()" class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center shrink-0" type="button">${icon('plus', 'w-3.5 h-3.5 text-dark-primary')}</button>
+          <button onclick="addEmergencyContact()" class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center shrink-0" type="button" aria-label="${t('addContact') || 'Ajouter un contact'}">${icon('plus', 'w-3.5 h-3.5 text-dark-primary')}</button>
         </div>
         <div class="${labelCls}">SMS (${t('sosExternalContacts') || 'hors app'})</div>
         ${contacts.filter(c => c.type !== 'app').map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('') || contacts.map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('')}
         <div class="flex gap-1.5 mt-1.5">
           <input type="text" id="emergency-name" class="input-field flex-1 text-[12px] min-w-0" placeholder="${t('contactName') || 'Nom'}">
           <input type="tel" id="emergency-phone" class="input-field flex-1 text-[12px] min-w-0" placeholder="${t('phonePlaceholder') || 'Téléphone'}">
-          <button onclick="addEmergencyContact()" class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center shrink-0" type="button">${icon('plus', 'w-3.5 h-3.5 text-dark-primary')}</button>
+          <button onclick="addEmergencyContact()" class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center shrink-0" type="button" aria-label="${t('addContact') || 'Ajouter un contact'}">${icon('plus', 'w-3.5 h-3.5 text-dark-primary')}</button>
         </div>
         <div class="${labelCls}">${t('sosPrimaryContact') || 'Contact principal'} (${t('sosCalledFirst') || 'appelé en premier'})</div>
         <div class="flex gap-1.5 flex-wrap">
@@ -860,7 +860,7 @@ function _renderConfigContact(contact, index, primaryIdx) {
         <div class="text-[10px] text-slate-500 truncate">${escapeHTML(contact.phone || contact.username || '')}</div>
       </div>
       ${index === primaryIdx ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-500/[0.12] text-emerald-500 shrink-0">${t('sosPrimaryContact') || 'Principal'}</span>` : ''}
-      <button onclick="removeEmergencyContact(${index})" class="w-6 h-6 flex items-center justify-center shrink-0" type="button">${icon('trash-2', 'w-3 h-3 text-slate-500')}</button>
+      <button onclick="removeEmergencyContact(${index})" class="w-6 h-6 flex items-center justify-center shrink-0" type="button" aria-label="${t('removeContact') || 'Supprimer le contact'}">${icon('trash-2', 'w-3 h-3 text-slate-500')}</button>
     </div>
   `
 }

@@ -311,9 +311,12 @@ window.voteGuideTip = (section, tipIndex, direction) => {
 }
 
 window.submitGuideSuggestion = (section) => {
+  if (window.submitGuideSuggestion._busy) return
+  window.submitGuideSuggestion._busy = true
+  setTimeout(() => { window.submitGuideSuggestion._busy = false }, 2000)
   const input = document.getElementById(`guide-suggestion-${section}`)
   const text = input?.value?.trim()
-  if (!text) return
+  if (!text) { window.submitGuideSuggestion._busy = false; return }
 
   submitSuggestion(section, text)
   input.value = ''

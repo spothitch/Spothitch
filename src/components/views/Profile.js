@@ -1610,6 +1610,9 @@ window.openAddPastTrip = () => window.setState?.({ showAddPastTrip: true })
 window.closeAddPastTrip = () => window.setState?.({ showAddPastTrip: false })
 
 window.submitPastTrip = () => {
+  if (window.submitPastTrip._busy) return
+  window.submitPastTrip._busy = true
+  setTimeout(() => { window.submitPastTrip._busy = false }, 2000)
   const from = document.getElementById('past-trip-from')?.value?.trim() || ''
   const to = document.getElementById('past-trip-to')?.value?.trim() || ''
   const date = document.getElementById('past-trip-date')?.value || ''

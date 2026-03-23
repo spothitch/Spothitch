@@ -1063,6 +1063,9 @@ window.addFriendByName = async () => {
 }
 
 window.sendFriendRequest = async (targetUserId) => {
+  if (window.sendFriendRequest._busy) return
+  window.sendFriendRequest._busy = true
+  setTimeout(() => { window.sendFriendRequest._busy = false }, 2000)
   const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
   if (!state.isLoggedIn) {
@@ -1156,7 +1159,10 @@ window.cancelWriteReview = () => {
 }
 
 window.submitProfileReview = async (targetUid, comment) => {
-  if (!targetUid || !comment?.trim()) return
+  if (window.submitProfileReview._busy) return
+  window.submitProfileReview._busy = true
+  setTimeout(() => { window.submitProfileReview._busy = false }, 2000)
+  if (!targetUid || !comment?.trim()) { window.submitProfileReview._busy = false; return }
   try {
     const { submitProfileReview } = await import('../../services/userReviews.js')
     const result = await submitProfileReview(targetUid, null, comment)

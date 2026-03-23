@@ -522,8 +522,11 @@ window.closeConversation = () => {
 }
 
 window.sendDM = async (recipientId) => {
+  if (window.sendDM._busy) return
+  window.sendDM._busy = true
+  setTimeout(() => { window.sendDM._busy = false }, 1500)
   const input = document.getElementById('dm-input')
-  if (!input?.value?.trim()) return
+  if (!input?.value?.trim()) { window.sendDM._busy = false; return }
 
   const text = input.value.trim()
   input.value = ''

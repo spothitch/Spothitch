@@ -446,6 +446,9 @@ window.closeCreateEvent = () => {
 }
 
 window.submitCreateEvent = () => {
+  if (window.submitCreateEvent._busy) return
+  window.submitCreateEvent._busy = true
+  setTimeout(() => { window.submitCreateEvent._busy = false }, 2000)
   const title = document.getElementById('event-title')?.value
   const type = document.getElementById('event-type')?.value
   const location = document.getElementById('event-location')?.value
@@ -512,8 +515,11 @@ window.closeEventDetail = () => {
 }
 
 window.postEventComment = (eventId) => {
+  if (window.postEventComment._busy) return
+  window.postEventComment._busy = true
+  setTimeout(() => { window.postEventComment._busy = false }, 1500)
   const input = document.getElementById('event-comment-input')
-  if (!input?.value?.trim()) return
+  if (!input?.value?.trim()) { window.postEventComment._busy = false; return }
 
   const text = input.value.trim()
   input.value = ''

@@ -1983,6 +1983,9 @@ window.checkStreetViewForNewSpot = (lat, lng) => {
 
 window.handleAddSpot = async (event) => {
   event.preventDefault()
+  if (window.handleAddSpot._busy) return
+  window.handleAddSpot._busy = true
+  setTimeout(() => { window.handleAddSpot._busy = false }, 3000)
 
   const { getState, setState } = await import('../../stores/state.js')
   const state = getState()
