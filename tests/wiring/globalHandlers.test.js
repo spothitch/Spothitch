@@ -367,6 +367,8 @@ const MAIN_JS_HANDLERS = [
   'setExperienceDate', 'updateExperienceDate',
   // Validation mode (openTestSpot/openValidateSpot defined in spotActions.js)
   'openValidateSpot', 'openTestSpot',
+  // Nearby spot choice modal (defined in AddSpot.js)
+  'nearbySpotChooseValidate', 'nearbySpotChooseCreate', 'closeNearbySpotChoice',
   // Favorites (defined in favorites.js)
   // User Blocking (defined in userBlocking.js)
   'unblockUserById', 'openBlockModal', 'closeBlockModal', 'confirmBlockUser',
@@ -427,6 +429,7 @@ const MAIN_JS_HANDLERS = [
   'setAdminTab', 'loadAdminFeedback', 'setAdminFeedbackPeriod',
   'exportFeedbackCSV', 'loadAdminSentry',
   'loadAdminReports', 'adminConfirmReport', 'adminDismissReport', 'adminRelocateSpot',
+  'setAdminReportFilter', 'setAdminReportStatusFilter', 'adminViewSpot',
   'loadAdminGuideTips', 'adminApproveGuideTipAction', 'adminRejectGuideTipAction',
   // Beta Banner (session 2026-02-28)
   'closeBetaPopup',
