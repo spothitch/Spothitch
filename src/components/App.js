@@ -38,7 +38,7 @@ const _lazyLoaders = {
   renderIdentityVerification: () => import('./modals/IdentityVerification.js'),
   renderSpotDetail: () => import('./modals/SpotDetail.js'),
   renderAddSpot: () => import('./modals/AddSpot.js'),
-  // ValidateSpot removed — validation uses AddSpot in validation mode (addSpotValidateId)
+  renderNearbySpotChoice: () => import('./modals/AddSpot.js'),
   renderSOS: () => import('./modals/SOS.js'),
   renderAuth: () => import('./modals/Auth.js'),
   renderCompleteProfile: () => import('./modals/Auth.js'),
@@ -365,7 +365,7 @@ export function renderModals(state) {
     ${state.showIdentityVerification ? lazyRender('renderIdentityVerification') : ''}
     ${state.selectedSpot ? lazyRender('renderSpotDetail', state) : ''}
     ${state.showAddSpot ? lazyRender('renderAddSpot', state) : ''}
-    ${''}<!-- ValidateSpot removed — uses AddSpot validation mode -->
+    ${state.nearbySpotChoiceData ? lazyRender('renderNearbySpotChoice', state) : ''}
     ${state.showSOS ? lazyRender('renderSOS', state) : ''}
     ${state.showAuth ? lazyRender('renderAuth', state) : ''}
     ${state.showCompleteProfile ? lazyRender('renderCompleteProfile', state) : ''}
