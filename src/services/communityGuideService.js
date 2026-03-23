@@ -49,7 +49,9 @@ async function getDb() {
 /**
  * Submit a guide contribution (rating + text) for a country/category
  */
-export async function submitGuideTip({ countryCode, category, rating, text, customCategory, customCategoryName }) {
+export async function submitGuideTip({
+  countryCode, category, type, rating, text, customCategory, customCategoryName,
+}) {
   const user = getCurrentUser()
   if (!user) return { success: false, error: 'not_authenticated' }
 
@@ -58,6 +60,7 @@ export async function submitGuideTip({ countryCode, category, rating, text, cust
     username: user.displayName || 'Anonyme',
     countryCode,
     category: customCategory ? `custom_${customCategoryName}` : category,
+    type: type || 'c',
     rating: rating ? Math.min(5, Math.max(1, rating)) : 0,
     text: (text || '').slice(0, 500),
     customCategory: !!customCategory,
