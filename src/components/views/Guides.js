@@ -25,6 +25,12 @@ function getGuideName(guide) {
   return guide.name
 }
 
+function getGuideLegalityText(guide) {
+  const lang = getState()?.lang || 'fr'
+  if (lang !== 'fr' && guide.legalityTextEn) return guide.legalityTextEn
+  return guide.legalityText || ''
+}
+
 /* eslint-disable no-unused-vars -- static data kept for future reference */
 const ETIQUETTE_DATA = {
   FR: {
@@ -407,7 +413,7 @@ const COUNTRY_CENTERS = {
   MA: [31.8, -7.1], TN: [34.0, 9.0], EG: [26.8, 30.8], SN: [14.5, -14.5],
   GH: [7.9, -1.0], KE: [-0.5, 37.9], ET: [9.1, 40.5], TZ: [-6.4, 34.9],
   UG: [1.4, 32.3], RW: [-1.9, 29.9], MW: [-13.3, 34.3], ZA: [-30.6, 22.9],
-  NAM: [-22.6, 17.1],
+  NA: [-22.6, 17.1],
   // Americas
   US: [37.1, -95.7], CA: [56.1, -106.3], MX: [23.6, -102.5], CU: [21.5, -80.0],
   GT: [15.8, -90.2], CR: [10.0, -84.2], PA: [8.5, -80.8], CO: [4.6, -74.3],
@@ -417,7 +423,7 @@ const COUNTRY_CENTERS = {
   TH: [15.9, 100.9], IN: [20.6, 78.9], NP: [28.4, 84.1], LK: [7.9, 80.8],
   VN: [14.1, 108.3], LA: [19.9, 102.5], KH: [12.6, 105.0], MM: [19.8, 96.1],
   JP: [36.2, 138.3], KR: [35.9, 127.8], TW: [23.7, 121.0], PH: [12.9, 121.8],
-  IDN: [-0.8, 113.9], MY: [4.2, 101.9], MN: [46.9, 103.8], PK: [30.4, 69.3],
+  ID: [-0.8, 113.9], MY: [4.2, 101.9], MN: [46.9, 103.8], PK: [30.4, 69.3],
   KZ: [48.0, 68.0], KG: [41.2, 74.8], UZ: [41.4, 64.6], TJ: [38.9, 71.3],
   // Oceania
   NZ: [-41.3, 174.8], AU: [-25.3, 133.8],
@@ -683,6 +689,7 @@ function renderLegalitySection() {
   const legalityColors = {
     legal: 'text-emerald-400 bg-emerald-500/20',
     mostly_legal: 'text-primary-400 bg-primary-500/20',
+    varies: 'text-amber-400 bg-amber-500/20',
     gray: 'text-amber-400 bg-amber-500/20',
     restricted: 'text-danger-400 bg-danger-500/20',
   }
@@ -690,6 +697,7 @@ function renderLegalitySection() {
   const legalityLabels = {
     legal: t('legalityLegal') || 'Légal',
     mostly_legal: t('legalityMostlyLegal') || 'Quasi légal',
+    varies: t('legalityVaries') || 'Variable',
     gray: t('legalityGray') || 'Zone grise',
     restricted: t('legalityRestricted') || 'Restreint',
   }
@@ -715,7 +723,7 @@ function renderLegalitySection() {
               <span class="text-2xl">${guide.flag}</span>
               <div>
                 <div class="font-medium">${getGuideName(guide)}</div>
-                <div class="text-xs text-slate-400 mt-0.5 line-clamp-1">${guide.legalityText}</div>
+                <div class="text-xs text-slate-400 mt-0.5 line-clamp-1">${getGuideLegalityText(guide)}</div>
               </div>
             </div>
             <span class="px-2 py-1 rounded-full text-xs font-medium shrink-0 ${legalityColors[guide.legality] || legalityColors.gray}">
