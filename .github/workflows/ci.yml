@@ -156,6 +156,9 @@ jobs:
         run: |
           npx @lhci/cli autorun --collect.staticDistDir=dist --collect.numberOfRuns=1 --assert.preset=lighthouse:recommended --assert.assertions.categories:performance=off --assert.assertions.categories:accessibility=warn --assert.assertions.categories:best-practices=warn --assert.assertions.categories:seo=warn || echo "Lighthouse warnings (non-blocking for now)"
 
+  # Aikido Security runs via GitHub App (PR checks), not via CI action
+  # See app.aikido.dev for scan results
+
   argos-visual:
     name: Argos Visual Regression
     runs-on: ubuntu-latest
