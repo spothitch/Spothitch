@@ -1145,6 +1145,7 @@ function initHomeMap(state) {
 
     // Handler called from the bubble button
     window._createSpotFromBubble = (lat, lng, spotType) => {
+      if (!isFinite(Number(lat)) || !isFinite(Number(lng))) return
       if (window.openAddSpot) {
         window._pendingShareCoords = { lat, lng }
         if (spotType === 'gas_station') {
@@ -1699,6 +1700,7 @@ window._tripMapFitBounds = (coords) => {
 window._tripMapAddAmenities = addAmenityMarkers
 window._tripMapRemoveAmenities = removeAmenityMarkers
 window._tripMapFlyTo = (lng, lat) => {
+  if (!isFinite(Number(lng)) || !isFinite(Number(lat))) return
   if (tripMapInstance) tripMapInstance.flyTo({ center: [lng, lat], zoom: 13, duration: 800 })
 }
 window._tripMapResize = () => {
