@@ -443,7 +443,6 @@ const MAIN_JS_HANDLERS = [
   'acceptGuideNudge',
   'dismissGuideNudgeForCountry',
   'dismissGuideNudgeGlobal',
-  'submitGuideTip',
   'adminApproveGuideTip', 'adminRejectGuideTip', 'adminLoadPendingGuideTips',
   'selectGuideTipCategory',
   // Feature Intro Modal (session 2026-03-04)
