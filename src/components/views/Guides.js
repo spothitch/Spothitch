@@ -823,76 +823,79 @@ export function renderSafety() {
 
 
 
-function renderStarRating(currentRating, categoryId) {
-  return `
-    <div class="flex items-center gap-1" role="radiogroup" aria-label="${t('guideYourRating') || 'Ta note'}">
-      ${Array.from({ length: 5 }, (_, i) => {
-        const star = i + 1
-        const active = star <= currentRating
-        return `
-          <button
-            type="button"
-            onclick="setGuideRating('${escapeJSString(categoryId)}', ${star})"
-            class="text-2xl transition-transform hover:scale-125 ${active ? 'text-amber-400' : 'text-slate-600 hover:text-amber-300'}"
-            aria-label="${star}/5"
-          >★</button>
-        `
-      }).join('')}
-    </div>
-  `
-}
-
 function renderGuideCategoryForm(countryCode, categoryId, userTips) {
   const cat = GUIDE_CATEGORIES.find(c => c.id === categoryId)
   if (!cat) return ''
   const existing = userTips.find(tip => tip.category === categoryId)
-  const rating = window._guideFormRating ?? existing?.rating ?? 0
   const text = existing?.text ?? ''
+  const selectedType = window._guideFormType || existing?.type || 'c'
+
+  const typeOptions = [
+    { id: 'q', emoji: '❓', label: t('guideChipQuestions') || 'Question', color: 'blue' },
+    { id: 'c', emoji: '💡', label: t('guideChipTips') || 'Conseil', color: 'emerald' },
+    { id: 'a', emoji: '⚠️', label: t('guideChipAlerts') || 'Alerte', color: 'red' },
+    { id: 'b', emoji: '🎯', label: t('guideChipDeals') || 'Bon plan', color: 'amber' },
+  ]
 
   return `
-    <div class="card p-4 space-y-3 border border-primary-500/30 bg-primary-500/5">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          ${icon(cat.icon, 'w-5 h-5 text-primary-400')}
-          <h3 class="font-medium text-sm">${t(cat.labelKey) || cat.fallback}</h3>
+    <div class="mt-2 mb-3 rounded-2xl overflow-hidden border border-white/8 bg-gradient-to-b from-white/3 to-transparent">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-3 py-2 border-b border-white/5">
+        <div class="flex items-center gap-1.5">
+          <span class="text-sm">${cat.emoji}</span>
+          <span class="text-xs font-semibold">${t(cat.labelKey) || cat.fallback}</span>
         </div>
-        <button onclick="openGuideCategory('${escapeJSString(countryCode)}', null)" class="text-slate-400 hover:text-white">
-          ${icon('x', 'w-4 h-4')}
+        <button onclick="openGuideCategory('${escapeJSString(countryCode)}', null)" class="text-slate-500 hover:text-white p-1">
+          ${icon('x', 'w-3.5 h-3.5')}
         </button>
       </div>
 
-      <!-- Star rating (only for categories with ratingEnabled) -->
-      ${cat.ratingEnabled ? renderStarRating(rating, categoryId) : ''}
+      <!-- Type selector -->
+      <div class="flex gap-1.5 px-3 py-2">
+        ${typeOptions.map(tp => `
+          <button
+            onclick="setGuideFormType('${tp.id}')"
+            class="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
+              selectedType === tp.id
+                ? `bg-${tp.color}-500/15 text-${tp.color}-400 border border-${tp.color}-500/30`
+                : 'bg-white/3 text-slate-500 border border-white/5 hover:bg-white/5'
+            }"
+          >
+            ${tp.emoji} ${tp.label}
+          </button>
+        `).join('')}
+      </div>
 
-      <!-- Text -->
-      <div>
+      <!-- Text input -->
+      <div class="px-3 pb-2">
         <textarea
           id="guide-contrib-text"
-          class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-primary-500/50"
-          rows="3"
-          placeholder="${t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...'}"
+          class="w-full bg-white/3 border border-white/8 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-blue-500/40"
+          rows="2"
+          placeholder="${selectedType === 'q' ? (t('guideAskPlaceholder') || 'Pose ta question...') : (t('guideTipPlaceholder') || 'Ton conseil pour les voyageurs...')}"
           maxlength="500"
         >${escapeHTML(text)}</textarea>
-        <p class="text-xs text-slate-500 mt-1 text-right"><span id="guide-contrib-char-count">${text.length}</span>/500</p>
       </div>
 
       <!-- Actions -->
-      <div class="flex gap-2">
-        <button
-          onclick="submitGuideContribution()"
-          class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
-        >
-          ${icon('send', 'w-4 h-4')}
-          ${existing ? (t('guideUpdateContrib') || 'Mettre à jour') : (t('guideTipSubmit') || 'Envoyer')}
-        </button>
-        ${existing ? `
+      <div class="flex items-center justify-between px-3 py-2 border-t border-white/5">
+        <span class="text-[10px] text-slate-600"><span id="guide-contrib-char-count">${text.length}</span>/500</span>
+        <div class="flex gap-2">
+          ${existing ? `
+            <button
+              onclick="deleteGuideContribution('${escapeJSString(existing.id)}')"
+              class="px-3 py-1.5 rounded-full text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              ${t('delete') || 'Supprimer'}
+            </button>
+          ` : ''}
           <button
-            onclick="deleteGuideContribution('${escapeJSString(existing.id)}')"
-            class="px-4 py-2.5 rounded-xl bg-danger-500/20 text-danger-400 hover:bg-danger-500/30 text-sm transition-colors"
+            onclick="submitGuideContribution()"
+            class="px-4 py-1.5 rounded-full bg-blue-500 text-white text-xs font-semibold hover:bg-blue-400 transition-colors"
           >
-            ${icon('trash', 'w-4 h-4')}
+            ${existing ? (t('guideUpdateContrib') || 'Mettre à jour') : (t('guideTipSubmit') || 'Publier')}
           </button>
-        ` : ''}
+        </div>
       </div>
     </div>
   `
@@ -915,9 +918,17 @@ window.setGuideActiveSection = (sectionId) => {
 
 // Track form rating in memory (not state, to avoid re-render on each star click)
 window._guideFormRating = 0
+window._guideFormType = 'c'
+
+window.setGuideFormType = (type) => {
+  window._guideFormType = type
+  const state = window.getState?.() || {}
+  window.setState?.({ selectedCountryGuide: state.selectedCountryGuide })
+}
 
 window.openGuideCategory = (countryCode, categoryId) => {
   window._guideFormRating = 0
+  window._guideFormType = 'c'
   // Load existing rating if available
   if (categoryId) {
     const tips = getUserGuideTips(countryCode)
@@ -961,10 +972,15 @@ window.submitGuideContribution = async () => {
 
   const text = document.getElementById('guide-contrib-text')?.value?.trim() || ''
 
-  const result = await submitGuideTip({ countryCode, category, rating: cat?.ratingEnabled ? rating : 0, text })
+  const contribType = window._guideFormType || 'c'
+  const ratingVal = cat?.ratingEnabled ? rating : 0
+  const result = await submitGuideTip({
+    countryCode, category, type: contribType, rating: ratingVal, text,
+  })
   if (result.success) {
     showSuccess(t('guideContribSaved') || 'Contribution enregistrée !')
     window._guideFormRating = 0
+    window._guideFormType = 'c'
     window.setState?.({ guideOpenCategory: null, pendingGuideCountry: null })
   } else {
     showError(t('guideLoginRequired') || 'Connecte-toi pour contribuer')
