@@ -1437,7 +1437,9 @@ import './handlers/mapHome.js'
 
 // Navigation shortcuts
 window.flyToCity = (lat, lng, zoom = 12) => {
-  if (window.homeMapInstance) window.homeMapInstance.flyTo({ center: [lng, lat], zoom })
+  const nLat = Number(lat), nLng = Number(lng)
+  if (!isFinite(nLat) || !isFinite(nLng)) return
+  if (window.homeMapInstance) window.homeMapInstance.flyTo({ center: [nLng, nLat], zoom })
   else window.navigate?.('map')
 }
 

@@ -720,6 +720,7 @@ function formatReviewDate(dateStr) {
 
 // Handler: open Google Street View for a spot
 window.openSpotStreetView = async (lat, lng) => {
+  if (!isFinite(Number(lat)) || !isFinite(Number(lng))) return
   const { openStreetView } = await import('../../services/streetview.js')
   openStreetView(lat, lng)
 }
