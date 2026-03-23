@@ -1,0 +1,20 @@
+language: fr
+reviews:
+  profile: assertive
+  high_level_summary: true
+  auto_review:
+    enabled: true
+    drafts: false
+  path_instructions:
+    - path: "src/**/*.js"
+      instructions: |
+        This is a Vite + vanilla JS PWA for hitchhikers.
+        Check for: XSS (innerHTML with user data), missing i18n keys,
+        hardcoded text (must use t('key')), accessibility issues,
+        onclick handlers that don't exist on window.
+    - path: "e2e/**/*.spec.js"
+      instructions: "Playwright E2E tests. Check for flaky patterns, missing assertions."
+    - path: ".github/workflows/**"
+      instructions: "CRITICAL: NEVER add schedule/cron. GitHub account was banned for this."
+chat:
+  auto_reply: true

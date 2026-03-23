@@ -156,6 +156,64 @@ jobs:
         run: |
           npx @lhci/cli autorun --collect.staticDistDir=dist --collect.numberOfRuns=1 --assert.preset=lighthouse:recommended --assert.assertions.categories:performance=off --assert.assertions.categories:accessibility=warn --assert.assertions.categories:best-practices=warn --assert.assertions.categories:seo=warn || echo "Lighthouse warnings (non-blocking for now)"
 
+  argos-visual:
+    name: Argos Visual Regression
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Take screenshots
+        run: |
+          npx vite preview --port 4173 &
+          sleep 5
+          node -e "
+          const { chromium } = require('playwright');
+          const { argosScreenshot } = require('@argos-ci/playwright');
+          (async () => {
+            const browser = await chromium.launch();
+            const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+            const page = await ctx.newPage();
+            await page.addInitScript(() => {
+              localStorage.setItem('spothitch_welcomed', 'true');
+              localStorage.setItem('spothitch_age_verified', 'true');
+              localStorage.setItem('spothitch_cookie_consent', 'true');
+              localStorage.setItem('spothitch_landing_seen', 'true');
+            });
+            await page.goto('http://localhost:4173', { waitUntil: 'networkidle', timeout: 30000 });
+            await page.waitForTimeout(3000);
+            await page.evaluate(() => window.setState?.({ showWelcome: false, showLanding: false, showAgeVerification: false, showCookieBanner: false }));
+            await page.waitForTimeout(500);
+            await argosScreenshot(page, 'map');
+            await page.evaluate(() => window.changeTab?.('voyage'));
+            await page.waitForTimeout(1000);
+            await argosScreenshot(page, 'voyage');
+            await page.evaluate(() => window.changeTab?.('social'));
+            await page.waitForTimeout(1000);
+            await argosScreenshot(page, 'social');
+            await page.evaluate(() => window.changeTab?.('profile'));
+            await page.waitForTimeout(1000);
+            await argosScreenshot(page, 'profile');
+            await browser.close();
+          })();
+          "
+      - name: Upload to Argos
+        run: npx @argos-ci/cli upload screenshots/
+        env:
+          ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
+        continue-on-error: true
+
   firebase-integration:
     name: Firebase Integration Tests
     runs-on: ubuntu-latest
