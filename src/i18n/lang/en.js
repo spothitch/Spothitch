@@ -5102,4 +5102,5 @@ export default {
   guideAnonymous: 'Anonymous',
   reportGuideError: 'Report an error',
   legalityVaries: 'Varies',
+  selectSpotOnMap: 'Click a spot on the map to see details here',
 }

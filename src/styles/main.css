@@ -2922,6 +2922,23 @@ textarea[aria-invalid="true"] {
 
   /* Map stays full width (no constraint on #panel-map) */
 
+  /* Split-view: side panel + map on desktop */
+  #map-layout {
+    display: flex !important;
+    flex-direction: row;
+  }
+
+  #map-side-panel {
+    width: 380px;
+    min-width: 380px;
+    height: 100%;
+  }
+
+  #home-map-container {
+    position: relative !important;
+    flex: 1;
+  }
+
   /* Modals: centered on desktop instead of bottom-aligned */
   [role="dialog"] {
     align-items: center !important;
