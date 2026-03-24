@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SpotHitch — App Screenshots &amp; Technical Architecture</title>
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 750px; margin: 0 auto; padding: 30px; color: #1a1a1a; line-height: 1.6; font-size: 13px; }
+  h1 { color: #d97706; font-size: 1.5em; border-bottom: 3px solid #d97706; padding-bottom: 6px; }
+  h2 { color: #0f172a; font-size: 1.2em; margin-top: 1.8em; background: #f8fafc; padding: 6px 10px; border-left: 4px solid #d97706; }
+  h3 { color: #334155; font-size: 1em; margin-top: 1em; }
+  .subtitle { color: #64748b; font-size: 0.85em; }
+  .screenshot-row { display: flex; gap: 12px; margin: 12px 0; flex-wrap: wrap; }
+  .screenshot-row img { border: 1px solid #e2e8f0; border-radius: 8px; }
+  .mobile-img { width: 180px; }
+  .desktop-img { width: 100%; max-width: 700px; }
+  .caption { font-size: 0.8em; color: #64748b; text-align: center; margin-top: 4px; }
+  .flow-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 12px 0; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 8px 0; }
+  .flow-num { background: #d97706; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em; flex-shrink: 0; }
+  .flow-text { flex: 1; }
+  .arrow { text-align: center; color: #d97706; font-size: 1.2em; margin: 4px 0; }
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+  .feature-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 0.85em; }
+  .feature-item strong { color: #d97706; }
+  footer { margin-top: 2em; padding-top: 1em; border-top: 1px solid #e2e8f0; font-size: 0.8em; color: #94a3b8; }
+  .note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 8px 12px; margin: 12px 0; font-size: 0.85em; color: #92400e; }
+</style>
+</head>
+<body>
+
+<h1>SpotHitch — App Screenshots &amp; Technical Architecture</h1>
+<p class="subtitle">Attachment for NGI Zero Commons Fund Application — March 2026</p>
+
+<h2>1. Current App (Alpha Version)</h2>
+
+<p>SpotHitch is a fully functional Progressive Web App available at <strong>spothitch.com</strong>. It works on mobile (iOS/Android) and desktop browsers. Here are screenshots of the current production version:</p>
+
+<h3>Mobile (390 x 844px)</h3>
+<div class="screenshot-row">
+  <div><img src="m-map.png" class="mobile-img" alt="Map view"><div class="caption">Map with spots</div></div>
+  <div><img src="m-voyage.png" class="mobile-img" alt="Voyage view"><div class="caption">Trip journal</div></div>
+  <div><img src="m-guides.png" class="mobile-img" alt="Guides"><div class="caption">Country guides (96 countries)</div></div>
+  <div><img src="m-social.png" class="mobile-img" alt="Social"><div class="caption">Social / messaging</div></div>
+</div>
+
+<h3>Desktop (1440 x 900px) — with split-view map</h3>
+<div><img src="d-map.png" class="desktop-img" alt="Desktop map"><div class="caption">Desktop: side panel + map (Airbnb-style split view)</div></div>
+<div style="margin-top:8px"><img src="d-voyage.png" class="desktop-img" alt="Desktop voyage"><div class="caption">Desktop: centered content with responsive layout</div></div>
+
+<h2>2. Existing Features (already built)</h2>
+
+<div class="feature-grid">
+  <div class="feature-item"><strong>🗺️ Map</strong> — Community spots with ratings, photos, clustering</div>
+  <div class="feature-item"><strong>📍 96 Countries</strong> — Guides with laws, safety, budget, culture (4 languages)</div>
+  <div class="feature-item"><strong>💬 Social</strong> — DMs, group chats, country chats, friend system</div>
+  <div class="feature-item"><strong>🎒 Trip Journal</strong> — Log trips, stats, itineraries</div>
+  <div class="feature-item"><strong>⛽ Gas Stations</strong> — Toggle overlay on map (Overpass API)</div>
+  <div class="feature-item"><strong>📡 Offline</strong> — Full offline mode, sync when back online</div>
+  <div class="feature-item"><strong>🏆 Gamification</strong> — Points, badges, leaderboard</div>
+  <div class="feature-item"><strong>🔒 Privacy</strong> — GDPR compliant, cookie consent, data export/delete</div>
+  <div class="feature-item"><strong>🌐 4 Languages</strong> — FR, EN, ES, DE with dynamic loading</div>
+  <div class="feature-item"><strong>📱 PWA</strong> — Installable, works on all devices</div>
+</div>
+
+<h2>3. Guardian Mode — Technical Flow</h2>
+
+<p>Guardian Mode lets a traveler share their position in real-time with trusted contacts ("guardians"). If the traveler doesn't check in within a chosen interval, guardians are automatically alerted.</p>
+
+<div class="flow-box">
+  <h3>Normal Flow</h3>
+  <div class="flow-step"><div class="flow-num">1</div><div class="flow-text"><strong>Traveler activates Guardian Mode</strong> — selects guardians (phone contacts or SpotHitch users), sets check-in interval (30min, 1h, 2h, custom)</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">2</div><div class="flow-text"><strong>Position tracking begins</strong> — GPS via Geolocation API, adaptive frequency based on movement and battery. Positions encrypted end-to-end before sending to server.</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">3</div><div class="flow-text"><strong>Check-in timer</strong> — app prompts traveler to confirm they're safe. Push notification + vibration + sound.</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">4</div><div class="flow-text"><strong>Traveler responds "I'm OK"</strong> — timer resets, guardians see updated position on their map. Loop continues.</div></div>
+</div>
+
+<div class="flow-box">
+  <h3>Alert Flow (traveler doesn't respond)</h3>
+  <div class="flow-step"><div class="flow-num">5</div><div class="flow-text"><strong>Grace period</strong> (configurable, default 5 min) — repeated alerts to traveler. Distinguishes "no network" from "no response."</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">6</div><div class="flow-text"><strong>Automatic alert to guardians</strong> — push notification + automatic SMS (Twilio) + email with last known position, battery level, and trajectory.</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">7</div><div class="flow-text"><strong>Community alert</strong> (opt-in) — nearby SpotHitch users receive a notification that someone may need help, with approximate area (not exact position).</div></div>
+</div>
+
+<h2>4. SOS Mode — Technical Flow</h2>
+
+<p>SOS Mode is a set of emergency tools designed for situations where the traveler feels unsafe. All tools are designed to work discreetly.</p>
+
+<div class="flow-box">
+  <h3>Emergency Activation</h3>
+  <div class="flow-step"><div class="flow-num">1</div><div class="flow-text"><strong>One-tap SOS button</strong> — large, easy to find even in stress. Can also be triggered by shaking the phone (accelerometer).</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">2</div><div class="flow-text"><strong>Silent alarm</strong> — no visible change on screen. The phone appears normal. Alert sent silently to guardians with position.</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">3</div><div class="flow-text"><strong>Fake incoming call</strong> — realistic phone call UI with configurable caller name. Gives the traveler an excuse to leave a situation ("Sorry, I have to take this").</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">4</div><div class="flow-text"><strong>Audio/video recording</strong> — discreet recording starts automatically. Stored locally, encrypted, can be used as evidence.</div></div>
+  <div class="arrow">↓</div>
+  <div class="flow-step"><div class="flow-num">5</div><div class="flow-text"><strong>Multi-channel alert</strong> — SMS (Twilio) + push notification + email to guardians. Community alert to nearby users (opt-in).</div></div>
+</div>
+
+<div class="note">
+  <strong>Offline resilience:</strong> If there's no internet connection, all data (position, recording, alert) is stored locally via IndexedDB and transmitted automatically via Background Sync as soon as the network returns.
+</div>
+
+<h2>5. Technical Stack</h2>
+
+<div class="feature-grid">
+  <div class="feature-item"><strong>Frontend</strong> — Vite 5, vanilla JS ES Modules, Tailwind CSS 4</div>
+  <div class="feature-item"><strong>Map</strong> — MapLibre GL JS + OpenFreeMap (open source)</div>
+  <div class="feature-item"><strong>Backend</strong> — Firebase (Auth, Firestore, Cloud Messaging)</div>
+  <div class="feature-item"><strong>SMS</strong> — Twilio (for guardian alerts)</div>
+  <div class="feature-item"><strong>Encryption</strong> — Web Crypto API for E2E encryption</div>
+  <div class="feature-item"><strong>Offline</strong> — Service Worker + IndexedDB + Background Sync</div>
+  <div class="feature-item"><strong>Testing</strong> — Vitest (87 tests) + Playwright E2E</div>
+  <div class="feature-item"><strong>CI/CD</strong> — GitHub Actions + Cloudflare Pages</div>
+</div>
+
+<footer>
+  SpotHitch — Antoine — March 2026 — spothitch.com — Open source (AGPL-3.0)
+</footer>
+
+</body>
+</html>

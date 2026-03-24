@@ -100,13 +100,18 @@ export async function skipOnboarding(page, opts = {}) {
 /**
  * Wait for MapLibre canvas to be fully rendered (use before map-dependent tests)
  */
-export async function waitForMap(page, timeout = 20000) {
-  // Wait for the map canvas to exist
-  await page.waitForSelector('canvas.maplibregl-canvas, canvas.mapboxgl-canvas', { timeout }).catch(() => {})
-  // Wait for the home destination search bar (rendered after map init)
-  await page.waitForSelector('#home-destination', { timeout: 10000 }).catch(() => {})
-  // Give the map tiles a moment to render
-  await page.waitForTimeout(1000)
+export async function waitForMap(page, timeout = 25000) {
+  // Wait for app loaded
+  await page.waitForSelector('#app.loaded', { timeout }).catch(() => {})
+  // Wait for map container + canvas
+  await page.waitForSelector('#home-map', { timeout: 15000 }).catch(() => {})
+  await page.waitForSelector('canvas.maplibregl-canvas, canvas.mapboxgl-canvas', { timeout: 15000 }).catch(() => {})
+  // Wait for search bar — force re-render if needed
+  await page.waitForSelector('#home-destination', { timeout: 15000 }).catch(async () => {
+    await page.evaluate(() => window.changeTab?.('map')).catch(() => {})
+    await page.waitForSelector('#home-destination', { timeout: 10000 }).catch(() => {})
+  })
+  await page.waitForTimeout(1500)
 }
 
 /**
