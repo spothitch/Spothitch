@@ -1540,3 +1540,53 @@ Chaque erreur suit ce format :
 - **Correction** : À FAIRE (session suivante). Ajouter mode validation dans AddSpot, remplacer confirm() par modal SpotHitch, implémenter l'agrégation des données.
 - **Fichiers** : src/components/modals/AddSpot.js
 - **Statut** : À FAIRE
+
+### ERR-140
+- **Date** : 2026-03-24
+- **Gravité** : CRITIQUE
+- **Description** : Le modal de signalement (report) s'ouvrait mais sélectionner une raison ne faisait RIEN visuellement. Pas de highlight, pas de textarea, pas de map misplaced, bouton submit resté grisé.
+- **Cause racine** : `selectedReportReason` n'était PAS dans `getModalFingerprint()`. Le state changeait mais le modal ne se re-rendait jamais. Même problème pour `selectedSpot?.id` (changement spot→spot ne re-rendait pas).
+- **Correction** : Ajouté `state.selectedReportReason`, `state.selectedSpot?.id`, `state.showRating`, `state.currentRating` au fingerprint modal.
+- **Leçon** : TOUJOURS vérifier que les clés de state utilisées dans le HTML d'un modal sont dans `getModalFingerprint()`. Sinon le modal est "gelé" visuellement. Faire un grep du template pour lister les `state.xxx` et vérifier qu'ils sont dans le fingerprint.
+- **Fichiers** : src/main.js (getModalFingerprint)
+- **Statut** : CORRIGÉ
+
+### ERR-141
+- **Date** : 2026-03-24
+- **Gravité** : CRITIQUE
+- **Description** : Le panneau Feedback ("Aide & Feedback", bouton jaune "Avis" à gauche) ne s'ouvrait JAMAIS. Cliquer sur le bouton ne faisait rien.
+- **Cause racine** : `showFeedbackPanel` et `feedbackActiveTab` n'étaient PAS dans `getModalFingerprint()`. Même type de bug que ERR-140.
+- **Correction** : Ajouté `state.showFeedbackPanel`, `state.feedbackActiveTab` au fingerprint. Ajouté lazy stubs pour `setFeedbackTab`, `closeFeedbackDetail`, `submitFeedback`.
+- **Leçon** : Quand un nouveau modal/panel est ajouté dans App.js avec `lazyRender()`, sa clé d'état DOIT être ajoutée dans `getModalFingerprint()` ET des lazy stubs doivent exister dans main.js pour les handlers onclick du template.
+- **Fichiers** : src/main.js
+- **Statut** : CORRIGÉ
+
+### ERR-142
+- **Date** : 2026-03-24
+- **Gravité** : CRITIQUE
+- **Description** : Les avis sur les spots étaient sauvés dans `spots/{id}/comments` mais lus depuis `spots/{id}/validations`. Les avis publiés disparaissaient immédiatement.
+- **Cause racine** : `saveCommentToFirebase` écrivait dans la subcollection `comments`, mais `spotLiveData.fetchSpotValidations` lisait `validations`.
+- **Correction** : `saveCommentToFirebase` écrit maintenant dans `validations`. Ajouté vérification doublon Firestore, auth obligatoire, invalidation cache après soumission.
+- **Leçon** : Quand on écrit ET lit des données Firebase, VÉRIFIER que c'est la MÊME collection. Tracer le chemin complet : écriture (firebase.js) → lecture (spotLiveData.js) → affichage (SpotDetail.js).
+- **Fichiers** : src/services/firebase.js, src/handlers/spotActions.js
+- **Statut** : CORRIGÉ
+
+### ERR-143
+- **Date** : 2026-03-24
+- **Gravité** : MAJEUR
+- **Description** : Icône 'map-pin-off' inexistante dans ICON_MAP, rendait le bouton "Mal placé" dans le modal de signalement sans icône.
+- **Cause racine** : L'icône Lucide 'map-pin-off' n'existe pas. Seuls 'map-pin' et 'map-pinned' existent.
+- **Correction** : Remplacé par 'map-pin'.
+- **Leçon** : Quand on utilise `icon('nom')` → TOUJOURS vérifier que le nom existe dans ICON_MAP de `src/utils/icons.js`. Grep pour confirmer.
+- **Fichiers** : src/services/moderation.js
+- **Statut** : CORRIGÉ
+
+### ERR-144
+- **Date** : 2026-03-24
+- **Gravité** : MAJEUR
+- **Description** : Le formulaire d'avis (étoiles + textarea) n'existait pas dans SpotDetail. `openRating` était un no-op.
+- **Cause racine** : Feature jamais implémentée. Le handler existait dans les tests mais le code UI n'avait pas été écrit.
+- **Correction** : Implémenté formulaire complet (5 étoiles cliquables, textarea, Publier/Annuler) dans SpotDetail.js. `openRating` implémenté.
+- **Leçon** : Un handler dans les tests wiring ne garantit PAS que la feature fonctionne. Toujours vérifier le flux utilisateur complet (bouton → formulaire → soumission → résultat visible).
+- **Fichiers** : src/components/modals/SpotDetail.js, src/handlers/spotActions.js
+- **Statut** : CORRIGÉ
