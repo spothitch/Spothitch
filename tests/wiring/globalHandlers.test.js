@@ -467,6 +467,13 @@ const MAIN_JS_HANDLERS = [
   // Guardian v1 redesign
   'guardianGoToScreen',
   'guardianSwitchTab',
+  'guardianEditField',
+  'guardianToggleDeparture',
+  'guardianToggleArrival',
+  'guardianCallTraveler',
+  'guardianMessageTraveler',
+  'guardianShowMap',
+  'guardianCallEmergency',
   // Internal handlers used in onclick (audit complet session 2026-03-24)
   '_createSpotFromBubble', // popup carte → créer spot
   '__forceUpdate',         // banner mise à jour
