@@ -60,7 +60,7 @@ import { sampleSpots } from './data/spots.js';
 import { initSEO, trackPageView } from './utils/seo.js';
 import { prefersReducedMotion } from './utils/a11y.js';
 import { initPWA, showInstallBanner, dismissInstallBanner, installPWA } from './utils/pwa.js';
-import { initNetworkMonitor, cleanupOldData } from './utils/network.js';
+import { initNetworkMonitor, cleanupOldData, requireOnline } from './utils/network.js';
 import { scheduleRender, shouldRerender, clearRenderCache } from './utils/render.js';
 import { debounce } from './utils/performance.js';
 import { observeAllLazyImages } from './utils/lazyImages.js';
@@ -304,8 +304,9 @@ async function init() {
         // PWA
         try { initPWA() } catch (e) { /* optional */ }
 
-        // Network monitor
+        // Network monitor + offline guard for Firebase writes
         try { initNetworkMonitor() } catch (e) { /* optional */ }
+        window.requireOnline = requireOnline
 
         // Notifications
         try { await initNotifications() } catch (e) { console.warn('Notifications init failed:', e.message) }

@@ -513,6 +513,7 @@ function renderPositionBlock() {
         <!-- Position chosen — mini map preview + info -->
         <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
           onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
+          aria-label="${t('editPosition') || 'Modifier la position'}"
           class="bg-[#111827] cursor-pointer overflow-hidden">
           <div id="addspot-mini-map" class="w-full h-[120px] bg-[#161b28]"></div>
           <div class="px-3.5 py-2.5 flex items-center gap-2.5">
@@ -528,6 +529,7 @@ function renderPositionBlock() {
         <!-- No position — map placeholder + GPS button -->
         <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
           onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
+          aria-label="${t('tapToPlaceSpot') || 'Placer le spot sur la carte'}"
           class="bg-[#111827] h-[110px] flex flex-col items-center justify-center text-[#475569] text-xs gap-1.5 cursor-pointer">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
           ${t('tapToPlaceSpot') || 'Toucher pour placer le spot'}
@@ -1985,6 +1987,7 @@ window.checkStreetViewForNewSpot = (lat, lng) => {
 window.handleAddSpot = async (event) => {
   event.preventDefault()
   if (window.handleAddSpot._busy) return
+  if (!window.requireOnline?.()) return
   window.handleAddSpot._busy = true
   setTimeout(() => { window.handleAddSpot._busy = false }, 3000)
 

@@ -329,6 +329,7 @@ export function renderSpotDetail(state) {
                 title="${t('streetViewConfirmTooltip') || 'Vérifier si Street View fonctionne ici'}"
                 aria-label="${t('streetViewConfirmTooltip') || 'Vérifier'}">🔍 ${t('streetViewCheck') || 'Vérifier'}</button>` : ''}
               <div onclick="openSpotStreetView(${spot.coordinates.lat}, ${spot.coordinates.lng})" role="button" tabindex="0"
+                aria-label="${t('openStreetView') || 'Ouvrir Street View'}"
                 class="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer shrink-0" style="background:${spot.streetViewVerified ? 'rgba(34,197,94,0.25)' : 'rgba(100,116,139,0.15)'}">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${spot.streetViewVerified ? '#22c55e' : '#64748b'}" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
               </div>

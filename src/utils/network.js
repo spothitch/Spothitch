@@ -195,6 +195,16 @@ async function processOfflineAction(action) {
 }
 
 /**
+ * Guard for Firebase writes — shows toast and returns false if offline.
+ * Usage: if (!requireOnline()) return
+ */
+export function requireOnline() {
+  if (navigator.onLine) return true
+  showToast(t('offlineCannotSave') || 'Tu es hors ligne. Réessaie quand tu auras du réseau.', 'warning')
+  return false
+}
+
+/**
  * Clear offline queue
  */
 export function clearOfflineQueue() {
