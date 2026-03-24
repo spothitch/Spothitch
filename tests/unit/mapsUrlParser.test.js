@@ -134,9 +134,19 @@ describe('extractCoordsFromShare', () => {
     expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
   })
 
-  it('parses /dir/lat,lng/ path-based directions', () => {
+  it('parses /dir/lat,lng/ takes destination (last coords)', () => {
     const result = extractCoordsFromShare('https://www.google.com/maps/dir/48.8566,2.3522/48.8700,2.3200', '')
-    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+    expect(result).toEqual({ lat: 48.87, lng: 2.32 })
+  })
+
+  it('parses /dir/PlaceName/lat,lng destination', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/dir/Paris/48.8584,2.2945', '')
+    expect(result).toEqual({ lat: 48.8584, lng: 2.2945 })
+  })
+
+  it('parses %40 encoded @ in URL', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/place/X/%4048.8584,2.2945,15z', '')
+    expect(result).toEqual({ lat: 48.8584, lng: 2.2945 })
   })
 
   it('parses geo: URI (Android share)', () => {
