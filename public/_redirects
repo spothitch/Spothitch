@@ -1,6 +1,5 @@
 # Old city pages removed — tell Google they're gone (410)
 /city/* /gone.html 410
-/spot/* /gone.html 410
 
 # SPA fallback — all other routes serve the app
 /* /index.html 200
