@@ -114,9 +114,9 @@ describe('extractCoordsFromShare', () => {
     expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
   })
 
-  it('parses ?saddr= parameter (legacy directions)', () => {
+  it('parses ?saddr/daddr= takes destination (daddr)', () => {
     const result = extractCoordsFromShare('https://maps.google.com/maps?saddr=48.8566,2.3522&daddr=48.8700,2.3200', '')
-    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+    expect(result).toEqual({ lat: 48.87, lng: 2.32 })
   })
 
   it('parses ?daddr= parameter (legacy directions destination)', () => {
