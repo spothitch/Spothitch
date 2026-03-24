@@ -750,21 +750,53 @@ let _lastModalFingerprint = ''
 // This prevents re-rendering modals (destroying AddSpot form, etc.) on unrelated state changes.
 function getModalFingerprint(state) {
   return [
+    // Auth + onboarding
     state.showAgeVerification, state.showIdentityVerification,
+    state.showAuth, state.authMode, state.showCompleteProfile,
+    state.showLocationPermission, state.showLanding,
+    // Spot detail
     state.selectedSpot?.id, state.showRating, state.currentRating,
+    // AddSpot
     state.showAddSpot, state.addSpotStep, state.addSpotPreview,
-    state.showSOS, state.showAuth, state.authMode, state.showCompleteProfile,
-    state.showFilters, state.showStats, state.showBadges, state.showChallenges,
-    state.showShop, state.showMyRewards, state.showQuiz, state.showLeaderboard,
-    !!state.checkinSpot, state.showDailyReward, state.showBadgePopup,
-    state.showBadgeDetail, state.selectedBadgeId,
-    state.navigationActive, state.showDonation, state.showDonationThankYou,
-    state.showAmbassadorSuccess, state.showContactAmbassador, !!state.selectedAmbassador,
+    !!state.spotDraftsBannerVisible,
+    // Core modals
+    state.showSOS, !!state.sosSession,
+    state.showFilters, state.showStats, state.showBadges,
+    state.showChallenges, state.showTeamChallenges,
+    state.showCreateTeam,
+    state.showShop, state.showMyRewards, state.showQuiz,
+    state.showLeaderboard, state.showTitles,
+    // Gamification
+    !!state.checkinSpot, state.showDailyReward,
+    state.showBadgePopup, state.showBadgeDetail,
+    state.selectedBadgeId,
+    // Navigation + offline
+    state.navigationActive, state.showOfflinePanel,
+    state.showSafety, !!state.routeAmenities,
+    state.showTripHistory, !!state.tripResults,
+    // Donation + ambassador
+    state.showDonation, state.showDonationThankYou,
+    state.showAmbassadorSuccess, state.showContactAmbassador,
+    !!state.selectedAmbassador,
+    // Social
     state.showProfileCustomization, state.showNearbyFriends,
+    !!state.nearbyFriendsEnabled,
+    state.showFriendProfile, state.showAddFriend,
+    state.showBlockModal, state.showUnblockModal,
+    state.showBlockedUsers,
+    // Reports + feedback
     state.showReport, state.selectedReportReason,
     state.showFeedbackPanel,
-    state.showCompanionModal, state.showMyData, state.showAdmin,
     state.showFeatureSlides, state.showFeatureIntro,
+    // Settings + admin + misc
+    state.showCompanionModal, state.showMyData,
+    state.showAdminPanel, state.showDeleteAccount,
+    state.showContactForm, state.showFAQ, state.showLegal,
+    state.showLanguageSelector, state.showInstallBanner,
+    state.showAccessibilityHelp,
+    // Spot interaction
+    !!state.proximityAlertSpot, !!state.selectedCity,
+    !!state.pendingGuideCountry,
   ].join('|')
 }
 
