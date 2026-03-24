@@ -48,11 +48,16 @@ export function renderSocial(state) {
     return renderCreateEventForm()
   }
 
-  // Active DM or group conversation → full-screen chat
+  // Active DM or group conversation → full-screen chat (mobile) or split-view (desktop)
   if (state.activeDMConversation || state.activeGroupConversation) {
     return `
-      <div class="flex flex-col h-[calc(100vh-140px)]">
-        ${renderConversations(state)}
+      <div id="social-split" class="flex h-[calc(100vh-140px)]">
+        <div id="social-list-panel" class="hidden lg:flex flex-col w-[320px] min-w-[320px] border-r border-white/5 overflow-y-auto">
+          ${renderMessagerieTab(state, true)}
+        </div>
+        <div class="flex-1 flex flex-col min-w-0">
+          ${renderConversations(state)}
+        </div>
       </div>
     `
   }
@@ -134,7 +139,7 @@ function renderSocialTabs(activeTab, state) {
 
 // ==================== TAB 1: MESSAGERIE (SMS Style) ====================
 
-function renderMessagerieTab(state) {
+function renderMessagerieTab(state, _sidePanel = false) {
   const friends = state.friends || []
   const onlineFriends = friends.filter(f => f.online)
   const friendRequests = state.friendRequests || []
