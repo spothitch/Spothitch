@@ -384,12 +384,13 @@ test.describe('Modal Content — Companion', () => {
     // Accept companion consent first (consent screen shows before setup)
     await page.evaluate(() => {
       sessionStorage.setItem('spothitch_companion_consent', '1')
+      localStorage.setItem('spothitch_guardian_intro_done', 'true')
     })
-    await page.evaluate(() => window.setState?.({ showCompanionModal: true }))
+    await page.evaluate(() => window.setState?.({ showCompanionModal: true, guardianScreen: 'main' }))
     await page.waitForTimeout(1500)
     const html = await page.evaluate(() => document.body.innerText)
-    // Check for interval selector or related companion content
-    expect(html).toMatch(/30 min|15 min|intervalle|interval|check-in|every|heure|hour/i)
+    // Check for interval selector or related companion/guardian content
+    expect(html).toMatch(/30 min|15 min|intervalle|interval|check-in|every|heure|hour|guardian|gardien|configur/i)
   })
 })
 
