@@ -2870,7 +2870,21 @@ textarea[aria-invalid="true"] {
     margin-right: auto;
   }
 
-  /* Header inner content already has max-w-7xl, keep it */
+  /* Header constrained (non-map tabs) */
+  body:not(.tab-map) #app-header header {
+    max-width: var(--app-content-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 0 0 1rem 1rem;
+  }
+
+  /* Cookie banner constrained */
+  #cookie-banner,
+  [class*="cookie"] {
+    max-width: var(--app-content-max-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
 
   /* Fixed banners constrained */
   .draft-banner,

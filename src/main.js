@@ -543,6 +543,10 @@ async function init() {
     // Setup keyboard shortcuts
     setupKeyboardShortcuts();
 
+    // Desktop: set initial tab-map class
+    const initTab = getState().activeTab
+    document.body.classList.toggle('tab-map', initTab === 'map' || !initTab)
+
 
     // Register checkin modal handlers
     try {
@@ -764,6 +768,10 @@ function getModalFingerprint(state) {
 function render(state) {
   const app = document.getElementById('app')
   if (!app) return
+
+  // Desktop: sync tab-map class on body for CSS header constraint
+  const isMap = state.activeTab === 'map' || !state.activeTab
+  document.body.classList.toggle('tab-map', isMap)
 
   // Skip re-render if user is actively typing in an input (prevents losing focus/value)
   const focused = document.activeElement
@@ -1020,6 +1028,8 @@ window.changeTab = (tab) => {
   const { showOfflinePanel } = getState()
   if (showOfflinePanel) setState({ showOfflinePanel: false })
   actions.changeTab(tab);
+  // Desktop: toggle body class for CSS header constraint
+  document.body.classList.toggle('tab-map', tab === 'map' || !tab)
   trackPageView(tab);
   announceViewChange(tab);
 };
