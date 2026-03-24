@@ -524,6 +524,7 @@ window.closeConversation = () => {
 window.sendDM = async (recipientId) => {
   if (window.sendDM._busy) return
   window.sendDM._busy = true
+  if (!window.requireOnline?.()) { window.sendDM._busy = false; return }
   setTimeout(() => { window.sendDM._busy = false }, 1500)
   const input = document.getElementById('dm-input')
   if (!input?.value?.trim()) { window.sendDM._busy = false; return }

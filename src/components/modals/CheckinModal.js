@@ -297,6 +297,7 @@ export function registerCheckinHandlers() {
   window.submitCheckin = async () => {
     if (window.submitCheckin._busy) return
     window.submitCheckin._busy = true
+    if (!window.requireOnline?.()) { window.submitCheckin._busy = false; return }
     const state = getState();
     const spot = state.checkinSpot;
     if (!spot) { window.submitCheckin._busy = false; return }

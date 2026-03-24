@@ -524,6 +524,7 @@ async function initMisplacedMap() {
 window.submitCurrentReport = async () => {
   if (window.submitCurrentReport._busy) return
   window.submitCurrentReport._busy = true
+  if (!window.requireOnline?.()) { window.submitCurrentReport._busy = false; return }
   try {
   const state = getState()
   const reason = _selectedReportReason || state.selectedReportReason
