@@ -1,6 +1,6 @@
 {
   "totalScore": 95,
-  "updatedAt": "2026-03-24T00:18:45.924Z",
+  "updatedAt": "2026-03-24T15:20:34.717Z",
   "checks": {
     "Handlers Wiring": {
       "score": 90,
@@ -10,7 +10,7 @@
     "i18n Keys": {
       "score": 85,
       "errors": 0,
-      "warnings": 7
+      "warnings": 12
     },
     "Dead Exports": {
       "score": 100,
@@ -29,7 +29,7 @@
     },
     "Error Patterns": {
       "score": 85,
-      "errors": 6,
+      "errors": 10,
       "warnings": 0
     },
     "Duplicate Handlers": {
@@ -38,9 +38,9 @@
       "warnings": 1
     },
     "Accessibility": {
-      "score": 100,
+      "score": 94,
       "errors": 0,
-      "warnings": 0
+      "warnings": 3
     },
     "Bundle Size": {
       "score": 90,
