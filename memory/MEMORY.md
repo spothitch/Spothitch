@@ -21,6 +21,7 @@
 - `memory/multi-user-phase2-results.md` — Résultats Phase 2 (Spots, 37/37, 5 fixes + data integrity)
 - `memory/multi-user-phase8-results.md` — Résultats Phase 8 (Carte, 36/36, 4 fixes critiques + 10 optimisations)
 - `memory/plan-optimisation-v2.md` — Plan optimisation V2 (19 points maintenant, 10 points futur/app native)
+- `memory/plan-desktop-adaptation.md` — Plan adaptation desktop/tablette (6 étapes, 5-6 sessions). Split-view carte, conteneur responsive, modals centrés, grilles adaptatives.
 - `memory/feedback_favicon_outlined.md` — Toujours utiliser outlined-transparent pour favicons (invisible sans contour sur fond blanc)
 
 ---
