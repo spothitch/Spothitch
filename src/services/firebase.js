@@ -1267,32 +1267,43 @@ export async function addValidation(data) {
 export async function saveCommentToFirebase(comment) {
   try {
     const user = getCurrentUser();
-    const commentsRef = collection(db, 'spots', comment.spotId, 'comments');
+    if (!user) throw new Error('Not authenticated')
+    // Write to 'validations' subcollection (same collection spotLiveData reads from)
+    const validationsRef = collection(db, 'spots', comment.spotId, 'validations');
+
+    // Check for duplicate review by this user
+    const { query: fbQuery, where, getDocs: fbGetDocs } = await import('firebase/firestore')
+    const dupQ = fbQuery(validationsRef, where('userId', '==', user.uid))
+    const dupSnap = await fbGetDocs(dupQ)
+    const hasTextReview = dupSnap.docs.some(d => d.data().text?.length > 0)
+    if (hasTextReview) {
+      return { success: false, error: 'duplicate', message: 'Already reviewed' }
+    }
 
     const commentData = {
       text: comment.text,
       rating: comment.rating || null,
-      userId: user?.uid || 'anonymous',
-      userName: user?.displayName || 'Anonyme',
-      userAvatar: user?.photoURL || '🤙',
+      safety: comment.rating || null,
+      userId: user.uid,
+      userName: user.displayName || 'Anonyme',
+      userAvatar: user.photoURL || '🤙',
+      type: 'review',
       createdAt: serverTimestamp(),
     };
 
-    const docRef = await addDoc(commentsRef, commentData);
+    const docRef = await addDoc(validationsRef, commentData);
 
-    // Update spot review count if rating provided
-    if (comment.rating) {
-      const spotRef = doc(db, 'spots', comment.spotId);
-      const { increment } = await import('firebase/firestore');
-      await updateDoc(spotRef, {
-        totalReviews: increment(1),
-      });
-    }
+    // Update spot review count
+    const spotRef = doc(db, 'spots', comment.spotId);
+    const { increment } = await import('firebase/firestore');
+    await updateDoc(spotRef, {
+      totalReviews: increment(1),
+    }).catch(() => {})
 
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error saving comment:', error);
-    return { success: false, error };
+    return { success: false, error: error.message || error };
   }
 }
 

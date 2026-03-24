@@ -297,8 +297,8 @@ window.declineLocationPermission = () => {
   /* silent — user can always enable location later from settings */
 }
 window.closeLocationPermission = () => window.setState({ showLocationPermission: false })
-window.openRating = (_spotId) => {
-  // Rating modal not yet implemented — no-op
+window.openRating = (spotId) => {
+  window.setState({ showRating: true, ratingSpotId: spotId, currentRating: 0 })
 };
 window.closeRating = () => window.setState({ showRating: false, ratingSpotId: null });
 window.openNavigation = (lat, lng) => {
@@ -357,62 +357,65 @@ window.submitReview = async (spotId) => {
   const { getFirebase } = window._appInternals
   if (!window.requireProfile('review')) return
 
-  // Prevent self-review: user cannot review their own spot
   const spot = window.getState().selectedSpot
-  const currentUid = window.getState().currentUser?.uid || window.getState().userProfile?.uid
+  const currentUid = window.getState().user?.uid || window.getState().currentUser?.uid
+  if (!currentUid) {
+    window.showToast(t('mustBeConnected') || 'Tu dois être connecté', 'error')
+    return
+  }
+
+  // Prevent self-review
   if (currentUid && spot?.creatorId === currentUid) {
     window.showToast(t('cannotReviewOwnSpot') || 'Tu ne peux pas noter ton propre spot', 'warning')
     return
   }
 
   const comment = (document.getElementById('review-comment')?.value || '').trim()
-  const rating = window.getState().currentRating || 4
+  const rating = window.getState().currentRating || 0
 
-  // Minimum length
-  if (!comment || comment.length < 10) {
+  if (!rating) {
+    window.showToast(t('reviewSelectRating') || 'Sélectionne une note', 'warning')
+    return
+  }
+
+  if (comment && comment.length < 10) {
     window.showToast(t('reviewTooShort') || 'Ton avis doit faire au moins 10 caractères', 'warning')
     return
   }
 
-  // Basic profanity filter (FR/EN)
-  const PROFANITY = ['putain', 'merde', 'connard', 'salope', 'enculé', 'fuck', 'shit', 'bitch', 'asshole', 'bastard']
-  const lower = comment.toLowerCase()
-  if (PROFANITY.some(w => lower.includes(w))) {
-    window.showToast(t('reviewProfanity') || 'Ton avis contient un langage inapproprié', 'warning')
-    return
-  }
-
-  // 1 review per user per spot (check localStorage)
+  // 1 review per user per spot (localStorage check first, Firestore checks in saveCommentToFirebase)
   const reviewKey = `spothitch_review_${spotId}_${currentUid}`
   if (localStorage.getItem(reviewKey)) {
     window.showToast(t('reviewAlreadySubmitted') || 'Tu as déjà publié un avis pour ce spot', 'warning')
     return
   }
 
-  if (comment) {
-    // Proximity check for reviews (2km)
-    const spotLat = spot?.coordinates?.lat || spot?.lat
-    const spotLng = spot?.coordinates?.lng || spot?.lng
-    if (spotLat && spotLng) {
-      const { verifyProximity } = await import('../services/locationHistory.js')
-      const proximity = await verifyProximity(spotLat, spotLng, 'validation')
-      if (!proximity.allowed) {
-        window.showToast(t('reviewTooFar') || 'Tu dois être passé à proximité de ce spot pour laisser un avis', 'error')
-        return
+  try {
+    const fb1 = await getFirebase()
+    const result = await fb1.saveCommentToFirebase({ spotId, text: comment, rating })
+    if (!result.success) {
+      if (result.error === 'duplicate') {
+        localStorage.setItem(reviewKey, Date.now().toString())
+        window.showToast(t('reviewAlreadySubmitted') || 'Tu as déjà publié un avis pour ce spot', 'warning')
+      } else {
+        window.showToast(t('reviewNetworkError') || 'Erreur. Vérifie ta connexion.', 'error')
       }
+      return
     }
+    localStorage.setItem(reviewKey, Date.now().toString())
+    // Gamification only after successful Firebase write
+    const { recordReview } = await import('../services/gamification.js')
+    recordReview()
+    // Invalidate spot cache so the review appears immediately
     try {
-      const fb1 = await getFirebase()
-      await fb1.saveCommentToFirebase({ spotId, text: comment, rating })
-      localStorage.setItem(reviewKey, Date.now().toString())
-      const { recordReview } = await import('../services/gamification.js')
-      recordReview()
-      window.showToast(t('reviewPublished') || 'Avis publié !', 'success')
-      window.setState({ showRating: false })
-    } catch (err) {
-      console.error('Review submit failed:', err)
-      window.showToast(t('reviewNetworkError') || 'Ton avis n\'a pas été envoyé. Vérifie ta connexion.', 'error')
-    }
+      const { invalidateSpotCache } = await import('../services/spotLiveData.js')
+      invalidateSpotCache(spotId)
+    } catch { /* optional */ }
+    window.showToast(t('reviewPublished') || 'Avis publié !', 'success')
+    window.setState({ showRating: false, currentRating: 0 })
+  } catch (err) {
+    console.error('Review submit failed:', err)
+    window.showToast(t('reviewNetworkError') || 'Ton avis n\'a pas été envoyé. Vérifie ta connexion.', 'error')
   }
 };
 window.setRating = (rating) => window.setState({ currentRating: rating });

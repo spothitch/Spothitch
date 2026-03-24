@@ -499,6 +499,27 @@ export function renderSpotDetail(state) {
             </div>
           </div>
 
+          <!-- Write a review -->
+          ${state.showRating ? `
+          <div class="mx-3 mb-3 bg-[#161b28] border border-slate-700 rounded-xl p-4">
+            <h4 class="text-sm font-medium text-slate-200 mb-3">${t('writeReview') || 'Ton avis'}</h4>
+            <div class="flex gap-1 mb-3" role="radiogroup" aria-label="${t('ratingLabel') || 'Note'}">
+              ${[1,2,3,4,5].map(n => `<button onclick="setRating(${n})" type="button" class="text-2xl cursor-pointer bg-transparent border-none p-0.5" aria-label="${n}/5">${n <= (state.currentRating || 0) ? '\u2605' : '\u2606'}</button>`).join('')}
+            </div>
+            <textarea id="review-comment" class="w-full bg-[#0f1520] border border-slate-700 rounded-lg p-3 text-sm text-slate-200 placeholder-slate-600 resize-none h-20" placeholder="${t('reviewPlaceholder') || 'Décris ton expérience (optionnel, min 10 caractères)...'}"></textarea>
+            <div class="flex gap-2 mt-3">
+              <button onclick="submitReview('${escapeJSString(String(spot.id))}')" type="button" class="flex-1 bg-primary-500 text-black font-medium py-2.5 rounded-lg text-sm" ${!(state.currentRating) ? 'disabled style="opacity:0.5"' : ''}>${t('submitReviewBtn') || 'Publier'}</button>
+              <button onclick="closeRating()" type="button" class="px-4 py-2.5 bg-slate-700 text-slate-300 rounded-lg text-sm">${t('cancel') || 'Annuler'}</button>
+            </div>
+          </div>
+          ` : `
+          <div class="mx-3 mb-3">
+            <button onclick="openRating('${escapeJSString(String(spot.id))}')" type="button" class="w-full bg-[#161b28] border border-slate-700 text-slate-300 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
+              ${icon('message-square', 'w-4 h-4')} ${t('addReview') || 'Donner ton avis'}
+            </button>
+          </div>
+          `}
+
           <!-- Report -->
           <div class="text-center py-2 px-4 pb-4">
             <button onclick="openReport('SPOT', '${escapeJSString(String(spot.id))}')" type="button"

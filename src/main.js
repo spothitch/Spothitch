@@ -746,7 +746,8 @@ let _lastModalFingerprint = ''
 function getModalFingerprint(state) {
   return [
     state.showAgeVerification, state.showIdentityVerification,
-    state.selectedSpot?.id, state.showAddSpot, state.addSpotStep, state.addSpotPreview,
+    state.selectedSpot?.id, state.showRating, state.currentRating,
+    state.showAddSpot, state.addSpotStep, state.addSpotPreview,
     state.showSOS, state.showAuth, state.authMode, state.showCompleteProfile,
     state.showFilters, state.showStats, state.showBadges, state.showChallenges,
     state.showShop, state.showMyRewards, state.showQuiz, state.showLeaderboard,
