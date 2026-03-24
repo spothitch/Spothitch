@@ -10,6 +10,7 @@ import { join } from 'path'
 
 const DIST_PATH = join(import.meta.dirname, '..', 'dist')
 const GUIDES_PATH = join(import.meta.dirname, '..', 'src', 'data', 'guides.js')
+const SECTIONS_PATH = join(import.meta.dirname, '..', 'src', 'data', 'guideSections-en.js')
 const SPOTS_PATH = join(import.meta.dirname, '..', 'public', 'data', 'spots')
 const BASE_URL = 'https://spothitch.com'
 
@@ -125,6 +126,92 @@ function nearestCityName(lat, lon) {
   return best && bestDist < 200 ? best.name : null
 }
 
+// ==================== ENRICHED SECTIONS ====================
+
+// Load guideSections-en.js as ES module
+let enrichedSections = {}
+try {
+  const sectionsModule = await import(SECTIONS_PATH)
+  enrichedSections = sectionsModule.guideSectionsData || {}
+} catch (e) {
+  console.warn('Could not load guideSections-en.js:', e.message)
+}
+
+const SECTION_TITLES = {
+  laws: { emoji: '⚖️', title: 'Laws & Legality' },
+  hitchhiking: { emoji: '👍', title: 'Hitchhiking Tips' },
+  safety: { emoji: '🛡️', title: 'Safety' },
+  women: { emoji: '👩', title: 'Women Travelers' },
+  language: { emoji: '💬', title: 'Language' },
+  budget: { emoji: '💰', title: 'Budget' },
+  sleep: { emoji: '🏕️', title: 'Where to Sleep' },
+  transport: { emoji: '🚌', title: 'Alternative Transport' },
+  season: { emoji: '📅', title: 'Best Season' },
+  culture: { emoji: '🎭', title: 'Culture' },
+}
+
+function escHTML(str) {
+  if (!str) return ''
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+function renderBlockToHTML(block) {
+  switch (block.type) {
+    case 'text':
+      return `      <p>${escHTML(block.text)}</p>`
+    case 'sub':
+      return `      <h3>${escHTML(block.title)}</h3>`
+    case 'rule':
+      return `      <p>${block.icon} ${escHTML(block.text)}</p>`
+    case 'tip':
+      return `      <blockquote class="tip">${escHTML(block.text)}</blockquote>`
+    case 'warn':
+      return `      <blockquote class="warn">${escHTML(block.text)}</blockquote>`
+    case 'info':
+      return `      <blockquote class="info-box">${escHTML(block.text)}</blockquote>`
+    case 'kv':
+      return (block.items || []).map(item =>
+        `      <p><strong>${escHTML(item.k)}</strong>: ${escHTML(item.v)}</p>`
+      ).join('\n')
+    case 'phrase':
+      return `      <table class="phrases"><tbody>\n${(block.items || []).map(item =>
+        `        <tr><td class="phrase-local">"${escHTML(item.local)}"</td><td>${escHTML(item.meaning)}</td></tr>`
+      ).join('\n')}\n      </tbody></table>`
+    case 'transport':
+      return (block.items || []).map(item =>
+        `      <p>${item.emoji} <strong>${escHTML(item.name)}</strong>${item.detail ? ': ' + escHTML(item.detail) : ''}${item.price ? ' <em>(' + escHTML(item.price) + ')</em>' : ''}</p>`
+      ).join('\n')
+    case 'event':
+      return (block.items || []).map(item =>
+        `      <p><strong>${escHTML(item.month)} ${escHTML(item.day)}</strong>: ${escHTML(item.name)}. ${escHTML(item.desc)}</p>`
+      ).join('\n')
+    case 'season':
+      return `      <div class="season-bar">${(block.months || []).map(m =>
+        `<span class="month-${m.level}">${escHTML(m.name)}</span>`
+      ).join('')}</div>`
+    default:
+      return ''
+  }
+}
+
+function renderSectionsToHTML(countryCode) {
+  const sections = enrichedSections[countryCode]
+  if (!sections) return ''
+
+  const html = []
+  for (const [key, meta] of Object.entries(SECTION_TITLES)) {
+    const sectionData = sections[key]
+    if (!sectionData || !sectionData.blocks) continue
+    html.push(`    <section>`)
+    html.push(`      <h2>${meta.emoji} ${meta.title}</h2>`)
+    for (const block of sectionData.blocks) {
+      html.push(renderBlockToHTML(block))
+    }
+    html.push(`    </section>`)
+  }
+  return html.join('\n')
+}
+
 function generateGuideHTML(guide, allGuides) {
   const spotCount = countSpots(guide.code)
   const codeLower = guide.code.toLowerCase()
@@ -182,60 +269,153 @@ function generateGuideHTML(guide, allGuides) {
 
   const richContent = sections.join('\n')
 
+  // Enriched sections content
+  const enrichedHTML = renderSectionsToHTML(guide.code)
+
+  // FAQ schema for Google rich results
+  const faqItems = []
+  const faqSections = enrichedSections[guide.code]
+  if (faqSections) {
+    if (faqSections.laws?.blocks?.[0]?.text) {
+      faqItems.push({ q: `Is hitchhiking legal in ${guide.nameEn}?`, a: faqSections.laws.blocks[0].text })
+    }
+    if (faqSections.safety?.blocks?.[0]?.text) {
+      faqItems.push({ q: `Is hitchhiking safe in ${guide.nameEn}?`, a: faqSections.safety.blocks[0].text })
+    }
+    if (faqSections.budget?.blocks?.[0]?.text) {
+      faqItems.push({ q: `How much does it cost to travel in ${guide.nameEn}?`, a: faqSections.budget.blocks[0].text })
+    }
+  }
+  const faqSchema = faqItems.length > 0 ? `,
+    {
+      "@type": "FAQPage",
+      "mainEntity": [${faqItems.map(f => `
+        {"@type": "Question", "name": "${escHTML(f.q)}", "acceptedAnswer": {"@type": "Answer", "text": "${escHTML(f.a)}"}}`).join(',')}
+      ]
+    }` : ''
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hitchhiking in ${guide.nameEn} ${guide.flag}${spotCount > 0 ? ` - ${spotCount} spots` : ''} | SpotHitch</title>
-  <meta name="description" content="Complete hitchhiking guide for ${guide.nameEn}: legality, tips, strategies, useful phrases, cultural notes.${spotCount > 0 ? ` ${spotCount} spots available.` : ''}">
+  <title>Hitchhiking in ${guide.nameEn} ${guide.flag} | Complete Guide | SpotHitch</title>
+  <meta name="description" content="Complete hitchhiking guide for ${guide.nameEn}: laws, best spots, safety tips, budget, transport, culture. Everything you need to hitch in ${guide.nameEn}.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${BASE_URL}/guides/${codeLower}">
   <meta property="og:title" content="Hitchhiking in ${guide.nameEn} ${guide.flag} | SpotHitch">
-  <meta property="og:description" content="Complete hitchhiking guide: legality, tips, strategies, cultural notes for ${guide.nameEn}">
+  <meta property="og:description" content="Complete hitchhiking guide for ${guide.nameEn}: laws, safety, budget, culture. 10 sections of verified info.">
   <meta property="og:url" content="${BASE_URL}/guides/${codeLower}">
   <meta property="og:type" content="article">
   <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="SpotHitch">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Hitchhiking in ${guide.nameEn} ${guide.flag}">
+  <meta name="twitter:description" content="Laws, safety, budget, culture. Complete hitchhiking guide.">
+  <link rel="icon" href="${BASE_URL}/favicon.ico">
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "name": "Hitchhiking in ${guide.nameEn}",
-    "description": "Complete hitchhiking guide for ${guide.nameEn}: legality, tips, strategies, useful phrases",
-    "url": "${BASE_URL}/guides/${codeLower}",
-    "publisher": { "@type": "Organization", "name": "SpotHitch" }
-  }
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "name": "Hitchhiking in ${guide.nameEn}",
+      "headline": "Complete Hitchhiking Guide for ${guide.nameEn}",
+      "description": "Laws, safety, budget, culture and practical tips for hitchhiking in ${guide.nameEn}",
+      "url": "${BASE_URL}/guides/${codeLower}",
+      "publisher": { "@type": "Organization", "name": "SpotHitch", "url": "${BASE_URL}" },
+      "author": { "@type": "Organization", "name": "SpotHitch" },
+      "inLanguage": "en"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "SpotHitch", "item": "${BASE_URL}"},
+        {"@type": "ListItem", "position": 2, "name": "Country Guides", "item": "${BASE_URL}/guides"},
+        {"@type": "ListItem", "position": 3, "name": "${guide.nameEn}", "item": "${BASE_URL}/guides/${codeLower}"}
+      ]
+    }${faqSchema}
+  ]
   </script>
   <style>
-    body{font-family:system-ui,-apple-system,sans-serif;background:#0f1520;color:#e2e8f0;margin:0;padding:20px;line-height:1.6}
-    a{color:#f59e0b;text-decoration:none}a:hover{text-decoration:underline}
-    .container{max-width:800px;margin:0 auto;padding:20px}
-    h1{color:#fff;font-size:2em;margin-bottom:0.5em}
-    h2{color:#f59e0b;font-size:1.3em;margin-top:1.5em;border-bottom:1px solid #1a2332;padding-bottom:6px}
-    .info{background:#1a2332;padding:16px;border-radius:12px;margin:16px 0}
-    .info p{margin:8px 0}
-    ul{padding-left:20px}li{margin:8px 0}
-    .cta{display:inline-block;background:#f59e0b;color:#0f1520;padding:12px 24px;border-radius:8px;font-weight:bold;margin:16px 0}
-    .cta:hover{background:#d97706;text-decoration:none}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1520;color:#e2e8f0;line-height:1.7}
+    .hero{background:linear-gradient(135deg,#1a2332,#0f1520);padding:2.5rem 1.5rem;text-align:center;border-bottom:1px solid #1e293b}
+    .hero h1{font-size:2rem;font-weight:800;margin-bottom:0.5rem;color:#fff}
+    .hero .subtitle{color:#94a3b8;font-size:0.95rem}
+    .hero .badges{display:flex;gap:0.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap}
+    .hero .badge{font-size:0.75rem;padding:0.3rem 0.7rem;border-radius:99px;font-weight:600}
+    .badge-green{background:rgba(34,197,94,0.15);color:#22c55e}
+    .badge-amber{background:rgba(245,158,11,0.15);color:#f59e0b}
+    .badge-blue{background:rgba(59,130,246,0.15);color:#60a5fa}
+    nav.breadcrumb{padding:0.8rem 1.5rem;font-size:0.8rem;color:#64748b}
+    nav.breadcrumb a{color:#f59e0b;text-decoration:none}
+    nav.breadcrumb a:hover{text-decoration:underline}
+    .container{max-width:800px;margin:0 auto;padding:0 1.5rem 3rem}
+    section{margin-top:2rem}
+    h2{color:#f59e0b;font-size:1.35rem;font-weight:700;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.4rem}
+    h3{color:#cbd5e1;font-size:1rem;font-weight:600;margin:1.2rem 0 0.4rem;text-transform:uppercase;font-size:0.75rem;letter-spacing:0.05em}
+    p{margin:0.4rem 0;font-size:0.92rem;color:#cbd5e1}
+    blockquote{padding:0.7rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:0.8rem 0;font-size:0.88rem;line-height:1.5}
+    blockquote.tip{background:rgba(245,158,11,0.06);border-left:3px solid #f59e0b;color:#fbbf24}
+    blockquote.warn{background:rgba(239,68,68,0.06);border-left:3px solid #ef4444;color:#f87171}
+    blockquote.info-box{background:rgba(59,130,246,0.06);border-left:3px solid #3b82f6;color:#60a5fa}
+    table.phrases{width:100%;border-collapse:collapse;margin:0.5rem 0}
+    table.phrases td{padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.88rem}
+    .phrase-local{color:#f59e0b;font-weight:600;width:45%}
+    .season-bar{display:flex;gap:3px;margin:0.5rem 0}
+    .season-bar span{flex:1;text-align:center;padding:0.3rem 0;border-radius:4px;font-size:0.65rem;font-weight:600}
+    .month-great{background:rgba(34,197,94,0.2);color:#22c55e}
+    .month-good{background:rgba(34,197,94,0.1);color:#22c55e}
+    .month-ok{background:rgba(245,158,11,0.12);color:#f59e0b}
+    .month-bad{background:rgba(239,68,68,0.1);color:#ef4444}
+    .cta{display:inline-block;background:#f59e0b;color:#0f1520;padding:0.8rem 1.5rem;border-radius:99px;font-weight:700;margin:1.5rem 0;text-decoration:none;font-size:0.95rem}
+    .cta:hover{background:#d97706}
+    .cross-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.5rem;margin-top:1rem}
+    .cross-links a{display:block;padding:0.6rem 0.8rem;background:#1a2332;border-radius:8px;color:#e2e8f0;text-decoration:none;font-size:0.85rem;border:1px solid #1e293b}
+    .cross-links a:hover{border-color:#f59e0b;background:#1e293b}
+    footer{text-align:center;padding:2rem;color:#475569;font-size:0.8rem;border-top:1px solid #1e293b;margin-top:3rem}
+    footer a{color:#f59e0b}
+    @media(max-width:600px){.hero h1{font-size:1.5rem}.container{padding:0 1rem 2rem}}
   </style>
 </head>
 <body>
-  <div class="container">
-    <p><a href="${BASE_URL}">&larr; Back to SpotHitch</a></p>
+  <nav class="breadcrumb">
+    <a href="${BASE_URL}">SpotHitch</a> &rsaquo;
+    <a href="${BASE_URL}/#guides">Country Guides</a> &rsaquo;
+    ${guide.nameEn}
+  </nav>
+
+  <div class="hero">
     <h1>${guide.flag} Hitchhiking in ${guide.nameEn}</h1>
-    <div class="info">
-      <p><strong>Legality:</strong> ${guide.legalityTextEn}</p>
-      <p><strong>Difficulty:</strong> ${guide.difficultyTextEn}</p>
-      ${spotCount > 0 ? `<p><strong>${spotCount} hitchhiking spots</strong> available on SpotHitch.</p>` : ''}
+    <p class="subtitle">Complete hitchhiking guide with laws, safety, budget and culture</p>
+    <div class="badges">
+      ${guide.legalityTextEn ? `<span class="badge badge-green">${escHTML(guide.legalityTextEn).slice(0, 60)}</span>` : ''}
+      ${guide.difficultyTextEn ? `<span class="badge badge-amber">Difficulty: ${escHTML(guide.difficultyTextEn)}</span>` : ''}
+      ${spotCount > 0 ? `<span class="badge badge-blue">${spotCount} spots on SpotHitch</span>` : ''}
     </div>
-    <a class="cta" href="${BASE_URL}/?guide=${guide.code}">Open Full Interactive Guide &rarr;</a>
-${richContent}
-    <h2>More Country Guides</h2>
-    <ul>
-${crossLinks}
-    </ul>
-    <p style="margin-top:2em"><a href="${BASE_URL}">&larr; Back to SpotHitch - The Hitchhiking Community</a></p>
   </div>
+
+  <div class="container">
+    <a class="cta" href="${BASE_URL}/?guide=${guide.code}">Open Interactive Guide in App &rarr;</a>
+
+${enrichedHTML || richContent}
+
+    <section>
+      <h2>🌍 More Country Guides</h2>
+      <div class="cross-links">
+${allGuides
+  .filter(g => g.code !== guide.code && POPULAR_COUNTRIES.includes(g.code))
+  .slice(0, 8)
+  .map(g => `        <a href="${BASE_URL}/guides/${g.code.toLowerCase()}">${g.flag} ${g.nameEn}</a>`)
+  .join('\n')}
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p><a href="${BASE_URL}">SpotHitch</a> &middot; The Hitchhiking Community</p>
+    <p>Find the best spots, connect with travelers, travel for free.</p>
+  </footer>
 </body>
 </html>`
 }
