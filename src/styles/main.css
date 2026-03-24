@@ -2937,6 +2937,17 @@ textarea[aria-invalid="true"] {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 
+  /* Landing/onboarding: constrain content on desktop */
+  #landing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #landing-page .absolute {
+    max-width: 480px;
+  }
+
   /* Offline panel constrained */
   #offline-panel {
     max-width: var(--app-content-max-width);
@@ -2981,6 +2992,28 @@ textarea[aria-invalid="true"] {
   [role="button"],
   button {
     cursor: pointer;
+  }
+
+  /* Map canvas: grab cursor */
+  .maplibregl-canvas,
+  .mapboxgl-canvas {
+    cursor: grab;
+  }
+  .maplibregl-canvas:active,
+  .mapboxgl-canvas:active {
+    cursor: grabbing;
+  }
+
+  /* Links: underline on hover */
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Buttons: scale effect on hover */
+  .nav-btn:hover,
+  .guide-card:hover {
+    transform: translateY(-1px);
+    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
   }
 }
 

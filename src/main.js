@@ -295,8 +295,9 @@ async function init() {
     // === NON-CRITICAL: defer everything else after first paint ===
     requestAnimationFrame(() => setTimeout(async () => {
       try {
-        // Draggable feedback button
+        // Draggable feedback button + preload panel module
         try { initDraggableFeedbackBtn() } catch (e) { /* optional */ }
+        try { import('./components/modals/FeedbackPanel.js') } catch { /* preload */ }
 
         // Screen reader support
         try { initScreenReaderSupport() } catch (e) { /* optional */ }
@@ -761,7 +762,7 @@ function getModalFingerprint(state) {
     state.showAmbassadorSuccess, state.showContactAmbassador, !!state.selectedAmbassador,
     state.showProfileCustomization, state.showNearbyFriends,
     state.showReport, state.selectedReportReason,
-    state.showFeedbackPanel, state.feedbackActiveTab,
+    state.showFeedbackPanel,
     state.showCompanionModal, state.showMyData, state.showAdmin,
     state.showFeatureSlides, state.showFeatureIntro,
   ].join('|')
@@ -882,12 +883,19 @@ function render(state) {
     if (modalsEl) {
       const misplacedMap = document.getElementById('report-misplaced-wrapper')
       const savedMisplacedMap = (misplacedMap && misplacedMap.querySelector('canvas')) ? misplacedMap : null
+      // Preserve feedback panel across re-renders (slide animation + scroll)
+      const feedbackPanel = document.querySelector('.slide-panel-in')
+      const savedFeedback = (feedbackPanel && state.showFeedbackPanel) ? feedbackPanel.parentElement : null
 
       modalsEl.innerHTML = renderModals(state)
 
       if (savedMisplacedMap) {
         const slot = document.getElementById('report-misplaced-wrapper')
         if (slot) slot.replaceWith(savedMisplacedMap)
+      }
+      if (savedFeedback && state.showFeedbackPanel) {
+        const newFb = modalsEl.querySelector('.slide-panel-in')?.parentElement
+        if (newFb) newFb.replaceWith(savedFeedback)
       }
     }
   }
@@ -990,13 +998,25 @@ function setupKeyboardShortcuts() {
       });
     }
 
-    // Ctrl+K for search
+    // Ctrl+K or / for search
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault();
-      const searchInput = document.querySelector('#search-input');
-      if (searchInput) searchInput.focus();
+      e.preventDefault()
+      const searchInput = document.querySelector('#search-input')
+      if (searchInput) searchInput.focus()
     }
-  });
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+      e.preventDefault()
+      const searchInput = document.querySelector('#search-input')
+      if (searchInput) searchInput.focus()
+    }
+
+    // Number keys 1-4 for tab switching (desktop only, not in inputs)
+    if (['1','2','3','4'].includes(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+      const tabs = ['map', 'challenges', 'social', 'profile']
+      const tab = tabs[parseInt(e.key) - 1]
+      if (tab) window.changeTab?.(tab)
+    }
+  })
 }
 
 // ==================== GLOBAL HANDLERS ====================
