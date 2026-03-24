@@ -1186,8 +1186,8 @@ window.adminViewSpot = async (spotId) => {
     const db = getFirestore(getApp())
     const snap = await getDoc(doc(db, 'spots', spotId))
     if (snap.exists()) setState({ selectedSpot: { id: snap.id, ...snap.data() }, showAdminPanel: false })
-    else window.showToast?.('Spot introuvable', 'error')
-  } catch (err) { window.showToast?.('Erreur', 'error') }
+    else window.showToast?.(t('spotNotFound') || 'Spot not found', 'error')
+  } catch (err) { window.showToast?.(t('loadingError') || 'Error', 'error') }
 }
 
 window.loadAdminReports = async () => {
