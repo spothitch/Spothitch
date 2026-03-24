@@ -759,7 +759,9 @@ function getModalFingerprint(state) {
     state.showBadgeDetail, state.selectedBadgeId,
     state.navigationActive, state.showDonation, state.showDonationThankYou,
     state.showAmbassadorSuccess, state.showContactAmbassador, !!state.selectedAmbassador,
-    state.showProfileCustomization, state.showNearbyFriends, state.showReport, state.selectedReportReason,
+    state.showProfileCustomization, state.showNearbyFriends,
+    state.showReport, state.selectedReportReason,
+    state.showFeedbackPanel, state.feedbackActiveTab,
     state.showCompanionModal, state.showMyData, state.showAdmin,
     state.showFeatureSlides, state.showFeatureIntro,
   ].join('|')
@@ -1524,6 +1526,21 @@ if (!window.openFeedbackDetail) {
 }
 if (!window.openFeedbackOnFeature) {
   window.openFeedbackOnFeature = (id) => setState({ showFeedbackPanel: true, feedbackFeatureId: id })
+}
+if (!window.setFeedbackTab) {
+  window.setFeedbackTab = async (tab) => {
+    await import('./components/modals/FeedbackPanel.js')
+    window.setFeedbackTab(tab)
+  }
+}
+if (!window.closeFeedbackDetail) {
+  window.closeFeedbackDetail = () => setState({ feedbackDetailFeature: null })
+}
+if (!window.submitFeedback) {
+  window.submitFeedback = async (id) => {
+    await import('./components/modals/FeedbackPanel.js')
+    window.submitFeedback(id)
+  }
 }
 // Profile view handlers — lazy-loaded with Profile.js
 if (!window.openAddPastTrip) window.openAddPastTrip = () => setState({ showAddPastTrip: true })
