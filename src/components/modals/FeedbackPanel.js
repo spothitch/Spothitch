@@ -159,7 +159,49 @@ export function renderFeedbackPanel(state) {
 // ==================== HANDLERS ====================
 
 window.setFeedbackTab = (tab) => {
-  setState({ feedbackActiveTab: tab })
+  // Update state silently (no full re-render — avoids flash)
+  setState({ feedbackActiveTab: tab, _skipRender: true })
+  // Update DOM directly for instant tab switch
+  _updateFeedbackTabDOM(tab)
+}
+
+function _updateFeedbackTabDOM(activeTab) {
+  const panel = document.querySelector('.slide-panel-in')
+  if (!panel) return
+
+  // Update tab pills (active state)
+  const pills = panel.querySelectorAll('[onclick*=setFeedbackTab]')
+  for (const pill of pills) {
+    const match = pill.getAttribute('onclick')?.match(/setFeedbackTab\('(\w+)'\)/)
+    if (!match) continue
+    const isActive = match[1] === activeTab
+    pill.className = pill.className
+      .replace(/bg-amber-500\/12 border border-amber-500\/30 text-amber-500/g, '')
+      .replace(/bg-white\/\[0\.04\] border border-white\/\[0\.08\] text-slate-400/g, '')
+    pill.classList.add(...(isActive
+      ? ['bg-amber-500/12', 'border', 'border-amber-500/30', 'text-amber-500']
+      : ['bg-white/[0.04]', 'border', 'border-white/[0.08]', 'text-slate-400']))
+    pill.setAttribute('aria-pressed', String(isActive))
+  }
+
+  // Update feature list
+  const listContainer = panel.querySelector('.overflow-y-auto')
+  if (!listContainer) return
+
+  const tabFeatures = FEATURES_DATA.filter(f => FEATURE_TAB_MAP[f.id] === activeTab)
+  const available = tabFeatures.filter(f => f.status === 'available')
+  const beta = tabFeatures.filter(f => f.status === 'beta')
+
+  let html = ''
+  if (available.length > 0) {
+    html += `<div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">✅ ${escapeHTML(t('fbSectionAvailable') || 'Disponible')}</div>`
+    html += available.map(feat => renderFeatureItem(feat)).join('')
+  }
+  if (beta.length > 0) {
+    html += `<div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">🔜 ${escapeHTML(t('fbSectionComing') || 'À venir')}</div>`
+    html += beta.map(feat => renderFeatureItem(feat)).join('')
+  }
+  listContainer.innerHTML = html
 }
 
 window.openFeedbackDetail = (featureId) => {
