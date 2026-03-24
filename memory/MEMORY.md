@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-23 (96 guides pays 4 langues, 30/30 bugs corrigés, nameEs/nameDe, COUNTRY_CENTERS 96 pays, dead code supprimé)
+> Dernière mise à jour : 2026-03-24 (SEO pages riches 96 pays, sitemap 97 URLs, 410 Gone /city/*, desktop adaptation étape 1, vote communautaire câblé Firebase, quality gate fixes)
 
 ---
 

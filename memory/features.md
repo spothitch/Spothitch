@@ -248,11 +248,38 @@
 
 ## SEO
 
-- [x] Pages SEO par ville (428 villes auto-générées)
-- [x] Routes populaires entre villes
-- [x] robots.txt + sitemap.xml
+- [x] Pages SEO 96 pays avec contenu complet des 10 sections (2000+ mots/page, 192 000+ mots indexables)
+- [x] Schema.org FAQPage (3 questions/réponses par pays pour Google Rich Results)
+- [x] Schema.org BreadcrumbList (SpotHitch > Guides > Pays)
+- [x] Twitter Card meta tags
+- [x] Design web propre pour pages SEO (hero, sections, saison bar, phrases table, cross-links)
+- [x] Sitemap 97 URLs (1 accueil + 96 guides pays, généré dynamiquement par prerender-seo.mjs)
+- [x] Ancien sitemap statique (2 URLs) supprimé
+- [x] /city/* retourne 410 Gone (anciennes pages villes désindexées)
+- [x] gone.html avec meta noindex pour les pages supprimées
+- [x] robots.txt Allow: / + Sitemap déclaré
 - [x] Meta tags Open Graph
 - [x] JSON-LD structured data
+- [ ] ~~Pages SEO par ville~~ (supprimées, seront réactivées avec données communautaires)
+
+## Desktop / Tablette
+
+- [x] Adaptation desktop étape 1 : contenu centré 640px (tablette) / 720px (grand desktop)
+- [x] Navigation barre en bas contrainte à la largeur du contenu
+- [x] Header centré et arrondi sur les onglets non-carte, pleine largeur sur carte
+- [x] body.tab-map toggleé dynamiquement pour CSS conditionnel
+- [x] Modals centrés verticalement sur desktop (align-items: center)
+- [x] Grille guides pays : 3 colonnes desktop, 4 grand desktop
+- [x] Panneaux fixes (draft, trip) contraints au contenu
+- [x] Hover states sur cards, guide-cards, nav-btn (pointer: fine)
+- [x] Focus-visible avec outline amber pour navigation clavier
+- [x] Scrollbars fines et discrètes sur desktop
+- [x] Fond radial dégradé subtil visible sur les côtés
+- [ ] Étape 2 : split-view carte (panneau latéral style Airbnb/Google Maps)
+- [ ] Étape 3 : modals avec animation fade (au lieu de slide-up)
+- [ ] Étape 4 : social master-detail (conversations split-view)
+- [ ] Étape 5 : polish (raccourcis clavier, curseurs, print)
+- [ ] Étape 6 : welcome/onboarding responsive
 
 ## PWA
 
