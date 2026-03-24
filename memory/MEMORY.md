@@ -1,6 +1,6 @@
 # MEMORY.md - Mémoire de session SpotHitch
 
-> Dernière mise à jour : 2026-03-24 (SEO pages riches 96 pays, sitemap 97 URLs, 410 Gone /city/*, desktop adaptation étape 1, vote communautaire câblé Firebase, quality gate fixes)
+> Dernière mise à jour : 2026-03-24 (desktop adaptation 6/6 étapes terminées, split-view carte, social master-detail, SEO 96 pays, sitemap 97 URLs, 410 /city/*, FAB repositionné)
 
 ---
 

@@ -1,12 +1,13 @@
-# Dernière session — 2026-03-24
+# Dernière session sauvegardée automatiquement
 
-## Résumé
-SEO pages riches 96 pays, sitemap 97 URLs, 410 Gone /city/*, vote communautaire Firebase, quality gate fixes, desktop adaptation étape 1 (contenu centré, header conditionnel, hover states).
+Date : 2026-03-24 14:29
 
-## Prochaine session
-- [ ] Étape 2 : split-view carte (panneau latéral style Airbnb)
-- [ ] Étape 3 : modals responsive
-- [ ] Étape 4 : social master-detail
-- [ ] Étape 5 : polish (raccourcis clavier)
-- [ ] Étape 6 : welcome responsive
-- [ ] Plan : memory/plan-desktop-adaptation.md
+## Derniers commits
+4198b74 fix: 30 modals missing from getModalFingerprint
+8c0df25 fix: FAB ajouter spot repositionné dans la zone carte sur desktop
+c64c083 feat: social master-detail desktop (étape 4)
+ccdc76b Merge branch 'feature/desktop-split-view' into dev
+6138e04 feat: desktop split-view carte (étape 2)
+
+## Note
+Reprendre avec : claude --continue

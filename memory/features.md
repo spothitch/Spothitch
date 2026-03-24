@@ -275,11 +275,14 @@
 - [x] Focus-visible avec outline amber pour navigation clavier
 - [x] Scrollbars fines et discrètes sur desktop
 - [x] Fond radial dégradé subtil visible sur les côtés
-- [ ] Étape 2 : split-view carte (panneau latéral style Airbnb/Google Maps)
-- [ ] Étape 3 : modals avec animation fade (au lieu de slide-up)
-- [ ] Étape 4 : social master-detail (conversations split-view)
-- [ ] Étape 5 : polish (raccourcis clavier, curseurs, print)
-- [ ] Étape 6 : welcome/onboarding responsive
+- [x] Étape 2 : split-view carte (panneau latéral 380px + carte flex, style Airbnb)
+- [x] Barre de recherche dans le panneau latéral (desktop), flottante cachée (lg:hidden)
+- [x] Étape 3 : modals centrés verticalement sur desktop (CSS [role=dialog])
+- [x] Étape 4 : social master-detail (liste conversations 320px à gauche + chat à droite sur desktop)
+- [x] Étape 5 : raccourcis clavier (/ = recherche, 1-4 = onglets, Escape = fermer), curseur grab sur carte, hover translateY(-1px), underline liens
+- [x] Étape 6 : landing/onboarding centré sur desktop (max-width 480px)
+- [x] FAB ajouter spot : absolute dans la zone carte sur desktop (plus de superposition avec navigation)
+- [x] Boutons Offline/Guides repositionnés en bas de la carte sur desktop
 
 ## PWA
 

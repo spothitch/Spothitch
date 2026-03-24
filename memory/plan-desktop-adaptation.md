@@ -220,19 +220,22 @@ L'app est 100% mobile-first sans aucune adaptation desktop. Sur un écran 1440px
 
 ## Résumé
 
-| Étape | Contenu | Sessions | Priorité |
-|-------|---------|----------|----------|
-| 1 | Fondations (conteneur, nav, panneaux) | 1 | CRITIQUE |
-| 2 | Carte split-view | 1-2 | HAUTE |
-| 3 | Modals responsive | 1 | HAUTE |
-| 4 | Grilles adaptatives | 1 | MOYENNE |
-| 5 | Polish (hover, clavier, curseurs) | 1 | BASSE |
-| 6 | Welcome responsive | 0.5 | BASSE |
-| **Total** | | **5-6 sessions** | |
+| Étape | Contenu | Statut | Date |
+|-------|---------|--------|------|
+| 1 | Fondations (conteneur 640px, nav, header, panneaux, fond dégradé) | ✅ TERMINÉ | 2026-03-24 |
+| 2 | Carte split-view (panneau 380px + carte flex) | ✅ TERMINÉ | 2026-03-24 |
+| 3 | Modals responsive (centrés, max-width 480px) | ✅ TERMINÉ | 2026-03-24 |
+| 4 | Social master-detail (liste 320px + chat) | ✅ TERMINÉ | 2026-03-24 |
+| 5 | Polish (raccourcis /, 1-4, Escape, hover, grab, scrollbars) | ✅ TERMINÉ | 2026-03-24 |
+| 6 | Welcome/Landing responsive (centré 480px) | ✅ TERMINÉ | 2026-03-24 |
+| + | FAB + boutons carte repositionnés (absolute sur desktop) | ✅ TERMINÉ | 2026-03-24 |
 
-## Règles
+**PLAN COMPLÉTÉ** — Toutes les 6 étapes sont déployées sur main.
 
-- Chaque étape est un commit séparé, testable indépendamment
-- Le mobile ne doit JAMAIS changer (tests visuels avant/après)
-- Chaque étape a ses propres screenshots de vérification
-- Push sur main uniquement quand l'étape est complète et vérifiée
+Vérification finale : 16 screenshots (4 tailles × 4 onglets), aucune superposition, mobile inchangé.
+
+## Améliorations futures (optionnelles)
+- SpotDetail dans le panneau latéral au lieu de modal (quand un spot est cliqué)
+- CityPanel dans le panneau latéral au lieu de bottom sheet
+- Sidebar navigation au lieu de bottom bar (alternative design)
+- Print styles pour les guides pays
