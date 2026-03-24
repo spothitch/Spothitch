@@ -135,7 +135,7 @@ const _loadingSteps = {
 // is already a prerequisite of mapReady.
 const _requiredSteps = new Set(['mapModule', 'mapReady', 'appReady'])
 
-let _currentTipIndex = 0
+let _currentTipIndex = Math.floor(Math.random() * tips.length)
 let _tipInterval = null
 let _hidden = false
 
@@ -171,7 +171,7 @@ function _updateProgress() {
 
 // ─── Render ─────────────────────────────────────────────────────────────────
 export function renderSplashScreen() {
-  const tip = tips[0]
+  const tip = tips[_currentTipIndex]
 
   return `
     <div id="splash-screen" class="splash-screen" aria-live="polite" aria-label="Loading SpotHitch">
@@ -239,14 +239,11 @@ export function initSplashScreen() {
   }
   loader.classList.remove('hidden')
 
-  // Set first tip immediately
+  // Set first tip (random start so users see different tips each time)
   const textEl = document.getElementById('splash-tip-text')
-  if (textEl && !textEl.textContent) {
-    textEl.textContent = tips[0].text
+  if (textEl) {
+    textEl.textContent = tips[_currentTipIndex].text
   }
-
-  // Rotate tips every 4 seconds
-  _currentTipIndex = 0
   _tipInterval = setInterval(() => {
     _currentTipIndex = (_currentTipIndex + 1) % tips.length
     const tip = tips[_currentTipIndex]
