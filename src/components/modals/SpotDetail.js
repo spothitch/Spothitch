@@ -211,6 +211,10 @@ export function renderSpotDetail(state) {
           </div>
         </div>
 
+        ${spot.dangerous ? `<div class="mx-3 mt-2 bg-red-500/20 border border-red-500/40 rounded-xl px-3 py-2 flex items-center gap-2"><span class="text-base">💀</span><span class="text-xs text-red-300 font-medium">${t('spotDangerous') || 'Ce spot a été signalé comme dangereux. Sois prudent.'}</span></div>` : ''}
+        ${spot.status === 'closed' ? `<div class="mx-3 mt-2 bg-amber-500/20 border border-amber-500/40 rounded-xl px-3 py-2 flex items-center gap-2"><span class="text-base">🔒</span><span class="text-xs text-amber-300 font-medium">${t('spotClosed') || 'Ce spot est signalé comme fermé ou inaccessible.'}</span></div>` : ''}
+        ${spot.needsReview ? `<div class="mx-3 mt-2 bg-blue-500/20 border border-blue-500/40 rounded-xl px-3 py-2 flex items-center gap-2"><span class="text-base">⚠️</span><span class="text-xs text-blue-300 font-medium">${t('spotNeedsReview') || 'Les informations de ce spot sont peut-être inexactes.'}</span></div>` : ''}
+
         <!-- ========== SCROLLABLE CONTENT ========== -->
         <div class="overflow-y-auto max-h-[calc(90vh-200px)]">
 

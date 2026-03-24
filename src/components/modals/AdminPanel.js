@@ -902,8 +902,11 @@ renderReportsTab = function(state) {
     if (r.status === 'pending') {
       if (r.type === 'guide') ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">Traité</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
       else if (r.reason === 'misplaced' && r.suggestedLat) ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminRelocateSpot('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}',${r.suggestedLat},${r.suggestedLng})" class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400">📍 Déplacer</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
-      else if (r.type === 'user') ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">Suspendre</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
-      else ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">Masquer</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+      else if (r.type === 'user') ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}','hide')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">Suspendre</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+      else if (r.reason === 'dangerous') ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}','dangerous')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">💀 Dangereux</button><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}','hide')" class="text-xs px-2 py-1 rounded bg-orange-500/20 text-orange-400">Masquer</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+      else if (r.reason === 'closed') ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}','closed')" class="text-xs px-2 py-1 rounded bg-amber-500/20 text-amber-400">🔒 Fermé</button><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}','hide')" class="text-xs px-2 py-1 rounded bg-orange-500/20 text-orange-400">Masquer</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+      else if (r.reason === 'inaccurate') ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}','needsReview')" class="text-xs px-2 py-1 rounded bg-amber-500/20 text-amber-400">⚠️ À vérifier</button><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}','hide')" class="text-xs px-2 py-1 rounded bg-orange-500/20 text-orange-400">Masquer</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
+      else ab = `<div class="flex gap-1.5 mt-2"><button onclick="adminConfirmReport('${escapeJSString(r.id)}','${escapeJSString(r.targetId)}','hide')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">Masquer</button><button onclick="adminDismissReport('${escapeJSString(r.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400">Rejeter</button></div>`
     }
     return `<div class="py-2.5 border-b border-slate-700/50"><div class="flex items-start gap-2"><div class="text-base mt-0.5">${ri}</div><div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap"><span class="font-medium text-sm">${escapeHTML(r.reason || 'autre')}</span><span class="px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-slate-300">${escapeHTML(r.type || 'spot')}</span><span class="px-1.5 py-0.5 rounded text-[10px] ${sv}">${r.severity || 'low'}</span>${sb}</div><div class="text-[10px] text-slate-500 mt-0.5">${escapeHTML(r.reporterName || 'Anonyme')} · ${d}</div>${r.description ? '<p class="text-xs text-slate-300 mt-1 line-clamp-2">' + escapeHTML(r.description) + '</p>' : ''}${vb ? '<div class="mt-1.5">' + vb + '</div>' : ''}${ab}</div></div></div>`
   }).join('')
@@ -1211,18 +1214,28 @@ window.loadAdminReports = async () => {
   }
 }
 
-window.adminConfirmReport = async (reportId, targetId) => {
+window.adminConfirmReport = async (reportId, targetId, action) => {
   const { auth } = await import('../../services/firebase.js')
   if (!auth.currentUser || !getState().isAdmin) { window.showToast?.(t('unauthorized') || 'Not authorized', 'error'); return }
   try {
     const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
     const { getApp } = await import('firebase/app')
     const db = getFirestore(getApp())
-    await updateDoc(doc(db, 'reports', reportId), { status: 'confirmed', resolvedAt: serverTimestamp() })
+    await updateDoc(doc(db, 'reports', reportId), { status: 'confirmed', resolvedAt: serverTimestamp(), adminAction: action || 'hide' })
     if (targetId) {
-      await updateDoc(doc(db, 'spots', targetId), { hidden: true, hiddenReason: 'report_confirmed' }).catch(() => {})
+      const spotRef = doc(db, 'spots', targetId)
+      if (action === 'dangerous') {
+        await updateDoc(spotRef, { dangerous: true, dangerousAt: serverTimestamp() })
+      } else if (action === 'closed') {
+        await updateDoc(spotRef, { status: 'closed', closedAt: serverTimestamp() })
+      } else if (action === 'needsReview') {
+        await updateDoc(spotRef, { needsReview: true, reviewRequestedAt: serverTimestamp() })
+      } else {
+        await updateDoc(spotRef, { hidden: true, hiddenReason: 'report_confirmed' })
+      }
     }
-    window.showToast?.(t('adminReportConfirmed') || 'Report confirmed, spot hidden', 'success')
+    const msgs = { dangerous: 'Spot marqué dangereux', closed: 'Spot marqué fermé', needsReview: 'Spot signalé pour révision', hide: 'Spot masqué' }
+    window.showToast?.(msgs[action] || msgs.hide, 'success')
     window.loadAdminReports()
   } catch (err) {
     console.error('Error confirming report:', err)
