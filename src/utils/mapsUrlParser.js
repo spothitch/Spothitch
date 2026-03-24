@@ -32,11 +32,36 @@ export function extractCoordsFromShare(url, text) {
       const lng = parseFloat(geoMatch[2])
       if (isValidCoord(lat, lng) && (lat !== 0 || lng !== 0)) return { lat, lng }
     }
-    // geo:0,0?q=lat,lng variant
+    // geo:0,0?q=lat,lng(Label) variant
     const geoQMatch = text.match(/geo:[^?]*\?q=(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
     if (geoQMatch) {
       const lat = parseFloat(geoQMatch[1])
       const lng = parseFloat(geoQMatch[2])
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
+
+    // google.navigation:q=lat,lng (Android turn-by-turn intent)
+    const navMatch = text.match(/google\.navigation:q=(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
+    if (navMatch) {
+      const lat = parseFloat(navMatch[1])
+      const lng = parseFloat(navMatch[2])
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
+
+    // google.streetview:cbll=lat,lng (Android Street View intent)
+    const svMatch = text.match(/google\.streetview:cbll=(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
+    if (svMatch) {
+      const lat = parseFloat(svMatch[1])
+      const lng = parseFloat(svMatch[2])
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
+
+    // comgooglemaps:// iOS scheme (?center= or ?q=)
+    const iosRe = /comgooglemaps[^?]*\?(?:[^&]*&)*(?:center|q)=(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/
+    const iosMatch = text.match(iosRe)
+    if (iosMatch) {
+      const lat = parseFloat(iosMatch[1])
+      const lng = parseFloat(iosMatch[2])
       if (isValidCoord(lat, lng)) return { lat, lng }
     }
 
@@ -104,7 +129,7 @@ function parseMapUrl(url) {
       }
     }
 
-    // !3d(lat)!4d(lng) — Google Maps data URL encoding (common in long share URLs)
+    // !3d(lat)!4d(lng) — Google Maps data= protobuf (common in long share URLs)
     const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,15})!4d(-?\d{1,3}\.\d{3,15})/)
     if (dataMatch) {
       const lat = parseFloat(dataMatch[1])
@@ -112,33 +137,31 @@ function parseMapUrl(url) {
       if (isValidCoord(lat, lng)) return { lat, lng }
     }
 
-    // ll=lat,lng (Apple Maps, Waze, alternate Google Maps)
-    const ll = parsed.searchParams.get('ll')
-    if (ll) {
-      const match = ll.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
-      if (match) {
-        const lat = parseFloat(match[1])
-        const lng = parseFloat(match[2])
+    // !1d(lng)!2d(lat) — Google Maps directions/embed protobuf (NOTE: reversed order!)
+    const dataReversed = url.match(/!1d(-?\d{1,3}\.\d{3,15})!2d(-?\d{1,3}\.\d{3,15})/)
+    if (dataReversed) {
+      const lng = parseFloat(dataReversed[1])
+      const lat = parseFloat(dataReversed[2])
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
+
+    // Embed pb= format: !2d(lng)!3d(lat) (also reversed in embed context)
+    if (url.includes('/embed')) {
+      const embedMatch = url.match(/!2d(-?\d{1,3}\.\d{3,15})!3d(-?\d{1,3}\.\d{3,15})/)
+      if (embedMatch) {
+        const lng = parseFloat(embedMatch[1])
+        const lat = parseFloat(embedMatch[2])
         if (isValidCoord(lat, lng)) return { lat, lng }
       }
     }
 
-    // center=lat,lng (some map providers)
-    const center = parsed.searchParams.get('center')
-    if (center) {
-      const match = center.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
-      if (match) {
-        const lat = parseFloat(match[1])
-        const lng = parseFloat(match[2])
-        if (isValidCoord(lat, lng)) return { lat, lng }
-      }
-    }
-
-    // destination=, origin=, saddr=, daddr= (navigation URLs, current + legacy)
-    for (const param of ['destination', 'origin', 'saddr', 'daddr']) {
+    // All query params that can contain lat,lng — consolidated loop
+    // Destination params checked first so for directions URLs we get the destination, not origin
+    for (const param of ['q', 'query', 'll', 'center', 'daddr', 'destination', 'saddr', 'origin', 'viewpoint', 'sll', 'cbll', 'location']) {
       const val = parsed.searchParams.get(param)
       if (val) {
-        const match = val.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
+        // Match coords with optional label: "48.8,2.3" or "48.8,2.3(Label)"
+        const match = val.match(/^(-?\d{1,3}\.\d{1,15})\s*,\s*(-?\d{1,3}\.\d{1,15})/)
         if (match) {
           const lat = parseFloat(match[1])
           const lng = parseFloat(match[2])
@@ -147,16 +170,14 @@ function parseMapUrl(url) {
       }
     }
 
-    // viewpoint=, sll=, cbll= (Street View, legacy search center, legacy Street View)
-    for (const param of ['viewpoint', 'sll', 'cbll']) {
-      const val = parsed.searchParams.get(param)
-      if (val) {
-        const match = val.match(/^(-?\d{1,3}\.\d{3,15})\s*,\s*(-?\d{1,3}\.\d{3,15})$/)
-        if (match) {
-          const lat = parseFloat(match[1])
-          const lng = parseFloat(match[2])
-          if (isValidCoord(lat, lng)) return { lat, lng }
-        }
+    // markers= parameter (Static Maps API): "color:red|48.8584,2.2945"
+    const markers = parsed.searchParams.get('markers')
+    if (markers) {
+      const markerCoord = markers.match(/(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
+      if (markerCoord) {
+        const lat = parseFloat(markerCoord[1])
+        const lng = parseFloat(markerCoord[2])
+        if (isValidCoord(lat, lng)) return { lat, lng }
       }
     }
 
