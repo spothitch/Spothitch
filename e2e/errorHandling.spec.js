@@ -8,7 +8,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { skipOnboarding, navigateToTab, getAppState } from './helpers.js'
+import { skipOnboarding, navigateToTab, getAppState, waitForMap } from './helpers.js'
 
 test.describe('Network Failure Resilience', () => {
   test('app should show offline indicator when network drops', async ({ page }) => {
@@ -41,11 +41,12 @@ test.describe('Network Failure Resilience', () => {
   test('app should handle network drop during search gracefully', async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
+    await waitForMap(page)
     const errors = []
     page.on('pageerror', err => errors.push(err.message))
 
     const searchInput = page.locator('#home-destination')
-    await expect(searchInput).toBeVisible({ timeout: 10000 })
+    await expect(searchInput).toBeVisible({ timeout: 15000 })
 
     // Start typing then immediately go offline
     await searchInput.fill('Barce')

@@ -18,7 +18,7 @@ import {
   getAppState,
   navigateToTab,
 } from './multi-user-helpers.js'
-import { skipOnboarding, dismissOverlays } from './helpers.js'
+import { skipOnboarding, dismissOverlays, waitForMap } from './helpers.js'
 
 test.use({ viewport: { width: 390, height: 844 } })
 test.setTimeout(60000)
@@ -79,6 +79,7 @@ test.describe('8.2 Search', () => {
   })
 
   test('search input is visible and accepts text', async () => {
+    await waitForMap(page)
     const input = page.locator('#home-destination, input[placeholder*="Search"], input[placeholder*="Recherche"]')
     expect(await input.count()).toBeGreaterThan(0)
     await input.first().fill('Paris')

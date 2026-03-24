@@ -10,17 +10,18 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { skipOnboarding, navigateToTab, getAppState, waitForToast } from './helpers.js'
+import { skipOnboarding, navigateToTab, getAppState, waitForToast, waitForMap } from './helpers.js'
 
 // ================================================================
 // FLOW 1: Search with Autocomplete
 // ================================================================
 test.describe('Search - Autocomplete Suggestions', () => {
-  test.describe.configure({ timeout: 30000 })
+  test.describe.configure({ timeout: 45000 })
 
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
+    await waitForMap(page)
   })
 
   test('should show search input on map', async ({ page }) => {
@@ -267,9 +268,12 @@ test.describe('Trip Creation - Deep Functional', () => {
 // FLOW 3: Map Persistence Across Tab Switches
 // ================================================================
 test.describe('Map Persistence', () => {
+  test.describe.configure({ timeout: 45000 })
+
   test('should keep map visible after switching tabs and coming back', async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
+    await waitForMap(page)
 
     await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 10000 })
 

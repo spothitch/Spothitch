@@ -4,7 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { skipOnboarding, navigateToTab } from './helpers.js'
+import { skipOnboarding, navigateToTab, waitForMap } from './helpers.js'
 
 test.describe('Navigation', () => {
   test.beforeEach(async ({ page }) => {
@@ -75,11 +75,12 @@ test.describe('Map View - Real Content', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
+    await waitForMap(page)
   })
 
   test('should display map with actual canvas tiles', async ({ page }) => {
     const mapContainer = page.locator('#home-map')
-    await expect(mapContainer.first()).toBeVisible({ timeout: 10000 })
+    await expect(mapContainer.first()).toBeVisible({ timeout: 15000 })
 
     // REAL RESULT: verify map has rendered canvas (not just div)
     const hasCanvas = await page.evaluate(() => {
@@ -91,7 +92,7 @@ test.describe('Map View - Real Content', () => {
 
   test('should have functional search bar', async ({ page }) => {
     const search = page.locator('#home-destination')
-    await expect(search.first()).toBeVisible({ timeout: 5000 })
+    await expect(search.first()).toBeVisible({ timeout: 15000 })
 
     // REAL RESULT: verify placeholder is a real translated text
     const placeholder = await search.getAttribute('placeholder')

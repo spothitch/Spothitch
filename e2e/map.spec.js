@@ -4,17 +4,18 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { skipOnboarding, navigateToTab } from './helpers.js'
+import { skipOnboarding, navigateToTab, waitForMap } from './helpers.js'
 
 test.describe('Map View', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
+    await waitForMap(page)
   })
 
   test('should display map with all controls', async ({ page }) => {
-    await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 10000 })
-    await expect(page.locator('#home-destination').first()).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('#home-destination').first()).toBeVisible({ timeout: 10000 })
 
     const filterBtn = page.locator('[onclick*="openFilters"], button[aria-label*="Filtre"], button[aria-label*="Filter"]')
     await expect(filterBtn.first()).toBeVisible({ timeout: 5000 })

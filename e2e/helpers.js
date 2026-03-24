@@ -98,6 +98,18 @@ export async function skipOnboarding(page, opts = {}) {
 }
 
 /**
+ * Wait for MapLibre canvas to be fully rendered (use before map-dependent tests)
+ */
+export async function waitForMap(page, timeout = 20000) {
+  // Wait for the map canvas to exist
+  await page.waitForSelector('canvas.maplibregl-canvas, canvas.mapboxgl-canvas', { timeout }).catch(() => {})
+  // Wait for the home destination search bar (rendered after map init)
+  await page.waitForSelector('#home-destination', { timeout: 10000 }).catch(() => {})
+  // Give the map tiles a moment to render
+  await page.waitForTimeout(1000)
+}
+
+/**
  * Navigate to a specific tab and wait for it to be active
  */
 export async function navigateToTab(page, tabId) {
