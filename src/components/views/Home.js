@@ -125,7 +125,7 @@ export function renderHome(state) {
       <!-- Map controls injected persistently inside #home-map by App.js afterRender -->
 
       <!-- Country Guide shortcut + Spot Counter -->
-      <div class="absolute bottom-[7.5rem] left-3 z-30 flex flex-col gap-2 items-start">
+      <div class="absolute bottom-[7.5rem] lg:bottom-8 left-3 z-30 flex flex-col gap-2 items-start">
         <button
           onclick="openOfflinePanel()"
           class="flex items-center gap-2 h-11 px-3 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 shadow-lg hover:bg-dark-primary/80 hover:text-white active:scale-95 transition-all"
@@ -149,7 +149,7 @@ export function renderHome(state) {
       <!-- Add Spot FAB -->
       <button
         onclick="openAddSpot()"
-        class="fixed bottom-36 right-5 z-30 w-16 h-16 rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 flex items-center justify-center text-2xl hover:bg-primary-600 hover:scale-110 transition-colors"
+        class="fixed lg:absolute bottom-36 lg:bottom-8 right-5 z-30 w-16 h-16 rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 flex items-center justify-center text-2xl hover:bg-primary-600 hover:scale-110 transition-colors"
         aria-label="${t('addSpot') || 'Ajouter un spot'}"
         title="${t('addSpot') || 'Ajouter un spot'}"
       >
