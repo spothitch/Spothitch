@@ -2837,3 +2837,176 @@ textarea[aria-invalid="true"] {
 .light-theme .beta-popup-text {
   color: #4b5563 !important;
 }
+
+/* ===== DESKTOP / TABLET ADAPTATION ===== */
+
+:root {
+  --app-max-width: 100%;
+  --app-content-max-width: 100%;
+}
+
+/* Tablet (768px+) */
+@media (min-width: 768px) {
+  :root {
+    --app-content-max-width: 640px;
+  }
+
+  /* Non-map content panels get max-width */
+  #panel-challenges,
+  #panel-social,
+  #panel-profile,
+  #panel-spots {
+    max-width: var(--app-content-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Navigation constrained */
+  #app-nav nav {
+    max-width: var(--app-content-max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Header inner content already has max-w-7xl, keep it */
+
+  /* Fixed banners constrained */
+  .draft-banner,
+  [onclick="openActiveTrip()"] {
+    max-width: var(--app-content-max-width) !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%);
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  :root {
+    --app-content-max-width: 640px;
+  }
+
+  /* Desktop background visible on sides */
+  body {
+    background-attachment: fixed;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.3) 100%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .light-theme body::before {
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.05) 100%);
+  }
+
+  /* Map stays full width (no constraint on #panel-map) */
+
+  /* Modals: centered on desktop instead of bottom-aligned */
+  [role="dialog"] {
+    align-items: center !important;
+  }
+
+  [role="dialog"] > div:last-child {
+    max-width: 480px;
+    width: 100%;
+  }
+
+  /* Guide cards: 3 columns on desktop */
+  #guides-list {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Offline panel constrained */
+  #offline-panel {
+    max-width: var(--app-content-max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Large desktop (1440px+) */
+@media (min-width: 1440px) {
+  :root {
+    --app-content-max-width: 720px;
+  }
+
+  /* Guide cards: 4 columns on large desktop */
+  #guides-list {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* ===== HOVER STATES (pointer: fine = mouse/trackpad) ===== */
+@media (pointer: fine) {
+  /* Cards and buttons: subtle hover effects */
+  .card:hover {
+    border-color: rgba(245, 158, 11, 0.3);
+    transition: border-color 0.2s ease;
+  }
+
+  /* Guide country cards */
+  .guide-card:hover {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  /* Navigation tabs */
+  .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Clickable elements: pointer cursor */
+  [onclick],
+  [role="button"],
+  button {
+    cursor: pointer;
+  }
+}
+
+/* ===== KEYBOARD FOCUS STYLES (desktop) ===== */
+@media (pointer: fine) {
+  :focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ===== SCROLLBAR STYLING (desktop) ===== */
+@media (min-width: 768px) {
+  /* Thin scrollbar for content areas */
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-y-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track,
+  .overflow-y-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb,
+  .overflow-y-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+  .overflow-y-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Firefox */
+  .overflow-y-auto,
+  .overflow-y-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+}
