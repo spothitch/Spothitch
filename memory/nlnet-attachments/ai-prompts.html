@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SpotHitch — Generative AI Disclosure</title>
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 700px; margin: 0 auto; padding: 40px 30px; color: #1a1a1a; line-height: 1.7; font-size: 14px; }
+  h1 { color: #d97706; font-size: 1.5em; border-bottom: 3px solid #d97706; padding-bottom: 6px; }
+  h2 { color: #0f172a; font-size: 1.15em; margin-top: 1.5em; }
+  .prompt-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-family: monospace; font-size: 0.85em; color: #334155; }
+  .date { color: #64748b; font-size: 0.8em; }
+  .model { background: #fffbeb; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600; }
+  .note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; margin: 16px 0; font-size: 0.9em; color: #92400e; }
+  footer { margin-top: 2em; padding-top: 1em; border-top: 1px solid #e2e8f0; font-size: 0.8em; color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<h1>SpotHitch — Generative AI Disclosure</h1>
+<p>In compliance with NLNet's Generative AI Policy, here is a summary of how AI was used in preparing this application.</p>
+
+<h2>Model used</h2>
+<p><span class="model">Claude Opus 4.6 (Anthropic)</span> via Claude Code CLI</p>
+
+<h2>What AI was used for</h2>
+<ul>
+  <li><strong>Research:</strong> analyzing previously funded NLNet projects (Karrot, Seppo, Briar, Galene, Aral Balkan) to understand application structure and what makes proposals successful or rejected</li>
+  <li><strong>Budget structuring:</strong> organizing milestones and verifying pricing is realistic compared to accepted projects</li>
+  <li><strong>Fact-checking:</strong> verifying claims about OwnTracks, Grid, Life360, and other tools mentioned in the comparison section</li>
+  <li><strong>Formatting:</strong> structuring the proposal fields to fit character limits</li>
+</ul>
+
+<h2>What AI was NOT used for</h2>
+<ul>
+  <li>The final text was written by me (Antoine) in my own words in French</li>
+  <li>Translation to English was done by my sister</li>
+  <li>All product decisions, feature descriptions, and personal experiences are my own</li>
+</ul>
+
+<h2>Key prompts used (summary)</h2>
+
+<p><span class="date">March 2026</span></p>
+
+<div class="prompt-block">
+Analyze 50 NLNet funded projects to understand budget structure, milestone format, and what makes proposals accepted or rejected.
+</div>
+
+<div class="prompt-block">
+Compare our budget (46 000 EUR, 15 milestones) with Karrot (20K, no milestones) and Seppo (50K, 13 milestones). Are we in the right range?
+</div>
+
+<div class="prompt-block">
+What professionals should we include in the budget to go beyond AI-assisted development? (developer code review, cryptography expert, UX researcher, designer, translator, lawyer)
+</div>
+
+<div class="prompt-block">
+Verify: does OwnTracks have check-in timers or SOS features? Does Grid have automatic alerts? Has Life360 been sued for selling user data?
+</div>
+
+<div class="prompt-block">
+How many technical challenges do accepted NLNet projects typically list? Seppo lists 1, Karrot lists 3, Galene lists 5. What's the right number for us?
+</div>
+
+<div class="prompt-block">
+How do accepted projects describe their ecosystem and sustainability plan? Compare Karrot, Seppo, CityBikes approaches.
+</div>
+
+<div class="prompt-block">
+Our app already has a prototype of Guardian and SOS modes. How do we explain why we need funding for something that partially exists? Look at how Briar and Karrot handled this.
+</div>
+
+<div class="note">
+  <strong>Note:</strong> The AI helped me research and organize my ideas. It did not write the proposal. Every word in the submitted application was written by me based on my 10 years of hitchhiking experience and my vision for the project.
+</div>
+
+<h2>AI use in SpotHitch development</h2>
+<p>I use Claude Code (Anthropic) as an AI-assisted development tool for building SpotHitch. I have no formal programming training. The AI helps translate my product decisions into code. Every commit in the project's git history is marked with <code>Co-Authored-By: Claude</code> for full transparency. Usage will be documented in the project README as per NLNet's policy.</p>
+
+<footer>
+  SpotHitch — Antoine — March 2026
+</footer>
+
+</body>
+</html>

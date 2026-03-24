@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SpotHitch — Detailed Budget Breakdown</title>
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 750px; margin: 0 auto; padding: 40px 30px; color: #1a1a1a; line-height: 1.6; font-size: 14px; }
+  h1 { color: #d97706; font-size: 1.6em; border-bottom: 3px solid #d97706; padding-bottom: 6px; margin-bottom: 6px; }
+  h2 { color: #0f172a; font-size: 1.15em; margin-top: 1.5em; margin-bottom: 0.3em; }
+  .subtitle { color: #64748b; font-size: 0.85em; margin-bottom: 1.5em; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  th { background: #0f172a; color: #fbbf24; padding: 8px 10px; text-align: left; font-size: 0.85em; }
+  td { border: 1px solid #e2e8f0; padding: 7px 10px; font-size: 0.85em; vertical-align: top; }
+  tr:nth-child(even) { background: #f8fafc; }
+  .amount { font-weight: 700; color: #0f172a; text-align: right; white-space: nowrap; }
+  .duration { color: #64748b; text-align: center; white-space: nowrap; }
+  .cat-dev { border-left: 3px solid #3b82f6; }
+  .cat-pro { border-left: 3px solid #22c55e; }
+  .total-row td { background: #0f172a; color: white; font-weight: 700; font-size: 0.95em; }
+  .total-row .amount { color: #fbbf24; }
+  .note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; margin: 16px 0; font-size: 0.85em; color: #92400e; }
+  .section-label { background: #f1f5f9; padding: 6px 10px; font-weight: 700; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
+  footer { margin-top: 2em; padding-top: 1em; border-top: 1px solid #e2e8f0; font-size: 0.8em; color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<h1>SpotHitch — Detailed Budget Breakdown</h1>
+<p class="subtitle">NGI Zero Commons Fund Application — 46 000 EUR — 15 milestones</p>
+
+<p>Each milestone is paid upon delivery of the result. No administrative overhead. The project lead (Antoine) handles development, coordination and testing. External professionals are hired for verification, design and legal compliance.</p>
+
+<div class="note">
+  In addition to this budget, we plan to use the free security and accessibility audits offered by NLNet to funded projects.
+</div>
+
+<table>
+  <tr>
+    <th style="width:5%">#</th>
+    <th style="width:55%">Milestone</th>
+    <th style="width:20%">Description</th>
+    <th style="width:10%">Duration</th>
+    <th style="width:10%">Amount</th>
+  </tr>
+
+  <tr><td colspan="5" class="section-label">🔧 Development milestones</td></tr>
+
+  <tr>
+    <td class="cat-dev">1</td>
+    <td><strong>Design Guardian Mode</strong></td>
+    <td>Wireframes, user flows, mockups for the Guardian tracking system</td>
+    <td class="duration">3 weeks</td>
+    <td class="amount">2 500 €</td>
+  </tr>
+  <tr>
+    <td class="cat-dev">2</td>
+    <td><strong>Guardian: real-time position tracking + map for guardians</strong></td>
+    <td>GPS tracking via Geolocation API, real-time map view for designated guardians, battery-aware frequency</td>
+    <td class="duration">5 weeks</td>
+    <td class="amount">4 000 €</td>
+  </tr>
+  <tr>
+    <td class="cat-dev">3</td>
+    <td><strong>Guardian: check-in system + automatic alert</strong></td>
+    <td>Timer-based check-in, silence detection, automatic alert to guardians with last known position</td>
+    <td class="duration">4 weeks</td>
+    <td class="amount">3 500 €</td>
+  </tr>
+  <tr>
+    <td class="cat-dev">4</td>
+    <td><strong>Design SOS Mode</strong></td>
+    <td>Wireframes, user flows, mockups for the emergency system</td>
+    <td class="duration">2 weeks</td>
+    <td class="amount">2 000 €</td>
+  </tr>
+  <tr>
+    <td class="cat-dev">5</td>
+    <td><strong>SOS: emergency button + silent alarm</strong></td>
+    <td>One-tap emergency activation, silent alarm mode, discreet UI</td>
+    <td class="duration">4 weeks</td>
+    <td class="amount">3 500 €</td>
+  </tr>
+  <tr>
+    <td class="cat-dev">6</td>
+    <td><strong>SOS: fake incoming call + conversation recording</strong></td>
+    <td>Realistic fake phone call to create an excuse to leave, optional audio/video recording</td>
+    <td class="duration">4 weeks</td>
+    <td class="amount">3 000 €</td>
+  </tr>
+  <tr>
+    <td class="cat-dev">7</td>
+    <td><strong>Full offline mode</strong></td>
+    <td>Both Guardian and SOS modes working without internet via IndexedDB + Background Sync</td>
+    <td class="duration">3 weeks</td>
+    <td class="amount">3 000 €</td>
+  </tr>
+  <tr>
+    <td class="cat-dev">8</td>
+    <td><strong>Automatic SMS to guardians (Twilio)</strong></td>
+    <td>Server-side SMS sending when alert triggered, fallback channel when push notifications fail</td>
+    <td class="duration">2 weeks</td>
+    <td class="amount">2 500 €</td>
+  </tr>
+  <tr>
+    <td class="cat-dev">9</td>
+    <td><strong>End-to-end encryption of position data</strong></td>
+    <td>E2EE so only authorized guardians can read positions, even servers cannot access the data</td>
+    <td class="duration">3 weeks</td>
+    <td class="amount">2 500 €</td>
+  </tr>
+
+  <tr><td colspan="5" class="section-label">👥 External professionals</td></tr>
+
+  <tr>
+    <td class="cat-pro">10</td>
+    <td><strong>Professional code review</strong></td>
+    <td>Independent developer reviews all AI-assisted code for security, reliability and best practices</td>
+    <td class="duration">—</td>
+    <td class="amount">4 000 €</td>
+  </tr>
+  <tr>
+    <td class="cat-pro">11</td>
+    <td><strong>Professional UX/UI design</strong></td>
+    <td>Designer creates production-quality interfaces for Guardian and SOS modes</td>
+    <td class="duration">—</td>
+    <td class="amount">2 500 €</td>
+  </tr>
+  <tr>
+    <td class="cat-pro">12</td>
+    <td><strong>Cryptography expert verification</strong></td>
+    <td>Expert verifies the E2E encryption implementation is secure and follows best practices</td>
+    <td class="duration">—</td>
+    <td class="amount">2 500 €</td>
+  </tr>
+  <tr>
+    <td class="cat-pro">13</td>
+    <td><strong>UX research with real travelers</strong></td>
+    <td>Structured user interviews with 20+ travelers, usability testing, documented findings</td>
+    <td class="duration">—</td>
+    <td class="amount">2 500 €</td>
+  </tr>
+  <tr>
+    <td class="cat-pro">14</td>
+    <td><strong>Documentation + professional translation (4 languages)</strong></td>
+    <td>User documentation, API docs, translated to EN/FR/ES/DE by professional translators</td>
+    <td class="duration">—</td>
+    <td class="amount">3 500 €</td>
+  </tr>
+  <tr>
+    <td class="cat-pro">15</td>
+    <td><strong>Legal consultation (GDPR)</strong></td>
+    <td>Lawyer specialized in tech/privacy reviews data handling, consent flows, GDPR compliance</td>
+    <td class="duration">—</td>
+    <td class="amount">1 500 €</td>
+  </tr>
+
+  <tr class="total-row">
+    <td colspan="4"><strong>TOTAL</strong> — approximately 8 months, some milestones overlap</td>
+    <td class="amount">46 000 €</td>
+  </tr>
+</table>
+
+<div class="note">
+  <strong>Rate information:</strong> Development milestones (1-9) represent approximately 30 weeks of work at ~850 EUR/week. This is a cost-recovery rate that allows me to work on the project full-time instead of splitting my time with other work. External professional rates (10-15) are market rates for freelance specialists.
+</div>
+
+<p><strong>No other funding sources.</strong> This funding would allow me to dedicate myself entirely to the project and hire real professionals to ensure a level of quality beyond what AI-assisted development can offer alone.</p>
+
+<footer>
+  SpotHitch — Antoine — March 2026 — spothitch.com
+</footer>
+
+</body>
+</html>
