@@ -73,8 +73,9 @@ function parseMapUrl(url) {
       }
     }
 
-    // /@lat,lng,zoom or /place/.../@lat,lng
-    const atMatch = url.match(/@(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
+    // /@lat,lng,zoom or /place/.../@lat,lng (also handle %40 = URL-encoded @)
+    const decodedUrl = decodeURIComponent(url)
+    const atMatch = decodedUrl.match(/@(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
     if (atMatch) {
       const lat = parseFloat(atMatch[1])
       const lng = parseFloat(atMatch[2])
@@ -89,13 +90,18 @@ function parseMapUrl(url) {
       if (isValidCoord(lat, lng)) return { lat, lng }
     }
 
-    // /dir/lat,lng or /dir//lat,lng (directions with coords — origin or destination)
-    // Handles both /dir/48.8,2.3/... and /dir//48.8,2.3 (empty origin)
-    const dirMatch = url.match(/\/dir\/\/?(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
-    if (dirMatch) {
-      const lat = parseFloat(dirMatch[1])
-      const lng = parseFloat(dirMatch[2])
-      if (isValidCoord(lat, lng)) return { lat, lng }
+    // /dir/ with coords anywhere in the path (origin or destination)
+    // Matches: /dir/48.8,2.3/..., /dir//48.8,2.3, /dir/PlaceName/48.8,2.3
+    // We want the LAST coordinate pair (= destination, which is what the user cares about)
+    if (parsed.pathname.includes('/dir/')) {
+      const allCoords = [...url.matchAll(/(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/g)]
+      if (allCoords.length > 0) {
+        // Take the last coordinate pair (destination)
+        const last = allCoords[allCoords.length - 1]
+        const lat = parseFloat(last[1])
+        const lng = parseFloat(last[2])
+        if (isValidCoord(lat, lng)) return { lat, lng }
+      }
     }
 
     // !3d(lat)!4d(lng) — Google Maps data URL encoding (common in long share URLs)
@@ -168,12 +174,34 @@ function parseMapUrl(url) {
     // Not a valid URL — try regex fallback on raw string
   }
 
-  // Fallback: try !3d/!4d on raw string even if URL parsing failed
+  // Fallback 1: try !3d/!4d on raw string even if URL parsing failed
   const dataFallback = url.match(/!3d(-?\d{1,3}\.\d{3,15})!4d(-?\d{1,3}\.\d{3,15})/)
   if (dataFallback) {
     const lat = parseFloat(dataFallback[1])
     const lng = parseFloat(dataFallback[2])
     if (isValidCoord(lat, lng)) return { lat, lng }
+  }
+
+  // Fallback 2: decode the whole URL and try @lat,lng again (handles double-encoding)
+  try {
+    const decoded = decodeURIComponent(decodeURIComponent(url))
+    const atFallback = decoded.match(/@(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
+    if (atFallback) {
+      const lat = parseFloat(atFallback[1])
+      const lng = parseFloat(atFallback[2])
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
+  } catch { /* ignore decoding errors */ }
+
+  // Fallback 3: last resort — find ANY lat,lng pair in the URL that looks like real coordinates
+  // Only for map-related domains (google, apple, waze, osm)
+  if (/google|maps|waze|apple|openstreetmap/i.test(url)) {
+    const allCoords = [...url.matchAll(/(-?\d{1,2}\.\d{4,15}),(-?\d{1,3}\.\d{4,15})/g)]
+    for (const m of allCoords) {
+      const lat = parseFloat(m[1])
+      const lng = parseFloat(m[2])
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
   }
 
   return null

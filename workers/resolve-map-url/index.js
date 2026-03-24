@@ -234,12 +234,15 @@ function extractCoordsFromUrl(url) {
     if (isValid(lat, lng)) return { lat, lng }
   }
 
-  // /dir/lat,lng or /dir//lat,lng (directions with coords — origin or destination)
-  const dirMatch = url.match(/\/dir\/[^/]*\/?(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
-  if (dirMatch) {
-    const lat = parseFloat(dirMatch[1])
-    const lng = parseFloat(dirMatch[2])
-    if (isValid(lat, lng)) return { lat, lng }
+  // /dir/ with coords anywhere (take last = destination)
+  if (url.includes('/dir/')) {
+    const allCoords = [...url.matchAll(/(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/g)]
+    if (allCoords.length > 0) {
+      const last = allCoords[allCoords.length - 1]
+      const lat = parseFloat(last[1])
+      const lng = parseFloat(last[2])
+      if (isValid(lat, lng)) return { lat, lng }
+    }
   }
 
   // !3d(lat)!4d(lng) format (Google Maps data URL encoding)
@@ -265,6 +268,25 @@ function extractCoordsFromUrl(url) {
       }
     }
   } catch { /* ignore */ }
+
+  // Fallback: decode %40 and try @lat,lng again
+  try {
+    const decoded = decodeURIComponent(url)
+    const atFallback = decoded.match(/@(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
+    if (atFallback) {
+      const lat = parseFloat(atFallback[1])
+      const lng = parseFloat(atFallback[2])
+      if (isValid(lat, lng)) return { lat, lng }
+    }
+  } catch { /* ignore */ }
+
+  // Last resort: any coordinate pair in a map URL
+  const anyCoords = url.match(/(-?\d{1,2}\.\d{4,15}),(-?\d{1,3}\.\d{4,15})/)
+  if (anyCoords) {
+    const lat = parseFloat(anyCoords[1])
+    const lng = parseFloat(anyCoords[2])
+    if (isValid(lat, lng)) return { lat, lng }
+  }
 
   return null
 }
