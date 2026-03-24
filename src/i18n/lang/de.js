@@ -5098,4 +5098,5 @@ export default {
   guideAnonymous: 'Anonym',
   reportGuideError: 'Fehler melden',
   legalityVaries: 'Unterschiedlich',
+  selectSpotOnMap: 'Klicke auf einen Spot auf der Karte, um Details hier zu sehen',
 }
