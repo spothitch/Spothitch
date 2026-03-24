@@ -9,7 +9,7 @@
 - `memory/app-state.md` — **ÉTAT DES LIEUX VISUEL** de chaque écran + décisions design. LIRE EN PREMIER pour ne pas signaler comme bug ce qui est voulu.
 
 - `memory/teasing-templates.md` — Guidelines templates teasing (style, ton, règles, templates existants)
-- `memory/funding.md` — Dossier financement
+- `memory/nlnet-dossier.md` — **DOSSIER NLNET COMPLET** (10 champs, 46K€, 15 milestones, comparaison projets acceptés). PDF dans nlnet-dossier-spothitch.pdf. Antoine doit réécrire avec ses mots + traduction EN par sa sœur.
 - `memory/features.md` — Inventaire des 190+ features
 - `memory/decisions.md` — Historique des décisions
 - `memory/errors.md` — Journal des erreurs et leçons

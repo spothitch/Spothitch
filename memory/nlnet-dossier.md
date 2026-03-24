@@ -1,0 +1,127 @@
+# Dossier NLNet NGI Zero — SpotHitch
+
+> Dernière mise à jour : 2026-03-24
+> Statut : PRÊT À SOUMETTRE (Antoine doit réécrire avec ses mots + traduction anglais par sa sœur)
+> Programme : NGI Zero Commons Fund (ou Entrust selon le call ouvert)
+> Montant demandé : 46 000 EUR
+> Plafond : 50 000 EUR
+
+---
+
+## CHAMP 1 — Nom du projet
+SpotHitch
+
+## CHAMP 2 — Site web
+https://spothitch.com
+
+## CHAMP 3 — Résumé (v7 corrigé)
+
+SpotHitch est une app open source pour les autostoppeurs et voyageurs indépendants. En une seule app : carte communautaire des spots d'autostop, itinéraires, guides par pays, messagerie, radar de proximité, stations-service, et historique de voyage, le tout fonctionnant hors ligne.
+
+SpotHitch dispose déjà d'une version de base de Guardian Mode et SOS Mode. Mais pour un outil dont dépend la sécurité des gens, un prototype ne suffit pas. Ce financement permettra de le faire vérifier par un développeur professionnel, un expert en cryptographie, un designer, un chercheur UX et un avocat, et de le rendre réutilisable par d'autres applications.
+
+SpotHitch est en version alpha, testée en petit comité avec des voyageurs rencontrés sur le terrain. L'app passera en bêta pour élargir la communauté, puis sur les stores uniquement après les vérifications nécessaires : audit de sécurité, validation juridique, et confirmation que les modules sont fiables. Ce financement intervient précisément à cette étape : transformer un prototype alpha en un produit vérifié et prêt pour le public.
+
+Guardian Mode : suivi de position en temps réel avec système de check-in. Si le voyageur ne répond pas dans le délai choisi, les gardiens désignés reçoivent une alerte automatique avec sa dernière position. Fonctionne hors ligne.
+
+SOS Mode : bouton d'urgence, alarme silencieuse, faux appel entrant réaliste, enregistrement audio/vidéo, alerte communautaire aux utilisateurs proches. Tout est conçu pour fonctionner dans des situations de stress.
+
+Des outils open source existent pour le partage de position ou les alertes basiques, mais aucun ne combine suivi avec check-in automatique, SOS complet et alerte communautaire dans un outil pensé pour les voyageurs.
+
+## CHAMP 4 — Expérience (score 9/10)
+
+(Antoine écrit avec ses propres mots : 10 ans d'autostop, développeur autodidacte avec IA, projet solo sur Chromebook, communauté d'autostoppeurs)
+
+## CHAMP 5 — Montant
+46 000 EUR
+
+## CHAMP 6 — Budget (v5 avec professionnels)
+
+15 étapes, chacune payée à la livraison. Pas de frais administratifs.
+
+1. Design Guardian Mode (maquettes, flux utilisateur) — 2 500 €
+2. Guardian : suivi de position + carte pour les proches — 4 000 €
+3. Guardian : check-in + alerte automatique — 3 500 €
+4. Design SOS Mode (maquettes, flux utilisateur) — 2 000 €
+5. SOS : bouton d'urgence + alarme silencieuse — 3 500 €
+6. SOS : faux appel + enregistrement conversation — 3 000 €
+7. Mode offline complet — 3 000 €
+8. Envoi automatique SMS (Twilio) — 2 500 €
+9. Chiffrement des données de position — 2 500 €
+10. Revue de code par un développeur professionnel — 4 000 €
+11. Design UX/UI par un designer professionnel — 2 500 €
+12. Vérification du chiffrement par un expert en cryptographie — 2 500 €
+13. Étude utilisateur structurée avec des voyageurs (UX research) — 2 500 €
+14. Documentation + traduction professionnelle 4 langues — 3 500 €
+15. Consultation juridique RGPD — 1 500 €
+
+Total : 46 000 €
+
+En complément, nous utiliserons les audits de sécurité et d'accessibilité proposés gratuitement par NLNet aux projets financés.
+
+Ce financement me permettrait de me consacrer entièrement au projet, et d'engager de vrais professionnels (développeur, designer, cryptographe, chercheur UX, traducteur, avocat) pour garantir un niveau de qualité au-delà de ce que le développement assisté par l'IA peut offrir seul.
+
+Pas d'autres sources de financement.
+
+## CHAMP 7 — Comparaison (v5)
+
+En tant qu'autostoppeur actif depuis 10 ans, j'ai utilisé les outils existants sur le terrain. Hitchmap propose une carte de spots open source. Hitchwiki offre des guides par pays au format wiki. Ces projets ont ouvert la voie, mais en conditions réelles les données sont souvent anciennes et l'interface n'est pas pensée pour le terrain. Les voyageurs que je rencontre disent la même chose.
+
+SpotHitch est déjà une application complète avec carte, guides, communauté, itinéraires et bien d'autres fonctionnalités, le tout fonctionnant hors ligne. Ce projet se concentre sur les deux modules de sécurité qui manquent encore : Guardian Mode et SOS Mode.
+
+Pour la sécurité : des outils open source existent pour le partage de position (OwnTracks, Grid) mais ils ne proposent ni check-in automatique, ni alerte au silence, ni SOS. Les apps commerciales (Life360, Guardian SRM) offrent du tracking mais sont propriétaires et ne sont pas pensées pour les voyageurs indépendants.
+
+Aucun outil ne combine check-in automatique avec alerte au silence, SOS complet, alerte communautaire aux utilisateurs proches, et fonctionnement offline, le tout en open source. C'est ce vide que Guardian Mode et SOS Mode comblent.
+
+## CHAMP 8 — Défis techniques (v4, 3 défis)
+
+Le principal défi technique est de garantir que le mode SOS fonctionne même sans connexion internet, situation fréquente pour les voyageurs en zones isolées. L'alerte doit être stockée localement et transmise automatiquement dès que le réseau revient, tout en distinguant une absence de réponse due à un problème réseau d'une vraie situation de danger.
+
+Le deuxième défi est le chiffrement bout en bout des données de position. La géolocalisation est une donnée extrêmement sensible. Les positions doivent être chiffrées pour que seuls les gardiens autorisés puissent les lire, même les serveurs de SpotHitch ne doivent pas y avoir accès. Ce point sera vérifié par un expert en cryptographie dans le cadre du projet.
+
+Enfin, SpotHitch est une application web progressive (PWA). Sur iPhone, les PWA ont des limitations connues pour les notifications et le fonctionnement en arrière-plan. Trouver des solutions fiables pour que Guardian Mode et SOS Mode fonctionnent aussi bien sur iOS que sur Android est un défi que nous devrons résoudre.
+
+## CHAMP 9 — Écosystème (v6)
+
+SpotHitch est en version alpha, testée en petit comité avec des voyageurs rencontrés sur le terrain. L'application passera en bêta pour élargir la communauté, puis sur les stores uniquement après les vérifications nécessaires : audit de sécurité, validation juridique, et confirmation que les modules de sécurité sont fiables.
+
+Le besoin est réel : tous les voyageurs à qui j'en ai parlé étaient enthousiastes et attendent de pouvoir tester. Y compris des personnes qui ne font pas d'auto-stop mais veulent utiliser les fonctions de sécurité pour leurs voyages. Je crée une présence sur Telegram, Instagram et Facebook. Le bouche-à-oreille entre voyageurs est le canal le plus puissant : ils se croisent dans les mêmes auberges, les mêmes routes, les mêmes groupes en ligne.
+
+Les modules Guardian Mode et SOS Mode sont conçus comme des briques indépendantes. Ils pourront devenir une application autonome dédiée à la sécurité, ou être intégrés dans d'autres applications : randonnée, cyclotourisme, sécurité des femmes, coordination humanitaire. Le protocole de check-in avec alerte au silence pourrait à terme contribuer à un standard ouvert pour la sécurité des utilisateurs mobiles.
+
+Nous comptons utiliser les services proposés par NLNet aux projets financés, notamment les audits de sécurité et d'accessibilité.
+
+À terme, SpotHitch proposera un abonnement accessible pour les fonctionnalités avancées. Les entreprises souhaitant intégrer les modules sans ouvrir leur code pourront acquérir une licence commerciale. L'intégralité des revenus sera réinvestie. L'objectif est l'autonomie financière.
+
+## CHAMP 10 — Déclaration IA (v2)
+
+Oui, j'ai utilisé l'IA générative.
+
+Pour cette candidature : j'ai utilisé Claude (Anthropic) pour rechercher des informations sur le programme NLNet et structurer mes idées. J'ai écrit le texte final moi-même en français. Ma sœur m'a aidé à le traduire en anglais.
+
+Pour le développement de SpotHitch : je n'ai aucune formation en programmation. J'utilise Claude Code (Anthropic) comme outil de développement assisté. Je suis le concepteur du produit : chaque fonctionnalité, chaque décision de design vient de mon expérience de voyageur. L'IA m'aide à traduire ces décisions en code. Je teste, je corrige, je valide tout personnellement. L'utilisation de l'IA est documentée dans chaque commit du projet (Co-Authored-By dans l'historique git) et sera décrite dans le README conformément à votre politique.
+
+Ce financement me permettra d'engager des professionnels (développeur, cryptographe, designer, chercheur UX) pour vérifier et compléter le travail, garantissant un niveau de qualité au-delà de ce que le développement assisté par l'IA peut offrir seul.
+
+---
+
+## Analyse comparative (projets acceptés comme référence)
+
+| Aspect | Karrot (accepté 20K) | Seppo (accepté 50K) | SpotHitch (46K) |
+|--------|---------------------|---------------------|-----------------|
+| Milestones | 0 (juste "living expenses") | 13 précis avec montants | 15 avec montants |
+| Budget pro | Non | Non | Oui (6 professionnels) |
+| Taux horaire | Non | Non | Non |
+| Durées | Non | Non | Oui (étapes 1-9) |
+| Services NLNet | Non mentionné | Non mentionné | Oui (audits gratuits) |
+| Standard ouvert | Non | Non | Oui (protocole check-in) |
+| Défis techniques | 3 objectifs | 1 mentionné | 3 concrets |
+| Phase projet | En production | Side project | Alpha |
+
+## Leçons des projets acceptés/rejetés
+
+- **Karrot** : accepté avec ZÉRO milestones → notre découpage est bien au-dessus du minimum
+- **Seppo** : modèle parfait (milestones précis, pas de taux horaire)
+- **Aral Balkan** (rejeté) : a dit "pas de défis majeurs" et "c'est mon salaire" → NE PAS faire ça
+- **Ne PAS dire** : taux horaire, "c'est mon salaire", "pas de défis", "tout est facile"
+- **DIRE** : résultats, professionnels, vérification, standard ouvert, services NLNet
