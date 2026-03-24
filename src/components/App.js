@@ -746,7 +746,10 @@ export function afterRender(state) {
   if (state.showAddSpot) {
     import('./modals/AddSpot.js').then(mod => mod.initAddSpotAfterRender?.())
   }
-  // ValidateSpot afterRender removed — AddSpot's initAddSpotAfterRender handles both modes
+  // Init nearby comparison map when modal is shown
+  if (state.nearbySpotChoiceData) {
+    import('./modals/AddSpot.js').then(mod => mod.initNearbyComparisonMap?.())
+  }
   // Companion: only import if modal is open or companion mode is active
   if (state.showCompanionModal || state.companionActive) {
     import('./modals/Companion.js').then(mod => mod.initCompanionAfterRender?.(!!state.showCompanionModal))

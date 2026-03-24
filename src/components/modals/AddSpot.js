@@ -1029,7 +1029,37 @@ window.addSpotNextStep = async () => {
       return
     }
     document.activeElement?.blur()
-    // Fast DOM swap first, then sync state silently
+
+    // Check for nearby existing spots BEFORE going to step 2
+    if (!window.spotFormData._duplicateConfirmed) {
+      const allSpots = state.spots || []
+      const userLat = Number(window.spotFormData.lat)
+      const userLng = Number(window.spotFormData.lng)
+      if (isFinite(userLat) && isFinite(userLng) && allSpots.length > 0) {
+        const { distanceMeters } = await import('../../services/locationHistory.js')
+        const nearby = allSpots
+          .map(s => {
+            const sLat = s.coordinates?.lat || s.lat
+            const sLng = s.coordinates?.lng || s.lng
+            if (!sLat || !sLng) return null
+            const dist = distanceMeters(userLat, userLng, sLat, sLng)
+            return dist < 500 ? { ...s, _distance: Math.round(dist) } : null
+          })
+          .filter(Boolean)
+          .sort((a, b) => a._distance - b._distance)
+          .slice(0, 3)
+        if (nearby.length > 0) {
+          setState({
+            nearbySpotChoiceData: nearby,
+            nearbyUserPin: { lat: userLat, lng: userLng },
+            addSpotType: spotType,
+          })
+          return // Stop here — user chooses via modal
+        }
+      }
+    }
+
+    // No nearby spots (or user already confirmed) → go to step 2
     const newState = { ...state, addSpotStep: 2, addSpotType: spotType }
     if (swapStepContent(2, newState)) {
       setState({ addSpotStep: 2, addSpotType: spotType, _skipRender: true })
@@ -2042,22 +2072,8 @@ window.handleAddSpot = async (event) => {
     return
   }
 
-  // Duplicate detection: check if a spot exists within 500m
-  if (!window.spotFormData._duplicateConfirmed) {
-    const allSpots = window.getState?.()?.spots || []
-    const { distanceMeters } = await import('../../services/locationHistory.js')
-    const nearby = allSpots.filter(s => {
-      const sLat = s.coordinates?.lat || s.lat
-      const sLng = s.coordinates?.lng || s.lng
-      if (!sLat || !sLng) return false
-      return distanceMeters(lat, lng, sLat, sLng) < 500
-    })
-    if (nearby.length > 0) {
-      // Show SpotHitch modal instead of native confirm()
-      window.setState?.({ nearbySpotChoiceData: nearby })
-      return // Stop — user will choose via modal
-    }
-  }
+  // Duplicate detection now happens at step 1 (addSpotNextStep)
+  // No need to check again here — eliminates the infinite loop bug
   if (!window.spotFormData.method) {
     showError(t('methodRequired'))
     return
@@ -2496,41 +2512,66 @@ export function renderNearbySpotChoice(state) {
     const name = spot.departureCity || spot.city || spot.fromCity || spot.locationName || 'Spot'
     const dir = spot.directionCity || spot.to || ''
     const r = spot.liveRatings || spot.ratings || {}
-    const rating = ((r.safety || 0) + (r.traffic || 0) + (r.accessibility || 0)) / 3
-    const ratingStr = rating > 0 ? `${rating.toFixed(1)}/5` : ''
+    const avgRating = ((r.safety || 0) + (r.traffic || 0) + (r.accessibility || 0)) / 3
+    const ratingStr = avgRating > 0 ? `${avgRating.toFixed(1)}/5` : ''
     const tests = spot.liveTestCount || spot.testCount || spot.validationCount || 0
+    const waitTime = spot.liveAvgWaitTime || spot.avgWaitTime || ''
+    const dist = spot._distance || ''
     const spotId = spot.id
 
     return `
-      <button onclick="nearbySpotChooseValidate('${escapeHTML(String(spotId))}')" class="w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left flex items-center gap-3">
+      <button onclick="nearbySpotChooseValidate('${escapeHTML(String(spotId))}')"
+        class="w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-primary-500/20 flex items-center justify-center shrink-0">
           ${icon('map-pin', 'w-5 h-5 text-primary-400')}
         </div>
         <div class="flex-1 min-w-0">
           <div class="font-medium text-sm truncate">${escapeHTML(name)}${dir ? ' → ' + escapeHTML(dir) : ''}</div>
-          <div class="text-xs text-slate-400">${tests} ${t('validations') || 'validations'}${ratingStr ? ' · ' + ratingStr : ''}</div>
+          <div class="text-xs text-slate-400 flex flex-wrap gap-x-2">
+            ${dist ? `<span>${dist}m</span>` : ''}
+            ${tests ? `<span>${tests} ${t('validations') || 'validations'}</span>` : ''}
+            ${ratingStr ? `<span>${ratingStr}</span>` : ''}
+            ${waitTime ? `<span>${waitTime} min</span>` : ''}
+          </div>
         </div>
-        <div class="text-primary-400 text-xs font-medium shrink-0">${t('giveReview') || 'Mon avis'}</div>
+        <div class="text-primary-400 text-xs font-medium shrink-0 flex items-center gap-1">
+          ${icon('check-circle', 'w-3.5 h-3.5')}
+          ${t('sameSpotValidate') || 'Valider'}
+        </div>
       </button>`
   }).join('')
 
   return `
-    <div class="fixed inset-0 bg-black/80 z-[60] flex items-end sm:items-center justify-center" onclick="if(event.target===this)closeNearbySpotChoice()" role="dialog" aria-modal="true">
-      <div class="modal-panel w-full sm:max-w-md sm:rounded-2xl overflow-hidden">
-        <div class="bg-gradient-to-r from-primary-500 to-amber-500 p-5">
+    <div class="fixed inset-0 bg-black/80 z-[60] flex items-end sm:items-center justify-center"
+      onclick="if(event.target===this)closeNearbySpotChoice()" role="dialog" aria-modal="true">
+      <div class="modal-panel w-full sm:max-w-md sm:rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div class="bg-gradient-to-r from-primary-500 to-amber-500 p-4">
           <h2 class="text-lg font-bold text-white">${t('nearbySpotFound') || 'Spot à proximité'}</h2>
-          <p class="text-white/80 text-sm mt-1">${t('nearbySpotDescription') || 'Un spot existe déjà près de cet endroit. Tu peux ajouter ton expérience dessus ou créer un nouveau spot.'}</p>
+          <p class="text-white/80 text-sm mt-1">${t('nearbySpotDescription') || 'Un spot existe déjà près de cet endroit. Vérifie sur la carte si c\'est le même.'}</p>
+        </div>
+
+        <!-- Mini-map comparing positions -->
+        <div id="nearby-comparison-map" class="w-full h-[180px] bg-[#161b28]"></div>
+        <div class="flex justify-around text-[10px] text-slate-500 py-1.5 px-4 bg-[#0f1520]">
+          <span class="flex items-center gap-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+            ${t('nearbyYourPosition') || 'Ta position'}
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+            ${t('nearbyExistingSpot') || 'Spot existant'}
+          </span>
         </div>
 
         <div class="p-4 space-y-2">
-          <p class="text-xs text-slate-400 mb-2">${t('nearbySpotExisting') || 'Spots existants à moins de 500m :'}</p>
+          <p class="text-xs text-slate-400 mb-1">${t('nearbySpotExisting') || 'Spots existants à moins de 500m :'}</p>
           ${spotsHtml}
         </div>
 
         <div class="p-4 border-t border-white/10">
-          <button onclick="nearbySpotChooseCreate()" class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium transition-colors">
-            ${icon('circle-plus', 'w-4 h-4 mr-2')}
-            ${t('createNewSpotAnyway') || 'Créer un nouveau spot quand même'}
+          <button onclick="nearbySpotChooseCreate()" class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium transition-colors flex items-center justify-center gap-2">
+            ${icon('circle-plus', 'w-4 h-4')}
+            ${t('differentSpotCreate') || 'C\'est un autre spot, je crée'}
           </button>
         </div>
       </div>
@@ -2538,21 +2579,84 @@ export function renderNearbySpotChoice(state) {
   `
 }
 
+/** Initialize the comparison mini-map showing user pin + existing spot(s) */
+export async function initNearbyComparisonMap() {
+  const container = document.getElementById('nearby-comparison-map')
+  if (!container || container.dataset.init) return
+  container.dataset.init = '1'
+
+  const state = window.getState?.() || {}
+  const userPin = state.nearbyUserPin
+  const spots = state.nearbySpotChoiceData
+  if (!userPin || !spots?.length) return
+
+  try {
+    const maplibregl = await import('maplibre-gl')
+    const bounds = new maplibregl.LngLatBounds()
+    bounds.extend([userPin.lng, userPin.lat])
+    spots.forEach(s => {
+      const lat = s.coordinates?.lat || s.lat
+      const lng = s.coordinates?.lng || s.lng
+      if (lat && lng) bounds.extend([lng, lat])
+    })
+
+    const map = new maplibregl.Map({
+      container,
+      style: 'https://tiles.openfreemap.org/styles/positron',
+      bounds,
+      fitBoundsOptions: { padding: 40, maxZoom: 16 },
+      interactive: false,
+      attributionControl: false,
+    })
+
+    map.on('load', () => {
+      // User pin (orange)
+      const userEl = document.createElement('div')
+      userEl.style.cssText = 'width:14px;height:14px;background:#f59e0b;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(245,158,11,0.5)'
+      new maplibregl.Marker({ element: userEl }).setLngLat([userPin.lng, userPin.lat]).addTo(map)
+
+      // Existing spot(s) (blue)
+      spots.forEach(s => {
+        const lat = s.coordinates?.lat || s.lat
+        const lng = s.coordinates?.lng || s.lng
+        if (!lat || !lng) return
+        const spotEl = document.createElement('div')
+        spotEl.style.cssText = 'width:14px;height:14px;background:#3b82f6;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(59,130,246,0.5)'
+        new maplibregl.Marker({ element: spotEl }).setLngLat([lng, lat]).addTo(map)
+      })
+    })
+  } catch (e) {
+    console.warn('Nearby comparison map init failed:', e)
+  }
+}
+
 window.nearbySpotChooseValidate = (spotId) => {
-  window.setState?.({ nearbySpotChoiceData: null, showAddSpot: false })
-  setTimeout(() => window.openTestSpot?.(spotId), 300)
+  // Close nearby modal + AddSpot, then open the spot detail for validation
+  window.setState?.({
+    nearbySpotChoiceData: null,
+    nearbyUserPin: null,
+    showAddSpot: false,
+  })
+  // Open spot detail with the existing spot so user can validate via CheckinModal
+  setTimeout(() => {
+    window.selectSpot?.(spotId)
+    window.showToast?.(
+      window.t?.('nearbySpotValidateHint') || 'Utilise le bouton "Check-in" pour donner ton avis sur ce spot',
+      'info'
+    )
+  }, 400)
 }
 
 window.nearbySpotChooseCreate = () => {
+  // User confirmed it's a different spot → continue to step 2
   window.spotFormData._duplicateConfirmed = true
-  const nearby = window.getState?.()?.nearbySpotChoiceData || []
-  window.spotFormData._duplicateNearbyIds = nearby.map(s => s.id)
-  window.setState?.({ nearbySpotChoiceData: null })
-  setTimeout(() => window.handleAddSpot?.(), 100)
+  window.setState?.({ nearbySpotChoiceData: null, nearbyUserPin: null })
+  // Continue the step 1 → step 2 transition
+  setTimeout(() => window.addSpotNextStep?.(), 100)
 }
 
 window.closeNearbySpotChoice = () => {
-  window.setState?.({ nearbySpotChoiceData: null })
+  window.setState?.({ nearbySpotChoiceData: null, nearbyUserPin: null })
 }
 
 export default { renderAddSpot, renderNearbySpotChoice }
