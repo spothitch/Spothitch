@@ -958,6 +958,7 @@ window.setGuideRating = (categoryId, rating) => {
 window.submitGuideContribution = async () => {
   if (window.submitGuideContribution._busy) return
   window.submitGuideContribution._busy = true
+  if (!window.requireOnline?.()) { window.submitGuideContribution._busy = false; return }
   setTimeout(() => { window.submitGuideContribution._busy = false }, 2000)
   const { showError, showSuccess } = await import('../../services/notifications.js')
   const user = getCurrentUser()
@@ -1080,6 +1081,8 @@ document.addEventListener('input', (e) => {
 // Vote on community tips (Firestore)
 window.voteCommunityTip = async (tipId, direction) => {
   if (!tipId) return
+  const user = getCurrentUser()
+  if (!user) return
   try {
     const { getFirestore, doc, updateDoc, increment } = await import('firebase/firestore')
     const { getApp } = await import('firebase/app')

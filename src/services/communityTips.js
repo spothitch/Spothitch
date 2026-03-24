@@ -126,16 +126,6 @@ window.submitCommunityTip = (countryCode) => {
   window.setState?.({ selectedCountryGuide: countryCode })
 }
 
-window.voteCommunityTip = (tipId, direction) => {
-  const success = voteTip(tipId, direction)
-  if (success) {
-    window.showToast?.(t('communityTipsVoteAdded') || 'Vote enregistre !', 'success')
-    // Force re-render
-    const state = window.getState?.() || {}
-    window.setState?.({ selectedCountryGuide: state.selectedCountryGuide })
-  } else {
-    window.showToast?.(t('communityTipsAlreadyVoted') || 'Deja vote', 'info')
-  }
-}
+// voteCommunityTip is defined in Guides.js (authoritative source with Firestore integration)
 
 export default { getTipsByCountry, addTip, voteTip, renderCommunityTips }

@@ -463,6 +463,7 @@ const MAIN_JS_HANDLERS = [
   'showCommunitySOSOnMap',
   // Guide form type (session 2026-03-24)
   'setGuideFormType',
+  'requireOnline',
   // Internal handlers used in onclick (audit complet session 2026-03-24)
   '_createSpotFromBubble', // popup carte → créer spot
   '__forceUpdate',         // banner mise à jour
