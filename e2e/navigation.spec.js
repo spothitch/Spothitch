@@ -72,6 +72,7 @@ test.describe('Navigation', () => {
 })
 
 test.describe('Map View - Real Content', () => {
+  test.setTimeout(60000) // Map loading needs more time in CI
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')

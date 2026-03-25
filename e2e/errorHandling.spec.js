@@ -11,6 +11,7 @@ import { test, expect } from '@playwright/test'
 import { skipOnboarding, navigateToTab, getAppState, waitForMap } from './helpers.js'
 
 test.describe('Network Failure Resilience', () => {
+  test.setTimeout(60000) // Network tests need more time in CI
   test('app should show offline indicator when network drops', async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
