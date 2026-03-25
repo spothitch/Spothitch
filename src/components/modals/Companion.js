@@ -124,14 +124,14 @@ function renderIntroScreen() {
       color: '#22c55e',
       bg: 'rgba(34,197,94,.08)',
       title: t('guardianFeatureTrusted') || 'Gardien de confiance',
-      desc: t('guardianFeatureTrustedDesc') || 'Choisis qui te surveille (1 a 5 contacts)',
+      desc: t('guardianFeatureTrustedDesc') || 'Choisis qui te surveille (1 à 5 contacts)',
     },
     {
       icon: 'clock',
       color: '#3b82f6',
       bg: 'rgba(59,130,246,.08)',
       title: t('guardianFeatureCheckin') || 'Check-in automatique',
-      desc: t('guardianFeatureCheckinDesc') || "L'app te demande si tout va bien. Pas de reponse = alerte",
+      desc: t('guardianFeatureCheckinDesc') || "L'app te demande si tout va bien. Pas de réponse = alerte",
     },
     {
       icon: 'map-pin',
@@ -141,18 +141,18 @@ function renderIntroScreen() {
       desc: t('guardianFeaturePositionDesc') || 'Ton gardien voit ta position sur la carte SpotHitch',
     },
     {
-      icon: 'bell',
+      icon: 'bell-ring',
       color: '#f43f5e',
       bg: 'rgba(244,63,94,.08)',
       title: t('guardianFeatureAlert') || 'Triple alerte',
-      desc: t('guardianFeatureAlertDesc') || 'Push + SMS + appel si tu ne reponds pas',
+      desc: t('guardianFeatureAlertDesc') || 'Push + SMS + appel si tu ne réponds pas',
     },
     {
       icon: 'wifi-off',
       color: '#8b5cf6',
       bg: 'rgba(139,92,246,.08)',
       title: t('guardianFeatureOffline') || 'Fonctionne hors ligne',
-      desc: t('guardianFeatureOfflineDesc') || 'Meme sans reseau, ton gardien est prevenu',
+      desc: t('guardianFeatureOfflineDesc') || 'Même sans réseau, ton gardien est prévenu',
     },
   ]
 
@@ -168,7 +168,7 @@ function renderIntroScreen() {
         ${t('guardianModeTitle') || 'Mode Guardian'}
       </h2>
       <p class="text-xs text-slate-400 leading-relaxed max-w-[300px]">
-        ${t('guardianModeDesc') || 'Un proche suit ton trajet en temps reel. Si tu ne reponds plus, il est alerte automatiquement.'}
+        ${t('guardianModeDesc') || 'Un proche suit ton trajet en temps réel. Si tu ne reponds plus, il est alerté automatiquement.'}
       </p>
 
       <!-- Features -->
@@ -276,7 +276,7 @@ function renderGuardianTab(companion) {
     {
       borderColor: '#8b5cf6',
       bgColor: 'rgba(139,92,246,.1)',
-      iconName: 'bell',
+      iconName: 'bell-ring',
       iconColor: '#8b5cf6',
       label: t('alerts') || 'Alertes',
       sub: 'SMS + Push',
@@ -377,7 +377,7 @@ function renderConfigTab(companion) {
     {
       borderColor: '#06b6d4',
       bgColor: 'rgba(6,182,212,.08)',
-      iconName: 'bell',
+      iconName: 'bell-ring',
       iconColor: '#06b6d4',
       title: t('notifyOnDeparture') || 'Notif. depart',
       desc: t('guardianDepartDesc') || 'Prevenir quand tu pars',
@@ -669,7 +669,7 @@ function renderAlertScreen(companion) {
       <div class="w-full h-[180px] rounded-xl mb-3 flex items-center justify-center relative overflow-hidden"
         style="background:linear-gradient(135deg,#1a2332,#0f1520);border:2px solid rgba(239,68,68,.3)">
         <div class="absolute inset-0" style="background:radial-gradient(circle at 60% 40%,rgba(239,68,68,.12) 0%,transparent 50%)"></div>
-        <span class="text-red-400 text-[11px] z-10">\u26A0\uFE0F ${t('lastKnownPosition') || 'Derniere position connue'}</span>
+        <span class="text-red-400 text-[11px] z-10">\u26A0\uFE0F ${t('lastKnownPosition') || 'Dernière position connue'}</span>
       </div>
 
       <!-- Alert card -->
@@ -679,7 +679,7 @@ function renderAlertScreen(companion) {
             style="background:linear-gradient(135deg,#ef4444,#dc2626)">${escapeHTML(initial)}</div>
           <div class="text-[13px] font-bold text-white flex-1">${escapeHTML(guardianName)}</div>
           <div class="text-[9px] flex items-center gap-1 text-red-400">
-            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> ${t('noResponse') || 'Pas de reponse'}
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> ${t('noResponse') || 'Pas de réponse'}
           </div>
         </div>
         <!-- Metrics -->
@@ -703,8 +703,8 @@ function renderAlertScreen(companion) {
       <div class="py-2.5 px-3 rounded-xl mb-2" style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15)">
         <div class="text-[11px] font-bold text-red-400 mb-1">\u26A0\uFE0F ${t('missedCheckIn') || 'Check-in manque'}</div>
         <div class="text-[10px] text-slate-400 leading-relaxed">
-          ${t('missedCheckInDetail') || `Pas de reponse depuis ${overdueMin} minutes.`}
-          ${lastPos ? `${t('lastPosition') || 'Derniere position'}: ${lastPos.lat.toFixed(4)}, ${lastPos.lng.toFixed(4)}` : ''}
+          ${t('missedCheckInDetail') || `Pas de réponse depuis ${overdueMin} minutes.`}
+          ${lastPos ? `${t('lastPosition') || 'Dernière position'}: ${lastPos.lat.toFixed(4)}, ${lastPos.lng.toFixed(4)}` : ''}
         </div>
       </div>
 
