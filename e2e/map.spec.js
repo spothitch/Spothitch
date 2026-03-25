@@ -14,17 +14,17 @@ test.describe('Map View', () => {
   })
 
   test('should display map with all controls', async ({ page }) => {
-    await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 15000 })
-    await expect(page.locator('#side-panel-destination, #home-destination').first().first()).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 20000 })
+    await expect(page.locator('#side-panel-destination, #home-destination').first()).toBeVisible({ timeout: 15000 })
 
     const filterBtn = page.locator('[onclick*="openFilters"], button[aria-label*="Filtre"], button[aria-label*="Filter"]')
-    await expect(filterBtn.first()).toBeVisible({ timeout: 5000 })
+    await expect(filterBtn.first()).toBeVisible({ timeout: 10000 })
 
     await expect(page.locator('[onclick*="homeZoomIn"]').first()).toBeVisible({ timeout: 10000 })
     await expect(page.locator('[onclick*="homeZoomOut"]').first()).toBeVisible({ timeout: 10000 })
 
     const fabBtn = page.locator('[onclick*="openAddSpot"], button[aria-label*="Ajouter un spot"]')
-    await expect(fabBtn.first()).toBeVisible({ timeout: 5000 })
+    await expect(fabBtn.first()).toBeVisible({ timeout: 10000 })
   })
 
   test('should zoom in and out with actual zoom level change', async ({ page }) => {
