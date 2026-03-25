@@ -88,7 +88,7 @@ test.describe('Journey: Map Exploration', () => {
     await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 10000 })
 
     // Search bar
-    await expect(page.locator('#side-panel-destination, #home-destination').first()).toBeVisible()
+    await expect(page.locator('#side-panel-destination, #home-destination').first().first()).toBeVisible()
 
     // Zoom controls
     await expect(page.locator('[onclick*="homeZoomIn"]').first()).toBeVisible()
@@ -101,7 +101,7 @@ test.describe('Journey: Map Exploration', () => {
   })
 
   test('should search for a city on the map', async ({ page }) => {
-    const search = page.locator('#side-panel-destination, #home-destination')
+    const search = page.locator('#side-panel-destination, #home-destination').first()
     if (await search.count() > 0) {
       await search.fill('Paris')
       await expect(search).toHaveValue('Paris')

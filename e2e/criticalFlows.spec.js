@@ -25,7 +25,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
   })
 
   test('should show search input on map', async ({ page }) => {
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
     const placeholder = await searchInput.getAttribute('placeholder')
     expect(placeholder).toBeTruthy()
@@ -33,14 +33,14 @@ test.describe('Search - Autocomplete Suggestions', () => {
   })
 
   test('should accept text input in search bar', async ({ page }) => {
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
     await searchInput.fill('Par')
     await expect(searchInput).toHaveValue('Par')
   })
 
   test('should show suggestions when typing 2+ chars', async ({ page }) => {
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
     await searchInput.fill('Paris')
@@ -58,7 +58,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
   })
 
   test('should select a suggestion and update map', async ({ page }) => {
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
     // Capture map center BEFORE search
@@ -123,7 +123,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
     const errors = []
     page.on('pageerror', err => errors.push(err.message))
 
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
     await searchInput.fill('Lyon')
@@ -147,7 +147,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
   })
 
   test('should hide suggestions when clicking outside', async ({ page }) => {
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
     await searchInput.fill('Madrid')
@@ -171,7 +171,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
       await page.waitForTimeout(500)
     }
     // Clear the search to hide suggestions
-    const searchInput2 = page.locator('#side-panel-destination, #home-destination')
+    const searchInput2 = page.locator('#side-panel-destination, #home-destination').first()
     await searchInput2.fill('')
     await searchInput2.dispatchEvent('input')
     await page.waitForTimeout(500)
@@ -287,7 +287,7 @@ test.describe('Map Persistence', () => {
     // Map container should still be visible (not blank/broken)
     await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 10000 })
     // Verify search input is still functional after tab switch
-    const searchAfter = page.locator('#side-panel-destination, #home-destination')
+    const searchAfter = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchAfter).toBeVisible({ timeout: 5000 })
   })
 
@@ -310,7 +310,7 @@ test.describe('Map Persistence', () => {
 
     // Map container + search input should be functional
     await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 10000 })
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 5000 })
     await searchInput.click()
     await searchInput.fill('test')
@@ -324,7 +324,7 @@ test.describe('Map Persistence', () => {
     // Verify core map controls are present (spots counter was removed)
     await expect(page.locator('[onclick*="homeZoomIn"]').first()).toBeVisible({ timeout: 10000 })
     await expect(page.locator('[onclick*="openAddSpot"]').first()).toBeVisible({ timeout: 10000 })
-    await expect(page.locator('#side-panel-destination, #home-destination').first()).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('#side-panel-destination, #home-destination').first().first()).toBeVisible({ timeout: 5000 })
   })
 })
 
@@ -404,7 +404,7 @@ test.describe('Error-Free Critical Flows', () => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
 
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
     await searchInput.fill('Paris')
     await searchInput.dispatchEvent('input')

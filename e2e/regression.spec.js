@@ -38,7 +38,7 @@ test.describe('Regression: Map Loads', () => {
   test('map search input has placeholder text', async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
-    const search = page.locator('#side-panel-destination, #home-destination')
+    const search = page.locator('#side-panel-destination, #home-destination').first()
     await expect(search).toBeVisible({ timeout: 5000 })
     const placeholder = await search.getAttribute('placeholder')
     expect(placeholder).toBeTruthy()
@@ -53,7 +53,7 @@ test.describe('Regression: Search', () => {
   test('typing in search shows suggestions dropdown', async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
-    const search = page.locator('#side-panel-destination, #home-destination')
+    const search = page.locator('#side-panel-destination, #home-destination').first()
     await expect(search).toBeVisible({ timeout: 5000 })
     await search.fill('Paris')
     await search.dispatchEvent('input')
@@ -67,7 +67,7 @@ test.describe('Regression: Search', () => {
   test('search Enter does not crash the app', async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
-    const search = page.locator('#side-panel-destination, #home-destination')
+    const search = page.locator('#side-panel-destination, #home-destination').first()
     await expect(search).toBeVisible({ timeout: 5000 })
     await search.fill('Berlin')
     await search.press('Enter')
