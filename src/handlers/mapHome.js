@@ -76,7 +76,8 @@ let _searchRequestId = 0
 window.homeSearchDestination = (query) => {
   const t = window.t || ((k) => k)
   clearTimeout(homeDestDebounce)
-  const container = document.getElementById('home-dest-suggestions')
+  // Desktop: side panel suggestions; Mobile: floating suggestions
+  const container = document.getElementById('side-panel-suggestions') || document.getElementById('home-dest-suggestions')
   if (!container) return
   if (!query || query.trim().length < 2) {
     container.classList.add('hidden')
@@ -132,8 +133,9 @@ window.homeSelectPlace = async (lat, lng, name) => {
   if (!isValidCoord(lat, lng)) return
 
   const requestId = ++_selectPlaceRequestId
-  const input = document.getElementById('home-destination')
+  const input = document.getElementById('side-panel-destination') || document.getElementById('home-destination')
   if (input) input.value = name
+  document.getElementById('side-panel-suggestions')?.classList.add('hidden')
   document.getElementById('home-dest-suggestions')?.classList.add('hidden')
   window.setState({ homeSearchLabel: name })
 
