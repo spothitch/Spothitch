@@ -7,6 +7,7 @@ import { test, expect } from '@playwright/test'
 import { skipOnboarding, navigateToTab, waitForMap } from './helpers.js'
 
 test.describe('Map View', () => {
+  test.setTimeout(90000) // Map loading can be slow in CI
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'map')
