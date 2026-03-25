@@ -15,7 +15,7 @@ test.describe('Map View', () => {
 
   test('should display map with all controls', async ({ page }) => {
     await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 15000 })
-    await expect(page.locator('#side-panel-destination, #home-destination').first()).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('#side-panel-destination, #home-destination').first().first()).toBeVisible({ timeout: 10000 })
 
     const filterBtn = page.locator('[onclick*="openFilters"], button[aria-label*="Filtre"], button[aria-label*="Filter"]')
     await expect(filterBtn.first()).toBeVisible({ timeout: 5000 })
@@ -73,7 +73,7 @@ test.describe('Map View', () => {
   })
 
   test('should search and map stays functional', async ({ page }) => {
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     if ((await searchInput.count()) === 0) return
 
     await searchInput.fill('Paris')
@@ -145,7 +145,7 @@ test.describe('Map View', () => {
 
   test('should have accessible controls', async ({ page }) => {
     // All interactive controls MUST have aria-labels
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 5000 })
     const searchAriaLabel = await searchInput.getAttribute('aria-label')
     expect(searchAriaLabel).toBeTruthy()

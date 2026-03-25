@@ -13,7 +13,7 @@ test.describe('Chain: Search → Spot Detail → Back to Map', () => {
     await navigateToTab(page, 'map')
 
     // Step 1: Search for a city
-    const searchInput = page.locator('#side-panel-destination, #home-destination')
+    const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
     await searchInput.fill('Lyon')
     await searchInput.dispatchEvent('input')
