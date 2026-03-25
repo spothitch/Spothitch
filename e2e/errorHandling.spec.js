@@ -46,7 +46,10 @@ test.describe('Network Failure Resilience', () => {
     const errors = []
     page.on('pageerror', err => errors.push(err.message))
 
-    const searchInput = page.locator('#home-destination')
+    // On desktop (lg+), search is in side panel; on mobile it floats on map
+    let searchInput = page.locator('#side-panel-destination')
+    const sideVisible = await searchInput.isVisible().catch(() => false)
+    if (!sideVisible) searchInput = page.locator('#home-destination')
     await expect(searchInput).toBeVisible({ timeout: 15000 })
 
     // Start typing then immediately go offline

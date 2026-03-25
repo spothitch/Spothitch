@@ -92,7 +92,10 @@ test.describe('Map View - Real Content', () => {
   })
 
   test('should have functional search bar', async ({ page }) => {
-    const search = page.locator('#home-destination')
+    // On desktop, search is in side panel; on mobile it floats on map
+    let search = page.locator('#side-panel-destination')
+    const sideVisible = await search.isVisible().catch(() => false)
+    if (!sideVisible) search = page.locator('#home-destination')
     await expect(search.first()).toBeVisible({ timeout: 15000 })
 
     // REAL RESULT: verify placeholder is a real translated text

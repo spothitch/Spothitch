@@ -106,10 +106,10 @@ export async function waitForMap(page, timeout = 25000) {
   // Wait for map container + canvas
   await page.waitForSelector('#home-map', { timeout: 15000 }).catch(() => {})
   await page.waitForSelector('canvas.maplibregl-canvas, canvas.mapboxgl-canvas', { timeout: 15000 }).catch(() => {})
-  // Wait for search bar — force re-render if needed
-  await page.waitForSelector('#home-destination', { timeout: 15000 }).catch(async () => {
+  // Wait for search bar — desktop has side panel, mobile has floating bar
+  await page.waitForSelector('#side-panel-destination, #home-destination', { timeout: 15000 }).catch(async () => {
     await page.evaluate(() => window.changeTab?.('map')).catch(() => {})
-    await page.waitForSelector('#home-destination', { timeout: 10000 }).catch(() => {})
+    await page.waitForSelector('#side-panel-destination, #home-destination', { timeout: 10000 }).catch(() => {})
   })
   await page.waitForTimeout(1500)
 }
