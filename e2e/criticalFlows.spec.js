@@ -39,7 +39,8 @@ test.describe('Search - Autocomplete Suggestions', () => {
     await expect(searchInput).toHaveValue('Par')
   })
 
-  test('should show suggestions when typing 2+ chars', async ({ page }) => {
+  test('should show suggestions when typing 2+ chars', async ({ page, browserName }) => {
+    test.skip(!!process.env.CI, 'Photon API suggestions depend on external network, flaky in CI')
     const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
@@ -58,6 +59,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
   })
 
   test('should select a suggestion and update map', async ({ page }) => {
+    test.skip(!!process.env.CI, 'Depends on Photon API response, flaky in CI')
     const searchInput = page.locator('#side-panel-destination, #home-destination').first()
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
