@@ -47,7 +47,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
     await searchInput.dispatchEvent('input')
 
     // Wait for suggestions to appear (debounce + network)
-    const suggestions = page.locator('#home-dest-suggestions')
+    const suggestions = page.locator('#side-panel-suggestions, #home-dest-suggestions')
     await expect(suggestions).toBeVisible({ timeout: 8000 })
 
     // Must have at least one suggestion with text content
@@ -74,7 +74,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
     await searchInput.fill('Berlin')
     await searchInput.dispatchEvent('input')
 
-    const suggestions = page.locator('#home-dest-suggestions')
+    const suggestions = page.locator('#side-panel-suggestions, #home-dest-suggestions')
     await expect(suggestions).toBeVisible({ timeout: 8000 })
 
     const firstSuggestion = suggestions.locator('button').first()
@@ -154,7 +154,7 @@ test.describe('Search - Autocomplete Suggestions', () => {
     await searchInput.dispatchEvent('input')
 
     // Wait for suggestions to appear
-    const suggestions = page.locator('#home-dest-suggestions')
+    const suggestions = page.locator('#side-panel-suggestions, #home-dest-suggestions')
     try {
       await expect(suggestions).toBeVisible({ timeout: 8000 })
     } catch {
@@ -410,7 +410,7 @@ test.describe('Error-Free Critical Flows', () => {
     await searchInput.dispatchEvent('input')
 
     // Wait for suggestions (may not appear if geocoding API unavailable)
-    await page.waitForSelector('#home-dest-suggestions:not(.hidden)', { timeout: 5000 }).catch(() => {})
+    await page.waitForSelector('#side-panel-suggestions, #home-dest-suggestions:not(.hidden)', { timeout: 5000 }).catch(() => {})
 
     await searchInput.press('Enter')
     await page.waitForSelector('#home-map', { timeout: 5000 })

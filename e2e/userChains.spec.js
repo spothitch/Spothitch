@@ -18,7 +18,7 @@ test.describe('Chain: Search → Spot Detail → Back to Map', () => {
     await searchInput.fill('Lyon')
     await searchInput.dispatchEvent('input')
 
-    const suggestions = page.locator('#home-dest-suggestions')
+    const suggestions = page.locator('#side-panel-suggestions, #home-dest-suggestions')
     try {
       await expect(suggestions).toBeVisible({ timeout: 8000 })
       await suggestions.locator('button').first().click({ force: true })
