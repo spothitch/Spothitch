@@ -80,9 +80,9 @@ test.describe('8.2 Search', () => {
 
   test('search input is visible and accepts text', async () => {
     await waitForMap(page)
-    const input = page.locator('#side-panel-destination, #home-destination, input[placeholder*="Search"], input[placeholder*="Recherche"]')
-    expect(await input.count()).toBeGreaterThan(0)
-    await input.first().fill('Paris')
+    const input = page.locator('#side-panel-destination, #home-destination, input[placeholder*="Search"], input[placeholder*="Recherche"]').first()
+    await expect(input).toBeVisible({ timeout: 20000 })
+    await input.fill('Paris')
     const value = await input.first().inputValue()
     expect(value).toBe('Paris')
     await snap(page, 8, '8.2-search-input', 'after')

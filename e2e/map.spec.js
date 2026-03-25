@@ -15,8 +15,9 @@ test.describe('Map View', () => {
   })
 
   test('should display map with all controls', async ({ page }) => {
-    await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 20000 })
-    await expect(page.locator('#side-panel-destination, #home-destination').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 30000 })
+    // Search bar may take time to render in CI
+    await expect(page.locator('#side-panel-destination, #home-destination').first()).toBeVisible({ timeout: 20000 })
 
     const filterBtn = page.locator('[onclick*="openFilters"], button[aria-label*="Filtre"], button[aria-label*="Filter"]')
     await expect(filterBtn.first()).toBeVisible({ timeout: 10000 })
