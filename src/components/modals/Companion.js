@@ -141,7 +141,7 @@ function renderIntroScreen() {
       desc: t('guardianFeaturePositionDesc') || 'Ton gardien voit ta position sur la carte SpotHitch',
     },
     {
-      icon: 'bell-ring',
+      icon: 'bell',
       color: '#f43f5e',
       bg: 'rgba(244,63,94,.08)',
       title: t('guardianFeatureAlert') || 'Triple alerte',
@@ -276,7 +276,7 @@ function renderGuardianTab(companion) {
     {
       borderColor: '#8b5cf6',
       bgColor: 'rgba(139,92,246,.1)',
-      iconName: 'bell-ring',
+      iconName: 'bell',
       iconColor: '#8b5cf6',
       label: t('alerts') || 'Alertes',
       sub: 'SMS + Push',
@@ -377,7 +377,7 @@ function renderConfigTab(companion) {
     {
       borderColor: '#06b6d4',
       bgColor: 'rgba(6,182,212,.08)',
-      iconName: 'bell-ring',
+      iconName: 'bell',
       iconColor: '#06b6d4',
       title: t('notifyOnDeparture') || 'Notif. depart',
       desc: t('guardianDepartDesc') || 'Prevenir quand tu pars',
