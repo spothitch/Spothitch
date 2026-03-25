@@ -58,7 +58,7 @@ test.describe('Regression: Search', () => {
     await search.fill('Paris')
     await search.dispatchEvent('input')
     // Wait for suggestions container to appear
-    const suggestions = page.locator('#home-dest-suggestions')
+    const suggestions = page.locator('#side-panel-suggestions, #home-dest-suggestions')
     await suggestions.waitFor({ state: 'attached', timeout: 5000 }).catch(() => {})
     // Even if no network, the input should accept text
     await expect(search).toHaveValue('Paris')
