@@ -23,7 +23,8 @@ import {
   reauthenticateWithPopup,
   EmailAuthProvider,
   deleteUser,
-  updateProfile
+  updateProfile,
+  connectAuthEmulator
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -47,7 +48,8 @@ import {
   increment,
   enableNetwork,
   disableNetwork,
-  runTransaction
+  runTransaction,
+  connectFirestoreEmulator
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -146,6 +148,17 @@ export function initializeFirebase() {
     } catch { auth.languageCode = 'en' }
     db = getFirestore(app);
     storage = getStorage(app);
+
+    // Connect to Firebase Emulators in CI/test mode (zero cost, local only)
+    if (import.meta.env.VITE_FIREBASE_EMULATOR === 'true') {
+      try {
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
+        connectFirestoreEmulator(db, '127.0.0.1', 8080)
+        console.log('[Firebase] Connected to local emulators (Auth:9099, Firestore:8080)')
+      } catch (e) {
+        console.warn('[Firebase] Emulator connection failed:', e?.message)
+      }
+    }
 
     // Initialize messaging only in fully supported browsers
     // Requires: serviceWorker + PushManager + Notification + indexedDB + fetch
