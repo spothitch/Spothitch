@@ -42,27 +42,12 @@ window.selectSpot = async (idOrSpot) => {
     spot = { id: spotId, coordinates: coords, lat: coords.lat, lng: coords.lng }
   }
   if (spot) {
-    // Auto-fix BEFORE showing: if community spot has no lastValidated, set it to createdAt
-    if (spot.dataSource === 'community' && !spot.lastValidated && spot.createdAt) {
-      const createdAt = typeof spot.createdAt === 'string' ? spot.createdAt
-        : (spot.createdAt?.toDate ? spot.createdAt.toDate().toISOString() : new Date().toISOString())
-      spot.lastValidated = createdAt
-      spot.lastTested = createdAt
-      spot.validationCount = Math.max(spot.validationCount || 0, 1)
-      spot.testCount = Math.max(spot.testCount || 0, 1)
-      // Persist fix to Firestore (fire-and-forget)
-      import('../services/firebase.js').then(({ updateSpot }) => {
-        updateSpot(spot.id, {
-          lastValidated: createdAt,
-          lastTested: createdAt,
-          lastValidatedBy: spot.creator || 'Anonyme',
-          lastTestedBy: spot.creator || 'Anonyme',
-          validationCount: Math.max(spot.validationCount || 0, 1),
-          testCount: Math.max(spot.testCount || 0, 1),
-        }).catch(() => {})
-      }).catch(() => {})
-    }
-    // Show spot detail (awaits live data before rendering)
+    // Enrich with live Firebase data (validations with correct experienceDates)
+    try {
+      const { enrichSpotWithLiveData } = await import('../services/spotLiveData.js')
+      spot = await enrichSpotWithLiveData(spot)
+    } catch { /* offline — use spot data as-is */ }
+    // Show spot detail
     await actions.selectSpot(spot)
     // Center map (validate coords first)
     const lat = spot.coordinates?.lat || spot.lat
