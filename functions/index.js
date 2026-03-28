@@ -45,11 +45,13 @@ exports.onCommunitySOSAlert = onCommunitySOSAlert
 const { onGroupMessage } = require('./notifications/onGroupMessage')
 exports.onGroupMessage = onGroupMessage
 
-// ==================== BRIQUE 6 — Telegram alerts (reports, new users, new spots) ====================
-const { onNewReport, onNewUser, onSpotCreatedTelegram } = require('./notifications/telegramWebhook')
+// ==================== BRIQUE 6 — Telegram alerts + inline actions ====================
+const { onNewReport, onNewUser, onSpotCreatedTelegram, telegramCallback, sentryWebhook } = require('./notifications/telegramWebhook')
 exports.onNewReport = onNewReport
 exports.onNewUser = onNewUser
 exports.onSpotCreatedTelegram = onSpotCreatedTelegram
+exports.telegramCallback = telegramCallback
+exports.sentryWebhook = sentryWebhook
 
 // ==================== BRIQUE 6b — Server-side moderation ====================
 const { checkSpotProfanity, checkReviewProfanity, checkMessageProfanity } = require('./moderation/profanityFilter')
