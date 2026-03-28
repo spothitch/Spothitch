@@ -343,6 +343,13 @@ export function handleDeepLink() {
     }, 100);
   }
 
+  // Handle admin panel deeplink (?admin=true from Telegram notifications)
+  if (params.get('admin') === 'true') {
+    setTimeout(() => {
+      setState({ activeTab: 'profile', showAdminPanel: true })
+    }, 500)
+  }
+
   // Handle spot ID
   const spotId = params.get('spot');
   if (spotId) {
