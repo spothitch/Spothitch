@@ -924,8 +924,7 @@ export const guideSectionsData = {
       filterTypes: ['c', 'a'],
       blocks: [
         { type: 'text', text: 'L\'Espagne est globalement sûre (23ème au Global Peace Index). Le risque principal pour les voyageurs est le pickpocket dans les grandes villes, pas l\'autostop.' },
-        { type: 'sub', title: 'Contexte historique' },
-        { type: 'text', text: 'L\'affaire des filles d\'Alcàsser (1992), où 3 adolescentes ont été assassinées en faisant du stop, a profondément traumatisé la société espagnole et contribue à la méfiance envers l\'autostop qui persiste aujourd\'hui.' },
+        { type: 'text', text: 'L\'autostop est moins courant en Espagne que dans le reste de l\'Europe, mais il reste tout à fait faisable. Les Espagnols sont chaleureux et accueillants une fois la conversation lancée.' },
         { type: 'sub', title: 'Numéros d\'urgence' },
         { type: 'kv', items: [
           { k: 'Urgences', v: '112' },
@@ -2323,7 +2322,7 @@ export const guideSectionsData = {
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'Sûr de jour. Les conducteurs serbes sont amicaux une fois qu\'ils s\'arrêtent.' },
-      { type: 'warn', text: '⚠️ La nuit, des attaques sur les aires de stationnement sont signalées occasionnellement. Arrête-toi dans des stations-service 24h ou des motels après la tombée de la nuit.' },
+      { type: 'warn', text: '⚠️ La nuit, préfère les stations-service 24h éclairées plutôt que les aires de repos isolées.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '112' }] },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
@@ -3473,7 +3472,7 @@ export const guideSectionsData = {
         { k: 'Toronto, Montréal (sortie de ville)', v: 'Difficile', color: 'red' },
       ]},
       { type: 'text', text: 'Les gas stations (Esso, Petro-Canada, Shell) et les Tim Hortons en bord de route sont les meilleurs spots pour aborder les conducteurs.' },
-      { type: 'warn', text: '⚠️ La Highway of Tears (Highway 16, nord de la C.-B.) est déconseillée, surtout pour les femmes seules, en raison de disparitions documentées.' },
+      { type: 'warn', text: '⚠️ Sur la Highway 16 (nord de la C.-B.), les distances sont très longues et la couverture réseau limitée. Prévois un plan de route et préviens quelqu\'un.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'Le Canada est un pays très sûr. Les Canadiens sont réputés pour leur gentillesse. Le principal risque est les distances immenses entre les villes (parfois 200+ km sans réseau téléphonique). Prévois eau et nourriture.' },
@@ -3481,7 +3480,7 @@ export const guideSectionsData = {
       { type: 'warn', text: '⚠️ Attention aux ours (grizzly en C.-B./Alberta, noir partout). Si tu campes, suspends ta nourriture en hauteur.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
-      { type: 'text', text: 'Le Canada est plus sûr que les USA pour les femmes. Les voyageuses solo rapportent des expériences majoritairement positives. Évite la Highway of Tears (Hwy 16, nord de la C.-B.).' },
+      { type: 'text', text: 'Le Canada est plus sûr que les USA pour les femmes. Les voyageuses solo rapportent des expériences majoritairement positives. Dans les zones isolées, prévois ton itinéraire et préviens quelqu\'un.' },
       { type: 'rule', icon: '📱', text: 'Préviens quelqu\'un de ton itinéraire. Certaines zones n\'ont aucun réseau.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
@@ -5475,7 +5474,7 @@ export const guideSectionsData = {
       { type: 'text', text: 'Mindanao est plus difficile d\'accès (certaines zones déconseillées). Luzon et les Visayas sont les plus faciles.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'Les Philippines sont globalement sûres pour les touristes. Évite l\'ouest de Mindanao (conflit armé) et Sulu/Tawi-Tawi (kidnappings). Les typhons sont un risque réel de juin à novembre.' },
+      { type: 'text', text: 'Les Philippines sont globalement sûres pour les touristes. Les îles principales (Luzon, Visayas) sont accueillantes. Évite l\'extrême sud (Mindanao ouest, Sulu). Les typhons sont un risque de juin à novembre.' },
       { type: 'kv', items: [{ k: 'Urgences', v: '911' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
@@ -6033,7 +6032,7 @@ export const guideSectionsData = {
       ]},
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'Pays sûr. Évite l\'est de Sabah (kidnappings). Les arnaques de taxi sont le principal risque.' },
+      { type: 'text', text: 'Pays sûr. La Malaisie péninsulaire et Sarawak sont très accueillants. Les arnaques de taxi sont le principal risque. Utilise Grab (l\'Uber local).' },
       { type: 'kv', items: [{ k: 'Urgences', v: '999' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [

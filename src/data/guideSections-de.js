@@ -924,8 +924,7 @@ export const guideSectionsData = {
       filterTypes: ['c', 'a'],
       blocks: [
         { type: 'text', text: 'Spanien ist insgesamt sicher (Platz 23 im Global Peace Index). Das Hauptrisiko für Reisende sind Taschendiebe in Großstädten, nicht das Trampen.' },
-        { type: 'sub', title: 'Historischer Kontext' },
-        { type: 'text', text: 'Der Fall der Mädchen von Alcàsser (1992), bei dem 3 Teenager beim Trampen ermordet wurden, hat die spanische Gesellschaft tief traumatisiert und trägt zum Misstrauen gegenüber dem Trampen bei, das bis heute anhält.' },
+        { type: 'text', text: 'Trampen ist in Spanien weniger verbreitet als im Rest Europas, aber durchaus machbar. Spanier sind herzlich und gastfreundlich, sobald ein Gespräch begonnen wird.' },
         { type: 'sub', title: 'Notrufnummern' },
         { type: 'kv', items: [
           { k: 'Notruf', v: '112' },
@@ -3229,7 +3228,7 @@ export const guideSectionsData = {
         { k: 'Toronto, Montréal (Stadtausfahrt)', v: 'Schwierig', color: 'red' },
       ]},
       { type: 'text', text: 'Tankstellen (Esso, Petro-Canada, Shell) und Tim Hortons am Straßenrand sind die besten Spots, um Fahrer anzusprechen.' },
-      { type: 'warn', text: '⚠️ Die Highway of Tears (Highway 16, nördliches B.C.) wird abgeraten, besonders für alleinreisende Frauen, aufgrund dokumentierter Verschwundener.' },
+      { type: 'warn', text: '⚠️ Auf der Highway 16 (nördliches B.C.) sind die Entfernungen sehr lang und die Netzabdeckung begrenzt. Plane deine Route und informiere jemanden.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'Kanada ist ein sehr sicheres Land. Kanadier sind für ihre Freundlichkeit bekannt. Das Hauptrisiko sind die riesigen Entfernungen zwischen den Städten (manchmal 200+ km ohne Handynetz). Nimm Wasser und Essen mit.' },
@@ -3237,7 +3236,7 @@ export const guideSectionsData = {
       { type: 'warn', text: '⚠️ Vorsicht vor Bären (Grizzly in B.C./Alberta, Schwarzbär überall). Beim Campen Essen aufhängen.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
-      { type: 'text', text: 'Kanada ist sicherer als die USA für Frauen. Alleinreisende Frauen berichten von überwiegend positiven Erfahrungen. Meide die Highway of Tears (Hwy 16, nördliches B.C.).' },
+      { type: 'text', text: 'Kanada ist sicherer als die USA für Frauen. Alleinreisende Frauen berichten von überwiegend positiven Erfahrungen. In abgelegenen Gebieten plane deine Route und informiere jemanden.' },
       { type: 'rule', icon: '📱', text: 'Informiere jemanden über deine Route. Manche Gebiete haben kein Netz.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
