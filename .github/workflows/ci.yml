@@ -232,11 +232,15 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - run: npm ci
       - name: Start Firebase Emulators
         run: |
           npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
-          sleep 5
+          sleep 8
       - name: Setup test accounts
         run: node scripts/firebase-test-setup.mjs
         env:
