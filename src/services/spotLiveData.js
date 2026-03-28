@@ -37,7 +37,9 @@ export async function fetchSpotValidations(spotId) {
     const validations = snapshot.docs.map(doc => {
       const d = doc.data()
       // Prefer experienceDate (when the user actually hitchhiked) over createdAt (when they submitted)
-      let date = d.createdAt?.toDate?.()?.toISOString?.() || d.timestamp || null
+      let date = d.createdAt?.toDate?.()?.toISOString?.()
+        || d.validatedAt?.toDate?.()?.toISOString?.()
+        || d.timestamp || null
       if (d.experienceDate?.year && d.experienceDate?.month) {
         const day = d.experienceDate.day || 15
         const expD = new Date(d.experienceDate.year, d.experienceDate.month - 1, day, 12, 0, 0)
@@ -136,12 +138,14 @@ export function mergeSpotData(staticSpot, validations) {
   }
 
   // Live last tested + who tested/validated
-  const dates = allValidations.map(v => v.date).filter(Boolean)
-  const liveLastTested = dates.length > 0 ? dates[0] : staticSpot.lastTested
-  const mostRecentTest = testValidations[0]
-  const mostRecentValidation = allValidations[0]
-  const liveLastTestedBy = mostRecentTest?.userName || staticSpot.lastTestedBy || ''
-  const liveLastValidatedBy = mostRecentValidation?.userName || staticSpot.lastValidatedBy || ''
+  // Sort by actual experience date (not submission date) to find the most recent
+  const validationsWithDate = allValidations.filter(v => v.date)
+  const sortedByDate = [...validationsWithDate].sort((a, b) => new Date(b.date) - new Date(a.date))
+  const liveLastTested = sortedByDate.length > 0 ? sortedByDate[0].date : staticSpot.lastTested
+  const testsWithDate = testValidations.filter(v => v.date)
+  const sortedTests = [...testsWithDate].sort((a, b) => new Date(b.date) - new Date(a.date))
+  const liveLastTestedBy = sortedTests[0]?.userName || sortedByDate[0]?.userName || staticSpot.lastTestedBy || ''
+  const liveLastValidatedBy = sortedByDate[0]?.userName || staticSpot.lastValidatedBy || ''
 
   // Find most recent GPS-verified validation
   const gpsValidation = allValidations.find(v => v.gpsVerified)
