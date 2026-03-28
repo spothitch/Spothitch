@@ -173,7 +173,12 @@ window.openAddSpot = () => {
     window.setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: pendingType })
   } else {
     window.setState({ showAddSpot: true, addSpotPreview: false, addSpotStep: 1, addSpotType: null })
-    if (window._pendingShareText) {
+    if (window._pendingShareNoCoords) {
+      window._pendingShareNoCoords = false
+      setTimeout(() => {
+        window.showToast(t('shareNoCoordsFound') || 'Position exacte non trouvée. Place le point manuellement sur la carte.', 'warning')
+      }, 500)
+    } else if (window._pendingShareText) {
       window.showToast(t('sharePickLocation') || 'Pick the spot location on the map', 'info')
     }
   }

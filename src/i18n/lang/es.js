@@ -1972,6 +1972,7 @@ export default {
   addSpotError: 'Error al añadir el spot',
   sharePositionImported: 'Posición importada del mapa',
   sharePickLocation: 'Elige la ubicación del spot en el mapa',
+  shareNoCoordsFound: 'Posición exacta no encontrada. Coloca el punto manualmente en el mapa.',
   positionChosen: 'Posición elegida',
   confirmPosition: 'Confirmar posición',
   chooseOnMap: 'Elegir en el mapa',
