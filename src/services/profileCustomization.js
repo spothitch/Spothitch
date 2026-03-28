@@ -678,8 +678,15 @@ window.uploadProfilePhoto = () => {
       const { uploadImage, getCurrentUser } = await import('./firebase.js')
       const user = getCurrentUser()
       if (!user) return
+      // Convert File to base64 data URL (uploadImage expects base64, not File)
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
       const path = `avatars/${user.uid}_${Date.now()}.jpg`
-      const result = await uploadImage(file, path)
+      const result = await uploadImage(dataUrl, path)
       if (result.success) {
         const { updateUserProfile } = await import('./firebase.js')
         await updateUserProfile(user.uid, { photoURL: result.url })

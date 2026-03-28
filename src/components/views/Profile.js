@@ -341,10 +341,12 @@ function renderProfileHeader(state) {
   return `
     <div class="flex items-start gap-4 pt-2 pb-4 border-b border-white/10">
       <!-- Avatar -->
-      <div class="relative flex-shrink-0">
+      <div class="relative flex-shrink-0 cursor-pointer" onclick="openProfileCustomization()">
         <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-primary-600 p-[3px]">
-          <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-3xl">
-            ${state.avatar || '🤙'}
+          <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-3xl overflow-hidden">
+            ${(state.userProfile?.photoURL || state.user?.photoURL)
+              ? `<img src="${escapeHTML(state.userProfile?.photoURL || state.user?.photoURL)}" class="w-full h-full object-cover" alt="" onerror="this.style.display='none';this.parentElement.textContent='🤙'">`
+              : (state.avatar || '🤙')}
           </div>
         </div>
       </div>
@@ -382,9 +384,14 @@ function renderProfileHeader(state) {
 }
 
 function renderClickableStats(state) {
-  const countries = (state.countriesVisited || []).length
+  // Count spots & countries from actual Firebase data (not stale localStorage counters)
+  const allSpots = state.spots || []
+  const userId = state.currentUser?.uid
+  const mySpots = userId ? allSpots.filter(s => s.creatorId === userId || s.userId === userId) : []
+  const spotsCreated = mySpots.length || state.spotsCreated || 0
+  const myCountries = new Set(mySpots.map(s => s.country || s.countryCode).filter(Boolean))
+  const countries = myCountries.size || (state.visitedCountries || state.countriesVisited || []).length || 0
   const validations = state.reviewsGiven || 0
-  const spotsCreated = state.spotsCreated || 0
   return `
     <div class="grid grid-cols-3 gap-2">
       <button
