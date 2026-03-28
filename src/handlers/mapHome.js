@@ -4,6 +4,7 @@
  */
 
 import { escapeHTML, escapeJSString } from '../utils/sanitize.js'
+import { searchPhoton } from '../services/osrm.js'
 
 // Country code (ISO 2-letter) to flag emoji
 function countryCodeToFlag(cc) {
@@ -95,7 +96,6 @@ window.homeSearchDestination = (query) => {
     try {
       // Search: Photon + Nominatim in parallel (~1s total)
       // Bias toward user location if GPS is available
-      const { searchPhoton } = await import('../services/osrm.js')
       const userLoc = window.getState().userLocation
       const results = await searchPhoton(query, {
         biasLat: userLoc?.lat || null,
@@ -103,7 +103,7 @@ window.homeSearchDestination = (query) => {
       })
       // Discard stale results (user typed more or started new search)
       if (requestId !== _searchRequestId) return
-      const currentInput = document.getElementById('home-destination')
+      const currentInput = document.getElementById('side-panel-destination') || document.getElementById('home-destination')
       if (currentInput && currentInput.value.trim() !== query.trim()) return
       if (results?.length > 0) {
         container.classList.remove('hidden')
