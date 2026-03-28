@@ -22,7 +22,10 @@ service cloud.firestore {
                'validationCount', 'testCount', 'ratings', 'averageRating',
                'totalRatings', 'updatedAt', 'lastValidatedAt', 'lastTestedAt',
                'lastValidated', 'lastTested', 'lastValidatedBy', 'lastTestedBy',
-               'checkins', 'verified', 'userValidations'
+               'checkins', 'verified', 'userValidations', 'lastUsed',
+               'totalReviews', 'creator', 'reports',
+               'lastGpsVerified', 'lastGpsVerifiedBy', 'lastGpsDistance',
+               'streetViewVerified', 'streetViewVerifiedBy', 'streetViewVerifiedAt'
              ])
         );
       // Only admin can delete spots
