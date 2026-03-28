@@ -859,8 +859,7 @@ export const guideSectionsData = {
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'España es globalmente segura (23ª en el Global Peace Index). El riesgo principal para los viajeros son los carteristas en las grandes ciudades, no el autostop.' },
-      { type: 'sub', title: 'Contexto histórico' },
-      { type: 'text', text: 'El caso de las chicas de Alcàsser (1992), donde 3 adolescentes fueron asesinadas haciendo autostop, traumatizó profundamente a la sociedad española y contribuye a la desconfianza hacia el autostop que persiste hoy.' },
+      { type: 'text', text: 'El autostop es menos común en España que en el resto de Europa, pero es perfectamente viable. Los españoles son cálidos y acogedores una vez que se inicia la conversación.' },
       { type: 'sub', title: 'Números de emergencia' },
       { type: 'kv', items: [
         { k: 'Emergencias', v: '112' },
@@ -3081,7 +3080,7 @@ export const guideSectionsData = {
         { k: 'Toronto, Montreal (salida de ciudad)', v: 'Difícil', color: 'red' },
       ]},
       { type: 'text', text: 'Las gasolineras (Esso, Petro-Canada, Shell) y los Tim Hortons al borde de la carretera son los mejores spots para abordar conductores.' },
-      { type: 'warn', text: '⚠️ La Highway of Tears (Highway 16, norte de C.B.) está desaconsejada, sobre todo para mujeres solas, debido a desapariciones documentadas.' },
+      { type: 'warn', text: '⚠️ En la Highway 16 (norte de C.B.), las distancias son muy largas y la cobertura de red es limitada. Planifica tu ruta y avisa a alguien.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'Canadá es un país muy seguro. Los canadienses son conocidos por su amabilidad. El principal riesgo son las distancias inmensas entre ciudades (a veces 200+ km sin cobertura telefónica). Prevé agua y comida.' },
@@ -3089,7 +3088,7 @@ export const guideSectionsData = {
       { type: 'warn', text: '⚠️ Cuidado con los osos (grizzly en C.B./Alberta, negro en todas partes). Si acampas, cuelga tu comida en alto.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
-      { type: 'text', text: 'Canadá es más seguro que EEUU para las mujeres. Las viajeras solas reportan experiencias mayoritariamente positivas. Evita la Highway of Tears (Hwy 16, norte de C.B.).' },
+      { type: 'text', text: 'Canadá es más seguro que EEUU para las mujeres. Las viajeras solas reportan experiencias mayoritariamente positivas. En zonas aisladas, planifica tu itinerario y avisa a alguien.' },
       { type: 'rule', icon: '📱', text: 'Avisa a alguien de tu itinerario. Algunas zonas no tienen cobertura.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [

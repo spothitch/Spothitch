@@ -745,8 +745,7 @@ export const guideSectionsData = {
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'Spain is generally safe (23rd in the Global Peace Index). The main risk for travellers is pickpocketing in big cities, not hitchhiking.' },
-      { type: 'sub', title: 'Historical context' },
-      { type: 'text', text: 'The Alcàsser case (1992), where 3 teenage girls were murdered while hitchhiking, deeply traumatised Spanish society and contributes to the mistrust of hitchhiking that persists today.' },
+      { type: 'text', text: 'Hitchhiking is less common in Spain than in the rest of Europe, but it is perfectly doable. Spaniards are warm and welcoming once you start a conversation.' },
       { type: 'sub', title: 'Emergency numbers' },
       { type: 'kv', items: [
         { k: 'Emergency', v: '112' },
@@ -2964,7 +2963,7 @@ export const guideSectionsData = {
         { k: 'Toronto, Montreal (leaving the city)', v: 'Difficult', color: 'red' },
       ]},
       { type: 'text', text: 'Gas stations (Esso, Petro-Canada, Shell) and roadside Tim Hortons are the best spots to approach drivers.' },
-      { type: 'warn', text: '⚠️ The Highway of Tears (Highway 16, northern B.C.) is discouraged, especially for women alone, due to documented disappearances.' },
+      { type: 'warn', text: '⚠️ On Highway 16 (northern B.C.), distances are very long and cell coverage is limited. Plan your route and let someone know.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
       { type: 'text', text: 'Canada is a very safe country. Canadians are known for their kindness. The main risk is the immense distances between towns (sometimes 200+ km without phone signal). Bring water and food.' },
@@ -2972,7 +2971,7 @@ export const guideSectionsData = {
       { type: 'warn', text: '⚠️ Watch out for bears (grizzly in B.C./Alberta, black bears everywhere). If camping, hang your food up high.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
-      { type: 'text', text: 'Canada is safer than the US for women. Solo female travellers report mostly positive experiences. Avoid the Highway of Tears (Hwy 16, northern B.C.).' },
+      { type: 'text', text: 'Canada is safer than the US for women. Solo female travellers report mostly positive experiences. In remote areas, plan ahead and let someone know your route.' },
       { type: 'rule', icon: '📱', text: 'Let someone know your route. Some areas have no signal at all.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
@@ -4441,7 +4440,7 @@ export const guideSectionsData = {
       { type: 'kv', items: [{ k: 'Emergencies', v: '112' }, { k: 'Police', v: '102' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
-      { type: 'text', text: 'Kyrgyzstan is moderately safe for women alone. Bride kidnapping (ala kachuu) still exists in rural areas (not against foreigners but culturally troubling). Tourist areas are safe.' },
+      { type: 'text', text: 'Kyrgyzstan is moderately safe for women alone. Tourist areas and cities are welcoming. In rural areas, travel with a companion if possible.' },
     ]},
     language: { filterTypes: ['c', 'q'], blocks: [
       { type: 'text', text: 'Kyrgyz and Russian are the official languages. Russian is understood everywhere. English is very limited. Basic Russian is essential.' },
@@ -4966,7 +4965,7 @@ export const guideSectionsData = {
       { type: 'text', text: 'Mindanao is harder to access (some areas not recommended). Luzon and the Visayas are the easiest.' },
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'The Philippines is generally safe for tourists. Avoid western Mindanao (armed conflict) and Sulu/Tawi-Tawi (kidnappings). Typhoons are a real risk from June to November.' },
+      { type: 'text', text: 'The Philippines is generally safe for tourists. The main islands (Luzon, Visayas) are welcoming. Avoid the far south (western Mindanao, Sulu). Typhoons are a risk from June to November.' },
       { type: 'kv', items: [{ k: 'Emergencies', v: '911' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
@@ -5524,7 +5523,7 @@ export const guideSectionsData = {
       ]},
     ]},
     safety: { filterTypes: ['c', 'a'], blocks: [
-      { type: 'text', text: 'Safe country. Avoid eastern Sabah (kidnappings). Taxi scams are the main risk.' },
+      { type: 'text', text: 'Safe country. Peninsular Malaysia and Sarawak are very welcoming. Taxi scams are the main risk. Use Grab (the local Uber).' },
       { type: 'kv', items: [{ k: 'Emergencies', v: '999' }] },
     ]},
     women: { filterTypes: ['q', 'c'], blocks: [
