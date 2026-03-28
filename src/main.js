@@ -20,15 +20,9 @@ import { initNotifications, showToast } from './services/notifications.js';
 import { initOfflineHandler } from './services/offline.js';
 function preloadMap() {
   // Start MapLibre download IMMEDIATELY (not idle/2s delay)
-  import('maplibre-gl').then(() => {
-    markLoaded('mapModule')
-  }).catch(() => {
-    markLoaded('mapModule') // Don't block progress on error
-  })
+  import('maplibre-gl').catch(() => {})
   // Preload OpenFreeMap style in parallel (fetch only, browser caches it)
-  fetch('https://tiles.openfreemap.org/styles/liberty', { mode: 'cors' })
-    .then(() => markLoaded('mapStyle'))
-    .catch(() => markLoaded('mapStyle'))
+  fetch('https://tiles.openfreemap.org/styles/liberty', { mode: 'cors' }).catch(() => {})
 }
 
 function preloadTabChunks() {
@@ -50,7 +44,7 @@ import { t, setLanguage, initI18n } from './i18n/index.js';
 import { renderApp, afterRender, getActiveTabPanelId, renderActiveView, renderModals, renderOverlays } from './components/App.js';
 import { renderHeader } from './components/Header.js';
 import { renderNavigation } from './components/Navigation.js';
-import { initSplashScreen, hideSplashScreen, markLoaded } from './components/SplashScreen.js';
+// SplashScreen removed — simple logo loader in index.html hides when app is ready
 
 // Data
 import { sampleSpots } from './data/spots.js';
@@ -196,9 +190,7 @@ async function init() {
     resolveGpsReady()
   }
 
-  // Initialize splash screen (tips + progress tracking)
-  // The splash HTML is already in index.html for instant display
-  initSplashScreen();
+  // Logo loader is in index.html — no splash to initialize
 
   // Always preload map module during initial loading (onboarding or splash)
   // so MapLibre is ready when user opens the map tab
@@ -530,14 +522,12 @@ async function init() {
       console.warn('Error handlers skipped:', e.message);
     }
 
-    // Mark app as ready — splash will hide when all steps complete + min time elapsed
-    markLoaded('appReady')
-    // GPS ready (non-blocking for splash, but mark it)
+    // Hide logo loader — app is ready
+    hideLoader()
+    // GPS ready (non-blocking)
     if (savedPos) {
       gpsReadyPromise.then(() => {}).catch(() => {})
     }
-    // Fallback: force hide after 3s max (safety net)
-    setTimeout(() => hideLoader(), 3000)
 
     // Register service worker
     registerServiceWorker();
@@ -685,11 +675,16 @@ async function loadNearbySpots(loc) {
 }
 
 /**
- * Hide the loading screen (splash screen)
+ * Hide the logo loader
  */
 function hideLoader() {
-  // Use the splash screen hide function
-  hideSplashScreen();
+  const loader = document.getElementById('app-loader')
+  if (loader) {
+    loader.classList.add('hidden')
+    setTimeout(() => loader.remove(), 400)
+  }
+  const app = document.getElementById('app')
+  if (app) app.classList.add('loaded')
 }
 
 // Scroll position storage

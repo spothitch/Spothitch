@@ -1159,8 +1159,7 @@ function initHomeMap(state) {
     }
 
     map.on('load', async () => {
-      // Mark map as ready for splash progress
-      try { const { markLoaded } = await import('./SplashScreen.js'); markLoaded('mapReady') } catch { /* splash already hidden */ }
+      // Map is ready (splash removed, no progress tracking needed)
 
       // Hide map loading spinner
       const mapLoader = document.getElementById('map-loading-indicator')
@@ -1241,8 +1240,7 @@ function initHomeMap(state) {
         }
       } catch (err) { console.warn('[Spots] Firestore load failed:', err?.message || err) }
 
-      // Mark spots as loaded for splash progress
-      try { const { markLoaded } = await import('./SplashScreen.js'); markLoaded('spotsLoaded') } catch { /* splash already hidden */ }
+      // Spots loaded (splash removed, no progress tracking needed)
     })
 
     // Debounce spot loading on map move

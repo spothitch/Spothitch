@@ -1805,9 +1805,10 @@ textarea[aria-invalid="true"] {
   @apply bg-[#f5f2eb];
 }
 
-/* ===== SPLASH SCREEN ===== */
+/* ===== SPLASH SCREEN REMOVED ===== */
+/* Simple logo loader in index.html, no CSS needed */
 
-.splash-screen {
+.splash-removed-placeholder {
   position: fixed;
   inset: 0;
   display: flex;
