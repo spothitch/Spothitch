@@ -124,26 +124,45 @@ export async function registerMarkerImages(map) {
 
 /**
  * Check if a spot has been validated or used in the last 2 years.
- * Uses lastValidated, lastTested, or createdAt as fallback.
+ * Priority: experienceDate > lastTested/lastValidated > createdAt (fallback only)
  */
 function isRecentActivity(spot) {
   const TWO_YEARS_MS = 2 * 365.25 * 24 * 60 * 60 * 1000
   const now = Date.now()
-  // Check multiple date fields (Firestore Timestamp or ISO string)
-  const dates = [spot.lastValidated, spot.lastTested, spot.lastValidatedAt, spot.lastTestedAt]
+
+  // 1. Check experienceDate (actual travel date, most accurate)
+  if (spot.experienceDate?.year && spot.experienceDate?.month) {
+    const day = spot.experienceDate.day || 15
+    const ts = new Date(
+      spot.experienceDate.year, spot.experienceDate.month - 1, day, 12, 0, 0,
+    ).getTime()
+    if (ts > 0) return (now - ts) < TWO_YEARS_MS
+  }
+
+  // 2. Check validation/test dates (set from experienceDate after fix)
+  const dates = [
+    spot.lastValidated, spot.lastTested,
+    spot.lastValidatedAt, spot.lastTestedAt,
+  ]
+  let hasDate = false
   for (const d of dates) {
     if (!d) continue
+    hasDate = true
     const ts = typeof d === 'string' ? new Date(d).getTime()
       : d?.seconds ? d.seconds * 1000
-      : typeof d === 'number' ? d : 0
+        : typeof d === 'number' ? d : 0
     if (ts > 0 && (now - ts) < TWO_YEARS_MS) return true
   }
-  // Fallback: createdAt (new spots are "recent" by definition)
+
+  // If we found dates but none were recent → spot is old, don't fallback
+  if (hasDate) return false
+
+  // 3. Fallback to createdAt ONLY for spots with no experience data
   const created = spot.createdAt
   if (created) {
     const ts = typeof created === 'string' ? new Date(created).getTime()
       : created?.seconds ? created.seconds * 1000
-      : typeof created === 'number' ? created : 0
+        : typeof created === 'number' ? created : 0
     if (ts > 0 && (now - ts) < TWO_YEARS_MS) return true
   }
   return false

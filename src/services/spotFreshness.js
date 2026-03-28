@@ -100,10 +100,21 @@ export function getSpotFreshness(spot) {
  * @returns {Object} { labelKey, icon, bgClass, textClass, borderClass }
  */
 export function getSpotAge(spot) {
-  // Prefer GPS-verified date (highest confidence), then tested, validated
-  const lastDate = spot?.lastGpsVerified || spot?.lastTested
-    || spot?.lastValidated || spot?.lastCheckin
-    || spot?.lastUsed || spot?.createdAt
+  // 1. Check experienceDate first (actual travel date, most accurate)
+  let lastDate = null
+  if (spot?.experienceDate?.year && spot?.experienceDate?.month) {
+    const day = spot.experienceDate.day || 15
+    const expD = new Date(
+      spot.experienceDate.year, spot.experienceDate.month - 1, day, 12, 0, 0,
+    )
+    if (!isNaN(expD.getTime())) lastDate = expD.toISOString()
+  }
+  // 2. Then GPS-verified date, tested, validated (set from experienceDate)
+  if (!lastDate) {
+    lastDate = spot?.lastGpsVerified || spot?.lastTested
+      || spot?.lastValidated || spot?.lastCheckin
+      || spot?.lastUsed || spot?.createdAt
+  }
   if (!lastDate) {
     return { labelKey: 'unknownAge', icon: 'clock', bgClass: 'bg-slate-500/20', textClass: 'text-slate-400', borderClass: 'border-slate-500/30' }
   }
