@@ -65,8 +65,11 @@ export async function fetchGasStationsAlongRoute(routeCoords, bufferKm = 2) {
 
   // Overpass query for fuel stations in bbox
   const query = `[out:json][timeout:10];
-    node["amenity"="fuel"](${minLat},${minLng},${maxLat},${maxLng});
-    out body;`
+    (
+      node["amenity"="fuel"](${minLat},${minLng},${maxLat},${maxLng});
+      way["amenity"="fuel"](${minLat},${minLng},${maxLat},${maxLng});
+    );
+    out center body;`
 
   try {
     const response = await fetch(OVERPASS_API, {
@@ -80,11 +83,11 @@ export async function fetchGasStationsAlongRoute(routeCoords, bufferKm = 2) {
 
     // Filter stations that are actually near the route (within bufferKm)
     const stations = (data.elements || [])
-      .filter(el => el.lat && el.lon)
+      .filter(el => (el.lat && el.lon) || (el.center?.lat && el.center?.lon))
       .map(el => ({
         id: el.id,
-        lat: el.lat,
-        lng: el.lon,
+        lat: el.lat || el.center?.lat,
+        lng: el.lon || el.center?.lon,
         name: el.tags?.name || el.tags?.brand || t('gasStation') || 'Station-service',
         brand: el.tags?.brand || '',
         fuel_types: el.tags?.['fuel:diesel'] === 'yes' ? 'Diesel' : '',
@@ -136,8 +139,11 @@ export async function fetchGasStationsInBounds(bounds) {
   } catch { /* IDB unavailable */ }
 
   const query = `[out:json][timeout:10];
-    node["amenity"="fuel"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
-    out body;`
+    (
+      node["amenity"="fuel"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
+      way["amenity"="fuel"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
+    );
+    out center body;`
 
   try {
     const response = await fetch(OVERPASS_API, {
@@ -157,11 +163,11 @@ export async function fetchGasStationsInBounds(bounds) {
     const data = await response.json()
 
     const stations = (data.elements || [])
-      .filter(el => el.lat && el.lon)
+      .filter(el => (el.lat && el.lon) || (el.center?.lat && el.center?.lon))
       .map(el => ({
         id: el.id,
-        lat: el.lat,
-        lng: el.lon,
+        lat: el.lat || el.center?.lat,
+        lng: el.lon || el.center?.lon,
         name: el.tags?.name || el.tags?.brand || t('gasStation') || 'Station-service',
         brand: el.tags?.brand || '',
       }))
