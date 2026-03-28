@@ -265,6 +265,7 @@ async function init() {
     window._forceRender = () => {
       clearRenderCache('app')
       _lastModalFingerprint = '' // Always reset so lazy-loaded modals appear
+      _lastTabContentFingerprint = '' // Reset tab fingerprint too
       // Force re-render of the active tab so lazy-loaded content appears
       const currentState = getState()
       const activePanel = getActiveTabPanelId(currentState)
@@ -745,6 +746,37 @@ function getRenderFingerprint(state) {
 let _appInitialized = false
 const _renderedTabs = new Set() // tracks which tab panels have been rendered at least once
 let _lastModalFingerprint = ''
+let _lastTabContentFingerprint = ''
+
+// Tab content fingerprint: tracks state keys that affect tab content (NOT modal flags).
+// When only a modal opens/closes, the tab content doesn't need to re-render.
+function getTabContentFingerprint(state) {
+  return [
+    state.activeTab,
+    state.lang,
+    state.theme,
+    // User data
+    state.currentUser?.uid,
+    state.username,
+    state.points,
+    state.level,
+    // Spots
+    state.spots?.length,
+    state.isLoadingSpots,
+    // Social
+    state.friends?.length,
+    state.unreadMessages,
+    state.activeChatId,
+    // Trip
+    state.tripLoading,
+    !!state.tripResults,
+    state.tripFormCollapsed,
+    // Profile sub-tabs
+    state.profileSubTab,
+    // Gamification
+    state.dailyRewardAvailable,
+  ].join('|')
+}
 
 // Modal fingerprint: tracks only the state keys that affect which modals are rendered.
 // This prevents re-rendering modals (destroying AddSpot form, etc.) on unrelated state changes.
@@ -861,10 +893,12 @@ function render(state) {
   const activePanel = getActiveTabPanelId(state)
   const tabChanged = previousTab !== state.activeTab
   const isVoyageMapFirst = state.activeTab === 'challenges' && state.tripResults && state.tripFormCollapsed
+  const tabFp = getTabContentFingerprint(state)
+  const tabContentChanged = tabChanged || tabFp !== _lastTabContentFingerprint
 
-  // 1. Update header (only if needed)
+  // 1. Update header (only when tab or tab-content changed, not on modal open)
   const headerEl = document.getElementById('app-header')
-  if (headerEl) {
+  if (headerEl && tabContentChanged) {
     const newHeader = isVoyageMapFirst ? '' : renderHeader(state)
     headerEl.innerHTML = newHeader
   }
@@ -887,8 +921,9 @@ function render(state) {
   }
 
   // 4. Render the active tab content
-  // Always re-render non-map tabs to ensure fresh data (cost: ~5ms)
-  if (activePanel !== 'map') {
+  // Only re-render when tab-relevant state changed (NOT when a modal opens/closes)
+  if (activePanel !== 'map' && tabContentChanged) {
+    _lastTabContentFingerprint = tabFp
     const panel = document.getElementById(`panel-${activePanel}`)
     if (panel) {
       panel.innerHTML = renderActiveView(state)
