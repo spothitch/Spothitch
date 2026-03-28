@@ -83,10 +83,10 @@ function renderDefaultCard(spot) {
       <div class="p-5">
         <h3 class="font-bold text-lg mb-2">
           ${safeFrom && safeTo
-            ? `${safeFrom} ${icon('arrow-right', 'w-4 h-4 text-primary-400 mx-1')} ${safeTo}`
+            ? `${safeFrom}${spot.cityNumber ? ' #' + spot.cityNumber : ''} ${icon('arrow-right', 'w-4 h-4 text-primary-400 mx-1')} ${safeTo}`
             : spot.direction
               ? `📍 ${escapeHTML(spot.direction)}`
-              : `📍 ${t('spotLocation') || 'Spot'} #${spot.id}`}
+              : `📍 ${t('spotLocation') || 'Spot'}`}
         </h3>
 
         <p class="text-slate-400 text-sm line-clamp-2 mb-3">

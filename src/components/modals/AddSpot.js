@@ -2145,12 +2145,19 @@ window.handleAddSpot = async (event) => {
     const photosToUpload = window.spotFormData.photos || []
     const hasPhoto = photosToUpload.length > 0
     const uploadedUrls = []
+    let photoUploadFailed = false
     for (let i = 0; i < photosToUpload.length; i++) {
       const photoPath = `spots/${Date.now()}_${i}.jpg`
       const photoResult = await uploadImage(photosToUpload[i], photoPath)
       if (photoResult.success) {
         uploadedUrls.push(photoResult.url)
+      } else {
+        photoUploadFailed = true
+        console.error('Photo upload failed:', photoResult.error)
       }
+    }
+    if (photoUploadFailed && uploadedUrls.length === 0 && hasPhoto) {
+      window.showToast?.(t('photoUploadFailed') || 'La photo n\'a pas pu être envoyée. Le spot sera créé sans photo.', 'warning')
     }
     const photoUrl = uploadedUrls[0] || ''
 
@@ -2299,6 +2306,20 @@ window.handleAddSpot = async (event) => {
       } catch { /* continue without country */ }
     }
 
+    // Calculate cityNumber: count existing spots in the same city + 1
+    let cityNumber = 1
+    try {
+      const allSpots = window.getState?.()?.spots || []
+      const cityName = (window.spotFormData.departureCity || from || '').toLowerCase().trim()
+      if (cityName) {
+        const sameCity = allSpots.filter(s => {
+          const sCity = (s.departureCity || s.from || s.fromCity || s.city || '').toLowerCase().trim()
+          return sCity === cityName
+        })
+        cityNumber = sameCity.length + 1
+      }
+    } catch { /* default to 1 */ }
+
     // Build complete spot data — ALL fields structured
     const spotData = {
       // Structured fields (unique data!)
@@ -2347,6 +2368,7 @@ window.handleAddSpot = async (event) => {
         ...(window.spotFormData.tags || {}),
         signMethod: window.spotFormData.method || null,
       },
+      cityNumber,
       stationName: window.spotFormData.stationName || '',
       streetViewVerified: !!window.spotFormData._streetViewChecked,
       dataSource: 'community',

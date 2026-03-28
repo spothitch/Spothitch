@@ -1975,6 +1975,7 @@ export default {
   sharePositionImported: 'Position imported from map',
   sharePickLocation: 'Pick the spot location on the map',
   shareNoCoordsFound: 'Exact position not found. Place the pin manually on the map.',
+  photoUploadFailed: 'Photo could not be uploaded. The spot will be created without a photo.',
   positionChosen: 'Position chosen',
   confirmPosition: 'Confirm position',
   chooseOnMap: 'Choose on map',

@@ -1973,6 +1973,7 @@ export default {
   sharePositionImported: 'Position von Karte importiert',
   sharePickLocation: 'Wähle den Spot auf der Karte',
   shareNoCoordsFound: 'Genaue Position nicht gefunden. Setze den Punkt manuell auf der Karte.',
+  photoUploadFailed: 'Das Foto konnte nicht hochgeladen werden. Der Spot wird ohne Foto erstellt.',
   positionChosen: 'Position gewählt',
   confirmPosition: 'Position bestätigen',
   chooseOnMap: 'Auf der Karte wählen',

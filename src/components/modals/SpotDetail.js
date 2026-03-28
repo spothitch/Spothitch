@@ -27,9 +27,10 @@ export function renderSpotDetail(state) {
     : spot.successRate != null ? spot.successRate
       : (spot.rideResult === 'yes' ? 100 : spot.rideResult === 'gaveUp' ? 0 : null)
 
-  const spotName = spot.from || spot.departureCity || spot.fromCity || spot.city || spot.locationName
-  const spotTitle = spotName
-    ? escapeHTML(spotName)
+  const spotCity = spot.from || spot.departureCity || spot.fromCity || spot.city || spot.locationName
+  const spotNumber = spot.cityNumber || spot.spotNumber || ''
+  const spotTitle = spotCity
+    ? escapeHTML(spotCity) + (spotNumber ? ` #${spotNumber}` : '')
     : spot.direction || spot.directionCity
       ? escapeHTML(spot.direction || spot.directionCity)
       : `${t('spotLocation') || 'Spot'}`

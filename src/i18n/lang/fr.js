@@ -1975,6 +1975,7 @@ export default {
   sharePositionImported: 'Position importée depuis la carte',
   sharePickLocation: 'Place le spot sur la carte',
   shareNoCoordsFound: 'Position exacte non trouvée. Place le point manuellement sur la carte.',
+  photoUploadFailed: 'La photo n\'a pas pu être envoyée. Le spot sera créé sans photo.',
   positionChosen: 'Position choisie',
   confirmPosition: 'Confirmer la position',
   chooseOnMap: 'Choisir sur la carte',

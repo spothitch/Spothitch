@@ -602,7 +602,7 @@ const SPOT_ALLOWED_FIELDS = [
   // Media
   'photos', 'photoUrl', 'photoURL', 'hasPhoto',
   // Meta
-  'name', 'dataSource', 'experienceDate',
+  'name', 'cityNumber', 'dataSource', 'experienceDate',
 ]
 
 /**
