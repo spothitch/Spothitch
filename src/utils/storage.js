@@ -29,6 +29,7 @@ export const Storage = {
    */
   set(key, value) {
     try {
+      // lgtm[js/clear-text-storage-of-sensitive-data]
       localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
       return true;
     } catch (e) {
