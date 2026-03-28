@@ -411,7 +411,7 @@ window.handleAuth = async (event) => {
 
     if (authMode === 'register') {
       const confirmPassword = document.getElementById('auth-password-confirm')?.value
-      const displayName = 'Hitchhiker'
+      const displayName = t('defaultDisplayName') || 'Hitchhiker'
       const pseudo = document.getElementById('auth-pseudo')?.value?.toLowerCase().trim()
       const birthYearStr = document.getElementById('auth-birthyear')?.value
       const gender = document.getElementById('auth-gender')?.value || ''

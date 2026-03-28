@@ -32,7 +32,7 @@ async function fetchLeaderboardData(tab) {
         return {
           id: i + 1,
           uid: d.id,
-          username: p.username || p.displayName || 'Hitchhiker',
+          username: p.username || p.displayName || (t('defaultDisplayName') || 'Hitchhiker'),
           avatar: p.avatar || '🤙',
           points: tab === 'allTime' ? (p.points || 0) : (p.seasonPoints || 0),
           level: p.level || 1,

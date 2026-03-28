@@ -5,6 +5,7 @@
 
 import { Storage } from '../utils/storage.js';
 import { icon } from '../utils/icons.js'
+import { t } from '../i18n/index.js'
 
 // Storage key for seen tips
 const TIPS_STORAGE_KEY = 'contextual_tips_seen';
@@ -217,7 +218,7 @@ function showTipUI(tip) {
         <!-- Content -->
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-xs font-bold text-white uppercase tracking-wide bg-white/20 px-2 py-0.5 rounded">Astuce</span>
+            <span class="text-xs font-bold text-white uppercase tracking-wide bg-white/20 px-2 py-0.5 rounded">${t('tipLabel') || 'Astuce'}</span>
           </div>
           <p class="text-white text-sm leading-relaxed">${tip.message}</p>
         </div>
@@ -226,7 +227,7 @@ function showTipUI(tip) {
         <button
           onclick="window.dismissContextualTip()"
           class="shrink-0 w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-          aria-label="Fermer l'astuce"
+          aria-label="${t('closeTip') || 'Fermer l\'astuce'}"
           type="button"
         >
           ${icon('check', 'w-4 h-4')}

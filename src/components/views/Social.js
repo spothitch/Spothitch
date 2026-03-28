@@ -1133,7 +1133,7 @@ window.showFriendProfile = async (friendId) => {
       if (!isFriend) {
         window.setState?.({ guestProfile: {
           id: friendId,
-          name: p.username || p.displayName || 'Hitchhiker',
+          name: p.username || p.displayName || (t('defaultDisplayName') || 'Hitchhiker'),
           avatar: p.avatar || '🤙',
           level: p.level || 1,
           points: p.points || 0,

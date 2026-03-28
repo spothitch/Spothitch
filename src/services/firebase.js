@@ -461,7 +461,7 @@ export async function createOrUpdateUserProfile(user) {
       const profile = {
         uid: user.uid,
         email: user.email || null,
-        displayName: user.displayName || 'Hitchhiker',
+        displayName: user.displayName || 'Autostoppeur',
         photoURL: user.photoURL || null,
         username: reg.username || null,
         birthYear: reg.birthYear || null,

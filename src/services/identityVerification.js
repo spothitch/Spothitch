@@ -7,6 +7,7 @@ import { getState, setState } from '../stores/state.js';
 import { uploadImage, getCurrentUser, updateUserProfile } from './firebase.js';
 import { showToast } from './notifications.js';
 import { addPoints } from './gamification.js';
+import { t } from '../i18n/index.js';
 
 /**
  * Verification Levels (Progressive Trust System)
@@ -459,7 +460,7 @@ export async function approvePhotoVerification() {
       verifiedPhotoUrl: pending.url,
     });
 
-    showToast(' Photo de profil verifiee !', 'success');
+    showToast(t('profilePhotoVerified') || ' Photo de profil verifiee !', 'success');
 
     return { success: true };
   } catch (error) {
@@ -546,7 +547,7 @@ export async function approveIdentityVerification() {
       identityVerifiedAt: Date.now(),
     });
 
-    showToast(' Identite verifiee ! Tu as le niveau maximum de confiance.', 'success');
+    showToast(t('identityVerifiedMax') || ' Identite verifiee ! Tu as le niveau maximum de confiance.', 'success');
 
     return { success: true };
   } catch (error) {
@@ -687,7 +688,7 @@ export function renderVerificationStatus() {
       <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 mb-4">
         <div class="flex items-center gap-2">
           <span class="text-lg"></span>
-          <span>Score de confiance</span>
+          <span>${t('trustScoreLabel') || 'Score de confiance'}</span>
         </div>
         <div class="text-xl font-bold" style="color: ${currentLevel.color};">
           ${progress.trustScore}/10
@@ -860,7 +861,7 @@ export async function approveSelfieIdVerification() {
       console.warn('Could not update ID verification in Firestore:', error);
     }
 
-    showToast('✅ Identite verifiee ! Tu as maintenant le badge vert.', 'success');
+    showToast(t('identityVerifiedBadge') || '✅ Identite verifiee ! Tu as maintenant le badge vert.', 'success');
 
     return { success: true };
   } catch (error) {

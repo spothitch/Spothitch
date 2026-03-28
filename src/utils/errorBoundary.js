@@ -3,6 +3,8 @@
  * Catches and handles rendering errors gracefully
  */
 
+import { t } from '../i18n/index.js';
+
 // Error log for debugging
 const errorLog = [];
 const MAX_ERRORS = 50;
@@ -74,8 +76,8 @@ function renderErrorFallback(componentName, error) {
   return `
     <div class="error-boundary p-4 bg-danger-500/10 border border-danger-500/30 rounded-xl text-center">
       <div class="text-3xl mb-2">⚠️</div>
-      <h3 class="font-bold text-danger-400">Une erreur est survenue</h3>
-      <p class="text-sm text-slate-400 mt-1">Le composant "${componentName}" n'a pas pu se charger.</p>
+      <h3 class="font-bold text-danger-400">${t('errorOccurred') || 'Une erreur est survenue'}</h3>
+      <p class="text-sm text-slate-400 mt-1">${t('componentLoadFailed') || 'Le composant n\'a pas pu se charger.'}</p>
       ${isDev ? `
         <details class="mt-3 text-left">
           <summary class="text-xs text-slate-400 cursor-pointer">Détails (dev only)</summary>
@@ -83,7 +85,7 @@ function renderErrorFallback(componentName, error) {
         </details>
       ` : ''}
       <button onclick="location.reload()" class="mt-3 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm">
-        Recharger la page
+        ${t('reloadPage') || 'Recharger la page'}
       </button>
     </div>
   `;

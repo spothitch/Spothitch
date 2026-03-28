@@ -4,6 +4,7 @@
  */
 
 import { launchConfettiBurst, floatingEmojisBurst } from './confetti.js';
+import { t } from '../i18n/index.js';
 
 /**
  * Show success animation with optional confetti
@@ -227,7 +228,7 @@ export function showLevelUpAnimation(newLevel) {
       animation: levelUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     ">
       <div style="font-size: 3rem; margin-bottom: 8px;">🎉</div>
-      <div style="color: white; font-size: 1rem; opacity: 0.8;">NIVEAU</div>
+      <div style="color: white; font-size: 1rem; opacity: 0.8;">${t('levelLabel') || 'NIVEAU'}</div>
       <div style="color: white; font-size: 3rem; font-weight: 800;">${newLevel}</div>
     </div>
   `;

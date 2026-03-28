@@ -60,7 +60,7 @@ export function renderWelcome(state) {
               type="text"
               id="welcome-username"
               class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors"
-              placeholder="Ex: Marco_Polo"
+              placeholder="${t('usernamePlaceholder') || 'Ex: Marco_Polo'}"
               maxlength="20"
               value="${state.username || ''}"
               autocomplete="username"

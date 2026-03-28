@@ -431,8 +431,8 @@ export function renderNearbyFriendsSettings(state) {
           ${icon('users', 'w-5 h-5 text-primary-400')}
         </div>
         <div>
-          <h3 class="font-semibold">Amis proches</h3>
-          <p class="text-xs text-slate-400">Reçois une notification quand un ami est proche</p>
+          <h3 class="font-semibold">${t('nearbyFriendsTitle') || 'Amis proches'}</h3>
+          <p class="text-xs text-slate-400">${t('nearbyFriendsDesc') || 'Reçois une notification quand un ami est proche'}</p>
         </div>
         <button
           onclick="toggleNearbyFriends(!${state.nearbyFriendsEnabled})"
@@ -445,7 +445,7 @@ export function renderNearbyFriendsSettings(state) {
       ${state.nearbyFriendsEnabled ? `
         <div class="space-y-3 pl-13">
           <div class="flex items-center justify-between">
-            <span class="text-sm text-slate-400">Rayon de notification</span>
+            <span class="text-sm text-slate-400">${t('notificationRadius') || 'Rayon de notification'}</span>
             <select
               onchange="setNotificationRadius(Number(this.value))"
               class="bg-white/10 rounded-xl px-3 py-1.5 text-sm"
@@ -484,8 +484,8 @@ window.toggleLocationSharing = () => {
   setState({ shareLocationWithFriends: !state.shareLocationWithFriends });
   showToast(
     state.shareLocationWithFriends
-      ? 'Partage de position désactivé'
-      : 'Partage de position activé',
+      ? (t('locationSharingDisabled') || 'Partage de position désactivé')
+      : (t('locationSharingEnabled') || 'Partage de position activé'),
     'info'
   );
 };

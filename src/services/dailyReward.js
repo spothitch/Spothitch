@@ -6,6 +6,7 @@
 import { getState, setState } from '../stores/state.js';
 import { showToast } from './notifications.js';
 import { addPoints, addSeasonPoints } from './gamification.js';
+import { t } from '../i18n/index.js';
 
 // Reward calendar configuration
 export const DAILY_REWARDS = [
@@ -99,12 +100,12 @@ export function claimReward() {
   if (info.streakBroken && !info.hasProtection) {
     // Streak broken - reset to day 1
     newStreak = 1;
-    showToast('Serie perdue ! On recommence au jour 1', 'warning');
+    showToast(t('streakLost') || 'Serie perdue ! On recommence au jour 1', 'warning');
   } else if (info.streakBroken && info.hasProtection) {
     // Used protection to save streak
     newStreak = info.totalStreak + 1;
     setState({ dailyRewardProtection: false });
-    showToast('Protection utilisee ! Ta serie est sauvee !', 'success');
+    showToast(t('streakProtected') || 'Protection utilisee ! Ta serie est sauvee !', 'success');
   } else {
     // Continue streak
     newStreak = info.totalStreak + 1;

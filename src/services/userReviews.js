@@ -18,6 +18,7 @@ import {
 import { getApps, getApp } from 'firebase/app'
 import { getCurrentUser } from './firebase.js'
 import { getState } from '../stores/state.js'
+import { t } from '../i18n/index.js'
 
 function getDb() {
   return getApps().length > 0 ? getFirestore(getApp()) : null
@@ -47,7 +48,7 @@ export async function submitProfileReview(targetUid, rating, comment) {
       rating: Number(rating),
       comment: (comment || '').trim().slice(0, 500),
       reviewerUid: user.uid,
-      reviewerName: s.username || user.displayName || 'Hitchhiker',
+      reviewerName: s.username || user.displayName || (t('defaultDisplayName') || 'Hitchhiker'),
       reviewerAvatar: s.avatar || '🤙',
       updatedAt: new Date().toISOString(),
       createdAt: existing.exists() ? existing.data().createdAt : new Date().toISOString(),

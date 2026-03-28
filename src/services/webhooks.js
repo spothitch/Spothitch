@@ -1,4 +1,5 @@
 import { icon } from '../utils/icons.js'
+import { t } from '../i18n/index.js'
 
 /**
  * Webhooks System
@@ -212,14 +213,14 @@ export function renderWebhookSettings() {
 
   return `
     <div class="space-y-3">
-      <h3 class="text-lg font-semibold text-white">Webhooks</h3>
-      <p class="text-sm text-slate-400">Recevez des notifications sur Discord, Telegram ou Slack.</p>
+      <h3 class="text-lg font-semibold text-white">${t('webhooksTitle') || 'Webhooks'}</h3>
+      <p class="text-sm text-slate-400">${t('webhooksDesc') || 'Recevez des notifications sur Discord, Telegram ou Slack.'}</p>
 
       ${webhooks.map(w => `
         <div class="flex items-center gap-3 bg-white/5 rounded-xl p-3">
           <div class="flex-1">
             <div class="text-sm font-medium text-white">${w.name}</div>
-            <div class="text-xs text-slate-400">${w.type} - ${w.events.length} evenements</div>
+            <div class="text-xs text-slate-400">${w.type} - ${w.events.length} ${t('eventsCount') || 'evenements'}</div>
           </div>
           <button onclick="window.toggleWebhookAction('${w.id}')"
                   class="px-2 py-1 text-xs rounded ${w.enabled ? 'bg-green-500/20 text-green-400' : 'bg-slate-500/20 text-slate-400'}">

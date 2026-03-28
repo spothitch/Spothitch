@@ -296,7 +296,7 @@ function renderProfileReviews(state, targetUid) {
             <div class="bg-white/5 rounded-xl p-2.5 text-xs">
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-base">${r.reviewerAvatar || '🤙'}</span>
-                <span class="font-medium text-slate-300">${escapeHTML(r.reviewerName || 'Hitchhiker')}</span>
+                <span class="font-medium text-slate-300">${escapeHTML(r.reviewerName || (t('defaultDisplayName') || 'Hitchhiker'))}</span>
               </div>
               ${r.comment ? `<p class="text-slate-400 leading-relaxed">${escapeHTML(r.comment)}</p>` : ''}
             </div>

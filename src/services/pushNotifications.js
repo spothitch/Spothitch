@@ -6,6 +6,7 @@
 
 import { requestNotificationPermission, onForegroundMessage } from './firebase.js'
 import { renderToggle } from '../utils/toggle.js'
+import { t } from '../i18n/index.js'
 
 const STORAGE_KEY = 'spothitch_push_config'
 const TOKEN_KEY = 'spothitch_fcm_token'
@@ -183,12 +184,12 @@ export function renderPushSettings() {
     <div class="p-4 bg-dark-secondary/50 rounded-xl border border-white/5">
       <div class="flex items-center justify-between">
         <div>
-          <h4 class="font-medium text-white text-sm">Notifications push</h4>
+          <h4 class="font-medium text-white text-sm">${t('pushNotificationsTitle') || 'Notifications push'}</h4>
           <p class="text-xs text-slate-400 mt-0.5">
-            ${enabled ? 'Activées' : asked ? 'Désactivées' : 'Recevez des alertes quand un autostoppeur est proche'}
+            ${enabled ? (t('pushEnabled') || 'Activées') : asked ? (t('pushDisabled') || 'Désactivées') : (t('pushDescription') || 'Recevez des alertes quand un autostoppeur est proche')}
           </p>
         </div>
-        ${renderToggle(enabled, "togglePushNotifications()", 'Notifications push')}
+        ${renderToggle(enabled, "togglePushNotifications()", t('pushNotificationsTitle') || 'Notifications push')}
       </div>
     </div>
   `

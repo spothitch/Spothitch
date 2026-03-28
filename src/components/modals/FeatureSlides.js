@@ -436,8 +436,8 @@ function buildOverlayHTML(featureId, slides) {
 
         <!-- Nav buttons (prev / next) — hidden on CTA slide -->
         <div id="fs-nav" class="px-6 pb-6 pt-2 flex gap-3 shrink-0">
-          <button id="fs-prev-btn" onclick="featureSlidesPrev()" class="flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-opacity bg-white/[0.06] text-slate-400 border-none hidden" aria-label="Précédent">← Précédent</button>
-          <button id="fs-next-btn" onclick="featureSlidesNext()" class="flex-1 py-3 rounded-xl text-sm font-bold cursor-pointer bg-amber-500/15 text-amber-500 border border-amber-500/30" aria-label="Suivant">Suivant →</button>
+          <button id="fs-prev-btn" onclick="featureSlidesPrev()" class="flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-opacity bg-white/[0.06] text-slate-400 border-none hidden" aria-label="${escapeHTML(t('previous') || 'Précédent')}">← ${escapeHTML(t('previous') || 'Précédent')}</button>
+          <button id="fs-next-btn" onclick="featureSlidesNext()" class="flex-1 py-3 rounded-xl text-sm font-bold cursor-pointer bg-amber-500/15 text-amber-500 border border-amber-500/30" aria-label="${escapeHTML(t('next') || 'Suivant')}">${escapeHTML(t('next') || 'Suivant')} →</button>
         </div>
       </div>
     </div>

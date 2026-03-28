@@ -5,6 +5,7 @@
 
 import { icon } from '../../utils/icons.js'
 import {
+  t,
   getAvailableLanguages,
   setLanguage,
   detectLanguage,
@@ -29,7 +30,7 @@ export function renderLanguageSelector(_state) {
         <!-- Logo -->
         <div class="text-6xl mb-4" aria-hidden="true">🌍</div>
         <h1 id="language-title" class="text-3xl font-display font-bold gradient-text mb-2">SpotHitch</h1>
-        <p class="text-slate-400 mb-8">Choose your language / Choisis ta langue</p>
+        <p class="text-slate-400 mb-8">${t('chooseYourLanguage') || 'Choose your language / Choisis ta langue'}</p>
 
         <!-- Language Grid -->
         <div class="grid grid-cols-2 gap-3 mb-6" role="radiogroup" aria-label="Language selection">
@@ -56,7 +57,7 @@ export function renderLanguageSelector(_state) {
         <!-- Detected language hint -->
         <p class="text-xs text-slate-400 mb-6">
           ${icon('wand-sparkles', 'w-5 h-5 mr-1')}
-          Auto-detected: ${languages.find(l => l.code === detectedLang)?.nativeName || 'English'}
+          ${t('autoDetected') || 'Auto-detected:'} ${languages.find(l => l.code === detectedLang)?.nativeName || 'English'}
         </p>
 
         <!-- Confirm Button -->
@@ -66,7 +67,7 @@ export function renderLanguageSelector(_state) {
           type="button"
           id="confirm-language-btn"
         >
-          <span class="confirm-text">Continue</span> <span aria-hidden="true">→</span>
+          <span class="confirm-text">${t('continueBtn') || 'Continue'}</span> <span aria-hidden="true">→</span>
         </button>
       </div>
     </div>
