@@ -743,34 +743,51 @@ const _renderedTabs = new Set() // tracks which tab panels have been rendered at
 let _lastModalFingerprint = ''
 let _lastTabContentFingerprint = ''
 
-// Tab content fingerprint: tracks state keys that affect tab content (NOT modal flags).
-// When only a modal opens/closes, the tab content doesn't need to re-render.
+// Keys that ONLY affect modals/overlays — when these change, tab content does NOT need re-render.
+// Everything else triggers a tab re-render. This is safer than whitelisting tab keys.
+const MODAL_ONLY_KEYS = new Set([
+  'showSOS', 'sosSession',
+  'showAddSpot', 'addSpotStep', 'addSpotPreview', 'addSpotType', 'addSpotValidateId',
+  'spotDraftsBannerVisible',
+  'showCompanionModal',
+  'showFilters', 'showStats', 'showBadges', 'showChallenges', 'showTeamChallenges',
+  'showCreateTeam', 'showShop', 'showMyRewards', 'showQuiz',
+  'showLeaderboard', 'showTitles',
+  'showDailyReward', 'showBadgePopup', 'showBadgeDetail', 'selectedBadgeId',
+  'showOfflinePanel',
+  'showDonation', 'showDonationThankYou',
+  'showAmbassadorSuccess', 'showContactAmbassador', 'selectedAmbassador',
+  'showProfileCustomization', 'showNearbyFriends',
+  'showFriendProfile', 'showAddFriend',
+  'showBlockModal', 'showUnblockModal', 'showBlockedUsers',
+  'showReport', 'selectedReportReason',
+  'showFeedbackPanel', 'showFeatureSlides', 'showFeatureIntro',
+  'showMyData', 'showAdminPanel', 'showDeleteAccount',
+  'showContactForm', 'showFAQ', 'showLegal',
+  'showLanguageSelector', 'showInstallBanner', 'showAccessibilityHelp',
+  'showAuth', 'authMode', 'showCompleteProfile',
+  'showAgeVerification', 'showIdentityVerification',
+  'showLocationPermission', 'showLanding',
+  'showRating', 'currentRating',
+  'showSafety', 'routeAmenities', 'showTripHistory',
+  'checkinSpot', 'proximityAlertSpot', 'pendingGuideCountry',
+])
+
+// Tab content fingerprint: includes ALL state keys EXCEPT modal-only keys.
+// This ensures any state change that affects tab content triggers a re-render.
 function getTabContentFingerprint(state) {
-  return [
-    state.activeTab,
-    state.lang,
-    state.theme,
-    // User data
-    state.currentUser?.uid,
-    state.username,
-    state.points,
-    state.level,
-    // Spots
-    state.spots?.length,
-    state.isLoadingSpots,
-    // Social
-    state.friends?.length,
-    state.unreadMessages,
-    state.activeChatId,
-    // Trip
-    state.tripLoading,
-    !!state.tripResults,
-    state.tripFormCollapsed,
-    // Profile sub-tabs
-    state.profileSubTab,
-    // Gamification
-    state.dailyRewardAvailable,
-  ].join('|')
+  let fp = ''
+  for (const key in state) {
+    if (MODAL_ONLY_KEYS.has(key)) continue
+    const v = state[key]
+    if (v === null || v === undefined) { fp += '0|'; continue }
+    const t = typeof v
+    if (t === 'boolean') { fp += v ? '1|' : '2|'; continue }
+    if (t === 'string') { fp += v + '|'; continue }
+    if (t === 'number') { fp += v + '|'; continue }
+    if (t === 'object') { fp += 'o|'; continue }
+  }
+  return fp
 }
 
 // Modal fingerprint: tracks only the state keys that affect which modals are rendered.
