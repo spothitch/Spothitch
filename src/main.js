@@ -743,38 +743,55 @@ const _renderedTabs = new Set() // tracks which tab panels have been rendered at
 let _lastModalFingerprint = ''
 let _lastTabContentFingerprint = ''
 
-// Keys that ONLY affect modals/overlays — when these change, tab content does NOT need re-render.
-// Everything else triggers a tab re-render. This is safer than whitelisting tab keys.
+// ─── SINGLE SOURCE OF TRUTH: modal-only state keys ───
+// Keys listed here ONLY affect modals/overlays (rendered in #app-modals/#app-overlays).
+// They do NOT trigger tab content re-render (#panel-*).
+// When adding a new modal: add its state key(s) here. That's it.
+// Both getModalFingerprint and getTabContentFingerprint use this list automatically.
 const MODAL_ONLY_KEYS = new Set([
-  'showSOS', 'sosSession',
+  // Auth + onboarding
+  'showAuth', 'authMode', 'showCompleteProfile',
+  'showAgeVerification', 'showIdentityVerification',
+  'showLocationPermission', 'showLanding', 'showWelcome',
+  // Spot detail
+  'selectedSpot', 'showRating', 'currentRating',
+  // AddSpot
   'showAddSpot', 'addSpotStep', 'addSpotPreview', 'addSpotType', 'addSpotValidateId',
   'spotDraftsBannerVisible',
+  // Core modals
+  'showSOS', 'sosSession',
   'showCompanionModal',
-  'showFilters', 'showStats', 'showBadges', 'showChallenges', 'showTeamChallenges',
-  'showCreateTeam', 'showShop', 'showMyRewards', 'showQuiz',
+  'showFilters', 'showStats', 'showBadges',
+  'showChallenges', 'showTeamChallenges', 'showCreateTeam',
+  'showShop', 'showMyRewards', 'showQuiz',
   'showLeaderboard', 'showTitles',
-  'showDailyReward', 'showBadgePopup', 'showBadgeDetail', 'selectedBadgeId',
-  'showOfflinePanel',
+  // Gamification modals
+  'checkinSpot', 'showDailyReward',
+  'showBadgePopup', 'showBadgeDetail', 'selectedBadgeId',
+  // Navigation + offline modals
+  'navigationActive', 'showOfflinePanel',
+  'showSafety', 'routeAmenities', 'showTripHistory',
+  // Donation + ambassador
   'showDonation', 'showDonationThankYou',
   'showAmbassadorSuccess', 'showContactAmbassador', 'selectedAmbassador',
-  'showProfileCustomization', 'showNearbyFriends',
+  // Social modals
+  'showProfileCustomization', 'showNearbyFriends', 'nearbyFriendsEnabled',
   'showFriendProfile', 'showAddFriend',
   'showBlockModal', 'showUnblockModal', 'showBlockedUsers',
+  // Reports + feedback
   'showReport', 'selectedReportReason',
   'showFeedbackPanel', 'showFeatureSlides', 'showFeatureIntro',
+  // Settings + admin + misc modals
   'showMyData', 'showAdminPanel', 'showDeleteAccount',
   'showContactForm', 'showFAQ', 'showLegal',
   'showLanguageSelector', 'showInstallBanner', 'showAccessibilityHelp',
-  'showAuth', 'authMode', 'showCompleteProfile',
-  'showAgeVerification', 'showIdentityVerification',
-  'showLocationPermission', 'showLanding',
-  'showRating', 'currentRating',
-  'showSafety', 'routeAmenities', 'showTripHistory',
-  'checkinSpot', 'proximityAlertSpot', 'pendingGuideCountry',
+  // Spot interaction modals
+  'proximityAlertSpot', 'selectedCity', 'pendingGuideCountry',
 ])
 
-// Tab content fingerprint: includes ALL state keys EXCEPT modal-only keys.
-// This ensures any state change that affects tab content triggers a re-render.
+// Tab content fingerprint: includes ALL state keys EXCEPT MODAL_ONLY_KEYS.
+// Any state change that isn't a modal triggers a tab re-render.
+// New state keys are automatically included — zero maintenance.
 function getTabContentFingerprint(state) {
   let fp = ''
   for (const key in state) {
@@ -790,58 +807,21 @@ function getTabContentFingerprint(state) {
   return fp
 }
 
-// Modal fingerprint: tracks only the state keys that affect which modals are rendered.
-// This prevents re-rendering modals (destroying AddSpot form, etc.) on unrelated state changes.
+// Modal fingerprint: built automatically from MODAL_ONLY_KEYS.
+// No manual list to maintain — uses the same source of truth.
 function getModalFingerprint(state) {
-  return [
-    // Auth + onboarding
-    state.showAgeVerification, state.showIdentityVerification,
-    state.showAuth, state.authMode, state.showCompleteProfile,
-    state.showLocationPermission, state.showLanding,
-    // Spot detail
-    state.selectedSpot?.id, state.showRating, state.currentRating,
-    // AddSpot
-    state.showAddSpot, state.addSpotStep, state.addSpotPreview,
-    !!state.spotDraftsBannerVisible,
-    // Core modals
-    state.showSOS, !!state.sosSession,
-    state.showFilters, state.showStats, state.showBadges,
-    state.showChallenges, state.showTeamChallenges,
-    state.showCreateTeam,
-    state.showShop, state.showMyRewards, state.showQuiz,
-    state.showLeaderboard, state.showTitles,
-    // Gamification
-    !!state.checkinSpot, state.showDailyReward,
-    state.showBadgePopup, state.showBadgeDetail,
-    state.selectedBadgeId,
-    // Navigation + offline
-    state.navigationActive, state.showOfflinePanel,
-    state.showSafety, !!state.routeAmenities,
-    state.showTripHistory, !!state.tripResults,
-    // Donation + ambassador
-    state.showDonation, state.showDonationThankYou,
-    state.showAmbassadorSuccess, state.showContactAmbassador,
-    !!state.selectedAmbassador,
-    // Social
-    state.showProfileCustomization, state.showNearbyFriends,
-    !!state.nearbyFriendsEnabled,
-    state.showFriendProfile, state.showAddFriend,
-    state.showBlockModal, state.showUnblockModal,
-    state.showBlockedUsers,
-    // Reports + feedback
-    state.showReport, state.selectedReportReason,
-    state.showFeedbackPanel,
-    state.showFeatureSlides, state.showFeatureIntro,
-    // Settings + admin + misc
-    state.showCompanionModal, state.showMyData,
-    state.showAdminPanel, state.showDeleteAccount,
-    state.showContactForm, state.showFAQ, state.showLegal,
-    state.showLanguageSelector, state.showInstallBanner,
-    state.showAccessibilityHelp,
-    // Spot interaction
-    !!state.proximityAlertSpot, !!state.selectedCity,
-    !!state.pendingGuideCountry,
-  ].join('|')
+  let fp = ''
+  for (const key of MODAL_ONLY_KEYS) {
+    const v = state[key]
+    if (v === null || v === undefined) { fp += '0|'; continue }
+    const t = typeof v
+    if (t === 'boolean') { fp += v ? '1|' : '2|'; continue }
+    if (t === 'string') { fp += v + '|'; continue }
+    if (t === 'number') { fp += v + '|'; continue }
+    // For objects (selectedSpot, etc.), track presence not content
+    if (t === 'object') { fp += 'obj|'; continue }
+  }
+  return fp
 }
 
 function render(state) {
