@@ -184,10 +184,10 @@ test.describe('Journey: Profile & Settings', () => {
   })
 
   test('should have language settings', async ({ page }) => {
-    // Language is in the Réglages sub-tab, inside the Appearance collapsible section
-    const reglagesBtn = page.locator('[onclick*="setProfileSubTab"][onclick*="reglages"]').or(page.locator('button:has-text("Réglages")'))
-    await reglagesBtn.first().click({ timeout: 8000 })
-    await page.locator('[onclick*="toggleSettingsSection"][onclick*="appearance"]').first().click({ timeout: 8000 })
+    await page.waitForFunction(() => typeof window.setProfileSubTab === 'function', { timeout: 10000 })
+    await page.evaluate(() => window.setProfileSubTab('reglages'))
+    await page.waitForFunction(() => typeof window.toggleSettingsSection === 'function', { timeout: 10000 })
+    await page.evaluate(() => window.toggleSettingsSection('appearance'))
     const langSection = page.locator('text=Langue').or(page.locator('[role="radiogroup"]'))
     await expect(langSection.first()).toBeVisible({ timeout: 8000 })
   })

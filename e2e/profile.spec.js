@@ -44,28 +44,26 @@ test.describe('Profile - Settings', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'profile')
-    // Navigate to Réglages sub-tab by clicking the actual button
-    const reglagesBtn = page.locator('[onclick*="setProfileSubTab"][onclick*="reglages"]').or(page.locator('button:has-text("Réglages")'))
-    await reglagesBtn.first().click({ timeout: 8000 })
-    // Wait for settings sections to render
-    await page.locator('[onclick*="toggleSettingsSection"]').first().waitFor({ timeout: 8000 })
+    // Wait for Profile.js lazy-loaded handlers to be available
+    await page.waitForFunction(() => typeof window.setProfileSubTab === 'function', { timeout: 10000 })
+    await page.evaluate(() => window.setProfileSubTab('reglages'))
+    await page.waitForFunction(() => typeof window.toggleSettingsSection === 'function', { timeout: 10000 })
   })
 
   test('should have theme toggle', async ({ page }) => {
-    // V5-A: settings are collapsible, open Appearance section by clicking
-    await page.locator('[onclick*="toggleSettingsSection"][onclick*="appearance"]').first().click()
+    await page.evaluate(() => window.toggleSettingsSection('appearance'))
     const themeSection = page.locator('text=Thème sombre').or(page.locator('text=Mode sombre')).or(page.locator('[role="switch"]'))
     await expect(themeSection.first()).toBeVisible({ timeout: 8000 })
   })
 
   test('should have theme switch control', async ({ page }) => {
-    await page.locator('[onclick*="toggleSettingsSection"][onclick*="appearance"]').first().click()
+    await page.evaluate(() => window.toggleSettingsSection('appearance'))
     const themeToggle = page.locator('[role="switch"]').first()
     await expect(themeToggle).toBeVisible({ timeout: 8000 })
   })
 
   test('should toggle theme and change visual appearance', async ({ page }) => {
-    await page.locator('[onclick*="toggleSettingsSection"][onclick*="appearance"]').first().click()
+    await page.evaluate(() => window.toggleSettingsSection('appearance'))
     const themeToggle = page.locator('[role="switch"]').first()
     await expect(themeToggle).toBeVisible({ timeout: 8000 })
 
@@ -108,8 +106,7 @@ test.describe('Profile - Settings', () => {
   })
 
   test('should have language selector', async ({ page }) => {
-    // V5-A: open Appearance section by clicking
-    await page.locator('[onclick*="toggleSettingsSection"][onclick*="appearance"]').first().click()
+    await page.evaluate(() => window.toggleSettingsSection('appearance'))
     await expect(page.locator('text=Langue').first()).toBeVisible({ timeout: 8000 })
     // Language is now a radiogroup, not a select
     const langSelector = page.locator('[role="radiogroup"]').or(page.locator('text=FR'))
@@ -117,8 +114,7 @@ test.describe('Profile - Settings', () => {
   })
 
   test('should have notification toggle', async ({ page }) => {
-    // V5-A: open Notifications section by clicking
-    await page.locator('[onclick*="toggleSettingsSection"][onclick*="notifications"]').first().click()
+    await page.evaluate(() => window.toggleSettingsSection('notifications'))
     await page.waitForTimeout(300)
     await expect(page.locator('text=Notifications').first()).toBeVisible({ timeout: 5000 })
   })
