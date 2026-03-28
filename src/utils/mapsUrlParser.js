@@ -98,7 +98,28 @@ function parseMapUrl(url) {
       }
     }
 
+    // !3d(lat)!4d(lng) — Google Maps data= protobuf (PLACE PIN, most accurate)
+    // MUST be checked BEFORE /@lat,lng which is only the viewport center.
+    // Example: /place/Shell/@48.87,2.32,13z/data=!3d48.8584!4d2.2945
+    //   → @48.87,2.32 = viewport center (can be far from the pin)
+    //   → !3d48.8584!4d2.2945 = actual place coordinates (always accurate)
+    const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,15})!4d(-?\d{1,3}\.\d{3,15})/)
+    if (dataMatch) {
+      const lat = parseFloat(dataMatch[1])
+      const lng = parseFloat(dataMatch[2])
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
+
+    // !1d(lng)!2d(lat) — Google Maps directions/embed protobuf (NOTE: reversed order!)
+    const dataReversed = url.match(/!1d(-?\d{1,3}\.\d{3,15})!2d(-?\d{1,3}\.\d{3,15})/)
+    if (dataReversed) {
+      const lng = parseFloat(dataReversed[1])
+      const lat = parseFloat(dataReversed[2])
+      if (isValidCoord(lat, lng)) return { lat, lng }
+    }
+
     // /@lat,lng,zoom or /place/.../@lat,lng (also handle %40 = URL-encoded @)
+    // NOTE: this is the VIEWPORT center, not the place pin. Less accurate than !3d/!4d.
     const decodedUrl = decodeURIComponent(url)
     const atMatch = decodedUrl.match(/@(-?\d{1,3}\.\d{3,15}),(-?\d{1,3}\.\d{3,15})/)
     if (atMatch) {
@@ -127,22 +148,6 @@ function parseMapUrl(url) {
         const lng = parseFloat(last[2])
         if (isValidCoord(lat, lng)) return { lat, lng }
       }
-    }
-
-    // !3d(lat)!4d(lng) — Google Maps data= protobuf (common in long share URLs)
-    const dataMatch = url.match(/!3d(-?\d{1,3}\.\d{3,15})!4d(-?\d{1,3}\.\d{3,15})/)
-    if (dataMatch) {
-      const lat = parseFloat(dataMatch[1])
-      const lng = parseFloat(dataMatch[2])
-      if (isValidCoord(lat, lng)) return { lat, lng }
-    }
-
-    // !1d(lng)!2d(lat) — Google Maps directions/embed protobuf (NOTE: reversed order!)
-    const dataReversed = url.match(/!1d(-?\d{1,3}\.\d{3,15})!2d(-?\d{1,3}\.\d{3,15})/)
-    if (dataReversed) {
-      const lng = parseFloat(dataReversed[1])
-      const lat = parseFloat(dataReversed[2])
-      if (isValidCoord(lat, lng)) return { lat, lng }
     }
 
     // Embed pb= format: !2d(lng)!3d(lat) (also reversed in embed context)

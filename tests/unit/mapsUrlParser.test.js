@@ -163,6 +163,27 @@ describe('extractCoordsFromShare', () => {
     const result = extractCoordsFromShare('https://maps.google.fr/maps?q=48.8566,2.3522', '')
     expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
   })
+
+  // CRITICAL: !3d/!4d (place pin) must take priority over @ (viewport center)
+  it('prefers !3d/!4d over @viewport when both present (place URL)', () => {
+    // @ is the viewport center (48.87, 2.32) but the actual place is at !3d48.8584!4d2.2945
+    const url = 'https://www.google.com/maps/place/Station+Shell/@48.8700,2.3200,13z/data=!4m6!3m5!1s0x47e66e2964e34e2d!8m2!3d48.8584!4d2.2945'
+    const result = extractCoordsFromShare(url, '')
+    expect(result).toEqual({ lat: 48.8584, lng: 2.2945 })
+  })
+
+  it('prefers !3d/!4d over @viewport (large viewport offset)', () => {
+    // User zoomed out to z=8 — viewport center is 200km from the place
+    const url = 'https://www.google.com/maps/place/Spot/@46.5,3.5,8z/data=!3d48.8584!4d2.2945'
+    const result = extractCoordsFromShare(url, '')
+    expect(result).toEqual({ lat: 48.8584, lng: 2.2945 })
+  })
+
+  it('uses @ when no !3d/!4d present (simple map link)', () => {
+    const url = 'https://www.google.com/maps/@48.8566,2.3522,15z'
+    const result = extractCoordsFromShare(url, '')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
 })
 
 describe('detectOpaqueMapUrl', () => {
