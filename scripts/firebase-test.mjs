@@ -11,10 +11,10 @@
 
 import { initializeApp } from 'firebase/app'
 import {
-  getAuth, signInWithEmailAndPassword, signOut,
+  getAuth, connectAuthEmulator, signInWithEmailAndPassword, signOut,
 } from 'firebase/auth'
 import {
-  getFirestore, doc, getDoc, setDoc, deleteDoc,
+  getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, deleteDoc,
   collection, query, where, getDocs, serverTimestamp,
   updateDoc, increment,
 } from 'firebase/firestore'
@@ -45,6 +45,16 @@ if (!firebaseConfig.apiKey) {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
+
+// Connect to emulators when running in CI
+if (process.env.FIREBASE_AUTH_EMULATOR_HOST) {
+  const [host, port] = process.env.FIREBASE_AUTH_EMULATOR_HOST.split(':')
+  connectAuthEmulator(auth, `http://${host}:${port}`, { disableWarnings: true })
+}
+if (process.env.FIRESTORE_EMULATOR_HOST) {
+  const [host, port] = process.env.FIRESTORE_EMULATOR_HOST.split(':')
+  connectFirestoreEmulator(db, host, parseInt(port, 10))
+}
 
 const ACCOUNTS = {
   alice: { email: 'ci-alice@spothitch.com', username: 'ci-alice' },
