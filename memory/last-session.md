@@ -1,13 +1,13 @@
 # Dernière session sauvegardée automatiquement
 
-Date : 2026-03-24 14:29
+Date : 2026-03-28 08:47
 
 ## Derniers commits
-4198b74 fix: 30 modals missing from getModalFingerprint
-8c0df25 fix: FAB ajouter spot repositionné dans la zone carte sur desktop
-c64c083 feat: social master-detail desktop (étape 4)
-ccdc76b Merge branch 'feature/desktop-split-view' into dev
-6138e04 feat: desktop split-view carte (étape 2)
+d69b83b feat: use Firebase Emulators in CI to eliminate billing costs
+ee49997 fix: Guardian icon bell-ring → bell (bell-ring not in ICON_MAP)
+304b5ca fix: Guardian i18n (35 keys × 4 langues) + accents + no duplicates
+9f60e4a fix: skip Map Exploration journey tests in CI
+8d9ceac fix: skip unreliable map E2E tests in CI
 
 ## Note
 Reprendre avec : claude --continue

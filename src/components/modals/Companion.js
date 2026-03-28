@@ -50,7 +50,7 @@ export function renderCompanionModal(_state) {
     }
   }
 
-  // Determine screen
+  // Determine screen — respect _currentScreen if set (e.g. user clicked Configure)
   let screen = _currentScreen
   if (!screen) {
     if (active && isCheckInOverdue() && !companion.alertSent) {
@@ -58,7 +58,7 @@ export function renderCompanionModal(_state) {
     } else if (active) {
       screen = 'active'
     } else {
-      // Show intro if user hasn't configured guardian yet
+      // Show intro only on first ever open (no guardian configured AND no explicit navigation)
       const hasGuardian = companion.guardian?.name && companion.guardian?.phone
       screen = hasGuardian ? 'main' : 'intro'
     }
@@ -98,7 +98,7 @@ export function renderCompanionModal(_state) {
 
   return `
     <div
-      class="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
       onclick="closeCompanionModal()"
       role="dialog"
       aria-modal="true"
@@ -106,7 +106,7 @@ export function renderCompanionModal(_state) {
       tabindex="0">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
       <div
-        class="relative bg-[#0f1117] w-full max-w-[390px] min-h-[100vh] sm:min-h-0 sm:max-h-[90vh] sm:rounded-2xl overflow-y-auto flex flex-col slide-up"
+        class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden slide-up flex flex-col"
         onclick="event.stopPropagation()"
       >
         ${content}
@@ -157,30 +157,36 @@ function renderIntroScreen() {
   ]
 
   return `
-    <div class="flex-1 flex flex-col justify-center items-center text-center px-6 py-8">
+    <div class="p-6 flex flex-col items-center text-center">
+      <!-- Close button -->
+      <div class="w-full flex justify-end mb-2">
+        <button onclick="closeCompanionModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" type="button" aria-label="${t('close') || 'Fermer'}">
+          ${icon('x', 'w-3.5 h-3.5 text-slate-400')}
+        </button>
+      </div>
+
       <!-- Icon -->
-      <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4"
-        style="background:rgba(34,197,94,.06);border:1.5px solid rgba(34,197,94,.12)">
+      <div class="w-14 h-14 rounded-full bg-emerald-500/[0.06] border-[1.5px] border-emerald-500/[0.12] flex items-center justify-center mb-4">
         ${icon('shield-check', 'w-6 h-6 text-emerald-500')}
       </div>
 
-      <h2 id="companion-modal-title" class="text-lg font-extrabold text-white mb-1">
+      <h2 id="companion-modal-title" class="text-lg font-extrabold text-slate-200 mb-1">
         ${t('guardianModeTitle') || 'Mode Guardian'}
       </h2>
-      <p class="text-xs text-slate-400 leading-relaxed max-w-[300px]">
+      <p class="text-[13px] text-slate-400 leading-relaxed max-w-[280px]">
         ${t('guardianModeDesc') || 'Un proche suit ton trajet en temps réel. Si tu ne reponds plus, il est alerté automatiquement.'}
       </p>
 
       <!-- Features -->
-      <div class="mt-6 w-full max-w-[300px]">
+      <div class="w-full text-left mt-5 space-y-2.5">
         ${features.map(f => `
-          <div class="flex items-start gap-2.5 py-2 text-left">
-            <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style="background:${f.bg}">
+          <div class="flex items-start gap-3">
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style="background:${f.bg}">
               <span style="color:${f.color}">${icon(f.icon, 'w-3.5 h-3.5')}</span>
             </div>
             <div>
-              <div class="text-xs font-semibold text-slate-200">${f.title}</div>
-              <div class="text-[10px] text-slate-500 leading-snug">${f.desc}</div>
+              <div class="text-[13px] font-semibold text-slate-200">${f.title}</div>
+              <div class="text-[11px] text-slate-500 leading-snug">${f.desc}</div>
             </div>
           </div>
         `).join('')}
@@ -189,14 +195,12 @@ function renderIntroScreen() {
       <!-- CTA -->
       <button
         onclick="guardianGoToScreen('main')"
-        class="w-full max-w-[300px] py-3 mt-6 bg-emerald-500 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 active:opacity-90 active:scale-[0.98] transition-all"
+        class="w-full mt-5 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[15px] transition-colors flex items-center justify-center gap-2"
       >
-        ${icon('settings', 'w-4 h-4')}
+        ${icon('settings', 'w-[18px] h-[18px]')}
         ${t('guardianConfigure') || 'Configurer'}
       </button>
-      <div class="text-[10px] text-slate-600 mt-1.5 cursor-pointer" onclick="closeCompanionModal()">
-        ${t('later') || 'Plus tard'}
-      </div>
+      <button onclick="closeCompanionModal()" class="text-[13px] text-slate-500 mt-2 py-1">${t('later') || 'Plus tard'}</button>
     </div>
   `
 }
@@ -485,7 +489,7 @@ function renderActiveScreen(companion) {
     </div>
 
     <!-- Content -->
-    <div class="flex-1 flex flex-col items-center px-4 py-4">
+    <div class="flex-1 overflow-y-auto flex flex-col items-center px-4 py-4">
       <!-- Timer ring -->
       <div class="w-[130px] h-[130px] rounded-full border-[5px] ${ringBorder} flex flex-col items-center justify-center my-6">
         <div class="text-[2rem] font-extrabold ${timerColor} leading-none">${timerText}</div>
@@ -850,14 +854,15 @@ window.guardianGoToScreen = (screen) => {
   if (screen === 'main') {
     try { sessionStorage.setItem('spothitch_companion_consent', '1') } catch { /* ignore */ }
   }
-  window.setState?.({ showCompanionModal: true })
+  // Force re-render without resetting _currentScreen through auto-detection
+  window._forceRender?.()
 }
 
 /** Switch tab in main screen */
 window.guardianSwitchTab = (index) => {
   _currentTab = index
   _currentScreen = 'main'
-  window.setState?.({ showCompanionModal: true })
+  window._forceRender?.()
 }
 
 /** Edit config fields (guardian, interval, destination) */
@@ -886,7 +891,7 @@ window.guardianEditField = async (field) => {
     localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
 
-  window.setState?.({ showCompanionModal: true })
+  window._forceRender?.()
 }
 
 /** Toggle departure notification */
@@ -897,7 +902,7 @@ window.guardianToggleDeparture = async () => {
   try {
     localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
-  window.setState?.({ showCompanionModal: true })
+  window._forceRender?.()
 }
 
 /** Toggle arrival notification */
@@ -908,7 +913,7 @@ window.guardianToggleArrival = async () => {
   try {
     localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
-  window.setState?.({ showCompanionModal: true })
+  window._forceRender?.()
 }
 
 /** Guardian action: call traveler */

@@ -1,6 +1,6 @@
 # decisions.md - Historique des décisions SpotHitch
 
-> Dernière mise à jour : 2026-03-15
+> Dernière mise à jour : 2026-03-28
 
 ---
 
@@ -159,3 +159,27 @@
 | Grace period 3 validations | Les 3 premières sont toujours acceptées | Nouveau utilisateur ne doit pas être bloqué immédiatement | 2026-03-22 |
 | Badge GPS sur le spot (pas l'user) | lastGpsVerified sur le document spot | Le badge dit "quelqu'un a été physiquement ici récemment" | 2026-03-22 |
 | Scanner duplicate class attrs | lint-staged + CI | Empêche définitivement les attributs HTML dupliqués (bug ERR-125) | 2026-03-22 |
+
+## Décisions Sessions 22-26 mars
+
+| Décision | Choix | Raison | Date |
+|----------|-------|--------|------|
+| Guides pays 96 pays | 10 sections enrichies par pays (lois, autostop, sécurité, femmes, langue, budget, camping, transport, saisons, culture) | Contenu triangulé multi-langues, pas de copié-collé Hitchwiki | 2026-03-22 |
+| i18n guides dynamique | 4 fichiers guideSections-{fr,en,es,de}.js chargés par langue (code-splitting) | Économie mémoire, un seul fichier chargé à la fois | 2026-03-22 |
+| Guide design v16a | Filter chips + social feed style (stories Instagram) | Retenu par Antoine parmi v15d et v16a | 2026-03-22 |
+| Signalements complets | 4 types (spot/user/message/guide), raisons différenciées, admin panel avec filtres | Modération communautaire indispensable avant la beta | 2026-03-23 |
+| 14 couches CI | CodeRabbit, DeepSource, Aikido, Argos, CodeQL, Lighthouse + 8 jobs CI | Qualité et sécurité vérifiées automatiquement sur chaque PR | 2026-03-23 |
+| Workflow PR obligatoire | Claude lit les commentaires CodeRabbit/DeepSource, corrige, merge. Antoine ne lit pas les PR. | Automatisation de la revue de code | 2026-03-23 |
+| Détection spot proche étape 1 | Modal mini-carte dès étape 1 si spot existant < 500m | Évite création de doublons, plus tôt dans le wizard | 2026-03-24 |
+| Parser Google Maps exhaustif | 19+ formats supportés (protobuf, embed, navigation, streetview, maps.app.goo.gl) | Le partage Google Maps est le cas d'usage principal | 2026-03-24 |
+| Worker Cloudflare URL resolver | Résout les URLs courtes goo.gl/maps.app.goo.gl côté serveur (CORS) | Les redirections Google sont bloquées côté client par CORS | 2026-03-24 |
+| 30 modals fingerprint fix | Toutes les 61 clés state dans getModalFingerprint() | Bug systémique : 30 modals/panels ne s'affichaient jamais car non inclus dans le fingerprint | 2026-03-24 |
+| Desktop split-view Home | Panneau latéral 380px + carte flex (style Airbnb) avec breakpoint lg: | Utilisation desktop/tablette optimale | 2026-03-25 |
+| Social master-detail desktop | Liste conversations 320px à gauche + chat à droite | Pattern classique messagerie desktop | 2026-03-25 |
+| Guardian Mode v1 | 5 écrans (Intro, Main/2 onglets, Active, Guardian, Alert) | Redesign complet, UX moderne avec onglets | 2026-03-25 |
+| SEO 96 pays | Pages HTML pré-rendues, 2000+ mots/page, Schema.org FAQ+Breadcrumb, sitemap 97 URLs | Google indexe du contenu riche | 2026-03-24 |
+| /city/* → 410 Gone | Anciennes pages villes retournent 410 au lieu de 200 | Désindexation propre des pages obsolètes | 2026-03-24 |
+| Firebase Emulators en CI | Auth+Firestore émulés dans les jobs E2E, vrais secrets pour deploy | Élimine les coûts billing Firebase liés aux ~100 CI runs/jour | 2026-03-26 |
+| Rester PWA (pas Capacitor) | PWA pure en alpha, Capacitor envisageable en beta (100+ users réguliers) | Coût Apple 99€/an, double maintenance, risque rejet store | 2026-03-26 |
+| NLNet NGI Zero Commons Fund | Candidature ~46K€ sur 6 mois, focus SOS+Guardian comme briques open source | Deadline 1er avril 2026, financement européen pour communs numériques | 2026-03-24 |
+| Splash tips randomisés | Fisher-Yates shuffle au lieu de commencer toujours par le premier | UX plus variée à chaque ouverture | 2026-03-24 |
