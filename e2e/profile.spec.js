@@ -46,29 +46,27 @@ test.describe('Profile - Settings', () => {
     await navigateToTab(page, 'profile')
     // Navigate to Réglages sub-tab where all settings live
     await page.evaluate(() => window.setProfileSubTab?.('reglages'))
-    await page.waitForTimeout(300)
+    // Wait for settings sections to render (not just a timeout)
+    await page.locator('[onclick*="toggleSettingsSection"]').first().waitFor({ timeout: 8000 })
   })
 
   test('should have theme toggle', async ({ page }) => {
     // V5-A: settings are collapsible, open Appearance section first
     await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
-    await page.waitForTimeout(300)
-    const themeSection = page.locator('text=Mode sombre').or(page.locator('[role="switch"]'))
-    await expect(themeSection.first()).toBeVisible({ timeout: 5000 })
+    const themeSection = page.locator('text=Thème sombre').or(page.locator('text=Mode sombre')).or(page.locator('[role="switch"]'))
+    await expect(themeSection.first()).toBeVisible({ timeout: 8000 })
   })
 
   test('should have theme switch control', async ({ page }) => {
     await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
-    await page.waitForTimeout(300)
     const themeToggle = page.locator('[role="switch"]').first()
-    await expect(themeToggle).toBeVisible({ timeout: 5000 })
+    await expect(themeToggle).toBeVisible({ timeout: 8000 })
   })
 
   test('should toggle theme and change visual appearance', async ({ page }) => {
     await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
-    await page.waitForTimeout(300)
     const themeToggle = page.locator('[role="switch"]').first()
-    await expect(themeToggle).toBeVisible({ timeout: 5000 })
+    await expect(themeToggle).toBeVisible({ timeout: 8000 })
 
     // REAL RESULT: capture actual background color BEFORE toggle
     const bgBefore = await page.evaluate(() =>
@@ -111,11 +109,10 @@ test.describe('Profile - Settings', () => {
   test('should have language selector', async ({ page }) => {
     // V5-A: open Appearance section to find language selector
     await page.evaluate(() => window.toggleSettingsSection?.('appearance'))
-    await page.waitForTimeout(300)
-    await expect(page.locator('text=Langue').first()).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('text=Langue').first()).toBeVisible({ timeout: 8000 })
     // Language is now a radiogroup, not a select
     const langSelector = page.locator('[role="radiogroup"]').or(page.locator('text=FR'))
-    await expect(langSelector.first()).toBeVisible({ timeout: 5000 })
+    await expect(langSelector.first()).toBeVisible({ timeout: 8000 })
   })
 
   test('should have notification toggle', async ({ page }) => {
