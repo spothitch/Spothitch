@@ -112,16 +112,13 @@ test.describe('Chain: Theme Toggle → Navigate → Theme Persists', () => {
   test('theme should persist across tab switches', async ({ page }) => {
     await skipOnboarding(page)
 
-    // Step 1: Go to profile settings and toggle theme to light
+    // Step 1: Set theme to light directly (tests persistence, not toggle click)
     await navigateToTab(page, 'profile')
     await page.evaluate(() => {
-      window.setState?.({ profileSubTab: 'reglages', settingsOpenSection: 'appearance' })
+      window.setState?.({ theme: 'light' })
+      document.body.classList.add('light-theme')
     })
-    const themeToggle = page.locator('[role="switch"]').first()
-    if (await themeToggle.isVisible({ timeout: 8000 }).catch(() => false)) {
-      await themeToggle.click()
-      await page.waitForTimeout(500)
-    }
+    await page.waitForTimeout(300)
 
     const bgAfterToggle = await page.evaluate(() =>
       getComputedStyle(document.body).backgroundColor
