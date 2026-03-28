@@ -318,10 +318,8 @@ export async function resolveShortMapUrl(mapUrl) {
       if (fromResolved) return fromResolved
     }
 
-    // Worker returned a place name — geocode it (skip garbage like "Dynamic Link Not Found")
-    if (data.place && !data.place.toLowerCase().includes('not found') && !data.place.toLowerCase().includes('dynamic link')) {
-      return geocodePlace(data.place)
-    }
+    // Worker returned a place name but no coords — skip geocoding
+    // (geocoding gives approximate city-center coords, not the exact pin)
   } catch {
     // Proxy unavailable or rejected URL
   }

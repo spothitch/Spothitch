@@ -4,7 +4,7 @@
  */
 
 import { setState, getState } from '../stores/state.js';
-import { extractCoordsFromShare, resolveShortMapUrl, geocodePlace, detectOpaqueMapUrl } from './mapsUrlParser.js';
+import { extractCoordsFromShare, resolveShortMapUrl, detectOpaqueMapUrl } from './mapsUrlParser.js';
 
 // Base path for the app (e.g., '/' for deployed app)
 const BASE_PATH = import.meta.env.BASE_URL || '/';
@@ -205,21 +205,9 @@ async function processShare() {
       }
     }
 
-    // Strategy 3: Geocode the place name from title/text
-    if (!coords && (title || text)) {
-      const placeName = title || text.split('\n')[0] || ''
-      const cleanName = placeName
-        .replace(/https?:\/\/\S+/g, '')
-        .replace(/google\s*maps?/gi, '')
-        .replace(/\s{2,}/g, ' ')
-        .trim()
-      if (cleanName.length >= 2 && !cleanName.toLowerCase().includes('not found') && !cleanName.toLowerCase().includes('dynamic link')) {
-        shareLog('strategy3-try', cleanName)
-        coords = await geocodePlace(cleanName)
-        if (coords) shareLog('strategy3-ok', `${coords.lat},${coords.lng}`)
-        else shareLog('strategy3-fail')
-      }
-    }
+    // Strategy 3: REMOVED — geocoding place names gives approximate positions
+    // (city center instead of exact pin). Only exact coordinates from the URL matter.
+    // If no coords found, AddSpot opens without position and user places pin manually.
   } catch (e) {
     shareLog('coord-error', e.message)
   }
@@ -229,6 +217,8 @@ async function processShare() {
     shareLog('coords-ready', `${coords.lat},${coords.lng}`)
   } else {
     shareLog('no-coords', 'will open AddSpot without position')
+    // Warn user they need to place the pin manually
+    window._pendingShareNoCoords = true
   }
 
   // Wait for app to be fully initialized before opening AddSpot

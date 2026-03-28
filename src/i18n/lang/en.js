@@ -1974,6 +1974,7 @@ export default {
   addSpotError: 'Error adding the spot',
   sharePositionImported: 'Position imported from map',
   sharePickLocation: 'Pick the spot location on the map',
+  shareNoCoordsFound: 'Exact position not found. Place the pin manually on the map.',
   positionChosen: 'Position chosen',
   confirmPosition: 'Confirm position',
   chooseOnMap: 'Choose on map',
