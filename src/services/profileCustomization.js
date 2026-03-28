@@ -595,23 +595,55 @@ window.saveProfileEdits = async () => {
 
 /**
  * Propagate username change to all spots created by this user.
- * Updates the 'creator' field on each spot document in Firestore.
+ * Updates creator, lastTestedBy, lastValidatedBy on spot docs,
+ * userName in validation subcollections, and local state.
  */
 async function _propagateUsernameToSpots(uid, newUsername) {
   try {
     const { getCurrentUser } = await import('./firebase.js')
     const user = getCurrentUser()
     if (!user || user.uid !== uid) return // Auth guard: ERR-002
-    const { getFirestore, collection, query, where, getDocs, updateDoc, doc } = await import('firebase/firestore')
+    const fb = await import('firebase/firestore')
     const { getApp } = await import('firebase/app')
-    const db = getFirestore(getApp())
-    const q = query(collection(db, 'spots'), where('creatorId', '==', uid))
-    const snap = await getDocs(q)
-    const batch = []
+    const db = fb.getFirestore(getApp())
+
+    // 1. Update spot documents where user is creator
+    const q = fb.query(fb.collection(db, 'spots'), fb.where('creatorId', '==', uid))
+    const snap = await fb.getDocs(q)
+    const spotUpdates = []
     snap.forEach(d => {
-      batch.push(updateDoc(doc(db, 'spots', d.id), { creator: newUsername }))
+      const data = d.data()
+      const updates = { creator: newUsername }
+      if (data.lastTestedBy === data.creator) updates.lastTestedBy = newUsername
+      if (data.lastValidatedBy === data.creator) updates.lastValidatedBy = newUsername
+      spotUpdates.push(fb.updateDoc(fb.doc(db, 'spots', d.id), updates))
     })
-    await Promise.all(batch)
+    await Promise.all(spotUpdates)
+
+    // 2. Update userName in validation subcollections for this user
+    const valUpdates = []
+    for (const d of snap.docs) {
+      const valsRef = fb.collection(db, 'spots', d.id, 'validations')
+      const vq = fb.query(valsRef, fb.where('userId', '==', uid))
+      const vSnap = await fb.getDocs(vq)
+      vSnap.forEach(v => {
+        valUpdates.push(
+          fb.updateDoc(fb.doc(db, 'spots', d.id, 'validations', v.id), { userName: newUsername }),
+        )
+      })
+    }
+    if (valUpdates.length > 0) await Promise.all(valUpdates)
+
+    // 3. Update local state spots immediately
+    try {
+      const { getState: gs, setState: ss } = await import('../stores/state.js')
+      const spots = gs().spots || []
+      const updated = spots.map(s =>
+        s.creatorId === uid ? { ...s, creator: newUsername } : s,
+      )
+      ss({ spots: updated })
+      if (window._refreshMapSpots) window._refreshMapSpots()
+    } catch { /* non-blocking */ }
   } catch { /* offline or permissions — non-blocking */ }
 }
 
