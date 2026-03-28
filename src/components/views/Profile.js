@@ -1520,9 +1520,8 @@ window.cycleLanguageLevel = (idx) => {
 
 // D3: Social links handler
 window.saveSocialLink = async (network, value) => {
-  // Sanitize: strip HTML/JS, limit length, allow only safe characters
+  // Sanitize: strip dangerous characters, limit length
   const sanitized = (value || '').trim()
-    .replace(/<[^>]*>/g, '')
     .replace(/[<>"'`;(){}]/g, '')
     .slice(0, 200)
   const allowedNetworks = ['instagram', 'snapchat', 'tiktok', 'twitter', 'facebook', 'youtube', 'linkedin', 'website']
