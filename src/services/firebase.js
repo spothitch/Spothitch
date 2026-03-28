@@ -602,7 +602,7 @@ const SPOT_ALLOWED_FIELDS = [
   // Media
   'photos', 'photoUrl', 'photoURL', 'hasPhoto',
   // Meta
-  'name', 'dataSource',
+  'name', 'dataSource', 'experienceDate',
 ]
 
 /**
@@ -1243,9 +1243,22 @@ export async function addValidation(data) {
     const update = {
       testCount: increment(1),
       checkins: increment(1),
-      lastTested: expISO,
-      lastTestedBy: userName,
-      lastUsed: expDate,
+    }
+    // Only update lastTested if this experience is more recent than the existing one
+    let shouldUpdateDate = true
+    try {
+      const spotSnap = await getDoc(spotRef)
+      if (spotSnap.exists()) {
+        const currentLast = spotSnap.data().lastTested
+        if (currentLast && new Date(expISO) < new Date(currentLast)) {
+          shouldUpdateDate = false
+        }
+      }
+    } catch { /* non-blocking, update by default */ }
+    if (shouldUpdateDate) {
+      update.lastTested = expISO
+      update.lastTestedBy = userName
+      update.lastUsed = expDate
     }
     // GPS verification badge on the spot
     if (data.gpsVerified) {

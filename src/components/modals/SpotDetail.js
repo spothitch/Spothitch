@@ -492,7 +492,15 @@ export function renderSpotDetail(state) {
 
           <!-- Meta + Maps + Street View -->
           <div class="px-4 pb-3 flex justify-between items-center">
-            <div class="text-[11px] text-[#475569]">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · <span style="${spot.creatorId ? 'cursor:pointer;color:#f59e0b' : ''}" ${spot.creatorId ? `onclick="showFriendProfile('${escapeJSString(spot.creatorId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(spot.creator || 'Anonyme')}</span>${spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''}</div>
+            <div class="text-[11px] text-[#475569]">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · <span style="${spot.creatorId ? 'cursor:pointer;color:#f59e0b' : ''}" ${spot.creatorId ? `onclick="showFriendProfile('${escapeJSString(spot.creatorId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(spot.creator || 'Anonyme')}</span>${(() => {
+                // Prefer experienceDate (actual travel date) over createdAt (submission date)
+                if (spot.experienceDate?.year && spot.experienceDate?.month) {
+                  const day = spot.experienceDate.day || 15
+                  const expD = new Date(spot.experienceDate.year, spot.experienceDate.month - 1, day, 12, 0, 0)
+                  if (!isNaN(expD.getTime())) return ' · ' + formatRelativeDate(expD.toISOString())
+                }
+                return spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''
+              })()}</div>
             <div class="flex gap-1.5">
               <button onclick="showNavigationPicker(${spot.coordinates?.lat}, ${spot.coordinates?.lng}, '${navName}')" type="button"
                 class="bg-[#161b28] border border-slate-700 text-slate-400 py-2 px-3 rounded-lg text-[11px] cursor-pointer whitespace-nowrap">\ud83d\uddfa Maps</button>
