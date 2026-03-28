@@ -158,10 +158,10 @@ async function firestoreTests() {
     assert(snap.size > 0, 'No spots found for Alice')
   })
 
-  await test('Alice can update her spot', async () => {
-    await updateDoc(doc(db, 'spots', testSpotId), { name: 'CI Updated Spot' })
+  await test('Alice can update spot counters (validation fields)', async () => {
+    await updateDoc(doc(db, 'spots', testSpotId), { validationCount: 1, checkins: 1, updatedAt: serverTimestamp() })
     const snap = await getDoc(doc(db, 'spots', testSpotId))
-    assert(snap.data().name === 'CI Updated Spot', 'Spot was not updated')
+    assert(snap.data().validationCount === 1, 'validationCount was not updated')
   })
 
   await test('Alice cannot delete her spot (admin-only)', async () => {
