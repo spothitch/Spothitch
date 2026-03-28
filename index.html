@@ -206,13 +206,8 @@
         Skip to main content
     </a>
     
-    <!-- Logo loader — disappears when app is ready -->
-    <div id="app-loader">
-        <div style="text-align:center">
-            <img src="logo.png" alt="SpotHitch" style="width:96px;height:96px;border-radius:24px;object-fit:cover" width="96" height="96" />
-            <h1 style="font-size:1.75rem;font-weight:800;color:#f59e0b;margin:0.75rem 0 0;letter-spacing:-0.02em;font-family:system-ui,-apple-system,sans-serif">SpotHitch</h1>
-        </div>
-    </div>
+    <!-- Dark backdrop — fades out when app is ready (PWA splash already shows logo) -->
+    <div id="app-loader"></div>
 
     <!-- Timeout fallback (externalized for CSP) -->
     <script src="/loader-timeout.js"></script>
