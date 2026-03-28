@@ -10,8 +10,8 @@
  */
 
 import { initializeApp } from 'firebase/app'
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth'
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
+import { getAuth, connectAuthEmulator, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth'
+import { getFirestore, connectFirestoreEmulator, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { config } from 'dotenv'
 
 config({ path: '.env.local' })
@@ -47,6 +47,16 @@ const ACCOUNTS = [
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
+
+// Connect to emulators when running in CI
+if (process.env.FIREBASE_AUTH_EMULATOR_HOST) {
+  const [host, port] = process.env.FIREBASE_AUTH_EMULATOR_HOST.split(':')
+  connectAuthEmulator(auth, `http://${host}:${port}`, { disableWarnings: true })
+}
+if (process.env.FIRESTORE_EMULATOR_HOST) {
+  const [host, port] = process.env.FIRESTORE_EMULATOR_HOST.split(':')
+  connectFirestoreEmulator(db, host, parseInt(port, 10))
+}
 
 async function setupAccount(account) {
   const { email, displayName, username } = account
