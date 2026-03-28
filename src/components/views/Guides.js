@@ -34,11 +34,12 @@ function getGuideLegalityText(guide) {
 }
 
 
-const GUIDE_SECTIONS = [
-  { id: 'start', icon: 'compass', color: 'amber', labelKey: 'guideStart', fallback: 'Débuter' },
-  { id: 'countries', icon: 'globe', color: 'primary', labelKey: 'guideCountries', fallback: 'Par pays' },
-  { id: 'safety', icon: 'shield', color: 'emerald', labelKey: 'guideSafety', fallback: 'Sécurité' },
-]
+// Guide sections disabled for now (start/safety hidden, countries shown directly)
+// const GUIDE_SECTIONS = [
+//   { id: 'start', icon: 'compass', color: 'amber', labelKey: 'guideStart', fallback: 'Débuter' },
+//   { id: 'countries', icon: 'globe', color: 'primary', labelKey: 'guideCountries', fallback: 'Par pays' },
+//   { id: 'safety', icon: 'shield', color: 'emerald', labelKey: 'guideSafety', fallback: 'Sécurité' },
+// ]
 
 // Track if sections are loaded for current language
 let _guideSectionsLoaded = false
@@ -59,7 +60,6 @@ export async function ensureGuideSectionsLoaded() {
 let _guideSectionsInitStarted = false
 
 export function renderGuides(state) {
-  const activeSection = state.guideSection || 'start'
   const selectedGuide = state.selectedCountryGuide ? getGuideByCode(state.selectedCountryGuide) : null
 
   // Trigger async load of guide sections (language-aware)
@@ -67,13 +67,11 @@ export function renderGuides(state) {
   if (!_guideSectionsInitStarted || _guideSectionsLang !== currentLang) {
     _guideSectionsInitStarted = true
     ensureGuideSectionsLoaded().then(() => {
-      // Re-render only if we're still on guides tab
       const s = window.getState?.()
       if (s?.activeTab === 'voyage' || s?.selectedCountryGuide) {
         window.setState?.({ _guideSectionsReady: Date.now() })
       }
     }).catch(() => {
-      // Silent fallback: sections stay empty, guide shows "no data" message
       _guideSectionsInitStarted = false
     })
   }
@@ -82,38 +80,11 @@ export function renderGuides(state) {
     return renderCountryDetail(selectedGuide)
   }
 
+  // Show countries list directly (start/safety sections hidden for now)
   return `
     <div class="space-y-4">
       ${state.pendingGuideCountry ? renderPendingTipBanner(state.pendingGuideCountry) : ''}
-
-      <!-- Section tabs -->
-      <div class="grid grid-cols-3 gap-2">
-        ${GUIDE_SECTIONS.map(s => `
-          <button
-            onclick="setGuideSection('${s.id}')"
-            class="flex flex-col items-center gap-2 p-3 rounded-xl font-medium text-xs transition-colors ${
-              activeSection === s.id
-                ? `bg-${s.color}-500 text-white shadow-lg`
-                : 'bg-white/5 text-slate-400 hover:bg-white/10'
-            }"
-          >
-            <div class="w-10 h-10 rounded-xl ${
-              activeSection === s.id
-                ? 'bg-white/20'
-                : `bg-${s.color}-500/20`
-            } flex items-center justify-center">
-              ${icon(s.icon, `w-5 h-5 ${activeSection === s.id ? 'text-white' : `text-${s.color}-400`}`)}
-            </div>
-            <span class="text-center leading-tight text-sm">${t(s.labelKey) || s.fallback}</span>
-          </button>
-        `).join('')}
-      </div>
-
-      <!-- Pending guide tip form (shown when user just created a spot) -->
-      ${state.pendingGuideCountry && activeSection === 'start' ? renderGuideTipForm(state.pendingGuideCountry) : ''}
-
-      <!-- Section content -->
-      ${renderSection(activeSection, state)}
+      ${renderCountriesSection()}
     </div>
   `
 }
@@ -133,6 +104,7 @@ function renderPendingTipBanner(country) {
   `
 }
 
+// eslint-disable-next-line no-unused-vars -- kept for future re-enable
 function renderGuideTipForm(country) {
   // Redirect to the new country detail view
   const code = country.code || ''
@@ -154,6 +126,7 @@ function renderGuideTipForm(country) {
   `
 }
 
+// eslint-disable-next-line no-unused-vars -- kept for future re-enable
 function renderSection(section, _state) {
   switch (section) {
     case 'start': return renderStartSection()
@@ -241,6 +214,7 @@ const COUNTRY_CENTERS = {
   NZ: [-41.3, 174.8], AU: [-25.3, 133.8],
 }
 
+// eslint-disable-next-line no-unused-vars -- kept for future proximity sorting
 function getDistanceToCountry(countryCode, userLat, userLng) {
   const center = COUNTRY_CENTERS[countryCode]
   if (!center || !userLat) return 99999
@@ -249,16 +223,19 @@ function getDistanceToCountry(countryCode, userLat, userLng) {
   return Math.sqrt(dLat * dLat + dLng * dLng)
 }
 
-function renderCountriesSection() {
-  const state = window.getState?.() || {}
-  const userLat = state.userLat || state.lat
-  const userLng = state.userLng || state.lng
+// Top 10 countries with the most guide content (by block count in guideSections-fr)
+const TOP_CONTENT_COUNTRIES = ['DE', 'ES', 'IT', 'AT', 'FR', 'BE', 'PT', 'CH', 'NL', 'GR']
 
+function renderCountriesSection() {
+  // Sort: top 10 most content first (in their fixed order), then alphabetically
+  const topSet = new Set(TOP_CONTENT_COUNTRIES)
   const sortedGuides = [...countryGuides].sort((a, b) => {
-    if (userLat && userLng) {
-      return getDistanceToCountry(a.code, userLat, userLng) - getDistanceToCountry(b.code, userLat, userLng)
-    }
-    return a.difficulty - b.difficulty
+    const aTop = topSet.has(a.code)
+    const bTop = topSet.has(b.code)
+    if (aTop && !bTop) return -1
+    if (!aTop && bTop) return 1
+    if (aTop && bTop) return TOP_CONTENT_COUNTRIES.indexOf(a.code) - TOP_CONTENT_COUNTRIES.indexOf(b.code)
+    return getGuideName(a).localeCompare(getGuideName(b))
   })
   const pendingCounts = getCommunityPendingCounts()
 
@@ -304,7 +281,7 @@ function renderCountriesSection() {
                         ? (t('guideCommunityPending1') || '1 contribution en attente de validation')
                         : (t('guideCommunityPending') || '{count} contribution(s) en attente de validation').replace('{count}', communityPending)
                       }</div>`
-                    : `<div class="text-xs text-slate-500">${t('guideNoContribution') || 'Pas encore de contribution'}</div>`
+                    : ''
                 }
               </div>
             </div>

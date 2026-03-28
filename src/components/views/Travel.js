@@ -43,47 +43,19 @@ export function renderTravel(state) {
     return renderTripMapView(state.tripResults)
   }
 
-  const activeSubTab = state.activeSubTab || 'planner'
   const selectedGuide = state.selectedCountryGuide ? getGuideByCode(state.selectedCountryGuide) : null
 
   return `
     <div class="p-4 space-y-4">
-      <!-- Sub-tabs -->
-      <div class="flex gap-2 p-1 bg-dark-secondary rounded-xl">
-        <button
-          onclick="setSubTab('planner')"
-          class="flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
-  activeSubTab === 'planner'
-    ? 'bg-primary-500 text-white'
-    : 'text-slate-400 hover:text-white hover:bg-white/5'
-}"
-          aria-selected="${activeSubTab === 'planner'}"
-        >
-          ${icon('route', 'w-5 h-5 mr-2')}
-          ${t('plan') || 'Planifier'}
-        </button>
-        <button
-          onclick="setSubTab('guides')"
-          class="flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
-  activeSubTab === 'guides'
-    ? 'bg-primary-500 text-white'
-    : 'text-slate-400 hover:text-white hover:bg-white/5'
-}"
-          aria-selected="${activeSubTab === 'guides'}"
-        >
-          ${icon('book', 'w-5 h-5 mr-2')}
-          ${t('guides') || 'Guides'}
-        </button>
-      </div>
-
-      <!-- Content -->
-      ${activeSubTab === 'planner' ? renderPlanner(state) : renderGuides(state, selectedGuide)}
+      <!-- Guides only (planner/journal tabs disabled for now) -->
+      ${renderGuides(state, selectedGuide)}
     </div>
   `
 }
 
-// ==================== PLANNER ====================
+// ==================== PLANNER (disabled for now) ====================
 
+// eslint-disable-next-line no-unused-vars -- kept for future re-enable
 function renderPlanner(state) {
   // Trip map view (full screen with trip spots only)
   if (state.showTripMap && state.tripResults) {
