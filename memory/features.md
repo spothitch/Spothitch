@@ -1,6 +1,6 @@
 # features.md - Inventaire complet des fonctionnalités SpotHitch
 
-> Dernière mise à jour : 2026-03-23
+> Dernière mise à jour : 2026-03-28
 > IMPORTANT : Vérifier ce fichier AVANT de proposer une feature — elle existe peut-être déjà !
 
 ---
@@ -328,6 +328,7 @@
   - Argos CI (régression visuelle pixel par pixel sur PR, ARGOS_TOKEN configuré)
   - CodeQL (analyse sécurité sur chaque push)
   - StrykerJS (mutation testing, local uniquement : npm run test:mutate)
+- [x] Firebase Emulators en CI (2026-03-26) : Auth+Firestore émulés localement dans les jobs E2E, zéro billing Firebase. Deploy jobs utilisent les vrais secrets.
 
 ## Monétisation (préparé mais pas activé)
 
@@ -354,19 +355,19 @@
 
 ---
 
-## À venir — Mode Gardien (Companion In-App)
+## Mode Gardien (Guardian v1) — implémenté 2026-03-25
+
+- [x] Guardian Mode v1 redesign complet (5 écrans : Intro, Main avec 2 onglets Guardian+Config, Active, Guardian, Alert)
+- [x] 10 fonctions render (renderCompanionModal, renderIntroScreen, renderMainScreen, renderGuardianTab, renderConfigTab, renderActiveScreen, renderGuardianScreen, renderAlertScreen, renderTimelineEvents, renderTripHistory)
+- [x] Handlers : window.showCompanionModal(), window.companionCheckIn(), window.openCompanion()
+- [x] 35 clés i18n Guardian dans FR/EN/ES/DE
+- [x] Icônes corrigées (bell-ring → bell, vérification ICON_MAP)
+
+### À venir (Guardian v2)
 
 - [ ] Suivi temps réel du compagnon directement sur la carte SpotHitch du gardien
-  - Le gardien voit la position live de l'autostoppeur (point mobile sur la carte)
-  - Trajet déjà parcouru affiché (ligne sur la carte)
-  - Niveau de batterie visible
-  - Heure du dernier signal GPS
-  - Bouton pour envoyer un message
 - [ ] Lien smart : si le gardien a SpotHitch → ouvre l'app, sinon → page web
-- [ ] Timer check-in : l'autostoppeur doit appuyer régulièrement pour remettre à zéro
-- [ ] Si timer arrive à zéro sans réponse → alerte + notification push au gardien
+- [ ] Timer check-in avec alerte si pas de réponse → notification push au gardien
 - [ ] Alerte visible sur la carte du gardien (point rouge, bannière d'alerte)
-- [ ] Arrivée confirmée manuellement par l'autostoppeur (pas de GPS auto)
-- [ ] Pas d'alerte "immobile" (le stop = attendre, c'est normal)
+- [ ] Arrivée confirmée manuellement par l'autostoppeur
 - [ ] Technique : Firebase Firestore onSnapshot pour le temps réel
-- [ ] Les données GPS existantes du mode Companion sont réutilisées
