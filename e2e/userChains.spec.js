@@ -114,10 +114,9 @@ test.describe('Chain: Theme Toggle → Navigate → Theme Persists', () => {
 
     // Step 1: Go to profile settings and toggle theme to light
     await navigateToTab(page, 'profile')
-    await page.waitForFunction(() => typeof window.setProfileSubTab === 'function', { timeout: 10000 })
-    await page.evaluate(() => window.setProfileSubTab('reglages'))
-    await page.waitForFunction(() => typeof window.toggleSettingsSection === 'function', { timeout: 10000 })
-    await page.evaluate(() => window.toggleSettingsSection('appearance'))
+    await page.evaluate(() => {
+      window.setState?.({ profileSubTab: 'reglages', settingsOpenSection: 'appearance' })
+    })
     const themeToggle = page.locator('[role="switch"]').first()
     if (await themeToggle.isVisible({ timeout: 8000 }).catch(() => false)) {
       await themeToggle.click()

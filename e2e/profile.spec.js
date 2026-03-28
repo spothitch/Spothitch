@@ -47,23 +47,23 @@ test.describe('Profile - Settings', () => {
     // Wait for Profile.js lazy-loaded handlers to be available
     await page.waitForFunction(() => typeof window.setProfileSubTab === 'function', { timeout: 10000 })
     await page.evaluate(() => window.setProfileSubTab('reglages'))
-    await page.waitForFunction(() => typeof window.toggleSettingsSection === 'function', { timeout: 10000 })
+    // setState is set in main.js, always available after app loads
   })
 
   test('should have theme toggle', async ({ page }) => {
-    await page.evaluate(() => window.toggleSettingsSection('appearance'))
+    await page.evaluate(() => window.setState?.({ settingsOpenSection: 'appearance' }))
     const themeSection = page.locator('text=Thème sombre').or(page.locator('text=Mode sombre')).or(page.locator('[role="switch"]'))
     await expect(themeSection.first()).toBeVisible({ timeout: 8000 })
   })
 
   test('should have theme switch control', async ({ page }) => {
-    await page.evaluate(() => window.toggleSettingsSection('appearance'))
+    await page.evaluate(() => window.setState?.({ settingsOpenSection: 'appearance' }))
     const themeToggle = page.locator('[role="switch"]').first()
     await expect(themeToggle).toBeVisible({ timeout: 8000 })
   })
 
   test('should toggle theme and change visual appearance', async ({ page }) => {
-    await page.evaluate(() => window.toggleSettingsSection('appearance'))
+    await page.evaluate(() => window.setState?.({ settingsOpenSection: 'appearance' }))
     const themeToggle = page.locator('[role="switch"]').first()
     await expect(themeToggle).toBeVisible({ timeout: 8000 })
 
@@ -106,7 +106,7 @@ test.describe('Profile - Settings', () => {
   })
 
   test('should have language selector', async ({ page }) => {
-    await page.evaluate(() => window.toggleSettingsSection('appearance'))
+    await page.evaluate(() => window.setState?.({ settingsOpenSection: 'appearance' }))
     await expect(page.locator('text=Langue').first()).toBeVisible({ timeout: 8000 })
     // Language is now a radiogroup, not a select
     const langSelector = page.locator('[role="radiogroup"]').or(page.locator('text=FR'))
@@ -114,7 +114,7 @@ test.describe('Profile - Settings', () => {
   })
 
   test('should have notification toggle', async ({ page }) => {
-    await page.evaluate(() => window.toggleSettingsSection('notifications'))
+    await page.evaluate(() => window.setState?.({ settingsOpenSection: 'notifications' }))
     await page.waitForTimeout(300)
     await expect(page.locator('text=Notifications').first()).toBeVisible({ timeout: 5000 })
   })

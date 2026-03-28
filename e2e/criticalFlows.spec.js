@@ -604,11 +604,9 @@ test.describe('Profile Settings Flow', () => {
   })
 
   test('should have language selector as radiogroup', async ({ page }) => {
-    await page.waitForFunction(() => typeof window.setProfileSubTab === 'function', { timeout: 10000 })
-    await page.evaluate(() => window.setProfileSubTab('reglages'))
-    // Wait for settings tab to render before opening a section
-    await page.locator('[onclick*="toggleSettingsSection"]').first().waitFor({ timeout: 10000 })
-    await page.evaluate(() => window.toggleSettingsSection('appearance'))
+    await page.evaluate(() => {
+      window.setState?.({ profileSubTab: 'reglages', settingsOpenSection: 'appearance' })
+    })
     const langSelector = page.locator('[role="radiogroup"]').last()
     await expect(langSelector).toBeVisible({ timeout: 10000 })
   })

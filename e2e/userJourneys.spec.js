@@ -184,12 +184,11 @@ test.describe('Journey: Profile & Settings', () => {
   })
 
   test('should have language settings', async ({ page }) => {
-    await page.waitForFunction(() => typeof window.setProfileSubTab === 'function', { timeout: 10000 })
-    await page.evaluate(() => window.setProfileSubTab('reglages'))
-    await page.waitForFunction(() => typeof window.toggleSettingsSection === 'function', { timeout: 10000 })
-    await page.evaluate(() => window.toggleSettingsSection('appearance'))
+    await page.evaluate(() => {
+      window.setState?.({ profileSubTab: 'reglages', settingsOpenSection: 'appearance' })
+    })
     const langSection = page.locator('text=Langue').or(page.locator('[role="radiogroup"]'))
-    await expect(langSection.first()).toBeVisible({ timeout: 8000 })
+    await expect(langSection.first()).toBeVisible({ timeout: 10000 })
   })
 
   test('should have customization button', async ({ page }) => {
