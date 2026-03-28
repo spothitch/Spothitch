@@ -210,7 +210,7 @@ const MAIN_JS_HANDLERS = [
   'loginAsAdmin', 'handleAuth',
   'checkUsernameField', 'submitCompleteProfile', 'closeCompleteProfile',
   // SpotDetail (defined in navigation controller/utils)
-  'showNavigationPicker', 'openInNavigationApp', 'voteSpot',
+  'showNavigationPicker', 'openInNavigationApp', 'voteSpot', 'flyToSpotOnMap',
   // Welcome (defined in Welcome.js)
   // IdentityVerification (defined in IdentityVerification.js)
   'startVerificationStep',

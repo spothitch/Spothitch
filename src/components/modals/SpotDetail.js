@@ -6,16 +6,13 @@
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
-import { renderMiniTrustBadge } from '../../services/trustScore.js'
 import { isFavorite } from '../../services/favorites.js'
-import '../../utils/navigation.js' // Registers window.showNavigationPicker
 
 export function renderSpotDetail(state) {
   const spot = state.selectedSpot
   if (!spot) return ''
 
   const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
-  const navName = escapeJSString((spot.from || '') + ' - ' + (spot.to || ''))
   const totalValidations = spot.validationCount || spot.userValidations || 0
   const testCount = spot.liveTestCount || spot.testCount || 0
   const checkins = spot.checkins || 0
@@ -151,11 +148,6 @@ export function renderSpotDetail(state) {
     return (a.waitTime || 999) - (b.waitTime || 999) // shortest wait first
   })
   const displayReviews = reviews.slice(0, 10)
-
-  // Auto-translate comments after render
-  if (displayReviews.some(r => r.text)) {
-    setTimeout(() => autoTranslateComments(spot.id, displayReviews), 300)
-  }
 
   // Inject Place structured data for SEO
   setTimeout(() => {
@@ -451,47 +443,7 @@ export function renderSpotDetail(state) {
           </div>
           ` : ''}
 
-          <!-- Reviews -->
-          ${displayReviews.length > 0 ? `
-          <div class="px-4 pb-3">
-            ${displayReviews.map(review => {
-              const rMethod = review.method === 'sign' ? (t('methodSign') || 'Panneau')
-                : review.method === 'thumb' ? (t('methodThumb') || 'Pouce')
-                  : review.method === 'asking' ? (t('methodAsking') || 'En demandant')
-                    : review.travelMode || ''
-              const rGroup = review.groupSize === 'solo' ? 'Solo'
-                : review.groupSize === 'duo' ? 'Duo'
-                  : review.groupSize === 'group' ? 'Groupe'
-                    : ''
-              const isSuccess = review.rideResult === 'yes'
-              const isFail = review.rideResult === 'no' || review.rideResult === 'gaveUp'
-              const borderColor = isFail ? 'border-left:3px solid #ef4444' : isSuccess ? 'border-left:3px solid #22c55e' : ''
-              const resultBadge = isSuccess ? `<span class="text-[10px] font-semibold px-1.5 py-px rounded bg-[rgba(34,197,94,0.15)] text-emerald-500 ml-1">✓</span>`
-                : isFail ? `<span class="text-[10px] font-semibold px-1.5 py-px rounded bg-[rgba(239,68,68,0.15)] text-red-500 ml-1">✗</span>` : ''
-              return `
-              <div class="bg-[#161b28] rounded-[10px] p-3 mb-1.5" style="${borderColor}">
-                <div class="text-xs mb-0.5">
-                  <span class="font-medium" style="${review.userId ? 'cursor:pointer;color:#f59e0b' : ''}" ${review.userId ? `onclick="showFriendProfile('${escapeJSString(review.userId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(review.userName || 'Anonyme')}</span>
-                  ${review.trustScore != null ? renderMiniTrustBadge(review.trustScore, review.isIdVerified) : ''}
-                  ${review.rating ? ` <span class="text-primary-500">${'\u2605'.repeat(review.rating)}${'\u2606'.repeat(5 - review.rating)}</span>` : ''}
-                  ${resultBadge}
-                  <br><span class="text-slate-500">${review.waitTime ? review.waitTime + ' min' : ''}${rMethod ? ' · ' + rMethod : ''}${rGroup ? ' · ' + rGroup : ''}${review.timeOfDay ? ' · ' + (review.timeOfDay === 'morning' ? '☀️' : review.timeOfDay === 'night' ? '🌙' : review.timeOfDay === 'evening' ? '🌇' : review.timeOfDay === 'afternoon' ? '🌆' : '') : ''}${review.date ? ' · ' + formatReviewDate(review.date) : ''}</span>
-                </div>
-                ${review.text ? (() => {
-                  const commentId = 'spot-comment-' + spot.id + '-' + displayReviews.indexOf(review)
-                  return `<div id="${commentId}" class="text-xs text-slate-400" data-original-text="${escapeHTML(review.text)}">"${escapeHTML(review.text)}"</div>
-                  <button onclick="translateSpotText('${commentId}')" type="button"
-                    class="text-[10px] text-blue-500 bg-transparent border-none cursor-pointer py-0.5 flex items-center gap-1">
-                    ${icon('languages', 'w-3 h-3')} ${t('translate') || 'Traduire'}
-                  </button>`
-                })() : ''}
-              </div>
-              `
-            }).join('')}
-          </div>
-          ` : ''}
-
-          <!-- Meta + Maps + Street View -->
+          <!-- Meta + Map button -->
           <div class="px-4 pb-3 flex justify-between items-center">
             <div class="text-[11px] text-[#475569]">\ud83d\udccd ${spot.coordinates?.lat?.toFixed(4) || ''}, ${spot.coordinates?.lng?.toFixed(4) || ''} · <span style="${spot.creatorId ? 'cursor:pointer;color:#f59e0b' : ''}" ${spot.creatorId ? `onclick="showFriendProfile('${escapeJSString(spot.creatorId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(spot.creator || 'Anonyme')}</span>${(() => {
                 // Prefer experienceDate (actual travel date) over createdAt (submission date)
@@ -503,8 +455,8 @@ export function renderSpotDetail(state) {
                 return spot.createdAt ? ' · ' + formatRelativeDate(spot.createdAt) : ''
               })()}</div>
             <div class="flex gap-1.5">
-              <button onclick="showNavigationPicker(${spot.coordinates?.lat}, ${spot.coordinates?.lng}, '${navName}')" type="button"
-                class="bg-[#161b28] border border-slate-700 text-slate-400 py-2 px-3 rounded-lg text-[11px] cursor-pointer whitespace-nowrap">\ud83d\uddfa Maps</button>
+              <button onclick="flyToSpotOnMap(${spot.coordinates?.lat}, ${spot.coordinates?.lng})" type="button"
+                class="bg-[#161b28] border border-slate-700 text-slate-400 py-2 px-3 rounded-lg text-[11px] cursor-pointer whitespace-nowrap">\ud83d\uddfa ${t('map') || 'Carte'}</button>
             </div>
           </div>
 
@@ -691,67 +643,7 @@ function formatRelativeDate(dateInput) {
  * Auto-translate comments to user's language when spot opens
  * Uses DeepL API (if key configured) with MyMemory fallback + localStorage cache
  */
-async function autoTranslateComments(spotId, reviews) {
-  try {
-    const { detectLanguage } = await import('../../services/autoTranslate.js')
-    let userLang = 'fr'
-    try {
-      const persisted = localStorage.getItem('spothitch_v4_state')
-      if (persisted) {
-        const parsed = JSON.parse(persisted)
-        if (parsed && parsed.lang) userLang = parsed.lang
-      }
-    } catch { /* default to fr */ }
-
-    for (let i = 0; i < reviews.length; i++) {
-      const review = reviews[i]
-      if (!review.text) continue
-
-      const detectedLang = detectLanguage(review.text)
-      if (detectedLang === userLang || detectedLang === 'unknown') continue
-
-      const commentId = `spot-comment-${spotId}-${i}`
-      const el = document.getElementById(commentId)
-      if (!el) continue
-
-      // Check localStorage cache
-      const cacheKey = `spothitch_tr_${detectedLang}_${userLang}_${review.text.substring(0, 40)}`
-      const cached = localStorage.getItem(cacheKey)
-      if (cached) {
-        el.textContent = `"${cached}"`
-        continue
-      }
-
-      // Translate via DeepL (if key available) with MyMemory fallback
-      if (i > 0) await new Promise(r => setTimeout(r, 300))
-      const { translateViaAPI } = await import('../../services/autoTranslate.js')
-      const translated = await translateViaAPI(review.text, detectedLang, userLang, 5000)
-      if (translated && translated.toLowerCase() !== review.text.toLowerCase()) {
-        el.textContent = `"${translated}"`
-        try { localStorage.setItem(cacheKey, translated) } catch { /* quota */ }
-      }
-    }
-  } catch { /* offline or API error, keep original text */ }
-}
-
-/**
- * Format review date: cap at "2+ years" to avoid "12 years ago" on a new app
- */
-function formatReviewDate(dateStr) {
-  if (!dateStr || typeof dateStr !== 'string') return ''
-  try {
-    const d = new Date(dateStr)
-    if (isNaN(d.getTime())) return ''
-    const now = new Date()
-    const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24))
-
-    // Recent: normal relative date
-    if (diffDays < 730) return formatRelativeDate(dateStr)
-
-    // Old: cap at "2+ years"
-    return '2+ ' + (t('yearsAgo') || 'ans')
-  } catch { return '' }
-}
+// autoTranslateComments + formatReviewDate removed (reviews section removed)
 
 // Handler: open Google Street View for a spot
 window.openSpotStreetView = async (lat, lng) => {

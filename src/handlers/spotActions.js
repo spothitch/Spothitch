@@ -119,6 +119,23 @@ window.closeSpotDetail = () => {
   else window._appInternals?.actions?.selectSpot?.(null)
 };
 
+/** Close SpotDetail, switch to map tab, and fly to the spot location */
+window.flyToSpotOnMap = (lat, lng) => {
+  if (!lat || !lng || !isFinite(lat) || !isFinite(lng)) return
+  // Close the spot detail modal
+  window.closeSpotDetail?.()
+  // Switch to map tab
+  window.setState?.({ activeTab: 'map' })
+  // Fly to the spot on the map
+  setTimeout(() => {
+    if (window.homeMapInstance) {
+      try {
+        window.homeMapInstance.flyTo({ center: [lng, lat], zoom: 15, duration: 1000 })
+      } catch { /* map not ready */ }
+    }
+  }, 300)
+}
+
 window.openAddSpot = () => {
   const t = window.t
   // Auth is checked at submission (showSpotSummary), not here.
