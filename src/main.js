@@ -536,8 +536,8 @@ async function init() {
     if (savedPos) {
       gpsReadyPromise.then(() => {}).catch(() => {})
     }
-    // Fallback: force hide after 6s max (safety net)
-    setTimeout(() => hideLoader(), 6000)
+    // Fallback: force hide after 3s max (safety net)
+    setTimeout(() => hideLoader(), 3000)
 
     // Register service worker
     registerServiceWorker();
