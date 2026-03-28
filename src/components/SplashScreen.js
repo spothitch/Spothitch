@@ -130,10 +130,11 @@ const _loadingSteps = {
 }
 
 // Only these steps block the splash — the rest update the progress bar
-// but don't prevent the app from showing. spotsLoaded and mapStyle are
-// non-blocking because spots can appear a moment later and mapStyle
-// is already a prerequisite of mapReady.
-const _requiredSteps = new Set(['mapModule', 'mapReady', 'appReady'])
+// but don't prevent the app from showing.
+// mapReady is NOT required because the map renders in background after the
+// splash hides. Waiting for tiles/WebGL caused 2-4s delay even on repeat visits.
+// mapModule IS required because we need MapLibre JS to be available.
+const _requiredSteps = new Set(['mapModule', 'appReady'])
 
 let _currentTipIndex = Math.floor(Math.random() * tips.length)
 let _tipInterval = null
