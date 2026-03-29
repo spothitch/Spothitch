@@ -38,7 +38,7 @@ export function createTrip(data = {}) {
   if (trips.some(t => t.status === 'active')) return null
 
   const trip = {
-    id: 'trip_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    id: 'trip_' + Date.now() + '_' + Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => b.toString(36)).join('').slice(0, 6),
     title: data.title || '',
     startDate: data.startDate || new Date().toISOString().slice(0, 10),
     endDate: null,
@@ -87,7 +87,7 @@ export function addLeg(tripId, legData) {
   if (!trip) return null
 
   const leg = {
-    id: 'leg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    id: 'leg_' + Date.now() + '_' + Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => b.toString(36)).join('').slice(0, 6),
     order: trip.legs.length + 1,
     transport: legData.transport, // hitchhike, walk, bus, train, plane, boat, bike, car, other
     departure: {
