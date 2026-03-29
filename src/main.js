@@ -1217,6 +1217,7 @@ window.resetFilters = () => resetFiltersUtil();
 
 // Gamification handlers (extracted to handlers/gamification.js)
 import './handlers/gamification.js'
+import './handlers/tripJournal.js'
 
 // UI toggles
 window.closeFavoritesOnMap = () => setState({ showFavoritesOnMap: false, filterFavorites: false });
