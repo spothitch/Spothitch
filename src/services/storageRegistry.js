@@ -230,6 +230,11 @@ export const STORAGE_KEYS = [
 
   // === COMPANION v2 ===
   { key: 'spothitch_companion', category: DataCategory.SECURITY, description: 'Companion mode settings and trusted contacts', sensitive: true },
+  { key: 'spothitch_sos_rec_duration', category: DataCategory.PREFERENCES, description: 'SOS recording max duration preference' },
+
+  // === JOURNAL ===
+  { key: 'spothitch_journal_trips', category: DataCategory.PERSONAL, description: 'Trip diary entries (legs, notes, expenses)', sensitive: true },
+  { key: 'spothitch_loaded_version', category: DataCategory.SYSTEM, description: 'App version for auto-update detection' },
 
   // === PROFILE ===
   { key: 'spothitch_bio', category: DataCategory.PERSONAL, description: 'User biography text', sensitive: true },

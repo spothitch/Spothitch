@@ -212,6 +212,12 @@ const MAIN_JS_HANDLERS = [
   'checkUsernameField', 'submitCompleteProfile', 'closeCompleteProfile',
   // SpotDetail (defined in navigation controller/utils)
   'showNavigationPicker', 'openInNavigationApp', 'voteSpot', 'flyToSpotOnMap',
+  // Journal (defined in handlers/tripJournal.js)
+  'journalBack', 'journalNewTrip', 'journalOpenTrip', 'journalAddLeg',
+  'journalShowStats', 'journalEditExpenses', 'journalEditDayNote',
+  'journalCreateTrip', 'journalSaveLeg', 'journalEndTrip', 'journalTogglePublic',
+  'journalSaveExpenses', 'journalSaveDayNote', 'journalAddDayPhoto',
+  'journalPickSpot', 'journalSelectTransport', 'journalShareTrip', 'journalCopyLink',
   // Welcome (defined in Welcome.js)
   // IdentityVerification (defined in IdentityVerification.js)
   'startVerificationStep',
@@ -338,7 +344,7 @@ const MAIN_JS_HANDLERS = [
   'selectLanguageLevel', 'closeLanguageLevelPicker',
   // Roadmap handlers (defined in Profile.js)
   'openRoadmapFeature', 'closeRoadmapFeature',
-  'roadmapVote', 'openProgressionStats', 'toggleRoadmapComments',
+  'roadmapVote', 'openProgressionStats',
   'acceptRoadmapIntro', 'dismissRoadmapDetailIntro',
   // City Pages Demo (defined in Profile.js)
   'switchCityDemoTab', 'showCityPageDemo', 'closeCityPageDemo', 'startCityPageDemo',
@@ -475,12 +481,7 @@ const MAIN_JS_HANDLERS = [
   'guardianMessageTraveler',
   'guardianShowMap',
   'guardianCallEmergency',
-  // Internal handlers used in onclick (audit complet session 2026-03-24)
-  '_createSpotFromBubble', // popup carte → créer spot
-  '__forceUpdate',         // banner mise à jour
-  '_showGmapsTipFull',     // lien aide Google Maps dans AddSpot
-  '_toggleExec',           // handler de tous les toggles on/off
-  '_dismissGmapsTip',      // fermer tip Google Maps
+  // Internal handlers used in onclick (audit complet session 2026-03-24) // popup carte → créer spot         // banner mise à jour     // lien aide Google Maps dans AddSpot           // handler de tous les toggles on/off      // fermer tip Google Maps
 ]
 
 MAIN_JS_HANDLERS.forEach(h => KNOWN_HANDLERS.add(h))
