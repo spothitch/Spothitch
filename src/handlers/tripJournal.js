@@ -72,10 +72,18 @@ window.journalSaveLeg = (tripId) => {
   }
 
   // Calculate distance via OSRM (async, update after)
+  // Get coords from autocomplete or spot
+  const depCoords = window._journalDep || null
+  const arrCoords = window._journalArr || null
+
   const legData = {
     transport,
     departureName: departure,
+    departureLat: depCoords?.lat || null,
+    departureLng: depCoords?.lng || null,
     arrivalName: arrival,
+    arrivalLat: arrCoords?.lat || null,
+    arrivalLng: arrCoords?.lng || null,
     note,
     date: new Date().toISOString().slice(0, 10),
     // Spot data (if linked)
@@ -209,6 +217,71 @@ window.journalPickSpot = (mode) => {
 
 window.journalSelectTransport = (transport) => {
   window.setState?.({ journalTransport: transport })
+}
+
+// ==================== AUTOCOMPLETE ====================
+
+// Attach Photon autocomplete to journal departure/arrival inputs
+let _journalAutocompleteInit = false
+function _initJournalAutocomplete() {
+  if (_journalAutocompleteInit) return
+  const depInput = document.getElementById('journal-departure')
+  const arrInput = document.getElementById('journal-arrival')
+  if (!depInput || !arrInput) return
+  _journalAutocompleteInit = true
+
+  _attachAutocomplete(depInput, '_journalDep')
+  _attachAutocomplete(arrInput, '_journalArr')
+}
+
+function _attachAutocomplete(input, storeKey) {
+  let debounce = null
+  input.addEventListener('input', () => {
+    clearTimeout(debounce)
+    const q = input.value.trim()
+    if (q.length < 2) { _hideDropdown(input); return }
+    debounce = setTimeout(async () => {
+      try {
+        const { searchCities } = await import('../services/osrm.js')
+        const results = await searchCities(q)
+        _showDropdown(input, results, storeKey)
+      } catch { /* offline */ }
+    }, 150)
+  })
+}
+
+function _showDropdown(input, results, storeKey) {
+  _hideDropdown(input)
+  if (!results || results.length === 0) return
+  const dropdown = document.createElement('div')
+  dropdown.className = 'journal-autocomplete'
+  dropdown.style.cssText = 'position:absolute;left:0;right:0;top:100%;z-index:20;background:#1a2332;border:1px solid rgba(255,255,255,.1);border-radius:10px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)'
+  results.slice(0, 5).forEach(r => {
+    const item = document.createElement('div')
+    item.style.cssText = 'padding:10px 14px;font-size:13px;color:#e2e8f0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)'
+    item.textContent = r.display_name || r.name || `${r.city || ''}, ${r.country || ''}`
+    item.addEventListener('click', () => {
+      input.value = r.city || r.name || r.display_name?.split(',')[0] || ''
+      window[storeKey] = { lat: r.lat, lng: r.lon || r.lng, name: input.value }
+      _hideDropdown(input)
+    })
+    dropdown.appendChild(item)
+  })
+  input.parentElement.style.position = 'relative'
+  input.parentElement.appendChild(dropdown)
+}
+
+function _hideDropdown(input) {
+  const existing = input.parentElement?.querySelector('.journal-autocomplete')
+  if (existing) existing.remove()
+}
+
+// Re-init autocomplete after render
+const _origJournalAddLeg = window.journalAddLeg
+window.journalAddLeg = (tripId) => {
+  _journalAutocompleteInit = false
+  _origJournalAddLeg?.(tripId) || window.setState?.({ journalView: 'add-leg', journalTripId: tripId, journalTransport: 'hitchhike' })
+  setTimeout(_initJournalAutocomplete, 500)
 }
 
 // ==================== SHARE ====================
