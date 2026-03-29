@@ -32,6 +32,9 @@ export function startVersionCheck() {
       const data = await res.json()
       if (!currentVersion) {
         currentVersion = data.version
+        // First check: version stored. Clear any stale reload counter from previous session.
+        sessionStorage.removeItem('spothitch_reload_count')
+        sessionStorage.removeItem('spothitch_reload_time')
         return
       }
       if (data.version !== currentVersion) {
@@ -71,15 +74,15 @@ export function startVersionCheck() {
   }
 
   async function clearCachesAndReload() {
-    // Anti-loop: if we've reloaded more than 1 time in 60 seconds, stop
+    // Anti-loop: max 2 reloads per 60 seconds (deploy may need 2: clear cache + load new code)
     const reloadKey = 'spothitch_reload_count'
     const reloadTimeKey = 'spothitch_reload_time'
     const now = Date.now()
     const lastReloadTime = parseInt(sessionStorage.getItem(reloadTimeKey) || '0', 10)
     const reloadCount = parseInt(sessionStorage.getItem(reloadKey) || '0', 10)
-    if (now - lastReloadTime < 60000 && reloadCount >= 1) {
+    if (now - lastReloadTime < 60000 && reloadCount >= 2) {
       console.warn('[AutoUpdate] Reload loop detected, stopping. User will get update on next visit.')
-      return // Stop the loop — user gets update next time they open the app
+      return
     }
     sessionStorage.setItem(reloadKey, String(now - lastReloadTime < 60000 ? reloadCount + 1 : 1))
     sessionStorage.setItem(reloadTimeKey, String(now))
