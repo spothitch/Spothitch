@@ -5217,4 +5217,9 @@ export default {
   loadingEllipsis: '⏳...',
   countriesLabel: 'Länder',
   positionLabel: 'Position',
+  noTravelerPhone: 'Telefonnummer des Reisenden nicht verfugbar',
+  contactAlreadyAdded: 'Kontakt bereits hinzugefugt',
+  addedAsContact: 'als Notfallkontakt hinzugefugt',
+  permissionGranted: 'Berechtigung erteilt',
+  permissionDenied: 'Berechtigung verweigert',
 }

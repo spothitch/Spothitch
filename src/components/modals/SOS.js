@@ -21,7 +21,7 @@
 
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { getCommunityAlertSettings } from '../../services/communityAlert.js'
 
 // ─── SOS localStorage helpers ───────────────────────────────────────────────
@@ -717,9 +717,10 @@ function _getConfigContent(section) {
         <div class="${descCls}">${t('sosContactsDesc') || 'Contacts SpotHitch (push) et contacts SMS (hors app).'}</div>
         <div class="${labelCls}">SpotHitch (push)</div>
         ${contacts.filter(c => c.type === 'app').map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('') || ''}
-        <div class="flex gap-1.5 mt-1.5">
-          <input type="text" id="sos-cfg-app-search" class="input-field flex-1 text-[12px] min-w-0" placeholder="${t('sosSearchUser') || 'Chercher un utilisateur SpotHitch...'}">
+        <div class="flex gap-1.5 mt-1.5 relative">
+          <input type="text" id="sos-cfg-app-search" class="input-field flex-1 text-[12px] min-w-0" placeholder="${t('sosSearchUser') || 'Chercher un utilisateur SpotHitch...'}" oninput="sosSearchFriend(this.value)">
           <button onclick="addEmergencyContact()" class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center shrink-0" type="button" aria-label="${t('addContact') || 'Ajouter un contact'}">${icon('plus', 'w-3.5 h-3.5 text-dark-primary')}</button>
+          <div id="sos-friend-results" class="hidden absolute z-50 bg-dark-secondary border border-white/10 rounded-lg mt-1 max-h-40 overflow-y-auto w-full top-full left-0"></div>
         </div>
         <div class="${labelCls}">SMS (${t('sosExternalContacts') || 'hors app'})</div>
         ${contacts.filter(c => c.type !== 'app').map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('') || contacts.map((c, i) => _renderConfigContact(c, i, primaryIdx)).join('')}
@@ -795,19 +796,22 @@ function _getConfigContent(section) {
       return `${backBtn}
         <div class="${titleCls}">${t('sosRecording') || 'Enregistrement'}</div>
         <div class="${descCls}">${t('sosRecordingConfigDesc') || 'Autorise le micro et la caméra maintenant. En urgence, tu n\'auras pas le temps.'}</div>
-        <button onclick="sosStartRecording('audio');sosStopRecording()" class="w-full flex items-center gap-3 p-3 bg-white/[0.04] border border-white/[0.06] rounded-lg mb-1.5" type="button">
+        <button onclick="sosRequestPermission('audio')" class="w-full flex items-center gap-3 p-3 bg-white/[0.04] border border-white/[0.06] rounded-lg mb-1.5" type="button">
           ${icon('mic', 'w-3.5 h-3.5 text-rose-400')}
           <span class="flex-1 text-[13px]">${t('sosMicrophone') || 'Microphone'}</span>
           <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/[0.12] text-amber-500">${t('sosAuthorize') || 'Autoriser'}</span>
         </button>
-        <button onclick="sosStartRecording('video');sosStopRecording()" class="w-full flex items-center gap-3 p-3 bg-white/[0.04] border border-white/[0.06] rounded-lg mb-1.5" type="button">
+        <button onclick="sosRequestPermission('video')" class="w-full flex items-center gap-3 p-3 bg-white/[0.04] border border-white/[0.06] rounded-lg mb-1.5" type="button">
           ${icon('video', 'w-3.5 h-3.5 text-rose-400')}
           <span class="flex-1 text-[13px]">${t('sosCamera') || 'Caméra'}</span>
           <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/[0.12] text-amber-500">${t('sosAuthorize') || 'Autoriser'}</span>
         </button>
         <div class="${labelCls}">${t('sosMaxDuration') || 'Durée max'}</div>
         <div class="flex gap-1.5 flex-wrap">
-          ${['2', '5', '10', '30'].map(d => `<button class="px-3 py-1.5 rounded-full text-[12px] font-medium border ${d === '5' ? 'bg-amber-500/[0.12] border-amber-500/30 text-amber-500' : 'bg-white/[0.04] border-white/[0.06] text-slate-400'}" type="button">${d} min</button>`).join('')}
+          ${['2', '5', '10', '30'].map(d => {
+    const saved = localStorage.getItem('spothitch_sos_rec_duration') || '5'
+    return `<button onclick="localStorage.setItem('spothitch_sos_rec_duration','${d}');sosOpenConfig('recording')" class="px-3 py-1.5 rounded-full text-[12px] font-medium border ${saved === d ? 'bg-amber-500/[0.12] border-amber-500/30 text-amber-500' : 'bg-white/[0.04] border-white/[0.06] text-slate-400'}" type="button">${d} min</button>`
+  }).join('')}
         </div>`
 
     case 'emergency':
@@ -960,6 +964,55 @@ window.sosSetPrimaryContact = (index) => {
   window.setState?.({})
 }
 
+// ── Friend search for emergency contacts ─────────────────────────────────────
+window.sosSearchFriend = async (query) => {
+  if (!query || query.length < 2) {
+    document.getElementById('sos-friend-results')?.classList.add('hidden')
+    return
+  }
+
+  // Search local friends first
+  const state = window.getState?.() || {}
+  const friends = state.friends || []
+  const results = friends.filter(f =>
+    (f.displayName || f.username || '').toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 5)
+
+  // Show results
+  const container = document.getElementById('sos-friend-results')
+  if (!container) return
+  if (results.length === 0) {
+    container.innerHTML = `<div class="p-2 text-xs text-slate-500">${t('noResults') || 'Aucun resultat'}</div>`
+    container.classList.remove('hidden')
+    return
+  }
+  container.innerHTML = results.map(f => `
+    <button onclick="sosAddFriendAsContact('${escapeJSString(f.uid || '')}', '${escapeJSString(f.displayName || f.username || '')}')"
+      type="button" class="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center gap-2">
+      <span>${escapeHTML(f.displayName || f.username || 'Ami')}</span>
+    </button>
+  `).join('')
+  container.classList.remove('hidden')
+}
+
+window.sosAddFriendAsContact = (uid, name) => {
+  const state = window.getState?.() || {}
+  const contacts = [...(state.emergencyContacts || [])]
+  // Don't add duplicates
+  if (contacts.some(c => c.uid === uid || c.name === name)) {
+    import('../../services/notifications.js').then(n => n.showToast(t('contactAlreadyAdded') || 'Contact deja ajoute', 'info'))
+    return
+  }
+  contacts.push({ name, uid, phone: '', fromApp: true })
+  window.setState?.({ emergencyContacts: contacts })
+  document.getElementById('sos-friend-results')?.classList.add('hidden')
+  const searchInput = document.getElementById('sos-cfg-app-search')
+  if (searchInput) searchInput.value = ''
+  import('../../services/notifications.js').then(n => n.showToast(name + ' ' + (t('addedAsContact') || 'ajoute comme contact d\'urgence'), 'success'))
+  // Re-render config
+  window.sosOpenConfig?.('contacts')
+}
+
 // ── Fake Call ─────────────────────────────────────────────────────────────────
 let _fakeCallTimer = null
 let _fakeCallSeconds = 0
@@ -1009,6 +1062,22 @@ window.sosFakeCallDecline = () => {
   }
   if (navigator.vibrate) navigator.vibrate(0)
   document.getElementById('sos-fake-call')?.remove()
+}
+
+// ── Permission pre-request (no recording, just ask for permission) ────────────
+window.sosRequestPermission = async (type) => {
+  try {
+    const constraints = type === 'video' ? { audio: true, video: true } : { audio: true }
+    const stream = await navigator.mediaDevices.getUserMedia(constraints)
+    stream.getTracks().forEach(tr => tr.stop()) // Release immediately
+    import('../../services/notifications.js').then(n => n.showToast(
+      t('permissionGranted') || 'Permission accordee', 'success'
+    ))
+  } catch {
+    import('../../services/notifications.js').then(n => n.showToast(
+      t('permissionDenied') || 'Permission refusee', 'error'
+    ))
+  }
 }
 
 // ── Audio/Video Recording ─────────────────────────────────────────────────────
@@ -1067,6 +1136,12 @@ window.sosStartRecording = async (mode) => {
 
     _mediaRecorder.start()
 
+    // Auto-stop after configured max duration
+    const maxMinutes = parseInt(localStorage.getItem('spothitch_sos_rec_duration') || '5', 10)
+    window._sosRecordingTimer = setTimeout(() => {
+      window.sosStopRecording?.()
+    }, maxMinutes * 60 * 1000)
+
     // Update UI to show recording state
     const recIndicator = document.getElementById('sos-rec-indicator')
     const stopBtn = document.getElementById('sos-rec-stop-btn')
@@ -1085,6 +1160,7 @@ window.sosStartRecording = async (mode) => {
 }
 
 window.sosStopRecording = () => {
+  clearTimeout(window._sosRecordingTimer)
   if (_mediaRecorder && _mediaRecorder.state !== 'inactive') {
     _mediaRecorder.stop()
   }

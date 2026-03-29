@@ -74,11 +74,25 @@ window.startCompanion = () => {
     // ignore
   }
 
+  // Store traveler's own phone (from profile or first emergency contact)
+  // so the guardian can call/message the traveler
+  let travelerPhone = ''
+  try {
+    const state = window.getState?.() || {}
+    // Try profile phone first
+    travelerPhone = state.userPhone || ''
+    // Fallback to first emergency contact phone
+    if (!travelerPhone && state.emergencyContacts?.length > 0) {
+      travelerPhone = state.emergencyContacts[0].phone || ''
+    }
+  } catch { /* ignore */ }
+
   startCompanionMode({ name, phone }, interval, {
     trustedContacts,
     destination,
     notifyOnDeparture,
     notifyOnArrival,
+    travelerPhone,
   })
   onCompanionOverdue(() => {
     window.setState({ showCompanionModal: true })

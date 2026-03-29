@@ -35,6 +35,7 @@ const MAIN_JS_HANDLERS = [
   'sosStartRecording', 'sosStopRecording',
   'acceptSOSIntro', 'sosTab', 'sosShowRecordOptions', 'sosBroadcastCommunity',
   'sosOpenConfig', 'sosCloseConfig',
+  'sosSearchFriend', 'sosAddFriendAsContact', 'sosRequestPermission',
   // Auth
   'openAuth', 'closeAuth', 'setAuthMode',
   'signIn', 'signUp',
