@@ -5218,4 +5218,9 @@ export default {
   loadingEllipsis: '⏳...',
   countriesLabel: 'países',
   positionLabel: 'Posición',
+  noTravelerPhone: 'Numero del viajero no disponible',
+  contactAlreadyAdded: 'Contacto ya agregado',
+  addedAsContact: 'agregado como contacto de emergencia',
+  permissionGranted: 'Permiso concedido',
+  permissionDenied: 'Permiso denegado',
 }

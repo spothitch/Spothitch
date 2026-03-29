@@ -919,18 +919,26 @@ window.guardianToggleArrival = async () => {
 /** Guardian action: call traveler */
 window.guardianCallTraveler = () => {
   const state = getCompanionState()
-  const phone = state.guardian?.phone
+  const phone = state.travelerPhone
   if (phone) {
     window.open(`tel:${phone}`, '_self')
+  } else {
+    import('../../services/notifications.js').then(n => n.showToast(
+      t('noTravelerPhone') || 'Numero du voyageur non disponible', 'warning'
+    ))
   }
 }
 
 /** Guardian action: message traveler */
 window.guardianMessageTraveler = () => {
   const state = getCompanionState()
-  const phone = state.guardian?.phone
+  const phone = state.travelerPhone
   if (phone) {
     window.open(`sms:${phone}`, '_self')
+  } else {
+    import('../../services/notifications.js').then(n => n.showToast(
+      t('noTravelerPhone') || 'Numero du voyageur non disponible', 'warning'
+    ))
   }
 }
 

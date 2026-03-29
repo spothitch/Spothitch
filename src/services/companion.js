@@ -486,6 +486,7 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
     notifyOnDeparture: options.notifyOnDeparture !== false,
     notifyOnArrival: options.notifyOnArrival !== false,
     checkInsCount: 0,
+    travelerPhone: options.travelerPhone ? cleanPhone(options.travelerPhone) : '',
   }
 
   // Try to get current position immediately
