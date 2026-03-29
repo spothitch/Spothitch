@@ -1,150 +1,149 @@
 /**
- * Auto-Update System
+ * Auto-Update System v3
  * Ensures users ALWAYS get the latest code — no manual cache clearing needed.
- * Two mechanisms work together:
- * 1. version.json polling — detects new deployments
- * 2. SW update listener — detects when new Service Worker is ready
+ *
+ * Strategy:
+ * 1. On load: fetch version.json BYPASSING service worker entirely
+ * 2. Compare with version stored in localStorage (survives SW cache clears)
+ * 3. If different: clear ALL caches, unregister SW, reload
+ * 4. After reload: verify version changed, if not → force hard reload
+ * 5. Anti-loop: max 3 reloads per 5 minutes, then stop
  */
 
-let currentVersion = null
 let isReloading = false
-// Guard: block auto-reload while an auth popup is open (popup steals focus → visibilitychange → spurious reload)
 window._authInProgress = false
-// Guard: block auto-reload for 15 seconds after auth completes (SW update + version.json would reload during sign-in)
 window._authJustCompleted = 0
-// Guard: block auto-reload while a share is being processed (Google Maps share → AddSpot flow)
 window._shareInProgress = false
 
 export function startVersionCheck() {
-  const CHECK_INTERVAL = 120_000 // 2 minutes
+  const CHECK_INTERVAL = 120_000 // 2 min
   const BASE = import.meta.env.BASE_URL || '/'
-  let lastCheck = 0
-
-  async function checkVersion() {
-    if (isReloading) return
-    // Debounce: don't check more than once per 30 seconds
-    const now = Date.now()
-    if (now - lastCheck < 30_000) return
-    lastCheck = now
-    try {
-      const res = await fetch(`${BASE}version.json?t=${now}`, { cache: 'no-store' })
-      if (!res.ok) return
-      const data = await res.json()
-      if (!currentVersion) {
-        currentVersion = data.version
-        // First check: version stored. Clear any stale reload counter from previous session.
-        sessionStorage.removeItem('spothitch_reload_count')
-        sessionStorage.removeItem('spothitch_reload_time')
-        return
-      }
-      if (data.version !== currentVersion) {
-        doReload()
-      }
-    } catch { /* offline or file missing — ignore */ }
-  }
-
   let pendingReload = false
 
-  function isShareFlowActive() {
+  function isBlocked() {
+    if (window._authInProgress) return true
     if (window._shareInProgress) return true
+    if (Date.now() - window._authJustCompleted < 15000) return true
+    if (sessionStorage.getItem('spothitch_auth_redirect')) return true
     try {
       const ts = parseInt(sessionStorage.getItem('spothitch_share_flow') || '0', 10)
-      // Share flow is active for up to 120 seconds (user filling the AddSpot form)
       if (ts && Date.now() - ts < 120_000) return true
-    } catch { /* no-op */ }
+    } catch { /* */ }
     return false
   }
 
-  async function doReload() {
+  async function fetchVersionDirect() {
+    // Bypass SW completely: use fetch with cache busting + no-store
+    try {
+      const url = `${BASE}version.json?_=${Date.now()}`
+      const res = await fetch(url, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store', 'Pragma': 'no-cache' },
+      })
+      if (!res.ok) return null
+      const data = await res.json()
+      return data.version || null
+    } catch { return null }
+  }
+
+  async function checkAndUpdate() {
     if (isReloading) return
-    // Never reload during an auth flow, share processing, or within 15s after auth completed
-    if (window._authInProgress || isShareFlowActive() || sessionStorage.getItem('spothitch_auth_redirect') || (Date.now() - window._authJustCompleted < 15000)) {
+    const serverVersion = await fetchVersionDirect()
+    if (!serverVersion) return
+
+    // Get the version we loaded with (stored at first successful check)
+    const loadedVersion = localStorage.getItem('spothitch_loaded_version')
+
+    if (!loadedVersion) {
+      // First ever check — store current version
+      localStorage.setItem('spothitch_loaded_version', serverVersion)
+      return
+    }
+
+    if (serverVersion === loadedVersion) return // Up to date
+
+    // Version mismatch — need to update
+    console.log('[AutoUpdate] New version:', serverVersion, '(current:', loadedVersion, ')')
+
+    if (isBlocked()) {
       pendingReload = true
       return
     }
 
-    // If app is in background, reload silently
-    if (document.visibilityState === 'hidden') {
-      await clearCachesAndReload()
-      return
-    }
-
-    // App is visible: silently clear caches and reload (no blocking banner)
-    await clearCachesAndReload()
+    await doUpdate(serverVersion)
   }
 
-  async function clearCachesAndReload() {
-    // Anti-loop: max 2 reloads per 60 seconds (deploy may need 2: clear cache + load new code)
-    const reloadKey = 'spothitch_reload_count'
-    const reloadTimeKey = 'spothitch_reload_time'
-    const now = Date.now()
-    const lastReloadTime = parseInt(sessionStorage.getItem(reloadTimeKey) || '0', 10)
-    const reloadCount = parseInt(sessionStorage.getItem(reloadKey) || '0', 10)
-    if (now - lastReloadTime < 60000 && reloadCount >= 2) {
-      console.warn('[AutoUpdate] Reload loop detected, stopping. User will get update on next visit.')
-      return
-    }
-    sessionStorage.setItem(reloadKey, String(now - lastReloadTime < 60000 ? reloadCount + 1 : 1))
-    sessionStorage.setItem(reloadTimeKey, String(now))
+  async function doUpdate(newVersion) {
+    if (isReloading) return
 
-    // 1. Clear ALL caches (precache + runtime)
+    // Anti-loop: max 3 reloads in 5 minutes
+    const key = 'spothitch_update_reloads'
+    try {
+      const data = JSON.parse(sessionStorage.getItem(key) || '{"count":0,"since":0}')
+      const now = Date.now()
+      if (now - data.since < 300_000 && data.count >= 3) {
+        console.warn('[AutoUpdate] Too many reloads, stopping. Will retry on next app open.')
+        // Store the new version anyway so next app open doesn't loop
+        localStorage.setItem('spothitch_loaded_version', newVersion)
+        return
+      }
+      sessionStorage.setItem(key, JSON.stringify({
+        count: now - data.since < 300_000 ? data.count + 1 : 1,
+        since: now - data.since < 300_000 ? data.since : now,
+      }))
+    } catch { /* */ }
+
+    // 1. Clear ALL caches
     if (window.caches) {
       try {
         const keys = await caches.keys()
         await Promise.all(keys.map(k => caches.delete(k)))
-      } catch { /* ignore */ }
+      } catch { /* */ }
     }
-    // 2. Unregister ALL service workers so the browser fetches fresh from server
+
+    // 2. Unregister ALL service workers
     if (navigator.serviceWorker) {
       try {
         const regs = await navigator.serviceWorker.getRegistrations()
         await Promise.all(regs.map(r => r.unregister()))
-      } catch { /* ignore */ }
+      } catch { /* */ }
     }
+
+    // 3. Update stored version BEFORE reload so next load knows it's fresh
+    localStorage.setItem('spothitch_loaded_version', newVersion)
+
+    // 4. Reload
     isReloading = true
     window.location.reload()
   }
 
-  // When user backgrounds the app, apply pending reload
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && pendingReload && !isReloading && !window._authInProgress && !isShareFlowActive() && !sessionStorage.getItem('spothitch_auth_redirect') && (Date.now() - window._authJustCompleted >= 15000)) {
-      isReloading = true
-      window.location.reload()
-    }
-  })
+  // Initial check (immediate)
+  checkAndUpdate()
 
-  // Initial check to store current version
-  checkVersion()
+  // Regular checks
+  let interval = setInterval(checkAndUpdate, CHECK_INTERVAL)
 
-  // Check regularly — pause when app is backgrounded to save network/battery
-  let versionInterval = setInterval(checkVersion, CHECK_INTERVAL)
-
+  // When app comes back to foreground, check immediately
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      // User came back — check immediately + restart interval
-      setTimeout(checkVersion, 2000)
-      if (!versionInterval) versionInterval = setInterval(checkVersion, CHECK_INTERVAL)
+      setTimeout(checkAndUpdate, 1500)
+      if (!interval) interval = setInterval(checkAndUpdate, CHECK_INTERVAL)
     } else {
-      // App backgrounded — stop polling
-      if (versionInterval) { clearInterval(versionInterval); versionInterval = null }
+      // Background: stop polling, apply pending reload
+      if (interval) { clearInterval(interval); interval = null }
+      if (pendingReload && !isReloading && !isBlocked()) {
+        isReloading = true
+        window.location.reload()
+      }
     }
   })
 
-  // Reload when a NEW Service Worker takes control (not on first install)
-  // On first visit, controller is null → skip. On update, controller changes → reload.
+  // SW controller change: reload immediately
   let hadController = !!navigator.serviceWorker?.controller
   navigator.serviceWorker?.addEventListener('controllerchange', () => {
-    if (hadController && !isReloading) {
-      // Block reload if auth just completed or share in progress
-      if (window._authInProgress || isShareFlowActive() || (Date.now() - window._authJustCompleted < 15000)) {
-        pendingReload = true
-        hadController = true
-        return
-      }
-      // New SW activated — reload NOW so user gets latest version immediately
+    if (hadController && !isReloading && !isBlocked()) {
       isReloading = true
-      /* silent update — no toast needed, page reloads immediately */
-      setTimeout(() => window.location.reload(), 800)
+      setTimeout(() => window.location.reload(), 500)
     }
     hadController = true
   })

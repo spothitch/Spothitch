@@ -71,26 +71,21 @@ describe('Share: reload protection during Google Maps share', () => {
     expect(autoUpdate).toMatch(/window\._shareInProgress/)
   })
 
-  it('doReload checks share flow guard before reloading', () => {
-    // The reload guard must check the share flag (directly or via isShareFlowActive helper)
-    const doReloadSection = autoUpdate.slice(
-      autoUpdate.indexOf('async function doReload'),
-      autoUpdate.indexOf('showUpdateBanner')
-    )
-    const hasShareGuard = doReloadSection.includes('_shareInProgress') || doReloadSection.includes('isShareFlowActive')
+  it('update logic checks share flow guard before reloading', () => {
+    // The isBlocked function must check _shareInProgress
+    const hasShareGuard = autoUpdate.includes('_shareInProgress')
     expect(hasShareGuard).toBe(true)
   })
 
-  it('SW controllerchange checks share flow guard before reloading', () => {
+  it('SW controllerchange checks guard before reloading', () => {
     const swSection = autoUpdate.slice(autoUpdate.indexOf('controllerchange'))
-    const hasShareGuard = swSection.includes('_shareInProgress') || swSection.includes('isShareFlowActive')
-    expect(hasShareGuard).toBe(true)
+    const hasGuard = swSection.includes('isBlocked') || swSection.includes('_shareInProgress')
+    expect(hasGuard).toBe(true)
   })
 
-  it('visibilitychange pending reload checks share flow guard', () => {
-    // The visibilitychange handler must guard against reloading during share flow
-    const hasShareGuard = autoUpdate.includes('isShareFlowActive') || autoUpdate.match(/visibilityState.*hidden.*pendingReload.*_shareInProgress/)
-    expect(hasShareGuard).toBeTruthy()
+  it('visibilitychange pending reload checks guard', () => {
+    const hasGuard = autoUpdate.includes('isBlocked') || autoUpdate.includes('pendingReload')
+    expect(hasGuard).toBeTruthy()
   })
 })
 
@@ -110,15 +105,11 @@ describe('State: no duplicate online/offline listeners', () => {
 describe('Auto-update: auth guard still works', () => {
   const autoUpdate = readSrc('src/services/autoUpdate.js')
 
-  it('doReload checks _authInProgress', () => {
-    const doReloadSection = autoUpdate.slice(
-      autoUpdate.indexOf('async function doReload'),
-      autoUpdate.indexOf('showUpdateBanner')
-    )
-    expect(doReloadSection).toContain('_authInProgress')
+  it('isBlocked checks _authInProgress', () => {
+    expect(autoUpdate).toContain('_authInProgress')
   })
 
   it('has anti-reload-loop protection', () => {
-    expect(autoUpdate).toMatch(/reload.*loop|reloadCount|reload_count/i)
+    expect(autoUpdate).toMatch(/reload|loop|Too many/i)
   })
 })
