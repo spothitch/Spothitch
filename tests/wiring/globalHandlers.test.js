@@ -353,7 +353,7 @@ const MAIN_JS_HANDLERS = [
   // Roadmap handlers (defined in Profile.js)
   'openRoadmapFeature', 'closeRoadmapFeature',
   'roadmapVote', 'openProgressionStats',
-  'acceptRoadmapIntro', 'dismissRoadmapDetailIntro',
+  'acceptRoadmapIntro', 'dismissRoadmapDetailIntro', 'toggleRoadmapComments',
   // City Pages Demo (defined in Profile.js)
   'switchCityDemoTab', 'showCityPageDemo', 'closeCityPageDemo', 'startCityPageDemo',
   // Feature demos — generic + 5 demo overlays (defined in ProfileDemos.js)
@@ -483,12 +483,15 @@ const MAIN_JS_HANDLERS = [
   'guardianGoToScreen',
   'guardianSwitchTab',
   'guardianEditField',
+  'guardianSaveField',
+  'guardianCancelEdit',
   'guardianToggleDeparture',
   'guardianToggleArrival',
   'guardianCallTraveler',
   'guardianMessageTraveler',
   'guardianShowMap',
   'guardianCallEmergency',
+  'toggleRoadmapComments',
   // Internal handlers used in onclick (audit complet session 2026-03-24) // popup carte → créer spot         // banner mise à jour     // lien aide Google Maps dans AddSpot           // handler de tous les toggles on/off      // fermer tip Google Maps
 ]
 

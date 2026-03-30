@@ -12,7 +12,8 @@ import { renderToggle } from '../../utils/toggle.js'
 import { getVipLevel } from '../../data/vip-levels.js'
 import { allBadges } from '../../data/badges.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
-// FEATURES_DATA + featureVotes removed (Roadmap tab replaced by Journal)
+import { FEATURES_DATA } from '../../data/featuresData.js'
+import { getVoteTotals, getFeatureComments } from '../../services/featureVotes.js'
 import { getSpotFreshness } from '../../services/spotFreshness.js'
 import './ProfileDemos.js' // Interactive demo overlays for Prochainement features
 
@@ -104,7 +105,7 @@ export function renderProfile(state) {
       ${renderProfileSubTabs(subTab)}
       <div class="p-4 space-y-4 flex-1">
         ${subTab === 'profil' ? renderProfilTab(state) : ''}
-        ${subTab === 'journal' ? renderJournalTab(state) : ''}
+        ${subTab === 'progression' ? renderRoadmapTab(state) : ''}
         ${subTab === 'reglages' ? `${renderReglagesTab(state)}${renderVersionReset()}` : ''}
       </div>
     </div>
@@ -173,7 +174,7 @@ function renderLanguageLevelModal(state) {
 function renderProfileSubTabs(activeTab) {
   const tabs = [
     { id: 'profil', icon: 'user', label: t('profileTabProfil') || 'Profil' },
-    { id: 'journal', icon: 'notebook', label: t('journal') || 'Journal' },
+    { id: 'progression', icon: 'star', label: t('profileTabRoadmap') || 'Roadmap' },
     { id: 'reglages', icon: 'settings', label: t('profileTabSettings') || 'Réglages' },
   ]
   return `
@@ -860,23 +861,128 @@ function renderMyCountriesList(state) {
 // ==================== TAB 2: ROADMAP (community voting) ====================
 
 
-// ==================== JOURNAL TAB ====================
+// ==================== TAB 2: ROADMAP (community voting) ====================
 
-let _journalModule = null
-async function _loadJournal() {
-  if (!_journalModule) _journalModule = await import('./Journal.js')
-  return _journalModule
+// Cached vote totals (loaded async from Firebase)
+let _roadmapTotalsCache = null
+let _roadmapTotalsLoading = false
+
+async function ensureRoadmapTotals() {
+  if (_roadmapTotalsCache || _roadmapTotalsLoading) return
+  _roadmapTotalsLoading = true
+  try {
+    _roadmapTotalsCache = await getVoteTotals()
+  } catch { _roadmapTotalsCache = {} }
+  _roadmapTotalsLoading = false
+  window._forceRender?.()
 }
 
-function renderJournalTab(state) {
-  // Lazy-load Journal component
-  if (!_journalModule) {
-    _loadJournal().then(() => window._forceRender?.())
-    return `<div style="text-align:center;padding:40px;color:#64748b">Chargement...</div>`
+// Cached comments per feature (loaded on demand)
+const _commentsCache = {}
+const _commentsLoading = new Set()
+
+async function ensureComments(featureId) {
+  if (_commentsCache[featureId] || _commentsLoading.has(featureId)) return
+  _commentsLoading.add(featureId)
+  try {
+    _commentsCache[featureId] = await getFeatureComments(featureId)
+  } catch { _commentsCache[featureId] = [] }
+  _commentsLoading.delete(featureId)
+  window._forceRender?.()
+}
+
+// Toggle expanded comments for a feature
+const _expandedFeatures = new Set()
+
+window.toggleRoadmapComments = (featureId) => {
+  if (_expandedFeatures.has(featureId)) {
+    _expandedFeatures.delete(featureId)
+  } else {
+    _expandedFeatures.add(featureId)
+    ensureComments(featureId)
   }
-  return _journalModule.renderJournal(state)
+  window._forceRender?.()
 }
 
+function renderCommentsSection(featureId) {
+  if (!_expandedFeatures.has(featureId)) return ''
+  const comments = _commentsCache[featureId]
+  if (!comments) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">' + escapeHTML(t('loading') || 'Loading...') + '</div></div>'
+  if (comments.length === 0) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">' + escapeHTML(t('roadmapNoComments') || 'Aucun avis pour le moment. Sois le premier !') + '</div></div>'
+
+  const VOTE_EMOJI = { essential: '🔥', useful: '👍', notUrgent: '🤷' }
+  return '<div class="mt-2 space-y-1.5">'
+    + comments.map(c =>
+      '<div class="flex items-start gap-2 px-1 py-1.5 border-t border-white/[0.04]">'
+      + '<span class="text-sm shrink-0">' + escapeHTML(c.avatar) + '</span>'
+      + '<div class="flex-1 min-w-0">'
+      + '<div class="flex items-center gap-1.5">'
+      + '<span class="text-[11px] font-semibold text-slate-300">' + escapeHTML(c.userName) + '</span>'
+      + '<span class="text-[10px]">' + (VOTE_EMOJI[c.vote] || '') + '</span>'
+      + '</div>'
+      + '<p class="text-[11px] text-slate-400 leading-relaxed mt-0.5">' + escapeHTML(c.comment) + '</p>'
+      + '</div></div>'
+    ).join('')
+    + '</div>'
+}
+
+function renderRoadmapTab(_state) {
+  ensureRoadmapTotals()
+
+  const betaFeatures = FEATURES_DATA.filter(f => f.status === 'beta')
+  const totals = _roadmapTotalsCache || {}
+
+  const sorted = [...betaFeatures].sort((a, b) => {
+    const aE = totals[a.id]?.essential || 0
+    const bE = totals[b.id]?.essential || 0
+    return bE - aE
+  })
+
+  const featureCards = sorted.map((f, i) => {
+    const ft = totals[f.id] || { essential: 0, useful: 0, notUrgent: 0 }
+    const rank = i + 1
+    const rankLabel = rank <= 3 ? ['🥇','🥈','🥉'][rank - 1] : '<span class="text-xs text-slate-500 font-bold">#' + rank + '</span>'
+    return '<div class="card p-3">'
+      + '<div class="flex items-start gap-3">'
+      + '<div class="text-lg shrink-0 w-7 text-center">' + rankLabel + '</div>'
+      + '<div class="flex-1 min-w-0">'
+      + '<div class="flex items-center gap-2 mb-1">'
+      + '<span class="text-lg">' + f.emoji + '</span>'
+      + '<h3 class="font-semibold text-sm truncate">' + escapeHTML(t('featureName_' + f.id) || f.name || f.title) + '</h3>'
+      + '</div>'
+      + '<div class="flex flex-wrap gap-1.5 mb-2">'
+      + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-red-500/12 text-red-500">🔥 ' + ft.essential + '</span>'
+      + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-amber-500/12 text-amber-500">👍 ' + ft.useful + '</span>'
+      + '<span class="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-gray-500/12 text-gray-500">🤷 ' + ft.notUrgent + '</span>'
+      + '</div>'
+      + '<div class="flex items-center gap-2">'
+      + '<button onclick="showFeatureIntro(\'' + f.id + '\')"'
+      + ' class="text-[11px] px-3 py-1 rounded-lg font-semibold cursor-pointer transition-colors bg-amber-500/10 border border-amber-500/30 text-amber-500">'
+      + escapeHTML(t('roadmapDetail') || 'Détail & voter')
+      + '</button>'
+      + '<button onclick="toggleRoadmapComments(\'' + f.id + '\')"'
+      + ' class="text-[11px] px-3 py-1 rounded-lg font-semibold cursor-pointer transition-colors bg-white/[0.04] border border-white/[0.08] text-slate-400">'
+      + '💬 ' + escapeHTML(t('roadmapComments') || 'Avis')
+      + '</button>'
+      + '</div>'
+      + renderCommentsSection(f.id)
+      + '</div></div></div>'
+  }).join('')
+
+  return `
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-lg font-bold">${icon('rocket', 'w-5 h-5 text-amber-400 inline-block mr-1')} ${t('roadmapTitle') || 'Roadmap communautaire'}</h2>
+      </div>
+      <div class="card p-3 mb-4 border-amber-500/20 bg-amber-500/5">
+        <p class="text-slate-300 text-xs leading-relaxed">${t('roadmapCommunityIntro') || "Vote pour les features que tu veux en premier ! Plus de votes 🔥 = plus de priorité."}</p>
+      </div>
+      <div class="space-y-2.5">
+        ${featureCards}
+      </div>
+    </div>
+  `
+}
 
 // ==================== TAB 3: RÉGLAGES ====================
 
