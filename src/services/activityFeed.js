@@ -13,7 +13,7 @@ const MAX_ACTIVITIES = 100
 export function getActivityFeed(filter = 'all') {
   const activities = Storage.get(STORAGE_KEY)
   if (!activities || activities.length === 0) {
-    return [] // No fake data — only real user activities
+    return []
   }
   const state = getState()
 

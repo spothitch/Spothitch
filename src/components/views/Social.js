@@ -19,6 +19,7 @@ import { renderCountryChats } from './social/CountryChats.js'
 import { renderSkeletonChatList } from '../ui/Skeleton.js'
 import { getConversationsList } from '../../services/directMessages.js'
 import { getUpcomingEvents, getEventComments, EVENT_TYPES } from '../../services/events.js'
+
 // Handler for feed visibility toggle (used in radar section onclick)
 window.toggleFeedVisibility = async () => {
   const { getState, setState } = await import('../../stores/state.js')
@@ -425,6 +426,7 @@ function renderEventCard(event, state) {
     </button>
   `
 }
+
 
 // ==================== COMPANION SEARCH ====================
 
