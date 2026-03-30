@@ -11,9 +11,9 @@ const MAX_ACTIVITIES = 100
  * @returns {Array} Filtered activity items
  */
 export function getActivityFeed(filter = 'all') {
-  let activities = Storage.get(STORAGE_KEY)
+  const activities = Storage.get(STORAGE_KEY)
   if (!activities || activities.length === 0) {
-    activities = generateSampleActivities()
+    return []
   }
   const state = getState()
 
