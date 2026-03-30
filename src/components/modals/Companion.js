@@ -59,7 +59,7 @@ export function renderCompanionModal(_state) {
       screen = 'active'
     } else {
       // Show intro only on first ever open (no guardian configured AND no explicit navigation)
-      const hasGuardian = companion.guardian?.name && companion.guardian?.phone
+      const hasGuardian = !!companion.guardian?.name
       screen = hasGuardian ? 'main' : 'intro'
     }
   }
@@ -144,8 +144,8 @@ function renderIntroScreen() {
       icon: 'bell',
       color: '#f43f5e',
       bg: 'rgba(244,63,94,.08)',
-      title: t('guardianFeatureAlert') || 'Triple alerte',
-      desc: t('guardianFeatureAlertDesc') || 'Push + SMS + appel si tu ne réponds pas',
+      title: t('guardianFeatureAlert') || 'Alerte automatique',
+      desc: t('guardianFeatureAlertDesc') || 'Notification push si tu ne reponds pas',
     },
     {
       icon: 'wifi-off',
@@ -250,6 +250,11 @@ function renderGuardianTab(companion) {
   const guardianPhone = companion.guardian?.phone || ''
   const interval = companion.checkInInterval || 30
   const destination = companion.destination || ''
+  const licensePlate = companion.licensePlate || ''
+  const customMessage = companion.customMessage || ''
+
+  // Alert type label
+  const alertType = guardianPhone ? 'Push + SMS' : 'Push'
 
   // Tiles data
   const tiles = [
@@ -283,9 +288,21 @@ function renderGuardianTab(companion) {
       iconName: 'bell',
       iconColor: '#8b5cf6',
       label: t('alerts') || 'Alertes',
-      sub: 'SMS + Push',
+      sub: alertType,
     },
   ]
+
+  // Add license plate tile if configured
+  if (licensePlate) {
+    tiles.push({
+      borderColor: '#06b6d4',
+      bgColor: 'rgba(6,182,212,.1)',
+      iconName: 'car',
+      iconColor: '#06b6d4',
+      label: t('licensePlateLabel') || 'Plaque',
+      sub: escapeHTML(licensePlate),
+    })
+  }
 
   return `
     <!-- 2x2 Grid -->
@@ -309,6 +326,8 @@ function renderGuardianTab(companion) {
     <input type="hidden" id="companion-destination" value="${escapeHTML(destination)}" />
     <input type="hidden" id="companion-notify-departure" ${companion.notifyOnDeparture !== false ? 'checked' : ''} />
     <input type="hidden" id="companion-notify-arrival" ${companion.notifyOnArrival !== false ? 'checked' : ''} />
+    <input type="hidden" id="companion-license-plate" value="${escapeHTML(licensePlate)}" />
+    <input type="hidden" id="companion-custom-message" value="${escapeHTML(customMessage)}" />
 
     <!-- Start button -->
     <button
@@ -332,6 +351,8 @@ function renderConfigTab(companion) {
   const guardianName = companion.guardian?.name || ''
   const interval = companion.checkInInterval || 30
   const destination = companion.destination || ''
+  const licensePlate = companion.licensePlate || ''
+  const customMessage = companion.customMessage || ''
 
   const items = [
     {
@@ -368,15 +389,26 @@ function renderConfigTab(companion) {
       action: 'guardianEditField(\'destination\')',
     },
     {
+      borderColor: '#06b6d4',
+      bgColor: 'rgba(6,182,212,.08)',
+      iconName: 'car',
+      iconColor: '#06b6d4',
+      title: t('licensePlateLabel') || 'Plaque',
+      desc: t('licensePlateDesc') || 'Incluse dans les alertes',
+      value: licensePlate ? escapeHTML(licensePlate) : (t('notDefined') || 'Non defini'),
+      valueColor: licensePlate ? '#06b6d4' : '#64748b',
+      action: 'guardianEditField(\'licensePlate\')',
+    },
+    {
       borderColor: '#f43f5e',
       bgColor: 'rgba(244,63,94,.08)',
       iconName: 'message-square',
       iconColor: '#f43f5e',
-      title: t('guardianAutoSMS') || 'SMS automatique',
-      desc: t('guardianAutoSMSDesc') || 'Envoi si check-in manque',
-      value: t('enabled') || 'Active',
-      valueColor: '#22c55e',
-      action: null,
+      title: t('customMessageLabel') || 'Message',
+      desc: t('customMessageDesc') || 'Message envoye avec les alertes',
+      value: customMessage ? `${escapeHTML(customMessage.substring(0, 20))}${customMessage.length > 20 ? '...' : ''}` : (t('notDefined') || 'Non defini'),
+      valueColor: customMessage ? '#f43f5e' : '#64748b',
+      action: 'guardianEditField(\'customMessage\')',
     },
     {
       borderColor: '#06b6d4',
@@ -873,8 +905,7 @@ window.guardianEditField = async (field) => {
   if (field === 'guardian') {
     const name = prompt(t('guardianNamePrompt') || 'Nom du gardien:') || ''
     if (!name) return
-    const phone = prompt(t('guardianPhonePrompt') || 'Telephone du gardien:') || ''
-    if (!phone) return
+    const phone = prompt(t('guardianPhoneOptionalPrompt') || 'Telephone du gardien (optionnel):') || ''
     state.guardian = { name: name.trim(), phone: phone.trim().replace(/[^0-9+]/g, '') }
   } else if (field === 'interval') {
     const val = prompt(t('guardianIntervalPrompt') || 'Intervalle check-in (minutes):', String(state.checkInInterval || 30))
@@ -885,6 +916,14 @@ window.guardianEditField = async (field) => {
     const val = prompt(t('guardianDestPrompt') || 'Destination:', state.destination || '')
     if (val === null) return
     state.destination = val.trim()
+  } else if (field === 'licensePlate') {
+    const val = prompt(t('licensePlatePrompt') || 'Plaque d\'immatriculation:', state.licensePlate || '')
+    if (val === null) return
+    state.licensePlate = val.trim().toUpperCase()
+  } else if (field === 'customMessage') {
+    const val = prompt(t('customMessagePrompt') || 'Message a envoyer avec les alertes:', state.customMessage || '')
+    if (val === null) return
+    state.customMessage = val.trim()
   }
 
   try {
