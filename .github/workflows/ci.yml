@@ -240,7 +240,11 @@ jobs:
       - name: Start Firebase Emulators
         run: |
           npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
-          sleep 8
+          for i in $(seq 1 30); do
+            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && echo "Auth emulator ready" && break
+            sleep 1
+          done
+          curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Firestore emulator ready" || sleep 5
       - name: Setup test accounts
         run: node scripts/firebase-test-setup.mjs
         env:
@@ -411,7 +415,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main'
-    continue-on-error: true
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -437,7 +440,11 @@ jobs:
       - name: Start Firebase Emulators
         run: |
           npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
-          sleep 8
+          for i in $(seq 1 30); do
+            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && echo "Auth emulator ready" && break
+            sleep 1
+          done
+          curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Firestore emulator ready" || sleep 5
       - name: Download build
         uses: actions/download-artifact@v8
         with:
@@ -458,7 +465,7 @@ jobs:
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-multi-user]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6

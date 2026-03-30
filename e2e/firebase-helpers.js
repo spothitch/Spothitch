@@ -172,9 +172,9 @@ export async function openSecondBrowser(browser, email, password) {
   // Wait for window.__fb
   await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
 
-  // Login programmatically with retry for rate limiting
+  // Login programmatically with retry + auto-create for emulator
   const pw = password || getTestPassword()
-  const delays = [0, 5000, 15000, 30000]
+  const delays = [0, 2000, 5000, 10000]
 
   for (let attempt = 0; attempt < delays.length; attempt++) {
     if (delays[attempt] > 0) await page.waitForTimeout(delays[attempt])
@@ -184,12 +184,26 @@ export async function openSecondBrowser(browser, email, password) {
         const fb = window.__fb
         fb.initializeFirebase()
         const res = await fb.signIn(e, p)
-        if (!res.success) return { success: false, error: res.error }
-        const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-        state.currentUser = { uid: res.user.uid, email: e }
-        state.userProfile = { uid: res.user.uid, email: e }
-        localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
-        return { success: true }
+        if (res.success) {
+          const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+          state.currentUser = { uid: res.user.uid, email: e }
+          state.userProfile = { uid: res.user.uid, email: e }
+          localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+          return { success: true }
+        }
+        // Auto-create on emulator if account doesn't exist
+        if (res.error?.includes('user-not-found') || res.error?.includes('invalid-credential')) {
+          const signUpRes = await fb.signUp(e, p, e.split('@')[0])
+          if (signUpRes.success) {
+            const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+            state.currentUser = { uid: signUpRes.user.uid, email: e }
+            state.userProfile = { uid: signUpRes.user.uid, email: e }
+            localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+            return { success: true }
+          }
+          return { success: false, error: signUpRes.error }
+        }
+        return { success: false, error: res.error }
       } catch (err) {
         return { success: false, error: err.message }
       }
@@ -297,10 +311,11 @@ export async function initFirebasePage(browser, email, password) {
   await page.waitForFunction(() => !!window.__fb, { timeout: 15000 })
 
   // Login programmatically with retry for rate limiting and transient errors
+  // On emulator (fresh state), accounts don't exist yet — auto-create via signUp
   const pw = password || getTestPassword()
   let loginResult
-  const maxRetries = 5
-  const delays = [0, 3000, 8000, 15000, 30000]
+  const maxRetries = 4
+  const delays = [0, 2000, 5000, 10000]
   const retryableErrors = ['too-many-requests', 'network-request-failed', 'internal-error', 'unavailable', 'timeout', 'ECONNRESET']
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -313,21 +328,34 @@ export async function initFirebasePage(browser, email, password) {
         const fb = window.__fb
         fb.initializeFirebase()
         const result = await fb.signIn(e, p)
-        if (!result.success) return { success: false, error: result.error }
+        if (result.success) {
+          const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+          state.currentUser = { uid: result.user.uid, email: e }
+          state.userProfile = { uid: result.user.uid, email: e }
+          localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+          return { success: true, uid: result.user.uid }
+        }
 
-        const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-        state.currentUser = { uid: result.user.uid, email: e }
-        state.userProfile = { uid: result.user.uid, email: e }
-        localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+        // If user-not-found, auto-create account (emulator has no pre-existing accounts)
+        if (result.error?.includes('user-not-found') || result.error?.includes('invalid-credential')) {
+          const signUpResult = await fb.signUp(e, p, e.split('@')[0])
+          if (signUpResult.success) {
+            const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+            state.currentUser = { uid: signUpResult.user.uid, email: e }
+            state.userProfile = { uid: signUpResult.user.uid, email: e }
+            localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+            return { success: true, uid: signUpResult.user.uid }
+          }
+          return { success: false, error: signUpResult.error }
+        }
 
-        return { success: true, uid: result.user.uid }
+        return { success: false, error: result.error }
       } catch (err) {
         return { success: false, error: err.message }
       }
     }, { e: email, p: pw })
 
     if (loginResult.success) break
-    // Retry on transient/rate-limit errors, stop on auth errors (wrong password etc.)
     const isRetryable = retryableErrors.some(e => loginResult.error?.includes(e))
     if (!isRetryable) break
   }
@@ -396,7 +424,7 @@ export async function cleanupTestData(page, uid) {
 export async function programmaticLogin(page, email, password) {
   const pw = password || getTestPassword()
   let result
-  const delays = [0, 5000, 15000, 30000]
+  const delays = [0, 2000, 5000, 10000]
 
   for (let attempt = 0; attempt < delays.length; attempt++) {
     if (delays[attempt] > 0) await page.waitForTimeout(delays[attempt])
@@ -405,12 +433,26 @@ export async function programmaticLogin(page, email, password) {
       try {
         const fb = window.__fb
         const res = await fb.signIn(e, p)
-        if (!res.success) return { success: false, error: res.error }
-        const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-        state.currentUser = { uid: res.user.uid, email: e }
-        state.userProfile = { uid: res.user.uid, email: e }
-        localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
-        return { success: true, uid: res.user.uid }
+        if (res.success) {
+          const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+          state.currentUser = { uid: res.user.uid, email: e }
+          state.userProfile = { uid: res.user.uid, email: e }
+          localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+          return { success: true, uid: res.user.uid }
+        }
+        // Auto-create on emulator if account doesn't exist
+        if (res.error?.includes('user-not-found') || res.error?.includes('invalid-credential')) {
+          const signUpRes = await fb.signUp(e, p, e.split('@')[0])
+          if (signUpRes.success) {
+            const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+            state.currentUser = { uid: signUpRes.user.uid, email: e }
+            state.userProfile = { uid: signUpRes.user.uid, email: e }
+            localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+            return { success: true, uid: signUpRes.user.uid }
+          }
+          return { success: false, error: signUpRes.error }
+        }
+        return { success: false, error: res.error }
       } catch (err) {
         return { success: false, error: err.message }
       }
