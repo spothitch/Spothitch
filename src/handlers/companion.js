@@ -104,6 +104,8 @@ window.startCompanion = () => {
     window.setState({ showCompanionModal: true })
   })
   window.showToast(t('companionStarted') || 'Mode compagnon activé !', 'success')
+  // Reset screen to null so auto-detection picks up active state
+  window.guardianGoToScreen?.(null)
   // Re-render to show active view
   scheduleRender(() => window._appInternals.render())
 }

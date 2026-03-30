@@ -33,6 +33,9 @@ let _currentTab = 0 // 0 = Guardian, 1 = Config
 let _batteryPct = null
 let _batteryDisplayDone = false
 
+// In-app edit overlay state (replaces native prompt())
+let _editOverlay = null // null | { field, label, value, inputType, placeholder, maxLength }
+
 /**
  * Render the Companion Mode modal
  */
@@ -348,118 +351,136 @@ function renderGuardianTab(companion) {
 }
 
 function renderConfigTab(companion) {
+  // If edit overlay is active, show it instead of config list
+  if (_editOverlay) return renderEditOverlay()
+
   const guardianName = companion.guardian?.name || ''
+  const guardianPhone = companion.guardian?.phone || ''
   const interval = companion.checkInInterval || 30
   const destination = companion.destination || ''
   const licensePlate = companion.licensePlate || ''
   const customMessage = companion.customMessage || ''
 
-  const items = [
-    {
-      borderColor: '#22c55e',
-      bgColor: 'rgba(34,197,94,.08)',
-      iconName: 'user-check',
-      iconColor: '#22c55e',
-      title: t('guardianLabel') || 'Gardien',
-      desc: t('guardianConfigDesc') || 'Qui recevra tes alertes',
-      value: guardianName ? `${escapeHTML(guardianName)} \u2713` : (t('notConfigured') || 'Non configure'),
-      valueColor: guardianName ? '#22c55e' : '#64748b',
-      action: 'guardianEditField(\'guardian\')',
-    },
-    {
-      borderColor: '#3b82f6',
-      bgColor: 'rgba(59,130,246,.08)',
-      iconName: 'clock',
-      iconColor: '#3b82f6',
-      title: t('guardianCheckinInterval') || 'Intervalle check-in',
-      desc: t('guardianCheckinIntervalDesc') || 'Delai entre chaque verification',
-      value: `${interval} min`,
-      valueColor: '#60a5fa',
-      action: 'guardianEditField(\'interval\')',
-    },
-    {
-      borderColor: '#f59e0b',
-      bgColor: 'rgba(245,158,11,.08)',
-      iconName: 'map-pin',
-      iconColor: '#f59e0b',
-      title: t('companionDestination') || 'Destination',
-      desc: t('guardianDestDesc') || 'Ou tu vas (optionnel)',
-      value: destination ? escapeHTML(destination) : '',
-      valueColor: destination ? '#f59e0b' : '#64748b',
-      action: 'guardianEditField(\'destination\')',
-    },
-    {
-      borderColor: '#06b6d4',
-      bgColor: 'rgba(6,182,212,.08)',
-      iconName: 'car',
-      iconColor: '#06b6d4',
-      title: t('licensePlateLabel') || 'Plaque',
-      desc: t('licensePlateDesc') || 'Incluse dans les alertes',
-      value: licensePlate ? escapeHTML(licensePlate) : (t('notDefined') || 'Non defini'),
-      valueColor: licensePlate ? '#06b6d4' : '#64748b',
-      action: 'guardianEditField(\'licensePlate\')',
-    },
-    {
-      borderColor: '#f43f5e',
-      bgColor: 'rgba(244,63,94,.08)',
-      iconName: 'message-square',
-      iconColor: '#f43f5e',
-      title: t('customMessageLabel') || 'Message',
-      desc: t('customMessageDesc') || 'Message envoye avec les alertes',
-      value: customMessage ? `${escapeHTML(customMessage.substring(0, 20))}${customMessage.length > 20 ? '...' : ''}` : (t('notDefined') || 'Non defini'),
-      valueColor: customMessage ? '#f43f5e' : '#64748b',
-      action: 'guardianEditField(\'customMessage\')',
-    },
-    {
-      borderColor: '#06b6d4',
-      bgColor: 'rgba(6,182,212,.08)',
-      iconName: 'bell',
-      iconColor: '#06b6d4',
-      title: t('notifyOnDeparture') || 'Notif. depart',
-      desc: t('guardianDepartDesc') || 'Prevenir quand tu pars',
-      value: companion.notifyOnDeparture !== false ? (t('enabled') || 'Active') : (t('disabled') || 'Desactive'),
-      valueColor: companion.notifyOnDeparture !== false ? '#22c55e' : '#64748b',
-      action: 'guardianToggleDeparture()',
-    },
-    {
-      borderColor: '#a855f7',
-      bgColor: 'rgba(168,85,247,.08)',
-      iconName: 'flag',
-      iconColor: '#a855f7',
-      title: t('notifyOnArrival') || 'Notif. arrivee',
-      desc: t('guardianArrivalDesc') || 'Prevenir quand tu arrives',
-      value: companion.notifyOnArrival !== false ? (t('enabled') || 'Active') : (t('disabled') || 'Desactive'),
-      valueColor: companion.notifyOnArrival !== false ? '#22c55e' : '#64748b',
-      action: 'guardianToggleArrival()',
-    },
-    {
-      borderColor: '#ec4899',
-      bgColor: 'rgba(236,72,153,.08)',
-      iconName: 'zap',
-      iconColor: '#ec4899',
-      title: t('guardianBatteryAlert') || 'Alerte batterie',
-      desc: t('guardianBatteryAlertDesc') || 'Prevenir sous 15%',
-      value: t('enabled') || 'Active',
-      valueColor: '#22c55e',
-      action: null,
-    },
-  ]
+  return `
+    <div class="space-y-1.5">
+      <!-- Guardian -->
+      ${configRow('#22c55e', 'user-check', t('guardianLabel') || 'Gardien', t('guardianConfigDesc') || 'Qui recevra tes alertes', guardianName ? `${escapeHTML(guardianName)}${guardianPhone ? ' · ' + escapeHTML(guardianPhone) : ''} \u2713` : (t('notConfigured') || 'Non configure'), guardianName ? '#22c55e' : '#64748b', "guardianEditField('guardian')")}
+
+      <!-- Interval -->
+      ${configRow('#3b82f6', 'clock', t('guardianCheckinInterval') || 'Intervalle check-in', t('guardianCheckinIntervalDesc') || 'Delai entre chaque verification', `${interval} min`, '#60a5fa', "guardianEditField('interval')")}
+
+      <!-- Destination -->
+      ${configRow('#f59e0b', 'map-pin', t('companionDestination') || 'Destination', t('guardianDestDesc') || 'Ou tu vas (optionnel)', destination ? escapeHTML(destination) : (t('notDefined') || 'Non defini'), destination ? '#f59e0b' : '#64748b', "guardianEditField('destination')")}
+
+      <!-- License plate -->
+      ${configRow('#06b6d4', 'car', t('licensePlateLabel') || 'Plaque', t('licensePlateDesc') || 'Incluse dans les alertes', licensePlate ? escapeHTML(licensePlate) : (t('notDefined') || 'Non defini'), licensePlate ? '#06b6d4' : '#64748b', "guardianEditField('licensePlate')")}
+
+      <!-- Custom message -->
+      ${configRow('#f43f5e', 'message-square', t('customMessageLabel') || 'Message', t('customMessageDesc') || 'Message envoye avec les alertes', customMessage ? `${escapeHTML(customMessage.substring(0, 25))}${customMessage.length > 25 ? '...' : ''}` : (t('notDefined') || 'Non defini'), customMessage ? '#f43f5e' : '#64748b', "guardianEditField('customMessage')")}
+
+      <!-- Departure toggle -->
+      ${configRow('#06b6d4', 'bell', t('notifyOnDeparture') || 'Notif. depart', t('guardianDepartDesc') || 'Prevenir quand tu pars', companion.notifyOnDeparture !== false ? (t('enabled') || 'Active') : (t('disabled') || 'Desactive'), companion.notifyOnDeparture !== false ? '#22c55e' : '#64748b', 'guardianToggleDeparture()')}
+
+      <!-- Arrival toggle -->
+      ${configRow('#a855f7', 'flag', t('notifyOnArrival') || 'Notif. arrivee', t('guardianArrivalDesc') || 'Prevenir quand tu arrives', companion.notifyOnArrival !== false ? (t('enabled') || 'Active') : (t('disabled') || 'Desactive'), companion.notifyOnArrival !== false ? '#22c55e' : '#64748b', 'guardianToggleArrival()')}
+
+      <!-- Battery (always on) -->
+      ${configRow('#ec4899', 'zap', t('guardianBatteryAlert') || 'Alerte batterie', t('guardianBatteryAlertDesc') || 'Prevenir sous 15%', t('enabled') || 'Active', '#22c55e', null)}
+    </div>
+  `
+}
+
+/** Reusable config row */
+function configRow(borderColor, iconName, title, desc, value, valueColor, action) {
+  return `
+    <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer active:bg-white/[0.06] transition-colors"
+      style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-left:3px solid ${borderColor}"
+      ${action ? `onclick="${action}"` : ''} role="button" tabindex="0">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${borderColor}15">
+        <span style="color:${borderColor}">${icon(iconName, 'w-3.5 h-3.5')}</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-xs font-semibold text-slate-200">${title}</div>
+        <div class="text-[10px] text-slate-500">${desc}</div>
+      </div>
+      <div class="text-[11px] font-semibold shrink-0 max-w-[100px] truncate" style="color:${valueColor}">${value}</div>
+      ${action ? `<span class="text-slate-600">${icon('chevron-right', 'w-3 h-3')}</span>` : ''}
+    </div>
+  `
+}
+
+/** In-app edit overlay (replaces native prompt()) */
+function renderEditOverlay() {
+  if (!_editOverlay) return ''
+  const { field, label, value, inputType, placeholder, maxLength } = _editOverlay
+  const isTextarea = field === 'customMessage'
+  const escapedValue = escapeHTML(value || '')
 
   return `
-    ${items.map(item => `
-      <div class="flex items-center gap-3 p-3 rounded-xl mb-1.5 cursor-pointer active:bg-white/[0.06] transition-colors"
-        style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-left:3px solid ${item.borderColor}"
-        ${item.action ? `onclick="${item.action}"` : ''} role="button" tabindex="0">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${item.bgColor}">
-          <span style="color:${item.iconColor}">${icon(item.iconName, 'w-3.5 h-3.5')}</span>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="text-xs font-semibold text-slate-200">${item.title}</div>
-          <div class="text-[10px] text-slate-500">${item.desc}</div>
-        </div>
-        <div class="text-[11px] font-semibold shrink-0" style="color:${item.valueColor}">${item.value}</div>
+    <div class="flex flex-col h-full">
+      <!-- Header -->
+      <div class="flex items-center gap-2 mb-4">
+        <button onclick="guardianCancelEdit()" class="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center" type="button" aria-label="${t('back') || 'Retour'}">
+          ${icon('arrow-left', 'w-4 h-4 text-slate-400')}
+        </button>
+        <h3 class="text-sm font-bold text-slate-200 flex-1">${label}</h3>
       </div>
-    `).join('')}
+
+      <!-- Input -->
+      ${isTextarea ? `
+        <textarea
+          id="guardian-edit-input"
+          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
+          placeholder="${placeholder || ''}"
+          rows="3"
+          ${maxLength ? `maxlength="${maxLength}"` : ''}
+        >${escapedValue}</textarea>
+      ` : `
+        <input
+          id="guardian-edit-input"
+          type="${inputType || 'text'}"
+          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
+          value="${escapedValue}"
+          placeholder="${placeholder || ''}"
+          ${inputType === 'number' ? 'min="5" max="120"' : ''}
+          ${maxLength ? `maxlength="${maxLength}"` : ''}
+          autocomplete="off"
+        />
+      `}
+      ${field === 'interval' ? `<p class="text-[10px] text-slate-500 mt-1.5 px-1">5 ${t('to') || 'a'} 120 ${t('minutes') || 'minutes'}</p>` : ''}
+      ${field === 'guardian' ? `
+        <input
+          id="guardian-edit-phone"
+          type="tel"
+          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 mt-2"
+          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
+          value="${escapeHTML(_editOverlay.phone || '')}"
+          placeholder="${t('guardianPhoneOptionalPrompt') || 'Telephone (optionnel)'}"
+          autocomplete="off"
+        />
+      ` : ''}
+
+      <!-- Buttons -->
+      <div class="flex gap-2 mt-4">
+        <button
+          onclick="guardianCancelEdit()"
+          class="flex-1 py-3 rounded-xl text-slate-400 font-semibold text-sm transition-colors"
+          style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)"
+        >
+          ${t('cancel') || 'Annuler'}
+        </button>
+        <button
+          onclick="guardianSaveField()"
+          class="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-colors"
+          style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3)"
+        >
+          ${icon('circle-check', 'w-4 h-4 inline-block mr-1')}
+          ${t('save') || 'Enregistrer'}
+        </button>
+      </div>
+    </div>
   `
 }
 
@@ -897,39 +918,109 @@ window.guardianSwitchTab = (index) => {
   window._forceRender?.()
 }
 
-/** Edit config fields (guardian, interval, destination) */
+/** Edit config fields — opens in-app overlay instead of native prompt() */
 window.guardianEditField = async (field) => {
   const { getCompanionState: gcs } = await import('../../services/companion.js')
   const state = gcs()
 
-  if (field === 'guardian') {
-    const name = prompt(t('guardianNamePrompt') || 'Nom du gardien:') || ''
-    if (!name) return
-    const phone = prompt(t('guardianPhoneOptionalPrompt') || 'Telephone du gardien (optionnel):') || ''
-    state.guardian = { name: name.trim(), phone: phone.trim().replace(/[^0-9+]/g, '') }
-  } else if (field === 'interval') {
-    const val = prompt(t('guardianIntervalPrompt') || 'Intervalle check-in (minutes):', String(state.checkInInterval || 30))
+  const fieldConfig = {
+    guardian: {
+      label: t('guardianLabel') || 'Gardien',
+      value: state.guardian?.name || '',
+      phone: state.guardian?.phone || '',
+      inputType: 'text',
+      placeholder: t('guardianNamePrompt') || 'Nom du gardien',
+    },
+    interval: {
+      label: t('guardianCheckinInterval') || 'Intervalle check-in',
+      value: String(state.checkInInterval || 30),
+      inputType: 'number',
+      placeholder: '30',
+    },
+    destination: {
+      label: t('companionDestination') || 'Destination',
+      value: state.destination || '',
+      inputType: 'text',
+      placeholder: t('guardianDestPrompt') || 'Destination',
+    },
+    licensePlate: {
+      label: t('licensePlateLabel') || 'Plaque',
+      value: state.licensePlate || '',
+      inputType: 'text',
+      placeholder: 'AB-123-CD',
+      maxLength: 15,
+    },
+    customMessage: {
+      label: t('customMessageLabel') || 'Message',
+      value: state.customMessage || '',
+      inputType: 'text',
+      placeholder: t('customMessagePrompt') || 'Message a envoyer avec les alertes',
+      maxLength: 200,
+    },
+  }
+
+  const config = fieldConfig[field]
+  if (!config) return
+
+  _editOverlay = { field, ...config }
+  _currentTab = 1 // ensure config tab is shown
+  window._forceRender?.()
+
+  // Auto-focus the input after render
+  requestAnimationFrame(() => {
+    const input = document.getElementById('guardian-edit-input')
+    if (input) {
+      input.focus()
+      // Place cursor at end
+      if (input.setSelectionRange && input.value) {
+        input.setSelectionRange(input.value.length, input.value.length)
+      }
+    }
+  })
+}
+
+/** Save the edited field from in-app overlay */
+window.guardianSaveField = async () => {
+  if (!_editOverlay) return
+  const { getCompanionState: gcs } = await import('../../services/companion.js')
+  const state = gcs()
+  const input = document.getElementById('guardian-edit-input')
+  const val = input?.value?.trim() || ''
+
+  if (_editOverlay.field === 'guardian') {
+    if (!val) {
+      window.showToast?.(t('guardianNameRequired') || 'Remplis le nom de ton gardien.', 'warning')
+      return
+    }
+    const phoneInput = document.getElementById('guardian-edit-phone')
+    const phone = phoneInput?.value?.trim()?.replace(/[^0-9+]/g, '') || ''
+    state.guardian = { name: val, phone }
+  } else if (_editOverlay.field === 'interval') {
     const num = parseInt(val, 10)
-    if (!num || num < 5 || num > 120) return
+    if (!num || num < 5 || num > 120) {
+      window.showToast?.('5 \u2013 120 min', 'warning')
+      return
+    }
     state.checkInInterval = num
-  } else if (field === 'destination') {
-    const val = prompt(t('guardianDestPrompt') || 'Destination:', state.destination || '')
-    if (val === null) return
-    state.destination = val.trim()
-  } else if (field === 'licensePlate') {
-    const val = prompt(t('licensePlatePrompt') || 'Plaque d\'immatriculation:', state.licensePlate || '')
-    if (val === null) return
-    state.licensePlate = val.trim().toUpperCase()
-  } else if (field === 'customMessage') {
-    const val = prompt(t('customMessagePrompt') || 'Message a envoyer avec les alertes:', state.customMessage || '')
-    if (val === null) return
-    state.customMessage = val.trim()
+  } else if (_editOverlay.field === 'destination') {
+    state.destination = val
+  } else if (_editOverlay.field === 'licensePlate') {
+    state.licensePlate = val.toUpperCase()
+  } else if (_editOverlay.field === 'customMessage') {
+    state.customMessage = val
   }
 
   try {
     localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
 
+  _editOverlay = null
+  window._forceRender?.()
+}
+
+/** Cancel edit overlay */
+window.guardianCancelEdit = () => {
+  _editOverlay = null
   window._forceRender?.()
 }
 
