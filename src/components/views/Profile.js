@@ -1437,9 +1437,16 @@ window.closeBlockedUsers = () => {
 }
 
 // --- Bio handlers (#61) ---
-window.editBio = () => {
+window.editBio = async () => {
+  const { showInputOverlay } = await import('../../utils/inputOverlay.js')
   const current = localStorage.getItem('spothitch_bio') || ''
-  const newBio = prompt(t('bioPrompt') || 'À propos de toi (200 caractères max) :', current)
+  const newBio = await showInputOverlay({
+    title: t('bioPrompt') || 'A propos de toi',
+    value: current,
+    placeholder: t('bioPlaceholder') || 'Parle de toi en quelques mots...',
+    multiline: true,
+    maxLength: 200,
+  })
   if (newBio === null) return
   const trimmed = newBio.trim().slice(0, 200)
   localStorage.setItem('spothitch_bio', trimmed)

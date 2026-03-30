@@ -8,7 +8,13 @@ window.openAddWebhook = async () => {
   const t = window.t
   const { scheduleRender } = window._appInternals
   const { addWebhook, WEBHOOK_TYPES } = await import('../services/webhooks.js');
-  const url = prompt(t('webhookURL') || 'URL du webhook (Discord/Telegram/Slack):');
+  const { showInputOverlay } = await import('../utils/inputOverlay.js');
+  const url = await showInputOverlay({
+    title: t('webhookURL') || 'URL du webhook',
+    description: 'Discord, Telegram, Slack',
+    placeholder: 'https://...',
+    inputType: 'url',
+  });
   if (!url) return;
   const type = url.includes('discord') ? WEBHOOK_TYPES.DISCORD
     : url.includes('telegram') ? WEBHOOK_TYPES.TELEGRAM

@@ -1207,13 +1207,18 @@ window.deleteSavedTrip = (index) => {
 }
 
 // Rename a saved trip
-window.renameSavedTrip = (index) => {
+window.renameSavedTrip = async (index) => {
   try {
     const saved = JSON.parse(localStorage.getItem(SAVED_TRIPS_KEY) || '[]')
     const trip = saved[index]
     if (!trip) return
-    const currentName = trip.name || `${trip.from?.split(',')[0] || '?'} → ${trip.to?.split(',')[0] || '?'}`
-    const newName = prompt(t('renameTripPrompt') || 'Nom du voyage :', currentName)
+    const currentName = trip.name || `${trip.from?.split(',')[0] || '?'} \u2192 ${trip.to?.split(',')[0] || '?'}`
+    const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+    const newName = await showInputOverlay({
+      title: t('renameTripPrompt') || 'Nom du voyage',
+      value: currentName,
+      placeholder: t('renameTripPlaceholder') || 'Nom du voyage',
+    })
     if (!newName || newName.trim() === '') return
     trip.name = newName.trim()
     saved[index] = trip

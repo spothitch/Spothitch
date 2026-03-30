@@ -429,23 +429,29 @@ export async function downloadUserData() {
 /**
  * Request account deletion
  */
-export function requestAccountDeletion() {
+export async function requestAccountDeletion() {
   const confirmWord = t('confirmDeleteWord') || 'SUPPRIMER';
   const confirmed = confirm(
     (t('deleteAccountConfirm') || 'Êtes-vous sûr de vouloir supprimer votre compte ?\n\nCette action est IRREVERSIBLE et supprimera :\n- Votre profil et vos paramètres\n- Vos spots et avis\n- Votre historique et progression\n- Toutes vos données associées\n\nTapez "SUPPRIMER" pour confirmer.')
   );
 
   if (confirmed) {
-    const input = prompt((t('deleteAccountPrompt') || 'Tapez "SUPPRIMER" pour confirmer la suppression définitive :'));
+    const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+    const input = await showInputOverlay({
+      title: t('deleteAccountPrompt') || 'Suppression definitive',
+      description: (t('deleteAccountTypeWord') || 'Tapez "{word}" pour confirmer').replace('{word}', confirmWord),
+      placeholder: confirmWord,
+      confirmLabel: t('delete') || 'Supprimer',
+      confirmColor: 'red',
+    });
     if (input === confirmWord) {
       // Clear ALL user data using centralized registry (RGPD compliant)
-      import('../../services/storageRegistry.js').then(({ clearAllUserData }) => {
-        clearAllUserData();
-        window.showToast?.((t('accountDeleted') || 'Compte supprimé. Vous allez être redirigé...'), 'info');
-        setTimeout(() => {
-          location.reload();
-        }, 2000);
-      });
+      const { clearAllUserData } = await import('../../services/storageRegistry.js');
+      clearAllUserData();
+      window.showToast?.((t('accountDeleted') || 'Compte supprimé. Vous allez être redirigé...'), 'info');
+      setTimeout(() => {
+        location.reload();
+      }, 2000);
     } else if (input !== null) {
       window.showToast?.((t('deleteCancelled') || 'Suppression annulée. Texte incorrect'), 'warning');
     }

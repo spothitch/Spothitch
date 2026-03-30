@@ -1313,9 +1313,15 @@ window.showSafetyPage = () => setState({ showSafety: true });
 window.closeSafety = () => setState({ showSafety: false })
 window.reportGuideError = async (countryCode) => {
   const { getGuideByCode } = await import('./data/guides.js');
+  const { showInputOverlay } = await import('./utils/inputOverlay.js');
   const guide = getGuideByCode(countryCode);
   const name = guide?.name || countryCode;
-  const errorType = prompt(t('guideErrorReport') || `Quelle information est incorrecte dans le guide ${name} ?`);
+  const errorType = await showInputOverlay({
+    title: t('guideErrorReport') || `Quelle information est incorrecte dans le guide ${name} ?`,
+    placeholder: t('guideErrorPlaceholder') || 'Decris le probleme...',
+    multiline: true,
+    maxLength: 500,
+  });
   if (errorType) {
     // Store reports in localStorage as fallback
     const reports = JSON.parse(localStorage.getItem('spothitch_guide_reports') || '[]');

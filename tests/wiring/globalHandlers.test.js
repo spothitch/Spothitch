@@ -491,7 +491,6 @@ const MAIN_JS_HANDLERS = [
   'guardianMessageTraveler',
   'guardianShowMap',
   'guardianCallEmergency',
-  'toggleRoadmapComments',
   // Internal handlers used in onclick (audit complet session 2026-03-24) // popup carte → créer spot         // banner mise à jour     // lien aide Google Maps dans AddSpot           // handler de tous les toggles on/off      // fermer tip Google Maps
 ]
 
