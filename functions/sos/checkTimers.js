@@ -61,16 +61,27 @@ exports.checkSOSTimers = onSchedule(
         continue
       }
 
+      // Build notification body with license plate and custom message if available
+      let body = `Pas de check-in depuis ${timer.checkInIntervalMinutes + GRACE_MINUTES} min.`
+      if (timer.licensePlate) {
+        body += ` Plaque: ${timer.licensePlate}.`
+      }
+      if (timer.customMessage) {
+        body += ` ${timer.customMessage}`
+      }
+      body += ' Dernière position connue disponible.'
+
       // Send push to each guardian
       for (const guardianId of guardianIds) {
         await sendPushToUser(db, messaging, guardianId, {
           title: `${timer.userName || 'Un voyageur'} n'a pas donné de nouvelles`,
-          body: `Pas de check-in depuis ${timer.checkInIntervalMinutes + GRACE_MINUTES} min. Dernière position connue disponible.`,
+          body,
         }, {
           type: 'sos_timer_expired',
           voyagerId: timer.userId,
           voyagerName: timer.userName || '',
           destination: timer.destination || '',
+          licensePlate: timer.licensePlate || '',
         })
       }
 

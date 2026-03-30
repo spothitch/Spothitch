@@ -47,6 +47,8 @@ async function syncSOSTimerToFirestore(action, data = {}) {
         tripStart: serverTimestamp(),
         destination: data.destination || '',
         lastPosition: data.position || null,
+        licensePlate: data.licensePlate || '',
+        customMessage: data.customMessage || '',
         active: true,
       })
     } else if (action === 'checkin') {
@@ -97,6 +99,8 @@ function getDefaultState() {
     destination: '', // optional — for ETA
     notifyOnDeparture: true,
     notifyOnArrival: true,
+    licensePlate: '', // optional — car plate number included in alerts
+    customMessage: '', // optional — pre-configured message included in alerts
   }
 }
 
@@ -356,6 +360,13 @@ function getAlertMessage(state) {
   let msg = `\u{1F198} SpotHitch Safety Alert\n\n`
   msg += `${guardianName}${alertIntro}\n`
   msg += `${alertHelp}\n\n`
+  if (state.licensePlate) {
+    const plateLabel = t('licensePlateLabel') || 'License plate'
+    msg += `\u{1F697} ${plateLabel}: ${state.licensePlate}\n`
+  }
+  if (state.customMessage) {
+    msg += `\u{1F4AC} ${state.customMessage}\n`
+  }
   if (tripDuration) {
     msg += `${alertTrip}: ${tripDuration}\n`
   }
@@ -378,6 +389,13 @@ function getDepartureMessage(state) {
     const destLabel = t('companionDestination') || 'Destination'
     msg += `\n${destLabel}: ${state.destination}`
   }
+  if (state.licensePlate) {
+    const plateLabel = t('licensePlateLabel') || 'License plate'
+    msg += `\n\u{1F697} ${plateLabel}: ${state.licensePlate}`
+  }
+  if (state.customMessage) {
+    msg += `\n\u{1F4AC} ${state.customMessage}`
+  }
   return msg
 }
 
@@ -395,6 +413,10 @@ function getArrivalMessage(state) {
     const durLabel = t('companionAlertTrip') || 'Trip duration'
     msg += `\n${durLabel}: ${tripDuration}`
   }
+  if (state.licensePlate) {
+    const plateLabel = t('licensePlateLabel') || 'License plate'
+    msg += `\n\u{1F697} ${plateLabel}: ${state.licensePlate}`
+  }
   return msg
 }
 
@@ -408,6 +430,10 @@ function buildBatteryAlertMessage(state, pct) {
     ? state.positions[state.positions.length - 1]
     : null
   let msg = `🔋 SpotHitch — ${guardianName}${battMsg}`
+  if (state.licensePlate) {
+    const plateLabel = t('licensePlateLabel') || 'License plate'
+    msg += `\n\u{1F697} ${plateLabel}: ${state.licensePlate}`
+  }
   if (lastPos) {
     const posLabel = t('companionAlertPosition') || 'My last known position'
     msg += `\n${posLabel}:\nhttps://www.google.com/maps?q=${lastPos.lat},${lastPos.lng}`
@@ -487,6 +513,8 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
     notifyOnArrival: options.notifyOnArrival !== false,
     checkInsCount: 0,
     travelerPhone: options.travelerPhone ? cleanPhone(options.travelerPhone) : '',
+    licensePlate: options.licensePlate || '',
+    customMessage: options.customMessage || '',
   }
 
   // Try to get current position immediately
@@ -523,6 +551,8 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
     guardianIds,
     interval,
     destination: options.destination,
+    licensePlate: options.licensePlate || '',
+    customMessage: options.customMessage || '',
   })
 
   // Departure notification (#26)

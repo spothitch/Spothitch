@@ -17,7 +17,7 @@ exports.onSOSAlert = onDocumentCreated(
     const alert = event.data?.data()
     if (!alert) return null
 
-    const { userId, userName, guardianIds, position, type } = alert
+    const { userId, userName, guardianIds, position, type, licensePlate, customMessage } = alert
 
     if (!guardianIds || guardianIds.length === 0) {
       console.log(`[SOS Alert] No guardians for user ${userId}`)
@@ -38,6 +38,14 @@ exports.onSOSAlert = onDocumentCreated(
     } else {
       title = `${userName || 'Un voyageur'} a besoin d'aide`
       body = 'Alerte déclenchée avec position.'
+    }
+
+    // Append license plate and custom message if available
+    if (licensePlate) {
+      body += ` Plaque: ${licensePlate}.`
+    }
+    if (customMessage) {
+      body += ` ${customMessage}`
     }
 
     // Send push to each guardian

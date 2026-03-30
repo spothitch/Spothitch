@@ -49,6 +49,8 @@ window.startCompanion = () => {
   const destEl = document.getElementById('companion-destination')
   const notifyDepartureEl = document.getElementById('companion-notify-departure')
   const notifyArrivalEl = document.getElementById('companion-notify-arrival')
+  const plateEl = document.getElementById('companion-license-plate')
+  const msgEl = document.getElementById('companion-custom-message')
 
   const name = nameEl?.value?.trim()
   const phone = phoneEl?.value?.trim()
@@ -56,9 +58,11 @@ window.startCompanion = () => {
   const destination = destEl?.value?.trim() || ''
   const notifyOnDeparture = notifyDepartureEl ? notifyDepartureEl.checked : true
   const notifyOnArrival = notifyArrivalEl ? notifyArrivalEl.checked : true
+  const licensePlate = plateEl?.value?.trim() || ''
+  const customMessage = msgEl?.value?.trim() || ''
 
-  if (!name || !phone) {
-    window.showToast(t('guardianRequired') || 'Remplis le nom et le numéro de ton gardien.', 'warning')
+  if (!name) {
+    window.showToast(t('guardianNameRequired') || 'Remplis le nom de ton gardien.', 'warning')
     return
   }
 
@@ -93,6 +97,8 @@ window.startCompanion = () => {
     notifyOnDeparture,
     notifyOnArrival,
     travelerPhone,
+    licensePlate,
+    customMessage,
   })
   onCompanionOverdue(() => {
     window.setState({ showCompanionModal: true })
