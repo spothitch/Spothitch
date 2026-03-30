@@ -417,7 +417,7 @@ function renderConfigTab(companion) {
     ${items.map(item => `
       <div class="flex items-center gap-3 p-3 rounded-xl mb-1.5 cursor-pointer active:bg-white/[0.06] transition-colors"
         style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-left:3px solid ${item.borderColor}"
-        ${item.action ? `onclick="${item.action}"` : ''}>
+        ${item.action ? `onclick="${item.action}"` : ''} role="button" tabindex="0">
         <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${item.bgColor}">
           <span style="color:${item.iconColor}">${icon(item.iconName, 'w-3.5 h-3.5')}</span>
         </div>

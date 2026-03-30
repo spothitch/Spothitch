@@ -40,7 +40,7 @@ const MAIN_JS_HANDLERS = [
   'toggleProximityRadar', 'setRadarRadius', 'setRadarVisibility', 'setRadarMessage',
   'showRadarExpanded', 'contactNearbyTraveler',
   'showBuddyList', 'showBuddyDetail', 'showBuddyCreate',
-  'submitBuddyAnnouncement', 'deleteBuddyAnnouncement',
+  'submitBuddyAnnouncement', 'deleteBuddyAnnouncement', 'shareBuddyAnnouncement',
   'setBuddyCountryFilter', 'contactBuddyAuthor',
   'setBuddyTravelMode', 'toggleBuddyFlexDates', 'setBuddyVisibility',
   'backFromVoyageurs',

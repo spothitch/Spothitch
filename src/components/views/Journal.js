@@ -104,7 +104,7 @@ function _renderTripCard(trip, isActive) {
   const gradient = gradients[Math.abs(trip.id.charCodeAt(5)) % gradients.length]
 
   return `
-    <div onclick="journalOpenTrip('${trip.id}')" style="margin:8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;cursor:pointer">
+    <div onclick="journalOpenTrip('${trip.id}')" style="margin:8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;cursor:pointer" role="button" tabindex="0">
       <div style="height:120px;position:relative;overflow:hidden">
         <div style="position:absolute;inset:0;background:linear-gradient(135deg,var(${gradient.split(';')[0]}),var(${gradient.split(';')[1]}))"></div>
         ${trip.coverPhoto ? `<img src="${escapeHTML(trip.coverPhoto)}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" alt="">` : ''}
@@ -209,7 +209,7 @@ function renderTripDetail(state, tripId) {
       ` : days.map(day => _renderDay(trip, day)).join('')}
 
       <!-- Add leg button -->
-      <div onclick="journalAddLeg('${trip.id}')" style="margin:4px 16px 12px;padding:12px;border:2px dashed rgba(255,255,255,.08);border-radius:12px;text-align:center;color:#64748b;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <div onclick="journalAddLeg('${trip.id}')" style="margin:4px 16px 12px;padding:12px;border:2px dashed rgba(255,255,255,.08);border-radius:12px;text-align:center;color:#64748b;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" role="button" tabindex="0">
         ${icon('plus', 'w-4 h-4')} ${t('addLeg') || 'Ajouter une étape'}
       </div>
 
@@ -274,13 +274,13 @@ function _renderDay(trip, day) {
       <!-- Day photo -->
       ${photo
         ? `<div style="margin:0 0 10px 36px;width:calc(100% - 36px);height:160px;border-radius:12px;overflow:hidden"><img src="${escapeHTML(photo)}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`
-        : `<div onclick="journalAddDayPhoto('${trip.id}','${date}')" style="margin:0 0 10px 36px;width:calc(100% - 36px);height:48px;border:2px dashed rgba(255,255,255,.08);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;color:#475569;font-size:12px;cursor:pointer">${icon('camera', 'w-4 h-4')} ${t('addDayPhoto') || 'Ajouter la photo du jour'}</div>`
+        : `<div onclick="journalAddDayPhoto('${trip.id}','${date}')" style="margin:0 0 10px 36px;width:calc(100% - 36px);height:48px;border:2px dashed rgba(255,255,255,.08);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;color:#475569;font-size:12px;cursor:pointer" role="button" tabindex="0">${icon('camera', 'w-4 h-4')} ${t('addDayPhoto') || 'Ajouter la photo du jour'}</div>`
       }
 
       <!-- Day note -->
       ${note
         ? `<div style="margin:0 0 10px 36px;width:calc(100% - 36px);padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;font-size:12px;color:#94a3b8;line-height:1.5;font-style:italic">"${escapeHTML(note)}"</div>`
-        : `<div onclick="journalEditDayNote('${trip.id}','${date}')" style="margin:0 0 10px 36px;width:calc(100% - 36px);padding:10px 12px;background:rgba(245,158,11,.04);border:1px dashed rgba(245,158,11,.2);border-radius:10px;font-size:12px;color:#f59e0b;cursor:pointer;display:flex;align-items:center;gap:6px">${icon('pencil', 'w-3.5 h-3.5')} ${t('writeDayNote') || 'Écrire la note du jour'}</div>`
+        : `<div onclick="journalEditDayNote('${trip.id}','${date}')" style="margin:0 0 10px 36px;width:calc(100% - 36px);padding:10px 12px;background:rgba(245,158,11,.04);border:1px dashed rgba(245,158,11,.2);border-radius:10px;font-size:12px;color:#f59e0b;cursor:pointer;display:flex;align-items:center;gap:6px" role="button" tabindex="0">${icon('pencil', 'w-3.5 h-3.5')} ${t('writeDayNote') || 'Écrire la note du jour'}</div>`
       }
 
       <!-- Legs -->
@@ -288,7 +288,7 @@ function _renderDay(trip, day) {
 
       <!-- Day expenses -->
       <div style="margin:4px 0 10px 36px;width:calc(100% - 36px);background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden">
-        <div onclick="journalEditExpenses('${trip.id}','${date}')" style="padding:8px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#64748b">
+        <div onclick="journalEditExpenses('${trip.id}','${date}')" style="padding:8px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#64748b" role="button" tabindex="0">
           ${icon('coins', 'w-3.5 h-3.5')} ${t('dayExpenses') || 'Dépenses du jour'}
           <span style="margin-left:auto;font-weight:600;color:#f59e0b">${dayTotal > 0 ? dayTotal + ' €' : '0 €'}</span>
           ${icon('pencil', 'w-3 h-3')}

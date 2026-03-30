@@ -1,10 +1,10 @@
 {
-  "totalScore": 91,
-  "updatedAt": "2026-03-30T06:12:19.037Z",
+  "totalScore": 95,
+  "updatedAt": "2026-03-30T06:36:03.217Z",
   "checks": {
     "Handlers Wiring": {
-      "score": 70,
-      "errors": 2,
+      "score": 100,
+      "errors": 0,
       "warnings": 0
     },
     "i18n Keys": {

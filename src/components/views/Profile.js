@@ -340,7 +340,7 @@ function renderProfileHeader(state) {
   return `
     <div class="flex items-start gap-4 pt-2 pb-4 border-b border-white/10">
       <!-- Avatar -->
-      <div class="relative flex-shrink-0 cursor-pointer" onclick="openProfileCustomization()">
+      <div class="relative flex-shrink-0 cursor-pointer" onclick="openProfileCustomization()" role="button" tabindex="0">
         <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-primary-600 p-[3px]">
           <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-3xl overflow-hidden">
             ${(state.userProfile?.photoURL || state.user?.photoURL)
