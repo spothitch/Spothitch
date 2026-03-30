@@ -27,6 +27,9 @@ export default defineConfig({
         'src/utils/image.js',
         'src/utils/backButton.js',
         'src/components/modals/AddSpot.js',
+        'src/components/views/social/Voyageurs.js',
+        'src/services/proximityRadar.js',
+        'src/services/travelBuddies.js',
       ],
       thresholds: {
         statements: 18,

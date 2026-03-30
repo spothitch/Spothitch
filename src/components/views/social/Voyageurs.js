@@ -37,13 +37,13 @@ function renderCombined(state) {
       <div style="padding:16px">
 
         <!-- Radar compact card -->
-        <div onclick="showRadarExpanded()" style="background:#161b28;border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:16px;margin-bottom:8px;cursor:pointer;transition:border-color 0.2s">
+        <div onclick="showRadarExpanded()" role="button" tabindex="0" style="background:#161b28;border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:16px;margin-bottom:8px;cursor:pointer;transition:border-color 0.2s">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
             <div style="display:flex;align-items:center;gap:10px">
               <span style="color:#f59e0b">${icon('radar', 'w-5 h-5')}</span>
               <span style="font-weight:700;font-size:0.95rem">${t('proximityRadar') || 'Radar de proximite'}</span>
             </div>
-            <div onclick="event.stopPropagation();toggleProximityRadar()" style="width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${radarOn ? '#f59e0b' : '#334155'};${radarOn ? 'box-shadow:0 0 12px rgba(245,158,11,0.25)' : ''}" role="switch" aria-checked="${radarOn}" aria-label="${t('proximityRadar')}">
+            <div onclick="event.stopPropagation();toggleProximityRadar()" tabindex="0" style="width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${radarOn ? '#f59e0b' : '#334155'};${radarOn ? 'box-shadow:0 0 12px rgba(245,158,11,0.25)' : ''}" role="switch" aria-checked="${radarOn}" aria-label="${t('proximityRadar')}">
               <div style="width:20px;height:20px;border-radius:50%;background:white;position:absolute;top:3px;transition:transform 0.3s;transform:translateX(${radarOn ? '25px' : '3px'})"></div>
             </div>
           </div>
@@ -75,7 +75,7 @@ function renderCombined(state) {
         ${radarOn && nearbyTravelers.length > 0 ? `
           <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 0 12px;margin-bottom:4px" class="scrollbar-hide">
             ${nearbyTravelers.map(trav => `
-              <div onclick="contactNearbyTraveler('${escapeJSString(trav.userId)}')" style="display:flex;align-items:center;gap:8px;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 12px;flex-shrink:0;cursor:pointer;min-height:48px;transition:border-color 0.2s">
+              <div onclick="contactNearbyTraveler('${escapeJSString(trav.userId)}')" role="button" tabindex="0" style="display:flex;align-items:center;gap:8px;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 12px;flex-shrink:0;cursor:pointer;min-height:48px;transition:border-color 0.2s">
                 <div style="width:32px;height:32px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>
                 <div>
                   <div style="font-weight:600;font-size:0.8rem;white-space:nowrap">${escapeHTML(trav.userName || t('traveler'))}</div>
@@ -166,7 +166,7 @@ function renderRadarExpanded(state) {
             <span style="color:${radarOn ? '#f59e0b' : '#94a3b8'};transition:color 0.3s">${icon('radar', 'w-5.5 h-5.5')}</span>
             <span style="font-weight:700;font-size:1rem">${radarOn ? (t('radarActive') || 'Radar actif') : (t('radarInactiveLabel') || 'Radar inactif')}</span>
           </div>
-          <div onclick="toggleProximityRadar()" style="width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${radarOn ? '#f59e0b' : '#334155'};${radarOn ? 'box-shadow:0 0 12px rgba(245,158,11,0.25)' : ''}" role="switch" aria-checked="${radarOn}" aria-label="${t('toggleRadar') || 'Toggle radar'}">
+          <div onclick="toggleProximityRadar()" tabindex="0" style="width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${radarOn ? '#f59e0b' : '#334155'};${radarOn ? 'box-shadow:0 0 12px rgba(245,158,11,0.25)' : ''}" role="switch" aria-checked="${radarOn}" aria-label="${t('toggleRadar') || 'Toggle radar'}">
             <div style="width:20px;height:20px;border-radius:50%;background:white;position:absolute;top:3px;transition:transform 0.3s;transform:translateX(${radarOn ? '25px' : '3px'})"></div>
           </div>
         </div>
@@ -578,7 +578,7 @@ function renderBuddyCreate(state) {
 
         <!-- Flexible dates toggle -->
         <div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-top:4px;margin-bottom:18px">
-          <div onclick="toggleBuddyFlexDates()" style="width:40px;height:22px;border-radius:11px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${flexDates ? '#f59e0b' : '#334155'}" role="switch" aria-checked="${flexDates}">
+          <div onclick="toggleBuddyFlexDates()" tabindex="0" style="width:40px;height:22px;border-radius:11px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${flexDates ? '#f59e0b' : '#334155'}" role="switch" aria-checked="${flexDates}">
             <div style="width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:3px;transition:transform 0.3s;transform:translateX(${flexDates ? '21px' : '3px'})"></div>
           </div>
           <div>
@@ -671,7 +671,7 @@ function renderBuddyCard(buddy, showCountry = false) {
   const modeLabels = { autostop: 'Auto-stop', mixte: 'Mixte', autre: 'Autre' }
 
   return `
-    <div onclick="showBuddyDetail('${escapeJSString(buddy.id)}')" style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
+    <div onclick="showBuddyDetail('${escapeJSString(buddy.id)}')" role="button" tabindex="0" style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <div style="width:38px;height:38px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8">${initial}</div>
         <div>
