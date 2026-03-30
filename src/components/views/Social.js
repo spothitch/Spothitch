@@ -19,8 +19,6 @@ import { renderCountryChats } from './social/CountryChats.js'
 import { renderSkeletonChatList } from '../ui/Skeleton.js'
 import { getConversationsList } from '../../services/directMessages.js'
 import { getUpcomingEvents, getEventComments, EVENT_TYPES } from '../../services/events.js'
-import { getActivityFeed } from '../../services/activityFeed.js'
-
 // Handler for feed visibility toggle (used in radar section onclick)
 window.toggleFeedVisibility = async () => {
   const { getState, setState } = await import('../../stores/state.js')
@@ -265,25 +263,6 @@ function renderMessagerieTab(state, _sidePanel = false) {
         </div>
       ` : ''}
 
-      <!-- Companion travel search — beta guard -->
-      <div class="px-4 pb-2">
-        <button onclick="showFeatureIntro('compagnon')"
-          class="card p-3 border-white/10 opacity-75 w-full text-left">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center text-lg">
-                🤝
-              </div>
-              <div>
-                <div class="text-sm font-medium">${t('lookingForCompanion')}</div>
-                <div class="text-xs text-slate-400">${t('comingSoon')}</div>
-              </div>
-            </div>
-            <span class="text-xs">${icon('chevron-right', 'w-4 h-4 text-slate-400')}</span>
-          </div>
-        </button>
-      </div>
-
       <!-- Conversation list -->
       ${allConversations.length > 0 ? `
         <div class="px-4 pb-1">
@@ -362,29 +341,8 @@ function renderEvenementsTab(state) {
     filteredEvents = allEvents.filter(e => e.participants?.includes(userId) || e.creatorId === userId)
   }
 
-  // Activity feed (for the feed items mixed in)
-  const activities = getActivityFeed('all').slice(0, 5)
-
   return `
     <div class="flex-1 overflow-y-auto relative">
-      <!-- Proximity Radar — coming soon -->
-      <div class="mx-4 mt-3 mb-2">
-        <button onclick="showFeatureIntro('radar')" class="card p-3 border-white/10 opacity-75 w-full text-left">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
-                ${icon('radar', 'w-5 h-5 text-slate-400')}
-              </div>
-              <div>
-                <div class="text-sm font-medium">${t('proximityRadar')}</div>
-                <div class="text-xs text-slate-400">${t('comingSoon') || 'Bientot disponible'}</div>
-              </div>
-            </div>
-            <span class="text-xs text-amber-400">${icon('chevron-right', 'w-4 h-4')}</span>
-          </div>
-        </button>
-      </div>
-
       <!-- Filter pills -->
       <div class="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-none">
         ${renderEventFilter('all', eventFilter, t('feedAll') || 'Tous')}
@@ -396,14 +354,7 @@ function renderEvenementsTab(state) {
       <div class="px-4 py-2 space-y-3">
         ${filteredEvents.length > 0 ? filteredEvents.map(event => renderEventCard(event, state)).join('') : ''}
 
-        ${activities.length > 0 && eventFilter === 'all' ? `
-          <div class="pt-2">
-            <h4 class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">${t('recentActivity') || 'Activité récente'}</h4>
-            ${activities.map(activity => renderActivityCard(activity)).join('')}
-          </div>
-        ` : ''}
-
-        ${filteredEvents.length === 0 && (eventFilter !== 'all' || activities.length === 0) ? renderEmptyState('events') : ''}
+        ${filteredEvents.length === 0 ? renderEmptyState('events') : ''}
       </div>
 
       <!-- FAB: Create event -->
@@ -472,34 +423,6 @@ function renderEventCard(event, state) {
         </div>
       </div>
     </button>
-  `
-}
-
-function renderActivityCard(activity) {
-  const typeConfig = {
-    new_spot: { icon: 'map-pin', color: 'text-primary-400', bg: 'bg-primary-500/10' },
-    review: { icon: 'star', color: 'text-amber-400', bg: 'bg-amber-500/10' },
-    badge: { icon: 'award', color: 'text-purple-400', bg: 'bg-purple-500/10' },
-    checkin: { icon: 'map-pin', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-    friend_joined: { icon: 'user-plus', color: 'text-primary-400', bg: 'bg-primary-500/10' },
-  }
-  const cfg = typeConfig[activity.type] || typeConfig.checkin
-
-  return `
-    <div class="card p-3 mb-2">
-      <div class="flex items-start gap-3">
-        <div class="w-9 h-9 rounded-full ${cfg.bg} flex items-center justify-center shrink-0">
-          ${activity.userAvatar ? `<span class="text-base">${activity.userAvatar}</span>` : icon(cfg.icon, `w-4 h-4 ${cfg.color}`)}
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm">
-            <span class="font-medium">${escapeHTML(activity.userName || t('traveler'))}</span>
-            <span class="text-slate-400"> ${escapeHTML(activity.description || '')}</span>
-          </p>
-          <time class="text-xs text-slate-400 mt-0.5 block">${formatRelativeTime(activity.timestamp)}</time>
-        </div>
-      </div>
-    </div>
   `
 }
 

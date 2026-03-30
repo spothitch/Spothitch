@@ -94,25 +94,6 @@ export function renderFriends(state) {
         </div>
       ` : ''}
 
-      <!-- Companion search -->
-      <div class="px-4 pb-3">
-        <button
-          onclick="setSocialTab('companion')"
-          class="card p-3 w-full text-left bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/20 hover:border-emerald-500/40 transition-colors"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              ${icon('compass', 'w-5 h-5 text-emerald-400')}
-            </div>
-            <div class="flex-1">
-              <div class="font-medium text-sm">${t('lookingForCompanion')}</div>
-              <div class="text-xs text-slate-400">${t('companionDesc')}</div>
-            </div>
-            ${icon('chevron-right', 'w-4 h-4 text-slate-400')}
-          </div>
-        </button>
-      </div>
-
       <!-- Friends list -->
       ${friends.length > 0 ? `
         <div class="px-4 pb-3">

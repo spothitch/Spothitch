@@ -16,24 +16,6 @@ export function renderFeed(state) {
   const feedFilter = state.feedFilter || 'all'
   return `
     <div class="flex flex-col flex-1 min-h-0">
-      <!-- Proximity Radar — coming soon -->
-      <div class="mx-4 mt-3 mb-2">
-        <div class="card p-3 border-white/10 opacity-75">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
-                ${icon('radar', 'w-5 h-5 text-slate-400')}
-              </div>
-              <div>
-                <div class="text-sm font-medium">${t('proximityRadar')}</div>
-                <div class="text-xs text-slate-400">${t('comingSoon') || 'Bientot disponible'}</div>
-              </div>
-            </div>
-            <button onclick="changeTab('profile');setState({profileSubTab:'progression'})" class="text-xs text-amber-400 hover:text-amber-300 transition-colors">${t('roadmapVote') || 'Voter'}</button>
-          </div>
-        </div>
-      </div>
-
       <!-- Filter pills -->
       <div class="flex gap-1 px-4 py-2 overflow-x-auto scrollbar-none">
         ${renderFeedFilter('all', feedFilter, t('feedAll'))}
