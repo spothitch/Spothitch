@@ -13,6 +13,7 @@ import { escapeHTML } from '../../utils/sanitize.js'
 import { renderCustomSelect } from '../../utils/customSelect.js'
 import { formatRelativeTime, formatEventDate } from '../../utils/formatters.js'
 import { renderConversations } from './social/Conversations.js'
+import { renderVoyageurs } from './social/Voyageurs.js'
 import { renderGuardianWatch } from './social/GuardianWatch.js'
 import { renderCountryChats } from './social/CountryChats.js'
 import { renderSkeletonChatList } from '../ui/Skeleton.js'
@@ -84,9 +85,11 @@ export function renderSocial(state) {
   return `
     <div class="flex flex-col h-[calc(100vh-140px)]">
       ${renderSocialTabs(mainTab, state)}
-      ${mainTab === 'evenements'
-    ? renderEvenementsTab(state)
-    : renderMessagerieTab(state)}
+      ${mainTab === 'voyageurs'
+    ? renderVoyageurs(state)
+    : mainTab === 'evenements'
+      ? renderEvenementsTab(state)
+      : renderMessagerieTab(state)}
     </div>
   `
 }
@@ -102,6 +105,12 @@ function renderSocialTabs(activeTab, state) {
       badge: state.unreadDMCount || 0,
     },
     {
+      id: 'voyageurs',
+      icon: 'users',
+      label: t('socialVoyageurs') || 'Voyageurs',
+      badge: 0,
+    },
+    {
       id: 'evenements',
       icon: 'calendar',
       label: t('socialEvents') || 'Événements',
@@ -109,9 +118,11 @@ function renderSocialTabs(activeTab, state) {
     },
   ]
   // Normalize legacy tab values
-  const currentTab = (activeTab === 'conversations' || activeTab === 'friends' || activeTab === 'feed' || activeTab === 'companion')
+  const currentTab = (activeTab === 'conversations' || activeTab === 'friends' || activeTab === 'feed')
     ? 'messagerie'
-    : activeTab
+    : activeTab === 'companion'
+      ? 'voyageurs'
+      : activeTab
 
   return `
     <div class="flex bg-dark-secondary/50 border-b border-white/5">

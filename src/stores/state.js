@@ -294,6 +294,14 @@ const initialState = {
   showComingSoonCompanion: false,
   showComingSoonCityGuide: false,
 
+  // Voyageurs tab
+  voyageursView: 'combined',
+  radarEnabled: false,
+  nearbyTravelers: [],
+  travelBuddies: [],
+  selectedBuddyDetail: null,
+  buddyCountryFilter: 'all',
+
   // Admin Dashboard
   adminActiveTab: 'feedback',
   adminFeedbackData: null,

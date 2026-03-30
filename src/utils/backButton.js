@@ -188,7 +188,13 @@ function handleBack() {
     return true
   }
 
-  // 6. If social sub-tab is not default → go back to default
+  // 6a. If in voyageurs sub-view → back to combined
+  if (state.activeTab === 'social' && state.socialSubTab === 'voyageurs' && state.voyageursView && state.voyageursView !== 'combined') {
+    setState({ voyageursView: 'combined', selectedBuddyDetail: null })
+    return true
+  }
+
+  // 6b. If social sub-tab is not default → go back to default
   if (state.activeTab === 'social' && state.socialSubTab && state.socialSubTab !== 'messagerie') {
     setState({ socialSubTab: 'messagerie' })
     return true

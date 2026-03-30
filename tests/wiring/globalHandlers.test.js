@@ -36,6 +36,14 @@ const MAIN_JS_HANDLERS = [
   'acceptSOSIntro', 'sosTab', 'sosShowRecordOptions', 'sosBroadcastCommunity',
   'sosOpenConfig', 'sosCloseConfig',
   'sosSearchFriend', 'sosAddFriendAsContact', 'sosRequestPermission',
+  // Voyageurs (Radar + Travel Buddies)
+  'toggleProximityRadar', 'setRadarRadius', 'setRadarVisibility', 'setRadarMessage',
+  'showRadarExpanded', 'contactNearbyTraveler',
+  'showBuddyList', 'showBuddyDetail', 'showBuddyCreate',
+  'submitBuddyAnnouncement', 'deleteBuddyAnnouncement',
+  'setBuddyCountryFilter', 'contactBuddyAuthor',
+  'setBuddyTravelMode', 'toggleBuddyFlexDates', 'setBuddyVisibility',
+  'backFromVoyageurs',
   // Auth
   'openAuth', 'closeAuth', 'setAuthMode',
   'signIn', 'signUp',
