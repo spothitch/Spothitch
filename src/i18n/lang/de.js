@@ -5431,4 +5431,6 @@ export default {
   visibleByAll: 'Diese Anzeige ist für alle Mitglieder sichtbar.',
   visibleByRestricted: 'Eingeschränkte Sichtbarkeit.',
   whatImLookingFor: 'Was ich suche',
+
+  maxChars: 'max',
 }

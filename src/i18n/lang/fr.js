@@ -5438,4 +5438,6 @@ export default {
   visibleByAll: 'Cette annonce est visible par tous les membres.',
   visibleByRestricted: 'Visibilité restreinte.',
   whatImLookingFor: 'Ce que je cherche',
+
+  maxChars: 'max',
 }

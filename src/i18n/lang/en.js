@@ -5435,4 +5435,6 @@ export default {
   visibleByAll: 'This announcement is visible to all members.',
   visibleByRestricted: 'Restricted visibility.',
   whatImLookingFor: 'What I am looking for',
+
+  maxChars: 'max',
 }
