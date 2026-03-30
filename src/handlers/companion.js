@@ -43,39 +43,26 @@ window.companionBtnCancel = () => {
 window.startCompanion = () => {
   const t = window.t
   const { scheduleRender } = window._appInternals
-  const nameEl = document.getElementById('companion-guardian-name')
-  const phoneEl = document.getElementById('companion-guardian-phone')
-  const intervalEl = document.getElementById('companion-interval')
-  const destEl = document.getElementById('companion-destination')
-  const notifyDepartureEl = document.getElementById('companion-notify-departure')
-  const notifyArrivalEl = document.getElementById('companion-notify-arrival')
-  const plateEl = document.getElementById('companion-license-plate')
-  const msgEl = document.getElementById('companion-custom-message')
 
-  const name = nameEl?.value?.trim()
-  const phone = phoneEl?.value?.trim()
-  const interval = parseInt(intervalEl?.value || '30', 10)
-  const destination = destEl?.value?.trim() || ''
-  const notifyOnDeparture = notifyDepartureEl ? notifyDepartureEl.checked : true
-  const notifyOnArrival = notifyArrivalEl ? notifyArrivalEl.checked : true
-  const licensePlate = plateEl?.value?.trim() || ''
-  const customMessage = msgEl?.value?.trim() || ''
+  // Read config from localStorage (reliable) — hidden DOM inputs may not be rendered
+  let saved = {}
+  try {
+    saved = JSON.parse(localStorage.getItem('spothitch_companion') || '{}')
+  } catch { /* ignore */ }
+
+  const name = saved.guardian?.name?.trim() || ''
+  const phone = saved.guardian?.phone?.trim() || ''
+  const interval = saved.checkInInterval || 30
+  const destination = saved.destination || ''
+  const notifyOnDeparture = saved.notifyOnDeparture !== false
+  const notifyOnArrival = saved.notifyOnArrival !== false
+  const licensePlate = saved.licensePlate || ''
+  const customMessage = saved.customMessage || ''
+  const trustedContacts = Array.isArray(saved.trustedContacts) ? saved.trustedContacts : []
 
   if (!name) {
     window.showToast(t('guardianNameRequired') || 'Remplis le nom de ton gardien.', 'warning')
     return
-  }
-
-  // Collect trusted contacts from saved state (added via companionAddTrustedContact)
-  let trustedContacts = []
-  try {
-    const raw = localStorage.getItem('spothitch_companion')
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      trustedContacts = Array.isArray(parsed.trustedContacts) ? parsed.trustedContacts : []
-    }
-  } catch {
-    // ignore
   }
 
   // Store traveler's own phone (from profile or first emergency contact)
@@ -83,9 +70,7 @@ window.startCompanion = () => {
   let travelerPhone = ''
   try {
     const state = window.getState?.() || {}
-    // Try profile phone first
     travelerPhone = state.userPhone || ''
-    // Fallback to first emergency contact phone
     if (!travelerPhone && state.emergencyContacts?.length > 0) {
       travelerPhone = state.emergencyContacts[0].phone || ''
     }

@@ -254,7 +254,6 @@ function renderGuardianTab(companion) {
   const interval = companion.checkInInterval || 30
   const destination = companion.destination || ''
   const licensePlate = companion.licensePlate || ''
-  const customMessage = companion.customMessage || ''
 
   // Alert type label
   const alertType = guardianPhone ? 'Push + SMS' : 'Push'
@@ -322,17 +321,7 @@ function renderGuardianTab(companion) {
       `).join('')}
     </div>
 
-    <!-- Hidden form fields for startCompanion handler -->
-    <input type="hidden" id="companion-guardian-name" value="${escapeHTML(guardianName)}" />
-    <input type="hidden" id="companion-guardian-phone" value="${escapeHTML(guardianPhone)}" />
-    <input type="hidden" id="companion-interval" value="${interval}" />
-    <input type="hidden" id="companion-destination" value="${escapeHTML(destination)}" />
-    <input type="hidden" id="companion-notify-departure" ${companion.notifyOnDeparture !== false ? 'checked' : ''} />
-    <input type="hidden" id="companion-notify-arrival" ${companion.notifyOnArrival !== false ? 'checked' : ''} />
-    <input type="hidden" id="companion-license-plate" value="${escapeHTML(licensePlate)}" />
-    <input type="hidden" id="companion-custom-message" value="${escapeHTML(customMessage)}" />
-
-    <!-- Start button -->
+    <!-- Start button (reads config from localStorage directly) -->
     <button
       onclick="startCompanion()"
       class="w-full py-3 rounded-xl text-emerald-300 font-bold text-sm flex items-center justify-center gap-2 active:border-emerald-500 transition-all"
