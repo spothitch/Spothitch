@@ -76,6 +76,13 @@ window.journalSaveLeg = (tripId) => {
   const depCoords = window._journalDep || null
   const arrCoords = window._journalArr || null
 
+  const waitEl = document.getElementById('journal-wait-time')
+  const priceEl = document.getElementById('journal-price')
+  const durationEl = document.getElementById('journal-duration')
+  const waitMinutes = parseInt(waitEl?.value, 10) || window._journalSpotWaitMinutes || null
+  const price = parseFloat(priceEl?.value) || null
+  const rideDuration = parseInt(durationEl?.value, 10) || null
+
   const legData = {
     transport,
     departureName: departure,
@@ -90,7 +97,9 @@ window.journalSaveLeg = (tripId) => {
     spotId: window._journalSelectedSpotId || null,
     spotName: window._journalSelectedSpotName || null,
     spotCreated: window._journalSpotCreated || false,
-    waitMinutes: window._journalSpotWaitMinutes || null,
+    waitMinutes,
+    rideDuration,
+    price,
   }
 
   const leg = addLeg(tripId, legData)
@@ -135,8 +144,10 @@ async function _calculateDistance(tripId, legId, from, to) {
             leg.distanceKm = km
             leg.departure.lat = fromCoords.lat
             leg.departure.lng = fromCoords.lon || fromCoords.lng
+            leg.departure.country = fromCoords.country_code?.toUpperCase() || null
             leg.arrival.lat = toCoords.lat
             leg.arrival.lng = toCoords.lon || toCoords.lng
+            leg.arrival.country = toCoords.country_code?.toUpperCase() || null
             localStorage.setItem('spothitch_journal_trips', JSON.stringify(trips))
             window._forceRender?.()
           }
@@ -207,12 +218,31 @@ window.journalAddDayPhoto = (tripId, date) => {
 // ==================== SPOT PICKER ====================
 
 window.journalPickSpot = (mode) => {
-  // For now: prompt-based (will be replaced with map overlay later)
-  if (mode === 'use') {
-    window.showToast?.('Ouvre la carte, tape sur un spot, puis clique "Ajouter au voyage"', 'info')
-  } else {
-    window.showToast?.('Ouvre la carte, crée un spot, il sera automatiquement lié', 'info')
-  }
+  window.setState?.({ journalSpotOverlay: mode }) // 'use' or 'new'
+}
+
+window.journalCloseSpotOverlay = () => {
+  window.setState?.({ journalSpotOverlay: null })
+}
+
+window.journalSelectSpotFromMap = () => {
+  // Select the currently viewed spot on the map
+  // For now: close overlay and show instructions
+  window.setState?.({ journalSpotOverlay: null })
+  window.showToast?.('Tape sur un spot sur la carte pour le sélectionner', 'info')
+}
+
+window.journalClearSpot = () => {
+  window._journalSelectedSpotId = null
+  window._journalSelectedSpotName = null
+  window._journalSpotCreated = false
+  window._journalSpotWaitMinutes = null
+  window._forceRender?.()
+}
+
+window.journalToggleExpenses = (el) => {
+  const parent = el?.closest('.journal-day-expenses')
+  if (parent) parent.classList.toggle('open')
 }
 
 window.journalSelectTransport = (transport) => {

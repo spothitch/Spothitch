@@ -1,6 +1,6 @@
 # errors.md - Journal des erreurs et corrections SpotHitch
 
-> Dernière mise à jour : 2026-03-23
+> Dernière mise à jour : 2026-03-28
 > IMPORTANT : Après CHAQUE bug trouvé ou corrigé, ajouter une entrée ici.
 > Le Plan Wolf analyse ce fichier pour éviter les régressions.
 
@@ -1589,4 +1589,104 @@ Chaque erreur suit ce format :
 - **Correction** : Implémenté formulaire complet (5 étoiles cliquables, textarea, Publier/Annuler) dans SpotDetail.js. `openRating` implémenté.
 - **Leçon** : Un handler dans les tests wiring ne garantit PAS que la feature fonctionne. Toujours vérifier le flux utilisateur complet (bouton → formulaire → soumission → résultat visible).
 - **Fichiers** : src/components/modals/SpotDetail.js, src/handlers/spotActions.js
+- **Statut** : CORRIGÉ
+
+### ERR-126 — Dates d'expérience ignorées sur les fiches spots
+- **Date** : 2026-03-28
+- **Gravité** : MAJEUR
+- **Description** : Quand un utilisateur ajoutait un spot ou une validation avec une date d'expérience passée (ex: il y a 6 mois), la fiche spot affichait la date de soumission (hier) au lieu de la date d'expérience (6 mois). Les marqueurs sur la carte étaient tous bleus au lieu de gris pour les spots anciens.
+- **Cause racine** : 3 bugs combinés : (1) `experienceDate` n'était pas dans `SPOT_ALLOWED_FIELDS`, donc filtré à la création. `lastTested`/`lastValidated` recevaient `new Date()` au lieu de l'experienceDate. (2) `mergeSpotData` triait les dates par `createdAt` (soumission) au lieu de les trier par valeur réelle. (3) `isRecentActivity` faisait un fallback sur `createdAt` même quand des dates d'expérience existaient, gardant tous les spots en bleu.
+- **Correction** : Ajout `experienceDate` à SPOT_ALLOWED_FIELDS. `mergeSpotData` trie par date d'expérience réelle. `isRecentActivity` et `getSpotAge` vérifient `experienceDate` en priorité et ne font plus fallback sur `createdAt` quand des dates d'expérience existent. `addValidation` ne remplace `lastTested` que si la nouvelle date est plus récente.
+- **Leçon** : Toujours vérifier que les champs utilisés dans le code sont dans la whitelist `SPOT_ALLOWED_FIELDS`. Un champ filtré silencieusement cause des bugs subtils. Et ne JAMAIS utiliser `createdAt` comme proxy pour la date d'expérience.
+- **Fichiers** : src/services/firebase.js, src/services/spotLiveData.js, src/components/modals/SpotDetail.js, src/utils/mapMarkers.js, src/services/spotFreshness.js
+- **Statut** : CORRIGÉ
+
+### ERR-127 — Firestore rules manquaient des champs pour les updates de spots
+- **Date** : 2026-03-28
+- **Gravité** : MAJEUR
+- **Description** : Plusieurs opérations (addValidation, saveComment, propagateUsername) écrivaient des champs (`lastUsed`, `totalReviews`, `creator`, champs GPS/StreetView) non autorisés par les Firestore rules.
+- **Cause racine** : La whitelist `affectedKeys().hasOnly([...])` dans firestore.rules n'avait pas été mise à jour quand de nouveaux champs ont été ajoutés au code.
+- **Correction** : Ajout des champs manquants à la whitelist : `lastUsed`, `totalReviews`, `creator`, `reports`, `lastGpsVerified`, `lastGpsVerifiedBy`, `lastGpsDistance`, `streetViewVerified`, `streetViewVerifiedBy`, `streetViewVerifiedAt`.
+- **Leçon** : Quand on ajoute un `updateDoc` avec un nouveau champ dans le code, TOUJOURS vérifier que le champ est autorisé dans `firestore.rules`. Sinon ça marche en local (pas de rules) mais échoue en production.
+- **Fichiers** : firestore.rules
+- **Statut** : CORRIGÉ
+
+### ERR-128 — Firebase emulator CI : Java < 21 + connectAuthEmulator manquant
+- **Date** : 2026-03-28
+- **Gravité** : MAJEUR
+- **Description** : Les tests Firebase Integration et Multi-User échouaient en CI. L'émulateur ne démarrait pas (Java trop vieux), et les scripts de test n'appelaient pas `connectAuthEmulator`/`connectFirestoreEmulator`.
+- **Cause racine** : (1) `firebase-tools` exige Java 21+ mais le runner CI avait Java 17. (2) Le SDK client Firebase JS nécessite des appels explicites à `connectAuthEmulator`/`connectFirestoreEmulator`, les env vars seules ne suffisent pas.
+- **Correction** : Ajout `actions/setup-java@v4` (temurin 21) dans les jobs CI. Ajout des appels `connectAuthEmulator`/`connectFirestoreEmulator` dans les deux scripts (setup + test).
+- **Leçon** : Le SDK Firebase client JS ne détecte PAS automatiquement l'émulateur via env vars. Il faut TOUJOURS appeler `connectAuthEmulator`/`connectFirestoreEmulator` explicitement.
+- **Fichiers** : .github/workflows/ci.yml, scripts/firebase-test-setup.mjs, scripts/firebase-test.mjs
+- **Statut** : CORRIGÉ
+
+### ERR-129 — Recherche de ville sur la carte ne retournait plus de résultats
+- **Date** : 2026-03-28
+- **Gravité** : CRITIQUE
+- **Description** : Quand on tapait un nom de ville dans la barre de recherche sur la carte, "Recherche..." s'affichait mais aucun résultat n'apparaissait. Les APIs Photon/Nominatim répondaient bien (200 OK), mais les résultats étaient silencieusement ignorés.
+- **Cause racine** : Deux bugs combinés. (1) L'import dynamique de `osrm.js` échouait silencieusement dans certains builds (le catch masquait l'erreur). (2) Le guard anti-résultats-périmés vérifiait `home-destination` (input mobile) au lieu de `side-panel-destination` (input desktop). L'input mobile était vide → `"" !== "Paris"` → résultats toujours rejetés.
+- **Correction** : Import statique de `searchPhoton` au top du fichier. Guard vérifie `side-panel-destination || home-destination` (desktop d'abord).
+- **Leçon** : Quand un handler utilise 2 inputs (mobile + desktop), TOUJOURS vérifier le bon input en fonction du contexte. Et préférer les imports statiques aux imports dynamiques dans les handlers fréquemment appelés.
+- **Fichiers** : src/handlers/mapHome.js
+- **Statut** : CORRIGÉ
+
+### ERR-130 — enrichSpotWithLiveData jamais appelé + auto-fix écrasait les dates
+- **Date** : 2026-03-28
+- **Gravité** : CRITIQUE
+- **Description** : Les fiches spots affichaient "la semaine passée" au lieu de dates de plusieurs années. Les vraies experienceDate étaient perdues.
+- **Cause racine** : (1) `enrichSpotWithLiveData` n'était JAMAIS appelé à l'ouverture d'une fiche spot. (2) Un "auto-fix" écrasait `lastTested`/`lastValidated` avec `createdAt` (date de soumission) et PERSISTAIT cette mauvaise valeur dans Firestore à chaque ouverture.
+- **Correction** : Appel de `enrichSpotWithLiveData` à l'ouverture de chaque spot. Suppression de l'auto-fix destructeur. Migration des 100 spots existants avec les vraies dates depuis l'historique Google Maps Timeline.
+- **Leçon** : Ne JAMAIS écrire dans Firestore depuis un "auto-fix" qui s'exécute à chaque lecture. Un fix silencieux qui persiste des données peut corrompre la base de données progressivement.
+- **Fichiers** : src/handlers/spotActions.js
+- **Statut** : CORRIGÉ
+
+### ERR-131 — Pompes à essence incomplètes (requête OSM nodes uniquement)
+- **Date** : 2026-03-28
+- **Gravité** : MINEUR
+- **Description** : Le bouton pompe à essence n'affichait pas toutes les stations. Beaucoup manquaient.
+- **Cause racine** : La requête Overpass ne cherchait que les `node["amenity"="fuel"]`. Sur OpenStreetMap, beaucoup de stations sont cartographiées comme des `way` (polygones/bâtiments), pas des nodes.
+- **Correction** : Ajout de `way["amenity"="fuel"]` dans les requêtes Overpass avec `out center body` pour obtenir les coordonnées centrales des polygones.
+- **Leçon** : Sur OpenStreetMap, toujours chercher à la fois les nodes ET les ways pour les POI (points d'intérêt). Utiliser `out center` pour les ways.
+- **Fichiers** : src/services/gasStations.js
+- **Statut** : CORRIGÉ
+
+### ERR-132 — CI Multi-User Phase 1/2 : navigateur ne peut pas atteindre l'emulateur Firebase
+- **Date** : 2026-03-30
+- **Gravité** : MAJEUR
+- **Description** : Les tests E2E Multi-User Phase 1 et 2 échouaient systématiquement avec `auth/network-request-failed`. Le navigateur Playwright en CI ne pouvait pas atteindre l'emulateur Firebase à `127.0.0.1:9099`.
+- **Cause racine** : Le SDK Firebase dans le navigateur (connectAuthEmulator) ne peut pas communiquer avec l'emulateur dans l'environnement CI GitHub Actions. Les tests étaient en `continue-on-error: true` masquant le problème.
+- **Correction** : Ajout d'un fallback localStorage — si le SDK Firebase échoue, l'état auth est injecté directement dans localStorage avec un UID synthétique. Les tests vérifient le comportement de l'app authentifiée sans dépendre du SDK.
+- **Leçon** : En CI, ne JAMAIS supposer que le navigateur peut atteindre les mêmes services que Node.js. Toujours prévoir un fallback pour les tests qui dépendent de services externes.
+- **Fichiers** : e2e/firebase-helpers.js, .github/workflows/ci.yml
+- **Statut** : CORRIGÉ
+
+### ERR-133 — Journal dans Profil au lieu de Voyage
+- **Date** : 2026-03-30
+- **Gravité** : MAJEUR
+- **Description** : Le nouveau Journal (trip diary) avait remplacé le Roadmap dans l'onglet Profil, alors qu'il devait être dans le sous-onglet Journal de l'onglet Voyage.
+- **Cause racine** : Session précédente a mis le Journal dans Profile.js en supprimant le Roadmap, au lieu de câbler Journal.js dans Voyage.js.
+- **Correction** : Restauré Roadmap dans Profile. Câblé Journal.js via lazy-load dans Voyage.js. Supprimé ~450 lignes de dead code (ancienne version simplifiée du Journal dans Voyage.js).
+- **Leçon** : Avant de remplacer un onglet/sous-onglet, TOUJOURS vérifier dans quel composant parent il doit être placé. Ne pas supposer.
+- **Fichiers** : src/components/views/Profile.js, src/components/views/Voyage.js
+- **Statut** : CORRIGÉ
+
+### ERR-134 — Tips sécurité SpotHitch manquants pour 25 pays
+- **Date** : 2026-03-31
+- **Gravité** : MINEUR
+- **Description** : 25 pays (FR, DE, BE, NL, etc.) n'avaient pas les tips communs SpotHitch (Mode Gardien, SOS, photo plaque, sac) dans leur section sécurité des guides.
+- **Cause racine** : Le script `enrich-safety.mjs` avait sauté les pays qui avaient déjà une section safety (les premiers enrichis manuellement avant le script).
+- **Correction** : Injection automatique des tips communs à l'affichage dans `renderGuideSectionPinned()`. Les tips sont ajoutés pour les 96 pays en 4 langues, même s'ils ne sont pas dans les données.
+- **Leçon** : Quand un script enrichit des données existantes, TOUJOURS vérifier qu'il couvre 100% des entrées. Mieux : rendre l'enrichissement automatique au render plutôt que dans les données statiques.
+- **Fichiers** : src/components/views/Guides.js
+- **Statut** : CORRIGÉ
+
+### ERR-135 — Boutons de filtres guides non fonctionnels
+- **Date** : 2026-03-31
+- **Gravité** : MINEUR
+- **Description** : Les boutons de filtre (Questions, Conseils, Alertes, Bons plans) dans les pages guides pays étaient des `<span>` sans onclick, avec compteur "0" en dur et design quasi invisible.
+- **Cause racine** : Les filtres avaient été codés comme placeholders visuels sans être câblés.
+- **Correction** : Boutons avec onclick `setGuideFilterType`, compteurs réels, état actif coloré, toggle on/off, reset au changement de section.
+- **Leçon** : Ne JAMAIS laisser des éléments UI interactifs en apparence mais non fonctionnels. Soit les câbler, soit ne pas les afficher.
+- **Fichiers** : src/components/views/Guides.js
 - **Statut** : CORRIGÉ
