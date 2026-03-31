@@ -12,8 +12,8 @@ import {
 } from '../services/companion.js'
 
 // Companion Mode handlers
-window.showCompanionModal = () => window.setState({ showCompanionModal: true })
-window.closeCompanionModal = () => window.setState({ showCompanionModal: false })
+window.showCompanionModal = () => window.setState({ showCompanionModal: true, _companionDismissed: false })
+window.closeCompanionModal = () => window.setState({ showCompanionModal: false, _companionDismissed: true })
 
 // Header companion button: short press = check-in, hold 2s = stop
 let _companionPressTimer = null

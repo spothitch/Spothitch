@@ -886,6 +886,19 @@ export function stopTimer() {
 export function restoreCompanionMode() {
   const state = loadState()
   if (state.active) {
+    // Auto-stop stale trips: 8h total OR 2h since last check-in
+    const now = Date.now()
+    const maxTrip = 8 * 60 * 60 * 1000 // 8 hours
+    const maxSilence = 2 * 60 * 60 * 1000 // 2 hours without check-in
+    const tripAge = state.tripStart ? now - state.tripStart : 0
+    const silenceAge = state.lastCheckIn ? now - state.lastCheckIn : tripAge
+
+    if (tripAge > maxTrip || silenceAge > maxSilence) {
+      // Trip is stale — auto-stop silently
+      stopCompanionMode()
+      return false
+    }
+
     startTimer()
     startBatteryMonitor()
     return true

@@ -563,12 +563,16 @@ async function init() {
       console.warn('Push notifications skipped:', e.message)
     }
 
-    // Restore companion mode if it was active
+    // Restore companion mode if it was active (auto-stops stale trips)
     try {
       const wasActive = restoreCompanionMode()
       if (wasActive) {
         onCompanionOverdue(() => {
-          setState({ showCompanionModal: true })
+          // Only auto-open modal if user hasn't manually closed it
+          const s = getState()
+          if (!s._companionDismissed) {
+            setState({ showCompanionModal: true })
+          }
         })
       }
     } catch (e) {
