@@ -68,8 +68,7 @@ export function renderCompanionModal(_state) {
     }
   }
 
-  // Read sheet state
-  _guardianSheet = _state?._guardianSheet || null
+  // Note: _guardianSheet is set directly by handlers in this file (not from global state)
 
   // Determine screen — respect _currentScreen if set
   let screen = _currentScreen
