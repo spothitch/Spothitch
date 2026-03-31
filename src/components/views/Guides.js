@@ -595,8 +595,53 @@ function renderGuideBlock(block) {
 }
 
 /** Render a full section's pinned content */
+// Common SpotHitch safety tips — injected for ALL countries
+const COMMON_SAFETY_BLOCKS = {
+  fr: [
+    { type: 'sub', title: 'Utilise SpotHitch pour ta sécurité' },
+    { type: 'rule', icon: '🛡️', text: 'Active le Mode Gardien avant chaque trajet. Un proche suit ta position en temps réel.' },
+    { type: 'rule', icon: '🆘', text: 'Configure le mode SOS avec tes contacts. Un seul geste déclenche une triple alerte (push, SMS, appel).' },
+    { type: 'rule', icon: '📱', text: 'Photographie la plaque du véhicule et envoie-la à un proche avant de monter.' },
+    { type: 'rule', icon: '🎒', text: 'Garde ton sac accessible (sur tes genoux ou à tes pieds), jamais dans le coffre.' },
+  ],
+  en: [
+    { type: 'sub', title: 'Use SpotHitch for your safety' },
+    { type: 'rule', icon: '🛡️', text: 'Activate Guardian Mode before every trip. A trusted person follows your position in real time.' },
+    { type: 'rule', icon: '🆘', text: 'Set up SOS mode with your contacts. One tap triggers a triple alert (push, SMS, call).' },
+    { type: 'rule', icon: '📱', text: 'Take a photo of the license plate and send it to someone before getting in.' },
+    { type: 'rule', icon: '🎒', text: 'Keep your bag accessible (on your lap or at your feet), never in the trunk.' },
+  ],
+  es: [
+    { type: 'sub', title: 'Usa SpotHitch para tu seguridad' },
+    { type: 'rule', icon: '🛡️', text: 'Activa el Modo Guardián antes de cada viaje. Una persona de confianza sigue tu posición en tiempo real.' },
+    { type: 'rule', icon: '🆘', text: 'Configura el modo SOS con tus contactos. Un toque activa una triple alerta (push, SMS, llamada).' },
+    { type: 'rule', icon: '📱', text: 'Fotografía la matrícula y envíala a alguien antes de subir.' },
+    { type: 'rule', icon: '🎒', text: 'Mantén tu mochila accesible (en tu regazo o a tus pies), nunca en el maletero.' },
+  ],
+  de: [
+    { type: 'sub', title: 'Nutze SpotHitch für deine Sicherheit' },
+    { type: 'rule', icon: '🛡️', text: 'Aktiviere den Guardian-Modus vor jeder Fahrt. Eine Vertrauensperson verfolgt deine Position in Echtzeit.' },
+    { type: 'rule', icon: '🆘', text: 'Richte den SOS-Modus mit deinen Kontakten ein. Ein Tippen löst einen dreifachen Alarm aus (Push, SMS, Anruf).' },
+    { type: 'rule', icon: '📱', text: 'Fotografiere das Kennzeichen und sende es jemandem, bevor du einsteigst.' },
+    { type: 'rule', icon: '🎒', text: 'Halte deinen Rucksack griffbereit (auf dem Schoß oder zu deinen Füßen), nie im Kofferraum.' },
+  ],
+}
+
 function renderGuideSectionPinned(sectionData, cat) {
   if (!sectionData || !sectionData.blocks) return ''
+
+  let blocks = sectionData.blocks
+
+  // For safety sections: inject common SpotHitch tips if not already present
+  if (cat.id === 'safety') {
+    const lang = window.getState?.()?.lang || 'fr'
+    const commonBlocks = COMMON_SAFETY_BLOCKS[lang] || COMMON_SAFETY_BLOCKS.fr
+    const hasCommonTips = blocks.some(b => b.text?.includes('Mode Gardien') || b.text?.includes('Guardian Mode') || b.text?.includes('Modo Guardián') || b.text?.includes('Guardian-Modus'))
+    if (!hasCommonTips) {
+      blocks = [...blocks, ...commonBlocks]
+    }
+  }
+
   return `
     <div class="p-4 bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/15 rounded-2xl mb-3 relative">
       <div class="absolute top-3 right-3 text-[10px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full font-semibold">📌 ${t('guideOfficialBadge') || 'Guide'}</div>
@@ -604,7 +649,7 @@ function renderGuideSectionPinned(sectionData, cat) {
         <span class="text-lg">${cat.emoji}</span>
         ${escapeHTML(t(cat.labelKey) || cat.fallback)}
       </h3>
-      ${sectionData.blocks.map(renderGuideBlock).join('')}
+      ${blocks.map(renderGuideBlock).join('')}
     </div>
   `
 }
