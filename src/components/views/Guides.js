@@ -610,20 +610,39 @@ function renderGuideSectionPinned(sectionData, cat) {
 }
 
 /** Render filter chips for community posts */
-function renderGuideFilterChips(sectionData, _countryCode, _catId) {
+function renderGuideFilterChips(sectionData, countryCode, catId) {
   const types = sectionData?.filterTypes || ['q', 'c']
+  const activeFilter = window.getState?.()?.guideFilterType || null
+  const tips = (_communityTipsCache[countryCode] || []).filter(tip => tip.category === catId)
+  const totalCount = tips.length
+
+  // Use inline styles for dynamic colors (Tailwind can't detect dynamic class names)
   const chipDefs = {
-    q: { label: `❓ ${t('guideChipQuestions') || 'Questions'}`, cls: 'q' },
-    c: { label: `💡 ${t('guideChipTips') || 'Conseils'}`, cls: 'c' },
-    a: { label: `⚠️ ${t('guideChipAlerts') || 'Alertes'}`, cls: 'a' },
-    b: { label: `🎯 ${t('guideChipDeals') || 'Bons plans'}`, cls: 'b' },
+    q: { label: t('guideChipQuestions') || 'Questions', emoji: '❓', color: '#3b82f6' },
+    c: { label: t('guideChipTips') || 'Conseils', emoji: '💡', color: '#10b981' },
+    a: { label: t('guideChipAlerts') || 'Alertes', emoji: '⚠️', color: '#ef4444' },
+    b: { label: t('guideChipDeals') || 'Bons plans', emoji: '🎯', color: '#f59e0b' },
   }
+
+  const allActive = !activeFilter
+  const inactiveStyle = 'border-color:rgba(255,255,255,0.1);color:#64748b;background:rgba(255,255,255,0.02)'
+
   return `
-    <div class="flex gap-1.5 overflow-x-auto scrollbar-none py-1 sticky top-0 z-10 bg-[#0f1117]">
-      <span class="px-3 py-1.5 rounded-full text-xs font-semibold border border-amber-500/25 text-amber-500 bg-amber-500/5 cursor-pointer shrink-0">${t('guideChipAll') || 'Tout'} <span class="text-[10px] opacity-70">0</span></span>
+    <div class="flex gap-1.5 overflow-x-auto scrollbar-none py-2 sticky top-0 z-10" style="background:#0f1117">
+      <button onclick="setGuideFilterType(null)" style="${allActive ? 'border-color:rgba(245,158,11,0.4);color:#fbbf24;background:rgba(245,158,11,0.1)' : inactiveStyle}" class="px-3 py-1.5 rounded-full text-xs font-semibold border cursor-pointer shrink-0 transition-colors" role="button" tabindex="0">
+        ${t('guideChipAll') || 'Tout'}${totalCount > 0 ? ` <span class="text-[10px] opacity-70">${totalCount}</span>` : ''}
+      </button>
       ${types.map(tp => {
         const d = chipDefs[tp]
-        return d ? `<span class="guide-chip-${d.cls} px-3 py-1.5 rounded-full text-xs font-semibold border border-white/8 text-slate-500 bg-white/2 cursor-pointer shrink-0">${d.label} <span class="text-[10px] opacity-70">0</span></span>` : ''
+        if (!d) return ''
+        const count = tips.filter(tip => tip.type === tp).length
+        const isActive = activeFilter === tp
+        const style = isActive
+          ? `border-color:${d.color}66;color:${d.color};background:${d.color}1a`
+          : inactiveStyle
+        return `<button onclick="setGuideFilterType('${tp}')" style="${style}" class="px-3 py-1.5 rounded-full text-xs font-semibold border cursor-pointer shrink-0 transition-colors" role="button" tabindex="0">
+          ${d.emoji} ${d.label}${count > 0 ? ` <span class="text-[10px] opacity-70">${count}</span>` : ''}
+        </button>`
       }).join('')}
     </div>
   `
@@ -759,8 +778,12 @@ function renderCommunityTipsByCategory(countryCode, categoryId, _state) {
     })
   }
 
-  // Filter by current category
-  const catTips = (tips || []).filter(tip => tip.category === categoryId)
+  // Filter by current category + active type filter
+  const activeFilter = _state?.guideFilterType || null
+  let catTips = (tips || []).filter(tip => tip.category === categoryId)
+  if (activeFilter) {
+    catTips = catTips.filter(tip => tip.type === activeFilter)
+  }
 
   if (catTips.length === 0) {
     return renderGuideEmptyForum(categoryId)
@@ -894,12 +917,18 @@ window.setGuideSection = (section) => {
 }
 
 window.setGuideActiveSection = (sectionId) => {
-  window.setState?.({ guideActiveSection: sectionId, guideOpenCategory: null })
+  window.setState?.({ guideActiveSection: sectionId, guideOpenCategory: null, guideFilterType: null })
   // Scroll feed to top
   setTimeout(() => {
     const feed = document.getElementById('guide-section-feed')
     if (feed) feed.scrollTop = 0
   }, 50)
+}
+
+window.setGuideFilterType = (type) => {
+  const current = window.getState?.()?.guideFilterType || null
+  // Toggle off if same type clicked again
+  window.setState?.({ guideFilterType: current === type ? null : type })
 }
 // selectGuide and filterGuides are defined in Travel.js (authoritative source)
 

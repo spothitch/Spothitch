@@ -90,7 +90,7 @@ const MAIN_JS_HANDLERS = [
   'removeTripStep', 'moveTripStep', 'clearTripSteps',
   // Guides
   'showGuides', 'showCountryDetail', 'showSafetyPage',
-  'setGuideSection', 'setGuideActiveSection', 'selectGuide', 'filterGuides',
+  'setGuideSection', 'setGuideActiveSection', 'selectGuide', 'filterGuides', 'setGuideFilterType',
   // Guide contributions
   'openGuideCategory', 'setGuideRating', 'submitGuideContribution',
   'deleteGuideContribution', 'addCustomGuideCategory', 'submitCustomCategory',
@@ -225,7 +225,8 @@ const MAIN_JS_HANDLERS = [
   'journalShowStats', 'journalEditExpenses', 'journalEditDayNote',
   'journalCreateTrip', 'journalSaveLeg', 'journalEndTrip', 'journalTogglePublic',
   'journalSaveExpenses', 'journalSaveDayNote', 'journalAddDayPhoto',
-  'journalPickSpot', 'journalSelectTransport', 'journalShareTrip', 'journalCopyLink',
+  'journalPickSpot', 'journalCloseSpotOverlay', 'journalSelectSpotFromMap', 'journalClearSpot',
+  'journalToggleExpenses', 'journalSelectTransport', 'journalShareTrip', 'journalCopyLink',
   // Welcome (defined in Welcome.js)
   // IdentityVerification (defined in IdentityVerification.js)
   'startVerificationStep',
