@@ -1,17 +1,14 @@
 /**
- * Companion Mode Modal — Guardian v1 Redesign
- * 5 screens: Intro, Main (tabs: Guardian + Config), Active, Guardian View, Alert View
+ * Companion Mode Modal — Guardian v2 Redesign
+ * Screens: Intro, Config (main), Active (timeline), Guardian View, Alert, Overdue, Arrival
  *
  * Features:
- * - SMS channel toggle (#22)
- * - GPS breadcrumb timeline (#24)
- * - Safe arrival notification toggle (#25)
- * - Departure notification toggle (#26)
- * - Battery level display (#27)
- * - ETA estimation (#28)
- * - Check-in reminder (handled in service) (#29)
- * - Trusted contacts circle (#30)
- * - Trip history (#31)
+ * - Multi-guardian support (up to 5)
+ * - Timeline with chat messages, events, photos
+ * - Quick actions: plate, photo, destination
+ * - Bottom sheets for quick action input
+ * - Overdue screen with pulsing red ring
+ * - Arrival screen with trip summary
  */
 
 import { t } from '../../i18n/index.js'
@@ -25,16 +22,34 @@ import {
   loadTripHistory,
   getETAInfo,
   getBatteryLevel,
+  getTripEvents,
+  getTripPhoto,
 } from '../../services/companion.js'
 
-// Track which screen/tab is active
-let _currentScreen = null // null = auto-detect, 'intro', 'main', 'active', 'guardian', 'alert'
-let _currentTab = 0 // 0 = Guardian, 1 = Config
+// Track which screen is active
+let _currentScreen = null // null = auto-detect, 'intro', 'main', 'active', 'guardian', 'alert', 'overdue', 'arrival'
+// _currentTab removed in v2 (single screen config)
 let _batteryPct = null
 let _batteryDisplayDone = false
 
 // In-app edit overlay state (replaces native prompt())
 let _editOverlay = null // null | { field, label, value, inputType, placeholder, maxLength }
+
+// Bottom sheet state
+let _guardianSheet = null // null | 'plate' | 'photo' | 'destination'
+
+// Color helpers
+const COLOR_MAP = {
+  '#22c55e': { bg: 'rgba(34,197,94,.1)', border: 'rgba(34,197,94,.2)', dark: '#16a34a' },
+  '#3b82f6': { bg: 'rgba(59,130,246,.1)', border: 'rgba(59,130,246,.2)', dark: '#2563eb' },
+  '#f59e0b': { bg: 'rgba(245,158,11,.1)', border: 'rgba(245,158,11,.2)', dark: '#d97706' },
+  '#06b6d4': { bg: 'rgba(6,182,212,.1)', border: 'rgba(6,182,212,.2)', dark: '#0891b2' },
+  '#a855f7': { bg: 'rgba(168,85,247,.1)', border: 'rgba(168,85,247,.2)', dark: '#7c3aed' },
+}
+
+function colorInfo(hex) {
+  return COLOR_MAP[hex] || { bg: 'rgba(100,116,139,.1)', border: 'rgba(100,116,139,.2)', dark: '#475569' }
+}
 
 /**
  * Render the Companion Mode modal
@@ -53,26 +68,26 @@ export function renderCompanionModal(_state) {
     }
   }
 
-  // Determine screen — respect _currentScreen if set (e.g. user clicked Configure)
+  // Read sheet state
+  _guardianSheet = _state?._guardianSheet || null
+
+  // Determine screen — respect _currentScreen if set
   let screen = _currentScreen
   if (!screen) {
     if (active && isCheckInOverdue() && !companion.alertSent) {
-      screen = 'alert'
+      screen = 'overdue'
     } else if (active) {
       screen = 'active'
     } else {
-      // Show intro only on first ever open (no guardian configured AND no explicit navigation)
-      const hasGuardian = !!companion.guardian?.name
+      const hasGuardian = (companion.guardians && companion.guardians.length > 0) || !!companion.guardian?.name
       screen = hasGuardian ? 'main' : 'intro'
     }
   }
 
-  // Check if location consent was given this session
+  // Show consent screen if not yet consented this session and not already active
   const consentGiven =
     typeof sessionStorage !== 'undefined' &&
     sessionStorage.getItem('spothitch_companion_consent')
-
-  // Show consent screen if not yet consented this session and not already active
   if (!active && !consentGiven && screen === 'intro') {
     // Keep intro but add consent acceptance on the CTA
   }
@@ -95,9 +110,18 @@ export function renderCompanionModal(_state) {
     case 'alert':
       content = renderAlertScreen(companion)
       break
+    case 'overdue':
+      content = renderOverdueScreen(companion)
+      break
+    case 'arrival':
+      content = renderArrivalScreen(companion)
+      break
     default:
       content = renderIntroScreen()
   }
+
+  // Bottom sheet overlay
+  const sheetHTML = _guardianSheet ? renderBottomSheet(companion) : ''
 
   return `
     <div
@@ -113,12 +137,13 @@ export function renderCompanionModal(_state) {
         onclick="event.stopPropagation()"
       >
         ${content}
+        ${sheetHTML}
       </div>
     </div>
   `
 }
 
-// ─── SCREEN 1: INTRO ───
+// ─── SCREEN 1: INTRO (KEPT AS-IS) ───
 
 function renderIntroScreen() {
   const features = [
@@ -127,14 +152,14 @@ function renderIntroScreen() {
       color: '#22c55e',
       bg: 'rgba(34,197,94,.08)',
       title: t('guardianFeatureTrusted') || 'Gardien de confiance',
-      desc: t('guardianFeatureTrustedDesc') || 'Choisis qui te surveille (1 à 5 contacts)',
+      desc: t('guardianFeatureTrustedDesc') || 'Choisis qui te surveille (1 a 5 contacts)',
     },
     {
       icon: 'clock',
       color: '#3b82f6',
       bg: 'rgba(59,130,246,.08)',
       title: t('guardianFeatureCheckin') || 'Check-in automatique',
-      desc: t('guardianFeatureCheckinDesc') || "L'app te demande si tout va bien. Pas de réponse = alerte",
+      desc: t('guardianFeatureCheckinDesc') || "L'app te demande si tout va bien. Pas de reponse = alerte",
     },
     {
       icon: 'map-pin',
@@ -155,7 +180,7 @@ function renderIntroScreen() {
       color: '#8b5cf6',
       bg: 'rgba(139,92,246,.08)',
       title: t('guardianFeatureOffline') || 'Fonctionne hors ligne',
-      desc: t('guardianFeatureOfflineDesc') || 'Même sans réseau, ton gardien est prévenu',
+      desc: t('guardianFeatureOfflineDesc') || 'Meme sans reseau, ton gardien est prevenu',
     },
   ]
 
@@ -177,7 +202,7 @@ function renderIntroScreen() {
         ${t('guardianModeTitle') || 'Mode Guardian'}
       </h2>
       <p class="text-[13px] text-slate-400 leading-relaxed max-w-[280px]">
-        ${t('guardianModeDesc') || 'Un proche suit ton trajet en temps réel. Si tu ne reponds plus, il est alerté automatiquement.'}
+        ${t('guardianModeDesc') || 'Un proche suit ton trajet en temps reel. Si tu ne reponds plus, il est alerte automatiquement.'}
       </p>
 
       <!-- Features -->
@@ -208,11 +233,38 @@ function renderIntroScreen() {
   `
 }
 
-// ─── SCREEN 2: MAIN (2 tabs) ───
+// ─── SCREEN 2: CONFIG (v2 single scrollable) ───
 
 function renderMainScreen(companion) {
-  const tab0Active = _currentTab === 0
-  const tab1Active = _currentTab === 1
+  // If edit overlay is active, show it
+  if (_editOverlay) {
+    return `
+      <div class="px-5 py-3 flex items-center gap-2 border-b border-white/5">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,.08)">
+          ${icon('shield-check', 'w-3.5 h-3.5 text-emerald-500')}
+        </div>
+        <h2 id="companion-modal-title" class="text-[15px] font-extrabold text-white flex-1">${t('guardianModeTitle') || 'Mode Gardien'}</h2>
+        <button onclick="closeCompanionModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
+          ${icon('x', 'w-3.5 h-3.5 text-slate-400')}
+        </button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4">
+        ${renderEditOverlay()}
+      </div>
+    `
+  }
+
+  const guardians = companion.guardians || []
+  const guardianCount = guardians.length
+  const remaining = 5 - guardianCount
+  const interval = companion.checkInInterval || 30
+  const destination = companion.destination || ''
+  const licensePlate = companion.licensePlate || ''
+  const customMessage = companion.customMessage || ''
+  const tripPhoto = getTripPhoto()
+
+  // Guardian names for tip box
+  const guardianNames = guardians.map(g => escapeHTML(g.name)).join(', ')
 
   return `
     <!-- Header -->
@@ -220,185 +272,120 @@ function renderMainScreen(companion) {
       <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,.08)">
         ${icon('shield-check', 'w-3.5 h-3.5 text-emerald-500')}
       </div>
-      <h2 id="companion-modal-title" class="text-[15px] font-extrabold text-white flex-1">Guardian</h2>
-      <button onclick="closeCompanionModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Close'}">
+      <h2 id="companion-modal-title" class="text-[15px] font-extrabold text-white flex-1">${t('guardianModeTitle') || 'Mode Gardien'}</h2>
+      <button onclick="closeCompanionModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
         ${icon('x', 'w-3.5 h-3.5 text-slate-400')}
       </button>
     </div>
 
-    <!-- Tabs -->
-    <div class="flex border-b border-white/[0.06] px-5">
-      <button onclick="guardianSwitchTab(0)" class="flex-1 py-2.5 text-center text-[11px] font-semibold flex items-center justify-center gap-1 border-b-2 transition-colors ${tab0Active ? 'text-emerald-500 border-emerald-500' : 'text-slate-500 border-transparent'}">
-        ${icon('shield', 'w-3 h-3')} Guardian
-      </button>
-      <button onclick="guardianSwitchTab(1)" class="flex-1 py-2.5 text-center text-[11px] font-semibold flex items-center justify-center gap-1 border-b-2 transition-colors ${tab1Active ? 'text-emerald-500 border-emerald-500' : 'text-slate-500 border-transparent'}">
-        ${icon('settings', 'w-3 h-3')} Config
-      </button>
-    </div>
-
-    <!-- Tab 0: Guardian -->
-    <div class="${tab0Active ? 'block' : 'hidden'} flex-1 overflow-y-auto p-4">
-      ${renderGuardianTab(companion)}
-    </div>
-
-    <!-- Tab 1: Config -->
-    <div class="${tab1Active ? 'block' : 'hidden'} flex-1 overflow-y-auto p-4">
-      ${renderConfigTab(companion)}
-    </div>
-  `
-}
-
-function renderGuardianTab(companion) {
-  const guardianName = companion.guardian?.name || ''
-  const guardianPhone = companion.guardian?.phone || ''
-  const interval = companion.checkInInterval || 30
-  const destination = companion.destination || ''
-  const licensePlate = companion.licensePlate || ''
-
-  // Alert type label
-  const alertType = guardianPhone ? 'Push + SMS' : 'Push'
-
-  // Tiles data
-  const tiles = [
-    {
-      borderColor: '#22c55e',
-      bgColor: 'rgba(34,197,94,.1)',
-      iconName: 'user-check',
-      iconColor: '#22c55e',
-      label: t('myGuardian') || 'Mon gardien',
-      sub: guardianName ? `${escapeHTML(guardianName)}` : (t('notConfigured') || 'Non configure'),
-    },
-    {
-      borderColor: '#3b82f6',
-      bgColor: 'rgba(59,130,246,.1)',
-      iconName: 'clock',
-      iconColor: '#3b82f6',
-      label: 'Check-in',
-      sub: t('every') ? `${t('every')} ${interval} min` : `Toutes les ${interval} min`,
-    },
-    {
-      borderColor: '#f59e0b',
-      bgColor: 'rgba(245,158,11,.1)',
-      iconName: 'map-pin',
-      iconColor: '#f59e0b',
-      label: t('companionDestination') || 'Destination',
-      sub: destination ? escapeHTML(destination) : (t('notDefined') || 'Non defini'),
-    },
-    {
-      borderColor: '#8b5cf6',
-      bgColor: 'rgba(139,92,246,.1)',
-      iconName: 'bell',
-      iconColor: '#8b5cf6',
-      label: t('alerts') || 'Alertes',
-      sub: alertType,
-    },
-  ]
-
-  // Add license plate tile if configured
-  if (licensePlate) {
-    tiles.push({
-      borderColor: '#06b6d4',
-      bgColor: 'rgba(6,182,212,.1)',
-      iconName: 'car',
-      iconColor: '#06b6d4',
-      label: t('licensePlateLabel') || 'Plaque',
-      sub: escapeHTML(licensePlate),
-    })
-  }
-
-  return `
-    <!-- 2x2 Grid -->
-    <div class="grid grid-cols-2 gap-2 mb-3">
-      ${tiles.map(tile => `
-        <div class="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-center cursor-pointer active:scale-[0.96] active:bg-white/[0.08] transition-all"
-          style="border-left:3px solid ${tile.borderColor}">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2" style="background:${tile.bgColor}">
-            <span style="color:${tile.iconColor}">${icon(tile.iconName, 'w-[18px] h-[18px]')}</span>
-          </div>
-          <div class="text-xs font-semibold text-slate-200">${tile.label}</div>
-          <div class="text-[9px] text-slate-500 mt-0.5">${tile.sub}</div>
+    <!-- Scrollable content -->
+    <div class="flex-1 overflow-y-auto">
+      <!-- Guardians section -->
+      <div class="px-4 pt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+          ${t('myGuardians') || 'Mes gardiens'} (${guardianCount}/5)
         </div>
-      `).join('')}
+        <div class="rounded-2xl overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          ${guardians.map((g, i) => {
+            const ci = colorInfo(g.color || '#22c55e')
+            const label = i === 0
+              ? (t('mainGuardian') || 'Gardien principal')
+              : (t('guardian') || 'Gardien')
+            const val = g.phone
+              ? `${escapeHTML(g.name)} (${escapeHTML(g.phone)})`
+              : escapeHTML(g.name)
+            return `
+              <div class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-white/[0.02] transition-colors"
+                style="border-bottom:1px solid rgba(255,255,255,.03)"
+                onclick="guardianEditGuardian(${i})">
+                <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:${ci.bg};color:${g.color || '#22c55e'}">
+                  ${icon('user', 'w-[18px] h-[18px]')}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[11px] font-semibold text-slate-500">${label}</div>
+                  <div class="text-[13px] font-bold text-white mt-0.5 truncate">${val}</div>
+                </div>
+                <span class="text-slate-700">${icon('chevron-right', 'w-3.5 h-3.5')}</span>
+              </div>
+            `
+          }).join('')}
+          ${remaining > 0 ? `
+            <div class="flex items-center justify-center gap-1.5 px-4 py-3 cursor-pointer text-slate-500 text-xs font-semibold active:bg-white/[0.02] transition-colors"
+              onclick="guardianAddGuardian()">
+              ${icon('plus', 'w-3.5 h-3.5')}
+              ${t('addGuardian') || 'Ajouter un gardien'} (${remaining} ${t('remaining') || 'restants'})
+            </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <!-- Config section -->
+      <div class="px-4 pt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+          ${t('tripConfig') || 'Configuration du voyage'}
+        </div>
+        <div class="rounded-2xl overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          <!-- Check-in interval -->
+          ${cfgRow('clock', '#3b82f6', t('guardianCheckinInterval') || 'Check-in toutes les', `${interval} ${t('minutes') || 'minutes'}`, "guardianEditField('interval')")}
+          <!-- Destination -->
+          ${cfgRow('map-pin', '#f59e0b', t('companionDestination') || 'Destination', destination ? escapeHTML(destination) : '', "guardianEditField('destination')")}
+          <!-- Plate -->
+          ${cfgRow('car', '#06b6d4', t('licensePlateLabel') || 'Plaque du vehicule', licensePlate ? escapeHTML(licensePlate) : '', "guardianEditField('licensePlate')")}
+          <!-- Photo -->
+          ${cfgRow('camera', '#a855f7', t('driverPhoto') || 'Photo conducteur', tripPhoto ? (t('photoTaken') || 'Photo prise') : '', "guardianEditField('tripPhoto')")}
+          <!-- Custom message -->
+          ${cfgRow('message-square', '#ef4444', t('customMessageLabel') || 'Message personnalise', customMessage ? escapeHTML(customMessage.substring(0, 30)) + (customMessage.length > 30 ? '...' : '') : '', "guardianEditField('customMessage')")}
+        </div>
+      </div>
+
+      <!-- Start button -->
+      <div class="px-4 pt-4 pb-2">
+        <button
+          onclick="startCompanion()"
+          class="w-full py-[15px] rounded-2xl text-white text-[15px] font-extrabold flex items-center justify-center gap-2.5"
+          style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 24px rgba(34,197,94,.3)">
+          ${icon('play', 'w-[18px] h-[18px]')}
+          ${t('companionStartTrip') || 'Demarrer mon voyage'}
+        </button>
+      </div>
+
+      <!-- Tip box -->
+      ${guardianNames ? `
+        <div class="mx-4 mb-4 mt-2 flex gap-2.5 items-start p-3 rounded-xl text-[11px] leading-relaxed text-slate-400"
+          style="background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.1)">
+          <span class="shrink-0 mt-0.5" style="color:#f59e0b">${icon('info', 'w-3.5 h-3.5')}</span>
+          <div>${guardianNames} ${t('guardianTipWillBeNotified') || 'recevront ta position et seront alertes si tu ne fais pas ton check-in a temps.'}</div>
+        </div>
+      ` : ''}
+
+      <!-- Trip history -->
+      ${loadTripHistory().length > 0 ? `<div class="px-4 pb-4">${renderTripHistory(loadTripHistory())}</div>` : ''}
     </div>
-
-    <!-- Start button (reads config from localStorage directly) -->
-    <button
-      onclick="startCompanion()"
-      class="w-full py-3 rounded-xl text-emerald-300 font-bold text-sm flex items-center justify-center gap-2 active:border-emerald-500 transition-all"
-      style="background:rgba(34,197,94,.08);border:1.5px solid rgba(34,197,94,.2)"
-    >
-      ${icon('play', 'w-[18px] h-[18px] text-emerald-500')}
-      ${t('companionStartTrip') || 'Demarrer mon trajet'}
-    </button>
-    <p class="text-[10px] text-slate-600 text-center mt-1.5">
-      ${t('companionStartInfo') || 'Ton gardien sera notifie et suivra ta position'}
-    </p>
-
-    <!-- Trip history -->
-    ${loadTripHistory().length > 0 ? renderTripHistory(loadTripHistory()) : ''}
   `
 }
 
-function renderConfigTab(companion) {
-  // If edit overlay is active, show it instead of config list
-  if (_editOverlay) return renderEditOverlay()
-
-  const guardianName = companion.guardian?.name || ''
-  const guardianPhone = companion.guardian?.phone || ''
-  const interval = companion.checkInInterval || 30
-  const destination = companion.destination || ''
-  const licensePlate = companion.licensePlate || ''
-  const customMessage = companion.customMessage || ''
-
+/** Config row helper for the config card */
+function cfgRow(iconName, color, label, value, action) {
+  const ci = colorInfo(color) || { bg: `${color}15` }
+  const isEmpty = !value
+  const displayVal = isEmpty ? (t('optional') || 'Optionnel') : value
   return `
-    <div class="space-y-1.5">
-      <!-- Guardian -->
-      ${configRow('#22c55e', 'user-check', t('guardianLabel') || 'Gardien', t('guardianConfigDesc') || 'Qui recevra tes alertes', guardianName ? `${escapeHTML(guardianName)}${guardianPhone ? ' · ' + escapeHTML(guardianPhone) : ''} \u2713` : (t('notConfigured') || 'Non configure'), guardianName ? '#22c55e' : '#64748b', "guardianEditField('guardian')")}
-
-      <!-- Interval -->
-      ${configRow('#3b82f6', 'clock', t('guardianCheckinInterval') || 'Intervalle check-in', t('guardianCheckinIntervalDesc') || 'Delai entre chaque verification', `${interval} min`, '#60a5fa', "guardianEditField('interval')")}
-
-      <!-- Destination -->
-      ${configRow('#f59e0b', 'map-pin', t('companionDestination') || 'Destination', t('guardianDestDesc') || 'Ou tu vas (optionnel)', destination ? escapeHTML(destination) : (t('notDefined') || 'Non defini'), destination ? '#f59e0b' : '#64748b', "guardianEditField('destination')")}
-
-      <!-- License plate -->
-      ${configRow('#06b6d4', 'car', t('licensePlateLabel') || 'Plaque', t('licensePlateDesc') || 'Incluse dans les alertes', licensePlate ? escapeHTML(licensePlate) : (t('notDefined') || 'Non defini'), licensePlate ? '#06b6d4' : '#64748b', "guardianEditField('licensePlate')")}
-
-      <!-- Custom message -->
-      ${configRow('#f43f5e', 'message-square', t('customMessageLabel') || 'Message', t('customMessageDesc') || 'Message envoye avec les alertes', customMessage ? `${escapeHTML(customMessage.substring(0, 25))}${customMessage.length > 25 ? '...' : ''}` : (t('notDefined') || 'Non defini'), customMessage ? '#f43f5e' : '#64748b', "guardianEditField('customMessage')")}
-
-      <!-- Departure toggle -->
-      ${configRow('#06b6d4', 'bell', t('notifyOnDeparture') || 'Notif. depart', t('guardianDepartDesc') || 'Prevenir quand tu pars', companion.notifyOnDeparture !== false ? (t('enabled') || 'Active') : (t('disabled') || 'Desactive'), companion.notifyOnDeparture !== false ? '#22c55e' : '#64748b', 'guardianToggleDeparture()')}
-
-      <!-- Arrival toggle -->
-      ${configRow('#a855f7', 'flag', t('notifyOnArrival') || 'Notif. arrivee', t('guardianArrivalDesc') || 'Prevenir quand tu arrives', companion.notifyOnArrival !== false ? (t('enabled') || 'Active') : (t('disabled') || 'Desactive'), companion.notifyOnArrival !== false ? '#22c55e' : '#64748b', 'guardianToggleArrival()')}
-
-      <!-- Battery (always on) -->
-      ${configRow('#ec4899', 'zap', t('guardianBatteryAlert') || 'Alerte batterie', t('guardianBatteryAlertDesc') || 'Prevenir sous 15%', t('enabled') || 'Active', '#22c55e', null)}
-    </div>
-  `
-}
-
-/** Reusable config row */
-function configRow(borderColor, iconName, title, desc, value, valueColor, action) {
-  return `
-    <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer active:bg-white/[0.06] transition-colors"
-      style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-left:3px solid ${borderColor}"
-      ${action ? `onclick="${action}"` : ''} role="button" tabindex="0">
-      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${borderColor}15">
-        <span style="color:${borderColor}">${icon(iconName, 'w-3.5 h-3.5')}</span>
+    <div class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-white/[0.02] transition-colors"
+      style="border-bottom:1px solid rgba(255,255,255,.03)"
+      ${action ? `onclick="${action}"` : ''}>
+      <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:${ci.bg};color:${color}">
+        ${icon(iconName, 'w-[18px] h-[18px]')}
       </div>
       <div class="flex-1 min-w-0">
-        <div class="text-xs font-semibold text-slate-200">${title}</div>
-        <div class="text-[10px] text-slate-500">${desc}</div>
+        <div class="text-[11px] font-semibold text-slate-500">${label}</div>
+        <div class="text-[13px] font-bold mt-0.5 truncate ${isEmpty ? 'text-slate-600 italic font-normal' : 'text-white'}">${displayVal}</div>
       </div>
-      <div class="text-[11px] font-semibold shrink-0 max-w-[100px] truncate" style="color:${valueColor}">${value}</div>
-      ${action ? `<span class="text-slate-600">${icon('chevron-right', 'w-3 h-3')}</span>` : ''}
+      <span class="text-slate-700">${icon('chevron-right', 'w-3.5 h-3.5')}</span>
     </div>
   `
 }
 
-/** In-app edit overlay (replaces native prompt()) */
+/** In-app edit overlay (replaces native prompt()) — KEPT AS-IS */
 function renderEditOverlay() {
   if (!_editOverlay) return ''
   const { field, label, value, inputType, placeholder, maxLength } = _editOverlay
@@ -473,7 +460,7 @@ function renderEditOverlay() {
   `
 }
 
-// ─── SCREEN 3: ACTIVE ───
+// ─── SCREEN 3: ACTIVE (v2 Timeline) ───
 
 function renderActiveScreen(companion) {
   const secondsRemaining = getTimeUntilNextCheckIn()
@@ -481,8 +468,12 @@ function renderActiveScreen(companion) {
   const absSeconds = Math.abs(secondsRemaining)
   const minutes = Math.floor(absSeconds / 60)
   const seconds = absSeconds % 60
-
   const timerText = `${overdue ? '+' : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+
+  // Timer pill class
+  const isWarning = !overdue && secondsRemaining < 180
+  const pillBg = overdue ? 'rgba(239,68,68,.12)' : isWarning ? 'rgba(245,158,11,.1)' : 'rgba(34,197,94,.1)'
+  const pillColor = overdue ? '#ef4444' : isWarning ? '#f59e0b' : '#22c55e'
 
   // Trip duration
   const tripMs = companion.tripStart ? Date.now() - companion.tripStart : 0
@@ -494,100 +485,221 @@ function renderActiveScreen(companion) {
   // ETA
   const etaInfo = getETAInfo(companion)
   const etaText = etaInfo.etaMinutes !== null
-    ? (etaInfo.etaMinutes < 60 ? `~${etaInfo.etaMinutes} min` : `~${Math.floor(etaInfo.etaMinutes / 60)}h${String(etaInfo.etaMinutes % 60).padStart(2, '0')}`)
-    : ''
-
-  // Positions
-  const positions = companion.positions || []
-  const lastPos = positions.length > 0 ? positions[positions.length - 1] : null
-  const posText = lastPos ? `${lastPos.lat.toFixed(2)}, ${lastPos.lng.toFixed(2)}` : ''
+    ? (etaInfo.etaMinutes < 60 ? `~${etaInfo.etaMinutes}min` : `~${Math.floor(etaInfo.etaMinutes / 60)}h${String(etaInfo.etaMinutes % 60).padStart(2, '0')}`)
+    : '...'
 
   // Battery
-  const battText = _batteryPct !== null ? `${_batteryPct}%` : ''
+  const battText = _batteryPct !== null ? `${_batteryPct}%` : '...'
+  const battColor = _batteryPct !== null && _batteryPct <= 15 ? '#ef4444' : _batteryPct !== null && _batteryPct <= 30 ? '#f59e0b' : '#22c55e'
 
-  // Ring class
-  const isWarning = !overdue && secondsRemaining < 180
-  const ringBorder = overdue
-    ? 'border-red-500/50 animate-pulse'
-    : isWarning
-      ? 'border-amber-500/40'
-      : 'border-emerald-500/25'
-  const timerColor = overdue ? 'text-red-400' : isWarning ? 'text-amber-400' : 'text-white'
+  // Check-in count from events
+  const events = getTripEvents()
+  const checkInCount = events.filter(e => e.type === 'checkin').length
 
-  const guardianName = companion.guardian?.name || ''
+  // Guardians
+  const guardians = companion.guardians || []
+
+  // Destination / origin
+  const destination = companion.destination || ''
+  const headerTitle = destination ? `${t('trip') || 'Trajet'} → ${escapeHTML(destination)}` : (t('tripActive') || 'Voyage en cours')
 
   return `
     <!-- Header -->
-    <div class="px-5 py-3 flex items-center gap-2" style="border-bottom:1px solid rgba(34,197,94,.15)">
-      <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,.15)">
-        ${icon('shield-check', 'w-3.5 h-3.5 text-emerald-500')}
-      </div>
-      <h2 id="companion-modal-title" class="text-[15px] font-extrabold text-emerald-500 flex-1">
-        ${t('guardianActive') || 'Guardian actif'}
-      </h2>
-      <button onclick="closeCompanionModal()" class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(239,68,68,.08)" aria-label="${t('close') || 'Close'}">
-        ${icon('square', 'w-3.5 h-3.5 text-red-500')}
+    <div class="px-4 py-3 flex items-center gap-2.5 shrink-0" style="border-bottom:1px solid rgba(34,197,94,.12);background:rgba(15,21,32,.95)">
+      <button onclick="guardianGoToScreen('main')" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:rgba(255,255,255,.06)" aria-label="${t('back') || 'Retour'}">
+        ${icon('chevron-left', 'w-3.5 h-3.5 text-slate-400')}
       </button>
+      <div class="flex-1 min-w-0">
+        <h2 id="companion-modal-title" class="text-sm font-extrabold text-white truncate">${headerTitle}</h2>
+        <div class="text-[10px] text-slate-500 mt-0.5">${t('onTheRoadSince') || 'En route depuis'} ${durationText}</div>
+      </div>
+      <div class="shrink-0 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold" style="background:${pillBg};color:${pillColor}">
+        <span class="w-[7px] h-[7px] rounded-full" style="background:${pillColor};animation:pulse 2s infinite"></span>
+        ${timerText}
+      </div>
     </div>
 
-    <!-- Content -->
-    <div class="flex-1 overflow-y-auto flex flex-col items-center px-4 py-4">
-      <!-- Timer ring -->
-      <div class="w-[130px] h-[130px] rounded-full border-[5px] ${ringBorder} flex flex-col items-center justify-center my-6">
-        <div class="text-[2rem] font-extrabold ${timerColor} leading-none">${timerText}</div>
-        <div class="text-[10px] text-slate-500">${overdue ? (t('companionOverdueLabel') || 'en retard') : (t('nextCheckIn') || 'prochain check-in')}</div>
+    <!-- Stats strip -->
+    <div class="flex shrink-0" style="border-bottom:1px solid rgba(255,255,255,.06);padding:8px 16px">
+      <div class="flex-1 text-center">
+        <div class="text-[13px] font-extrabold" style="color:#22c55e">${durationText}</div>
+        <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">${t('onRoute') || 'en route'}</div>
       </div>
-
-      <!-- I'm fine button -->
-      <button
-        onclick="companionCheckIn()"
-        class="w-4/5 max-w-[260px] py-3 bg-emerald-500 rounded-full text-white font-bold text-sm flex items-center justify-center gap-2 mx-auto mb-4 active:opacity-90 transition-all"
-      >
-        ${icon('circle-check', 'w-[18px] h-[18px]')}
-        ${t('imSafe') || 'Je vais bien'}
-      </button>
-
-      <!-- Stats -->
-      <div class="w-full flex justify-around py-3 rounded-xl mb-3"
-        style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)">
-        <div class="text-center">
-          <div class="text-sm font-bold text-emerald-400" id="companion-battery-row">${battText ? `\u{1F50B} ${battText}` : '\u{1F50B}'}</div>
-          <div class="text-[8px] text-slate-500 uppercase">${t('batteryLevel') || 'Batterie'}</div>
-        </div>
-        <div class="text-center">
-          <div class="text-sm font-bold text-white">${posText ? `\u{1F4CD} ${posText}` : '\u{1F4CD}'}</div>
-          <div class="text-[8px] text-slate-500 uppercase">${t('positions') || 'Position'}</div>
-        </div>
-        <div class="text-center">
-          <div class="text-sm font-bold text-amber-400">${etaText || '...'}</div>
-          <div class="text-[8px] text-slate-500 uppercase">ETA</div>
-        </div>
-        <div class="text-center">
-          <div class="text-sm font-bold text-white">${durationText}</div>
-          <div class="text-[8px] text-slate-500 uppercase">${t('tripDuration') || 'Duree'}</div>
-        </div>
+      <div class="flex-1 text-center">
+        <div class="text-[13px] font-extrabold text-white">${checkInCount}</div>
+        <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">check-ins</div>
       </div>
-
-      <!-- Guardian info bar -->
-      <div class="w-full py-2 px-3 rounded-lg text-center mb-3"
-        style="background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.1)">
-        <div class="text-[11px] text-emerald-500 font-semibold">
-          \u{1F6E1}\uFE0F ${guardianName ? `${escapeHTML(guardianName)} ${t('guardianWatching') || 'surveille ton trajet'}` : (t('guardianActiveInfo') || 'Guardian actif')}
-        </div>
-        <div class="text-[9px] text-slate-500">
-          ${t('lastCheckInAgo') || 'Dernier check-in il y a'} ${companion.lastCheckIn ? formatTimeAgo(companion.lastCheckIn) : '...'}
-        </div>
+      <div class="flex-1 text-center">
+        <div class="text-[13px] font-extrabold" id="companion-battery-row" style="color:${battColor}">${battText}</div>
+        <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">${t('batteryLevel') || 'batterie'}</div>
       </div>
+      <div class="flex-1 text-center">
+        <div class="text-[13px] font-extrabold" style="color:#3b82f6">${etaText}</div>
+        <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">ETA</div>
+      </div>
+    </div>
 
-      <!-- Stop button -->
-      <button
-        onclick="stopCompanion()"
-        class="w-full py-2.5 rounded-xl text-red-400 font-semibold text-xs flex items-center justify-center gap-1.5 mt-3"
-        style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15)"
-      >
-        ${icon('square', 'w-3.5 h-3.5')}
-        ${t('stopTrip') || 'Arreter'}
-      </button>
+    <!-- Guardians bar -->
+    ${guardians.length > 0 ? `
+      <div class="flex items-center gap-1.5 shrink-0 overflow-x-auto" style="padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.06)">
+        <span class="text-[10px] text-slate-500 shrink-0">${t('guardians') || 'Gardiens'} :</span>
+        ${guardians.map(g => {
+          const ci = colorInfo(g.color || '#22c55e')
+          const initial = (g.name || '?')[0].toUpperCase()
+          return `
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0 relative"
+              style="background:linear-gradient(135deg,${g.color || '#22c55e'},${ci.dark})">
+              ${escapeHTML(initial)}
+              <span class="absolute -bottom-px -right-px w-2 h-2 rounded-full border-2" style="background:#22c55e;border-color:#0f1520"></span>
+            </div>
+          `
+        }).join('')}
+      </div>
+    ` : ''}
+
+    <!-- Timeline -->
+    <div class="flex-1 overflow-y-auto relative" style="padding:12px 16px 8px" id="guardian-timeline">
+      <div class="absolute left-[29px] top-3 bottom-2 w-[2px]" style="background:rgba(255,255,255,.04)"></div>
+      ${renderTimelineV2(events, guardians)}
+    </div>
+
+    <!-- Compose bar -->
+    <div class="shrink-0" style="padding:8px 12px 12px;background:rgba(15,21,32,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06)">
+      <!-- Quick actions -->
+      <div class="flex gap-1.5 mb-2">
+        <button onclick="guardianUpdatePlate()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#06b6d4">
+          ${icon('car', 'w-3.5 h-3.5')} ${t('plate') || 'Plaque'}
+        </button>
+        <button onclick="guardianAddTripPhoto()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#a855f7">
+          ${icon('camera', 'w-3.5 h-3.5')} ${t('photo') || 'Photo'}
+        </button>
+        <button onclick="guardianUpdateDestination()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#f59e0b">
+          ${icon('map-pin', 'w-3.5 h-3.5')} ${t('companionDestination') || 'Destination'}
+        </button>
+      </div>
+      <!-- Message row -->
+      <div class="flex gap-2 items-center">
+        <input type="text" id="guardian-message-input" class="flex-1 px-3.5 py-2.5 rounded-xl text-[13px] text-white placeholder-slate-600 focus:outline-none"
+          style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)"
+          placeholder="${t('writeMessage') || 'Ecrire un message...'}" />
+        <button onclick="guardianSendMessage()" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#22c55e">
+          ${icon('send', 'w-3.5 h-3.5 text-white')}
+        </button>
+        <button onclick="guardianQuickCheckin()" class="px-4 py-2.5 rounded-xl flex items-center gap-1.5 shrink-0 text-[13px] font-extrabold text-white" style="background:#22c55e">
+          ${icon('check', 'w-3.5 h-3.5')} OK
+        </button>
+      </div>
+    </div>
+  `
+}
+
+/** Render v2 timeline from trip events */
+function renderTimelineV2(events, _guardians) {
+  if (events.length === 0) {
+    return `<div class="text-center text-[11px] text-slate-600 py-8">${t('noEventsYet') || 'Aucun evenement pour le moment.'}</div>`
+  }
+
+  const lang = getState().lang || 'fr'
+  return events.map(evt => {
+    const ts = new Date(evt.timestamp).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' })
+    const d = evt.data || {}
+
+    switch (evt.type) {
+      case 'departure': {
+        const dest = d.destination || ''
+        return timelineEvent(ts, 'green', 'play', t('departure') || 'Depart',
+          `${t('tripStartedTowards') || 'Voyage demarre vers'} ${dest ? escapeHTML(dest) : '...'}`,
+          dest ? tagHTML('#f59e0b', 'map-pin', escapeHTML(dest)) : '')
+      }
+      case 'checkin':
+        return timelineEvent(ts, 'green', 'check', 'Check-in', t('imSafe') || 'Je vais bien', '')
+      case 'vehicle': {
+        const plate = d.plate || d.licensePlate || ''
+        const isNew = d.isNew
+        return timelineEvent(ts, 'cyan', 'car',
+          t('vehicle') || 'Vehicule',
+          isNew ? (t('newVehicle') || 'Nouveau vehicule') : (t('plateRegistered') || 'Plaque enregistree'),
+          plate ? tagHTML('#06b6d4', 'car', escapeHTML(plate)) : '')
+      }
+      case 'photo':
+        return timelineEvent(ts, 'purple', 'camera',
+          t('photo') || 'Photo',
+          t('photoShared') || 'Photo partagee',
+          `<div class="w-full h-[90px] rounded-[10px] flex items-center justify-center mt-1.5 text-[11px] gap-1.5" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);color:#475569">
+            ${icon('camera', 'w-[18px] h-[18px]')} ${t('driverPhoto') || 'Photo avec le conducteur'}
+          </div>`)
+      case 'destination': {
+        const newDest = d.destination || ''
+        return timelineEvent(ts, 'amber', 'map-pin',
+          t('update') || 'Mise a jour',
+          t('destinationChanged') || 'Destination changee',
+          newDest ? tagHTML('#f59e0b', 'map-pin', escapeHTML(newDest)) : '')
+      }
+      case 'message': {
+        const sender = d.sender || ''
+        const senderColor = d.senderColor || '#22c55e'
+        const ci = colorInfo(senderColor)
+        const initial = sender ? sender[0].toUpperCase() : '?'
+        const text = d.text || ''
+        return `
+          <div class="flex gap-2.5 mb-3 relative">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0 z-[1]"
+              style="background:linear-gradient(135deg,${senderColor},${ci.dark})">
+              ${escapeHTML(initial)}
+            </div>
+            <div class="flex-1 min-w-0 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-left:3px solid ${senderColor}">
+              <div class="text-[10px] font-bold" style="color:${senderColor}">${escapeHTML(sender)}</div>
+              <div class="flex items-center gap-1.5 mt-0.5 mb-1">
+                <span class="text-[10px] font-semibold text-slate-600">${ts}</span>
+              </div>
+              <div class="text-[13px] leading-relaxed text-slate-200">${escapeHTML(text)}</div>
+            </div>
+          </div>
+        `
+      }
+      case 'arrival':
+        return timelineEvent(ts, 'green', 'flag', t('arrival') || 'Arrivee', t('arrivedSafely') || 'Bien arrive !', '')
+      default:
+        return timelineEvent(ts, 'green', 'circle', evt.type, d.text ? escapeHTML(d.text) : '', '')
+    }
+  }).join('')
+}
+
+/** Single timeline event node */
+function timelineEvent(ts, colorClass, iconName, badgeText, message, extra) {
+  const colors = {
+    green: { bg: 'rgba(34,197,94,.1)', border: 'rgba(34,197,94,.2)', text: '#22c55e', badgeBg: 'rgba(34,197,94,.1)' },
+    cyan: { bg: 'rgba(6,182,212,.1)', border: 'rgba(6,182,212,.2)', text: '#06b6d4', badgeBg: 'rgba(6,182,212,.1)' },
+    purple: { bg: 'rgba(168,85,247,.1)', border: 'rgba(168,85,247,.2)', text: '#a855f7', badgeBg: 'rgba(168,85,247,.1)' },
+    amber: { bg: 'rgba(245,158,11,.1)', border: 'rgba(245,158,11,.2)', text: '#f59e0b', badgeBg: 'rgba(245,158,11,.1)' },
+    red: { bg: 'rgba(239,68,68,.1)', border: 'rgba(239,68,68,.2)', text: '#ef4444', badgeBg: 'rgba(239,68,68,.1)' },
+  }
+  const c = colors[colorClass] || colors.green
+
+  return `
+    <div class="flex gap-2.5 mb-3 relative">
+      <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-[1]"
+        style="background:${c.bg};border:2px solid ${c.border};color:${c.text}">
+        ${icon(iconName, 'w-3 h-3')}
+      </div>
+      <div class="flex-1 min-w-0 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-[10px] font-semibold text-slate-600">${ts}</span>
+          <span class="text-[8px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md" style="background:${c.badgeBg};color:${c.text}">${badgeText}</span>
+        </div>
+        <div class="text-[13px] leading-relaxed text-slate-200">${message}</div>
+        ${extra}
+      </div>
+    </div>
+  `
+}
+
+/** Colored tag helper */
+function tagHTML(color, iconName, text) {
+  return `
+    <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold mt-1.5"
+      style="background:${color}0F;border:1px solid ${color}1F;color:${color}">
+      ${icon(iconName, 'w-3 h-3')} ${text}
     </div>
   `
 }
@@ -595,16 +707,12 @@ function renderActiveScreen(companion) {
 // ─── SCREEN 4: GUARDIAN VIEW ───
 
 function renderGuardianScreen(companion) {
-  // This screen is for when the user is acting as a guardian watching someone else
-  // Uses getActiveGuardianTimers from guardianWatch service
   const guardianName = companion.guardian?.name || 'Voyageur'
   const destination = companion.destination || ''
-
   const tripMs = companion.tripStart ? Date.now() - companion.tripStart : 0
   const tripMinutes = Math.floor(tripMs / 60_000)
   const tripHours = Math.floor(tripMinutes / 60)
   const tripMins = tripMinutes % 60
-
   const initial = (guardianName)[0].toUpperCase()
 
   return `
@@ -627,7 +735,7 @@ function renderGuardianScreen(companion) {
         style="background:linear-gradient(135deg,#1a2332,#0f1520)">
         <div class="absolute inset-0" style="background:radial-gradient(circle at 60% 40%,rgba(34,197,94,.12) 0%,transparent 50%)"></div>
         <span class="text-slate-600 text-[11px] z-10">
-          \u{1F4CD} ${t('realtimeMap') || 'Carte temps reel'} ${destination ? `\u00B7 ${escapeHTML(destination)}` : ''}
+          ${icon('map-pin', 'w-3 h-3 inline')} ${t('realtimeMap') || 'Carte temps reel'} ${destination ? '. ' + escapeHTML(destination) : ''}
         </span>
       </div>
 
@@ -641,14 +749,13 @@ function renderGuardianScreen(companion) {
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${t('onTrip') || 'En route'}
           </div>
         </div>
-        <!-- Metrics -->
         <div class="grid grid-cols-3 gap-1 mt-2">
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
-            <div class="text-xs font-bold text-emerald-400">\u2713 ${companion.lastCheckIn ? formatTimeAgo(companion.lastCheckIn) : '...'}</div>
+            <div class="text-xs font-bold text-emerald-400">${icon('check', 'w-3 h-3 inline')} ${companion.lastCheckIn ? formatTimeAgo(companion.lastCheckIn) : '...'}</div>
             <div class="text-[8px] text-slate-500">Check-in</div>
           </div>
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
-            <div class="text-xs font-bold text-white">\u{1F50B} ${_batteryPct !== null ? `${_batteryPct}%` : '...'}</div>
+            <div class="text-xs font-bold text-white">${icon('zap', 'w-3 h-3 inline')} ${_batteryPct !== null ? `${_batteryPct}%` : '...'}</div>
             <div class="text-[8px] text-slate-500">${t('batteryLevel') || 'Batterie'}</div>
           </div>
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
@@ -660,7 +767,7 @@ function renderGuardianScreen(companion) {
 
       <!-- Timeline -->
       <div class="mt-2">
-        <div class="text-[11px] font-semibold text-slate-300 mb-1.5">\u{1F4CD} ${t('timeline') || 'Historique'}</div>
+        <div class="text-[11px] font-semibold text-slate-300 mb-1.5">${icon('clock', 'w-3 h-3 inline')} ${t('timeline') || 'Historique'}</div>
         ${renderTimelineEvents(companion)}
       </div>
 
@@ -688,7 +795,6 @@ function renderAlertScreen(companion) {
   const positions = companion.positions || []
   const lastPos = positions.length > 0 ? positions[positions.length - 1] : null
 
-  // Time since last check-in
   const overdueSeconds = Math.abs(getTimeUntilNextCheckIn())
   const overdueMin = Math.floor(overdueSeconds / 60)
 
@@ -715,7 +821,7 @@ function renderAlertScreen(companion) {
       <div class="w-full h-[180px] rounded-xl mb-3 flex items-center justify-center relative overflow-hidden"
         style="background:linear-gradient(135deg,#1a2332,#0f1520);border:2px solid rgba(239,68,68,.3)">
         <div class="absolute inset-0" style="background:radial-gradient(circle at 60% 40%,rgba(239,68,68,.12) 0%,transparent 50%)"></div>
-        <span class="text-red-400 text-[11px] z-10">\u26A0\uFE0F ${t('lastKnownPosition') || 'Dernière position connue'}</span>
+        <span class="text-red-400 text-[11px] z-10">${icon('triangle-alert', 'w-3 h-3 inline')} ${t('lastKnownPosition') || 'Derniere position connue'}</span>
       </div>
 
       <!-- Alert card -->
@@ -725,17 +831,16 @@ function renderAlertScreen(companion) {
             style="background:linear-gradient(135deg,#ef4444,#dc2626)">${escapeHTML(initial)}</div>
           <div class="text-[13px] font-bold text-white flex-1">${escapeHTML(guardianName)}</div>
           <div class="text-[9px] flex items-center gap-1 text-red-400">
-            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> ${t('noResponse') || 'Pas de réponse'}
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> ${t('noResponse') || 'Pas de reponse'}
           </div>
         </div>
-        <!-- Metrics -->
         <div class="grid grid-cols-3 gap-1 mt-2">
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
-            <div class="text-xs font-bold text-red-400">\u26A0\uFE0F ${overdueMin} min</div>
+            <div class="text-xs font-bold text-red-400">${icon('triangle-alert', 'w-3 h-3 inline')} ${overdueMin} min</div>
             <div class="text-[8px] text-slate-500">${t('noResponse') || 'Sans reponse'}</div>
           </div>
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
-            <div class="text-xs font-bold text-white">\u{1F50B} ${_batteryPct !== null ? `${_batteryPct}%` : '...'}</div>
+            <div class="text-xs font-bold text-white">${icon('zap', 'w-3 h-3 inline')} ${_batteryPct !== null ? `${_batteryPct}%` : '...'}</div>
             <div class="text-[8px] text-slate-500">${t('batteryLevel') || 'Batterie'}</div>
           </div>
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
@@ -747,10 +852,10 @@ function renderAlertScreen(companion) {
 
       <!-- Alert info box -->
       <div class="py-2.5 px-3 rounded-xl mb-2" style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15)">
-        <div class="text-[11px] font-bold text-red-400 mb-1">\u26A0\uFE0F ${t('missedCheckIn') || 'Check-in manque'}</div>
+        <div class="text-[11px] font-bold text-red-400 mb-1">${icon('triangle-alert', 'w-3 h-3 inline')} ${t('missedCheckIn') || 'Check-in manque'}</div>
         <div class="text-[10px] text-slate-400 leading-relaxed">
-          ${t('missedCheckInDetail') || `Pas de réponse depuis ${overdueMin} minutes.`}
-          ${lastPos ? `${t('lastPosition') || 'Dernière position'}: ${lastPos.lat.toFixed(4)}, ${lastPos.lng.toFixed(4)}` : ''}
+          ${t('missedCheckInDetail') || `Pas de reponse depuis ${overdueMin} minutes.`}
+          ${lastPos ? `${t('lastPosition') || 'Derniere position'}: ${lastPos.lat.toFixed(4)}, ${lastPos.lng.toFixed(4)}` : ''}
         </div>
       </div>
 
@@ -773,22 +878,283 @@ function renderAlertScreen(companion) {
   `
 }
 
+// ─── SCREEN 6: OVERDUE (voyageur) ───
+
+function renderOverdueScreen(_companion) {
+  const secondsRemaining = getTimeUntilNextCheckIn()
+  const absSeconds = Math.abs(secondsRemaining)
+  const minutes = Math.floor(absSeconds / 60)
+  const seconds = absSeconds % 60
+  const timerText = `+${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+
+  return `
+    <!-- Header -->
+    <div class="px-4 py-3 flex items-center gap-2.5 shrink-0" style="border-bottom:1px solid rgba(239,68,68,.2);background:rgba(15,21,32,.95)">
+      <button onclick="guardianGoToScreen('active')" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:rgba(255,255,255,.06)" aria-label="${t('back') || 'Retour'}">
+        ${icon('chevron-left', 'w-3.5 h-3.5 text-slate-400')}
+      </button>
+      <div class="flex-1 min-w-0">
+        <h2 id="companion-modal-title" class="text-sm font-extrabold" style="color:#ef4444">${t('checkInLate') || 'Check-in en retard'}</h2>
+      </div>
+      <div class="shrink-0 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold" style="background:rgba(239,68,68,.12);color:#ef4444">
+        <span class="w-[7px] h-[7px] rounded-full" style="background:#ef4444;animation:pulse 2s infinite"></span>
+        ${timerText}
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 flex flex-col items-center justify-center px-6 py-8">
+      <!-- Pulsing red ring -->
+      <div class="w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center mb-5"
+        style="border:5px solid rgba(239,68,68,.4);animation:pulseBorderRing 1.5s infinite">
+        <div class="text-4xl font-extrabold" style="color:#ef4444">${timerText}</div>
+        <div class="text-[10px] mt-1" style="color:#ef4444;opacity:.7">${t('late') || 'en retard'}</div>
+      </div>
+
+      <!-- Warning text -->
+      <div class="text-center text-xs text-slate-400 leading-relaxed mb-6">
+        ${t('guardiansWillBeAlerted') || 'Tes gardiens seront'} <strong class="text-red-400">${t('alertedAutomatically') || 'alertes automatiquement'}</strong> ${t('inFiveMinutes') || 'dans 5 minutes si tu ne fais pas ton check-in.'}
+      </div>
+
+      <!-- Big check-in button -->
+      <button onclick="companionCheckIn()" class="w-4/5 max-w-[280px] py-4 rounded-2xl text-white text-base font-extrabold flex items-center justify-center gap-2 mb-4"
+        style="background:#22c55e;box-shadow:0 4px 24px rgba(34,197,94,.3)">
+        ${icon('check', 'w-5 h-5')}
+        ${t('imSafe') || 'Je vais bien'}
+      </button>
+
+      <!-- Emergency button -->
+      <button onclick="guardianCallEmergency()" class="w-4/5 max-w-[280px] py-3 rounded-xl flex items-center justify-center gap-1.5 text-[13px] font-bold"
+        style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#ef4444">
+        ${icon('phone-call', 'w-3.5 h-3.5')}
+        ${t('callEmergency112') || 'Appeler les urgences (112)'}
+      </button>
+    </div>
+
+    <style>
+      @keyframes pulseBorderRing {
+        0%, 100% { border-color: rgba(239,68,68,.4); }
+        50% { border-color: rgba(239,68,68,.15); }
+      }
+    </style>
+  `
+}
+
+// ─── SCREEN 7: ARRIVAL ───
+
+function renderArrivalScreen(companion) {
+  // Trip stats
+  const tripMs = companion.tripStart ? Date.now() - companion.tripStart : 0
+  const tripMinutes = Math.floor(tripMs / 60_000)
+  const tripHours = Math.floor(tripMinutes / 60)
+  const tripMins = tripMinutes % 60
+  const durationText = tripHours > 0 ? `${tripHours}h${String(tripMins).padStart(2, '0')}` : `${tripMins}min`
+
+  const events = getTripEvents()
+  const checkInCount = events.filter(e => e.type === 'checkin').length
+  const vehicleCount = events.filter(e => e.type === 'vehicle').length
+
+  // Distance (rough estimate from positions)
+  const positions = companion.positions || []
+  let distKm = 0
+  for (let i = 1; i < positions.length; i++) {
+    const dx = (positions[i].lat - positions[i - 1].lat) * 111
+    const dy = (positions[i].lng - positions[i - 1].lng) * 111 * Math.cos(positions[i].lat * Math.PI / 180)
+    distKm += Math.sqrt(dx * dx + dy * dy)
+  }
+  const distText = distKm > 1 ? `${Math.round(distKm)} km` : '...'
+
+  // Guardian names
+  const guardians = companion.guardians || []
+  const guardianNames = guardians.map(g => escapeHTML(g.name)).join(', ')
+
+  return `
+    <!-- Header -->
+    <div class="px-5 py-3 flex items-center justify-center shrink-0" style="border-bottom:1px solid rgba(34,197,94,.15)">
+      <h2 id="companion-modal-title" class="text-[14px] font-extrabold" style="color:#22c55e">${t('tripFinished') || 'Voyage termine'}</h2>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 flex flex-col items-center justify-center px-6 py-6 text-center">
+      <!-- Animated checkmark -->
+      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-5"
+        style="background:rgba(34,197,94,.1);border:3px solid rgba(34,197,94,.3);animation:scaleCheckIn .4s ease">
+        <span style="color:#22c55e">${icon('check', 'w-9 h-9')}</span>
+      </div>
+
+      <div class="text-[22px] font-extrabold text-white mb-1.5">${t('arrivedSafely') || 'Bien arrive !'}</div>
+      <div class="text-xs text-slate-500 mb-6">${t('guardiansNotifiedArrival') || 'Tes gardiens ont ete notifies de ton arrivee.'}</div>
+
+      <!-- Summary grid -->
+      <div class="grid grid-cols-2 gap-2 w-full mb-5">
+        <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          <div class="text-lg font-extrabold" style="color:#22c55e">${durationText}</div>
+          <div class="text-[9px] text-slate-600 uppercase mt-0.5">${t('duration') || 'duree'}</div>
+        </div>
+        <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          <div class="text-lg font-extrabold" style="color:#3b82f6">${distText}</div>
+          <div class="text-[9px] text-slate-600 uppercase mt-0.5">${t('distance') || 'distance'}</div>
+        </div>
+        <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          <div class="text-lg font-extrabold" style="color:#f59e0b">${checkInCount}</div>
+          <div class="text-[9px] text-slate-600 uppercase mt-0.5">check-ins</div>
+        </div>
+        <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          <div class="text-lg font-extrabold" style="color:#06b6d4">${vehicleCount}</div>
+          <div class="text-[9px] text-slate-600 uppercase mt-0.5">${t('vehicles') || 'vehicules'}</div>
+        </div>
+      </div>
+
+      <!-- Sent confirmation -->
+      ${guardianNames ? `
+        <div class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] mb-4 text-[11px] font-semibold"
+          style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);color:#22c55e">
+          ${icon('check', 'w-3 h-3')} ${t('confirmationSentTo') || 'Confirmation envoyee a'} ${guardianNames}
+        </div>
+      ` : ''}
+
+      <!-- Add to journal -->
+      <button onclick="guardianAddToJournal()" class="w-full py-3.5 rounded-xl flex items-center justify-center gap-2 text-[13px] font-bold mb-2.5"
+        style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:#3b82f6">
+        ${icon('book', 'w-3.5 h-3.5')} ${t('addToJournal') || 'Ajouter au journal'}
+      </button>
+
+      <!-- Close -->
+      <button onclick="closeCompanionModal()" class="w-full py-3.5 rounded-xl flex items-center justify-center text-[13px] font-semibold text-slate-500"
+        style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)">
+        ${t('close') || 'Fermer'}
+      </button>
+    </div>
+
+    <style>
+      @keyframes scaleCheckIn {
+        from { transform: scale(0); }
+        to { transform: scale(1); }
+      }
+    </style>
+  `
+}
+
+// ─── BOTTOM SHEETS ───
+
+function renderBottomSheet(companion) {
+  const sheetType = _guardianSheet
+  let sheetContent = ''
+
+  if (sheetType === 'plate') {
+    const currentPlate = companion.licensePlate || ''
+    sheetContent = `
+      <div class="w-9 h-1 rounded bg-white/10 mx-auto mb-4"></div>
+      <div class="flex items-center gap-2 text-[15px] font-extrabold text-white mb-1">
+        <span style="color:#06b6d4">${icon('car', 'w-[18px] h-[18px]')}</span>
+        ${t('licensePlateLabel') || 'Plaque du vehicule'}
+      </div>
+      <div class="text-[11px] text-slate-500 mb-4">${t('plateSheetDesc') || 'Note la plaque du vehicule dans lequel tu montes.'}</div>
+      ${currentPlate ? `
+        <div class="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[11px] text-slate-500 mb-3"
+          style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          ${icon('history', 'w-3 h-3')} ${t('previousPlate') || 'Plaque precedente'}
+          <span class="ml-auto font-bold text-slate-400 tracking-wider">${escapeHTML(currentPlate)}</span>
+        </div>
+      ` : ''}
+      <input type="text" id="guardian-sheet-plate" class="w-full px-4 py-3 rounded-xl text-xl font-bold text-center tracking-widest uppercase text-white placeholder-slate-600 mb-2.5 focus:outline-none"
+        style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)"
+        placeholder="${t('plateExample') || 'AB-123-CD'}" maxlength="12" />
+      <div class="flex gap-2 mt-2">
+        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px]"
+          style="border:1px solid rgba(255,255,255,.08)">${t('cancel') || 'Annuler'}</button>
+        <button onclick="guardianSavePlate()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px]"
+          style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
+          ${icon('check', 'w-3.5 h-3.5 inline')} ${t('save') || 'Enregistrer'}
+        </button>
+      </div>
+    `
+  } else if (sheetType === 'photo') {
+    sheetContent = `
+      <div class="w-9 h-1 rounded bg-white/10 mx-auto mb-4"></div>
+      <div class="flex items-center gap-2 text-[15px] font-extrabold text-white mb-1">
+        <span style="color:#a855f7">${icon('camera', 'w-[18px] h-[18px]')}</span>
+        ${t('driverPhoto') || 'Photo avec le conducteur'}
+      </div>
+      <div class="text-[11px] text-slate-500 mb-4">${t('photoSheetDesc') || 'Partagee avec tes gardiens. Supprimee automatiquement apres le voyage.'}</div>
+      <div class="w-full h-[140px] rounded-xl flex flex-col items-center justify-center gap-2 mb-3" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);color:#475569">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(168,85,247,.1);color:#a855f7">
+          ${icon('camera', 'w-6 h-6')}
+        </div>
+        <span class="text-xs">${t('tapToTakePhoto') || 'Appuyer pour prendre une photo'}</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-600 mb-3.5">
+        ${icon('lock', 'w-3 h-3')} ${t('autoDeleteAfterTrip') || 'Supprimee automatiquement a la fin du voyage'}
+      </div>
+      <div class="flex gap-2">
+        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px]"
+          style="border:1px solid rgba(255,255,255,.08)">${t('cancel') || 'Annuler'}</button>
+        <button onclick="guardianSaveTripPhoto()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px]"
+          style="background:linear-gradient(135deg,#a855f7,#7c3aed)">
+          ${icon('camera', 'w-3.5 h-3.5 inline')} ${t('takePhoto') || 'Prendre la photo'}
+        </button>
+      </div>
+    `
+  } else if (sheetType === 'destination') {
+    const currentDest = companion.destination || ''
+    sheetContent = `
+      <div class="w-9 h-1 rounded bg-white/10 mx-auto mb-4"></div>
+      <div class="flex items-center gap-2 text-[15px] font-extrabold text-white mb-1">
+        <span style="color:#f59e0b">${icon('map-pin', 'w-[18px] h-[18px]')}</span>
+        ${t('companionDestination') || 'Destination'}
+      </div>
+      <div class="text-[11px] text-slate-500 mb-4">${t('destSheetDesc') || 'Change ta destination si ton trajet a evolue.'}</div>
+      ${currentDest ? `
+        <div class="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[11px] text-slate-500 mb-3"
+          style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          ${icon('map-pin', 'w-3 h-3')} ${t('current') || 'Actuelle'}
+          <span class="ml-auto font-bold text-slate-400">${escapeHTML(currentDest)}</span>
+        </div>
+      ` : ''}
+      <input type="text" id="guardian-sheet-dest" class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-600 mb-3 focus:outline-none"
+        style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)"
+        placeholder="${t('newDestination') || 'Nouvelle destination...'}" />
+      <div class="flex gap-2">
+        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px]"
+          style="border:1px solid rgba(255,255,255,.08)">${t('cancel') || 'Annuler'}</button>
+        <button onclick="guardianSaveDestination()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px]"
+          style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          ${icon('check', 'w-3.5 h-3.5 inline')} ${t('save') || 'Enregistrer'}
+        </button>
+      </div>
+    `
+  }
+
+  return `
+    <div class="absolute inset-0 z-50 flex items-end" onclick="guardianCloseSheet()">
+      <div class="absolute inset-0" style="background:rgba(0,0,0,.6)"></div>
+      <div class="relative w-full rounded-t-[20px] px-4 pt-5 pb-7" style="background:#161b28;animation:sheetSlideUp .25s ease" onclick="event.stopPropagation()">
+        ${sheetContent}
+      </div>
+    </div>
+    <style>
+      @keyframes sheetSlideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+    </style>
+  `
+}
+
 // ─── HELPERS ───
 
 function renderTimelineEvents(companion) {
   const positions = companion.positions || []
   const events = []
 
-  // Last check-in
   if (companion.lastCheckIn) {
     events.push({
       color: '#22c55e',
       time: new Date(companion.lastCheckIn).toLocaleTimeString(getState().lang || 'fr', { hour: '2-digit', minute: '2-digit' }),
-      text: 'Check-in OK \u2713',
+      text: `Check-in OK ${icon('check', 'w-3 h-3 inline')}`,
     })
   }
 
-  // Last position
   if (positions.length > 0) {
     const last = positions[positions.length - 1]
     events.push({
@@ -798,7 +1164,6 @@ function renderTimelineEvents(companion) {
     })
   }
 
-  // Trip start
   if (companion.tripStart) {
     events.push({
       color: '#f59e0b',
@@ -892,17 +1257,14 @@ window.acceptCompanionConsent = () => {
 /** Navigate between guardian screens */
 window.guardianGoToScreen = (screen) => {
   _currentScreen = screen
-  // Accept consent implicitly when moving to main
   if (screen === 'main') {
     try { sessionStorage.setItem('spothitch_companion_consent', '1') } catch { /* ignore */ }
   }
-  // Force re-render without resetting _currentScreen through auto-detection
   window._forceRender?.()
 }
 
-/** Switch tab in main screen */
-window.guardianSwitchTab = (index) => {
-  _currentTab = index
+/** Switch tab in main screen (v2: no-op, kept for backward compat) */
+window.guardianSwitchTab = (_index) => {
   _currentScreen = 'main'
   window._forceRender?.()
 }
@@ -946,21 +1308,33 @@ window.guardianEditField = async (field) => {
       placeholder: t('customMessagePrompt') || 'Message a envoyer avec les alertes',
       maxLength: 200,
     },
+    tripPhoto: {
+      label: t('driverPhoto') || 'Photo conducteur',
+      value: '',
+      inputType: 'text',
+      placeholder: '',
+    },
   }
 
   const config = fieldConfig[field]
   if (!config) return
 
+  // For tripPhoto, open the photo sheet instead of overlay
+  if (field === 'tripPhoto') {
+    _guardianSheet = 'photo'
+    _currentScreen = 'main'
+    window._forceRender?.()
+    return
+  }
+
   _editOverlay = { field, ...config }
-  _currentTab = 1 // ensure config tab is shown
+  _currentScreen = 'main'
   window._forceRender?.()
 
-  // Auto-focus the input after render
   requestAnimationFrame(() => {
     const input = document.getElementById('guardian-edit-input')
     if (input) {
       input.focus()
-      // Place cursor at end
       if (input.setSelectionRange && input.value) {
         input.setSelectionRange(input.value.length, input.value.length)
       }
@@ -1138,6 +1512,184 @@ window.companionClearHistory = async () => {
   window.setState?.({ showCompanionModal: true })
 }
 
+// ─── V2 HANDLERS ───
+
+/** Close bottom sheet */
+window.guardianCloseSheet = () => {
+  _guardianSheet = null
+  window._forceRender?.()
+}
+
+/** Open plate sheet */
+window.guardianUpdatePlate = () => {
+  _guardianSheet = 'plate'
+  window._forceRender?.()
+  requestAnimationFrame(() => {
+    document.getElementById('guardian-sheet-plate')?.focus()
+  })
+}
+
+/** Save plate from sheet */
+window.guardianSavePlate = async () => {
+  const input = document.getElementById('guardian-sheet-plate')
+  const val = input?.value?.trim()?.toUpperCase() || ''
+  if (!val) return
+  const { getCompanionState: gcs, addTripEvent } = await import('../../services/companion.js')
+  const state = gcs()
+  const isNew = !!state.licensePlate && state.licensePlate !== val
+  state.licensePlate = val
+  try {
+    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+  } catch { /* ignore */ }
+  if (state.active) {
+    addTripEvent('vehicle', { plate: val, isNew })
+  }
+  _guardianSheet = null
+  window._forceRender?.()
+}
+
+/** Open photo sheet */
+window.guardianAddTripPhoto = () => {
+  _guardianSheet = 'photo'
+  window._forceRender?.()
+}
+
+/** Save trip photo from sheet */
+window.guardianSaveTripPhoto = async () => {
+  // In a real implementation, this would open the camera
+  // For now, just add a photo event
+  const { setTripPhoto } = await import('../../services/companion.js')
+  setTripPhoto('placeholder')
+  _guardianSheet = null
+  window._forceRender?.()
+}
+
+/** Open destination sheet */
+window.guardianUpdateDestination = () => {
+  _guardianSheet = 'destination'
+  window._forceRender?.()
+  requestAnimationFrame(() => {
+    document.getElementById('guardian-sheet-dest')?.focus()
+  })
+}
+
+/** Save destination from sheet */
+window.guardianSaveDestination = async () => {
+  const input = document.getElementById('guardian-sheet-dest')
+  const val = input?.value?.trim() || ''
+  if (!val) return
+  const { getCompanionState: gcs, addTripEvent } = await import('../../services/companion.js')
+  const state = gcs()
+  state.destination = val
+  try {
+    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+  } catch { /* ignore */ }
+  if (state.active) {
+    addTripEvent('destination', { destination: val })
+  }
+  _guardianSheet = null
+  window._forceRender?.()
+}
+
+/** Send message from active screen compose bar */
+window.guardianSendMessage = async () => {
+  const input = document.getElementById('guardian-message-input')
+  const text = input?.value?.trim() || ''
+  if (!text) return
+  const { addTripEvent, getCompanionState: gcs } = await import('../../services/companion.js')
+  const state = gcs()
+  if (!state.active) return
+  const username = getState().username || t('me') || 'Moi'
+  addTripEvent('message', { sender: username, senderColor: '#f59e0b', text })
+  if (input) input.value = ''
+  window._forceRender?.()
+  requestAnimationFrame(() => {
+    const tl = document.getElementById('guardian-timeline')
+    if (tl) tl.scrollTop = tl.scrollHeight
+  })
+}
+
+/** Quick check-in from compose bar */
+window.guardianQuickCheckin = async () => {
+  const { checkIn, addTripEvent } = await import('../../services/companion.js')
+  checkIn()
+  addTripEvent('checkin', {})
+  window._forceRender?.()
+  requestAnimationFrame(() => {
+    const tl = document.getElementById('guardian-timeline')
+    if (tl) tl.scrollTop = tl.scrollHeight
+  })
+}
+
+/** Show arrival screen */
+window.guardianShowArrival = () => {
+  _currentScreen = 'arrival'
+  window._forceRender?.()
+}
+
+/** Add trip to journal from arrival screen */
+window.guardianAddToJournal = () => {
+  // Navigate to journal view
+  window.showJournal?.()
+  window.closeCompanionModal?.()
+}
+
+/** Edit guardian by index */
+window.guardianEditGuardian = async (index) => {
+  const { getGuardians: gg } = await import('../../services/companion.js')
+  const guardians = gg()
+  const g = guardians[index]
+  if (!g) return
+
+  _editOverlay = {
+    field: 'guardian',
+    label: index === 0 ? (t('mainGuardian') || 'Gardien principal') : (t('guardian') || 'Gardien'),
+    value: g.name,
+    phone: g.phone || '',
+    inputType: 'text',
+    placeholder: t('guardianNamePrompt') || 'Nom du gardien',
+    _guardianIndex: index,
+  }
+  _currentScreen = 'main'
+  window._forceRender?.()
+
+  requestAnimationFrame(() => {
+    const input = document.getElementById('guardian-edit-input')
+    if (input) {
+      input.focus()
+      if (input.setSelectionRange && input.value) {
+        input.setSelectionRange(input.value.length, input.value.length)
+      }
+    }
+  })
+}
+
+/** Add a new guardian */
+window.guardianAddGuardian = () => {
+  _editOverlay = {
+    field: 'guardian',
+    label: t('addGuardian') || 'Ajouter un gardien',
+    value: '',
+    phone: '',
+    inputType: 'text',
+    placeholder: t('guardianNamePrompt') || 'Nom du gardien',
+    _guardianIndex: -1, // -1 = new
+  }
+  _currentScreen = 'main'
+  window._forceRender?.()
+
+  requestAnimationFrame(() => {
+    document.getElementById('guardian-edit-input')?.focus()
+  })
+}
+
+/** Remove a guardian by index */
+window.guardianRemoveGuardian = async (index) => {
+  const { removeGuardian } = await import('../../services/companion.js')
+  removeGuardian(index)
+  window._forceRender?.()
+}
+
 /** Load and display battery level into the active view */
 async function updateBatteryDisplay() {
   const el = document.getElementById('companion-battery-row')
@@ -1147,13 +1699,6 @@ async function updateBatteryDisplay() {
   if (level === null) return
 
   _batteryPct = Math.round(level * 100)
-  const isLow = _batteryPct <= 15
-  const color = isLow ? 'text-red-400' : _batteryPct <= 30 ? 'text-amber-400' : 'text-emerald-400'
-
-  el.innerHTML = `
-    <div class="text-sm font-bold ${color}">\u{1F50B} ${_batteryPct}%</div>
-    <div class="text-[8px] text-slate-500 uppercase">${t('batteryLevel') || 'Batterie'}</div>
-  `
 }
 
 // Init companion battery display after render
@@ -1164,11 +1709,15 @@ export function initCompanionAfterRender(isVisible) {
       _batteryDisplayDone = true
       updateBatteryDisplay()
     }
+    // Scroll timeline to bottom
+    requestAnimationFrame(() => {
+      const tl = document.getElementById('guardian-timeline')
+      if (tl) tl.scrollTop = tl.scrollHeight
+    })
   } else {
     _batteryDisplayDone = false
-    // Reset screen state when modal closes
     _currentScreen = null
-    _currentTab = 0
+    _guardianSheet = null
   }
 }
 
