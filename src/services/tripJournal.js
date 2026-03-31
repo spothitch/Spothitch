@@ -101,6 +101,8 @@ export function addLeg(tripId, legData) {
       lng: legData.arrivalLng || null,
     },
     distanceKm: legData.distanceKm || 0,
+    rideDuration: legData.rideDuration || null, // travel time in minutes (e.g. 65 = 1h05)
+    price: legData.price || null, // cost in local currency (for paid transport)
     // Hitchhike-specific (auto-filled from spot)
     spotId: legData.spotId || null,
     spotName: legData.spotName || null,
@@ -227,20 +229,40 @@ export function getTripStats(trip) {
   // Estimated savings (avg bus/train cost ~0.12€/km)
   const estimatedSavings = Math.round(hitchKm * 0.12)
 
-  // Transport ratio
-  const transportRatio = totalKm > 0 ? {
-    hitchhike: Math.round((hitchKm / totalKm) * 100),
-    paid: Math.round((paidKm / totalKm) * 100),
-    walk: Math.round((walkKm / totalKm) * 100),
-  } : { hitchhike: 0, paid: 0, walk: 0 }
+  // Transport ratio — per-type breakdown
+  const transportBreakdown = {}
+  legs.forEach(l => {
+    const tp = l.transport || 'other'
+    const km = l.distanceKm || 0
+    transportBreakdown[tp] = (transportBreakdown[tp] || 0) + km
+  })
+  const transportRatio = {}
+  for (const [tp, km] of Object.entries(transportBreakdown)) {
+    transportRatio[tp] = totalKm > 0 ? Math.round((km / totalKm) * 100) : 0
+  }
+  // Keep legacy keys for backward compat
+  transportRatio.hitchhike = transportRatio.hitchhike || 0
+  transportRatio.paid = totalKm > 0 ? Math.round((paidKm / totalKm) * 100) : 0
+  transportRatio.walk = transportRatio.walk || 0
+
+  // Country flags
+  const countryFlags = [...countries].map(cc => {
+    if (!cc || cc.length !== 2) return ''
+    const a = 0x1F1E6 - 65 + cc.toUpperCase().charCodeAt(0)
+    const b = 0x1F1E6 - 65 + cc.toUpperCase().charCodeAt(1)
+    return String.fromCodePoint(a, b)
+  }).filter(Boolean)
 
   return {
     totalKm, hitchKm, paidKm, walkKm,
     totalWaitMin, rides, days,
     countries: countries.size,
+    countryFlags,
+    countryCodes: [...countries],
     spotsUsed, spotsCreated,
     totalExpenses, expByCategory,
     estimatedSavings, transportRatio,
+    transportBreakdown,
   }
 }
 
