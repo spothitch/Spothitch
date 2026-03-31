@@ -32,7 +32,8 @@ window.companionBtnUp = () => {
     clearTimeout(_companionPressTimer)
     _companionPressTimer = null
   }
-  if (!_companionLongFired) window.companionCheckIn()
+  // Short press: open the guardian modal (shows timeline + stop button)
+  if (!_companionLongFired) window.showCompanionModal()
 }
 window.companionBtnCancel = () => {
   if (_companionPressTimer) {
