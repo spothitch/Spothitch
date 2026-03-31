@@ -2,26 +2,29 @@
 
 **La communauté des autostoppeurs** — Trouvez et partagez les meilleurs spots d'auto-stop dans le monde.
 
-[![CI/CD](https://github.com/antoine626/Spothitch/actions/workflows/ci.yml/badge.svg)](https://github.com/antoine626/Spothitch/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/antoine626/Spothitch/actions/workflows/codeql.yml/badge.svg)](https://github.com/antoine626/Spothitch/actions/workflows/codeql.yml)
+[![CI/CD](https://github.com/spothitch/Spothitch/actions/workflows/ci.yml/badge.svg)](https://github.com/spothitch/Spothitch/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/spothitch/Spothitch/actions/workflows/codeql.yml/badge.svg)](https://github.com/spothitch/Spothitch/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8?logo=pwa)](https://spothitch.com)
 [![Langues](https://img.shields.io/badge/langues-FR%20%7C%20EN%20%7C%20ES%20%7C%20DE-blue)](https://spothitch.com)
 
-🌐 **[spothitch.com](https://spothitch.com)** | 💬 **[Discussions](https://github.com/antoine626/Spothitch/discussions)** | 🐛 **[Signaler un bug](https://github.com/antoine626/Spothitch/issues/new?template=bug_report.md)**
+🌐 **[spothitch.com](https://spothitch.com)** | 💬 **[Discussions](https://github.com/spothitch/Spothitch/discussions)** | 🐛 **[Signaler un bug](https://github.com/spothitch/Spothitch/issues/new?template=bug_report.md)**
 
 ---
 
 ## 🌍 Fonctionnalités
 
-- 📍 **14 669 spots** dans **137 pays**
+- 📍 **Spots communautaires** dans **137 pays** (données Firestore en temps réel)
 - 🗺️ **Carte interactive** MapLibre GL JS avec tuiles OpenFreeMap
 - 📱 **PWA installable** — fonctionne hors-ligne sur mobile et desktop
-- 🆘 **Mode SOS** — contacts d'urgence locaux + partage de position
-- 👥 **Companion** — partage de position en temps réel avec un proche
+- 🛡️ **Mode Guardian** — un proche suit ton trajet en temps réel, alerté si tu ne réponds plus (push, plaque, message perso)
+- 🆘 **Mode SOS** — contacts d'urgence locaux + partage de position + alarme silencieuse
+- 📓 **Journal de voyage** — timeline par jour, étapes, dépenses, photos, mini-carte, statistiques
 - 🧭 **Planificateur de voyage** multi-villes avec OSRM
-- 📖 **Guides pays** pour 53 pays + pages villes pour 428 villes
-- 💬 **Chat communautaire** en temps réel
+- 📖 **Guides pays** pour **96 pays** (10 sections, conseils sécurité, numéros d'urgence)
+- ⛽ **Stations-service** à proximité sur la carte
+- 👥 **Voyageurs** — voir qui est sur la route autour de toi
+- 💬 **Chat communautaire** en temps réel (messages directs + groupes)
 - 🎮 **Gamification** — quiz, défis, badges, boutique, classement
 - ⭐ **3 critères de notation** : sécurité, trafic, accessibilité
 - 🌐 **4 langues** : Français, English, Español, Deutsch
@@ -31,7 +34,7 @@
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/antoine626/Spothitch.git
+git clone https://github.com/spothitch/Spothitch.git
 cd Spothitch
 npm install
 npm run dev
@@ -40,9 +43,10 @@ npm run dev
 ## 🧪 Tests
 
 ```bash
-npm run test:run        # Tests unitaires (104 tests)
-npm run test:e2e        # Tests E2E Playwright (240+ tests)
+npm run test:run        # Tests unitaires Vitest (87 tests)
+npm run test:e2e        # Tests E2E Playwright (1384 tests, 41 fichiers)
 npm run lint            # Linting ESLint
+npm run maitre          # Suite complète (unit + wiring + build + e2e)
 ```
 
 ## 🏗️ Stack technique
@@ -52,10 +56,10 @@ npm run lint            # Linting ESLint
 | Vite 5 | Build + HMR |
 | Tailwind CSS 4 | Styles |
 | MapLibre GL JS | Carte |
-| Firebase | Auth + Firestore + Storage |
+| Firebase | Auth + Firestore + Cloud Functions |
 | Vitest | Tests unitaires |
 | Playwright | Tests E2E |
-| GitHub Actions | CI/CD |
+| GitHub Actions | CI/CD (14 jobs) |
 | Cloudflare Pages | Hébergement |
 | Sentry | Monitoring erreurs |
 
@@ -69,6 +73,8 @@ npm run lint            # Linting ESLint
 | `npm run test:run` | Tests unitaires |
 | `npm run test:e2e` | Tests E2E |
 | `npm run lint` | Linting |
+| `npm run maitre` | Suite complète (tests + build + e2e) |
+| `npm run audit:rgpd` | Audit conformité RGPD |
 | `npm run sync:spots` | Synchronise les spots |
 
 ## 🔧 Configuration
@@ -93,10 +99,10 @@ Les contributions sont les bienvenues !
 2. Crée une branche (`git checkout -b feature/ma-feature`)
 3. Commit (`git commit -m 'Add ma feature'`)
 4. Push (`git push origin feature/ma-feature`)
-5. Ouvre une [Pull Request](https://github.com/antoine626/Spothitch/pulls)
+5. Ouvre une [Pull Request](https://github.com/spothitch/Spothitch/pulls)
 
-Pour les questions → [Discussions](https://github.com/antoine626/Spothitch/discussions)
-Pour les bugs → [Issues](https://github.com/antoine626/Spothitch/issues/new?template=bug_report.md)
+Pour les questions → [Discussions](https://github.com/spothitch/Spothitch/discussions)
+Pour les bugs → [Issues](https://github.com/spothitch/Spothitch/issues/new?template=bug_report.md)
 
 ## 🤖 Utilisation de l'IA
 
@@ -121,6 +127,7 @@ Ce projet utilise **Claude** (Anthropic) comme assistant de développement via C
 
 - Cartes : [OpenFreeMap](https://openfreemap.org) & [OpenStreetMap](https://www.openstreetmap.org)
 - Routing : [OSRM](http://project-osrm.org)
+- Géocodage : [Photon](https://photon.komoot.io)
 
 ## 📄 Licence
 
@@ -129,4 +136,3 @@ MIT — voir [LICENSE](LICENSE) pour les détails.
 ---
 
 Fait avec 🤙 par la communauté SpotHitch
-test
