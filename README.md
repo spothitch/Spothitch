@@ -98,6 +98,25 @@ Les contributions sont les bienvenues !
 Pour les questions → [Discussions](https://github.com/antoine626/Spothitch/discussions)
 Pour les bugs → [Issues](https://github.com/antoine626/Spothitch/issues/new?template=bug_report.md)
 
+## 🤖 Utilisation de l'IA
+
+Ce projet utilise **Claude** (Anthropic) comme assistant de développement via Claude Code CLI.
+
+**Comment l'IA est utilisée :**
+- Écriture de code (logique, composants UI, tests, scripts CI)
+- Debugging et correction de bugs
+- Traductions (FR/EN/ES/DE)
+- Génération de tests E2E et unitaires
+
+**Comment l'IA n'est PAS utilisée :**
+- Les décisions produit (quoi construire, pour qui, pourquoi) sont prises par Antoine
+- Les données communautaires (spots) sont 100% créées par des utilisateurs
+- Le design et les mockups sont conçus par Antoine
+
+**Traçabilité :**
+- Chaque commit généré avec l'IA contient `Co-Authored-By: Claude` dans le message
+- Un log de provenance complet est disponible dans `memory/nlnet-prompt-provenance-log.md`
+
 ## 🙏 Crédits
 
 - Cartes : [OpenFreeMap](https://openfreemap.org) & [OpenStreetMap](https://www.openstreetmap.org)
