@@ -42,7 +42,6 @@ window.companionBtnCancel = () => {
 }
 window.startCompanion = () => {
   const t = window.t
-  const { scheduleRender } = window._appInternals
 
   // Read config from localStorage (reliable) — hidden DOM inputs may not be rendered
   let saved = {}
@@ -86,27 +85,30 @@ window.startCompanion = () => {
     customMessage,
   })
   onCompanionOverdue(() => {
-    window.setState({ showCompanionModal: true })
+    // Only open modal if not already open (prevents render loop every 10s)
+    const state = window.getState?.() || {}
+    if (!state.showCompanionModal) {
+      window.setState({ showCompanionModal: true })
+    }
   })
   window.showToast(t('companionStarted') || 'Mode compagnon activé !', 'success')
-  // Reset screen to null so auto-detection picks up active state
+  // Reset screen to null so auto-detection picks up active state — single render only
   window.guardianGoToScreen?.(null)
-  // Re-render to show active view
-  scheduleRender(() => window._appInternals.render())
 }
 window.stopCompanion = () => {
   const t = window.t
   stopCompanionMode()
   window.showToast(t('companionStopped') || 'Mode compagnon désactivé.', 'info')
+  // Close modal and reset screen
+  window.guardianGoToScreen?.(null)
   window.setState({ showCompanionModal: false })
 }
 window.companionCheckIn = () => {
   const t = window.t
-  const { scheduleRender } = window._appInternals
   companionCheckInFn()
   window.showToast(t('companionCheckedIn') || 'Check-in enregistré !', 'success')
-  // Re-render to update timer
-  scheduleRender(() => window._appInternals.render())
+  // Update modal only (not full app) to avoid page flash
+  window._forceRender?.()
 }
 window.companionSendAlert = () => {
   const t = window.t

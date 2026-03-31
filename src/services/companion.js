@@ -77,6 +77,7 @@ const REMINDER_SECONDS_THRESHOLD = 120
 let timerInterval = null
 let overdueCallback = null
 let overdueNotified = false
+let _overdueCallbackFired = false
 let reminderNotified = false
 let batteryAlertSent = false
 // _batteryRef: kept for future cleanup of battery event listeners
@@ -613,6 +614,7 @@ export function checkIn() {
   state.alertSent = false
   state.checkInsCount = (state.checkInsCount || 0) + 1
   overdueNotified = false
+  _overdueCallbackFired = false
   reminderNotified = false
 
   // Update position on check-in
@@ -734,6 +736,7 @@ export function startTimer() {
   stopTimer()
 
   overdueNotified = false
+  _overdueCallbackFired = false
   reminderNotified = false
 
   timerInterval = setInterval(() => {
@@ -776,18 +779,18 @@ export function startTimer() {
     }
 
     if (isCheckInOverdue() && !state.alertSent) {
-      // Strong vibration
-      try {
-        if (navigator.vibrate) {
-          navigator.vibrate([500, 200, 500, 200, 500])
-        }
-      } catch {
-        // vibration not supported
-      }
-
-      // Overdue push notification
+      // Overdue push notification + vibration (once only, not every 10s)
       if (!overdueNotified) {
         overdueNotified = true
+
+        // Strong vibration (once)
+        try {
+          if (navigator.vibrate) {
+            navigator.vibrate([500, 200, 500, 200, 500])
+          }
+        } catch {
+          // vibration not supported
+        }
         const title = t('companionOverdueTitle') || 'Check-in overdue!'
         const body = t('companionOverdueBody') || 'Your check-in timer has expired. Are you safe?'
         sendLocalNotification(title, body, {
@@ -798,7 +801,9 @@ export function startTimer() {
         })
       }
 
-      if (overdueCallback) {
+      // Fire callback only once per overdue cycle (prevents render loop every 10s)
+      if (overdueCallback && !_overdueCallbackFired) {
+        _overdueCallbackFired = true
         overdueCallback(state)
       }
     }
