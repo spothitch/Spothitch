@@ -225,7 +225,8 @@ const MAIN_JS_HANDLERS = [
   'journalShowStats', 'journalEditExpenses', 'journalEditDayNote',
   'journalCreateTrip', 'journalSaveLeg', 'journalEndTrip', 'journalTogglePublic',
   'journalSaveExpenses', 'journalSaveDayNote', 'journalAddDayPhoto',
-  'journalPickSpot', 'journalSelectTransport', 'journalShareTrip', 'journalCopyLink',
+  'journalPickSpot', 'journalCloseSpotOverlay', 'journalSelectSpotFromMap', 'journalClearSpot',
+  'journalToggleExpenses', 'journalSelectTransport', 'journalShareTrip', 'journalCopyLink',
   // Welcome (defined in Welcome.js)
   // IdentityVerification (defined in IdentityVerification.js)
   'startVerificationStep',
