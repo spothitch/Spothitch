@@ -95,8 +95,8 @@ window.startCompanion = () => {
     }
   })
   window.showToast(t('companionStarted') || 'Mode compagnon activé !', 'success')
-  // Reset screen to null so auto-detection picks up active state — single render only
-  window.guardianGoToScreen?.(null)
+  // Force active screen (don't rely on auto-detection which may read stale state)
+  window.guardianGoToScreen?.('active')
 }
 window.stopCompanion = () => {
   const t = window.t

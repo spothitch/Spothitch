@@ -1356,7 +1356,23 @@ window.guardianSaveField = async () => {
     }
     const phoneInput = document.getElementById('guardian-edit-phone')
     const phone = phoneInput?.value?.trim()?.replace(/[^0-9+]/g, '') || ''
-    state.guardian = { name: val, phone }
+    const GUARDIAN_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#06b6d4', '#a855f7']
+    const idx = _editOverlay._guardianIndex
+    if (!Array.isArray(state.guardians)) state.guardians = []
+    if (idx === -1 || idx === undefined) {
+      // Add new guardian
+      if (state.guardians.length < 5) {
+        const color = GUARDIAN_COLORS[state.guardians.length] || '#64748b'
+        state.guardians.push({ name: val, phone, color })
+      }
+    } else if (idx >= 0 && idx < state.guardians.length) {
+      // Edit existing guardian
+      state.guardians[idx] = { ...state.guardians[idx], name: val, phone }
+    }
+    // Keep backward compat: mirror first guardian
+    state.guardian = state.guardians.length > 0
+      ? { name: state.guardians[0].name, phone: state.guardians[0].phone || '' }
+      : { name: val, phone }
   } else if (_editOverlay.field === 'interval') {
     const num = parseInt(val, 10)
     if (!num || num < 5 || num > 120) {
