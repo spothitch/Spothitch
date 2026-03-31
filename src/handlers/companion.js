@@ -9,6 +9,9 @@ import {
   checkIn as companionCheckInFn,
   sendAlert as companionSendAlertFn,
   onOverdue as onCompanionOverdue,
+  removeGuardian as removeGuardianFn,
+  addTripEvent,
+  setTripPhoto,
 } from '../services/companion.js'
 
 // Companion Mode handlers
@@ -43,29 +46,30 @@ window.companionBtnCancel = () => {
 window.startCompanion = () => {
   const t = window.t
 
-  // Read config from localStorage (reliable) — hidden DOM inputs may not be rendered
+  // Read config from localStorage (reliable)
   let saved = {}
   try {
     saved = JSON.parse(localStorage.getItem('spothitch_companion') || '{}')
   } catch { /* ignore */ }
 
-  const name = saved.guardian?.name?.trim() || ''
-  const phone = saved.guardian?.phone?.trim() || ''
+  // Use guardians array (v2) or fall back to single guardian (v1)
+  const guardians = Array.isArray(saved.guardians) && saved.guardians.length > 0
+    ? saved.guardians
+    : (saved.guardian?.name ? [{ name: saved.guardian.name, phone: saved.guardian.phone || '', color: '#22c55e' }] : [])
+
+  if (guardians.length === 0 || !guardians[0].name?.trim()) {
+    window.showToast(t('guardianNameRequired') || 'Ajoute au moins un gardien.', 'warning')
+    return
+  }
+
   const interval = saved.checkInInterval || 30
   const destination = saved.destination || ''
   const notifyOnDeparture = saved.notifyOnDeparture !== false
   const notifyOnArrival = saved.notifyOnArrival !== false
   const licensePlate = saved.licensePlate || ''
   const customMessage = saved.customMessage || ''
-  const trustedContacts = Array.isArray(saved.trustedContacts) ? saved.trustedContacts : []
 
-  if (!name) {
-    window.showToast(t('guardianNameRequired') || 'Remplis le nom de ton gardien.', 'warning')
-    return
-  }
-
-  // Store traveler's own phone (from profile or first emergency contact)
-  // so the guardian can call/message the traveler
+  // Store traveler's own phone
   let travelerPhone = ''
   try {
     const state = window.getState?.() || {}
@@ -75,8 +79,9 @@ window.startCompanion = () => {
     }
   } catch { /* ignore */ }
 
-  startCompanionMode({ name, phone }, interval, {
-    trustedContacts,
+  // Start with primary guardian (backward compat) but pass all guardians in options
+  startCompanionMode(guardians[0], interval, {
+    trustedContacts: guardians.slice(1),
     destination,
     notifyOnDeparture,
     notifyOnArrival,
@@ -118,4 +123,110 @@ window.companionSendAlert = () => {
   } else {
     window.showToast(t('companionNoContacts') || 'No contacts configured.', 'warning')
   }
+}
+
+// ─── Guardian v2: Multi-guardian management ───
+
+window.guardianAddGuardian = () => {
+  // Opens the edit overlay for a new guardian (handled in Companion.js)
+  window.setState?.({ _guardianEditIndex: -1 })
+  window._forceRender?.()
+}
+
+window.guardianRemoveGuardian = (index) => {
+  removeGuardianFn(index)
+  window.showToast(window.t?.('guardianRemoved') || 'Gardien supprime.', 'info')
+  window._forceRender?.()
+}
+
+window.guardianEditGuardian = (index) => {
+  window.setState?.({ _guardianEditIndex: index })
+  window._forceRender?.()
+}
+
+// ─── Guardian v2: Quick actions during trip ───
+
+window.guardianUpdatePlate = () => {
+  // Opens plate bottom sheet (handled in Companion.js via state flag)
+  window.setState?.({ _guardianSheet: 'plate' })
+  window._forceRender?.()
+}
+
+window.guardianSavePlate = (plate) => {
+  if (!plate?.trim()) return
+  try {
+    const saved = JSON.parse(localStorage.getItem('spothitch_companion') || '{}')
+    saved.licensePlate = plate.trim().toUpperCase()
+    localStorage.setItem('spothitch_companion', JSON.stringify(saved))
+  } catch { /* */ }
+  addTripEvent('vehicle', { plate: plate.trim().toUpperCase() })
+  window.setState?.({ _guardianSheet: null })
+  window._forceRender?.()
+}
+
+window.guardianAddTripPhoto = () => {
+  window.setState?.({ _guardianSheet: 'photo' })
+  window._forceRender?.()
+}
+
+window.guardianSaveTripPhoto = (dataUrl) => {
+  if (!dataUrl) return
+  setTripPhoto(dataUrl)
+  window.setState?.({ _guardianSheet: null })
+  window._forceRender?.()
+}
+
+window.guardianUpdateDestination = () => {
+  window.setState?.({ _guardianSheet: 'dest' })
+  window._forceRender?.()
+}
+
+window.guardianSaveDestination = (dest) => {
+  if (!dest?.trim()) return
+  try {
+    const saved = JSON.parse(localStorage.getItem('spothitch_companion') || '{}')
+    saved.destination = dest.trim()
+    localStorage.setItem('spothitch_companion', JSON.stringify(saved))
+  } catch { /* */ }
+  addTripEvent('destination', { destination: dest.trim() })
+  window.setState?.({ _guardianSheet: null })
+  window._forceRender?.()
+}
+
+window.guardianSendMessage = () => {
+  const input = document.getElementById('guardian-chat-input')
+  if (!input) return
+  const text = input.value.trim()
+  if (!text) return
+  input.value = ''
+
+  // Get current user info
+  const state = window.getState?.() || {}
+  const senderName = state.username || 'Moi'
+
+  addTripEvent('message', { text, sender: senderName, senderColor: '#f59e0b' })
+  window._forceRender?.()
+
+  // Scroll timeline to bottom
+  setTimeout(() => {
+    const tl = document.getElementById('guardian-timeline')
+    if (tl) tl.scrollTop = tl.scrollHeight
+  }, 50)
+}
+
+window.guardianQuickCheckin = () => {
+  companionCheckInFn()
+  window.showToast(window.t?.('companionCheckedIn') || 'Check-in !', 'success')
+  window._forceRender?.()
+}
+
+// ─── Guardian v2: Arrival screen ───
+
+window.guardianShowArrival = () => {
+  window.guardianGoToScreen?.('arrival')
+}
+
+window.guardianAddToJournal = () => {
+  window.closeCompanionModal?.()
+  window.setState?.({ activeTab: 'voyage', voyageSubTab: 'journal' })
 }

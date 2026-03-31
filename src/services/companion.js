@@ -74,6 +74,11 @@ const BATTERY_ALERT_THRESHOLD = 0.15 // 15%
 // 2-minute reminder fires when this many seconds remain before check-in deadline
 const REMINDER_SECONDS_THRESHOLD = 120
 
+// ---- Guardian v2 constants ----
+const GUARDIAN_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#06b6d4', '#a855f7']
+const MAX_GUARDIANS = 5
+const MAX_TRIP_EVENTS = 100
+
 let timerInterval = null
 let overdueCallback = null
 let overdueNotified = false
@@ -92,6 +97,9 @@ function getDefaultState() {
     active: false,
     guardian: { name: '', phone: '' },
     trustedContacts: [], // [{name, phone}] — up to 5 additional contacts
+    guardians: [], // [{name, phone, color}] — max 5 (v2 multi-guardian)
+    tripEvents: [], // [{type, timestamp, data, sender?}] (v2 trip timeline)
+    tripPhoto: null, // base64 data URL (v2 trip photo)
     checkInInterval: 30, // minutes
     lastCheckIn: null, // timestamp
     tripStart: null, // timestamp
@@ -113,6 +121,18 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
+      // Migrate: if old single guardian exists but no guardians array, create it
+      if (parsed.guardian?.name && (!parsed.guardians || parsed.guardians.length === 0)) {
+        parsed.guardians = [{
+          name: parsed.guardian.name,
+          phone: parsed.guardian.phone || '',
+          color: '#22c55e',
+        }]
+      }
+      // Ensure guardians array exists
+      if (!Array.isArray(parsed.guardians)) parsed.guardians = []
+      // Ensure tripEvents array exists
+      if (!Array.isArray(parsed.tripEvents)) parsed.tripEvents = []
       return { ...getDefaultState(), ...parsed }
     }
   } catch {
@@ -156,12 +176,19 @@ export function isCompanionActive() {
  */
 function getAllContacts(state) {
   const contacts = []
-  if (state.guardian?.phone) {
-    contacts.push({ name: state.guardian.name, phone: state.guardian.phone })
+  // Use guardians array (v2) first
+  if (Array.isArray(state.guardians) && state.guardians.length > 0) {
+    for (const g of state.guardians) {
+      if (g?.name) contacts.push({ name: g.name, phone: g.phone || '' })
+    }
+  } else if (state.guardian?.name) {
+    // Fallback to old single guardian
+    contacts.push({ name: state.guardian.name, phone: state.guardian.phone || '' })
   }
+  // Also add trusted contacts if any (legacy)
   if (Array.isArray(state.trustedContacts)) {
     for (const c of state.trustedContacts) {
-      if (c?.phone) contacts.push(c)
+      if (c?.name && !contacts.some(e => e.name === c.name)) contacts.push(c)
     }
   }
   return contacts
@@ -494,16 +521,30 @@ function sendAlertToAll(message, state) {
  */
 export function startCompanionMode(guardian, interval = 30, options = {}) {
   const now = Date.now()
+
+  // Build guardians array from current state + new guardian
+  const existingState = loadState()
+  const guardians = Array.isArray(existingState.guardians) && existingState.guardians.length > 0
+    ? existingState.guardians
+    : [{
+        name: guardian.name || '',
+        phone: cleanPhone(guardian.phone || ''),
+        color: GUARDIAN_COLORS[0],
+      }]
+
   const state = {
     active: true,
     guardian: {
       name: guardian.name || '',
       phone: cleanPhone(guardian.phone || ''),
     },
+    guardians,
     trustedContacts: (options.trustedContacts || [])
       .slice(0, 5)
       .map(c => ({ name: c.name || '', phone: cleanPhone(c.phone || '') }))
       .filter(c => c.phone),
+    tripEvents: [],
+    tripPhoto: null,
     checkInInterval: interval,
     lastCheckIn: now,
     tripStart: now,
@@ -539,6 +580,10 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
   }
 
   saveState(state)
+
+  // Add departure event to trip timeline
+  addTripEvent('departure', { destination: state.destination })
+
   startTimer()
   startBatteryMonitor()
 
@@ -550,6 +595,7 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
   syncSOSTimerToFirestore('start', {
     guardianName: guardian.name,
     guardianIds,
+    guardians: state.guardians.map(g => ({ name: g.name, color: g.color })),
     interval,
     destination: options.destination,
     licensePlate: options.licensePlate || '',
@@ -576,6 +622,11 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
 export function stopCompanionMode(options = {}) {
   const state = loadState()
 
+  // Add arrival event to trip timeline before clearing
+  if (state.active) {
+    addTripEvent('arrival', { duration: Date.now() - (state.tripStart || Date.now()) })
+  }
+
   // Save arrival notification (#25)
   if (state.active && state.notifyOnArrival && options.sendArrivalNotification !== false) {
     sendAlertToAll(getArrivalMessage(state), state)
@@ -588,8 +639,10 @@ export function stopCompanionMode(options = {}) {
       startTime: state.tripStart,
       endTime: Date.now(),
       guardian: state.guardian,
+      guardians: state.guardians || [],
       trustedContacts: state.trustedContacts || [],
       positions: state.positions,
+      tripEvents: state.tripEvents || [],
       checkInsCount: state.checkInsCount || 0,
       destination: state.destination || '',
     })
@@ -597,6 +650,10 @@ export function stopCompanionMode(options = {}) {
 
   stopTimer()
   stopBatteryMonitor()
+
+  // Clear trip photo and events
+  clearTripPhoto()
+  clearTripEvents()
 
   const defaultState = getDefaultState()
   saveState(defaultState)
@@ -638,6 +695,9 @@ export function checkIn() {
   }
 
   saveState(state)
+
+  // Add check-in event to trip timeline
+  addTripEvent('checkin', {})
 
   // Sync to Firestore for server-side monitoring
   const lastPos = state.positions?.[state.positions.length - 1] || null
@@ -833,6 +893,128 @@ export function restoreCompanionMode() {
   return false
 }
 
+// ---- Multi-guardian management (v2) ----
+
+/**
+ * Get all guardians
+ * @returns {Array<{name: string, phone: string, color: string}>}
+ */
+export function getGuardians() {
+  return loadState().guardians || []
+}
+
+/**
+ * Add a guardian (max 5)
+ * @param {{ name: string, phone?: string }} guardian
+ * @returns {boolean} true if added, false if at max
+ */
+export function addGuardian(guardian) {
+  const state = loadState()
+  if (state.guardians.length >= MAX_GUARDIANS) return false
+  const color = GUARDIAN_COLORS[state.guardians.length] || '#64748b'
+  state.guardians.push({ name: guardian.name, phone: guardian.phone || '', color })
+  // Keep backward compat: mirror first guardian to state.guardian
+  if (state.guardians.length === 1) {
+    state.guardian = { name: guardian.name, phone: guardian.phone || '' }
+  }
+  saveState(state)
+  return true
+}
+
+/**
+ * Remove a guardian by index
+ * @param {number} index
+ */
+export function removeGuardian(index) {
+  const state = loadState()
+  if (index < 0 || index >= state.guardians.length) return
+  state.guardians.splice(index, 1)
+  // Update backward compat guardian
+  state.guardian = state.guardians.length > 0
+    ? { name: state.guardians[0].name, phone: state.guardians[0].phone || '' }
+    : { name: '', phone: '' }
+  saveState(state)
+}
+
+/**
+ * Update a guardian by index
+ * @param {number} index
+ * @param {object} data - partial guardian data to merge
+ */
+export function updateGuardian(index, data) {
+  const state = loadState()
+  if (index < 0 || index >= state.guardians.length) return
+  state.guardians[index] = { ...state.guardians[index], ...data }
+  if (index === 0) {
+    state.guardian = { name: state.guardians[0].name, phone: state.guardians[0].phone || '' }
+  }
+  saveState(state)
+}
+
+// ---- Trip events (v2 timeline) ----
+
+/**
+ * Add a trip event to the timeline
+ * @param {string} type - event type (departure, checkin, arrival, photo, etc.)
+ * @param {object} data - event-specific data
+ */
+export function addTripEvent(type, data = {}) {
+  const state = loadState()
+  if (!state.active) return
+  state.tripEvents.push({ type, timestamp: Date.now(), data })
+  if (state.tripEvents.length > MAX_TRIP_EVENTS) {
+    state.tripEvents = state.tripEvents.slice(-MAX_TRIP_EVENTS)
+  }
+  saveState(state)
+}
+
+/**
+ * Get all trip events
+ * @returns {Array<{type: string, timestamp: number, data: object}>}
+ */
+export function getTripEvents() {
+  return loadState().tripEvents || []
+}
+
+/**
+ * Clear all trip events
+ */
+export function clearTripEvents() {
+  const state = loadState()
+  state.tripEvents = []
+  saveState(state)
+}
+
+// ---- Trip photo (v2) ----
+
+/**
+ * Set trip photo (base64 data URL)
+ * @param {string|null} dataUrl
+ */
+export function setTripPhoto(dataUrl) {
+  const state = loadState()
+  state.tripPhoto = dataUrl
+  saveState(state)
+  addTripEvent('photo', { thumbnail: dataUrl?.substring(0, 100) })
+}
+
+/**
+ * Get trip photo
+ * @returns {string|null}
+ */
+export function getTripPhoto() {
+  return loadState().tripPhoto || null
+}
+
+/**
+ * Clear trip photo
+ */
+export function clearTripPhoto() {
+  const state = loadState()
+  state.tripPhoto = null
+  saveState(state)
+}
+
 // ---- Utility helpers ----
 
 /**
@@ -876,4 +1058,17 @@ export default {
   clearTripHistory,
   getBatteryLevel,
   getETAInfo,
+  // v2 multi-guardian
+  getGuardians,
+  addGuardian,
+  removeGuardian,
+  updateGuardian,
+  // v2 trip events
+  addTripEvent,
+  getTripEvents,
+  clearTripEvents,
+  // v2 trip photo
+  setTripPhoto,
+  getTripPhoto,
+  clearTripPhoto,
 }

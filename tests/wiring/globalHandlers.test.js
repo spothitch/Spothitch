@@ -275,6 +275,12 @@ const MAIN_JS_HANDLERS = [
   'companionCheckIn', 'companionSendAlert',
   'companionAddTrustedContact', 'companionRemoveTrustedContact',
   'companionClearHistory',
+  // Guardian v2: multi-guardian + quick actions
+  'guardianAddGuardian', 'guardianRemoveGuardian', 'guardianEditGuardian',
+  'guardianUpdatePlate', 'guardianSavePlate', 'guardianAddTripPhoto', 'guardianSaveTripPhoto',
+  'guardianUpdateDestination', 'guardianSaveDestination',
+  'guardianSendMessage', 'guardianQuickCheckin',
+  'guardianShowArrival', 'guardianAddToJournal',
   // Gas Stations (navigation)
   'toggleGasStations',
   // Map legend
