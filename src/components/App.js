@@ -13,7 +13,6 @@ import { renderHeader } from './Header.js';
 import { renderNavigation } from './Navigation.js';
 import { getState } from '../stores/state.js';
 import { t } from '../i18n/index.js';
-import { haversineKm } from '../utils/geo.js';
 
 // Core views — only Home is eagerly loaded (default tab)
 import { renderHome } from './views/Home.js';
@@ -174,11 +173,6 @@ export function renderApp(state) {
     <div id="app-modals">${renderModals(state)}</div>
 
   `
-
-  // Landing overlay for first-time visitors (map loads behind it)
-  if (state.showLanding) {
-    return mainContent + lazyRender('renderLanding')
-  }
 
   return mainContent
 }
@@ -1040,67 +1034,6 @@ function initHomeMap(state) {
 
     }
 
-    // haversineKm imported from ../utils/geo.js
-
-    // Populate split view with nearest spots + distances
-    const populateSplitView = async (allSpots) => {
-      const splitEl = document.getElementById('split-spots-list')
-      if (!splitEl) return
-
-      const currentState = getState()
-      const userLoc = currentState.userLocation
-      const bounds = map.getBounds()
-
-      // Filter visible spots only
-      const visibleSpots = allSpots.filter(s => {
-        const lat = s.coordinates?.lat || s.lat
-        const lng = s.coordinates?.lng || s.lng
-        if (!lat || !lng) return false
-        return bounds.contains([lng, lat])
-      })
-
-      // Calculate distances if GPS available, then sort
-      const spotsWithDist = visibleSpots.map(s => {
-        const lat = s.coordinates?.lat || s.lat
-        const lng = s.coordinates?.lng || s.lng
-        const dist = userLoc ? haversineKm(userLoc.lat, userLoc.lng, lat, lng) : null
-        return { ...s, _dist: dist }
-      })
-
-      if (userLoc) {
-        spotsWithDist.sort((a, b) => (a._dist || 999) - (b._dist || 999))
-      }
-
-      const nearest = spotsWithDist.slice(0, 15)
-      if (nearest.length === 0) return
-
-      // Format distance
-      const fmtDist = (km) => {
-        if (km === null || km === undefined) return ''
-        if (km < 1) return `${Math.round(km * 1000)} m`
-        return `${km.toFixed(1)} km`
-      }
-
-      // List cards for split view
-      if (splitEl) {
-        splitEl.innerHTML = nearest.map(s => {
-          const rating = s.globalRating?.toFixed(1) || '—'
-          const distLabel = s._dist !== null ? fmtDist(s._dist) : ''
-          const dir = s.to || s.from || ''
-          return `
-            <button onclick="selectSpot(${typeof s.id === 'string' ? "'" + s.id + "'" : s.id})"
-              class="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-              <div class="text-amber-400 text-sm font-bold shrink-0">${rating}</div>
-              <div class="flex-1 min-w-0">
-                <div class="text-white text-sm font-medium truncate">${dir || 'Spot'}</div>
-                <div class="text-slate-400 text-xs truncate">${s.from || ''}</div>
-              </div>
-              ${distLabel ? `<span class="text-xs text-primary-400 font-medium shrink-0">${distLabel}</span>` : ''}
-            </button>`
-        }).join('')
-      }
-    }
-
     // Gather all spots and push to source
     const updateSpotsOnMap = (spots) => {
       const geojson = spotsToGeoJSON(spots)
@@ -1110,9 +1043,6 @@ function initHomeMap(state) {
       // Update badge count
       const badge = document.querySelector('#home-map-container .text-primary-400.font-semibold')
       if (badge) badge.textContent = addedSpotIds.size
-
-      // Populate bottom sheet with nearest spots
-      populateSplitView(spots)
     }
 
     // Show community spots from state on the map
@@ -1278,7 +1208,6 @@ function initHomeMap(state) {
       const stateSpots = getState().spots || []
       const geojson = spotsToGeoJSON(stateSpots)
       addSpotsSource(geojson)
-      populateSplitView(stateSpots)
     }
 
     // Resize

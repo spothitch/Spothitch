@@ -77,10 +77,10 @@ describe('Share: reload protection during Google Maps share', () => {
     expect(hasShareGuard).toBe(true)
   })
 
-  it('SW controllerchange checks guard before reloading', () => {
+  it('SW controllerchange defers reload (no immediate reload)', () => {
     const swSection = autoUpdate.slice(autoUpdate.indexOf('controllerchange'))
-    const hasGuard = swSection.includes('isBlocked') || swSection.includes('_shareInProgress')
-    expect(hasGuard).toBe(true)
+    const defersReload = swSection.includes('pendingReload')
+    expect(defersReload).toBe(true)
   })
 
   it('visibilitychange pending reload checks guard', () => {

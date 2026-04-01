@@ -48,16 +48,11 @@ export function renderSocial(state) {
     return renderCreateEventForm()
   }
 
-  // Active DM or group conversation → full-screen chat (mobile) or split-view (desktop)
+  // Active DM or group conversation → full-screen chat
   if (state.activeDMConversation || state.activeGroupConversation) {
     return `
-      <div id="social-split" class="flex h-[calc(100vh-140px)]">
-        <div id="social-list-panel" class="hidden lg:flex flex-col w-[320px] min-w-[320px] border-r border-white/5 overflow-y-auto">
-          ${renderMessagerieTab(state, true)}
-        </div>
-        <div class="flex-1 flex flex-col min-w-0">
-          ${renderConversations(state)}
-        </div>
+      <div class="flex flex-col h-[calc(100vh-140px)]">
+        ${renderConversations(state)}
       </div>
     `
   }

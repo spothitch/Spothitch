@@ -20,36 +20,8 @@ export function renderHome(state) {
 
   return `
     <div id="map-layout" class="relative overflow-hidden" style="height:calc(100dvh - 4rem)">
-      <!-- Desktop side panel (hidden on mobile, visible on lg+) -->
-      <div id="map-side-panel" class="hidden lg:flex flex-col bg-dark-primary border-r border-white/5 overflow-y-auto z-20">
-        <div class="p-4 border-b border-white/5">
-          <div class="flex items-center gap-2 mb-3">
-            <img src="logo.png" alt="" class="w-7 h-7 rounded-lg" />
-            <span class="font-bold text-sm gradient-text">SpotHitch</span>
-          </div>
-          <div class="relative">
-            <input
-              id="side-panel-destination"
-              type="text"
-              placeholder="${t('searchPlace') || 'Rechercher un lieu...'}"
-              value="${searchLabel || ''}"
-              oninput="homeSearchDestination(this.value)"
-              onkeydown="if(event.key==='Enter'){homeSelectFirstSuggestion()}"
-              class="w-full py-3 pl-10 pr-10 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors text-sm"
-              autocomplete="off"
-              aria-label="${t('searchPlace') || 'Rechercher un lieu...'}"
-            />
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">${icon('search', 'w-4 h-4')}</span>
-            <div id="side-panel-suggestions" class="absolute top-full left-0 right-0 mt-1 z-[60] hidden"></div>
-          </div>
-        </div>
-        <div id="side-panel-content" class="flex-1 overflow-y-auto p-4">
-          <p class="text-xs text-slate-500 text-center mt-8">${t('selectSpotOnMap') || 'Click a spot on the map to see details here'}</p>
-        </div>
-      </div>
-
       <!-- Map — full screen behind everything (z-0) -->
-      <div id="home-map-container" class="absolute inset-0 lg:relative lg:flex-1 z-0 bg-dark-secondary">
+      <div id="home-map-container" class="absolute inset-0 z-0 bg-dark-secondary">
         <div id="home-map" class="w-full h-full"></div>
         <div id="map-loading-indicator" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10" style="transition:opacity 0.5s">
           <div class="flex flex-col items-center gap-2 text-slate-400">
@@ -83,8 +55,8 @@ export function renderHome(state) {
         `
       })() : ''}
 
-      <!-- Floating search bar (translucent, top) — hidden on desktop (in side panel) -->
-      <div class="absolute ${companionActive ? 'top-[4.5rem]' : 'top-4'} left-4 right-4 z-30 lg:hidden">
+      <!-- Floating search bar (translucent, top) -->
+      <div class="absolute ${companionActive ? 'top-[4.5rem]' : 'top-4'} left-4 right-4 z-30">
         <div class="flex gap-3">
           ${renderSearchInput({
             id: 'home-destination',
@@ -125,7 +97,7 @@ export function renderHome(state) {
       <!-- Map controls injected persistently inside #home-map by App.js afterRender -->
 
       <!-- Country Guide shortcut + Spot Counter -->
-      <div class="absolute bottom-[7.5rem] lg:bottom-8 left-3 z-30 flex flex-col gap-2 items-start">
+      <div class="absolute bottom-[7.5rem] left-3 z-30 flex flex-col gap-2 items-start">
         <button
           onclick="openOfflinePanel()"
           class="flex items-center gap-2 h-11 px-3 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 shadow-lg hover:bg-dark-primary/80 hover:text-white active:scale-95 transition-all"
@@ -149,7 +121,7 @@ export function renderHome(state) {
       <!-- Add Spot FAB -->
       <button
         onclick="openAddSpot()"
-        class="fixed lg:absolute bottom-36 lg:bottom-8 right-5 z-30 w-16 h-16 rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 flex items-center justify-center text-2xl hover:bg-primary-600 hover:scale-110 transition-colors"
+        class="fixed bottom-36 right-5 z-30 w-16 h-16 rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 flex items-center justify-center text-2xl hover:bg-primary-600 hover:scale-110 transition-colors"
         aria-label="${t('addSpot') || 'Ajouter un spot'}"
         title="${t('addSpot') || 'Ajouter un spot'}"
       >

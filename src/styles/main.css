@@ -2846,143 +2846,20 @@ textarea[aria-invalid="true"] {
   --app-content-max-width: 100%;
 }
 
-/* Tablet (768px+) */
-@media (min-width: 768px) {
-  :root {
-    --app-content-max-width: 640px;
+/* ===== MOBILE-ONLY LAYOUT (desktop shows mobile frame) ===== */
+@media (min-width: 600px) {
+  /* Constrain the entire app to a phone-like frame on large screens */
+  #app {
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+    min-height: 100dvh;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
   }
 
-  /* Non-map content panels get max-width */
-  #panel-challenges,
-  #panel-social,
-  #panel-profile,
-  #panel-spots {
-    max-width: var(--app-content-max-width);
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  /* Navigation constrained */
-  #app-nav nav {
-    max-width: var(--app-content-max-width);
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* Header constrained (non-map tabs) */
-  body:not(.tab-map) #app-header header {
-    max-width: var(--app-content-max-width);
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 0 0 1rem 1rem;
-  }
-
-  /* Cookie banner constrained */
-  #cookie-banner,
-  [class*="cookie"] {
-    max-width: var(--app-content-max-width) !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
-
-  /* Fixed banners constrained */
-  .draft-banner,
-  [onclick="openActiveTrip()"] {
-    max-width: var(--app-content-max-width) !important;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%);
-  }
-}
-
-/* Desktop (1024px+) */
-@media (min-width: 1024px) {
-  :root {
-    --app-content-max-width: 640px;
-  }
-
-  /* Desktop background visible on sides */
+  /* Dark background visible on the sides */
   body {
-    background-attachment: fixed;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.3) 100%);
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  .light-theme body::before {
-    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.05) 100%);
-  }
-
-  /* Map stays full width (no constraint on #panel-map) */
-
-  /* Split-view: side panel + map on desktop */
-  #map-layout {
-    display: flex !important;
-    flex-direction: row;
-  }
-
-  #map-side-panel {
-    width: 380px;
-    min-width: 380px;
-    height: 100%;
-  }
-
-  #home-map-container {
-    position: relative !important;
-    flex: 1;
-  }
-
-  /* Modals: centered on desktop instead of bottom-aligned */
-  [role="dialog"] {
-    align-items: center !important;
-  }
-
-  [role="dialog"] > div:last-child {
-    max-width: 480px;
-    width: 100%;
-  }
-
-  /* Guide cards: 3 columns on desktop */
-  #guides-list {
-    grid-template-columns: repeat(3, 1fr) !important;
-  }
-
-  /* Landing/onboarding: constrain content on desktop */
-  #landing-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #landing-page .absolute {
-    max-width: 480px;
-  }
-
-  /* Offline panel constrained */
-  #offline-panel {
-    max-width: var(--app-content-max-width);
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-/* Large desktop (1440px+) */
-@media (min-width: 1440px) {
-  :root {
-    --app-content-max-width: 720px;
-  }
-
-  /* Guide cards: 4 columns on large desktop */
-  #guides-list {
-    grid-template-columns: repeat(4, 1fr) !important;
+    background: #0a0e17;
   }
 }
 
