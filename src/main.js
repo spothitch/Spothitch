@@ -1098,6 +1098,11 @@ window.goBack = goBack
 
 // Navigation
 window.changeTab = (tab) => {
+  // Auth gate: all tabs except map require login
+  if (tab !== 'home' && tab !== 'map' && !getState().isLoggedIn) {
+    window.requireAuth?.('tab_' + tab)
+    return
+  }
   // Cleanup map listeners when leaving map tab
   if (tab !== 'map' && window._cleanupMapListeners) {
     window._cleanupMapListeners()
