@@ -60,7 +60,8 @@ export function subscribeFriendsList(uid) {
       setState({ friends })
     },
     (err) => {
-      console.error('[Friends] Friends snapshot error:', err)
+      if (err?.code === 'permission-denied') return
+      console.warn('[Friends] Friends snapshot error:', err?.message || err)
     }
   )
 
@@ -72,7 +73,8 @@ export function subscribeFriendsList(uid) {
       setState({ friendRequests })
     },
     (err) => {
-      console.error('[Friends] Requests snapshot error:', err)
+      if (err?.code === 'permission-denied') return
+      console.warn('[Friends] Requests snapshot error:', err?.message || err)
     }
   )
 }
