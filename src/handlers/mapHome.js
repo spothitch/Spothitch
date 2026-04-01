@@ -77,8 +77,11 @@ let _searchRequestId = 0
 window.homeSearchDestination = (query) => {
   const t = window.t || ((k) => k)
   clearTimeout(homeDestDebounce)
-  // Desktop: side panel suggestions; Mobile: floating suggestions
-  const container = document.getElementById('side-panel-suggestions') || document.getElementById('home-dest-suggestions')
+  // Pick the VISIBLE suggestions container: desktop (side panel, lg+) or mobile (floating)
+  const isDesktop = window.innerWidth >= 1024
+  const container = isDesktop
+    ? (document.getElementById('side-panel-suggestions') || document.getElementById('home-dest-suggestions'))
+    : (document.getElementById('home-dest-suggestions') || document.getElementById('side-panel-suggestions'))
   if (!container) return
   if (!query || query.trim().length < 2) {
     container.classList.add('hidden')
@@ -103,8 +106,13 @@ window.homeSearchDestination = (query) => {
       })
       // Discard stale results (user typed more or started new search)
       if (requestId !== _searchRequestId) return
-      const currentInput = document.getElementById('side-panel-destination') || document.getElementById('home-destination')
-      if (currentInput && currentInput.value.trim() !== query.trim()) return
+      // Check BOTH inputs — user may have typed in either one (mobile vs desktop)
+      const sideInput = document.getElementById('side-panel-destination')
+      const homeInput = document.getElementById('home-destination')
+      const sideVal = sideInput?.value?.trim() || ''
+      const homeVal = homeInput?.value?.trim() || ''
+      // If neither input matches the query, discard stale results
+      if (sideVal !== query.trim() && homeVal !== query.trim()) return
       if (results?.length > 0) {
         container.classList.remove('hidden')
         container.innerHTML = _buildSuggestionHTML(results)
@@ -133,8 +141,11 @@ window.homeSelectPlace = async (lat, lng, name) => {
   if (!isValidCoord(lat, lng)) return
 
   const requestId = ++_selectPlaceRequestId
-  const input = document.getElementById('side-panel-destination') || document.getElementById('home-destination')
-  if (input) input.value = name
+  // Update BOTH inputs (desktop + mobile) so they stay in sync
+  const sideInput = document.getElementById('side-panel-destination')
+  const homeInput = document.getElementById('home-destination')
+  if (sideInput) sideInput.value = name
+  if (homeInput) homeInput.value = name
   document.getElementById('side-panel-suggestions')?.classList.add('hidden')
   document.getElementById('home-dest-suggestions')?.classList.add('hidden')
   window.setState({ homeSearchLabel: name })
