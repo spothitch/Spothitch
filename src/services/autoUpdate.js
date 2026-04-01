@@ -138,12 +138,13 @@ export function startVersionCheck() {
     }
   })
 
-  // SW controller change: reload immediately
+  // SW controller change: defer reload until app goes to background
+  // (never interrupt the user mid-interaction)
   let hadController = !!navigator.serviceWorker?.controller
   navigator.serviceWorker?.addEventListener('controllerchange', () => {
-    if (hadController && !isReloading && !isBlocked()) {
-      isReloading = true
-      setTimeout(() => window.location.reload(), 500)
+    if (hadController && !isReloading) {
+      pendingReload = true
+      console.log('[AutoUpdate] SW updated, reload deferred until background')
     }
     hadController = true
   })
