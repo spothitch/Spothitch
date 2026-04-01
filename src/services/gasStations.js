@@ -9,7 +9,10 @@ import { t } from '../i18n/index.js'
 import { cacheGet, cacheSet } from '../utils/idb.js'
 import { haversineKm } from '../utils/geo.js'
 
-const OVERPASS_API = 'https://overpass-api.de/api/interpreter'
+const OVERPASS_APIS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+]
 const STATION_CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 /**
@@ -72,14 +75,22 @@ export async function fetchGasStationsAlongRoute(routeCoords, bufferKm = 2) {
     out center body;`
 
   try {
-    const response = await fetch(OVERPASS_API, {
-      method: 'POST',
-      body: `data=${encodeURIComponent(query)}`,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    })
-
-    if (!response.ok) return []
-    const data = await response.json()
+    let data = null
+    for (const api of OVERPASS_APIS) {
+      try {
+        const ctrl = new AbortController()
+        const timer = setTimeout(() => ctrl.abort(), 8000)
+        const response = await fetch(api, {
+          method: 'POST',
+          body: `data=${encodeURIComponent(query)}`,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          signal: ctrl.signal,
+        })
+        clearTimeout(timer)
+        if (response.ok) { data = await response.json(); break }
+      } catch { /* try next */ }
+    }
+    if (!data) return []
 
     // Filter stations that are actually near the route (within bufferKm)
     const stations = (data.elements || [])
@@ -146,21 +157,34 @@ export async function fetchGasStationsInBounds(bounds) {
     out center body;`
 
   try {
-    const response = await fetch(OVERPASS_API, {
-      method: 'POST',
-      body: `data=${encodeURIComponent(query)}`,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    })
+    // Try each Overpass server (fallback if first one fails/timeouts)
+    let data = null
+    for (const api of OVERPASS_APIS) {
+      try {
+        const ctrl = new AbortController()
+        const timer = setTimeout(() => ctrl.abort(), 8000)
+        const response = await fetch(api, {
+          method: 'POST',
+          body: `data=${encodeURIComponent(query)}`,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          signal: ctrl.signal,
+        })
+        clearTimeout(timer)
+        if (response.ok) {
+          data = await response.json()
+          break
+        }
+      } catch { /* try next server */ }
+    }
 
-    if (!response.ok) {
-      // Offline fallback: try expired cache
+    if (!data) {
+      // All servers failed — try expired cache
       try {
         const expired = await cacheGet(key)
         if (expired) return expired
       } catch { /* no fallback */ }
       return []
     }
-    const data = await response.json()
 
     const stations = (data.elements || [])
       .filter(el => (el.lat && el.lon) || (el.center?.lat && el.center?.lon))
@@ -203,11 +227,21 @@ export function toggleGasStations() {
       return
     }
 
-    // Check zoom level — require zoom >= 6 to avoid too many results
+    // Check zoom level — require zoom >= 8 for manageable results
     const zoom = map.getZoom?.() || 0
-    if (zoom < 6) {
+    if (zoom < 8) {
+      // Auto-zoom to level 10 centered on current view instead of rejecting
+      try {
+        const center = map.getCenter?.()
+        if (center) {
+          map.flyTo?.({ center: [center.lng, center.lat], zoom: 10, duration: 800 })
+          // Retry after zoom animation
+          setTimeout(() => toggleGasStations(), 1000)
+          return
+        }
+      } catch { /* fallback: just show message */ }
       import('../services/notifications.js').then(n => n.showToast(
-        t('zoomInForStations') || 'Zoome pour voir les stations-service',
+        t('zoomInForStations') || 'Zoome sur une zone pour voir les stations',
         'info'
       ))
       setState({ showGasStationsOnMap: false })
@@ -404,13 +438,22 @@ async function fetchStationsInBounds(bounds) {
     node["amenity"="fuel"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
     out body;`
 
-  const response = await fetch(OVERPASS_API, {
-    method: 'POST',
-    body: `data=${encodeURIComponent(query)}`,
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  })
-
-  if (!response.ok) throw new Error(`Overpass ${response.status}`)
+  let response = null
+  for (const api of OVERPASS_APIS) {
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 15000)
+      response = await fetch(api, {
+        method: 'POST',
+        body: `data=${encodeURIComponent(query)}`,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        signal: ctrl.signal,
+      })
+      clearTimeout(timer)
+      if (response.ok) break
+    } catch { /* try next */ }
+  }
+  if (!response?.ok) throw new Error('All Overpass servers failed')
   const data = await response.json()
 
   return (data.elements || [])
