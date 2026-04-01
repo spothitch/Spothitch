@@ -122,7 +122,9 @@ export function subscribeToAllConversations(uid) {
       setState({ dmLastUpdated: Date.now() })
     },
     (err) => {
-      console.error('[DM] Conversations subscription error:', err)
+      // Suppress permission-denied (normal during auth transition) and index errors (auto-resolved)
+      if (err?.code === 'permission-denied' || err?.code === 'failed-precondition') return
+      console.warn('[DM] Conversations subscription error:', err?.message || err)
     }
   )
 }
