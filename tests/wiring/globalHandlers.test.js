@@ -60,7 +60,7 @@ const MAIN_JS_HANDLERS = [
   // Tutorial
   'startTutorial', 'nextTutorial', 'prevTutorial', 'skipTutorial', 'finishTutorial', 'closeTutorial',
   // Filters / Map layout
-  'setFilter', 'handleSearch', 'openFilters', 'closeFilters', 'toggleSplitView', 'openActiveTrip',
+  'setFilter', 'handleSearch', 'openFilters', 'closeFilters', 'openActiveTrip',
   'setFilterCountry', 'setFilterMinRating', 'setFilterMaxWait',
   'toggleVerifiedFilter', 'setSortBy', 'applyFilters', 'resetFilters',
   // Quiz

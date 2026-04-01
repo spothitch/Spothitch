@@ -66,9 +66,6 @@ const initialState = {
   filterFavorites: false,
   showFavoritesOnMap: false,
 
-  // Map layout
-  splitView: false,
-
   // Modals
   showAddSpot: false,
   showRating: false,
