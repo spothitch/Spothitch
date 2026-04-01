@@ -206,8 +206,15 @@
         Skip to main content
     </a>
     
-    <!-- Dark backdrop — fades out when app is ready (PWA splash already shows logo) -->
-    <div id="app-loader"></div>
+    <!-- Splash loader — shown instantly while JS loads, fades out when app is ready -->
+    <div id="app-loader">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+            <img src="/logo.png" alt="SpotHitch" width="72" height="72" style="border-radius:16px" fetchpriority="high">
+            <div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#f59e0b,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent">SpotHitch</div>
+            <div style="width:32px;height:32px;border:2px solid rgba(255,255,255,.1);border-top-color:#f59e0b;border-radius:50%;animation:spin 1s linear infinite"></div>
+        </div>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    </div>
 
     <!-- Timeout fallback (externalized for CSP) -->
     <script src="/loader-timeout.js"></script>
