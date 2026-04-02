@@ -505,9 +505,10 @@ window.createGroupConversation = async () => {
         showCreateGroupConversation: false,
         groupConversationSelectedFriends: [],
         groupConversationLoading: false,
-        activeGroupConversation: result.groupId,
       })
       window.showToast?.(tFn('groupCreated'), 'success')
+      // Open the group with real-time listener
+      window.openGroupConversation?.(result.groupId)
     } else {
       setState({ groupConversationLoading: false })
       window.showToast?.(tFn('errorOccurred') || 'Error', 'error')
