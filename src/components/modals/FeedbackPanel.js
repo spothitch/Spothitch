@@ -6,8 +6,19 @@
 
 import { setState } from '../../stores/state.js'
 import { t } from '../../i18n/index.js'
+import { icon } from '../../utils/icons.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { FEATURES_DATA } from '../../data/featuresData.js'
+
+const _EMOJI_MAP = {
+  '🗺️': 'map', '⛽': 'fuel', '📍': 'map-pin', '👤': 'user', '🤝': 'handshake',
+  '💬': 'message-circle', '📔': 'notebook-pen', '📊': 'bar-chart-3', '🏆': 'trophy',
+  '📈': 'trending-up', '💡': 'lightbulb', '💛': 'heart', '📴': 'wifi-off',
+  '🚨': 'siren', '🧑‍🤝‍🧑': 'users', '🔔': 'bell', '👥': 'users', '🥇': 'medal',
+  '📡': 'radio', '🧭': 'compass', '📚': 'book-open', '🛡️': 'shield-check',
+  '🎉': 'party-popper', '🏨': 'building', '🏙️': 'building-2',
+}
+function _emojiToLucide(emoji) { return _EMOJI_MAP[emoji] || null }
 import { getUserVote, getAllUserVotes } from '../../services/featureVotes.js'
 
 // ==================== TAB MAPPING ====================
@@ -26,21 +37,21 @@ const FEATURE_TAB_MAP = {
 }
 
 const TABS = [
-  { id: 'carte', emoji: '🗺️', labelKey: 'fbTabCarte' },
-  { id: 'voyage', emoji: '🧭', labelKey: 'fbTabVoyage' },
-  { id: 'social', emoji: '👥', labelKey: 'fbTabSocial' },
-  { id: 'profil', emoji: '👤', labelKey: 'fbTabProfil' },
-  { id: 'securite', emoji: '🛡️', labelKey: 'fbTabSecurite' },
+  { id: 'carte', iconName: 'map', labelKey: 'fbTabCarte' },
+  { id: 'voyage', iconName: 'compass', labelKey: 'fbTabVoyage' },
+  { id: 'social', iconName: 'users', labelKey: 'fbTabSocial' },
+  { id: 'profil', iconName: 'user', labelKey: 'fbTabProfil' },
+  { id: 'securite', iconName: 'shield-check', labelKey: 'fbTabSecurite' },
 ]
 
 // Vote type to display info
 const VOTE_DISPLAY = {
-  essential: { emoji: '🔥', color: '#ef4444' },
-  useful: { emoji: '👍', color: '#f59e0b' },
-  notUrgent: { emoji: '🤷', color: '#6b7280' },
-  love: { emoji: '❤️', color: '#ec4899' },
-  works: { emoji: '✅', color: '#22c55e' },
-  improve: { emoji: '🛠️', color: '#f59e0b' },
+  essential: { iconName: 'flame', color: '#ef4444' },
+  useful: { iconName: 'thumbs-up', color: '#f59e0b' },
+  notUrgent: { iconName: 'help-circle', color: '#6b7280' },
+  love: { iconName: 'heart', color: '#ec4899' },
+  works: { iconName: 'circle-check', color: '#22c55e' },
+  improve: { iconName: 'wrench', color: '#f59e0b' },
 }
 
 // ==================== RENDER HELPERS ====================
@@ -54,7 +65,7 @@ function renderFeatureItem(feat) {
     : `<span class="text-[10px] font-bold px-1.5 py-px rounded-md bg-amber-500/12 text-amber-500">${escapeHTML(t('fbStatusComing') || 'Bientôt')}</span>`
 
   const voteTag = hasVoted
-    ? `<span class="text-[10px] px-1.5 py-px rounded-md" style="background:${VOTE_DISPLAY[userVote.vote]?.color || '#6b7280'}20;color:${VOTE_DISPLAY[userVote.vote]?.color || '#6b7280'}">${VOTE_DISPLAY[userVote.vote]?.emoji || ''} ${escapeHTML(t('fbVoted') || 'Voté')}</span>`
+    ? `<span class="text-[10px] px-1.5 py-px rounded-md" style="background:${VOTE_DISPLAY[userVote.vote]?.color || '#6b7280'}20;color:${VOTE_DISPLAY[userVote.vote]?.color || '#6b7280'}">${icon(VOTE_DISPLAY[userVote.vote]?.iconName || 'check', 'w-3 h-3 inline')} ${escapeHTML(t('fbVoted') || 'Voté')}</span>`
     : ''
 
   const checkClass = hasVoted
@@ -64,7 +75,7 @@ function renderFeatureItem(feat) {
   return `
     <div class="flex items-center gap-2.5 px-4 py-2.5 cursor-pointer transition-colors relative border-b border-white/[0.03]"
       onclick="showFeatureIntro('${escapeJSString(feat.id)}')" role="button" tabindex="0">
-      <div class="text-xl w-9 h-9 flex items-center justify-center rounded-[10px] shrink-0 bg-white/[0.04]">${feat.emoji}</div>
+      <div class="w-9 h-9 flex items-center justify-center rounded-[10px] shrink-0 bg-white/[0.04]">${icon(_emojiToLucide(feat.emoji) || 'compass', 'w-5 h-5 text-slate-300')}</div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5 text-[13px] font-semibold">${escapeHTML(feat.name || feat.title)} ${statusTag}</div>
         <div class="flex items-center gap-1.5 mt-0.5">${voteTag}</div>
@@ -132,7 +143,7 @@ export function renderFeedbackPanel(state) {
               <button onclick="setFeedbackTab('${tab.id}')"
                 class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 relative transition-all cursor-pointer ${selClass}"
                 aria-pressed="${isActive}">
-                ${tab.emoji} ${escapeHTML(t(tab.labelKey) || tab.id)}
+                ${icon(tab.iconName, 'w-3.5 h-3.5 inline')} ${escapeHTML(t(tab.labelKey) || tab.id)}
                 ${hasUnvoted && !allTabVoted ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-soft"></span>' : ''}
                 ${allTabVoted ? '<span class="text-[10px]">✓</span>' : ''}
               </button>
@@ -143,11 +154,11 @@ export function renderFeedbackPanel(state) {
         <!-- Feature list -->
         <div class="flex-1 overflow-y-auto pb-5">
           ${available.length > 0 ? `
-            <div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">✅ ${escapeHTML(t('fbSectionAvailable') || 'Disponible')}</div>
+            <div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">${icon('circle-check', 'w-3 h-3 inline text-emerald-400')} ${escapeHTML(t('fbSectionAvailable') || 'Disponible')}</div>
             ${available.map(feat => renderFeatureItem(feat)).join('')}
           ` : ''}
           ${beta.length > 0 ? `
-            <div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">🔜 ${escapeHTML(t('fbSectionComing') || 'À venir')}</div>
+            <div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">${icon('clock', 'w-3 h-3 inline text-amber-400')} ${escapeHTML(t('fbSectionComing') || 'À venir')}</div>
             ${beta.map(feat => renderFeatureItem(feat)).join('')}
           ` : ''}
         </div>
@@ -194,11 +205,11 @@ function _updateFeedbackTabDOM(activeTab) {
 
   let html = ''
   if (available.length > 0) {
-    html += `<div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">✅ ${escapeHTML(t('fbSectionAvailable') || 'Disponible')}</div>`
+    html += `<div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">${icon('circle-check', 'w-3 h-3 inline text-emerald-400')} ${escapeHTML(t('fbSectionAvailable') || 'Disponible')}</div>`
     html += available.map(feat => renderFeatureItem(feat)).join('')
   }
   if (beta.length > 0) {
-    html += `<div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">🔜 ${escapeHTML(t('fbSectionComing') || 'À venir')}</div>`
+    html += `<div class="text-[10px] font-bold uppercase tracking-[1.5px] px-4 pt-3 pb-1.5 text-slate-500">${icon('clock', 'w-3 h-3 inline text-amber-400')} ${escapeHTML(t('fbSectionComing') || 'À venir')}</div>`
     html += beta.map(feat => renderFeatureItem(feat)).join('')
   }
   listContainer.innerHTML = html

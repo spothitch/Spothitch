@@ -24,6 +24,12 @@
  * ============================================================
  */
 
+import { icon } from './icons.js'
+
+// Lucide thumbs for toggle (Rule #24 — no emojis)
+const _thumbOn = icon('thumbs-up', 'w-3.5 h-3.5')
+const _thumbOff = icon('thumbs-down', 'w-3.5 h-3.5')
+
 // Handler registry — maps toggle IDs to handler strings
 const _handlers = new Map()
 let _nextId = 0
@@ -81,7 +87,7 @@ window._toggleExec = (el) => {
   el.setAttribute('aria-checked', on)
   // Update thumb emoji
   const thumb = el.querySelector('.spothitch-toggle-thumb')
-  if (thumb) thumb.textContent = on ? '👍' : '👎'
+  if (thumb) thumb.innerHTML = on ? _thumbOn : _thumbOff
   const tid = el.dataset.tid
   const handler = _handlers.get(tid)
   if (handler) {
@@ -100,7 +106,7 @@ export function renderToggle(isOn, handler, label) {
   return `<button onclick="window._toggleExec(this)" data-tid="${tid}" role="switch" aria-checked="${isOn}" aria-label="${safeLabel}"
     class="spothitch-toggle shrink-0 ${isOn ? 'toggle-on' : ''}"
     style="outline:none">
-    <span class="spothitch-toggle-thumb">${isOn ? '👍' : '👎'}</span>
+    <span class="spothitch-toggle-thumb">${isOn ? _thumbOn : _thumbOff}</span>
   </button>`
 }
 
@@ -114,6 +120,6 @@ export function renderToggleCompact(isOn, handler, label) {
   return `<button onclick="window._toggleExec(this)" data-tid="${tid}" role="switch" aria-checked="${isOn}" aria-label="${safeLabel}"
     class="spothitch-toggle spothitch-toggle-compact shrink-0 ${isOn ? 'toggle-on' : ''}"
     style="outline:none">
-    <span class="spothitch-toggle-thumb">${isOn ? '👍' : '👎'}</span>
+    <span class="spothitch-toggle-thumb">${isOn ? _thumbOn : _thumbOff}</span>
   </button>`
 }
