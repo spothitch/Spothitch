@@ -13,10 +13,10 @@ const BASE_PATH = import.meta.env.BASE_URL || '/';
 const ROUTES = {
   map: { tab: 'map' },
   spots: { tab: 'spots' },
-  travel: { tab: 'challenges' },
-  planner: { tab: 'challenges', subTab: 'planner' },
-  guides: { tab: 'challenges', subTab: 'guides' },
-  challenges: { tab: 'challenges' },
+  travel: { tab: 'voyage' },
+  planner: { tab: 'voyage', subTab: 'planner' },
+  guides: { tab: 'voyage', subTab: 'guides' },
+  challenges: { tab: 'voyage' },
   social: { tab: 'social' },
   chat: { tab: 'social', subTab: 'general' },
   friends: { tab: 'social', subTab: 'friends' },
@@ -364,7 +364,7 @@ export function handleDeepLink() {
   const guide = params.get('guide');
   if (guide) {
     setState({
-      activeTab: 'challenges',
+      activeTab: 'voyage',
       voyageSubTab: 'guides',
       selectedCountryGuide: guide.toUpperCase(),
     });

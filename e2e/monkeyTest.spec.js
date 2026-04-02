@@ -124,7 +124,7 @@ async function navigateToTab(page, tabName) {
   const tabSelectors = {
     map: '[data-tab="map"], button:has-text("Carte")',
     travel: '[data-tab="travel"], button:has-text("Voyage")',
-    challenges: '[data-tab="challenges"], button:has-text("Défis")',
+    challenges: '[data-tab="voyage"], button:has-text("Défis")',
     social: '[data-tab="social"], button:has-text("Social")',
     profile: '[data-tab="profile"], button:has-text("Profil")',
   }
@@ -169,7 +169,7 @@ async function dismissOnboarding(page) {
   }
 }
 
-const tabs = ['map', 'challenges', 'social', 'profile']
+const tabs = ['map', 'voyage', 'social', 'profile']
 
 for (const tab of tabs) {
   test(`${tab} tab survives monkey testing (${GREMLIN_DURATION / 1000}s)`, async ({ page }, testInfo) => {

@@ -647,8 +647,7 @@ function renderToolsTab(state) {
       </h3>
       <div class="flex flex-wrap gap-2">
         <button onclick="changeTab('map'); closeAdminPanel();" class="px-3 py-1.5 rounded-full bg-primary-500/20 text-primary-400 text-sm hover:bg-primary-500/30">${t('map') || 'Carte'}</button>
-        <button onclick="changeTab('travel'); closeAdminPanel();" class="px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-400 text-sm hover:bg-amber-500/30">${t('travel') || 'Voyage'}</button>
-        <button onclick="changeTab('challenges'); closeAdminPanel();" class="px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-400 text-sm hover:bg-purple-500/30">${t('challenges') || 'Défis'}</button>
+        <button onclick="changeTab('voyage'); closeAdminPanel();" class="px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-400 text-sm hover:bg-amber-500/30">${t('travel') || 'Voyage'}</button>
         <button onclick="changeTab('social'); closeAdminPanel();" class="px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-400 text-sm hover:bg-amber-500/30">${t('social') || 'Social'}</button>
         <button onclick="changeTab('profile'); closeAdminPanel();" class="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 text-sm hover:bg-emerald-500/30">${t('profile') || 'Profil'}</button>
       </div>

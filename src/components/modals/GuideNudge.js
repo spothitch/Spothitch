@@ -143,12 +143,12 @@ window.acceptGuideNudge = async () => {
   const countryCode = state.pendingGuideCountry?.code || null
   setState({
     showGuideNudge: false,
-    activeTab: 'challenges',
+    activeTab: 'voyage',
     activeSubTab: 'guides',
     guideSection: 'countries',
     selectedCountryGuide: countryCode,
   })
-  window.changeTab?.('challenges')
+  window.changeTab?.('voyage')
 }
 
 export default { renderGuideNudge }

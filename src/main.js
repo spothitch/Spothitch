@@ -871,7 +871,7 @@ function render(state) {
   // === SELECTIVE RENDER: only update what changed ===
   const activePanel = getActiveTabPanelId(state)
   const tabChanged = previousTab !== state.activeTab
-  const isVoyageMapFirst = state.activeTab === 'challenges' && state.tripResults && state.tripFormCollapsed
+  const isVoyageMapFirst = state.activeTab === 'voyage' && state.tripResults && state.tripFormCollapsed
   const tabFp = getTabContentFingerprint(state)
   const tabContentChanged = tabChanged || tabFp !== _lastTabContentFingerprint
 
@@ -891,7 +891,7 @@ function render(state) {
   }
 
   // 3. Switch tab panels visibility (NO re-render of inactive tabs)
-  const allPanels = ['map', 'challenges', 'social', 'profile', 'spots']
+  const allPanels = ['map', 'voyage', 'social', 'profile', 'spots']
   for (const panelId of allPanels) {
     const panel = document.getElementById(`panel-${panelId}`)
     if (!panel) continue
@@ -1058,7 +1058,7 @@ function setupKeyboardShortcuts() {
 
     // Number keys 1-4 for tab switching (desktop only, not in inputs)
     if (['1','2','3','4'].includes(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-      const tabs = ['map', 'challenges', 'social', 'profile']
+      const tabs = ['map', 'voyage', 'social', 'profile']
       const tab = tabs[parseInt(e.key) - 1]
       if (tab) window.changeTab?.(tab)
     }
@@ -1288,13 +1288,13 @@ window.clearTripSteps = async () => {
 }
 
 // Trip Planner (redirects to Voyage tab now)
-window.openTripPlanner = () => setState({ activeTab: 'challenges', voyageSubTab: 'voyage' })
+window.openTripPlanner = () => setState({ activeTab: 'voyage', voyageSubTab: 'voyage' })
 window.closeTripPlanner = () => setState({ showTripPlanner: false })
-window.openGuidesOverlay = () => setState({ activeTab: 'challenges', voyageSubTab: 'guides' })
+window.openGuidesOverlay = () => setState({ activeTab: 'voyage', voyageSubTab: 'guides' })
 window.closeGuidesOverlay = () => setState({ showGuidesOverlay: false })
 
 // Guides handlers (guides is a sub-tab of Voyage/challenges — ERR-020)
-window.showGuides = () => setState({ activeTab: 'challenges', voyageSubTab: 'guides', selectedCountryCode: null, showSafety: false });
+window.showGuides = () => setState({ activeTab: 'voyage', voyageSubTab: 'guides', selectedCountryCode: null, showSafety: false });
 window.showCountryDetail = (code) => setState({ selectedCountryCode: code });
 window.showSafetyPage = () => setState({ showSafety: true });
 window.closeSafety = () => setState({ showSafety: false })
@@ -1537,18 +1537,18 @@ window.openEditProfile = () => {
 }
 
 window.planTrip = () => {
-  window.navigate?.('challenges')
+  window.navigate?.('voyage')
   setTimeout(() => window.setVoyageSubTab?.('voyage'), 100)
 }
 
 window.clearTrip = () => window.clearTripResults?.()
 
 window.openGuides = () => {
-  window.navigate?.('challenges')
+  window.navigate?.('voyage')
   setTimeout(() => window.setVoyageSubTab?.('guides'), 100)
 }
 
-window.openChallengesHub = () => window.navigate?.('challenges')
+window.openChallengesHub = () => window.navigate?.('voyage')
 
 // Auth shortcut
 window.loginWithEmail = () => window.openAuth?.('email')
@@ -1637,8 +1637,8 @@ if (!window.openConsentSettings) window.openConsentSettings = () => { /* not yet
 // Voyage view handlers — lazy-loaded with Voyage.js
 if (!window.openTripDetail) window.openTripDetail = (i) => setState({ tripDetailIndex: i })
 if (!window.openEditTrip) window.openEditTrip = (i) => setState({ editTripIndex: i })
-if (!window.openAddTripNote) window.openAddTripNote = () => setState({ activeTab: 'challenges', voyageSubTab: 'journal' })
-if (!window.openTripPhotoUpload) window.openTripPhotoUpload = () => setState({ activeTab: 'challenges', voyageSubTab: 'journal' })
+if (!window.openAddTripNote) window.openAddTripNote = () => setState({ activeTab: 'voyage', voyageSubTab: 'journal' })
+if (!window.openTripPhotoUpload) window.openTripPhotoUpload = () => setState({ activeTab: 'voyage', voyageSubTab: 'journal' })
 
 // openLeaderboard/closeLeaderboard registered by Leaderboard.js (static import above)
 

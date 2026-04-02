@@ -14,7 +14,7 @@ test.describe('Trip Planner — Full Flow', () => {
   test('should display trip planner in voyage tab', async ({ page }) => {
     await skipOnboarding(page)
     // Trip planner is now in the Voyage tab, not an overlay
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
     const html = await page.evaluate(() => document.body.innerHTML)
@@ -23,7 +23,7 @@ test.describe('Trip Planner — Full Flow', () => {
 
   test('should have swap functionality without crash', async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
     // Swap function should exist and not crash
@@ -35,7 +35,7 @@ test.describe('Trip Planner — Full Flow', () => {
 
   test('should show validation when fields empty', async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
     await page.evaluate(() => window.syncTripFieldsAndCalculate?.())
@@ -46,7 +46,7 @@ test.describe('Trip Planner — Full Flow', () => {
 
   test('should not crash with saved trips in state', async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setState?.({
       savedTrips: [{ from: 'Paris', to: 'Lyon', date: '2026-01-01' }]
     }))
@@ -501,7 +501,7 @@ test.describe('Data Persistence', () => {
 test.describe('Edge Cases — Error Resilience', () => {
   test('should handle rapid tab switching without crashing', async ({ page }) => {
     await skipOnboarding(page)
-    const tabs = ['map', 'challenges', 'social', 'profile', 'map', 'social', 'challenges']
+    const tabs = ['map', 'voyage', 'social', 'profile', 'map', 'social', 'voyage']
     for (const tab of tabs) {
       await page.evaluate((t) => window.changeTab?.(t), tab)
       await page.waitForTimeout(100)
@@ -619,7 +619,7 @@ test.describe('Console Errors — Zero Tolerance', () => {
     page.on('pageerror', (err) => errors.push(err.message))
 
     await skipOnboarding(page)
-    const tabs = ['map', 'challenges', 'social', 'profile']
+    const tabs = ['map', 'voyage', 'social', 'profile']
     for (const tab of tabs) {
       await navigateToTab(page, tab)
       await page.waitForTimeout(500)

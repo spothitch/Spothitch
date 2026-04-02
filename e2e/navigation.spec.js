@@ -44,8 +44,8 @@ test.describe('Navigation', () => {
     expect(hasSocialContent).toBe(true)
 
     // Switch to challenges — verify DIFFERENT content appears
-    await navigateToTab(page, 'challenges')
-    await expect(page.locator(`[data-tab="challenges"]`)).toHaveAttribute('aria-selected', 'true')
+    await navigateToTab(page, 'voyage')
+    await expect(page.locator(`[data-tab="voyage"]`)).toHaveAttribute('aria-selected', 'true')
     // Challenges tab content varies — just verify the app rendered something different from social
     const challengesHTML = await page.evaluate(() => document.getElementById('app')?.innerHTML?.length || 0)
     expect(challengesHTML).toBeGreaterThan(200)

@@ -28,7 +28,7 @@ describe('Navigation Component', () => {
     it('should have data-tab attributes', () => {
       const html = renderNavigation(mockState);
       expect(html).toContain('data-tab="map"');
-      expect(html).toContain('data-tab="challenges"');
+      expect(html).toContain('data-tab="voyage"');
       expect(html).toContain('data-tab="social"');
       expect(html).toContain('data-tab="profile"');
     });
@@ -49,7 +49,7 @@ describe('Navigation Component', () => {
     it('should use changeTab onclick handler', () => {
       const html = renderNavigation(mockState);
       expect(html).toContain("changeTab('map')");
-      expect(html).toContain("changeTab('challenges')");
+      expect(html).toContain("changeTab('voyage')");
       expect(html).toContain("changeTab('social')");
       expect(html).toContain("changeTab('profile')");
     });
@@ -81,10 +81,10 @@ describe('Navigation Component', () => {
       expect(html).toContain('id="tab-map"');
     });
 
-    it('should mark challenges as active when activeTab is challenges', () => {
-      const html = renderNavigation({ activeTab: 'challenges' });
-      // The challenges tab should have active styling
-      expect(html).toContain('challenges');
+    it('should mark voyage as active when activeTab is voyage', () => {
+      const html = renderNavigation({ activeTab: 'voyage' });
+      // The voyage tab should have active styling
+      expect(html).toContain('voyage');
     });
   });
 });

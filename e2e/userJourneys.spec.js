@@ -291,7 +291,7 @@ test.describe('Journey: Social Features', () => {
 test.describe('Journey: Voyage Tab', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
   })
 
   test('should display voyage planner as default sub-tab', async ({ page }) => {
@@ -357,7 +357,7 @@ test.describe('Journey: Complete Tab Navigation', () => {
     await skipOnboarding(page)
 
     // Only 4 tabs exist: map, challenges, social, profile
-    const tabs = ['map', 'challenges', 'social', 'profile']
+    const tabs = ['map', 'voyage', 'social', 'profile']
 
     for (const tabId of tabs) {
       await navigateToTab(page, tabId)
@@ -369,7 +369,7 @@ test.describe('Journey: Complete Tab Navigation', () => {
     await skipOnboarding(page)
 
     // Use JS-level tab switching to avoid DOM detach timing issues
-    const tabs = ['map', 'challenges', 'social', 'profile']
+    const tabs = ['map', 'voyage', 'social', 'profile']
     for (let i = 0; i < 3; i++) {
       for (const tabId of tabs) {
         await page.evaluate((id) => window.changeTab && window.changeTab(id), tabId)
@@ -511,7 +511,7 @@ test.describe('Journey: Responsive Design', () => {
       expect(hasOverflow).toBe(false)
 
       // Navigate all 4 tabs (no travel tab)
-      for (const tab of ['map', 'challenges', 'social', 'profile']) {
+      for (const tab of ['map', 'voyage', 'social', 'profile']) {
         await page.locator(`[data-tab="${tab}"]`).click({ force: true })
         await page.waitForTimeout(300)
       }
@@ -649,7 +649,7 @@ test.describe('Journey: Error Resilience', () => {
     await skipOnboarding(page)
 
     // Only 4 tabs (no travel)
-    for (const tab of ['map', 'challenges', 'social', 'profile']) {
+    for (const tab of ['map', 'voyage', 'social', 'profile']) {
       await page.locator(`[data-tab="${tab}"]`).click({ force: true })
       await page.waitForTimeout(300)
     }
@@ -669,7 +669,7 @@ test.describe('Journey: Error Resilience', () => {
   test('should handle double-clicking navigation', async ({ page }) => {
     await skipOnboarding(page)
 
-    await page.dblclick('[data-tab="challenges"]')
+    await page.dblclick('[data-tab="voyage"]')
     await page.waitForTimeout(300)
     await page.dblclick('[data-tab="social"]')
     await page.waitForTimeout(300)
@@ -691,7 +691,7 @@ test.describe('Journey: Touch/Mobile', () => {
     await skipOnboarding(page)
 
     // Only 4 tabs (no travel)
-    for (const tab of ['challenges', 'social', 'profile', 'map']) {
+    for (const tab of ['voyage', 'social', 'profile', 'map']) {
       const tabBtn = page.locator(`[data-tab="${tab}"]`)
       await tabBtn.tap()
       await page.waitForTimeout(400)

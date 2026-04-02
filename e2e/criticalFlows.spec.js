@@ -196,7 +196,7 @@ test.describe('Trip Creation - Deep Functional', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     // Navigate to voyage tab and voyage sub-tab
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
   })
@@ -301,7 +301,7 @@ test.describe('Map Persistence', () => {
     await expect(page.locator('#home-map').first()).toBeVisible({ timeout: 10000 })
 
     // Switch through all tabs (no 'travel' tab — it does not exist)
-    for (const tab of ['challenges', 'social', 'profile']) {
+    for (const tab of ['voyage', 'social', 'profile']) {
       await navigateToTab(page, tab)
       await page.waitForTimeout(1500)
     }
@@ -380,7 +380,7 @@ test.describe('Error-Free Critical Flows', () => {
     await skipOnboarding(page)
 
     // Only the 4 real tabs: map, challenges, social, profile
-    for (const tab of ['map', 'challenges', 'social', 'profile']) {
+    for (const tab of ['map', 'voyage', 'social', 'profile']) {
       await navigateToTab(page, tab)
       await page.waitForTimeout(1500)
     }
@@ -438,7 +438,7 @@ test.describe('Error-Free Critical Flows', () => {
     await skipOnboarding(page)
 
     // Open trip planner via voyage tab
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
 
@@ -558,7 +558,7 @@ test.describe('Friend Management - Deep Functional', () => {
 test.describe('Gamification Hub Flow', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.waitForTimeout(2000)
   })
 

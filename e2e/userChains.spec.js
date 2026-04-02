@@ -179,7 +179,7 @@ test.describe('Chain: Multiple Rapid Actions', () => {
     page.on('pageerror', err => errors.push(err.message))
 
     // Rapidly switch between all tabs multiple times
-    const tabs = ['map', 'social', 'challenges', 'profile', 'map', 'challenges', 'social', 'map']
+    const tabs = ['map', 'social', 'voyage', 'profile', 'map', 'voyage', 'social', 'map']
     for (const tab of tabs) {
       await page.evaluate((id) => {
         const btn = document.querySelector(`[data-tab="${id}"]`)

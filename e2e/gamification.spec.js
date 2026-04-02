@@ -1,6 +1,6 @@
 /**
  * E2E Tests - Voyage Tab (formerly Gamification / Challenges Hub)
- * The "challenges" navigation tab now renders the Voyage 4-tab component
+ * The "voyage" navigation tab now renders the Voyage 4-tab component
  */
 
 import { test, expect } from '@playwright/test'
@@ -9,7 +9,7 @@ import { skipOnboarding, navigateToTab } from './helpers.js'
 test.describe('Voyage Tab', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
   })
 
   test('should display voyage tab with planner', async ({ page }) => {

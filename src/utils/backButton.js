@@ -173,7 +173,7 @@ function handleBack() {
   }
 
   // 4. If in a sub-view (guides, journal, etc.) → go back to default sub-tab
-  if (state.activeTab === 'challenges') {
+  if (state.activeTab === 'voyage') {
     // Voyage tab has sub-tabs: planner, guides, journal
     const voyageSubTab = state.voyageSubTab || state.activeSubTab
     if (voyageSubTab && voyageSubTab !== 'planner') {

@@ -60,7 +60,7 @@ test.describe('Load Performance', () => {
   test('tab switching should be fast (< 3 seconds per tab)', async ({ page }) => {
     await skipOnboarding(page)
 
-    const tabs = ['profile', 'social', 'challenges', 'map']
+    const tabs = ['profile', 'social', 'voyage', 'map']
     for (const tab of tabs) {
       const start = Date.now()
       await navigateToTab(page, tab)
@@ -139,7 +139,7 @@ test.describe('Mobile Responsiveness', () => {
     await skipOnboarding(page)
 
     // Check each tab for horizontal overflow
-    const tabs = ['map', 'profile', 'social', 'challenges']
+    const tabs = ['map', 'profile', 'social', 'voyage']
     for (const tab of tabs) {
       await navigateToTab(page, tab)
       await page.waitForTimeout(500)

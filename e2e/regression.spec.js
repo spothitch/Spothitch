@@ -263,7 +263,7 @@ test.describe('Regression: Social Tab', () => {
 test.describe('Regression: Voyage / Trip Planner', () => {
   test('voyage tab shows trip planner with from/to inputs', async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
     const html = await page.evaluate(() => document.body.innerHTML)
@@ -272,7 +272,7 @@ test.describe('Regression: Voyage / Trip Planner', () => {
 
   test('voyage sub-tabs switch correctly', async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     // Switch to guides
     await page.evaluate(() => window.setVoyageSubTab?.('guides'))
     await page.waitForTimeout(2000)
@@ -282,7 +282,7 @@ test.describe('Regression: Voyage / Trip Planner', () => {
 
   test('swap trip points does not crash', async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
     await page.evaluate(() => window.swapTripPoints?.())
@@ -307,7 +307,7 @@ test.describe('Regression: Guides', () => {
 
   test('country guide opens with content', async ({ page }) => {
     await skipOnboarding(page)
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('guides'))
     await page.waitForTimeout(2000)
     // Try opening a country guide
@@ -539,7 +539,7 @@ test.describe('Regression: Gamification', () => {
 test.describe('Regression: Navigation Tabs', () => {
   test('all 4 tabs switch and update aria-selected', async ({ page }) => {
     await skipOnboarding(page)
-    const tabs = ['map', 'challenges', 'social', 'profile']
+    const tabs = ['map', 'voyage', 'social', 'profile']
     for (const tab of tabs) {
       await navigateToTab(page, tab)
       const selected = await page.locator(`[data-tab="${tab}"]`).getAttribute('aria-selected')

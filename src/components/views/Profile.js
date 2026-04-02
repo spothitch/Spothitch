@@ -294,7 +294,7 @@ function renderProfilTab(state) {
     <!-- Trips -->
     ${tripCount > 0 ? `
     <div class="card p-4">
-      <button onclick="changeTab('challenges')" class="flex items-center gap-2 w-full text-left">
+      <button onclick="changeTab('voyage')" class="flex items-center gap-2 w-full text-left">
         ${svgTrips}
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('myTrips') || 'Voyages'}</span>
         <span class="text-xs text-slate-500">(${tripCount})</span>

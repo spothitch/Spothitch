@@ -35,8 +35,8 @@ test.describe('Visual Regression — Views (Mobile)', () => {
     })
   })
 
-  test('challenges', async ({ page }) => {
-    await navigateToTab(page, 'challenges')
+  test('voyage', async ({ page }) => {
+    await navigateToTab(page, 'voyage')
     await page.waitForTimeout(800)
     await expect(page).toHaveScreenshot('mobile-challenges.png', {
       maxDiffPixelRatio: 0.03,
@@ -79,8 +79,8 @@ test.describe('Visual Regression — Views (Desktop)', () => {
     })
   })
 
-  test('challenges', async ({ page }) => {
-    await navigateToTab(page, 'challenges')
+  test('voyage', async ({ page }) => {
+    await navigateToTab(page, 'voyage')
     await page.waitForTimeout(800)
     await expect(page).toHaveScreenshot('desktop-challenges.png', {
       maxDiffPixelRatio: 0.03,
@@ -123,7 +123,7 @@ test.describe('Visual Regression — Modals', () => {
     { name: 'stats', flag: 'showStats' },
     { name: 'leaderboard', flag: 'showLeaderboard' },
     { name: 'quiz', flag: 'showQuiz' },
-    { name: 'challenges', flag: 'showChallenges' },
+    { name: 'voyage', flag: 'showChallenges' },
     { name: 'companion', flag: 'showCompanionModal' },
     { name: 'mydata', flag: 'showMyData' },
     { name: 'donation', flag: 'showDonation' },

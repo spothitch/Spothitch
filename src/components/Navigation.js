@@ -12,7 +12,7 @@ export function renderNavigation(state) {
   const hasPendingGuideTip = !!state.pendingGuideCountry
   const tabs = [
     { id: 'map', icon: 'map-pinned', label: t('navMap') || 'Carte' },
-    { id: 'challenges', icon: 'compass', label: t('navVoyage') || 'Voyage', badge: hasPendingGuideTip },
+    { id: 'voyage', icon: 'compass', label: t('navVoyage') || 'Voyage', badge: hasPendingGuideTip },
     { id: 'social', icon: 'users', label: t('navSocial') || 'Social' },
     { id: 'profile', icon: 'user', label: t('navProfile') || 'Profil' },
   ]

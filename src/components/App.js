@@ -138,7 +138,7 @@ let _activeFocusTrapCleanup = null
  * Only the active tab content is re-rendered on state changes.
  */
 export function renderApp(state) {
-  const isVoyageMapFirst = state.activeTab === 'challenges' && state.tripResults && state.tripFormCollapsed
+  const isVoyageMapFirst = state.activeTab === 'voyage' && state.tripResults && state.tripFormCollapsed
   const activePanel = getActiveTabPanelId(state)
 
   const mainContent = `
@@ -154,8 +154,8 @@ export function renderApp(state) {
       <div id="panel-map" role="tabpanel" aria-labelledby="tab-map" style="${activePanel === 'map' ? '' : 'display:none'}">
         ${renderHome(state)}
       </div>
-      <div id="panel-challenges" role="tabpanel" aria-labelledby="tab-challenges" style="${activePanel === 'challenges' ? '' : 'display:none'}">
-        ${activePanel === 'challenges' ? lazyRender('renderVoyage', state) : ''}
+      <div id="panel-voyage" role="tabpanel" aria-labelledby="tab-voyage" style="${activePanel === 'voyage' ? '' : 'display:none'}">
+        ${activePanel === 'voyage' ? lazyRender('renderVoyage', state) : ''}
       </div>
       <div id="panel-social" role="tabpanel" aria-labelledby="tab-social" style="${activePanel === 'social' ? '' : 'display:none'}">
         ${activePanel === 'social' ? lazyRender('renderSocial', state) : ''}
@@ -191,7 +191,7 @@ export function isMapTab(state) {
  */
 export function renderActiveView(state) {
   switch (state.activeTab) {
-    case 'challenges':
+    case 'voyage':
       return lazyRender('renderVoyage', state);
     case 'social':
     case 'chat':
@@ -409,7 +409,7 @@ export function renderModals(state) {
  * Render overlays section (cookie, beta banner, floating widgets)
  */
 export function renderOverlays(state) {
-  const isVoyageMapFirst = state.activeTab === 'challenges' && state.tripResults && state.tripFormCollapsed
+  const isVoyageMapFirst = state.activeTab === 'voyage' && state.tripResults && state.tripFormCollapsed
   return `
     ${!state.showLanding && !isVoyageMapFirst ? renderCookieBanner() : ''}
     ${''}<!-- BetaBanner removed -->
@@ -717,7 +717,7 @@ export function afterRender(state) {
 
   // Trip map: init when map-first view is active OR old showTripMap
   const tripMapNeeded = (state.showTripMap && (isMapTab(state) || state.showTripPlanner)) ||
-    (state.tripResults && state.tripFormCollapsed && state.activeTab === 'challenges')
+    (state.tripResults && state.tripFormCollapsed && state.activeTab === 'voyage')
   if (tripMapNeeded) {
     const tripContainer = document.getElementById('trip-map')
     if (tripContainer && tripContainer.dataset.initialized !== 'true') {

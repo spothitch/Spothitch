@@ -31,8 +31,8 @@ test.describe('Deep Links & URL Routing', () => {
     await page.goto('/?route=travel', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(2000)
     await dismissOverlays(page)
-    // Voyage tab has data-tab="challenges" internally
-    const travelTab = page.locator('[data-tab="challenges"]')
+    // Voyage tab has data-tab="voyage" internally
+    const travelTab = page.locator('[data-tab="voyage"]')
     await expect(travelTab).toHaveAttribute('aria-selected', 'true', { timeout: 5000 })
   })
 

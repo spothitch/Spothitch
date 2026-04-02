@@ -53,7 +53,7 @@ const emptyStates = {
     messageKey: 'emptyTrips',
     descKey: 'emptyTripsDesc',
     buttonKey: 'emptyTripsBtn',
-    buttonAction: "changeTab('challenges')",
+    buttonAction: "changeTab('voyage')",
     buttonIcon: 'route',
   },
   pastTrips: {
@@ -101,7 +101,7 @@ const emptyStates = {
     messageKey: 'emptyBadges',
     descKey: 'emptyBadgesDesc',
     buttonKey: 'emptyBadgesBtn',
-    buttonAction: "changeTab('challenges')",
+    buttonAction: "changeTab('voyage')",
     buttonIcon: 'medal',
   },
   references: {

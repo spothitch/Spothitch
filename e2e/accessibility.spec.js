@@ -69,7 +69,7 @@ test.describe('Accessibility - Automated WCAG 2.1 AA', () => {
   })
 
   test('challenges view should pass accessibility checks', async ({ page }) => {
-    await navigateToTab(page, 'challenges')
+    await navigateToTab(page, 'voyage')
     await page.waitForSelector('nav', { timeout: 10000 })
 
     const results = await new AxeBuilder({ page })

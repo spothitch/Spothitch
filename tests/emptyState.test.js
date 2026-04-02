@@ -24,13 +24,13 @@ describe('EmptyState Component', () => {
       const result = renderEmptyState('trips')
       expect(result).toContain('🗺️')
       expect(result).toContain('btn-primary')
-      expect(result).toContain("changeTab('challenges')")
+      expect(result).toContain("changeTab('voyage')")
     })
 
     it('should render badges empty state', () => {
       const result = renderEmptyState('badges')
       expect(result).toContain('🏆')
-      expect(result).toContain("changeTab('challenges')")
+      expect(result).toContain("changeTab('voyage')")
     })
 
     it('should render spots empty state with CTA', () => {

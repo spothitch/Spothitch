@@ -108,7 +108,7 @@ export function renderHome(state) {
           <span class="text-[11px] font-medium">${t('offline') || 'Hors-ligne'}</span>
         </button>
         <button
-          onclick="changeTab('challenges');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
+          onclick="changeTab('voyage');setState({voyageSubTab:'guides', guideSection:'countries'${hasGuide ? `, selectedCountryGuide:'${currentCountry}'` : ''}})"
           class="flex items-center gap-2 h-11 px-3 rounded-xl bg-dark-primary/60 backdrop-blur-xl border border-white/10 text-slate-300 shadow-lg hover:bg-dark-primary/80 hover:text-white active:scale-95 transition-all"
           aria-label="${t('countryGuides') || 'Guides pays'}"
           tabindex="0"
