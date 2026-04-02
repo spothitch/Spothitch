@@ -7,7 +7,7 @@
 import { test, expect } from '@playwright/test'
 import { skipOnboarding } from './helpers.js'
 
-test.describe('Quiz Game Loop', () => {
+test.describe.skip('Quiz Game Loop (hidden during alpha)', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
   })
@@ -53,7 +53,7 @@ test.describe('Quiz Game Loop', () => {
   })
 })
 
-test.describe('Shop Interactions', () => {
+test.describe.skip('Shop Interactions (hidden during alpha)', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
   })
@@ -108,7 +108,7 @@ test.describe('Daily Reward', () => {
   })
 })
 
-test.describe('Leaderboard Interactions', () => {
+test.describe.skip('Leaderboard Interactions (hidden during alpha)', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
   })

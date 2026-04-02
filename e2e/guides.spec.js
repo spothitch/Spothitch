@@ -9,7 +9,12 @@ import { skipOnboarding, navigateToTab } from './helpers.js'
 test.describe('Guides', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page, { tab: 'voyage' })
+    // Auth gate bypass for protected tab
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true, activeTab: 'voyage' }))
     await page.waitForTimeout(1500)
+    // Switch to guides sub-tab
+    await page.evaluate(() => window.setVoyageSubTab?.('guides'))
+    await page.waitForTimeout(1000)
   })
 
   test('guides sub-tab is accessible', async ({ page }) => {
