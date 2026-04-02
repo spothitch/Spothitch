@@ -507,7 +507,12 @@ window.handleAuth = async (event) => {
   } catch (error) {
     console.error('Auth error:', error)
     const { showError } = await import('../../services/notifications.js')
-    showError(t('authError'))
+    const detail = getAuthErrorMessage(error?.code || error?.message || error)
+    if (errorDiv) {
+      errorDiv.textContent = detail
+      errorDiv.classList.remove('hidden')
+    }
+    showError(detail)
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false
@@ -950,19 +955,22 @@ function executePendingAction(actionName) {
 function getAuthErrorMessage(error) {
   const code = typeof error === 'string' ? error : error?.code
   const messages = {
-    'auth/email-already-in-use': t('emailInUse'),
-    'auth/invalid-email': t('invalidEmail'),
-    'auth/user-not-found': t('userNotFound'),
-    'auth/wrong-password': t('wrongPassword'),
-    'auth/weak-password': t('weakPassword'),
-    'auth/invalid-credential': t('authErrorPassword'),
-    'auth/too-many-requests': t('authErrorTooMany'),
-    'auth/popup-closed-by-user': t('authErrorPopupClosed'),
+    'auth/email-already-in-use': t('emailInUse') || 'Cet email est déjà utilisé. Essaie de te connecter.',
+    'auth/invalid-email': t('invalidEmail') || 'Email invalide. Vérifie le format.',
+    'auth/user-not-found': t('userNotFound') || 'Aucun compte avec cet email.',
+    'auth/wrong-password': t('wrongPassword') || 'Mot de passe incorrect.',
+    'auth/weak-password': t('weakPassword') || 'Mot de passe trop faible (6 caractères minimum).',
+    'auth/invalid-credential': t('authErrorPassword') || 'Email ou mot de passe incorrect.',
+    'auth/too-many-requests': t('authErrorTooMany') || 'Trop de tentatives. Réessaie dans quelques minutes.',
+    'auth/popup-closed-by-user': t('authErrorPopupClosed') || 'Connexion annulée.',
     'auth/network-request-failed': t('errorNetwork') || 'Pas de connexion. Vérifie ton réseau.',
     'auth/internal-error': t('errorNetwork') || 'Erreur réseau. Réessaie.',
-    'username/taken': t('usernameTaken') || 'Ce pseudo est déjà pris',
+    'auth/operation-not-allowed': 'Méthode de connexion désactivée. Contacte le support.',
+    'auth/missing-password': 'Mot de passe requis.',
+    'auth/missing-email': 'Email requis.',
+    'username/taken': t('usernameTaken') || 'Ce pseudo est déjà pris.',
   }
-  return messages[code] || t('authError')
+  return messages[code] || (code ? `Erreur: ${code}` : t('authError') || 'Erreur inconnue. Réessaie.')
 }
 
 /**
