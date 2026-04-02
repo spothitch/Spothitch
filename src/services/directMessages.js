@@ -111,7 +111,7 @@ export function subscribeToAllConversations(uid) {
         return {
           recipientId: otherId,
           recipientName: friend?.name || lastMsg.senderName || t('traveler') || 'Voyageur',
-          recipientAvatar: friend?.avatar || lastMsg.senderAvatar || '🤙',
+          recipientAvatar: friend?.avatar || lastMsg.senderAvatar || '👍',
           lastMessage: lastMsg.text || '',
           lastMessageTime: ts,
           lastMessageSenderId: lastMsg.senderId || '',
@@ -224,7 +224,7 @@ export async function sendDirectMessage(recipientId, text, options = {}) {
 
   const convId = getConversationId(uid, recipientId)
   const senderName = state.username || state.user?.displayName || t('traveler') || 'Voyageur'
-  const senderAvatar = state.avatar || '🤙'
+  const senderAvatar = state.avatar || '👍'
 
   const message = {
     text: text.trim(),
@@ -284,7 +284,7 @@ function sendDMLocalStorage(recipientId, text, options, state) {
     text: text.trim(),
     senderId: userId,
     senderName: state.username || t('traveler') || 'Voyageur',
-    senderAvatar: state.avatar || '🤙',
+    senderAvatar: state.avatar || '👍',
     recipientId,
     createdAt: new Date().toISOString(),
     read: false,
@@ -356,7 +356,7 @@ function getConversationsListLocalStorage() {
     conversations.push({
       recipientId: otherId,
       recipientName: friend?.name || lastMsg?.senderName || t('traveler') || 'Voyageur',
-      recipientAvatar: friend?.avatar || lastMsg?.senderAvatar || '🤙',
+      recipientAvatar: friend?.avatar || lastMsg?.senderAvatar || '👍',
       lastMessage: lastMsg?.text || '',
       lastMessageTime: lastMsg?.createdAt || '',
       lastMessageSenderId: lastMsg?.senderId || '',

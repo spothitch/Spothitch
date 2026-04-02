@@ -3740,7 +3740,7 @@ export const guideSectionsData = {
       { type: 'rule', icon: '📱', text: 'Photographie la plaque du véhicule et envoie-la à un proche avant de monter.' },
       { type: 'rule', icon: '🎒', text: 'Garde ton sac accessible (sur tes genoux ou à tes pieds), jamais dans le coffre.' },
       { type: 'sub', title: 'Conseils spécifiques' },
-      { type: 'rule', icon: '🤙', text: 'Les Kiwis s\'arrêtent souvent spontanément. Le stop est culturellement accepté et pratiqué.' },
+      { type: 'rule', icon: '👍', text: 'Les Kiwis s\'arrêtent souvent spontanément. Le stop est culturellement accepté et pratiqué.' },
       { type: 'rule', icon: '🏔️', text: 'Les paysages sont magnifiques. Profite de chaque trajet pour découvrir la nature néo-zélandaise.' },
       { type: 'sub', title: 'Numéros d\'urgence' },
       { type: 'kv', items: [{ k: 'Urgences', v: '111' }] },

@@ -314,7 +314,7 @@ export function shareProfileModal(uid, username, avatar) {
   const profileUrl = `${APP_URL}/?u=${uid}`
   const displayName = username ? `@${username}` : 'Profil SpotHitch'
   const SMSText = encodeURIComponent(
-    `${avatar || '🤙'} ${t('shareProfileText') || 'Rejoins-moi sur SpotHitch, la communauté des autostoppeurs !'}\n\n${profileUrl}`
+    `${avatar || '👍'} ${t('shareProfileText') || 'Rejoins-moi sur SpotHitch, la communauté des autostoppeurs !'}\n\n${profileUrl}`
   )
 
   const modal = document.createElement('div')
@@ -329,7 +329,7 @@ export function shareProfileModal(uid, username, avatar) {
         <button onclick="window.closeShareModal()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.25rem;" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button>
       </div>
       <div style="background:linear-gradient(135deg,#1e2a3a,#0f1520);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;border:1px solid rgba(245,158,11,0.3);">
-        <div style="font-size:3rem;margin-bottom:8px;">${avatar || '🤙'}</div>
+        <div style="font-size:3rem;margin-bottom:8px;">${avatar || '👍'}</div>
         <div style="color:white;font-weight:700;font-size:1.1rem;">${escapeHTML(displayName)}</div>
         <div style="color:#64748b;font-size:0.75rem;margin-top:6px;word-break:break-all;">${profileUrl}</div>
       </div>

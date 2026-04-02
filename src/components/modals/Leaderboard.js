@@ -33,7 +33,7 @@ async function fetchLeaderboardData(tab) {
           id: i + 1,
           uid: d.id,
           username: p.username || p.displayName || (t('defaultDisplayName') || 'Hitchhiker'),
-          avatar: p.avatar || '🤙',
+          avatar: p.avatar || '👍',
           points: tab === 'allTime' ? (p.points || 0) : (p.seasonPoints || 0),
           level: p.level || 1,
           country: p.country || '',
@@ -94,7 +94,7 @@ export function renderLeaderboardModal() {
 
   const currentUser = {
     username: state.username || 'Vous',
-    avatar: state.avatar || '🤙',
+    avatar: state.avatar || '👍',
     points: state.points || 0,
     level: state.level || 1,
     rank: userRank,

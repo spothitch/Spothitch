@@ -49,7 +49,7 @@ export async function submitProfileReview(targetUid, rating, comment) {
       comment: (comment || '').trim().slice(0, 500),
       reviewerUid: user.uid,
       reviewerName: s.username || user.displayName || (t('defaultDisplayName') || 'Hitchhiker'),
-      reviewerAvatar: s.avatar || '🤙',
+      reviewerAvatar: s.avatar || '👍',
       updatedAt: new Date().toISOString(),
       createdAt: existing.exists() ? existing.data().createdAt : new Date().toISOString(),
     }

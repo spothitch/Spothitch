@@ -7,10 +7,10 @@
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
 
-const avatars = ['🤙', '😎', '🧳', '🎒', '🌍', '✌️', '🚗', '🛣️', '⛺', '🏕️', '🌄', '🗺️']
+const avatars = ['👍', '😎', '🧳', '🎒', '🌍', '✌️', '🚗', '🛣️', '⛺', '🏕️', '🌄', '🗺️']
 
 export function renderWelcome(state) {
-  const selectedAvatar = state.selectedAvatar || '🤙'
+  const selectedAvatar = state.selectedAvatar || '👍'
 
   return `
     <div

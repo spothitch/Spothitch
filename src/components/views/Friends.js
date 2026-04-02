@@ -68,7 +68,7 @@ export function renderFriends(state) {
               <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20
                           border border-amber-500/30 rounded-xl">
                 <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-xl">
-                  ${request.avatar || '🤙'}
+                  ${request.avatar || '👍'}
                 </div>
                 <div class="flex-1">
                   <div class="text-white font-medium">${request.name}</div>
@@ -140,7 +140,7 @@ function renderFriendCard(friend, isOnline) {
          onclick="openFriendsChat('${friend.id}')" role="button" tabindex="0">
       <div class="relative">
         <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-2xl">
-          ${friend.avatar || '🤙'}
+          ${friend.avatar || '👍'}
         </div>
         <div class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white/5
                     ${isOnline ? 'bg-green-500' : 'bg-slate-500'}"></div>
@@ -209,7 +209,7 @@ export function renderFriendsChat(friendId) {
           </button>
           <div class="relative">
             <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-xl">
-              ${friend.avatar || '🤙'}
+              ${friend.avatar || '👍'}
             </div>
             <div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-dark-primary
                         ${friend.online ? 'bg-green-500' : 'bg-slate-500'}"></div>
@@ -274,7 +274,7 @@ function renderPrivateMessage(message, friend) {
       <div class="flex items-end gap-2 max-w-[80%]">
         ${!isOwn ? `
           <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-sm shrink-0">
-            ${friend.avatar || '🤙'}
+            ${friend.avatar || '👍'}
           </div>
         ` : ''}
         <div class="${isOwn ? 'bg-amber-500 text-white' : 'bg-white/5 text-slate-100'}

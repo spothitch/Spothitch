@@ -3417,7 +3417,7 @@ export const guideSectionsData = {
       { type: 'rule', icon: '📱', text: 'Fotografía la matrícula y envíala a alguien antes de subir.' },
       { type: 'rule', icon: '🎒', text: 'Mantén tu mochila accesible (en tu regazo o a tus pies), nunca en el maletero.' },
       { type: 'sub', title: 'Consejos del país' },
-      { type: 'rule', icon: '🤙', text: 'Los kiwis paran fácilmente. El autostop es una forma de vida aceptada en Nueva Zelanda.' },
+      { type: 'rule', icon: '👍', text: 'Los kiwis paran fácilmente. El autostop es una forma de vida aceptada en Nueva Zelanda.' },
       { type: 'rule', icon: '🏔️', text: 'Los paisajes son magníficos. Disfruta de cada trayecto para descubrir la naturaleza neozelandesa.' },
       { type: 'sub', title: 'Números de emergencia' },
       { type: 'kv', items: [{ k: 'Emergencias', v: '111' }] },

@@ -334,7 +334,7 @@ export function checkUnlocks(stats) {
  */
 export function renderAvatarWithFrame(options = {}) {
   const {
-    avatar = '🤙',
+    avatar = '👍',
     frameId = getCurrentFrame(),
     size = 'md',
     showBorder = true,
@@ -429,7 +429,7 @@ export function renderCustomizationModal(state) {
           <div style="text-align:center;margin-bottom:24px">
             <div style="width:80px;height:80px;border-radius:50%;margin:0 auto 12px;background:linear-gradient(135deg,#f59e0b,#d97706);padding:3px">
               <div id="edit-avatar-preview" style="width:100%;height:100%;border-radius:50%;background:#0f1520;display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden">
-                ${photoURL ? `<img src="${photoURL}" style="width:100%;height:100%;object-fit:cover" alt="">` : (state.avatar || '🤙')}
+                ${photoURL ? `<img src="${photoURL}" style="width:100%;height:100%;object-fit:cover" alt="">` : (state.avatar || '👍')}
               </div>
             </div>
             ${availablePhotos.length > 0 ? `

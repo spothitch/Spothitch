@@ -97,7 +97,7 @@ export async function submitVote(featureId, vote, comment = '') {
       vote,
       comment: comment || '',
       userName: state.username || '',
-      avatar: state.avatar || '🤙',
+      avatar: state.avatar || '👍',
       timestamp: new Date().toISOString(),
     }, { merge: true })
 
@@ -182,7 +182,7 @@ export async function getFeatureComments(featureId) {
       const data = d.data()
       return {
         userName: data.userName || 'Voyageur',
-        avatar: data.avatar || '🤙',
+        avatar: data.avatar || '👍',
         comment: data.comment,
         vote: data.vote,
         timestamp: data.timestamp,

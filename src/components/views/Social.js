@@ -156,7 +156,7 @@ function renderMessagerieTab(state, _sidePanel = false) {
   dmConversations.forEach(conv => {
     allConversations.push({
       type: 'dm', id: conv.recipientId, name: conv.recipientName,
-      avatar: conv.recipientAvatar || '🤙', lastMessage: conv.lastMessage,
+      avatar: conv.recipientAvatar || '👍', lastMessage: conv.lastMessage,
       lastMessageTime: conv.lastMessageTime, unreadCount: conv.unreadCount,
       online: conv.online, isGroup: false,
     })
@@ -222,7 +222,7 @@ function renderMessagerieTab(state, _sidePanel = false) {
               <div class="relative">
                 <div class="w-14 h-14 rounded-full ${f.online ? 'bg-gradient-to-br from-primary-400 to-amber-500 p-[2px]' : 'bg-white/10 p-[2px]'}">
                   <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-2xl">
-                    ${f.avatar || '🤙'}
+                    ${f.avatar || '👍'}
                   </div>
                 </div>
                 ${f.online ? `<span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-dark-primary bg-emerald-500"></span>` : ''}
@@ -247,7 +247,7 @@ function renderMessagerieTab(state, _sidePanel = false) {
             <div class="flex gap-2 mt-2 overflow-x-auto scrollbar-none">
               ${friendRequests.slice(0, 3).map(req => `
                 <div class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5">
-                  <span class="text-lg">${req.avatar || '🤙'}</span>
+                  <span class="text-lg">${req.avatar || '👍'}</span>
                   <span class="text-xs font-medium truncate max-w-[80px]">${escapeHTML(req.name || '')}</span>
                   <button onclick="acceptFriendRequest('${req.id}')" class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center" aria-label="${t('accept')}">
                     ${icon('check', 'w-3 h-3')}
@@ -542,7 +542,7 @@ function renderCompanionRequests(state) {
         <div class="card p-4">
           <!-- Profile header (clickable) -->
           <button onclick="showFriendProfile('${escapeHTML(req.userId)}')" class="flex items-center gap-3 mb-3 w-full text-left">
-            <span class="text-2xl">${req.avatar || '🤙'}</span>
+            <span class="text-2xl">${req.avatar || '👍'}</span>
             <div class="flex-1 min-w-0">
               <div class="font-medium text-sm truncate">${escapeHTML(req.name || '')}</div>
               <div class="text-xs text-slate-400">${formatRelativeTime(req.createdAt)}</div>
@@ -641,7 +641,7 @@ function renderEventDetail(state, event) {
               <div class="flex items-center gap-2 text-slate-300">${icon('calendar', 'w-5 h-5 text-slate-400')} ${formatEventDate(event.date)}${event.time ? ` ${t('at')} ${event.time}` : ''}</div>
               ${event.location ? `<div class="flex items-center gap-2 text-slate-300">${icon('map-pin', 'w-5 h-5 text-slate-400')} ${escapeHTML(event.location)}</div>` : ''}
               <div class="flex items-center gap-2 text-slate-300">${icon('users', 'w-5 h-5 text-slate-400')} ${participantCount} ${t('participants')}</div>
-              <div class="flex items-center gap-2 text-slate-300">${icon('user', 'w-5 h-5 text-slate-400')} ${t('createdBy')} ${event.creatorAvatar || '🤙'} ${escapeHTML(event.creatorName || '')}</div>
+              <div class="flex items-center gap-2 text-slate-300">${icon('user', 'w-5 h-5 text-slate-400')} ${t('createdBy')} ${event.creatorAvatar || '👍'} ${escapeHTML(event.creatorName || '')}</div>
             </div>
             ${event.description ? `<div class="mt-3 pt-3 border-t border-white/10"><p class="text-sm text-slate-300">${escapeHTML(event.description)}</p></div>` : ''}
           </div>
@@ -688,7 +688,7 @@ function renderEventDetail(state, event) {
 function renderEventComment(comment, allReplies, eventId, userId) {
   const isAuthor = comment.userId === userId
   const commentReplies = allReplies.filter(r => r.replyToId === comment.id)
-  const reactionEmojis = ['👍', '❤️', '😂', '🤙']
+  const reactionEmojis = ['👍', '❤️', '😂', '👍']
 
   const reactionDisplay = Object.entries(comment.reactions || {})
     .filter(([, users]) => users.length > 0)
@@ -701,7 +701,7 @@ function renderEventComment(comment, allReplies, eventId, userId) {
   return `
     <div class="bg-white/5 rounded-xl p-3">
       <div class="flex items-start gap-2">
-        <span class="text-xl shrink-0">${comment.userAvatar || '🤙'}</span>
+        <span class="text-xl shrink-0">${comment.userAvatar || '👍'}</span>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
             <span class="font-medium text-sm">${escapeHTML(comment.userName || '')}</span>
@@ -728,7 +728,7 @@ function renderEventComment(comment, allReplies, eventId, userId) {
             <div class="mt-2 pl-3 border-l-2 border-white/10 space-y-2">
               ${commentReplies.map(reply => `
                 <div class="flex items-start gap-2">
-                  <span class="text-sm shrink-0">${reply.userAvatar || '🤙'}</span>
+                  <span class="text-sm shrink-0">${reply.userAvatar || '👍'}</span>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
                       <span class="font-medium text-xs">${escapeHTML(reply.userName || '')}</span>
@@ -850,7 +850,7 @@ window.postCompanionRequest = async () => {
     id: `comp_${Date.now()}`,
     userId: state.user?.uid || 'local-user',
     name: state.username || t('traveler'),
-    avatar: state.avatar || '🤙',
+    avatar: state.avatar || '👍',
     from,
     to,
     date: date || null,
@@ -893,7 +893,7 @@ window.sendPrivateMessage = async (friendId) => {
     id: Date.now().toString(),
     text,
     userName: state.username || t('me'),
-    userAvatar: state.avatar || '🤙',
+    userAvatar: state.avatar || '👍',
     userId: state.user?.uid || 'local-user',
     createdAt: new Date().toISOString(),
   }
@@ -1065,7 +1065,7 @@ window.showFriendProfile = async (friendId) => {
         window.setState?.({ guestProfile: {
           id: friendId,
           name: p.username || p.displayName || (t('defaultDisplayName') || 'Hitchhiker'),
-          avatar: p.avatar || '🤙',
+          avatar: p.avatar || '👍',
           level: p.level || 1,
           points: p.points || 0,
           spotsCreated: p.spotsCreated || 0,
@@ -1123,7 +1123,7 @@ window.submitProfileReview = async (targetUid, comment) => {
 window.shareMyProfile = () => {
   const state = window.getState?.() || {}
   import('../../services/shareCard.js').then(m => {
-    m.shareProfileModal(state.user?.uid || '', state.username || '', state.avatar || '🤙')
+    m.shareProfileModal(state.user?.uid || '', state.username || '', state.avatar || '👍')
   })
 }
 

@@ -589,3 +589,14 @@ export function brandIcon(name, cls = '', size = 20) {
 export function spinnerIcon(cls = '', size = 20) {
   return icon('loader-circle', `animate-spin ${cls}`, size)
 }
+
+// ── Avatar renderer ─────────────────────────────────────────────────
+// Shows emoji avatar if set, otherwise SpotHitch logo
+export function renderAvatar(avatar, size = 'text-xl') {
+  if (avatar && avatar !== '👍') {
+    return `<span class="${size}">${avatar}</span>`
+  }
+  return `<img src="/avatar-default.png" alt="" class="w-6 h-6 rounded-full" style="display:inline-block;vertical-align:middle">`
+}
+
+export const DEFAULT_AVATAR = '👍'

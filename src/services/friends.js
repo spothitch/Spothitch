@@ -169,7 +169,7 @@ export async function sendFriendRequest(targetUserId) {
       id: user.uid,
       fromUserId: user.uid,
       name: user.displayName || t('traveler') || 'Traveler',
-      avatar: user.photoURL || '🤙',
+      avatar: user.photoURL || '👍',
       createdAt: serverTimestamp(),
     })
 
@@ -202,7 +202,7 @@ export async function acceptFriendRequest(requestId) {
     batch.set(doc(db, 'users', user.uid, 'friends', requestId), {
       id: requestId,
       name: reqData.name || t('traveler') || 'Traveler',
-      avatar: reqData.avatar || '🤙',
+      avatar: reqData.avatar || '👍',
       online: false,
       addedAt: serverTimestamp(),
     })
@@ -211,7 +211,7 @@ export async function acceptFriendRequest(requestId) {
     batch.set(doc(db, 'users', requestId, 'friends', user.uid), {
       id: user.uid,
       name: user.displayName || t('traveler') || 'Traveler',
-      avatar: user.photoURL || '🤙',
+      avatar: user.photoURL || '👍',
       online: false,
       addedAt: serverTimestamp(),
     })

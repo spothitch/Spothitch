@@ -44,7 +44,7 @@ function renderConversationList(state) {
       type: 'dm',
       id: conv.recipientId,
       name: conv.recipientName,
-      avatar: conv.recipientAvatar || '🤙',
+      avatar: conv.recipientAvatar || '👍',
       lastMessage: conv.lastMessage,
       lastMessageTime: conv.lastMessageTime,
       unreadCount: conv.unreadCount,
@@ -142,7 +142,7 @@ function renderDMChat(state, recipientId) {
   const friends = state.friends || []
   const friend = friends.find(f => f.id === recipientId)
   const recipientName = friend?.name || t('traveler')
-  const recipientAvatar = friend?.avatar || '🤙'
+  const recipientAvatar = friend?.avatar || '👍'
   const isOnline = friend?.online || false
 
   return `
@@ -234,7 +234,7 @@ function renderDMMessage(msg, state) {
       <div class="max-w-[80%] ${isSent ? 'bg-primary-500/20' : 'bg-white/5'} rounded-2xl px-4 py-2 ${isSent ? 'rounded-br-md' : 'rounded-bl-md'}">
         ${!isSent ? `
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-sm">${msg.senderAvatar || '🤙'}</span>
+            <span class="text-sm">${msg.senderAvatar || '👍'}</span>
             <span class="text-xs font-medium text-primary-400">${escapeHTML(msg.senderName || t('traveler'))}</span>
           </div>
         ` : ''}
@@ -277,7 +277,7 @@ function renderFirebaseGroupChat(state, groupId) {
     <div class="px-4 py-2 flex gap-1.5 overflow-x-auto border-b border-white/5 scrollbar-hide">
       ${Object.entries(memberProfiles).map(([_uid, p]) => `
         <span class="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 text-xs text-slate-300">
-          <span>${p.avatar || '🤙'}</span>
+          <span>${p.avatar || '👍'}</span>
           <span class="max-w-[80px] truncate">${escapeHTML(p.name || t('traveler'))}</span>
         </span>
       `).join('')}
@@ -322,7 +322,7 @@ function renderFBGroupMessage(msg, state) {
       <div class="max-w-[80%] ${isSent ? 'bg-primary-500/20' : 'bg-white/5'} rounded-2xl px-4 py-2 ${isSent ? 'rounded-br-md' : 'rounded-bl-md'}">
         ${!isSent ? `
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-sm">${msg.senderAvatar || '🤙'}</span>
+            <span class="text-sm">${msg.senderAvatar || '👍'}</span>
             <span class="text-xs font-medium text-emerald-400">${escapeHTML(msg.senderName || t('traveler'))}</span>
           </div>
         ` : ''}
@@ -389,7 +389,7 @@ function renderCreateGroupConversationForm(state) {
                     class="w-full flex items-center gap-3 p-2.5 rounded-xl transition-colors ${isSelected ? 'bg-emerald-500/15 border border-emerald-500/30' : 'hover:bg-white/5'}"
                   >
                     <div class="relative shrink-0">
-                      <span class="text-2xl">${friend.avatar || '🤙'}</span>
+                      <span class="text-2xl">${friend.avatar || '👍'}</span>
                       ${isSelected ? `
                         <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
                           ${icon('check', 'w-2.5 h-2.5 text-white')}

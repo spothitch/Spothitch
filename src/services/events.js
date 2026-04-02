@@ -128,10 +128,10 @@ export function createEvent(eventData) {
     visibility: eventData.visibility || 'public',
     creatorId: userId,
     creatorName: state.username || t('traveler') || 'Voyageur',
-    creatorAvatar: state.avatar || '🤙',
+    creatorAvatar: state.avatar || '👍',
     participants: [userId],
     participantNames: { [userId]: state.username || t('traveler') || 'Voyageur' },
-    participantAvatars: { [userId]: state.avatar || '🤙' },
+    participantAvatars: { [userId]: state.avatar || '👍' },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
@@ -213,7 +213,7 @@ export function joinEvent(eventId) {
   event.participantNames = event.participantNames || {}
   event.participantNames[userId] = state.username || t('traveler') || 'Voyageur'
   event.participantAvatars = event.participantAvatars || {}
-  event.participantAvatars[userId] = state.avatar || '🤙'
+  event.participantAvatars[userId] = state.avatar || '👍'
   event.updatedAt = new Date().toISOString()
 
   events[eventIndex] = event
@@ -311,7 +311,7 @@ export function postEventComment(eventId, text, replyToId = null) {
     text: text.trim(),
     userId,
     userName: state.username || t('traveler') || 'Voyageur',
-    userAvatar: state.avatar || '🤙',
+    userAvatar: state.avatar || '👍',
     replyToId,
     reactions: {},
     createdAt: new Date().toISOString(),

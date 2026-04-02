@@ -72,11 +72,11 @@ export async function createGroupConversation(name, memberIds, icon = '👥') {
   const memberProfiles = {}
   memberProfiles[user.uid] = {
     name: user.displayName || getState().username || t('traveler'),
-    avatar: user.photoURL || getState().avatar || '🤙',
+    avatar: user.photoURL || getState().avatar || '👍',
   }
   memberIds.forEach(uid => {
     const f = friends.find(fr => fr.id === uid)
-    if (f) memberProfiles[uid] = { name: f.name, avatar: f.avatar || '🤙' }
+    if (f) memberProfiles[uid] = { name: f.name, avatar: f.avatar || '👍' }
   })
 
   try {
@@ -106,7 +106,7 @@ export async function sendGroupConversationMessage(groupId, text) {
 
   const state = getState()
   const senderName = user.displayName || state.username || t('traveler')
-  const senderAvatar = user.photoURL || state.avatar || '🤙'
+  const senderAvatar = user.photoURL || state.avatar || '👍'
 
   try {
     await addDoc(collection(db, `groupConversations/${groupId}/messages`), {
@@ -204,7 +204,7 @@ export async function addMemberToGroupConversation(groupId, userId) {
   const friend = friends.find(f => f.id === userId)
 
   const updates = { members: arrayUnion(userId), updatedAt: serverTimestamp() }
-  if (friend) updates[`memberProfiles.${userId}`] = { name: friend.name, avatar: friend.avatar || '🤙' }
+  if (friend) updates[`memberProfiles.${userId}`] = { name: friend.name, avatar: friend.avatar || '👍' }
 
   try {
     await updateDoc(doc(db, 'groupConversations', groupId), updates)

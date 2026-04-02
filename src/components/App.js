@@ -473,7 +473,7 @@ function renderContactAmbassadorModal(state) {
       <div class="modal-panel w-full max-w-md rounded-2xl overflow-hidden slide-up">
         <div class="flex items-center justify-between p-4 border-b border-white/10">
           <div class="flex items-center gap-3">
-            <span class="text-2xl">${state.selectedAmbassador.userAvatar || '🤙'}</span>
+            <span class="text-2xl">${state.selectedAmbassador.userAvatar || '👍'}</span>
             <div>
               <h2 id="contact-amb-title" class="text-base font-bold">${escapeHTML(state.selectedAmbassador.userName || '')}</h2>
               <p class="text-xs text-slate-400">${escapeHTML(state.selectedAmbassador.city || '')}, ${escapeHTML(state.selectedAmbassador.country || '')}</p>

@@ -3231,7 +3231,7 @@ export const guideSectionsData = {
       { type: 'rule', icon: '📱', text: 'Take a photo of the licence plate and send it to someone before getting in.' },
       { type: 'rule', icon: '🎒', text: 'Keep your bag accessible (on your lap or at your feet), never in the boot.' },
       { type: 'sub', title: 'Country tips' },
-      { type: 'rule', icon: '🤙', text: 'Kiwis often stop spontaneously. Hitching is culturally accepted and practised.' },
+      { type: 'rule', icon: '👍', text: 'Kiwis often stop spontaneously. Hitching is culturally accepted and practised.' },
       { type: 'rule', icon: '🏔️', text: 'The scenery is stunning. Enjoy every ride to discover New Zealand\'s nature.' },
       { type: 'sub', title: 'Emergency numbers' },
       { type: 'kv', items: [{ k: 'Emergency', v: '111' }] },
