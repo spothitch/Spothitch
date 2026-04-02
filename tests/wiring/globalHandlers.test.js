@@ -491,6 +491,7 @@ const MAIN_JS_HANDLERS = [
   'guardianSwitchTab',
   'guardianEditField',
   'guardianSaveField',
+  'guardianSelectInterval',
   'guardianCancelEdit',
   'guardianToggleDeparture',
   'guardianToggleArrival',

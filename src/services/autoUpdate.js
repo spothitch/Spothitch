@@ -25,6 +25,11 @@ export function startVersionCheck() {
     if (window._shareInProgress) return true
     if (Date.now() - window._authJustCompleted < 15000) return true
     if (sessionStorage.getItem('spothitch_auth_redirect')) return true
+    // Never reload during active Guardian/Companion trip
+    try {
+      const comp = JSON.parse(localStorage.getItem('spothitch_companion') || '{}')
+      if (comp.active) return true
+    } catch { /* */ }
     try {
       const ts = parseInt(sessionStorage.getItem('spothitch_share_flow') || '0', 10)
       if (ts && Date.now() - ts < 120_000) return true

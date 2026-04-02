@@ -38,6 +38,34 @@ let _editOverlay = null // null | { field, label, value, inputType, placeholder,
 // Bottom sheet state
 let _guardianSheet = null // null | 'plate' | 'photo' | 'destination'
 
+/** Format check-in interval in minutes to human-readable string */
+function formatInterval(minutes) {
+  if (minutes < 60) return `${minutes} ${t('minutes') || 'minutes'}`
+  if (minutes < 1440) {
+    const h = Math.floor(minutes / 60)
+    const m = minutes % 60
+    const hLabel = h === 1 ? (t('hour') || 'heure') : (t('hours') || 'heures')
+    return m > 0 ? `${h} ${hLabel} ${m} min` : `${h} ${hLabel}`
+  }
+  const d = Math.floor(minutes / 1440)
+  const dLabel = d === 1 ? (t('day') || 'jour') : (t('days') || 'jours')
+  return `${d} ${dLabel}`
+}
+
+/** Preset interval options for the selector */
+const INTERVAL_OPTIONS = [
+  { value: 15, label: () => '15 min' },
+  { value: 30, label: () => '30 min' },
+  { value: 45, label: () => '45 min' },
+  { value: 60, label: () => `1 ${t('hour') || 'heure'}` },
+  { value: 120, label: () => `2 ${t('hours') || 'heures'}` },
+  { value: 180, label: () => `3 ${t('hours') || 'heures'}` },
+  { value: 360, label: () => `6 ${t('hours') || 'heures'}` },
+  { value: 720, label: () => `12 ${t('hours') || 'heures'}` },
+  { value: 1440, label: () => `1 ${t('day') || 'jour'}` },
+  { value: 2880, label: () => `2 ${t('days') || 'jours'}` },
+]
+
 // Color helpers
 const COLOR_MAP = {
   '#22c55e': { bg: 'rgba(34,197,94,.1)', border: 'rgba(34,197,94,.2)', dark: '#16a34a' },
@@ -325,7 +353,7 @@ function renderMainScreen(companion) {
         </div>
         <div class="rounded-2xl overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
           <!-- Check-in interval -->
-          ${cfgRow('clock', '#3b82f6', t('guardianCheckinInterval') || 'Check-in toutes les', `${interval} ${t('minutes') || 'minutes'}`, "guardianEditField('interval')")}
+          ${cfgRow('clock', '#3b82f6', t('guardianCheckinInterval') || 'Check-in toutes les', formatInterval(interval), "guardianEditField('interval')")}
           <!-- Destination -->
           ${cfgRow('map-pin', '#f59e0b', t('companionDestination') || 'Destination', destination ? escapeHTML(destination) : '', "guardianEditField('destination')")}
           <!-- Plate -->
@@ -402,7 +430,23 @@ function renderEditOverlay() {
       </div>
 
       <!-- Input -->
-      ${isTextarea ? `
+      ${inputType === 'select' ? `
+        <div class="flex flex-col gap-1.5 max-h-[60vh] overflow-y-auto">
+          ${INTERVAL_OPTIONS.map(opt => {
+            const isActive = String(opt.value) === value
+            return `
+              <button
+                onclick="guardianSelectInterval(${opt.value})"
+                class="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium transition-colors ${isActive ? 'text-white' : 'text-slate-300'}"
+                style="background:${isActive ? 'rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.4)' : 'rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)'}"
+              >
+                <span>${opt.label()}</span>
+                ${isActive ? icon('check', 'w-4 h-4 text-emerald-400') : ''}
+              </button>
+            `
+          }).join('')}
+        </div>
+      ` : isTextarea ? `
         <textarea
           id="guardian-edit-input"
           class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
@@ -419,12 +463,10 @@ function renderEditOverlay() {
           style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
           value="${escapedValue}"
           placeholder="${placeholder || ''}"
-          ${inputType === 'number' ? 'min="5" max="120"' : ''}
           ${maxLength ? `maxlength="${maxLength}"` : ''}
           autocomplete="off"
         />
       `}
-      ${field === 'interval' ? `<p class="text-[10px] text-slate-500 mt-1.5 px-1">5 ${t('to') || 'a'} 120 ${t('minutes') || 'minutes'}</p>` : ''}
       ${field === 'guardian' ? `
         <input
           id="guardian-edit-phone"
@@ -437,24 +479,26 @@ function renderEditOverlay() {
         />
       ` : ''}
 
-      <!-- Buttons -->
-      <div class="flex gap-2 mt-4">
-        <button
-          onclick="guardianCancelEdit()"
-          class="flex-1 py-3 rounded-xl text-slate-400 font-semibold text-sm transition-colors"
-          style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)"
-        >
-          ${t('cancel') || 'Annuler'}
-        </button>
-        <button
-          onclick="guardianSaveField()"
-          class="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-colors"
-          style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3)"
-        >
-          ${icon('circle-check', 'w-4 h-4 inline-block mr-1')}
-          ${t('save') || 'Enregistrer'}
-        </button>
-      </div>
+      <!-- Buttons (hidden for interval selector — tap selects directly) -->
+      ${inputType !== 'select' ? `
+        <div class="flex gap-2 mt-4">
+          <button
+            onclick="guardianCancelEdit()"
+            class="flex-1 py-3 rounded-xl text-slate-400 font-semibold text-sm transition-colors"
+            style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)"
+          >
+            ${t('cancel') || 'Annuler'}
+          </button>
+          <button
+            onclick="guardianSaveField()"
+            class="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-colors"
+            style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3)"
+          >
+            ${icon('circle-check', 'w-4 h-4 inline-block mr-1')}
+            ${t('save') || 'Enregistrer'}
+          </button>
+        </div>
+      ` : ''}
     </div>
   `
 }
@@ -1326,6 +1370,14 @@ window.guardianEditField = async (field) => {
     return
   }
 
+  // For interval, use a picker instead of a text input
+  if (field === 'interval') {
+    _editOverlay = { field, ...config, inputType: 'select' }
+    _currentScreen = 'main'
+    window._forceRender?.()
+    return
+  }
+
   _editOverlay = { field, ...config }
   _currentScreen = 'main'
   window._forceRender?.()
@@ -1339,6 +1391,18 @@ window.guardianEditField = async (field) => {
       }
     }
   })
+}
+
+/** Select interval from the preset list — saves and closes immediately */
+window.guardianSelectInterval = async (minutes) => {
+  const { getCompanionState: gcs } = await import('../../services/companion.js')
+  const state = gcs()
+  state.checkInInterval = minutes
+  try {
+    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+  } catch { /* ignore */ }
+  _editOverlay = null
+  window._forceRender?.()
 }
 
 /** Save the edited field from in-app overlay */
@@ -1375,8 +1439,8 @@ window.guardianSaveField = async () => {
       : { name: val, phone }
   } else if (_editOverlay.field === 'interval') {
     const num = parseInt(val, 10)
-    if (!num || num < 5 || num > 120) {
-      window.showToast?.('5 \u2013 120 min', 'warning')
+    if (!num || num < 5) {
+      window.showToast?.('Min. 5 min', 'warning')
       return
     }
     state.checkInInterval = num
