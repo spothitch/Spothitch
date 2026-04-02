@@ -528,6 +528,26 @@ function renderLegalitySection() {
 // ==================== COUNTRY DETAIL (v17 — Social Feed Design) ====================
 
 /** Render a structured content block from guide sections data */
+// Map emojis to Lucide icons for guide content (Rule #24)
+const GUIDE_EMOJI_TO_ICON = {
+  '⛽': 'fuel', '🚗': 'car', '🚌': 'bus', '🚂': 'train-front', '🚃': 'train-front',
+  '🚄': 'train-front', '✈️': 'plane', '🚲': 'bike', '🚢': 'ship',
+  '🛡️': 'shield-check', '🆘': 'siren', '📱': 'smartphone', '🎒': 'backpack',
+  '🌙': 'moon', '👨‍👩‍👧': 'users', '📍': 'map-pin', '⛺': 'tent', '🏠': 'home',
+  '🌿': 'leaf', '✅': 'circle-check', '🚫': 'ban', '⚖️': 'scale',
+  '👍': 'thumbs-up', '📸': 'camera', '💬': 'message-circle', '💰': 'coins',
+  '🗺️': 'map', '🧭': 'compass', '🏕️': 'tent', '📅': 'calendar',
+  '🎭': 'theater', '❤️': 'heart', '💪': 'shield', '🗣️': 'message-circle',
+  '💶': 'coins', '🤙': 'thumbs-up', '☀️': 'sun', '🌅': 'sunrise',
+  '🌤️': 'cloud-sun', '⛅': 'cloud', '🎉': 'party-popper', '🌈': 'rainbow',
+}
+
+function emojiToIcon(emoji) {
+  const name = GUIDE_EMOJI_TO_ICON[emoji]
+  if (name) return icon(name, 'w-4 h-4 text-slate-400 shrink-0 mt-0.5')
+  return `<span class="text-sm shrink-0 mt-0.5">${emoji}</span>` // fallback for flags etc
+}
+
 function renderGuideBlock(block) {
   switch (block.type) {
     case 'text':
@@ -535,7 +555,7 @@ function renderGuideBlock(block) {
     case 'sub':
       return `<p class="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mt-3 mb-1">${escapeHTML(block.title)}</p>`
     case 'rule':
-      return `<div class="flex gap-2 py-1"><span class="text-sm shrink-0 mt-0.5">${block.icon}</span><p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(block.text)}</p></div>`
+      return `<div class="flex gap-2 py-1">${emojiToIcon(block.icon)}<p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(block.text)}</p></div>`
     case 'tip':
       return `<div class="px-3 py-2 bg-amber-500/5 border-l-[3px] border-amber-500 rounded-r-lg mt-2 text-sm text-amber-400 leading-relaxed">${escapeHTML(block.text)}</div>`
     case 'warn':
@@ -663,10 +683,10 @@ function renderGuideFilterChips(sectionData, countryCode, catId) {
 
   // Use inline styles for dynamic colors (Tailwind can't detect dynamic class names)
   const chipDefs = {
-    q: { label: t('guideChipQuestions') || 'Questions', emoji: '❓', color: '#3b82f6' },
-    c: { label: t('guideChipTips') || 'Conseils', emoji: '💡', color: '#10b981' },
-    a: { label: t('guideChipAlerts') || 'Alertes', emoji: '⚠️', color: '#ef4444' },
-    b: { label: t('guideChipDeals') || 'Bons plans', emoji: '🎯', color: '#f59e0b' },
+    q: { label: t('guideChipQuestions') || 'Questions', iconName: 'help-circle', color: '#3b82f6' },
+    c: { label: t('guideChipTips') || 'Conseils', iconName: 'lightbulb', color: '#10b981' },
+    a: { label: t('guideChipAlerts') || 'Alertes', iconName: 'alert-triangle', color: '#ef4444' },
+    b: { label: t('guideChipDeals') || 'Bons plans', iconName: 'crosshair', color: '#f59e0b' },
   }
 
   const allActive = !activeFilter
@@ -695,7 +715,7 @@ function renderGuideFilterChips(sectionData, countryCode, catId) {
 
 /** Render the empty community state */
 function renderGuideEmptyForum(catId) {
-  const emojis = { laws: '💬', hitchhiking: '🗺️', safety: '🛡️', women: '💪', language: '🗣️', budget: '💶', sleep: '🏕️', transport: '🚌', season: '📅', culture: '🎭' }
+  const sectionIcons = { laws: 'scale', hitchhiking: 'map', safety: 'shield-check', women: 'shield', language: 'message-circle', budget: 'coins', sleep: 'tent', transport: 'bus', season: 'calendar', culture: 'theater' }
   const messages = {
     laws: t('guideForumLaws') || 'Partage ton expérience avec les lois !',
     hitchhiking: t('guideForumHitchhiking') || 'Partage tes astuces pour trouver des trajets !',
@@ -710,7 +730,7 @@ function renderGuideEmptyForum(catId) {
   }
   return `
     <div class="text-center py-6">
-      <div class="text-3xl mb-2 opacity-60">${emojis[catId] || '💬'}</div>
+      <div class="mb-2 opacity-60">${icon(sectionIcons[catId] || 'message-circle', 'w-8 h-8 text-slate-400')}</div>
       <p class="text-sm text-slate-500 mb-3">${t('guideNoContribution') || 'Aucune contribution pour le moment.'}<br>${escapeHTML(messages[catId] || '')}</p>
       <button onclick="openGuideCategory('${escapeJSString(_currentGuideCode || '')}', '${escapeJSString(catId)}')" class="inline-block px-4 py-2 bg-blue-500 text-white rounded-full text-xs font-semibold cursor-pointer">+ ${t('guideContribute') || 'Contribuer'}</button>
     </div>

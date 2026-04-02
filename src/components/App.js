@@ -1432,7 +1432,7 @@ function addAmenityMarkers(amenities) {
   amenities.forEach(poi => {
     if (!poi.lat || !poi.lng) return
     const isFuel = poi.type === 'fuel'
-    const label = isFuel ? '⛽' : '🅿️'
+    const label = isFuel ? icon('fuel', 'w-4 h-4') : icon('square-parking', 'w-4 h-4')
     const stationName = poi.name || poi.brand || (isFuel ? (t('gasStation') || 'Gas station') : (t('restArea') || 'Rest area'))
     const areaName = poi.serviceArea || ''
 
