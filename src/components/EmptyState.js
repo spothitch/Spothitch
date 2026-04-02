@@ -113,7 +113,7 @@ const emptyStates = {
  buttonIcon: null,
  },
  chat: {
- iconName: 'hand',
+ iconName: 'hand-metal',
  messageKey: 'emptyChatMessages',
  descKey: 'emptyChatMessagesDesc',
  buttonKey: null,
