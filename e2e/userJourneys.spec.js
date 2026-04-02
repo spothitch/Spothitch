@@ -2,7 +2,7 @@
  * E2E Tests - Complete User Journeys
  * Simulates real human users navigating ALL features of the app.
  *
- * Navigation tabs: map, challenges, social, profile (4 tabs, NO travel tab)
+ * Navigation tabs: map, voyage, social, profile
  * Social sub-tabs: messagerie (Messages), evenements (Events) — WhatsApp style
  * Switch social sub-tabs via: window.setSocialTab?.('messagerie'|'evenements')
  */
@@ -294,21 +294,26 @@ test.describe('Journey: Voyage Tab', () => {
     await navigateToTab(page, 'voyage')
   })
 
-  test('should display voyage planner as default sub-tab', async ({ page }) => {
-    // Default sub-tab is Planifier — trip form inputs visible
-    await expect(page.locator('input#trip-from').first()).toBeVisible({ timeout: 8000 })
+  test('should display guides as default sub-tab', async ({ page }) => {
+    // Default sub-tab is Guides (trip planner hidden during alpha)
+    const guidesContent = page
+      .locator('.guide-card')
+      .or(page.locator('#guides-search'))
+      .or(page.locator('text=/Guides/i'))
+      .first()
+    await expect(guidesContent).toBeVisible({ timeout: 8000 })
   })
 
   test('should show voyage sub-tab navigation', async ({ page }) => {
     const subTabs = page.locator('[onclick*="setVoyageSubTab"]')
     await expect(subTabs.first()).toBeVisible({ timeout: 5000 })
-    expect(await subTabs.count()).toBeGreaterThanOrEqual(3)
+    // 2 sub-tabs during alpha: Guides + Journal (trip planner hidden)
+    expect(await subTabs.count()).toBeGreaterThanOrEqual(2)
   })
 
   test('should navigate to Guides sub-tab', async ({ page }) => {
     await page.evaluate(() => window.setVoyageSubTab?.('guides'))
     await page.waitForTimeout(300)
-    // Guides sub-tab should show guide cards or search
     const guidesContent = page
       .locator('.guide-card')
       .or(page.locator('#guides-search'))
@@ -316,17 +321,9 @@ test.describe('Journey: Voyage Tab', () => {
       .first()
     const isVisible = await guidesContent.isVisible({ timeout: 5000 }).catch(() => false)
     if (!isVisible) {
-      // In CI, verify the sub-tab was at least activated via state
       const state = await page.evaluate(() => window.getState?.())
       expect(state?.voyageSubTab || 'guides').toBe('guides')
     }
-  })
-
-  test('should navigate to Voyage sub-tab showing trip planner', async ({ page }) => {
-    await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
-    await page.waitForTimeout(300)
-    const content = page.locator('input#trip-from').first()
-    await expect(content).toBeVisible({ timeout: 5000 })
   })
 
   test('should navigate to Journal sub-tab', async ({ page }) => {
@@ -356,7 +353,7 @@ test.describe('Journey: Complete Tab Navigation', () => {
   test('should navigate through ALL tabs without errors', async ({ page }) => {
     await skipOnboarding(page)
 
-    // Only 4 tabs exist: map, challenges, social, profile
+    // Only 4 tabs exist: map, voyage, social, profile
     const tabs = ['map', 'voyage', 'social', 'profile']
 
     for (const tabId of tabs) {

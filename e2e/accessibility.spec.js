@@ -68,7 +68,7 @@ test.describe('Accessibility - Automated WCAG 2.1 AA', () => {
     expect(results.violations.length).toBeLessThanOrEqual(MAX_VIOLATIONS)
   })
 
-  test('challenges view should pass accessibility checks', async ({ page }) => {
+  test('voyage view should pass accessibility checks', async ({ page }) => {
     await navigateToTab(page, 'voyage')
     await page.waitForSelector('nav', { timeout: 10000 })
 
@@ -108,7 +108,7 @@ test.describe('Accessibility - Navigation Structure', () => {
     // All nav buttons must have role="tab"
     const navButtons = page.locator('nav button[role="tab"]')
     const count = await navButtons.count()
-    expect(count).toBeGreaterThanOrEqual(4) // map, challenges, social, profile
+    expect(count).toBeGreaterThanOrEqual(4) // map, voyage, social, profile
 
     // Each tab must have aria-label
     for (let i = 0; i < count; i++) {

@@ -187,10 +187,9 @@ test.describe('Search - Autocomplete Suggestions', () => {
 })
 
 // ================================================================
-// FLOW 2: Trip/Voyage Creation with Result Verification
-// Trip planner is now in the Voyage tab (challenges tab > voyage sub-tab)
+// FLOW 2: Trip/Voyage Creation — SKIPPED (trip planner hidden during alpha)
 // ================================================================
-test.describe('Trip Creation - Deep Functional', () => {
+test.describe.skip('Trip Creation - Deep Functional', () => {
   test.describe.configure({ timeout: 40000 })
 
   test.beforeEach(async ({ page }) => {
@@ -479,7 +478,7 @@ test.describe('Error-Free Critical Flows', () => {
 })
 
 // ================================================================
-// FLOW 6: Social — Feed + Messaging (zone chat removed, replaced by private messaging)
+// FLOW 6: Social — Messagerie, Voyageurs, Événements
 // ================================================================
 test.describe('Social - Deep Functional', () => {
   test.beforeEach(async ({ page }) => {
@@ -488,12 +487,11 @@ test.describe('Social - Deep Functional', () => {
     await page.waitForTimeout(2000)
   })
 
-  test('should display social feed by default', async ({ page }) => {
-    // Social tab defaults to the feed sub-tab — verify CONTENT not just container
+  test('should display social tabs or auth gate', async ({ page }) => {
     await expect(page.locator('#app')).toBeVisible({ timeout: 5000 })
     await expect(page.locator('nav')).toBeVisible({ timeout: 5000 })
-    // Feed should contain sub-tab buttons or social content
-    const socialContent = page.locator('text=/Feed|Messagerie|Événements|feed|amis/i')
+    // Social shows either sub-tabs (Messagerie/Voyageurs/Événements) or auth gate
+    const socialContent = page.locator('text=/Messagerie|Voyageurs|Événements|Connecte/i')
     await expect(socialContent.first()).toBeVisible({ timeout: 5000 })
   })
 
@@ -555,17 +553,16 @@ test.describe('Friend Management - Deep Functional', () => {
 // ================================================================
 // FLOW 8: Gamification Hub
 // ================================================================
-test.describe('Gamification Hub Flow', () => {
+// Gamification hidden during alpha — skip gamification-specific tests
+test.describe.skip('Gamification Hub Flow', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'voyage')
     await page.waitForTimeout(2000)
   })
 
-  test('should display voyage planner (challenges tab now shows Voyage)', async ({ page }) => {
-    // The challenges tab now renders the Voyage component — planner form is the default
-    const plannerInput = page.locator('input#trip-from, input#trip-to').first()
-    await expect(plannerInput).toBeVisible({ timeout: 10000 })
+  test('should display voyage content', async ({ page }) => {
+    await expect(page.locator('#app')).toBeVisible({ timeout: 10000 })
   })
 
   test('should open quiz and show question', async ({ page }) => {

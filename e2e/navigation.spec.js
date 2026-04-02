@@ -43,12 +43,12 @@ test.describe('Navigation', () => {
     })
     expect(hasSocialContent).toBe(true)
 
-    // Switch to challenges — verify DIFFERENT content appears
+    // Switch to voyage — verify DIFFERENT content appears
     await navigateToTab(page, 'voyage')
     await expect(page.locator(`[data-tab="voyage"]`)).toHaveAttribute('aria-selected', 'true')
     // Challenges tab content varies — just verify the app rendered something different from social
-    const challengesHTML = await page.evaluate(() => document.getElementById('app')?.innerHTML?.length || 0)
-    expect(challengesHTML).toBeGreaterThan(200)
+    const voyageHTML = await page.evaluate(() => document.getElementById('app')?.innerHTML?.length || 0)
+    expect(voyageHTML).toBeGreaterThan(200)
   })
 
   test('should have accessible navigation with meaningful labels', async ({ page }) => {
