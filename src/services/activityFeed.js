@@ -114,7 +114,7 @@ export function generateSampleActivities() {
       userAvatar: 'globe',
       description: t('activityFeed.earnedBadge'),
       badgeName: t('badges.explorer'),
-      badgeIcon: '🏆',
+      badgeIcon: 'trophy',
       timestamp: now - hour * 8
     },
     {

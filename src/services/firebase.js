@@ -184,7 +184,7 @@ export function initializeFirebase() {
 
     return true;
   } catch (error) {
-    console.error('❌ Firebase initialization failed:', error);
+    console.error('Firebase initialization failed:', error);
     return false;
   }
 }

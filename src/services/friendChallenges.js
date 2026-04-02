@@ -219,7 +219,7 @@ export function updateChallengeProgress(challengeId, participantId, progress) {
 
     if (isWinner) {
       addPoints(challenge.rewardPoints, 'friend_challenge_won');
-      showToast((t('friendChallengeWon') || 'Tu as gagne le defi ! +{points} 👍').replace('{points}', challenge.rewardPoints), 'success');
+      showToast((t('friendChallengeWon') || 'Tu as gagne le defi ! +{points} pts').replace('{points}', challenge.rewardPoints), 'success');
     } else {
       showToast(t('friendChallengeLost') || 'Ton ami a gagne le defi !', 'info');
     }

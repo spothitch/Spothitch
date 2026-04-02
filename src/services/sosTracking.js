@@ -105,7 +105,7 @@ export function stopSOSTracking() {
   trackingSessionId = null;
   lastPosition = null;
 
-  showToast(t('sosSharingStopped') || '✅ Position partagée arrêtée - Vous êtes en sécurité', 'success');
+  showToast(t('sosSharingStopped') || 'Position partagée arrêtée - Vous êtes en sécurité', 'success');
 }
 
 /**

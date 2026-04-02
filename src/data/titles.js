@@ -44,7 +44,7 @@ export const narrativeTitles = [
     id: 'aventurier',
     name: 'Aventurier',
     nameEn: 'Adventurer',
-    emoji: '⛰️',
+    iconName: 'mountain',
     minLevel: 21,
     maxLevel: 35,
     description: 'Les routes n\'ont plus de secrets pour toi.',

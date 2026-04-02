@@ -208,7 +208,7 @@ export const allBadges = [
     nameEn: 'Verifier',
     description: '10 spots vérifiés',
     descriptionEn: '10 verified spots',
-    icon: '✅',
+    iconName: 'circle-check',
     category: 'special',
     condition: (stats) => stats.verifiedSpots >= 10,
     points: 120,
