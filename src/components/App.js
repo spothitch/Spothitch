@@ -418,7 +418,7 @@ export function renderOverlays(state) {
     ${state.sosActive && state.sosSession ? lazyRender('renderSOSTrackingWidget', state) : ''}
     ${state.proximityAlertSpot ? lazyRender('renderProximityAlert', state.proximityAlertSpot) : ''}
     ${state.showAdminPanel ? lazyRender('renderAdminPanel', state) : ''}
-    ${state.tripResults && !state.showTripPlanner && !state.showTripMap && isMapTab(state) ? renderActiveTripBar(state) : ''}
+    ${''}<!-- Trip planner bar hidden during alpha -->
     ${state.spotDraftsBannerVisible ? lazyRender('renderDraftBanner') : ''}
     ${state.selectedCity ? renderCityPanel(state) : ''}
     ${state.showLanding ? lazyRender('renderLanding') : ''}
@@ -426,8 +426,9 @@ export function renderOverlays(state) {
 }
 
 /**
- * Render the active trip bar
+ * Render the active trip bar — hidden during alpha
  */
+// eslint-disable-next-line no-unused-vars
 function renderActiveTripBar(state) {
   return `
     <div class="fixed bottom-[4.5rem] left-4 right-4 z-30 px-4 py-2.5 rounded-xl bg-primary-500/90 backdrop-blur-xl border border-primary-400/30 shadow-lg shadow-primary-500/20 cursor-pointer" role="button" tabindex="0" onclick="openActiveTrip()">

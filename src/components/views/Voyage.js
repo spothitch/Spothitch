@@ -89,16 +89,13 @@ function formatRelativeDate(isoStr) {
 // ==================== MAIN RENDER ====================
 
 export function renderVoyage(state) {
-  const showBeta = !!import.meta.env.VITE_SHOW_BETA
-  const subTab = state.voyageSubTab || (showBeta ? 'voyage' : 'journal')
-  const activeTrip = getActiveTrip()
-  const isMapFirst = subTab === 'voyage' && !activeTrip && state.tripResults && state.tripFormCollapsed
+  // Trip planner hidden during alpha — default to guides
+  const subTab = state.voyageSubTab === 'voyage' ? 'guides' : (state.voyageSubTab || 'guides')
 
   return `
-    <div class="flex flex-col min-h-[calc(100vh-140px)] ${isMapFirst ? '' : 'pb-28'} overflow-x-hidden">
-      ${isMapFirst ? '' : renderVoyageSubTabs(subTab, activeTrip)}
-      <div class="${isMapFirst ? 'flex-1' : 'flex-1 p-4 space-y-4'}">
-        ${subTab === 'voyage' ? renderVoyageTab(state, activeTrip) : ''}
+    <div class="flex flex-col min-h-[calc(100vh-140px)] pb-28 overflow-x-hidden">
+      ${renderVoyageSubTabs(subTab)}
+      <div class="flex-1 p-4 space-y-4">
         ${subTab === 'guides' ? renderVoyageGuidesTab(state) : ''}
         ${subTab === 'journal' ? renderJournalTab(state) : ''}
       </div>
@@ -108,9 +105,9 @@ export function renderVoyage(state) {
 
 // ==================== SUB-TABS BAR ====================
 
-function renderVoyageSubTabs(active, activeTrip) {
+function renderVoyageSubTabs(active) {
+  // Trip planner (voyage/itinéraire) hidden during alpha
   const tabs = [
-    { id: 'voyage', icon: 'route', label: t('voyageTabVoyage') || 'Itinéraire', dot: !!activeTrip },
     { id: 'guides', icon: 'book-open', label: t('voyageTabGuides') || 'Guides' },
     { id: 'journal', icon: 'notebook-pen', label: t('voyageTabJournal') || 'Journal' },
   ]
@@ -135,8 +132,9 @@ function renderVoyageSubTabs(active, activeTrip) {
   `
 }
 
-// ==================== TAB 1: VOYAGE (planifier + radar) ====================
+// ==================== TAB 1: VOYAGE (planifier + radar) — hidden during alpha ====================
 
+// eslint-disable-next-line no-unused-vars
 function renderVoyageTab(state, activeTrip) {
   if (activeTrip) {
     return renderEnRouteRadar(state, activeTrip)
