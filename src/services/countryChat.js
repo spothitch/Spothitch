@@ -65,40 +65,25 @@ export async function joinCountryChat(countryCode) {
   }
 
   try {
-    const { doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } = await import('firebase/firestore')
+    const { doc, setDoc, arrayUnion, serverTimestamp } = await import('firebase/firestore')
     const { db } = await import('./firebase.js')
     if (!db) return null
 
     const groupId = `country_${countryCode}`
     const groupRef = doc(db, 'groupConversations', groupId)
-    const existing = await getDoc(groupRef)
+    const lang = localStorage.getItem('spothitch_lang') || 'fr'
+    const name = COUNTRY_NAMES[countryCode]?.[lang] || countryCode
 
-    if (existing.exists()) {
-      // Join existing group
-      const data = existing.data()
-      if (!data.members?.includes(uid)) {
-        await updateDoc(groupRef, {
-          members: arrayUnion(uid),
-          memberCount: (data.memberCount || data.members?.length || 0) + 1,
-        })
-      }
-    } else {
-      // Create the country group
-      const lang = localStorage.getItem('spothitch_lang') || 'fr'
-      const name = COUNTRY_NAMES[countryCode]?.[lang] || countryCode
-      await setDoc(groupRef, {
-        name: `${getCountryFlag(countryCode)} ${name}`,
-        icon: getCountryFlag(countryCode),
-        type: 'country',
-        countryCode,
-        creator: uid,
-        members: [uid],
-        memberCount: 1,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        lastMessage: null,
-      })
-    }
+    // Use setDoc with merge — creates the doc if it doesn't exist, or adds the user if it does
+    // This avoids needing a getDoc first (which requires membership for non-country groups)
+    await setDoc(groupRef, {
+      name: `${getCountryFlag(countryCode)} ${name}`,
+      icon: getCountryFlag(countryCode),
+      type: 'country',
+      countryCode,
+      members: arrayUnion(uid),
+      updatedAt: serverTimestamp(),
+    }, { merge: true })
 
     // Open the conversation
     const { setState } = await import('../stores/state.js')
