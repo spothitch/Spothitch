@@ -100,37 +100,23 @@ import {
 } from './components/LoadingIndicator.js';
 
 // ==================== STALE CACHE RECOVERY ====================
-// If a dynamic import fails (e.g. stale hash after deploy), clear caches and reload.
-// This prevents "site inaccessible" errors when the PWA serves outdated assets.
+// If a dynamic import fails (e.g. stale hash after deploy), clear caches silently.
+// The next app open will load fresh assets. NEVER reload automatically.
 window.addEventListener('error', (e) => {
   const msg = e.message || ''
   if (msg.includes('Failed to fetch dynamically imported module')
     || msg.includes('Importing a module script failed')
     || msg.includes('Loading chunk')
     || msg.includes('Loading CSS chunk')) {
-    // Already handled by index.html inline script? Skip.
     if (window.__swRecovery) return
-    // Already reloading? Don't loop
-    if (sessionStorage.getItem('spothitch_cache_recovery')) return
-    sessionStorage.setItem('spothitch_cache_recovery', '1')
-    // If a share flow is active, clear caches but DON'T reload
-    // (the cleared cache will let subsequent dynamic imports fetch from network)
-    const isShareFlow = window._shareInProgress
-      || window.location.search.includes('action=share')
-      || sessionStorage.getItem('spothitch_share_flow')
-    // Guarded reload: only reload if NOT in share flow (visibilityState irrelevant for cache recovery)
-    const safeReload = () => { if (!isShareFlow) window.location.reload() }
+    // Clear stale caches so next app open loads fresh assets
     if (window.caches) {
       caches.keys().then(keys =>
         Promise.all(keys.map(k => caches.delete(k)))
-      ).then(safeReload).catch(safeReload)
-    } else {
-      safeReload()
+      ).catch(() => {})
     }
   }
 })
-// Clear recovery flag on successful load
-sessionStorage.removeItem('spothitch_cache_recovery')
 
 // ==================== AUTO-UPDATE ====================
 import { startVersionCheck } from './services/autoUpdate.js'
@@ -1018,7 +1004,7 @@ async function registerServiceWorker() {
     window.addEventListener('online', () => registration.update())
 
     // When a new SW is found, it will skipWaiting (configured in vite.config.js)
-    // Then controllerchange fires → handled in startVersionCheck() → auto-reload
+    // New version activates on next app open — no reload during use
   } catch (error) {
     console.error('Service Worker registration failed:', error)
   }

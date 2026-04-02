@@ -71,21 +71,14 @@ describe('Share: reload protection during Google Maps share', () => {
     expect(autoUpdate).toMatch(/window\._shareInProgress/)
   })
 
-  it('update logic checks share flow guard before reloading', () => {
-    // The isBlocked function must check _shareInProgress
-    const hasShareGuard = autoUpdate.includes('_shareInProgress')
-    expect(hasShareGuard).toBe(true)
+  it('autoUpdate must NOT contain location.reload()', () => {
+    // RÈGLE #23: JAMAIS de reload automatique dans une PWA
+    expect(autoUpdate).not.toMatch(/location\.reload/)
   })
 
-  it('SW controllerchange defers reload (no immediate reload)', () => {
-    const swSection = autoUpdate.slice(autoUpdate.indexOf('controllerchange'))
-    const defersReload = swSection.includes('pendingReload')
-    expect(defersReload).toBe(true)
-  })
-
-  it('visibilitychange pending reload checks guard', () => {
-    const hasGuard = autoUpdate.includes('isBlocked') || autoUpdate.includes('pendingReload')
-    expect(hasGuard).toBeTruthy()
+  it('autoUpdate must NOT poll with setInterval', () => {
+    // No version polling — SW handles updates silently
+    expect(autoUpdate).not.toMatch(/setInterval/)
   })
 })
 

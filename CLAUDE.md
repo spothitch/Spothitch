@@ -10,6 +10,14 @@
 > - Les appels parallèles légers (lecture de fichiers, grep, glob) restent OK car ils ne consomment pas de ressources
 > - Cette règle existe parce que trop de tâches en arrière-plan simultanées font CRASHER la session (crash du 2026-03-20)
 
+> **RÈGLE #23 — ZÉRO RELOAD AUTOMATIQUE** (ABSOLUMENT OBLIGATOIRE) :
+> - **JAMAIS de `location.reload()` automatique** dans le code. Une PWA ne recharge JAMAIS la page pendant que l'utilisateur l'utilise.
+> - **JAMAIS de polling version** (setInterval + fetch version.json). Le service worker gère les mises à jour tout seul.
+> - **JAMAIS de `controllerchange` → reload**. La nouvelle version s'active au prochain lancement de l'app.
+> - **Les seuls `location.reload()` autorisés** sont ceux déclenchés par un **clic explicite de l'utilisateur** (bouton "Réessayer", "Réinitialiser", suppression de compte).
+> - **Le fichier `src/services/autoUpdate.js`** est un no-op volontaire. NE JAMAIS y remettre de logique de reload.
+> - Cette règle existe parce que les reloads automatiques causaient des freezes et des pertes de données (Guardian mode interrompu, formulaires perdus, état cassé).
+
 > **RÈGLE #22 — GITHUB ACTIONS : ZÉRO CRON, ZÉRO ABUS** (ABSOLUMENT OBLIGATOIRE) :
 > - Le compte GitHub a DÉJÀ été bloqué par GitHub pour violation des Terms of Service (Actions utilisées pour du "general computing")
 > - **JAMAIS de `schedule:` ou `cron:` dans les workflows GitHub Actions** — c'est ce qui a causé le blocage
