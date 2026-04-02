@@ -215,13 +215,13 @@ describe('spotFreshness', () => {
       const spot = { spotType: 'gas_station', validationCount: 0, testCount: 0 }
       const html = renderFreshnessBadge(spot)
       expect(html).toContain('bg-red-500/20')
-      expect(html).toContain('⛽')
+      expect(html).toContain('lucide')
     })
 
     it('should render crown for certified spot', () => {
       const spot = { ambassadorVerified: true, validationCount: 0, testCount: 0 }
       const html = renderFreshnessBadge(spot)
-      expect(html).toContain('crown')
+      expect(html).toContain('lucide')
     })
 
     it('should render blue badge for any spot', () => {

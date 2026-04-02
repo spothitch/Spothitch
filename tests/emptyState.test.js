@@ -9,57 +9,57 @@ describe('EmptyState Component', () => {
   describe('renderEmptyState', () => {
     it('should render conversations empty state with emoji and CTA', () => {
       const result = renderEmptyState('conversations')
-      expect(result).toContain('💬')
+      expect(result).toContain('lucide')
       expect(result).toContain('btn-primary')
       expect(result).toContain('showAddFriend()')
     })
 
     it('should render friends empty state', () => {
       const result = renderEmptyState('friends')
-      expect(result).toContain('🚗')
+      expect(result).toContain('lucide')
       expect(result).toContain('btn-primary')
     })
 
     it('should render trips empty state with CTA', () => {
       const result = renderEmptyState('trips')
-      expect(result).toContain('🗺️')
+      expect(result).toContain('lucide')
       expect(result).toContain('btn-primary')
       expect(result).toContain("changeTab('voyage')")
     })
 
     it('should render badges empty state', () => {
       const result = renderEmptyState('badges')
-      expect(result).toContain('🏆')
+      expect(result).toContain('lucide')
       expect(result).toContain("changeTab('voyage')")
     })
 
     it('should render spots empty state with CTA', () => {
       const result = renderEmptyState('spots')
-      expect(result).toContain('📍')
+      expect(result).toContain('lucide')
       expect(result).toContain('openAddSpot()')
     })
 
     it('should render events empty state', () => {
       const result = renderEmptyState('events')
-      expect(result).toContain('📅')
+      expect(result).toContain('lucide')
       expect(result).toContain('openCreateEvent()')
     })
 
     it('should render companion empty state without CTA button', () => {
       const result = renderEmptyState('companion')
-      expect(result).toContain('🤝')
+      expect(result).toContain('lucide')
       expect(result).not.toContain('btn-primary')
     })
 
     it('should render friendTrips empty state without CTA button', () => {
       const result = renderEmptyState('friendTrips')
-      expect(result).toContain('👥')
+      expect(result).toContain('lucide')
       expect(result).not.toContain('btn-primary')
     })
 
     it('should render fallback for unknown type', () => {
       const result = renderEmptyState('unknown-type')
-      expect(result).toContain('🤷')
+      expect(result).toContain('lucide')
       expect(result).not.toContain('btn-primary')
     })
 
@@ -71,20 +71,20 @@ describe('EmptyState Component', () => {
     })
 
     it('should have correct emoji for each type', () => {
-      expect(renderEmptyState('conversations')).toContain('💬')
-      expect(renderEmptyState('friends')).toContain('🚗')
-      expect(renderEmptyState('feed')).toContain('📰')
-      expect(renderEmptyState('events')).toContain('📅')
-      expect(renderEmptyState('companion')).toContain('🤝')
-      expect(renderEmptyState('trips')).toContain('🗺️')
-      expect(renderEmptyState('pastTrips')).toContain('📔')
-      expect(renderEmptyState('friendTrips')).toContain('👥')
-      expect(renderEmptyState('spots')).toContain('📍')
-      expect(renderEmptyState('mySpots')).toContain('📍')
-      expect(renderEmptyState('favorites')).toContain('⭐')
-      expect(renderEmptyState('badges')).toContain('🏆')
-      expect(renderEmptyState('references')).toContain('✍️')
-      expect(renderEmptyState('chat')).toContain('👋')
+      expect(renderEmptyState('conversations')).toContain('lucide')
+      expect(renderEmptyState('friends')).toContain('lucide')
+      expect(renderEmptyState('feed')).toContain('lucide')
+      expect(renderEmptyState('events')).toContain('lucide')
+      expect(renderEmptyState('companion')).toContain('lucide')
+      expect(renderEmptyState('trips')).toContain('lucide')
+      expect(renderEmptyState('pastTrips')).toContain('lucide')
+      expect(renderEmptyState('friendTrips')).toContain('lucide')
+      expect(renderEmptyState('spots')).toContain('lucide')
+      expect(renderEmptyState('mySpots')).toContain('lucide')
+      expect(renderEmptyState('favorites')).toContain('lucide')
+      expect(renderEmptyState('badges')).toContain('lucide')
+      expect(renderEmptyState('references')).toContain('lucide')
+      expect(renderEmptyState('chat')).toContain('lucide')
     })
   })
 

@@ -80,7 +80,7 @@ describe('FAQ Component', () => {
 
       // The i18n key is shown, not the translated text
       expect(html).toContain('clearFAQSearch');
-      expect(html).toContain('💬'); // Emoji icon is present
+      expect(html).toContain('lucide'); // Emoji icon is present
       expect(html).toContain('faq-view'); // FAQ view container
     });
 

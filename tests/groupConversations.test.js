@@ -83,10 +83,10 @@ vi.mock('firebase/app', () => ({
 let mockState = {
   user: { uid: 'user_alice', displayName: 'Alice Test' },
   username: 'alice',
-  avatar: '🤙',
+  avatar: 'thumbs-up',
   friends: [
-    { id: 'user_bob', name: 'Bob Test', avatar: '🎒', online: true },
-    { id: 'user_carol', name: 'Carol Test', avatar: '🌸', online: false },
+    { id: 'user_bob', name: 'Bob Test', avatar: 'backpack', online: true },
+    { id: 'user_carol', name: 'Carol Test', avatar: 'flower', online: false },
   ],
   groupConversations: [],
 }
@@ -129,10 +129,10 @@ beforeEach(() => {
   mockState = {
     user: { uid: UID_ALICE, displayName: 'Alice Test' },
     username: 'alice',
-    avatar: '🤙',
+    avatar: 'thumbs-up',
     friends: [
-      { id: UID_BOB, name: 'Bob Test', avatar: '🎒', online: true },
-      { id: UID_CAROL, name: 'Carol Test', avatar: '🌸', online: false },
+      { id: UID_BOB, name: 'Bob Test', avatar: 'backpack', online: true },
+      { id: UID_CAROL, name: 'Carol Test', avatar: 'flower', online: false },
     ],
     groupConversations: [],
   }
@@ -222,7 +222,7 @@ describe('GroupConversations — createGroupConversation', () => {
     expect(data.members).toContain(UID_ALICE)
     expect(data.members).toContain(UID_BOB)
     expect(data.creator).toBe(UID_ALICE)
-    expect(data.icon).toBe('👥')
+    expect(data.icon).toBe('users')
   })
 
   it('crée le groupe avec plusieurs amis', async () => {
@@ -238,7 +238,7 @@ describe('GroupConversations — createGroupConversation', () => {
     const [, data] = mockAddDoc.mock.calls[0]
     expect(data.memberProfiles[UID_ALICE]).toBeDefined()
     expect(data.memberProfiles[UID_BOB]?.name).toBe('Bob Test')
-    expect(data.memberProfiles[UID_BOB]?.avatar).toBe('🎒')
+    expect(data.memberProfiles[UID_BOB]?.avatar).toBe('backpack')
   })
 
   it('déduplique les membres si créateur est dans la liste', async () => {
@@ -251,9 +251,9 @@ describe('GroupConversations — createGroupConversation', () => {
   })
 
   it('accepte un icon personnalisé', async () => {
-    await createGroupConversation('Road Trip', [UID_BOB], '🚗')
+    await createGroupConversation('Road Trip', [UID_BOB], 'car')
     const [, data] = mockAddDoc.mock.calls[0]
-    expect(data.icon).toBe('🚗')
+    expect(data.icon).toBe('car')
   })
 })
 

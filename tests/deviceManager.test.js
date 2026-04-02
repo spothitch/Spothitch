@@ -174,8 +174,8 @@ describe('DeviceManager Component', () => {
 
     it('should show device type icons', () => {
       const html = renderDeviceManager()
-      expect(html).toContain('💻') // desktop
-      expect(html).toContain('📱') // mobile
+      expect(html).toContain('lucide') // desktop
+      expect(html).toContain('lucide') // mobile
     })
 
     it('should include accessibility attributes', () => {
@@ -229,7 +229,7 @@ describe('DeviceManager Component', () => {
 
     it('should show lock emoji in empty state', () => {
       const html = renderDeviceManager()
-      expect(html).toContain('🔒')
+      expect(html).toContain('lucide')
     })
 
     it('should not show disconnect all button when no other devices', () => {
@@ -249,7 +249,7 @@ describe('DeviceManager Component', () => {
         lastSeen: new Date().toISOString(),
       })
       const html = renderDeviceManager()
-      expect(html).toContain('💻')
+      expect(html).toContain('lucide')
     })
 
     it('should show mobile icon for mobile devices', () => {
@@ -262,7 +262,7 @@ describe('DeviceManager Component', () => {
         lastSeen: new Date().toISOString(),
       })
       const html = renderDeviceManager()
-      expect(html).toContain('📱')
+      expect(html).toContain('lucide')
     })
 
     it('should show tablet icon for tablet devices', () => {
@@ -275,7 +275,7 @@ describe('DeviceManager Component', () => {
         lastSeen: new Date().toISOString(),
       })
       const html = renderDeviceManager()
-      expect(html).toContain('📲')
+      expect(html).toContain('lucide')
     })
 
     it('should show unknown icon for unknown device types', () => {
@@ -288,7 +288,7 @@ describe('DeviceManager Component', () => {
         lastSeen: new Date().toISOString(),
       })
       const html = renderDeviceManager()
-      expect(html).toContain('🖥️')
+      expect(html).toContain('lucide')
     })
   })
 

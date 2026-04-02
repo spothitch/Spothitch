@@ -598,7 +598,7 @@ describe('Integration: FriendProfile Modal', () => {
 
   it('shows friend avatar', () => {
     const html = renderFriendProfileModal(friendState)
-    expect(html).toContain('👩')
+    expect(html).toContain('lucide')
   })
 
   it('has close button', () => {

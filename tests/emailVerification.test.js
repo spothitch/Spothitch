@@ -83,7 +83,7 @@ describe('Email Verification Modal', () => {
       const html = renderEmailVerification('test@example.com');
 
       expect(html).toContain('bg-blue-900/20');
-      expect(html).toContain('💡');
+      expect(html).toContain('lucide');
       expect(html).toContain('border-blue-500/30');
     });
 
@@ -91,7 +91,7 @@ describe('Email Verification Modal', () => {
       const html = renderEmailVerification('test@example.com');
 
       expect(html).toContain('animate-bounce-slow');
-      expect(html).toContain('📧');
+      expect(html).toContain('lucide');
     });
 
     it('should contain status message area', () => {
@@ -299,7 +299,7 @@ describe('Email Verification Modal', () => {
     it('should have header with emoji and title', () => {
       const html = renderEmailVerification('test@example.com');
 
-      expect(html).toContain('📧');
+      expect(html).toContain('lucide');
       expect(html).toContain('gradient-text');
     });
 

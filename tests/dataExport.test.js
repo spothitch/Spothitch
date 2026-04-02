@@ -9,7 +9,7 @@ import { collectUserData, getExportSummary, exportUserData } from '../src/utils/
 vi.mock('../src/stores/state.js', () => ({
   getState: vi.fn(() => ({
     username: 'TestUser',
-    avatar: '🚗',
+    avatar: 'car',
     points: 150,
     totalPoints: 500,
     seasonPoints: 75,
@@ -23,7 +23,7 @@ vi.mock('../src/stores/state.js', () => ({
     skillPoints: 3,
     unlockedSkills: ['speed_reader', 'night_owl'],
     friends: [
-      { id: 'friend1', username: 'Alice', avatar: '🎒' },
+      { id: 'friend1', username: 'Alice', avatar: 'backpack' },
       { id: 'friend2', username: 'Bob', avatar: '🚶' },
     ],
     friendRequests: [
@@ -76,7 +76,7 @@ describe('Data Export Utility', () => {
 
       expect(data.profile).toBeDefined()
       expect(data.profile.username).toBe('TestUser')
-      expect(data.profile.avatar).toBe('🚗')
+      expect(data.profile.avatar).toBe('car')
       expect(data.profile.email).toBe('test@example.com')
       expect(data.profile.displayName).toBe('Test User')
     })

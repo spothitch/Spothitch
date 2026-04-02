@@ -55,7 +55,7 @@ describe('Friend Challenges Service', () => {
         expect(type).toHaveProperty('id');
         expect(type).toHaveProperty('name');
         expect(type).toHaveProperty('nameEn');
-        expect(type).toHaveProperty('icon');
+        expect(type).toHaveProperty('iconName');
         expect(type).toHaveProperty('metric');
         expect(type).toHaveProperty('defaultTarget');
         expect(type).toHaveProperty('rewardPoints');

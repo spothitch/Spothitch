@@ -59,7 +59,7 @@ export function getGroupConversationsList() {
 
 // --- Create ---
 
-export async function createGroupConversation(name, memberIds, icon = '👥') {
+export async function createGroupConversation(name, memberIds, icon = 'users') {
   const db = getDb()
   const user = getCurrentUser()
   if (!db || !user) return { success: false, error: 'not_authenticated' }

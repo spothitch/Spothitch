@@ -89,7 +89,7 @@ const emptyStates = {
  buttonIcon: 'plus',
  },
  favorites: {
- emoji: '⭐',
+ iconName: 'star',
  messageKey: 'emptyFavorites',
  descKey: 'emptyFavoritesDesc',
  buttonKey: 'emptyFavoritesBtn',
@@ -105,7 +105,7 @@ const emptyStates = {
  buttonIcon: 'medal',
  },
  references: {
- emoji: '',
+ iconName: 'circle',
  messageKey: 'emptyReferences',
  descKey: 'emptyReferencesDesc',
  buttonKey: null,
