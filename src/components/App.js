@@ -1082,11 +1082,11 @@ function initHomeMap(state) {
     }
 
     map.on('load', async () => {
-      // Map is ready (splash removed, no progress tracking needed)
-
-      // Hide map loading spinner
-      const mapLoader = document.getElementById('map-loading-indicator')
-      if (mapLoader) { mapLoader.style.opacity = '0'; setTimeout(() => mapLoader.remove(), 500) }
+      // Map is ready — hide the splash screen
+      const loader = document.getElementById('app-loader')
+      if (loader) { loader.classList.add('hidden'); setTimeout(() => loader.remove(), 400) }
+      const app = document.getElementById('app')
+      if (app) app.classList.add('loaded')
       // Long press on map → open AddSpot with pre-filled coordinates
       let longPressTimer = null
       let longPressStart = null

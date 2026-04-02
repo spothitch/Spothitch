@@ -508,8 +508,9 @@ async function init() {
       console.warn('Error handlers skipped:', e.message);
     }
 
-    // Hide logo loader — app is ready
-    hideLoader()
+    // Splash stays visible until map fires 'load' event (in App.js).
+    // Fallback: hide after 8s max if map never loads (offline, error).
+    setTimeout(hideLoader, 8000)
     // GPS ready (non-blocking)
     if (savedPos) {
       gpsReadyPromise.then(() => {}).catch(() => {})

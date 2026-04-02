@@ -23,11 +23,7 @@ export function renderHome(state) {
       <!-- Map — full screen behind everything (z-0) -->
       <div id="home-map-container" class="absolute inset-0 z-0 bg-dark-secondary">
         <div id="home-map" class="w-full h-full"></div>
-        <div id="map-loading-indicator" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10" style="transition:opacity 0.5s">
-          <div class="flex flex-col items-center gap-2 text-slate-400">
-            <div class="w-8 h-8 border-2 border-slate-600 border-t-amber-400 rounded-full animate-spin"></div>
-          </div>
-        </div>
+        <!-- Map loading handled by splash screen in index.html -->
       </div>
 
       <!-- Companion Mode floating bar -->
