@@ -9,8 +9,9 @@ import { renderVerifiedCheckmark, getUserTrustScore } from '../../services/trust
 import { icon } from '../../utils/icons.js'
 import { renderEmptyState } from '../EmptyState.js'
 import { renderToggle } from '../../utils/toggle.js'
-import { getVipLevel } from '../../data/vip-levels.js'
-import { allBadges } from '../../data/badges.js'
+// Gamification hidden during alpha — keep imports for easy re-enable
+// import { getVipLevel } from '../../data/vip-levels.js'
+// import { allBadges } from '../../data/badges.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { FEATURES_DATA } from '../../data/featuresData.js'
 import { getVoteTotals, getFeatureComments } from '../../services/featureVotes.js'
@@ -209,14 +210,13 @@ function renderProfilTab(state) {
   const svgPhotos = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
   const svgReviews = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ef4444" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
   const svgTrips = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0ea5e9" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>'
-  const svgBadges = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>'
+  // svgBadges + badgeCount hidden during alpha (gamification)
 
   const bio = state.bio || ''
   const langs = (() => { try { return JSON.parse(localStorage.getItem('spothitch_languages') || '[]') } catch { return [] } })()
   const photos = (() => { try { return JSON.parse(localStorage.getItem('spothitch_gallery') || '[]') } catch { return [] } })()
   const tripCount = state.pastTrips?.length || 0
   const reviewCount = state.myReviews?.length || 0
-  const badgeCount = state.earnedBadges?.length || 0
 
   // Language level visual
   const levelDot = (level) => {
@@ -303,23 +303,7 @@ function renderProfilTab(state) {
     </div>
     ` : ''}
 
-    <!-- Badges -->
-    ${badgeCount > 0 ? `
-    <div class="card p-4">
-      <div class="flex items-center gap-2 mb-2">
-        ${svgBadges}
-        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('badges') || 'Badges'}</span>
-        <span class="text-xs text-slate-500">(${badgeCount})</span>
-      </div>
-      <div class="flex flex-wrap gap-2">
-        ${(state.earnedBadges || []).slice(0, 8).map(id => {
-          const badge = allBadges.find(b => b.id === id)
-          return badge ? `<span class="text-2xl" title="${badge.name}">${badge.icon}</span>` : ''
-        }).join('')}
-        ${badgeCount > 8 ? `<span class="text-xs text-slate-500 self-center">+${badgeCount - 8}</span>` : ''}
-      </div>
-    </div>
-    ` : ''}
+    <!-- Badges: hidden during alpha (gamification masquée) -->
 
     ${renderDonationCard()}
   `
@@ -330,8 +314,6 @@ function renderProfilTab(state) {
 // were removed — profile info now displayed directly in renderProfilTab, editing only via modal
 
 function renderProfileHeader(state) {
-  const level = state.level || 1
-  const vipLevel = getVipLevel(state.points || 0)
   const { isIdVerified } = getUserTrustScore()
   const verifiedBadge = renderVerifiedCheckmark(isIdVerified)
   const memberSince = state.user?.metadata?.creationTime
@@ -350,16 +332,11 @@ function renderProfileHeader(state) {
           </div>
         </div>
       </div>
-      <!-- Name + level -->
+      <!-- Name -->
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1 flex-wrap">
           <h2 class="text-base font-bold">@${escapeHTML(state.username || t('traveler') || 'Voyageur')}</h2>
           ${verifiedBadge}
-        </div>
-        <div class="mt-1">
-          <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400">
-            ${vipLevel.icon} ${t('level') || 'Niv.'} ${level} · ${vipLevel.name}
-          </span>
         </div>
         ${memberSince ? `<p class="text-[10px] text-slate-500 mt-1">${t('memberSince') || 'Membre depuis'} ${memberSince}</p>` : ''}
         <p class="text-[10px] text-slate-500 truncate">${state.user?.email || t('notConnected') || 'Non connecté'}</p>
@@ -1675,7 +1652,7 @@ window.closeRoadmapFeature = () => {
 window.roadmapVote = () => { window.showToast?.(t('roadmapDetail'), 'info') }
 
 window.openProgressionStats = () => {
-  window.setState?.({ showBadges: true })
+  // Gamification hidden during alpha — no-op
 }
 
 window.acceptRoadmapIntro = () => {

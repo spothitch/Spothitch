@@ -366,16 +366,8 @@ export function renderModals(state) {
     ${''}<!-- Tutorial retired -->
     ${state.showFilters ? lazyRender('renderFiltersModal') : ''}
     ${state.showStats ? lazyRender('renderStatsModal') : ''}
-    ${state.showBadges ? lazyRender('renderBadgesModal') : ''}
-    ${state.showChallenges ? lazyRender('renderChallengesModal') : ''}
-    ${state.showShop ? lazyRender('renderShopModal') : ''}
-    ${state.showMyRewards ? lazyRender('renderMyRewardsModal') : ''}
-    ${state.showQuiz ? lazyRender('renderQuiz') : ''}
-    ${state.showLeaderboard ? lazyRender('renderLeaderboardModal') : ''}
+    ${''}<!-- Gamification modals hidden during alpha -->
     ${state.checkinSpot ? lazyRender('renderCheckinModal', state) : ''}
-    ${state.showDailyReward ? lazyRender('renderDailyRewardModal') : ''}
-    ${state.showBadgePopup ? lazyRender('renderBadgePopup') : ''}
-    ${state.showBadgeDetail ? lazyRender('renderBadgeDetail', state.selectedBadgeId) : ''}
     ${state.navigationActive ? lazyRender('renderNavigationOverlay', state) : ''}
     ${state.showDonation ? lazyRender('renderDonationModal', state) : ''}
     ${state.showDonationThankYou ? lazyRender('renderThankYouModal', state) : ''}
@@ -401,7 +393,7 @@ export function renderModals(state) {
     ${''}<!-- Welcome modal removed — redundant with landing carousel -->
     <!-- Coming-soon modals removed: now use showFeatureIntro() from FeatureIntroModal -->
     ${state.showMyData ? lazyRender('renderMyDataModal') : ''}
-    ${state.showTitles ? lazyRender('renderTitlesModal', state) : ''}
+    ${''}<!-- Titles modal hidden during alpha (gamification) -->
     ${state.showFriendProfile ? lazyRender('renderFriendProfileModal', state) : ''}
     ${state.showContactForm ? lazyRender('renderContactFormModal') : ''}
     ${state.showDeleteAccount ? lazyRender('renderDeleteAccountModal', state) : ''}
