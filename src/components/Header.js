@@ -51,7 +51,7 @@ export function renderHeader(state) {
               aria-label="${t('companionActiveBtnHint') || 'Appuyer : check-in · Maintenir 2s : arrêter'}"
               title="${t('companionActiveBtnHint') || 'Appuyer : check-in · Maintenir 2s : arrêter'}"
             >
-              ${icon('users', 'w-4 h-4')}
+              ${icon('shield', 'w-4 h-4')}
               <span class="tabular-nums">${timeStr}</span>
             </button>
             `
@@ -62,7 +62,7 @@ export function renderHeader(state) {
             aria-label="${t('companionMode') || 'Mode Compagnon'}"
             title="${t('companionMode') || 'Mode Compagnon'}"
           >
-            ${icon('users', 'w-5 h-5')}
+            ${icon('shield', 'w-5 h-5')}
           </button>
           `}
           <!-- SOS Button - Always visible, prominent -->
