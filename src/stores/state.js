@@ -418,6 +418,11 @@ function loadPersistedState() {
     // Merge persisted state with initial state (to add any new properties)
     state = { ...initialState, ...persisted };
 
+    // CRITICAL: never trust persisted isLoggedIn — Firebase Auth will set it properly
+    // (old versions persisted this flag, causing auth gate bypass)
+    state.isLoggedIn = false;
+    state.currentUser = null;
+
     // Migrate old users: showWelcome no longer blocks, disable it
     if (state.showWelcome) {
       state.showWelcome = false;

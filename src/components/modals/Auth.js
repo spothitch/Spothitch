@@ -654,7 +654,6 @@ window.handleGoogleSignIn = async () => {
 // ==================== USERNAME CHECK ====================
 
 let _usernameCheckTimer = null
-let _lastCheckedUsername = ''
 
 window.checkUsernameField = (value) => {
   const v = value.toLowerCase().trim()
@@ -686,14 +685,10 @@ window.checkUsernameField = (value) => {
     statusDiv.className = 'text-xs mt-1 h-4 text-slate-400'
 
     _usernameCheckTimer = setTimeout(async () => {
-      if (v === _lastCheckedUsername) return
-      _lastCheckedUsername = v
-
-      const { checkUsernameAvailability } = await import('../../services/firebase.js')
-      const { initializeFirebase } = await import('../../services/firebase.js')
-      initializeFirebase()
-
-      const { available } = await checkUsernameAvailability(v)
+      try {
+        const fb = await import('../../services/firebase.js')
+        fb.initializeFirebase()
+        const { available } = await fb.checkUsernameAvailability(v)
       // Only update if the input hasn't changed
       const currentInput = document.getElementById('auth-pseudo') || document.getElementById('cp-pseudo')
       if (currentInput && currentInput.value.toLowerCase().trim() === v) {
@@ -704,6 +699,11 @@ window.checkUsernameField = (value) => {
           statusDiv.textContent = t('usernameTaken')
           statusDiv.className = 'text-xs mt-1 h-4 text-red-400'
         }
+      }
+      } catch {
+        // Firestore unavailable — show as available (will be checked at submit)
+        statusDiv.textContent = ''
+        statusDiv.className = 'text-xs mt-1 h-4'
       }
     }, 500) // 500ms debounce
   })
