@@ -1073,6 +1073,7 @@ export default {
   unknownDevice: 'Unbekanntes Gerät',
   deviceJustNow: 'Gerade eben',
   minutes: 'Min',
+  hour: 'Stunde',
   hours: 'Std',
   reportUser: 'Melden',
   reportUserTitle: 'Benutzer melden',

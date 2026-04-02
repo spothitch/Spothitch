@@ -698,6 +698,7 @@ export default {
   unknownDevice: 'Unknown device',
   deviceJustNow: 'Just now',
   minutes: 'min',
+  hour: 'hour',
   hours: 'h',
 
   // Web Share (#120)

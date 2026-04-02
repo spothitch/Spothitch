@@ -1077,6 +1077,7 @@ export default {
   unknownDevice: 'Dispositivo desconocido',
   deviceJustNow: 'Ahora mismo',
   minutes: 'min',
+  hour: 'hora',
   hours: 'h',
   reportUser: 'Denunciar',
   reportUserTitle: 'Denunciar un usuario',
