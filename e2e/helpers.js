@@ -127,6 +127,18 @@ export async function navigateToTab(page, tabId) {
     if (btn) btn.click()
   }, tabId)
   await page.waitForTimeout(500)
+
+  // Auth gate: if the tab is protected and user is not logged in,
+  // the auth modal opens instead of switching tabs. In tests, bypass
+  // by using setState directly (tests don't need real auth for UI checks).
+  const authShowing = await page.evaluate(() => window.getState?.()?.showAuth)
+  if (authShowing) {
+    await page.evaluate((id) => {
+      window.setState?.({ showAuth: false, activeTab: id })
+    }, tabId)
+    await page.waitForTimeout(500)
+  }
+
   try {
     await expect(tab).toHaveAttribute('aria-selected', 'true', { timeout: 3000 })
   } catch {
