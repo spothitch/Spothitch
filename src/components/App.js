@@ -1141,6 +1141,11 @@ function initHomeMap(state) {
       // Initial load: show community spots from state
       loadSpotsForView()
 
+      // Restore gas stations if they were toggled on before reload
+      if (getState().showGasStationsOnMap) {
+        import('../services/gasStations.js').then(mod => mod.loadGasStations?.())
+      }
+
       updateLayerVisibility()
 
       // Load community spots from Firestore (user-created spots)

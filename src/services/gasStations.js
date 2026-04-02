@@ -220,69 +220,75 @@ export function toggleGasStations() {
   setState({ showGasStationsOnMap: show })
 
   if (show) {
-    // Get current map bounds
-    const map = window.homeMapInstance
-    if (!map) {
-      setState({ showGasStationsOnMap: false })
-      return
-    }
-
-    // Check zoom level — require zoom >= 8 for manageable results
-    const zoom = map.getZoom?.() || 0
-    if (zoom < 8) {
-      // Auto-zoom to level 10 centered on current view instead of rejecting
-      try {
-        const center = map.getCenter?.()
-        if (center) {
-          map.flyTo?.({ center: [center.lng, center.lat], zoom: 10, duration: 800 })
-          // Retry after zoom animation
-          setTimeout(() => toggleGasStations(), 1000)
-          return
-        }
-      } catch { /* fallback: just show message */ }
-      import('../services/notifications.js').then(n => n.showToast(
-        t('zoomInForStations') || 'Zoome sur une zone pour voir les stations',
-        'info'
-      ))
-      setState({ showGasStationsOnMap: false })
-      return
-    }
-
-    // Show loading feedback
-    import('../services/notifications.js').then(n => n.showToast(
-      t('loadingStations') || 'Chargement des stations...',
-      'info'
-    ))
-
-    const bounds = map.getBounds?.()
-    if (bounds) {
-      const ne = bounds.getNorthEast()
-      const sw = bounds.getSouthWest()
-      fetchGasStationsInBounds({
-        north: ne.lat,
-        south: sw.lat,
-        east: ne.lng,
-        west: sw.lng,
-      }).then(stations => {
-        setState({ gasStations: stations })
-        showGasStationMarkers(stations)
-        if (stations.length === 0) {
-          import('../services/notifications.js').then(n => n.showToast(
-            t('noStationsFound') || 'Aucune station trouvée, zoome plus',
-            'info'
-          ))
-        }
-      }).catch(() => {
-        import('../services/notifications.js').then(n => n.showToast(
-          t('stationsError') || 'Erreur de chargement des stations',
-          'error'
-        ))
-        setState({ showGasStationsOnMap: false })
-      })
-    }
+    loadGasStations()
   } else {
     hideGasStationMarkers()
     setState({ gasStations: [] })
+  }
+}
+
+/**
+ * Load and display gas stations on the map (called by toggle AND on map init)
+ */
+export function loadGasStations() {
+  const map = window.homeMapInstance
+  if (!map) {
+    setState({ showGasStationsOnMap: false })
+    return
+  }
+
+  // Check zoom level — require zoom >= 8 for manageable results
+  const zoom = map.getZoom?.() || 0
+  if (zoom < 8) {
+    // Auto-zoom to level 10 centered on current view
+    try {
+      const center = map.getCenter?.()
+      if (center) {
+        map.flyTo?.({ center: [center.lng, center.lat], zoom: 10, duration: 800 })
+        // Retry after zoom animation (loadGasStations, NOT toggle — avoids double-flip)
+        setTimeout(() => loadGasStations(), 1000)
+        return
+      }
+    } catch { /* fallback: just show message */ }
+    import('../services/notifications.js').then(n => n.showToast(
+      t('zoomInForStations') || 'Zoome sur une zone pour voir les stations',
+      'info'
+    ))
+    setState({ showGasStationsOnMap: false })
+    return
+  }
+
+  // Show loading feedback
+  import('../services/notifications.js').then(n => n.showToast(
+    t('loadingStations') || 'Chargement des stations...',
+    'info'
+  ))
+
+  const bounds = map.getBounds?.()
+  if (bounds) {
+    const ne = bounds.getNorthEast()
+    const sw = bounds.getSouthWest()
+    fetchGasStationsInBounds({
+      north: ne.lat,
+      south: sw.lat,
+      east: ne.lng,
+      west: sw.lng,
+    }).then(stations => {
+      setState({ gasStations: stations })
+      showGasStationMarkers(stations)
+      if (stations.length === 0) {
+        import('../services/notifications.js').then(n => n.showToast(
+          t('noStationsFound') || 'Aucune station trouvée, zoome plus',
+          'info'
+        ))
+      }
+    }).catch(() => {
+      import('../services/notifications.js').then(n => n.showToast(
+        t('stationsError') || 'Erreur de chargement des stations',
+        'error'
+      ))
+      setState({ showGasStationsOnMap: false })
+    })
   }
 }
 
