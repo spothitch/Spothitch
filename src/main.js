@@ -815,6 +815,10 @@ function render(state) {
   const app = document.getElementById('app')
   if (!app) return
 
+  // Desktop: sync tab-map class on body for CSS header constraint
+  const isMap = state.activeTab === 'map' || !state.activeTab
+  document.body.classList.toggle('tab-map', isMap)
+
   // Skip re-render if user is actively typing in an input (prevents losing focus/value)
   const focused = document.activeElement
   const tripJustFinished = !state.tripLoading && state.tripResults
@@ -1097,6 +1101,7 @@ window.changeTab = (tab) => {
   const { showOfflinePanel } = getState()
   if (showOfflinePanel) setState({ showOfflinePanel: false })
   actions.changeTab(tab);
+  document.body.classList.toggle('tab-map', tab === 'map' || !tab)
   trackPageView(tab);
   announceViewChange(tab);
 };

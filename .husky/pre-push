@@ -29,9 +29,10 @@ case "$BRANCH" in
     node scripts/fox.mjs --quick
     FOX_EXIT=$?
 
-    # Clean up server if we started it
+    # Clean up server if we started it (|| true prevents kill from affecting exit code)
     if [ "$STARTED_SERVER" = true ] && [ -n "$SERVER_PID" ]; then
-      kill $SERVER_PID 2>/dev/null
+      kill $SERVER_PID 2>/dev/null || true
+      wait $SERVER_PID 2>/dev/null || true
     fi
 
     if [ $FOX_EXIT -ne 0 ]; then
