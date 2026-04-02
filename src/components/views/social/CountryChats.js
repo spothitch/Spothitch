@@ -95,6 +95,8 @@ window.joinCountryChatAction = async (code) => {
   const result = await joinCountryChat(code)
   if (result) {
     showToast(t('joinedCountryChat') || 'Rejoint !', 'success')
+    // Open the conversation with real-time listener
+    window.openGroupConversation?.(result)
   }
 }
 

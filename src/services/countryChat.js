@@ -85,10 +85,6 @@ export async function joinCountryChat(countryCode) {
       updatedAt: serverTimestamp(),
     }, { merge: true })
 
-    // Open the conversation — switch to social tab + open the group chat
-    const { setState } = await import('../stores/state.js')
-    setState({ activeTab: 'social', activeGroupConversation: groupId })
-
     return groupId
   } catch (err) {
     console.error('[CountryChat] Failed to join:', err.message)

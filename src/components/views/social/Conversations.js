@@ -427,17 +427,35 @@ function renderCreateGroupConversationForm(state) {
 }
 
 // Global handlers
-window.openGroupConversation = (groupId) => {
-  const { subscribeToGroupConversation } = window._gcModule || {}
-  if (subscribeToGroupConversation) {
-    subscribeToGroupConversation(groupId)
+window.openGroupConversation = async (groupId) => {
+  // Ensure the group doc is in state.groupConversations (needed for renderFirebaseGroupChat)
+  try {
+    const { doc, getDoc } = await import('firebase/firestore')
+    const { db } = await import('../../../services/firebase.js')
+    if (db) {
+      const snap = await getDoc(doc(db, 'groupConversations', groupId))
+      if (snap.exists()) {
+        const groupData = { id: groupId, ...snap.data() }
+        const state = window.getState?.() || {}
+        const existing = state.groupConversations || []
+        if (!existing.find(g => g.id === groupId)) {
+          window.setState?.({ groupConversations: [...existing, groupData] })
+        }
+      }
+    }
+  } catch { /* non-blocking */ }
+
+  // Subscribe to messages with a re-render callback
+  const rerender = () => window._forceRender?.()
+  if (window._gcModule?.subscribeToGroupConversation) {
+    window._gcModule.subscribeToGroupConversation(groupId, rerender)
   } else {
     import('../../../services/groupConversations.js').then(m => {
       window._gcModule = m
-      m.subscribeToGroupConversation(groupId)
+      m.subscribeToGroupConversation(groupId, rerender)
     })
   }
-  window.setState?.({ activeGroupConversation: groupId, socialSubTab: 'conversations' })
+  window.setState?.({ activeGroupConversation: groupId, activeTab: 'social' })
 }
 
 window.closeGroupConversation = () => {
