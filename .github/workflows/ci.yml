@@ -282,6 +282,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - run: npm ci
       - name: Cache Playwright browsers
         uses: actions/cache@v5
@@ -317,6 +321,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - run: npm ci
       - name: Cache Playwright browsers
         uses: actions/cache@v5
@@ -395,6 +403,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - run: npm ci
       - name: Cache Playwright browsers
         uses: actions/cache@v5
