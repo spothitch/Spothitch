@@ -505,7 +505,7 @@ export function sharePositionInDM(recipientId, location) {
 
 window.openConversation = (recipientId) => {
   markConversationRead(recipientId)
-  setState({ activeDMConversation: recipientId })
+  setState({ activeDMConversation: recipientId, activeTab: 'social' })
   // Set up real-time subscription when opening conversation
   const uid = getCurrentUid()
   if (uid) {
