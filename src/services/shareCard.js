@@ -17,54 +17,50 @@ const APP_URL = 'https://spothitch.com'
  * @returns {string} HTML string for the card
  */
 export function generateShareCard(spot) {
-  if (!spot) return ''
+ if (!spot) return ''
 
-  const spotName = spot.name || spot.from || 'Spot'
-  const country = spot.country || ''
-  const rating = spot.globalRating?.toFixed(1) || '?'
-  const waitTime = spot.avgWaitTime || '?'
+ const spotName = spot.name || spot.from || 'Spot'
+ const country = spot.country || ''
+ const rating = spot.globalRating?.toFixed(1) || '?'
+ const waitTime = spot.avgWaitTime || '?'
 
-  return `
-    <div id="share-card" style="
-      width: 400px;
-      max-width: 90vw;
-      padding: 24px;
-      background: linear-gradient(135deg, #0f1520, #1a2332);
-      border-radius: 16px;
-      color: white;
-      font-family: system-ui, -apple-system, sans-serif;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    ">
-      <div style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">
-        Check-in!
-      </div>
-      <div style="font-size: 18px; margin-bottom: 4px; line-height: 1.4;">
-        ${escapeHTML(spotName)}
-      </div>
-      <div style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">
-        ${escapeHTML(country)}
-      </div>
-      <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 4px;">
-          <span style="color: #fbbf24;">⭐</span>
-          <span>${rating}/5</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 4px;">
-          <span>⏱️</span>
-          <span>~${waitTime} min</span>
-        </div>
-      </div>
-      <div style="
-        border-top: 1px solid #334155;
-        padding-top: 12px;
-        font-size: 12px;
-        color: #64748b;
-        text-align: center;
-      ">
-        SpotHitch — ${t('shareCardTagline') || 'La communauté des autostoppeurs'}
-      </div>
-    </div>
-  `
+ return `
+ <div id="share-card" style="
+ width: 400px;
+ max-width: 90vw;
+ padding: 24px;
+ background: linear-gradient(135deg, #0f1520, #1a2332);
+ border-radius: 16px;
+ color: white;
+ font-family: system-ui, -apple-system, sans-serif;
+ box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+ ">
+ <div style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">
+ Check-in!
+ </div>
+ <div style="font-size: 18px; margin-bottom: 4px; line-height: 1.4;">
+ ${escapeHTML(spotName)}
+ </div>
+ <div style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">
+ ${escapeHTML(country)}
+ </div>
+ <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+ <div style="display: flex; align-items: center; gap: 4px;">
+ <span style="color: #fbbf24;">⭐</span>
+ <span>${rating}/5</span></div>
+ <div style="display: flex; align-items: center; gap: 4px;">
+ <span>⏱️</span>
+ <span>~${waitTime} min</span></div></div>
+ <div style="
+ border-top: 1px solid #334155;
+ padding-top: 12px;
+ font-size: 12px;
+ color: #64748b;
+ text-align: center;
+ ">
+ SpotHitch — ${t('shareCardTagline') || 'La communauté des autostoppeurs'}
+ </div></div>
+ `
 }
 
 /**
@@ -72,185 +68,179 @@ export function generateShareCard(spot) {
  * @param {Object} spot - Spot object
  */
 export function showShareModal(spot) {
-  if (!spot) {
-    console.warn('[ShareCard] No spot provided')
-    return
-  }
+ if (!spot) {
+ console.warn('[ShareCard] No spot provided')
+ return
+ }
 
-  // Remove any existing share card modal
-  const existing = document.getElementById('share-card-modal')
-  if (existing) existing.remove()
+ // Remove any existing share card modal
+ const existing = document.getElementById('share-card-modal')
+ if (existing) existing.remove()
 
-  const spotName = spot.name || spot.from || 'Spot'
-  const spotUrl = `${APP_URL}/?spot=${spot.id}`
-  const SMSText = encodeURIComponent(
-    `${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} !\n\n${spotUrl}`
-  )
+ const spotName = spot.name || spot.from || 'Spot'
+ const spotUrl = `${APP_URL}/?spot=${spot.id}`
+ const SMSText = encodeURIComponent(
+ `${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} !\n\n${spotUrl}`
+ )
 
-  const modal = document.createElement('div')
-  modal.id = 'share-card-modal'
-  modal.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    animation: fadeIn 0.2s ease-out;
-    padding: 20px;
-  `
+ const modal = document.createElement('div')
+ modal.id = 'share-card-modal'
+ modal.style.cssText = `
+ position: fixed;
+ inset: 0;
+ background: rgba(0, 0, 0, 0.85);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ z-index: 10000;
+ animation: fadeIn 0.2s ease-out;
+ padding: 20px;
+ `
 
-  modal.innerHTML = `
-    <div style="
-      background: #1a2332;
-      max-width: 500px;
-      width: 100%;
-      border-radius: 20px;
-      padding: 24px;
-      animation: slideUp 0.3s ease-out;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    ">
-      <!-- Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3 style="color: white; font-size: 1.5rem; font-weight: 700; margin: 0;">
-          ${t('shareCardTitle') || 'Partager ton check-in'}
-        </h3>
-        <button onclick="window.closeShareModal()" style="
-          background: rgba(255, 255, 255, 0.1);
-          border: none;
-          color: white;
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          cursor: pointer;
-          font-size: 1.5rem;
-          line-height: 1;
-          transition: all 0.2s;
-        " onmouseover="this.style.background='rgba(255,255,255,0.2)'"
-           onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-          ✕
-        </button>
-      </div>
+ modal.innerHTML = `
+ <div style="
+ background: #1a2332;
+ max-width: 500px;
+ width: 100%;
+ border-radius: 20px;
+ padding: 24px;
+ animation: slideUp 0.3s ease-out;
+ box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+ ">
+ <!-- Header -->
+ <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+ <h3 style="color: white; font-size: 1.5rem; font-weight: 700; margin: 0;">
+ ${t('shareCardTitle') || 'Partager ton check-in'}
+ </h3>
+ <button onclick="window.closeShareModal()" style="
+ background: rgba(255, 255, 255, 0.1);
+ border: none;
+ color: white;
+ width: 36px;
+ height: 36px;
+ border-radius: 50%;
+ cursor: pointer;
+ font-size: 1.5rem;
+ line-height: 1;
+ transition: all 0.2s;
+ " onmouseover="this.style.background='rgba(255,255,255,0.2)'"
+ onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+ ✕
+ </button></div>
 
-      <!-- Share Card Preview -->
-      <div style="
-        display: flex;
-        justify-content: center;
-        margin-bottom: 24px;
-      ">
-        ${generateShareCard(spot)}
-      </div>
+ <!-- Share Card Preview -->
+ <div style="
+ display: flex;
+ justify-content: center;
+ margin-bottom: 24px;
+ ">
+ ${generateShareCard(spot)}
+ </div>
 
-      <!-- Capture Screenshot Hint -->
-      <div style="
-        background: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        border-radius: 12px;
-        padding: 12px;
-        margin-bottom: 20px;
-        text-align: center;
-      ">
-        <span style="color: #60a5fa; font-size: 14px;">
-          ${t('shareCardScreenshotHint') || 'Fais une capture d\'écran pour partager cette carte !'}
-        </span>
-      </div>
+ <!-- Capture Screenshot Hint -->
+ <div style="
+ background: rgba(59, 130, 246, 0.1);
+ border: 1px solid rgba(59, 130, 246, 0.3);
+ border-radius: 12px;
+ padding: 12px;
+ margin-bottom: 20px;
+ text-align: center;
+ ">
+ <span style="color: #60a5fa; font-size: 14px;">
+ ${t('shareCardScreenshotHint') || 'Fais une capture d\'écran pour partager cette carte !'}
+ </span></div>
 
-      <!-- Share Buttons -->
-      <div style="display: grid; gap: 12px; margin-bottom: 16px;">
-        <!-- SMS -->
-        <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 14px;
-          background: #25d366;
-          border-radius: 12px;
-          text-decoration: none;
-          color: white;
-          font-weight: 600;
-          transition: all 0.2s;
-        " onmouseover="this.style.background='#20c05c'"
-           onmouseout="this.style.background='#25d366'">
-          ${icon('smartphone', 'w-6 h-6')}
-          <span>${t('shareCardSMS') || 'Partager sur SMS'}</span>
-        </a>
+ <!-- Share Buttons -->
+ <div style="display: grid; gap: 12px; margin-bottom: 16px;">
+ <!-- SMS -->
+ <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ padding: 14px;
+ background: #25d366;
+ border-radius: 12px;
+ text-decoration: none;
+ color: white;
+ font-weight: 600;
+ transition: all 0.2s;
+ " onmouseover="this.style.background='#20c05c'"
+ onmouseout="this.style.background='#25d366'">
+ ${icon('smartphone', 'w-6 h-6')}
+ <span>${t('shareCardSMS') || 'Partager sur SMS'}</span></a>
 
-        <!-- Copy Link -->
-        <button onclick="window.copySpotLink('${spot.id}')" style="
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 14px;
-          background: rgba(59, 130, 246, 0.2);
-          border: 1px solid rgba(59, 130, 246, 0.3);
-          border-radius: 12px;
-          color: #60a5fa;
-          font-weight: 600;
-          cursor: pointer;
-          width: 100%;
-          transition: all 0.2s;
-        " onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'"
-           onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
-          ${icon('link', 'w-6 h-6')}
-          <span>${t('shareCardCopyLink') || 'Copier le lien du spot'}</span>
-        </button>
-      </div>
+ <!-- Copy Link -->
+ <button onclick="window.copySpotLink('${spot.id}')" style="
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ padding: 14px;
+ background: rgba(59, 130, 246, 0.2);
+ border: 1px solid rgba(59, 130, 246, 0.3);
+ border-radius: 12px;
+ color: #60a5fa;
+ font-weight: 600;
+ cursor: pointer;
+ width: 100%;
+ transition: all 0.2s;
+ " onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'"
+ onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
+ ${icon('link', 'w-6 h-6')}
+ <span>${t('shareCardCopyLink') || 'Copier le lien du spot'}</span></button></div>
 
-      <!-- Close Button -->
-      <button onclick="window.closeShareModal()" style="
-        width: 100%;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        color: #94a3b8;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-      " onmouseover="this.style.background='rgba(255,255,255,0.1)'"
-         onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-        ${t('close') || 'Fermer'}
-      </button>
-    </div>
-  `
+ <!-- Close Button -->
+ <button onclick="window.closeShareModal()" style="
+ width: 100%;
+ padding: 12px;
+ background: rgba(255, 255, 255, 0.05);
+ border: 1px solid rgba(255, 255, 255, 0.1);
+ border-radius: 12px;
+ color: #94a3b8;
+ font-weight: 600;
+ cursor: pointer;
+ transition: all 0.2s;
+ " onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+ onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+ ${t('close') || 'Fermer'}
+ </button></div>
+ `
 
-  // Close on backdrop click
-  modal.onclick = (e) => {
-    if (e.target === modal) {
-      closeShareModal()
-    }
-  }
+ // Close on backdrop click
+ modal.onclick = (e) => {
+ if (e.target === modal) {
+ closeShareModal()
+ }
+ }
 
-  // Add animation styles if not already present
-  if (!document.getElementById('share-card-modal-styles')) {
-    const style = document.createElement('style')
-    style.id = 'share-card-modal-styles'
-    style.textContent = `
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      @keyframes slideUp {
-        from { transform: translateY(20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-    `
-    document.head.appendChild(style)
-  }
+ // Add animation styles if not already present
+ if (!document.getElementById('share-card-modal-styles')) {
+ const style = document.createElement('style')
+ style.id = 'share-card-modal-styles'
+ style.textContent = `
+ @keyframes fadeIn {
+ from { opacity: 0; }
+ to { opacity: 1; }
+ }
+ @keyframes slideUp {
+ from { transform: translateY(20px); opacity: 0; }
+ to { transform: translateY(0); opacity: 1; }
+ }
+ `
+ document.head.appendChild(style)
+ }
 
-  document.body.appendChild(modal)
+ document.body.appendChild(modal)
 }
 
 /**
  * Close the share modal
  */
 export function closeShareModal() {
-  const modal = document.getElementById('share-card-modal')
-  if (modal) {
-    modal.style.animation = 'fadeOut 0.2s ease-out'
-    setTimeout(() => modal.remove(), 200)
-  }
+ const modal = document.getElementById('share-card-modal')
+ if (modal) {
+ modal.style.animation = 'fadeOut 0.2s ease-out'
+ setTimeout(() => modal.remove(), 200)
+ }
 }
 
 /**
@@ -258,14 +248,14 @@ export function closeShareModal() {
  * @param {string|number} spotId - Spot ID
  */
 export async function copySpotLink(spotId) {
-  const url = `${APP_URL}/?spot=${spotId}`
-  try {
-    await copyToClipboard(url)
-    showToast(t('shareCardLinkCopied') || 'Lien copié dans le presse-papier !', 'success')
-  } catch (err) {
-    console.error('[ShareCard] Failed to copy link:', err)
-    showToast(t('shareCardCopyError') || 'Erreur lors de la copie', 'error')
-  }
+ const url = `${APP_URL}/?spot=${spotId}`
+ try {
+ await copyToClipboard(url)
+ showToast(t('shareCardLinkCopied') || 'Lien copié dans le presse-papier !', 'success')
+ } catch (err) {
+ console.error('[ShareCard] Failed to copy link:', err)
+ showToast(t('shareCardCopyError') || 'Erreur lors de la copie', 'error')
+ }
 }
 
 /**
@@ -273,21 +263,21 @@ export async function copySpotLink(spotId) {
  * @param {string|number} spotId - Spot ID
  */
 export function shareOnSMS(spotId) {
-  const { spots } = getState()
-  const spot = spots.find(s => String(s.id) === String(spotId))
+ const { spots } = getState()
+ const spot = spots.find(s => String(s.id) === String(spotId))
 
-  if (!spot) {
-    console.warn('[ShareCard] Spot not found:', spotId)
-    return
-  }
+ if (!spot) {
+ console.warn('[ShareCard] Spot not found:', spotId)
+ return
+ }
 
-  const spotName = spot.name || spot.from || 'Spot'
-  const spotUrl = `${APP_URL}/?spot=${spotId}`
-  const text = encodeURIComponent(
-    `${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} !\n\n${spotUrl}`
-  )
+ const spotName = spot.name || spot.from || 'Spot'
+ const spotUrl = `${APP_URL}/?spot=${spotId}`
+ const text = encodeURIComponent(
+ `${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} !\n\n${spotUrl}`
+ )
 
-  window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer')
+ window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer')
 }
 
 /**
@@ -296,10 +286,10 @@ export function shareOnSMS(spotId) {
  * @returns {string}
  */
 function escapeHTML(str) {
-  if (typeof str !== 'string') return ''
-  const div = document.createElement('div')
-  div.textContent = str
-  return div.innerHTML
+ if (typeof str !== 'string') return ''
+ const div = document.createElement('div')
+ div.textContent = str
+ return div.innerHTML
 }
 
 /**
@@ -309,75 +299,69 @@ function escapeHTML(str) {
  * @param {string} avatar - Emoji avatar
  */
 export function shareProfileModal(uid, username, avatar) {
-  const existing = document.getElementById('share-card-modal')
-  if (existing) existing.remove()
+ const existing = document.getElementById('share-card-modal')
+ if (existing) existing.remove()
 
-  const profileUrl = `${APP_URL}/?u=${uid}`
-  const displayName = username ? `@${username}` : 'Profil SpotHitch'
-  const SMSText = encodeURIComponent(
-    `${avatar || 'thumbs-up'} ${t('shareProfileText') || 'Rejoins-moi sur SpotHitch, la communauté des autostoppeurs !'}\n\n${profileUrl}`
-  )
+ const profileUrl = `${APP_URL}/?u=${uid}`
+ const displayName = username ? `@${username}` : 'Profil SpotHitch'
+ const SMSText = encodeURIComponent(
+ `${avatar || 'thumbs-up'} ${t('shareProfileText') || 'Rejoins-moi sur SpotHitch, la communauté des autostoppeurs !'}\n\n${profileUrl}`
+ )
 
-  const modal = document.createElement('div')
-  modal.id = 'share-card-modal'
-  modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;`
-  modal.innerHTML = `
-    <div style="background:#1a2332;max-width:440px;width:100%;border-radius:20px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,0.5);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <h3 style="color:white;font-size:1.25rem;font-weight:700;margin:0;">
-          ${t('shareProfile') || 'Partager mon profil'}
-        </h3>
-        <button onclick="window.closeShareModal()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.25rem;" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button>
-      </div>
-      <div style="background:linear-gradient(135deg,#1e2a3a,#0f1520);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;border:1px solid rgba(245,158,11,0.3);">
-        <div style="font-size:3rem;margin-bottom:8px;">${avatar || 'thumbs-up'}</div>
-        <div style="color:white;font-weight:700;font-size:1.1rem;">${escapeHTML(displayName)}</div>
-        <div style="color:#64748b;font-size:0.75rem;margin-top:6px;word-break:break-all;">${profileUrl}</div>
-      </div>
-      <div style="display:grid;gap:12px;margin-bottom:12px;">
-        <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:14px;background:#25d366;border-radius:12px;text-decoration:none;color:white;font-weight:600;">
-          ${icon('smartphone', 'w-6 h-6')}<span>${t('shareCardSMS') || 'Partager sur SMS'}</span>
-        </a>
-        <button onclick="window.copyProfileLink('${escapeHTML(uid)}')" style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);border-radius:12px;color:#60a5fa;font-weight:600;cursor:pointer;width:100%;">
-          ${icon('link', 'w-6 h-6')}<span>${t('copyProfileLink') || 'Copier le lien du profil'}</span>
-        </button>
-      </div>
-      <button onclick="window.closeShareModal()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-weight:600;cursor:pointer;">
-        ${t('close') || 'Fermer'}
-      </button>
-    </div>
-  `
-  modal.onclick = (e) => { if (e.target === modal) closeShareModal() }
-  document.body.appendChild(modal)
+ const modal = document.createElement('div')
+ modal.id = 'share-card-modal'
+ modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;`
+ modal.innerHTML = `
+ <div style="background:#1a2332;max-width:440px;width:100%;border-radius:20px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+ <h3 style="color:white;font-size:1.25rem;font-weight:700;margin:0;">
+ ${t('shareProfile') || 'Partager mon profil'}
+ </h3>
+ <button onclick="window.closeShareModal()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.25rem;" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button></div>
+ <div style="background:linear-gradient(135deg,#1e2a3a,#0f1520);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;border:1px solid rgba(245,158,11,0.3);">
+ <div style="font-size:3rem;margin-bottom:8px;">${avatar || 'thumbs-up'}</div>
+ <div style="color:white;font-weight:700;font-size:1.1rem;">${escapeHTML(displayName)}</div>
+ <div style="color:#64748b;font-size:0.75rem;margin-top:6px;word-break:break-all;">${profileUrl}</div></div>
+ <div style="display:grid;gap:12px;margin-bottom:12px;">
+ <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:14px;background:#25d366;border-radius:12px;text-decoration:none;color:white;font-weight:600;">
+ ${icon('smartphone', 'w-6 h-6')}<span>${t('shareCardSMS') || 'Partager sur SMS'}</span></a>
+ <button onclick="window.copyProfileLink('${escapeHTML(uid)}')" style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);border-radius:12px;color:#60a5fa;font-weight:600;cursor:pointer;width:100%;">
+ ${icon('link', 'w-6 h-6')}<span>${t('copyProfileLink') || 'Copier le lien du profil'}</span></button></div>
+ <button onclick="window.closeShareModal()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-weight:600;cursor:pointer;">
+ ${t('close') || 'Fermer'}
+ </button></div>
+ `
+ modal.onclick = (e) => { if (e.target === modal) closeShareModal() }
+ document.body.appendChild(modal)
 }
 
 /**
  * Copy profile link to clipboard
  */
 export async function copyProfileLink(uid) {
-  const url = `${APP_URL}/?u=${uid}`
-  try {
-    await copyToClipboard(url)
-    showToast(t('shareCardLinkCopied') || 'Lien copié !', 'success')
-  } catch {
-    showToast(t('shareCardCopyError') || 'Erreur lors de la copie', 'error')
-  }
+ const url = `${APP_URL}/?u=${uid}`
+ try {
+ await copyToClipboard(url)
+ showToast(t('shareCardLinkCopied') || 'Lien copié !', 'success')
+ } catch {
+ showToast(t('shareCardCopyError') || 'Erreur lors de la copie', 'error')
+ }
 }
 
 // Global handlers
 if (typeof window !== 'undefined') {
-  window.closeShareModal = closeShareModal
-  window.copySpotLink = copySpotLink
-  window.shareOnSMS = shareOnSMS
-  window.copyProfileLink = copyProfileLink
+ window.closeShareModal = closeShareModal
+ window.copySpotLink = copySpotLink
+ window.shareOnSMS = shareOnSMS
+ window.copyProfileLink = copyProfileLink
 }
 
 export default {
-  generateShareCard,
-  showShareModal,
-  closeShareModal,
-  copySpotLink,
-  shareOnSMS,
-  shareProfileModal,
-  copyProfileLink,
+ generateShareCard,
+ showShareModal,
+ closeShareModal,
+ copySpotLink,
+ shareOnSMS,
+ shareProfileModal,
+ copyProfileLink,
 }

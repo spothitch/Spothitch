@@ -6,12 +6,12 @@
  * renderToggleCompact() from this file. NO inline toggle HTML
  * is allowed anywhere else. If you need a toggle, import this.
  *
- * Design #11 — Neon Glow Thumb (👎→👍).
+ * Design #11 — Neon Glow Thumb (off→on).
  * Dark pill with neon amber border glow when ON.
- * Emoji thumb slides from left (👎) to right (👍).
+ * Emoji thumb slides from left (off) to right (on).
  * .spothitch-toggle styles in main.css control glow + transitions.
  *
- * ⚠️ THIS DESIGN WAS CHOSEN BY THE USER (2026-02-28).
+ * THIS DESIGN WAS CHOSEN BY THE USER (2026-02-28).
  * DO NOT CHANGE without explicit user approval.
  *
  * Uses a handler registry to avoid inline JS interpolation

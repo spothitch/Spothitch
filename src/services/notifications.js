@@ -19,28 +19,28 @@ const NOTIFICATION_PREFS_KEY = 'spothitch_notification_prefs';
 
 // Default notification preferences
 const DEFAULT_NOTIFICATION_PREFS = {
-  enabled: true,
-  // Social notifications
-  newFriend: true,
-  newMessage: true,
-  friendNearby: true,
-  // Gamification notifications
-  badgeUnlocked: true,
-  levelUp: true,
-  dailyReward: true,
-  // Spot notifications
-  spotCheckin: true,
-  spotRating: true,
-  spotComment: true,
-  // System notifications
-  appUpdates: true,
-  tips: true,
-  // Timing preferences
-  quietHoursEnabled: false,
-  quietHoursStart: 22, // 10 PM
-  quietHoursEnd: 8, // 8 AM
-  // Nearby distance threshold (in km)
-  nearbyDistance: 10,
+ enabled: true,
+ // Social notifications
+ newFriend: true,
+ newMessage: true,
+ friendNearby: true,
+ // Gamification notifications
+ badgeUnlocked: true,
+ levelUp: true,
+ dailyReward: true,
+ // Spot notifications
+ spotCheckin: true,
+ spotRating: true,
+ spotComment: true,
+ // System notifications
+ appUpdates: true,
+ tips: true,
+ // Timing preferences
+ quietHoursEnabled: false,
+ quietHoursStart: 22, // 10 PM
+ quietHoursEnd: 8, // 8 AM
+ // Nearby distance threshold (in km)
+ nearbyDistance: 10,
 };
 
 // Scheduled notification IDs
@@ -51,54 +51,54 @@ const scheduledNotifications = new Map();
  * Initialize notifications
  */
 export async function initNotifications() {
-  // Create toast container if it doesn't exist
-  if (!toastContainer) {
-    toastContainer = document.createElement('div');
-    toastContainer.id = 'toast-container';
-    toastContainer.style.cssText = `
-      position: fixed;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      pointer-events: none;
-      max-width: 340px;
-      width: 90%;
-    `;
-    document.body.appendChild(toastContainer);
-  }
+ // Create toast container if it doesn't exist
+ if (!toastContainer) {
+ toastContainer = document.createElement('div');
+ toastContainer.id = 'toast-container';
+ toastContainer.style.cssText = `
+ position: fixed;
+ top: 12px;
+ left: 50%;
+ transform: translateX(-50%);
+ z-index: 9999;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 6px;
+ pointer-events: none;
+ max-width: 340px;
+ width: 90%;
+ `;
+ document.body.appendChild(toastContainer);
+ }
 
-  // Request push notification permission
-  if ('Notification' in window) {
-    const token = await requestNotificationPermission();
-    if (token) {
-      // Save token to server for sending notifications
-      await saveNotificationToken(token);
-    }
-  }
+ // Request push notification permission
+ if ('Notification' in window) {
+ const token = await requestNotificationPermission();
+ if (token) {
+ // Save token to server for sending notifications
+ await saveNotificationToken(token);
+ }
+ }
 
-  // Listen for foreground messages
-  onForegroundMessage((payload) => {
-    // Community SOS alert → show special banner
-    if (payload.data?.type === 'community_sos_alert') {
-      _showCommunitySOSBanner(payload.data)
-      return
-    }
-    showToast(payload.notification?.body || 'Nouvelle notification', 'info');
-  });
+ // Listen for foreground messages
+ onForegroundMessage((payload) => {
+ // Community SOS alert → show special banner
+ if (payload.data?.type === 'community_sos_alert') {
+ _showCommunitySOSBanner(payload.data)
+ return
+ }
+ showToast(payload.notification?.body || 'Nouvelle notification', 'info');
+ });
 }
 
 /**
  * Save notification token to Firestore
  */
 async function saveNotificationToken(token) {
-  if (token) {
-    await saveFCMToken(token)
-  }
+ if (token) {
+ await saveFCMToken(token)
+ }
 }
 
 /**
@@ -108,91 +108,91 @@ async function saveNotificationToken(token) {
  * @param {number} duration - Duration in ms
  */
 export function showToast(message, type = 'info', duration = 4000) {
-  if (!toastContainer) {
-    toastContainer = document.createElement('div')
-    toastContainer.id = 'toast-container'
-    toastContainer.style.cssText = `
-      position: fixed;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      pointer-events: none;
-      max-width: 340px;
-      width: 90%;
-    `
-    document.body.appendChild(toastContainer)
-  }
+ if (!toastContainer) {
+ toastContainer = document.createElement('div')
+ toastContainer.id = 'toast-container'
+ toastContainer.style.cssText = `
+ position: fixed;
+ top: 12px;
+ left: 50%;
+ transform: translateX(-50%);
+ z-index: 9999;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 6px;
+ pointer-events: none;
+ max-width: 340px;
+ width: 90%;
+ `
+ document.body.appendChild(toastContainer)
+ }
 
-  const configs = {
-    success: { icon: '✓', iconBg: '#22c55e', border: 'rgba(74,222,128,.4)',  text: '#bbf7d0' },
-    error:   { icon: '✕', iconBg: '#ef4444', border: 'rgba(248,113,113,.4)', text: '#fecaca' },
-    warning: { icon: '!', iconBg: '#f59e0b', border: 'rgba(251,191,36,.4)',  text: '#fef3c7' },
-    info:    { icon: '↓', iconBg: '#2563eb', border: 'rgba(147,197,253,.4)', text: '#bfdbfe' },
-  }
-  const cfg = configs[type] || configs.info
+ const configs = {
+ success: { icon: '✓', iconBg: '#22c55e', border: 'rgba(74,222,128,.4)', text: '#bbf7d0' },
+ error: { icon: '✕', iconBg: '#ef4444', border: 'rgba(248,113,113,.4)', text: '#fecaca' },
+ warning: { icon: '!', iconBg: '#f59e0b', border: 'rgba(251,191,36,.4)', text: '#fef3c7' },
+ info: { icon: '↓', iconBg: '#2563eb', border: 'rgba(147,197,253,.4)', text: '#bfdbfe' },
+ }
+ const cfg = configs[type] || configs.info
 
-  const toast = document.createElement('div')
-  toast.className = `toast toast-${type}`
-  toast.style.cssText = `
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 13px 6px 7px;
-    border-radius: 20px;
-    border: 1px solid ${cfg.border};
-    background: rgba(0,0,0,.45);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    pointer-events: auto;
-    animation: toastSlideDown 0.25s ease-out;
-    white-space: nowrap;
-    max-width: 100%;
-  `
+ const toast = document.createElement('div')
+ toast.className = `toast toast-${type}`
+ toast.style.cssText = `
+ display: inline-flex;
+ align-items: center;
+ gap: 7px;
+ padding: 6px 13px 6px 7px;
+ border-radius: 20px;
+ border: 1px solid ${cfg.border};
+ background: rgba(0,0,0,.45);
+ backdrop-filter: blur(14px);
+ -webkit-backdrop-filter: blur(14px);
+ pointer-events: auto;
+ animation: toastSlideDown 0.25s ease-out;
+ white-space: nowrap;
+ max-width: 100%;
+ `
 
-  toast.innerHTML = `
-    <span style="
-      background:${cfg.iconBg};
-      border-radius:50%;
-      width:18px; height:18px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:10px; font-weight:700; color:#fff; flex-shrink:0;
-    ">${cfg.icon}</span>
-    <span style="font-size:12px; font-weight:500; color:${cfg.text}; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(message)}</span>
-  `
+ toast.innerHTML = `
+ <span style="
+ background:${cfg.iconBg};
+ border-radius:50%;
+ width:18px; height:18px;
+ display:flex; align-items:center; justify-content:center;
+ font-size:10px; font-weight:700; color:#fff; flex-shrink:0;
+ ">${cfg.icon}</span>
+ <span style="font-size:12px; font-weight:500; color:${cfg.text}; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(message)}</span>
+ `
 
-  toastContainer.appendChild(toast)
+ toastContainer.appendChild(toast)
 
-  if (!document.querySelector('#toast-animations')) {
-    const style = document.createElement('style')
-    style.id = 'toast-animations'
-    style.textContent = `
-      @keyframes toastSlideDown {
-        from { opacity:0; transform:translateY(-10px); }
-        to   { opacity:1; transform:translateY(0); }
-      }
-      @keyframes toastFadeUp {
-        to { opacity:0; transform:translateY(-8px); }
-      }
-    `
-    document.head.appendChild(style)
-  }
+ if (!document.querySelector('#toast-animations')) {
+ const style = document.createElement('style')
+ style.id = 'toast-animations'
+ style.textContent = `
+ @keyframes toastSlideDown {
+ from { opacity:0; transform:translateY(-10px); }
+ to { opacity:1; transform:translateY(0); }
+ }
+ @keyframes toastFadeUp {
+ to { opacity:0; transform:translateY(-8px); }
+ }
+ `
+ document.head.appendChild(style)
+ }
 
-  setTimeout(() => {
-    toast.style.animation = 'toastFadeUp 0.25s ease-out forwards'
-    setTimeout(() => toast.remove(), 250)
-  }, duration)
+ setTimeout(() => {
+ toast.style.animation = 'toastFadeUp 0.25s ease-out forwards'
+ setTimeout(() => toast.remove(), 250)
+ }, duration)
 }
 
 /**
  * Show success toast
  */
 export function showSuccess(message, duration) {
-  showToast(message, 'success', duration);
+ showToast(message, 'success', duration);
 }
 
 /**
@@ -201,7 +201,7 @@ export function showSuccess(message, duration) {
  * @param {number} duration - Duration in ms
  */
 export function showError(message, duration) {
-  showToast(message, 'error', duration);
+ showToast(message, 'error', duration);
 }
 
 /**
@@ -211,23 +211,23 @@ export function showError(message, duration) {
  * @param {number} duration - Duration in ms
  */
 export function showFriendlyError(errorCode, duration = 5000) {
-  const errorInfo = getErrorMessage(errorCode);
-  const fullMessage = `${errorInfo.icon} ${errorInfo.message}`;
-  showToast(fullMessage, errorInfo.type, duration);
+ const errorInfo = getErrorMessage(errorCode);
+ const fullMessage = `${errorInfo.icon} ${errorInfo.message}`;
+ showToast(fullMessage, errorInfo.type, duration);
 }
 
 /**
  * Show info toast
  */
 export function showInfo(message, duration) {
-  showToast(message, 'info', duration);
+ showToast(message, 'info', duration);
 }
 
 /**
  * Show warning toast
  */
 export function showWarning(message, duration) {
-  showToast(message, 'warning', duration);
+ showToast(message, 'warning', duration);
 }
 
 /**
@@ -236,94 +236,94 @@ export function showWarning(message, duration) {
  * @param {'polite' | 'assertive'} priority - Announcement priority
  */
 export function announce(message, priority = 'polite') {
-  const region = document.getElementById(`aria-live-${priority}`);
-  if (region) {
-    region.textContent = '';
-    setTimeout(() => {
-      region.textContent = message;
-    }, 100);
-  }
+ const region = document.getElementById(`aria-live-${priority}`);
+ if (region) {
+ region.textContent = '';
+ setTimeout(() => {
+ region.textContent = message;
+ }, 100);
+ }
 }
 
 /**
  * Send local notification (when app is open)
  */
 export function sendLocalNotification(title, body, data = {}) {
-  if (!('Notification' in window)) {
-    showToast(body, 'info')
-    return
-  }
+ if (!('Notification' in window)) {
+ showToast(body, 'info')
+ return
+ }
 
-  if (Notification.permission === 'granted') {
-    // Use service worker registration for persistent notifications
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.ready.then((registration) => {
-        registration.showNotification(title, {
-          body,
-          icon: '/icon-192.png',
-          badge: '/icon-96.png',
-          data,
-          vibrate: data.type === 'companion_overdue'
-            ? [500, 200, 500, 200, 500, 200, 500]
-            : [100, 50, 100],
-          tag: data.tag || 'spothitch-notification',
-          requireInteraction: data.requireInteraction || false,
-          actions: data.type === 'companion_overdue'
-            ? [
-              { action: 'checkin', title: t('imSafe') || "I'm safe" },
-              { action: 'alert', title: t('sendAlert') || 'Send alert' },
-            ]
-            : [],
-        })
-      }).catch(() => {
-        // Fallback to basic notification
-        showBasicNotification(title, body, data)
-      })
-    } else {
-      showBasicNotification(title, body, data)
-    }
-  } else {
-    showToast(body, 'info')
-  }
+ if (Notification.permission === 'granted') {
+ // Use service worker registration for persistent notifications
+ if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+ navigator.serviceWorker.ready.then((registration) => {
+ registration.showNotification(title, {
+ body,
+ icon: '/icon-192.png',
+ badge: '/icon-96.png',
+ data,
+ vibrate: data.type === 'companion_overdue'
+ ? [500, 200, 500, 200, 500, 200, 500]
+ : [100, 50, 100],
+ tag: data.tag || 'spothitch-notification',
+ requireInteraction: data.requireInteraction || false,
+ actions: data.type === 'companion_overdue'
+ ? [
+ { action: 'checkin', title: t('imSafe') || "I'm safe" },
+ { action: 'alert', title: t('sendAlert') || 'Send alert' },
+ ]
+ : [],
+ })
+ }).catch(() => {
+ // Fallback to basic notification
+ showBasicNotification(title, body, data)
+ })
+ } else {
+ showBasicNotification(title, body, data)
+ }
+ } else {
+ showToast(body, 'info')
+ }
 }
 
 /**
  * Fallback notification without service worker
  */
 function showBasicNotification(title, body, data = {}) {
-  const notification = new Notification(title, {
-    body,
-    icon: '/icon-192.png',
-    badge: '/icon-96.png',
-    data,
-    vibrate: [100, 50, 100],
-  })
+ const notification = new Notification(title, {
+ body,
+ icon: '/icon-192.png',
+ badge: '/icon-96.png',
+ data,
+ vibrate: [100, 50, 100],
+ })
 
-  notification.onclick = () => {
-    window.focus()
-    notification.close()
-    if (data.url) {
-      window.location.href = data.url
-    }
-  }
+ notification.onclick = () => {
+ window.focus()
+ notification.close()
+ if (data.url) {
+ window.location.href = data.url
+ }
+ }
 }
 
 /**
  * Schedule a notification (if supported)
  */
 export function scheduleNotification(title, body, triggerTime, data = {}) {
-  const delay = triggerTime - Date.now();
+ const delay = triggerTime - Date.now();
 
-  if (delay < 0) {
-    console.warn('Notification time is in the past');
-    return null;
-  }
+ if (delay < 0) {
+ console.warn('Notification time is in the past');
+ return null;
+ }
 
-  const timeoutId = setTimeout(() => {
-    sendLocalNotification(title, body, data);
-  }, delay);
+ const timeoutId = setTimeout(() => {
+ sendLocalNotification(title, body, data);
+ }, delay);
 
-  return timeoutId;
+ return timeoutId;
 }
 
 // ==================== SPOT NOTIFICATIONS ====================
@@ -335,23 +335,23 @@ const SPOT_SUBSCRIPTIONS_KEY = 'spothitch_spot_subscriptions';
  * Get notification settings for spots
  */
 export function getSpotNotificationSettings() {
-  try {
-    const saved = localStorage.getItem(SPOT_SUBSCRIPTIONS_KEY);
-    return saved ? JSON.parse(saved) : { enabled: true, spots: [], types: ['checkin', 'rating', 'comment'] };
-  } catch {
-    return { enabled: true, spots: [], types: ['checkin', 'rating', 'comment'] };
-  }
+ try {
+ const saved = localStorage.getItem(SPOT_SUBSCRIPTIONS_KEY);
+ return saved ? JSON.parse(saved) : { enabled: true, spots: [], types: ['checkin', 'rating', 'comment'] };
+ } catch {
+ return { enabled: true, spots: [], types: ['checkin', 'rating', 'comment'] };
+ }
 }
 
 /**
  * Save notification settings for spots
  */
 function saveSpotNotificationSettings(settings) {
-  try {
-    localStorage.setItem(SPOT_SUBSCRIPTIONS_KEY, JSON.stringify(settings));
-  } catch (e) {
-    console.warn('Failed to save spot notification settings:', e);
-  }
+ try {
+ localStorage.setItem(SPOT_SUBSCRIPTIONS_KEY, JSON.stringify(settings));
+ } catch (e) {
+ console.warn('Failed to save spot notification settings:', e);
+ }
 }
 
 /**
@@ -360,19 +360,19 @@ function saveSpotNotificationSettings(settings) {
  * @param {string} spotName - The spot name for display
  */
 export function subscribeToSpotNotifications(spotId, spotName) {
-  const settings = getSpotNotificationSettings();
+ const settings = getSpotNotificationSettings();
 
-  if (!settings.spots.find(s => s.id === spotId)) {
-    settings.spots.push({
-      id: spotId,
-      name: spotName,
-      subscribedAt: new Date().toISOString()
-    });
-    saveSpotNotificationSettings(settings);
-    showToast((t('notifSpotSubscribed') || 'Notifications activées pour "{name}"').replace('{name}', spotName), 'success');
-  }
+ if (!settings.spots.find(s => s.id === spotId)) {
+ settings.spots.push({
+ id: spotId,
+ name: spotName,
+ subscribedAt: new Date().toISOString()
+ });
+ saveSpotNotificationSettings(settings);
+ showToast((t('notifSpotSubscribed') || 'Notifications activées pour "{name}"').replace('{name}', spotName), 'success');
+ }
 
-  return true;
+ return true;
 }
 
 /**
@@ -380,10 +380,10 @@ export function subscribeToSpotNotifications(spotId, spotName) {
  * @param {number|string} spotId - The spot ID
  */
 export function unsubscribeFromSpotNotifications(spotId) {
-  const settings = getSpotNotificationSettings();
-  settings.spots = settings.spots.filter(s => s.id !== spotId);
-  saveSpotNotificationSettings(settings);
-  showToast(t('notifSpotUnsubscribed') || 'Notifications désactivées pour ce spot', 'info');
+ const settings = getSpotNotificationSettings();
+ settings.spots = settings.spots.filter(s => s.id !== spotId);
+ saveSpotNotificationSettings(settings);
+ showToast(t('notifSpotUnsubscribed') || 'Notifications désactivées pour ce spot', 'info');
 }
 
 /**
@@ -391,8 +391,8 @@ export function unsubscribeFromSpotNotifications(spotId) {
  * @param {number|string} spotId - The spot ID
  */
 export function isSubscribedToSpot(spotId) {
-  const settings = getSpotNotificationSettings();
-  return settings.spots.some(s => s.id === spotId);
+ const settings = getSpotNotificationSettings();
+ return settings.spots.some(s => s.id === spotId);
 }
 
 /**
@@ -401,13 +401,13 @@ export function isSubscribedToSpot(spotId) {
  * @param {string} spotName - The spot name for display
  */
 export function toggleSpotNotifications(spotId, spotName) {
-  if (isSubscribedToSpot(spotId)) {
-    unsubscribeFromSpotNotifications(spotId);
-    return false;
-  } else {
-    subscribeToSpotNotifications(spotId, spotName);
-    return true;
-  }
+ if (isSubscribedToSpot(spotId)) {
+ unsubscribeFromSpotNotifications(spotId);
+ return false;
+ } else {
+ subscribeToSpotNotifications(spotId, spotName);
+ return true;
+ }
 }
 
 /**
@@ -417,50 +417,50 @@ export function toggleSpotNotifications(spotId, spotName) {
  * @param {object} data - Activity data
  */
 export function notifySpotActivity(type, data) {
-  const settings = getSpotNotificationSettings();
+ const settings = getSpotNotificationSettings();
 
-  // Check if notifications are enabled and spot is subscribed
-  if (!settings.enabled) return;
-  if (!settings.types.includes(type)) return;
+ // Check if notifications are enabled and spot is subscribed
+ if (!settings.enabled) return;
+ if (!settings.types.includes(type)) return;
 
-  const isSubscribed = settings.spots.some(s => s.id === data.spotId);
-  if (!isSubscribed) return;
+ const isSubscribed = settings.spots.some(s => s.id === data.spotId);
+ if (!isSubscribed) return;
 
-  const messages = {
-    checkin: {
-      title: 'Nouveau check-in !',
-      body: `${data.userName || 'Un voyageur'} a validé ton spot "${data.spotName}"`,
-    },
-    rating: {
-      title: '⭐ Nouvelle évaluation !',
-      body: `${data.userName || 'Un voyageur'} a noté ton spot "${data.spotName}" : ${data.rating}/5`,
-    },
-    comment: {
-      title: 'Nouveau commentaire !',
-      body: `${data.userName || 'Un voyageur'} a commenté ton spot "${data.spotName}"`,
-    },
-  };
+ const messages = {
+ checkin: {
+ title: 'Nouveau check-in !',
+ body: `${data.userName || 'Un voyageur'} a validé ton spot "${data.spotName}"`,
+ },
+ rating: {
+ title: '⭐ Nouvelle évaluation !',
+ body: `${data.userName || 'Un voyageur'} a noté ton spot "${data.spotName}" : ${data.rating}/5`,
+ },
+ comment: {
+ title: 'Nouveau commentaire !',
+ body: `${data.userName || 'Un voyageur'} a commenté ton spot "${data.spotName}"`,
+ },
+ };
 
-  const msg = messages[type];
-  if (msg) {
-    sendLocalNotification(msg.title, msg.body, {
-      type: 'spot_activity',
-      spotId: data.spotId,
-      activityType: type,
-      url: `/?spot=${data.spotId}`
-    });
+ const msg = messages[type];
+ if (msg) {
+ sendLocalNotification(msg.title, msg.body, {
+ type: 'spot_activity',
+ spotId: data.spotId,
+ activityType: type,
+ url: `/?spot=${data.spotId}`
+ });
 
-    // Also show in-app toast
-    showToast(msg.body, 'info', 5000);
-  }
+ // Also show in-app toast
+ showToast(msg.body, 'info', 5000);
+ }
 }
 
 /**
  * Get all subscribed spots
  */
 export function getSubscribedSpots() {
-  const settings = getSpotNotificationSettings();
-  return settings.spots;
+ const settings = getSpotNotificationSettings();
+ return settings.spots;
 }
 
 /**
@@ -468,9 +468,9 @@ export function getSubscribedSpots() {
  * @param {string[]} types - Array of types: 'checkin', 'rating', 'comment'
  */
 export function setSpotNotificationTypes(types) {
-  const settings = getSpotNotificationSettings();
-  settings.types = types;
-  saveSpotNotificationSettings(settings);
+ const settings = getSpotNotificationSettings();
+ settings.types = types;
+ saveSpotNotificationSettings(settings);
 }
 
 /**
@@ -478,10 +478,10 @@ export function setSpotNotificationTypes(types) {
  * @param {boolean} enabled - Enable or disable
  */
 export function setSpotNotificationsEnabled(enabled) {
-  const settings = getSpotNotificationSettings();
-  settings.enabled = enabled;
-  saveSpotNotificationSettings(settings);
-  showToast(enabled ? (t('notifSpotEnabled') || 'Notifications de spots activées') : (t('notifSpotDisabled') || 'Notifications de spots désactivées'), 'info');
+ const settings = getSpotNotificationSettings();
+ settings.enabled = enabled;
+ saveSpotNotificationSettings(settings);
+ showToast(enabled ? (t('notifSpotEnabled') || 'Notifications de spots activées') : (t('notifSpotDisabled') || 'Notifications de spots désactivées'), 'info');
 }
 
 // ==================== NOTIFICATION PREFERENCES ====================
@@ -491,12 +491,12 @@ export function setSpotNotificationsEnabled(enabled) {
  * @returns {Object} Notification preferences
  */
 export function getNotificationPreferences() {
-  try {
-    const saved = localStorage.getItem(NOTIFICATION_PREFS_KEY);
-    return saved ? { ...DEFAULT_NOTIFICATION_PREFS, ...JSON.parse(saved) } : { ...DEFAULT_NOTIFICATION_PREFS };
-  } catch {
-    return { ...DEFAULT_NOTIFICATION_PREFS };
-  }
+ try {
+ const saved = localStorage.getItem(NOTIFICATION_PREFS_KEY);
+ return saved ? { ...DEFAULT_NOTIFICATION_PREFS, ...JSON.parse(saved) } : { ...DEFAULT_NOTIFICATION_PREFS };
+ } catch {
+ return { ...DEFAULT_NOTIFICATION_PREFS };
+ }
 }
 
 /**
@@ -504,15 +504,15 @@ export function getNotificationPreferences() {
  * @param {Object} prefs - Preferences to save
  */
 export function saveNotificationPreferences(prefs) {
-  try {
-    const current = getNotificationPreferences();
-    const updated = { ...current, ...prefs };
-    localStorage.setItem(NOTIFICATION_PREFS_KEY, JSON.stringify(updated));
-    return updated;
-  } catch (e) {
-    console.warn('Failed to save notification preferences:', e);
-    return getNotificationPreferences();
-  }
+ try {
+ const current = getNotificationPreferences();
+ const updated = { ...current, ...prefs };
+ localStorage.setItem(NOTIFICATION_PREFS_KEY, JSON.stringify(updated));
+ return updated;
+ } catch (e) {
+ console.warn('Failed to save notification preferences:', e);
+ return getNotificationPreferences();
+ }
 }
 
 /**
@@ -521,24 +521,24 @@ export function saveNotificationPreferences(prefs) {
  * @returns {boolean} Whether the notification is enabled
  */
 export function isNotificationEnabled(type) {
-  const prefs = getNotificationPreferences();
-  if (!prefs.enabled) return false;
+ const prefs = getNotificationPreferences();
+ if (!prefs.enabled) return false;
 
-  // Check quiet hours
-  if (prefs.quietHoursEnabled) {
-    const hour = new Date().getHours();
-    const start = prefs.quietHoursStart;
-    const end = prefs.quietHoursEnd;
+ // Check quiet hours
+ if (prefs.quietHoursEnabled) {
+ const hour = new Date().getHours();
+ const start = prefs.quietHoursStart;
+ const end = prefs.quietHoursEnd;
 
-    // Handle overnight quiet hours (e.g., 22:00 - 08:00)
-    if (start > end) {
-      if (hour >= start || hour < end) return false;
-    } else {
-      if (hour >= start && hour < end) return false;
-    }
-  }
+ // Handle overnight quiet hours (e.g., 22:00 - 08:00)
+ if (start > end) {
+ if (hour >= start || hour < end) return false;
+ } else {
+ if (hour >= start && hour < end) return false;
+ }
+ }
 
-  return prefs[type] !== false;
+ return prefs[type] !== false;
 }
 
 /**
@@ -547,10 +547,10 @@ export function isNotificationEnabled(type) {
  * @returns {boolean} New value
  */
 export function toggleNotificationPreference(type) {
-  const prefs = getNotificationPreferences();
-  const newValue = !prefs[type];
-  saveNotificationPreferences({ [type]: newValue });
-  return newValue;
+ const prefs = getNotificationPreferences();
+ const newValue = !prefs[type];
+ saveNotificationPreferences({ [type]: newValue });
+ return newValue;
 }
 
 // ==================== SOCIAL NOTIFICATIONS ====================
@@ -560,23 +560,23 @@ export function toggleNotificationPreference(type) {
  * @param {Object} friend - Friend data
  */
 export function notifyNewFriend(friend) {
-  if (!isNotificationEnabled('newFriend')) return;
+ if (!isNotificationEnabled('newFriend')) return;
 
-  const title = t('notifNewFriendTitle') || 'Nouvel ami !';
-  const body = (t('notifNewFriendBody') || '{name} a accepte ta demande d\'ami').replace('{name}', friend.name || (t('notifATraveler') || 'Un voyageur'));
-  const icon = friend.avatar || '';
+ const title = t('notifNewFriendTitle') || 'Nouvel ami !';
+ const body = (t('notifNewFriendBody') || '{name} a accepte ta demande d\'ami').replace('{name}', friend.name || (t('notifATraveler') || 'Un voyageur'));
+ const icon = friend.avatar || '';
 
-  sendLocalNotification(title, body, {
-    type: 'new_friend',
-    friendId: friend.id,
-    url: '/?tab=social',
-  });
+ sendLocalNotification(title, body, {
+ type: 'new_friend',
+ friendId: friend.id,
+ url: '/?tab=social',
+ });
 
-  // Show in-app toast with emoji
-  showToast(`${icon || ''} ${body}`, 'success', 5000);
+ // Show in-app toast with emoji
+ showToast(`${icon || ''} ${body}`, 'success', 5000);
 
-  // Announce for screen readers
-  announce((t('notifNewFriendAnnounce') || 'Nouvel ami: {name}').replace('{name}', friend.name || (t('notifATraveler') || 'Un voyageur')));
+ // Announce for screen readers
+ announce((t('notifNewFriendAnnounce') || 'Nouvel ami: {name}').replace('{name}', friend.name || (t('notifATraveler') || 'Un voyageur')));
 }
 
 /**
@@ -584,27 +584,27 @@ export function notifyNewFriend(friend) {
  * @param {Object} message - Message data
  */
 export function notifyNewMessage(message) {
-  if (!isNotificationEnabled('newMessage')) return;
+ if (!isNotificationEnabled('newMessage')) return;
 
-  const senderName = message.senderName || (t('notifATraveler') || 'Un voyageur');
-  const title = (t('notifNewMessageTitle') || 'Message de {name}').replace('{name}', senderName);
-  const body = message.preview || message.text?.substring(0, 50) + '...' || (t('notifNewMessageBody') || 'Nouveau message');
+ const senderName = message.senderName || (t('notifATraveler') || 'Un voyageur');
+ const title = (t('notifNewMessageTitle') || 'Message de {name}').replace('{name}', senderName);
+ const body = message.preview || message.text?.substring(0, 50) + '...' || (t('notifNewMessageBody') || 'Nouveau message');
 
-  sendLocalNotification(title, body, {
-    type: 'new_message',
-    senderId: message.senderId,
-    messageId: message.id,
-    url: `/?tab=chat&friend=${message.senderId}`,
-  });
+ sendLocalNotification(title, body, {
+ type: 'new_message',
+ senderId: message.senderId,
+ messageId: message.id,
+ url: `/?tab=chat&friend=${message.senderId}`,
+ });
 
-  // Show in-app toast
-  showToast(`${message.senderAvatar || ''} ${senderName}: "${body}"`, 'info', 4000);
+ // Show in-app toast
+ showToast(`${message.senderAvatar || ''} ${senderName}: "${body}"`, 'info', 4000);
 
-  // Update unread count in state
-  const state = getState();
-  setState({
-    unreadFriendMessages: (state.unreadFriendMessages || 0) + 1,
-  });
+ // Update unread count in state
+ const state = getState();
+ setState({
+ unreadFriendMessages: (state.unreadFriendMessages || 0) + 1,
+ });
 }
 
 /**
@@ -613,40 +613,40 @@ export function notifyNewMessage(message) {
  * @param {number} distance - Distance in km
  */
 export function notifyFriendNearby(friend, distance) {
-  if (!isNotificationEnabled('friendNearby')) return;
+ if (!isNotificationEnabled('friendNearby')) return;
 
-  const prefs = getNotificationPreferences();
-  if (distance > prefs.nearbyDistance) return;
+ const prefs = getNotificationPreferences();
+ if (distance > prefs.nearbyDistance) return;
 
-  // Avoid duplicate notifications for the same friend
-  const notifyKey = `nearby_${friend.id}`;
-  const lastNotified = sessionStorage.getItem(notifyKey);
-  const now = Date.now();
+ // Avoid duplicate notifications for the same friend
+ const notifyKey = `nearby_${friend.id}`;
+ const lastNotified = sessionStorage.getItem(notifyKey);
+ const now = Date.now();
 
-  // Only notify once per hour per friend
-  if (lastNotified && now - parseInt(lastNotified) < 3600000) return;
-  sessionStorage.setItem(notifyKey, now.toString());
+ // Only notify once per hour per friend
+ if (lastNotified && now - parseInt(lastNotified) < 3600000) return;
+ sessionStorage.setItem(notifyKey, now.toString());
 
-  const title = t('notifFriendNearbyTitle') || 'Ami a proximite !';
-  const distanceText = distance < 1
-    ? (t('notifDistanceMeters') || 'a {n}m').replace('{n}', Math.round(distance * 1000))
-    : (t('notifDistanceKm') || 'a {n}km').replace('{n}', distance.toFixed(1));
-  const body = (t('notifFriendNearbyBody') || '{name} est {distance} de toi').replace('{name}', friend.name || (t('notifAFriend') || 'Un ami')).replace('{distance}', distanceText);
+ const title = t('notifFriendNearbyTitle') || 'Ami a proximite !';
+ const distanceText = distance < 1
+ ? (t('notifDistanceMeters') || 'a {n}m').replace('{n}', Math.round(distance * 1000))
+ : (t('notifDistanceKm') || 'a {n}km').replace('{n}', distance.toFixed(1));
+ const body = (t('notifFriendNearbyBody') || '{name} est {distance} de toi').replace('{name}', friend.name || (t('notifAFriend') || 'Un ami')).replace('{distance}', distanceText);
 
-  sendLocalNotification(title, body, {
-    type: 'friend_nearby',
-    friendId: friend.id,
-    distance,
-    url: '/?tab=social&nearby=true',
-  });
+ sendLocalNotification(title, body, {
+ type: 'friend_nearby',
+ friendId: friend.id,
+ distance,
+ url: '/?tab=social&nearby=true',
+ });
 
-  // Show prominent in-app notification
-  showToast(`${friend.avatar || ''} ${body}`, 'info', 8000);
+ // Show prominent in-app notification
+ showToast(`${friend.avatar || ''} ${body}`, 'info', 8000);
 
-  // Play sound if available
-  if (window.playSound) {
-    window.playSound('notification');
-  }
+ // Play sound if available
+ if (window.playSound) {
+ window.playSound('notification');
+ }
 }
 
 // ==================== GAMIFICATION NOTIFICATIONS ====================
@@ -656,20 +656,20 @@ export function notifyFriendNearby(friend, distance) {
  * @param {Object} badge - Badge data
  */
 export function notifyBadgeUnlocked(badge) {
-  if (!isNotificationEnabled('badgeUnlocked')) return;
+ if (!isNotificationEnabled('badgeUnlocked')) return;
 
-  const title = t('notifBadgeUnlockedTitle') || 'Badge debloque !';
-  const body = (t('notifBadgeUnlockedBody') || 'Tu as obtenu le badge "{name}"').replace('{name}', badge.name);
+ const title = t('notifBadgeUnlockedTitle') || 'Badge debloque !';
+ const body = (t('notifBadgeUnlockedBody') || 'Tu as obtenu le badge "{name}"').replace('{name}', badge.name);
 
-  sendLocalNotification(title, body, {
-    type: 'badge_unlocked',
-    badgeId: badge.id,
-    url: '/?tab=profile&badges=true',
-  });
+ sendLocalNotification(title, body, {
+ type: 'badge_unlocked',
+ badgeId: badge.id,
+ url: '/?tab=profile&badges=true',
+ });
 
-  // In-app notification is handled by gamification service
-  // but we announce for accessibility
-  announce((t('notifBadgeUnlockedAnnounce') || 'Badge debloque: {name}').replace('{name}', badge.name));
+ // In-app notification is handled by gamification service
+ // but we announce for accessibility
+ announce((t('notifBadgeUnlockedAnnounce') || 'Badge debloque: {name}').replace('{name}', badge.name));
 }
 
 /**
@@ -678,27 +678,27 @@ export function notifyBadgeUnlocked(badge) {
  * @param {Object} rewards - Optional rewards for leveling up
  */
 export function notifyLevelUp(newLevel, rewards = {}) {
-  if (!isNotificationEnabled('levelUp')) return;
+ if (!isNotificationEnabled('levelUp')) return;
 
-  const title = (t('notifLevelUpTitle') || 'Niveau {level} atteint !').replace('{level}', newLevel);
-  let body = t('notifLevelUpBody') || 'Felicitations ! Continue comme ca !';
+ const title = (t('notifLevelUpTitle') || 'Niveau {level} atteint !').replace('{level}', newLevel);
+ let body = t('notifLevelUpBody') || 'Felicitations ! Continue comme ca !';
 
-  if (rewards.points) {
-    body += ` ${(t('notifLevelUpBonus') || '+{n} pts bonus !').replace('{n}', rewards.points)}`;
-  }
-  if (rewards.title) {
-    body = (t('notifLevelUpTitle2') || 'Nouveau titre: {name} !').replace('{name}', rewards.title.name);
-  }
+ if (rewards.points) {
+ body += ` ${(t('notifLevelUpBonus') || '+{n} pts bonus !').replace('{n}', rewards.points)}`;
+ }
+ if (rewards.title) {
+ body = (t('notifLevelUpTitle2') || 'Nouveau titre: {name} !').replace('{name}', rewards.title.name);
+ }
 
-  sendLocalNotification(title, body, {
-    type: 'level_up',
-    level: newLevel,
-    rewards,
-    url: '/?tab=profile',
-  });
+ sendLocalNotification(title, body, {
+ type: 'level_up',
+ level: newLevel,
+ rewards,
+ url: '/?tab=profile',
+ });
 
-  // Announce for accessibility
-  announce((t('notifLevelUpAnnounce') || 'Niveau {level} atteint').replace('{level}', newLevel));
+ // Announce for accessibility
+ announce((t('notifLevelUpAnnounce') || 'Niveau {level} atteint').replace('{level}', newLevel));
 }
 
 
@@ -708,23 +708,23 @@ export function notifyLevelUp(newLevel, rewards = {}) {
  * Notify about daily reward available
  */
 export function notifyDailyRewardAvailable() {
-  if (!isNotificationEnabled('dailyReward')) return;
+ if (!isNotificationEnabled('dailyReward')) return;
 
-  const state = getState();
-  const lastClaim = state.lastDailyRewardClaim;
-  const today = new Date().toDateString();
+ const state = getState();
+ const lastClaim = state.lastDailyRewardClaim;
+ const today = new Date().toDateString();
 
-  if (lastClaim === today) return; // Already claimed today
+ if (lastClaim === today) return; // Already claimed today
 
-  const title = t('notifDailyRewardTitle') || 'Recompense quotidienne !';
-  const body = t('notifDailyRewardBody') || 'Ta recompense quotidienne t\'attend ! Connecte-toi pour la recuperer.';
+ const title = t('notifDailyRewardTitle') || 'Recompense quotidienne !';
+ const body = t('notifDailyRewardBody') || 'Ta recompense quotidienne t\'attend ! Connecte-toi pour la recuperer.';
 
-  sendLocalNotification(title, body, {
-    type: 'daily_reward',
-    url: '/',
-  });
+ sendLocalNotification(title, body, {
+ type: 'daily_reward',
+ url: '/',
+ });
 
-  showToast(t('notifDailyRewardToast') || 'Ta recompense quotidienne est disponible !', 'info', 5000);
+ showToast(t('notifDailyRewardToast') || 'Ta recompense quotidienne est disponible !', 'info', 5000);
 }
 
 // ==================== HELPER FUNCTIONS ====================
@@ -738,15 +738,15 @@ export function notifyDailyRewardAvailable() {
  * @returns {number} Distance in km
  */
 export function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Earth's radius in km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+ const R = 6371; // Earth's radius in km
+ const dLat = (lat2 - lat1) * Math.PI / 180;
+ const dLon = (lon2 - lon1) * Math.PI / 180;
+ const a =
+ Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+ Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+ Math.sin(dLon / 2) * Math.sin(dLon / 2);
+ const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+ return R * c;
 }
 
 /**
@@ -755,24 +755,24 @@ export function calculateDistance(lat1, lon1, lat2, lon2) {
  * @param {Object} userLocation - User's current location
  */
 export function checkFriendsProximity(friends, userLocation) {
-  if (!friends || !userLocation) return;
+ if (!friends || !userLocation) return;
 
-  const prefs = getNotificationPreferences();
+ const prefs = getNotificationPreferences();
 
-  friends.forEach(friend => {
-    if (friend.location) {
-      const distance = calculateDistance(
-        userLocation.lat,
-        userLocation.lng,
-        friend.location.lat,
-        friend.location.lng
-      );
+ friends.forEach(friend => {
+ if (friend.location) {
+ const distance = calculateDistance(
+ userLocation.lat,
+ userLocation.lng,
+ friend.location.lat,
+ friend.location.lng
+ );
 
-      if (distance <= prefs.nearbyDistance) {
-        notifyFriendNearby(friend, distance);
-      }
-    }
-  });
+ if (distance <= prefs.nearbyDistance) {
+ notifyFriendNearby(friend, distance);
+ }
+ }
+ });
 }
 
 /**
@@ -780,62 +780,62 @@ export function checkFriendsProximity(friends, userLocation) {
  * @param {string} id - Notification ID
  */
 export function cancelScheduledNotification(id) {
-  const timeoutId = scheduledNotifications.get(id);
-  if (timeoutId) {
-    clearTimeout(timeoutId);
-    scheduledNotifications.delete(id);
-  }
+ const timeoutId = scheduledNotifications.get(id);
+ if (timeoutId) {
+ clearTimeout(timeoutId);
+ scheduledNotifications.delete(id);
+ }
 }
 
 /**
  * Cancel all scheduled notifications
  */
 export function cancelAllScheduledNotifications() {
-  scheduledNotifications.forEach((timeoutId) => {
-    clearTimeout(timeoutId);
-  });
-  scheduledNotifications.clear();
+ scheduledNotifications.forEach((timeoutId) => {
+ clearTimeout(timeoutId);
+ });
+ scheduledNotifications.clear();
 }
 
 export default {
-  initNotifications,
-  showToast,
-  showSuccess,
-  showError,
-  showFriendlyError,
-  showInfo,
-  showWarning,
-  announce,
-  sendLocalNotification,
-  scheduleNotification,
-  // Spot notifications
-  getSpotNotificationSettings,
-  subscribeToSpotNotifications,
-  unsubscribeFromSpotNotifications,
-  isSubscribedToSpot,
-  toggleSpotNotifications,
-  notifySpotActivity,
-  getSubscribedSpots,
-  setSpotNotificationTypes,
-  setSpotNotificationsEnabled,
-  // Notification preferences
-  getNotificationPreferences,
-  saveNotificationPreferences,
-  isNotificationEnabled,
-  toggleNotificationPreference,
-  // Social notifications
-  notifyNewFriend,
-  notifyNewMessage,
-  notifyFriendNearby,
-  // Gamification notifications
-  notifyBadgeUnlocked,
-  notifyLevelUp,
-  notifyDailyRewardAvailable,
-  // Helper functions
-  calculateDistance,
-  checkFriendsProximity,
-  cancelScheduledNotification,
-  cancelAllScheduledNotifications,
+ initNotifications,
+ showToast,
+ showSuccess,
+ showError,
+ showFriendlyError,
+ showInfo,
+ showWarning,
+ announce,
+ sendLocalNotification,
+ scheduleNotification,
+ // Spot notifications
+ getSpotNotificationSettings,
+ subscribeToSpotNotifications,
+ unsubscribeFromSpotNotifications,
+ isSubscribedToSpot,
+ toggleSpotNotifications,
+ notifySpotActivity,
+ getSubscribedSpots,
+ setSpotNotificationTypes,
+ setSpotNotificationsEnabled,
+ // Notification preferences
+ getNotificationPreferences,
+ saveNotificationPreferences,
+ isNotificationEnabled,
+ toggleNotificationPreference,
+ // Social notifications
+ notifyNewFriend,
+ notifyNewMessage,
+ notifyFriendNearby,
+ // Gamification notifications
+ notifyBadgeUnlocked,
+ notifyLevelUp,
+ notifyDailyRewardAvailable,
+ // Helper functions
+ calculateDistance,
+ checkFriendsProximity,
+ cancelScheduledNotification,
+ cancelAllScheduledNotifications,
 };
 
 // ─── Community SOS Alert Banner ──────────────────────────────────────────────
@@ -845,72 +845,70 @@ export default {
  * The banner shows the distance and has buttons to view on map or call emergency.
  */
 function _showCommunitySOSBanner(data) {
-  const { voyagerName, lat, lng, distance, alertType } = data
-  const existing = document.getElementById('community-sos-banner')
-  if (existing) existing.remove()
+ const { voyagerName, lat, lng, distance, alertType } = data
+ const existing = document.getElementById('community-sos-banner')
+ if (existing) existing.remove()
 
-  const name = voyagerName ? escapeHTML(voyagerName) : (t('aHitchhiker') || 'Un autostoppeur')
-  const distText = parseFloat(distance) < 1
-    ? (t('veryClose') || 'tout près')
-    : `${distance}km`
+ const name = voyagerName ? escapeHTML(voyagerName) : (t('aHitchhiker') || 'Un autostoppeur')
+ const distText = parseFloat(distance) < 1
+ ? (t('veryClose') || 'tout près')
+ : `${distance}km`
 
-  const banner = document.createElement('div')
-  banner.id = 'community-sos-banner'
-  banner.setAttribute('role', 'alert')
-  banner.setAttribute('aria-live', 'assertive')
-  banner.style.cssText = `
-    position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
-    background: linear-gradient(135deg, #dc2626, #991b1b);
-    color: white; padding: 16px; text-align: center;
-    box-shadow: 0 4px 20px rgba(220,38,38,.5);
-    animation: slideDown .3s ease-out;
-  `
-  banner.innerHTML = `
-    <style>@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}</style>
-    <div style="max-width:400px;margin:0 auto">
-      <div style="font-weight:800;font-size:15px;margin-bottom:4px">
-        ${alertType === 'silent' ? 'volume-x' : 'siren'} SOS ${distText}
-      </div>
-      <div style="font-size:13px;opacity:.9;margin-bottom:12px">
-        ${name} ${t('needsHelpNearYou') || 'a besoin d\'aide près de vous'}
-      </div>
-      <div style="display:flex;gap:8px;justify-content:center">
-        <button onclick="showCommunitySOSOnMap(${lat},${lng},'${escapeHTML(voyagerName || '')}')" style="
-          flex:1;padding:10px;border-radius:12px;border:none;
-          background:white;color:#dc2626;font-weight:700;font-size:13px;cursor:pointer;
-        ">${t('seeOnMap') || 'Voir sur la carte'}</button>
-        <a href="tel:112" style="
-          padding:10px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
-          background:transparent;color:white;font-weight:700;font-size:13px;
-          text-decoration:none;display:flex;align-items:center;gap:4px;
-        ">${icon('phone', 'w-4 h-4 inline mr-1')} 112</a>
-        <button onclick="document.getElementById('community-sos-banner')?.remove()" style="
-          padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
-          background:transparent;color:white;font-size:13px;cursor:pointer;
-        " aria-label="${t('close') || 'Fermer'}">✕</button>
-      </div>
-    </div>
-  `
-  document.body.appendChild(banner)
+ const banner = document.createElement('div')
+ banner.id = 'community-sos-banner'
+ banner.setAttribute('role', 'alert')
+ banner.setAttribute('aria-live', 'assertive')
+ banner.style.cssText = `
+ position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
+ background: linear-gradient(135deg, #dc2626, #991b1b);
+ color: white; padding: 16px; text-align: center;
+ box-shadow: 0 4px 20px rgba(220,38,38,.5);
+ animation: slideDown .3s ease-out;
+ `
+ banner.innerHTML = `
+ <style>@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}</style>
+ <div style="max-width:400px;margin:0 auto">
+ <div style="font-weight:800;font-size:15px;margin-bottom:4px">
+ ${alertType === 'silent' ? 'volume-x' : 'siren'} SOS ${distText}
+ </div>
+ <div style="font-size:13px;opacity:.9;margin-bottom:12px">
+ ${name} ${t('needsHelpNearYou') || 'a besoin d\'aide près de vous'}
+ </div>
+ <div style="display:flex;gap:8px;justify-content:center">
+ <button onclick="showCommunitySOSOnMap(${lat},${lng},'${escapeHTML(voyagerName || '')}')" style="
+ flex:1;padding:10px;border-radius:12px;border:none;
+ background:white;color:#dc2626;font-weight:700;font-size:13px;cursor:pointer;
+ ">${t('seeOnMap') || 'Voir sur la carte'}</button>
+ <a href="tel:112" style="
+ padding:10px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
+ background:transparent;color:white;font-weight:700;font-size:13px;
+ text-decoration:none;display:flex;align-items:center;gap:4px;
+ ">${icon('phone', 'w-4 h-4 inline mr-1')} 112</a>
+ <button onclick="document.getElementById('community-sos-banner')?.remove()" style="
+ padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
+ background:transparent;color:white;font-size:13px;cursor:pointer;
+ " aria-label="${t('close') || 'Fermer'}">✕</button></div></div>
+ `
+ document.body.appendChild(banner)
 
-  // Auto-dismiss after 60 seconds
-  setTimeout(() => banner.remove(), 60000)
+ // Auto-dismiss after 60 seconds
+ setTimeout(() => banner.remove(), 60000)
 }
 
 // Handler to show community SOS on the map
 window.showCommunitySOSOnMap = (lat, lng, name) => {
-  document.getElementById('community-sos-banner')?.remove()
-  // Switch to map tab
-  window.setState?.({ activeTab: 'map' })
-  // Fly to SOS position
-  setTimeout(() => {
-    const map = window.__mapInstance
-    if (map) {
-      map.flyTo({ center: [lng, lat], zoom: 15, duration: 1500 })
-      // Add a temporary pulsing marker
-      _addSOSMarker(map, lat, lng, name)
-    }
-  }, 300)
+ document.getElementById('community-sos-banner')?.remove()
+ // Switch to map tab
+ window.setState?.({ activeTab: 'map' })
+ // Fly to SOS position
+ setTimeout(() => {
+ const map = window.__mapInstance
+ if (map) {
+ map.flyTo({ center: [lng, lat], zoom: 15, duration: 1500 })
+ // Add a temporary pulsing marker
+ _addSOSMarker(map, lat, lng, name)
+ }
+ }, 300)
 }
 
 /**
@@ -918,50 +916,49 @@ window.showCommunitySOSOnMap = (lat, lng, name) => {
  * Auto-removed after 5 minutes.
  */
 function _addSOSMarker(map, lat, lng, name) {
-  // Create pulsing dot element
-  const el = document.createElement('div')
-  el.style.cssText = `
-    width: 24px; height: 24px; border-radius: 50%;
-    background: #dc2626; border: 3px solid white;
-    box-shadow: 0 0 0 0 rgba(220,38,38,.7);
-    animation: sosPulse 1.5s ease-out infinite;
-  `
-  const style = document.createElement('style')
-  style.textContent = `
-    @keyframes sosPulse {
-      0% { box-shadow: 0 0 0 0 rgba(220,38,38,.7); }
-      70% { box-shadow: 0 0 0 20px rgba(220,38,38,0); }
-      100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
-    }
-  `
-  document.head.appendChild(style)
+ // Create pulsing dot element
+ const el = document.createElement('div')
+ el.style.cssText = `
+ width: 24px; height: 24px; border-radius: 50%;
+ background: #dc2626; border: 3px solid white;
+ box-shadow: 0 0 0 0 rgba(220,38,38,.7);
+ animation: sosPulse 1.5s ease-out infinite;
+ `
+ const style = document.createElement('style')
+ style.textContent = `
+ @keyframes sosPulse {
+ 0% { box-shadow: 0 0 0 0 rgba(220,38,38,.7); }
+ 70% { box-shadow: 0 0 0 20px rgba(220,38,38,0); }
+ 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+ }
+ `
+ document.head.appendChild(style)
 
-  // Use maplibregl Marker
-  try {
-    const maplibregl = window.maplibregl || window.mapboxgl
-    if (maplibregl) {
-      const popup = new maplibregl.Popup({ offset: 25, closeOnClick: false })
-        .setHTML(`<div style="padding:8px;text-align:center;font-size:13px;">
-          <strong style="color:#dc2626">SOS</strong><br/>
-          ${name ? escapeHTML(name) : 'Voyageur en détresse'}<br/>
-          <a href="tel:112" style="color:#dc2626;font-weight:700">Appeler 112</a>
-        </div>`)
+ // Use maplibregl Marker
+ try {
+ const maplibregl = window.maplibregl || window.mapboxgl
+ if (maplibregl) {
+ const popup = new maplibregl.Popup({ offset: 25, closeOnClick: false })
+ .setHTML(`<div style="padding:8px;text-align:center;font-size:13px;">
+ <strong style="color:#dc2626">SOS</strong><br/>
+ ${name ? escapeHTML(name) : 'Voyageur en détresse'}<br/>
+ <a href="tel:112" style="color:#dc2626;font-weight:700">Appeler 112</a></div>`)
 
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([lng, lat])
-        .setPopup(popup)
-        .addTo(map)
+ const marker = new maplibregl.Marker({ element: el })
+ .setLngLat([lng, lat])
+ .setPopup(popup)
+ .addTo(map)
 
-      popup.addTo(map)
+ popup.addTo(map)
 
-      // Auto-remove after 5 minutes
-      setTimeout(() => {
-        marker.remove()
-        popup.remove()
-        style.remove()
-      }, 5 * 60 * 1000)
-    }
-  } catch (err) {
-    console.warn('[CommunityAlert] Failed to add map marker:', err.message)
-  }
+ // Auto-remove after 5 minutes
+ setTimeout(() => {
+ marker.remove()
+ popup.remove()
+ style.remove()
+ }, 5 * 60 * 1000)
+ }
+ } catch (err) {
+ console.warn('[CommunityAlert] Failed to add map marker:', err.message)
+ }
 }

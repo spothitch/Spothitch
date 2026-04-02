@@ -12,229 +12,205 @@ import { allBadges, getBadgesByCategory, getEarnedBadges, getNextBadges } from '
  * Render badges modal
  */
 export function renderBadgesModal() {
-  const state = getState();
-  const { showBadges } = state;
+ const state = getState();
+ const { showBadges } = state;
 
-  if (!showBadges) return '';
+ if (!showBadges) return '';
 
-  const earnedBadgeIds = state.badges || [];
-  const userStats = {
-    checkins: state.checkins || 0,
-    spotsCreated: state.spotsCreated || 0,
-    reviewsGiven: state.reviewsGiven || 0,
-    countriesVisited: state.countriesVisited || 0,
-  };
+ const earnedBadgeIds = state.badges || [];
+ const userStats = {
+ checkins: state.checkins || 0,
+ spotsCreated: state.spotsCreated || 0,
+ reviewsGiven: state.reviewsGiven || 0,
+ countriesVisited: state.countriesVisited || 0,
+ };
 
-  const earnedBadges = getEarnedBadges(userStats, earnedBadgeIds);
-  const nextBadges = getNextBadges(userStats, earnedBadgeIds, 3);
+ const earnedBadges = getEarnedBadges(userStats, earnedBadgeIds);
+ const nextBadges = getNextBadges(userStats, earnedBadgeIds, 3);
 
-  const categories = [
-    { id: 'beginner', name: t('beginner') || 'Beginner', iconName: 'sprout' },
-    { id: 'progress', name: t('progress') || 'Progress', iconName: 'trending-up' },
-    { id: 'special', name: t('special') || 'Special', icon: '⭐' },
-  ];
+ const categories = [
+ { id: 'beginner', name: t('beginner') || 'Beginner', iconName: 'sprout' },
+ { id: 'progress', name: t('progress') || 'Progress', iconName: 'trending-up' },
+ { id: 'special', name: t('special') || 'Special', icon: '⭐' },
+ ];
 
-  return `
-    <div class="badges-modal fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center justify-center"
-         onclick="if(event.target===this)closeBadges()"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="badges-title">
-      <div class="modal-panel w-full sm:max-w-lg max-h-[85vh] sm:rounded-2xl overflow-hidden
-                  flex flex-col">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-8">
-          <div class="flex justify-between items-start">
-            <div>
-              <h2 id="badges-title" class="text-2xl font-bold text-white">${t('myBadges') || 'My Badges'}</h2>
-              <p class="text-white/80">${earnedBadges.length}/${allBadges.length} ${t('unlocked') || 'unlocked'}</p>
-            </div>
-            <button onclick="closeBadges()"
-                    class="p-2 bg-white/20 rounded-full text-white hover:bg-white/30"
-                    type="button"
-                    aria-label="${t('close') || 'Close'}">
-              <span aria-hidden="true">✕</span>
-            </button>
-          </div>
+ return `
+ <div class="badges-modal fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center justify-center"
+ onclick="if(event.target===this)closeBadges()"
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="badges-title">
+ <div class="modal-panel w-full sm:max-w-lg max-h-[85vh] sm:rounded-2xl overflow-hidden
+ flex flex-col">
+ <!-- Header -->
+ <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-8">
+ <div class="flex justify-between items-start">
+ <div>
+ <h2 id="badges-title" class="text-2xl font-bold text-white">${t('myBadges') || 'My Badges'}</h2>
+ <p class="text-white/80">${earnedBadges.length}/${allBadges.length} ${t('unlocked') || 'unlocked'}</p></div>
+ <button onclick="closeBadges()"
+ class="p-2 bg-white/20 rounded-full text-white hover:bg-white/30"
+ type="button"
+ aria-label="${t('close') || 'Close'}">
+ <span aria-hidden="true">✕</span></button></div>
 
-          <!-- Progress bar -->
-          <div class="mt-4">
-            <div class="h-3 bg-white/30 rounded-full overflow-hidden">
-              <div class="h-full bg-white transition-colors duration-500"
-                   style="width: ${(earnedBadges.length / allBadges.length) * 100}%"></div>
-            </div>
-          </div>
-        </div>
+ <!-- Progress bar -->
+ <div class="mt-4">
+ <div class="h-3 bg-white/30 rounded-full overflow-hidden">
+ <div class="h-full bg-white transition-colors duration-500"
+ style="width: ${(earnedBadges.length / allBadges.length) * 100}%"></div></div></div></div>
 
-        <!-- Content -->
-        <div class="flex-1 overflow-y-auto p-6">
-          <!-- Next badges to unlock -->
-          ${nextBadges.length > 0 ? `
-            <section class="mb-6">
-              <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">
-                ${t('nextBadges') || 'Next badges'}
-              </h3>
-              <div class="grid grid-cols-3 gap-4">
-                ${nextBadges.map(badge => `
-                  <div class="bg-white/5 rounded-xl p-3 text-center opacity-60">
-                    ${badge.image
-    ? `<img src="${badge.image}" alt="${badge.name}" class="w-12 h-12 mx-auto mb-2 grayscale" loading="lazy" />`
-    : `<div class="text-3xl mb-2 grayscale">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
+ <!-- Content -->
+ <div class="flex-1 overflow-y-auto p-6">
+ <!-- Next badges to unlock -->
+ ${nextBadges.length > 0 ? `
+ <section class="mb-6">
+ <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">
+ ${t('nextBadges') || 'Next badges'}
+ </h3>
+ <div class="grid grid-cols-3 gap-4">
+ ${nextBadges.map(badge => `
+ <div class="bg-white/5 rounded-xl p-3 text-center opacity-60">
+ ${badge.image
+ ? `<img src="${badge.image}" alt="${badge.name}" class="w-12 h-12 mx-auto mb-2 grayscale" loading="lazy" />`
+ : `<div class="text-3xl mb-2 grayscale">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
 }
-                    <div class="text-white text-xs font-medium">${badge.name}</div>
-                    <div class="text-slate-400 text-xs mt-1">+${badge.points}</div>
-                  </div>
-                `).join('')}
-              </div>
-            </section>
-          ` : ''}
+ <div class="text-white text-xs font-medium">${badge.name}</div>
+ <div class="text-slate-400 text-xs mt-1">+${badge.points}</div></div>
+ `).join('')}
+ </div></section>
+ ` : ''}
 
-          <!-- Badges by category -->
-          ${categories.map(category => {
-    const categoryBadges = getBadgesByCategory(category.id);
-    const earned = categoryBadges.filter(b => earnedBadgeIds.includes(b.id) || b.condition(userStats));
+ <!-- Badges by category -->
+ ${categories.map(category => {
+ const categoryBadges = getBadgesByCategory(category.id);
+ const earned = categoryBadges.filter(b => earnedBadgeIds.includes(b.id) || b.condition(userStats));
 
-    return `
-              <section class="mb-6">
-                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-                  ${icon(category.iconName || 'circle', 'w-4 h-4 inline mr-1')} ${category.name}
-                  <span class="text-xs text-slate-400">(${earned.length}/${categoryBadges.length})</span>
-                </h3>
-                <div class="grid grid-cols-3 gap-4">
-                  ${categoryBadges.map(badge => {
-    const isEarned = earnedBadgeIds.includes(badge.id) || badge.condition(userStats);
-    return `
-                      <div class="badge-card bg-white/5 rounded-xl p-3 text-center cursor-pointer
-                                  ${isEarned ? 'hover:bg-white/10' : 'opacity-40'}"
-                           ${isEarned ? 'role="button" tabindex="0"' : ''}
-                           onclick="${isEarned ? `showBadgeDetail('${badge.id}')` : ''}">
-                        ${badge.image
-    ? `<img src="${badge.image}" alt="${badge.name}" class="w-12 h-12 mx-auto mb-2 ${isEarned ? '' : 'grayscale'}" loading="lazy" />`
-    : `<div class="text-3xl mb-2 ${isEarned ? '' : 'grayscale'}">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
+ return `
+ <section class="mb-6">
+ <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+ ${icon(category.iconName || 'circle', 'w-4 h-4 inline mr-1')} ${category.name}
+ <span class="text-xs text-slate-400">(${earned.length}/${categoryBadges.length})</span></h3>
+ <div class="grid grid-cols-3 gap-4">
+ ${categoryBadges.map(badge => {
+ const isEarned = earnedBadgeIds.includes(badge.id) || badge.condition(userStats);
+ return `
+ <div class="badge-card bg-white/5 rounded-xl p-3 text-center cursor-pointer
+ ${isEarned ? 'hover:bg-white/10' : 'opacity-40'}"
+ ${isEarned ? 'role="button" tabindex="0"' : ''}
+ onclick="${isEarned ? `showBadgeDetail('${badge.id}')` : ''}">
+ ${badge.image
+ ? `<img src="${badge.image}" alt="${badge.name}" class="w-12 h-12 mx-auto mb-2 ${isEarned ? '' : 'grayscale'}" loading="lazy" />`
+ : `<div class="text-3xl mb-2 ${isEarned ? '' : 'grayscale'}">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
 }
-                        <div class="text-white text-xs font-medium truncate">${badge.name}</div>
-                        ${isEarned
-    ? `<div class="text-green-400 text-xs mt-1">✓ ${t('unlocked') || 'Unlocked'}</div>`
-    : '<div class="text-slate-400 text-xs mt-1">🔒</div>'
+ <div class="text-white text-xs font-medium truncate">${badge.name}</div>
+ ${isEarned
+ ? `<div class="text-green-400 text-xs mt-1">✓ ${t('unlocked') || 'Unlocked'}</div>`
+ : '<div class="text-slate-400 text-xs mt-1"></div>'
 }
-                      </div>
-                    `;
-  }).join('')}
-                </div>
-              </section>
-            `;
-  }).join('')}
-        </div>
-      </div>
-    </div>
-  `;
+ </div>
+ `;
+ }).join('')}
+ </div></section>
+ `;
+ }).join('')}
+ </div></div></div>
+ `;
 }
 
 /**
  * Render badge popup (when a new badge is earned)
  */
 export function renderBadgePopup() {
-  const state = getState();
-  const { showBadgePopup, newBadge } = state;
+ const state = getState();
+ const { showBadgePopup, newBadge } = state;
 
-  if (!showBadgePopup || !newBadge) return '';
+ if (!showBadgePopup || !newBadge) return '';
 
-  return `
-    <div class="badge-popup fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-         role="dialog" aria-modal="true"
-         onclick="dismissBadgePopup()" tabindex="0">
-      <div class="modal-panel w-full max-w-sm rounded-2xl overflow-hidden animate-scale-up"
-           onclick="event.stopPropagation()">
-        <!-- Confetti effect would be nice here -->
-        <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-8 text-center relative overflow-hidden">
-          <!-- Animated sparkles -->
-          <div class="absolute inset-0 opacity-30">
-            ${Array(10).fill(0).map((_v, _i) => `
-              <span class="absolute animate-pulse" style="
-                top: ${Math.random() * 100}%;
-                left: ${Math.random() * 100}%;
-                animation-delay: ${Math.random() * 2}s;
-              ">${icon('sparkles', 'w-3 h-3 text-amber-400')}</span>
-            `).join('')}
-          </div>
+ return `
+ <div class="badge-popup fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+ role="dialog" aria-modal="true"
+ onclick="dismissBadgePopup()" tabindex="0">
+ <div class="modal-panel w-full max-w-sm rounded-2xl overflow-hidden animate-scale-up"
+ onclick="event.stopPropagation()">
+ <!-- Confetti effect would be nice here -->
+ <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-8 text-center relative overflow-hidden">
+ <!-- Animated sparkles -->
+ <div class="absolute inset-0 opacity-30">
+ ${Array(10).fill(0).map((_v, _i) => `
+ <span class="absolute animate-pulse" style="
+ top: ${Math.random() * 100}%;
+ left: ${Math.random() * 100}%;
+ animation-delay: ${Math.random() * 2}s;
+ ">${icon('sparkles', 'w-3 h-3 text-amber-400')}</span>
+ `).join('')}
+ </div>
 
-          <div class="relative">
-            ${newBadge.image
-    ? `<img src="${newBadge.image}" alt="${newBadge.name}" class="w-20 h-20 mx-auto mb-4 animate-bounce" loading="lazy" />`
-    : `<div class="text-6xl mb-4 animate-bounce">${newBadge.icon}</div>`
+ <div class="relative">
+ ${newBadge.image
+ ? `<img src="${newBadge.image}" alt="${newBadge.name}" class="w-20 h-20 mx-auto mb-4 animate-bounce" loading="lazy" />`
+ : `<div class="text-6xl mb-4 animate-bounce">${newBadge.icon}</div>`
 }
-            <h2 class="text-xl font-bold text-white">${t('newBadgeEarned') || 'New Badge!'}</h2>
-          </div>
-        </div>
+ <h2 class="text-xl font-bold text-white">${t('newBadgeEarned') || 'New Badge!'}</h2></div></div>
 
-        <div class="p-6 text-center">
-          <h3 class="text-2xl font-bold text-white mb-2">${newBadge.name}</h3>
-          <p class="text-slate-400 mb-4">${newBadge.description}</p>
+ <div class="p-6 text-center">
+ <h3 class="text-2xl font-bold text-white mb-2">${newBadge.name}</h3>
+ <p class="text-slate-400 mb-4">${newBadge.description}</p>
 
-          <div class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-400 mb-6">
-            <span>+${newBadge.points}</span>
-            <span>${icon('thumbs-up', 'w-4 h-4 inline text-amber-400')}</span>
-          </div>
+ <div class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-400 mb-6">
+ <span>+${newBadge.points}</span>
+ <span>${icon('thumbs-up', 'w-4 h-4 inline text-amber-400')}</span></div>
 
-          <button onclick="dismissBadgePopup()"
-                  class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white
-                         font-bold rounded-xl hover:from-amber-600 hover:to-orange-600">
-            ${t('great') || 'Great!'}
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+ <button onclick="dismissBadgePopup()"
+ class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white
+ font-bold rounded-xl hover:from-amber-600 hover:to-orange-600">
+ ${t('great') || 'Great!'}
+ </button></div></div></div>
+ `;
 }
 
 /**
  * Render badge detail (when clicking on earned badge)
  */
 export function renderBadgeDetail(badgeId) {
-  const badge = allBadges.find(b => b.id === badgeId);
+ const badge = allBadges.find(b => b.id === badgeId);
 
-  if (!badge) return '';
+ if (!badge) return '';
 
-  return `
-    <div class="badge-detail fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-         role="dialog" aria-modal="true"
-         onclick="closeBadgeDetail()" tabindex="0">
-      <div class="modal-panel w-full max-w-sm rounded-2xl overflow-hidden"
-           onclick="event.stopPropagation()">
-        <div class="bg-gradient-to-r from-amber-500/20 to-orange-500/20 p-8 text-center">
-          ${badge.image
-    ? `<img src="${badge.image}" alt="${badge.name}" class="w-20 h-20 mx-auto" loading="lazy" />`
-    : `<div class="text-6xl">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
+ return `
+ <div class="badge-detail fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+ role="dialog" aria-modal="true"
+ onclick="closeBadgeDetail()" tabindex="0">
+ <div class="modal-panel w-full max-w-sm rounded-2xl overflow-hidden"
+ onclick="event.stopPropagation()">
+ <div class="bg-gradient-to-r from-amber-500/20 to-orange-500/20 p-8 text-center">
+ ${badge.image
+ ? `<img src="${badge.image}" alt="${badge.name}" class="w-20 h-20 mx-auto" loading="lazy" />`
+ : `<div class="text-6xl">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
 }
-        </div>
+ </div>
 
-        <div class="p-6 text-center">
-          <h3 class="text-xl font-bold text-white mb-2">${badge.name}</h3>
-          <p class="text-slate-400 mb-4">${badge.description}</p>
+ <div class="p-6 text-center">
+ <h3 class="text-xl font-bold text-white mb-2">${badge.name}</h3>
+ <p class="text-slate-400 mb-4">${badge.description}</p>
 
-          <div class="flex justify-center gap-4 text-sm">
-            <div class="text-center">
-              <div class="text-amber-400 font-bold">${badge.points}</div>
-              <div class="text-slate-400">${icon('thumbs-up', 'w-4 h-4 inline')}</div>
-            </div>
-            <div class="text-center">
-              <div class="text-purple-400 font-bold">${badge.category}</div>
-              <div class="text-slate-400">${t('categoryLabel') || 'Category'}</div>
-            </div>
-          </div>
+ <div class="flex justify-center gap-4 text-sm">
+ <div class="text-center">
+ <div class="text-amber-400 font-bold">${badge.points}</div>
+ <div class="text-slate-400">${icon('thumbs-up', 'w-4 h-4 inline')}</div></div>
+ <div class="text-center">
+ <div class="text-purple-400 font-bold">${badge.category}</div>
+ <div class="text-slate-400">${t('categoryLabel') || 'Category'}</div></div></div>
 
-          <button onclick="closeBadgeDetail()"
-                  class="mt-6 w-full py-3 bg-white/5 text-white rounded-xl hover:bg-white/10">
-            ${t('close') || 'Close'}
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+ <button onclick="closeBadgeDetail()"
+ class="mt-6 w-full py-3 bg-white/5 text-white rounded-xl hover:bg-white/10">
+ ${t('close') || 'Close'}
+ </button></div></div></div>
+ `;
 }
 
 export default {
-  renderBadgesModal,
-  renderBadgePopup,
-  renderBadgeDetail,
+ renderBadgesModal,
+ renderBadgePopup,
+ renderBadgeDetail,
 };

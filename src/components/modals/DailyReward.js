@@ -6,10 +6,10 @@
 import { getState, setState } from '../../stores/state.js';
 import { t } from '../../i18n/index.js';
 import {
-  getDailyRewardInfo,
-  canClaimReward,
-  claimReward,
-  getRewardsCalendar,
+ getDailyRewardInfo,
+ canClaimReward,
+ claimReward,
+ getRewardsCalendar,
 } from '../../services/dailyReward.js';
 import { launchConfettiBurst } from '../../utils/confetti.js';
 import { showToast } from '../../services/notifications.js';
@@ -19,259 +19,239 @@ import { icon } from '../../utils/icons.js'
  * Render daily reward modal
  */
 export function renderDailyRewardModal() {
-  const state = getState();
-  const { showDailyReward, lastDailyRewardResult } = state;
+ const state = getState();
+ const { showDailyReward, lastDailyRewardResult } = state;
 
-  if (!showDailyReward) return '';
+ if (!showDailyReward) return '';
 
-  const info = getDailyRewardInfo();
-  const calendar = getRewardsCalendar();
-  const canClaim = canClaimReward();
+ const info = getDailyRewardInfo();
+ const calendar = getRewardsCalendar();
+ const canClaim = canClaimReward();
 
-  // Check if showing result after claiming
-  if (lastDailyRewardResult) {
-    return renderRewardResult(lastDailyRewardResult);
-  }
+ // Check if showing result after claiming
+ if (lastDailyRewardResult) {
+ return renderRewardResult(lastDailyRewardResult);
+ }
 
-  return `
-    <div class="daily-reward-modal fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-         onclick="if(event.target===this)closeDailyReward()"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="daily-reward-title">
-      <div class="bg-dark-primary w-full max-w-md rounded-2xl overflow-hidden animate-bounce-in">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-6 text-center relative overflow-hidden">
-          <!-- Decorative elements -->
-          <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-2 left-4 text-3xl animate-bounce-slow">🎁</div>
-            <div class="absolute top-4 right-6 text-2xl animate-bounce-slow" style="animation-delay: 0.2s">✨</div>
-            <div class="absolute bottom-2 left-8 text-2xl animate-bounce-slow" style="animation-delay: 0.4s">🌟</div>
-            <div class="absolute bottom-4 right-4 text-3xl animate-bounce-slow" style="animation-delay: 0.3s">🎁</div>
-          </div>
+ return `
+ <div class="daily-reward-modal fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+ onclick="if(event.target===this)closeDailyReward()"
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="daily-reward-title">
+ <div class="bg-dark-primary w-full max-w-md rounded-2xl overflow-hidden animate-bounce-in">
+ <!-- Header -->
+ <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-6 text-center relative overflow-hidden">
+ <!-- Decorative elements -->
+ <div class="absolute inset-0 opacity-20">
+ <div class="absolute top-2 left-4 animate-bounce-slow">${icon("gift", "w-8 h-8 text-amber-400")}</div>
+ <div class="absolute top-4 right-6 animate-bounce-slow" style="animation-delay: 0.2s">${icon("sparkles", "w-6 h-6 text-amber-400")}</div>
+ <div class="absolute bottom-2 left-8 animate-bounce-slow" style="animation-delay: 0.4s">${icon("star", "w-6 h-6 text-amber-400")}</div>
+ <div class="absolute bottom-4 right-4 animate-bounce-slow" style="animation-delay: 0.3s">${icon("gift", "w-8 h-8 text-amber-400")}</div></div>
 
-          <div class="relative z-10">
-            <div class="text-5xl mb-3 animate-bounce-slow">🎁</div>
-            <h2 id="daily-reward-title" class="text-2xl font-bold text-white">
-              ${t('dailyRewardTitle') || 'Récompense Quotidienne'}
-            </h2>
-            <p class="text-white/80 mt-1">
-              ${canClaim ? (t('dailyRewardSubtitleClaim') || 'Ta récompense t\'attend !') : (t('dailyRewardSubtitleWait') || 'Reviens demain pour continuer !')}
-            </p>
-          </div>
+ <div class="relative z-10">
+ <div class="flex justify-center mb-3 animate-bounce-slow">${icon("gift", "w-12 h-12 text-amber-400")}</div>
+ <h2 id="daily-reward-title" class="text-2xl font-bold text-white">
+ ${t('dailyRewardTitle') || 'Récompense Quotidienne'}
+ </h2>
+ <p class="text-white/80 mt-1">
+ ${canClaim ? (t('dailyRewardSubtitleClaim') || 'Ta récompense t\'attend !') : (t('dailyRewardSubtitleWait') || 'Reviens demain pour continuer !')}
+ </p></div>
 
-          <!-- Close button -->
-          <button onclick="closeDailyReward()"
-                  class="absolute top-4 right-4 p-2 bg-white/20 rounded-full text-white hover:bg-white/30 z-20"
-                  type="button"
-                  aria-label="${t('close') || 'Close'}">
-            ${icon('x', 'w-5 h-5')}
-          </button>
-        </div>
+ <!-- Close button -->
+ <button onclick="closeDailyReward()"
+ class="absolute top-4 right-4 p-2 bg-white/20 rounded-full text-white hover:bg-white/30 z-20"
+ type="button"
+ aria-label="${t('close') || 'Close'}">
+ ${icon('x', 'w-5 h-5')}
+ </button></div>
 
-        <!-- Reward Info -->
-        <div class="bg-dark-secondary/50 p-4 border-b border-white/10">
-          <div class="flex items-center justify-center gap-6">
-            <div class="text-center">
-              <div class="text-3xl font-bold text-amber-400">${t('day') || 'Jour'} ${info.currentDay}</div>
-              <div class="text-xs text-slate-400">${t('dailyRewardCycle') || 'Cycle de recompenses'}</div>
-            </div>
-          </div>
-        </div>
+ <!-- Reward Info -->
+ <div class="bg-dark-secondary/50 p-4 border-b border-white/10">
+ <div class="flex items-center justify-center gap-6">
+ <div class="text-center">
+ <div class="text-3xl font-bold text-amber-400">${t('day') || 'Jour'} ${info.currentDay}</div>
+ <div class="text-xs text-slate-400">${t('dailyRewardCycle') || 'Cycle de recompenses'}</div></div></div></div>
 
-        <!-- Calendar Grid -->
-        <div class="p-4">
-          <div class="grid grid-cols-7 gap-2">
-            ${calendar.map(day => renderDayCard(day, info)).join('')}
-          </div>
-        </div>
+ <!-- Calendar Grid -->
+ <div class="p-4">
+ <div class="grid grid-cols-7 gap-2">
+ ${calendar.map(day => renderDayCard(day, info)).join('')}
+ </div></div>
 
-        <!-- Claim Button -->
-        <div class="p-4 pt-0">
-          ${canClaim ? `
-            <button onclick="handleClaimDailyReward()"
-                    class="w-full py-4 rounded-xl font-bold text-lg text-white
-                           bg-gradient-to-r from-amber-500 to-orange-500
-                           hover:from-amber-600 hover:to-orange-600
-                           shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50
-                           transition-colors transform hover:scale-[1.02] active:scale-[0.98]"
-                    id="claim-reward-btn">
-              ${icon('gift', 'w-5 h-5 mr-2')}
-              ${t('claimDailyReward') || 'Récupérer ma récompense !'}
-            </button>
-          ` : `
-            <div class="text-center">
-              <div class="py-4 px-6 rounded-xl bg-white/5 text-slate-400">
-                ${icon('circle-check', 'w-5 h-5 text-emerald-400 mr-2')}
-                ${t('dailyRewardClaimed') || 'Récompense récupérée aujourd\'hui !'}
-              </div>
-              <p class="text-xs text-slate-400 mt-2">
-                ${t('dailyRewardNextDay') || 'Reviens demain pour le jour'} ${(info.currentDay % 7) + 1}
-              </p>
-            </div>
-          `}
-        </div>
+ <!-- Claim Button -->
+ <div class="p-4 pt-0">
+ ${canClaim ? `
+ <button onclick="handleClaimDailyReward()"
+ class="w-full py-4 rounded-xl font-bold text-lg text-white
+ bg-gradient-to-r from-amber-500 to-orange-500
+ hover:from-amber-600 hover:to-orange-600
+ shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50
+ transition-colors transform hover:scale-[1.02] active:scale-[0.98]"
+ id="claim-reward-btn">
+ ${icon('gift', 'w-5 h-5 mr-2')}
+ ${t('claimDailyReward') || 'Récupérer ma récompense !'}
+ </button>
+ ` : `
+ <div class="text-center">
+ <div class="py-4 px-6 rounded-xl bg-white/5 text-slate-400">
+ ${icon('circle-check', 'w-5 h-5 text-emerald-400 mr-2')}
+ ${t('dailyRewardClaimed') || 'Récompense récupérée aujourd\'hui !'}
+ </div>
+ <p class="text-xs text-slate-400 mt-2">
+ ${t('dailyRewardNextDay') || 'Reviens demain pour le jour'} ${(info.currentDay % 7) + 1}
+ </p></div>
+ `}
+ </div>
 
-        <!-- Info Footer -->
-        <div class="px-4 pb-4 text-center text-xs text-slate-400">
-          ${icon('info', 'w-5 h-5 mr-1')}
-          ${t('dailyRewardTip') || 'Connecte-toi chaque jour pour maximiser tes récompenses !'}
-        </div>
-      </div>
-    </div>
-  `;
+ <!-- Info Footer -->
+ <div class="px-4 pb-4 text-center text-xs text-slate-400">
+ ${icon('info', 'w-5 h-5 mr-1')}
+ ${t('dailyRewardTip') || 'Connecte-toi chaque jour pour maximiser tes récompenses !'}
+ </div></div></div>
+ `;
 }
 
 /**
  * Render a single day card in the calendar
  */
 function renderDayCard(day, _info) {
-  const isClaimed = day.claimed;
-  const isCurrent = day.current;
-  const isLocked = day.locked && !isCurrent;
-  const isMystery = day.isMystery;
+ const isClaimed = day.claimed;
+ const isCurrent = day.current;
+ const isLocked = day.locked && !isCurrent;
+ const isMystery = day.isMystery;
 
-  let statusClass = '';
-  let bgClass = 'bg-white/5';
-  let borderClass = '';
+ let statusClass = '';
+ let bgClass = 'bg-white/5';
+ let borderClass = '';
 
-  if (isClaimed) {
-    bgClass = 'bg-emerald-500/20';
-    borderClass = 'border-2 border-emerald-500';
-  } else if (isCurrent) {
-    bgClass = 'bg-gradient-to-br from-amber-500/30 to-orange-500/30';
-    borderClass = 'border-2 border-amber-500 animate-pulse';
-  } else if (isLocked) {
-    bgClass = 'bg-white/5';
-    statusClass = 'opacity-40';
-  }
+ if (isClaimed) {
+ bgClass = 'bg-emerald-500/20';
+ borderClass = 'border-2 border-emerald-500';
+ } else if (isCurrent) {
+ bgClass = 'bg-gradient-to-br from-amber-500/30 to-orange-500/30';
+ borderClass = 'border-2 border-amber-500 animate-pulse';
+ } else if (isLocked) {
+ bgClass = 'bg-white/5';
+ statusClass = 'opacity-40';
+ }
 
-  return `
-    <div class="day-card ${bgClass} ${borderClass} ${statusClass} rounded-xl p-2 text-center transition-colors">
-      <div class="text-[10px] text-slate-400 mb-1">${t('day') || 'Jour'} ${day.day}</div>
-      <div class="text-2xl mb-1">
-        ${isClaimed ? '✅' : isMystery ? '🎁' : day.icon}
-      </div>
-      <div class="text-xs font-bold ${isClaimed ? 'text-emerald-400' : isCurrent ? 'text-amber-400' : 'text-slate-300'}">
-        ${isMystery ? '?' : `+${day.points}`}
-      </div>
-      ${isMystery && !isClaimed ? `
-        <div class="text-[10px] text-amber-400 mt-0.5">${t('mystery') || 'Mystère'}</div>
-      ` : ''}
-    </div>
-  `;
+ return `
+ <div class="day-card ${bgClass} ${borderClass} ${statusClass} rounded-xl p-2 text-center transition-colors">
+ <div class="text-[10px] text-slate-400 mb-1">${t('day') || 'Jour'} ${day.day}</div>
+ <div class="text-2xl mb-1">
+ ${isClaimed ? icon('circle-check', 'w-5 h-5 text-emerald-400') : isMystery ? icon('gift', 'w-5 h-5 text-amber-400') : icon(day.iconName || 'gift', 'w-5 h-5')}
+ </div>
+ <div class="text-xs font-bold ${isClaimed ? 'text-emerald-400' : isCurrent ? 'text-amber-400' : 'text-slate-300'}">
+ ${isMystery ? '?' : `+${day.points}`}
+ </div>
+ ${isMystery && !isClaimed ? `
+ <div class="text-[10px] text-amber-400 mt-0.5">${t('mystery') || 'Mystère'}</div>
+ ` : ''}
+ </div>
+ `;
 }
 
 /**
  * Render reward result after claiming
  */
 function renderRewardResult(result) {
-  return `
-    <div class="daily-reward-modal fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-         onclick="if(event.target===this)closeDailyRewardResult()"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="reward-result-title">
-      <div class="bg-dark-primary w-full max-w-md rounded-2xl overflow-hidden animate-bounce-in text-center">
-        <!-- Celebration Header -->
-        <div class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-8 relative overflow-hidden">
-          <!-- Sparkles -->
-          <div class="absolute inset-0">
-            ${Array(6).fill(0).map((_, i) => `
-              <div class="absolute animate-bounce-slow"
-                   style="top: ${10 + Math.random() * 80}%; left: ${5 + Math.random() * 90}%; animation-delay: ${i * 0.15}s">
-                ✨
-              </div>
-            `).join('')}
-          </div>
+ return `
+ <div class="daily-reward-modal fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+ onclick="if(event.target===this)closeDailyRewardResult()"
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="reward-result-title">
+ <div class="bg-dark-primary w-full max-w-md rounded-2xl overflow-hidden animate-bounce-in text-center">
+ <!-- Celebration Header -->
+ <div class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-8 relative overflow-hidden">
+ <!-- Sparkles -->
+ <div class="absolute inset-0">
+ ${Array(6).fill(0).map((_, i) => `
+ <div class="absolute animate-bounce-slow"
+ style="top: ${10 + Math.random() * 80}%; left: ${5 + Math.random() * 90}%; animation-delay: ${i * 0.15}s">
+ ${icon('sparkles', 'w-4 h-4 text-amber-400')}
+ </div>
+ `).join('')}
+ </div>
 
-          <div class="relative z-10">
-            <div class="text-6xl mb-4 animate-bounce-slow">
-              ${result.isMystery ? '🎁' : '🎉'}
-            </div>
-            <h2 id="reward-result-title" class="text-2xl font-bold text-white">
-              ${result.isMystery ? (t('mysteryChestOpened') || 'Coffre Mystère Ouvert !') : (t('congratulations') || 'Félicitations !')}
-            </h2>
-          </div>
-        </div>
+ <div class="relative z-10">
+ <div class="text-6xl mb-4 animate-bounce-slow">
+ ${result.isMystery ? icon('gift', 'w-8 h-8 text-amber-400') : icon('party-popper', 'w-8 h-8 text-amber-400')}
+ </div>
+ <h2 id="reward-result-title" class="text-2xl font-bold text-white">
+ ${result.isMystery ? (t('mysteryChestOpened') || 'Coffre Mystère Ouvert !') : (t('congratulations') || 'Félicitations !')}
+ </h2></div></div>
 
-        <!-- Reward Display -->
-        <div class="p-6 space-y-4">
-          <!-- Points -->
-          <div class="bg-amber-500/20 rounded-xl p-4">
-            <div class="text-amber-400 text-sm mb-1">${t('thumbsEarned') || 'Pouces gagnés'}</div>
-            <div class="text-4xl font-bold text-white flex items-center justify-center gap-2">
-              <span>+${result.points}</span>
-              <span class="text-amber-400">👍</span>
-            </div>
-          </div>
+ <!-- Reward Display -->
+ <div class="p-6 space-y-4">
+ <!-- Points -->
+ <div class="bg-amber-500/20 rounded-xl p-4">
+ <div class="text-amber-400 text-sm mb-1">${t('thumbsEarned') || 'Pouces gagnés'}</div>
+ <div class="text-4xl font-bold text-white flex items-center justify-center gap-2">
+ <span>+${result.points}</span>
+ <span class="text-amber-400">${icon('thumbs-up', 'w-4 h-4 inline')}</span></div></div>
 
-          ${result.badge ? `
-            <!-- Badge Earned -->
-            <div class="bg-purple-500/20 rounded-xl p-4">
-              <div class="text-purple-400 text-sm mb-2">${t('badgeUnlockedExclaim') || 'Badge débloqué !'}</div>
-              <div class="flex items-center justify-center gap-3">
-                <span class="text-4xl">${result.badge.icon}</span>
-                <div class="text-left">
-                  <div class="font-bold text-white">${result.badge.name}</div>
-                  <div class="text-xs text-purple-300 capitalize">${result.badge.rarity}</div>
-                </div>
-              </div>
-            </div>
-          ` : ''}
+ ${result.badge ? `
+ <!-- Badge Earned -->
+ <div class="bg-purple-500/20 rounded-xl p-4">
+ <div class="text-purple-400 text-sm mb-2">${t('badgeUnlockedExclaim') || 'Badge débloqué !'}</div>
+ <div class="flex items-center justify-center gap-3">
+ <span class="text-4xl">${result.badge.icon}</span>
+ <div class="text-left">
+ <div class="font-bold text-white">${result.badge.name}</div>
+ <div class="text-xs text-purple-300 capitalize">${result.badge.rarity}</div></div></div></div>
+ ` : ''}
 
-        </div>
+ </div>
 
-        <!-- Continue Button -->
-        <div class="p-4 pt-0">
-          <button onclick="closeDailyRewardResult()"
-                  class="w-full py-4 rounded-xl font-bold text-lg text-white
-                         bg-gradient-to-r from-primary-500 to-cyan-500
-                         hover:from-primary-600 hover:to-cyan-600
-                         shadow-lg transition-colors">
-            ${icon('thumbs-up', 'w-5 h-5 mr-2')}
-            ${t('awesome') || 'Super !'}
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+ <!-- Continue Button -->
+ <div class="p-4 pt-0">
+ <button onclick="closeDailyRewardResult()"
+ class="w-full py-4 rounded-xl font-bold text-lg text-white
+ bg-gradient-to-r from-primary-500 to-cyan-500
+ hover:from-primary-600 hover:to-cyan-600
+ shadow-lg transition-colors">
+ ${icon('thumbs-up', 'w-5 h-5 mr-2')}
+ ${t('awesome') || 'Super !'}
+ </button></div></div></div>
+ `;
 }
 
 /**
  * Handle claim button click
  */
 export function handleClaimDailyReward() {
-  const result = claimReward();
+ const result = claimReward();
 
-  if (result.success) {
-    // Launch confetti celebration
-    setTimeout(() => {
-      launchConfettiBurst();
-    }, 100);
+ if (result.success) {
+ // Launch confetti celebration
+ setTimeout(() => {
+ launchConfettiBurst();
+ }, 100);
 
-    // Show result modal
-    setState({
-      showDailyReward: true,
-      lastDailyRewardResult: result,
-    });
-  } else {
-    showToast(result.message, 'info');
-  }
+ // Show result modal
+ setState({
+ showDailyReward: true,
+ lastDailyRewardResult: result,
+ });
+ } else {
+ showToast(result.message, 'info');
+ }
 }
 
 /**
  * Close daily reward popup
  */
 export function closeDailyReward() {
-  setState({ showDailyReward: false, lastDailyRewardResult: null });
+ setState({ showDailyReward: false, lastDailyRewardResult: null });
 }
 
 /**
  * Close result and finish
  */
 export function closeDailyRewardResult() {
-  setState({ showDailyReward: false, lastDailyRewardResult: null });
+ setState({ showDailyReward: false, lastDailyRewardResult: null });
 }
 
 // Register global handlers
@@ -280,8 +260,8 @@ window.closeDailyReward = closeDailyReward;
 window.closeDailyRewardResult = closeDailyRewardResult;
 
 export default {
-  renderDailyRewardModal,
-  handleClaimDailyReward,
-  closeDailyReward,
-  closeDailyRewardResult,
+ renderDailyRewardModal,
+ handleClaimDailyReward,
+ closeDailyReward,
+ closeDailyRewardResult,
 };

@@ -17,535 +17,504 @@ import { escapeHTML } from '../../utils/sanitize.js'
 const WAIT_STEPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 45, 60, 90, 120, 180]
 
 function detectSeason() {
-  const month = new Date().getMonth()
-  if (month >= 2 && month <= 4) return 'spring'
-  if (month >= 5 && month <= 7) return 'summer'
-  if (month >= 8 && month <= 10) return 'autumn'
-  return 'winter'
+ const month = new Date().getMonth()
+ if (month >= 2 && month <= 4) return 'spring'
+ if (month >= 5 && month <= 7) return 'summer'
+ if (month >= 8 && month <= 10) return 'autumn'
+ return 'winter'
 }
 
 /**
  * Render segmented bar rating for a criterion (v3 design)
  */
 function renderBarRating(criterion, label) {
-  const currentValue = window.spotFormData?.ratings?.[criterion] || 0
-  return `
-    <div class="mb-6">
-      <div class="flex justify-between items-center mb-1">
-        <span class="text-[11px] text-slate-500 uppercase tracking-wide">${label} <span class="text-amber-500">*</span></span>
-        <span class="text-xs text-amber-500" id="spot-rating-value-${criterion}">${currentValue ? currentValue + '/5' : ''}</span>
-      </div>
-      <div class="flex gap-1" role="radiogroup" aria-label="${label}">
-        ${[1, 2, 3, 4, 5].map(val => `
-          <button
-            type="button"
-            onclick="setSpotRating('${criterion}', ${val})"
-            class="spot-star-btn"
-            data-criterion="${criterion}"
-            data-star="${val}"
-            aria-label="${val}/5"
-            style="flex:1;height:4px;border-radius:2px;background:${val <= currentValue ? '#f59e0b' : '#1a1f2e'};border:none;cursor:pointer;padding:0"
-          ></button>
-        `).join('')}
-      </div>
-      <p class="text-[11px] text-slate-500 mt-1 min-h-5" id="spot-rating-desc-${criterion}" aria-live="polite"></p>
-    </div>
-  `
+ const currentValue = window.spotFormData?.ratings?.[criterion] || 0
+ return `
+ <div class="mb-6">
+ <div class="flex justify-between items-center mb-1">
+ <span class="text-[11px] text-slate-500 uppercase tracking-wide">${label} <span class="text-amber-500">*</span></span>
+ <span class="text-xs text-amber-500" id="spot-rating-value-${criterion}">${currentValue ? currentValue + '/5' : ''}</span></div>
+ <div class="flex gap-1" role="radiogroup" aria-label="${label}">
+ ${[1, 2, 3, 4, 5].map(val => `
+ <button
+ type="button"
+ onclick="setSpotRating('${criterion}', ${val})"
+ class="spot-star-btn"
+ data-criterion="${criterion}"
+ data-star="${val}"
+ aria-label="${val}/5"
+ style="flex:1;height:4px;border-radius:2px;background:${val <= currentValue ? '#f59e0b' : '#1a1f2e'};border:none;cursor:pointer;padding:0"
+ ></button>
+ `).join('')}
+ </div>
+ <p class="text-[11px] text-slate-500 mt-1 min-h-5" id="spot-rating-desc-${criterion}" aria-live="polite"></p></div>
+ `
 }
 
 /**
  * Render v3 amber stepper (3 circles connected by lines)
  */
 function renderStepProgress(currentStep) {
-  const stepTitles = [
-    t('stepWhereIsSpot') || 'Où est le spot ?',
-    t('stepExperience') || 'Ton expérience',
-    t('stepDetails') || 'Derniers détails',
-  ]
-  return `
-    <div class="flex items-center gap-3 mb-6">
-      ${[1, 2, 3].map((step, i) => {
-        const isActive = step === currentStep
-        const isDone = step < currentStep
-        const circleStyle = isActive
-          ? 'background:#f59e0b;color:#0f1520;font-weight:700'
-          : isDone
-            ? 'background:rgba(245,158,11,0.27);color:#f59e0b'
-            : 'background:#1a1f2e;color:#475569'
-        const lineStyle = isDone
-          ? 'background:#f59e0b'
-          : step === currentStep
-            ? 'background:linear-gradient(90deg,#f59e0b,#334155)'
-            : 'background:#1a1f2e'
-        return `
-          ${i > 0 ? `<div class="flex-1 h-px" style="${lineStyle}"></div>` : ''}
-          <div class="w-7 h-7 rounded-full flex items-center justify-center text-[13px] shrink-0" style="${circleStyle}" title="${stepTitles[i]}">${step}</div>
-        `
-      }).join('')}
-    </div>
-    <div class="text-[22px] font-light text-slate-200 mb-7">${stepTitles[currentStep - 1]}</div>
-  `
+ const stepTitles = [
+ t('stepWhereIsSpot') || 'Où est le spot ?',
+ t('stepExperience') || 'Ton expérience',
+ t('stepDetails') || 'Derniers détails',
+ ]
+ return `
+ <div class="flex items-center gap-3 mb-6">
+ ${[1, 2, 3].map((step, i) => {
+ const isActive = step === currentStep
+ const isDone = step < currentStep
+ const circleStyle = isActive
+ ? 'background:#f59e0b;color:#0f1520;font-weight:700'
+ : isDone
+ ? 'background:rgba(245,158,11,0.27);color:#f59e0b'
+ : 'background:#1a1f2e;color:#475569'
+ const lineStyle = isDone
+ ? 'background:#f59e0b'
+ : step === currentStep
+ ? 'background:linear-gradient(90deg,#f59e0b,#334155)'
+ : 'background:#1a1f2e'
+ return `
+ ${i > 0 ? `<div class="flex-1 h-px" style="${lineStyle}"></div>` : ''}
+ <div class="w-7 h-7 rounded-full flex items-center justify-center text-[13px] shrink-0" style="${circleStyle}" title="${stepTitles[i]}">${step}</div>
+ `
+ }).join('')}
+ </div>
+ <div class="text-[22px] font-light text-slate-200 mb-7">${stepTitles[currentStep - 1]}</div>
+ `
 }
 
 /**
  * Render Step 1: Type + City + Position + Photo (v3 underline design)
  */
 function renderStep1(state) {
-  const spotType = state.addSpotType || window.spotFormData?.spotType || ''
-  return `
-    <div class="step-transition">
-      <!-- Spot Type — 3x2 grid -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('spotTypeLabel')} <span class="text-amber-500">*</span></div>
-        <div class="grid grid-cols-2 gap-2.5">
-          ${['gas_station', 'toll', 'roundabout', 'on_ramp', 'roadside', 'custom'].map(type => `
-          <button type="button" onclick="selectSpotType('${type}')"
-            class="spot-type-btn ${spotType === type ? 'active' : ''}"
-            style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === type ? '#f59e0b' : '#1a1f2e'};background:${spotType === type ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === type ? '#f59e0b' : '#64748b'};cursor:pointer">
-            ${t('spotType' + type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(''))}
-          </button>`).join('')}
-        </div>
-        <button type="button" onclick="autoDetectRoad()" class="w-full mt-2 py-2 bg-transparent border-0 border-b border-white/10 text-[11px] text-[#475569] cursor-pointer flex items-center justify-center gap-1.5">
-          ${icon('crosshair', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
-        </button>
-      </div>
+ const spotType = state.addSpotType || window.spotFormData?.spotType || ''
+ return `
+ <div class="step-transition">
+ <!-- Spot Type — 3x2 grid -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('spotTypeLabel')} <span class="text-amber-500">*</span></div>
+ <div class="grid grid-cols-2 gap-2.5">
+ ${['gas_station', 'toll', 'roundabout', 'on_ramp', 'roadside', 'custom'].map(type => `
+ <button type="button" onclick="selectSpotType('${type}')"
+ class="spot-type-btn ${spotType === type ? 'active' : ''}"
+ style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === type ? '#f59e0b' : '#1a1f2e'};background:${spotType === type ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === type ? '#f59e0b' : '#64748b'};cursor:pointer">
+ ${t('spotType' + type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(''))}
+ </button>`).join('')}
+ </div>
+ <button type="button" onclick="autoDetectRoad()" class="w-full mt-2 py-2 bg-transparent border-0 border-b border-white/10 text-[11px] text-[#475569] cursor-pointer flex items-center justify-center gap-1.5">
+ ${icon('crosshair', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
+ </button></div>
 
-      <!-- Departure City — underline input -->
-      <div class="mb-6 relative">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('departureCity') || 'Ville'} <span class="text-amber-500">*</span></div>
-        <input
-          type="text"
-          id="spot-departure-city"
-          name="departureCity"
-          class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-base outline-none"
-          placeholder="${t('departureCity') || 'Ville de départ'}"
-          value="${escapeHTML(window.spotFormData?.departureCity || '')}"
-          required
-          aria-required="true"
-        />
-      </div>
+ <!-- Departure City — underline input -->
+ <div class="mb-6 relative">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('departureCity') || 'Ville'} <span class="text-amber-500">*</span></div>
+ <input
+ type="text"
+ id="spot-departure-city"
+ name="departureCity"
+ class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-base outline-none"
+ placeholder="${t('departureCity') || 'Ville de départ'}"
+ value="${escapeHTML(window.spotFormData?.departureCity || '')}"
+ required
+ aria-required="true"
+ /></div>
 
-      <!-- GPS Position — map placeholder -->
-      ${renderPositionBlock()}
+ <!-- GPS Position — map placeholder -->
+ ${renderPositionBlock()}
 
-      <!-- Position summary (if set) -->
-      ${window.spotFormData?.lat && window.spotFormData?.departureCity ? `
-        <div class="py-2.5 border-b border-[#1a1f2e] mb-5">
-          <span class="text-sm text-slate-200">${escapeHTML(window.spotFormData.departureCity)}</span>
-          <span class="text-slate-700"> · </span>
-          <span class="text-[13px] text-slate-500">${t('position') || 'Position'}: ${window.spotFormData.locationName || window.spotFormData.departureCity}</span>
-        </div>
-      ` : ''}
+ <!-- Position summary (if set) -->
+ ${window.spotFormData?.lat && window.spotFormData?.departureCity ? `
+ <div class="py-2.5 border-b border-[#1a1f2e] mb-5">
+ <span class="text-sm text-slate-200">${escapeHTML(window.spotFormData.departureCity)}</span>
+ <span class="text-slate-700"> · </span>
+ <span class="text-[13px] text-slate-500">${t('position') || 'Position'}: ${window.spotFormData.locationName || window.spotFormData.departureCity}</span></div>
+ ` : ''}
 
-      <!-- Photo — dashed underline zone -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">
-          ${t('photoLabel') || 'Photo'} <span class="text-[10px] text-slate-700 normal-case tracking-normal">(${t('recommended') || 'recommandé'})</span>
-        </div>
-        <input
-          type="file"
-          id="spot-photo"
-          name="photo"
-          accept="image/*"
-          class="hidden"
-          onchange="handlePhotoSelect(event)"
-          aria-describedby="photo-help"
-        />
-        ${(window.spotFormData?.photos?.length || 0) < 5 ? `
-        <div
-          id="photo-upload"
-          onclick="triggerPhotoUpload()"
-          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();triggerPhotoUpload();}"
-          role="button"
-          tabindex="0"
-          aria-label="${t('clickToAddPhoto') || 'Cliquez pour ajouter une photo'}"
-          class="border-b border-dashed border-slate-700 py-3.5 text-center text-[#475569] text-xs cursor-pointer"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" class="align-middle mr-1.5 inline"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          ${t('addPhoto') || 'Ajouter une photo'}
-        </div>
-        ` : ''}
-        <div id="photo-preview" class="flex gap-2 mt-2 flex-wrap">
-          ${(window.spotFormData?.photos || []).map((p, i) => `
-            <div class="relative w-24 h-24 rounded-lg overflow-hidden border border-white/10">
-              <img src="${p}" alt="Photo ${i + 1}" class="w-full h-full object-cover" />
-              <button type="button" onclick="removeSpotPhoto(${i})"
-                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center text-red-400 border-0 cursor-pointer"
-                aria-label="${t('close') || 'Supprimer'}">
-                ${icon('x', 'w-4 h-4')}
-              </button>
-            </div>
-          `).join('')}
-        </div>
-      </div>
+ <!-- Photo — dashed underline zone -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">
+ ${t('photoLabel') || 'Photo'} <span class="text-[10px] text-slate-700 normal-case tracking-normal">(${t('recommended') || 'recommandé'})</span></div>
+ <input
+ type="file"
+ id="spot-photo"
+ name="photo"
+ accept="image/*"
+ class="hidden"
+ onchange="handlePhotoSelect(event)"
+ aria-describedby="photo-help"
+ />
+ ${(window.spotFormData?.photos?.length || 0) < 5 ? `
+ <div
+ id="photo-upload"
+ onclick="triggerPhotoUpload()"
+ onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();triggerPhotoUpload();}"
+ role="button"
+ tabindex="0"
+ aria-label="${t('clickToAddPhoto') || 'Cliquez pour ajouter une photo'}"
+ class="border-b border-dashed border-slate-700 py-3.5 text-center text-[#475569] text-xs cursor-pointer"
+ >
+ <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" class="align-middle mr-1.5 inline"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+ ${t('addPhoto') || 'Ajouter une photo'}
+ </div>
+ ` : ''}
+ <div id="photo-preview" class="flex gap-2 mt-2 flex-wrap">
+ ${(window.spotFormData?.photos || []).map((p, i) => `
+ <div class="relative w-24 h-24 rounded-lg overflow-hidden border border-white/10">
+ <img src="${p}" alt="Photo ${i + 1}" class="w-full h-full object-cover" />
+ <button type="button" onclick="removeSpotPhoto(${i})"
+ class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center text-red-400 border-0 cursor-pointer"
+ aria-label="${t('close') || 'Supprimer'}">
+ ${icon('x', 'w-4 h-4')}
+ </button></div>
+ `).join('')}
+ </div></div>
 
-      <!-- Info tip -->
-      <div class="text-[11px] text-slate-700 mb-5">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" class="align-middle mr-1 inline"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-        ${t('googleMapsShareTip') || 'Tu peux aussi partager un spot depuis Google Maps vers SpotHitch'}
-      </div>
+ <!-- Info tip -->
+ <div class="text-[11px] text-slate-700 mb-5">
+ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" class="align-middle mr-1 inline"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+ ${t('googleMapsShareTip') || 'Tu peux aussi partager un spot depuis Google Maps vers SpotHitch'}
+ </div>
 
-      <!-- SUIVANT button — outlined amber, no radius -->
-      <button
-        type="button"
-        onclick="addSpotNextStep()"
-        class="w-full bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm font-medium cursor-pointer tracking-wide uppercase"
-      >
-        ${t('next') || 'SUIVANT'}
-      </button>
-    </div>
-  `
+ <!-- SUIVANT button — outlined amber, no radius -->
+ <button
+ type="button"
+ onclick="addSpotNextStep()"
+ class="w-full bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm font-medium cursor-pointer tracking-wide uppercase"
+ >
+ ${t('next') || 'SUIVANT'}
+ </button></div>
+ `
 }
 
 /**
  * Render Step 2: Direction + Experience (v3 underline tab design)
  */
 function renderStep2(state) {
-  const waitIdx = state.addSpotWaitTime != null
-    ? WAIT_STEPS.indexOf(state.addSpotWaitTime)
-    : -1
-  const currentWait = waitIdx >= 0 ? WAIT_STEPS[waitIdx] : null
-  const method = state.addSpotMethod || window.spotFormData?.method || ''
-  const groupSize = state.addSpotGroupSize || window.spotFormData?.groupSize || ''
-  const timeOfDay = state.addSpotTimeOfDay || window.spotFormData?.timeOfDay || ''
-  const rideResult = window.spotFormData?.rideResult || ''
+ const waitIdx = state.addSpotWaitTime != null
+ ? WAIT_STEPS.indexOf(state.addSpotWaitTime)
+ : -1
+ const currentWait = waitIdx >= 0 ? WAIT_STEPS[waitIdx] : null
+ const method = state.addSpotMethod || window.spotFormData?.method || ''
+ const groupSize = state.addSpotGroupSize || window.spotFormData?.groupSize || ''
+ const timeOfDay = state.addSpotTimeOfDay || window.spotFormData?.timeOfDay || ''
+ const rideResult = window.spotFormData?.rideResult || ''
 
-  // Helper for underline tab bar
-  const tabBar = (items, currentVal, onclickFn) => `
-    <div class="flex gap-0 border-b border-slate-700">
-      ${items.map(item => `
-        <div onclick="${onclickFn}('${item.value}')" role="button" tabindex="0"
-          class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
-          style="${
-            currentVal === item.value
-              ? `color:${item.color || '#f59e0b'};border-bottom:2px solid ${item.color || '#f59e0b'};margin-bottom:-1px`
-              : 'color:#64748b'
-          }">${item.label}</div>
-      `).join('')}
-    </div>`
+ // Helper for underline tab bar
+ const tabBar = (items, currentVal, onclickFn) => `
+ <div class="flex gap-0 border-b border-slate-700">
+ ${items.map(item => `
+ <div onclick="${onclickFn}('${item.value}')" role="button" tabindex="0"
+ class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
+ style="${
+ currentVal === item.value
+ ? `color:${item.color || '#f59e0b'};border-bottom:2px solid ${item.color || '#f59e0b'};margin-bottom:-1px`
+ : 'color:#64748b'
+ }">${item.label}</div>
+ `).join('')}
+ </div>`
 
-  return `
-    <div class="step-transition">
-      <!-- Direction — underline input -->
-      <div class="mb-6 relative">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('destinationCity') || 'Direction'} <span class="text-amber-500">*</span></div>
-        <input
-          type="text"
-          id="spot-direction-city"
-          name="directionCity"
-          class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-base outline-none"
-          placeholder="${t('destinationCity') || 'Direction'}"
-          value="${escapeHTML(window.spotFormData?.directionCity || '')}"
-          oninput="window.spotFormData.directionCity = this.value.trim() || null; window.spotFormData.directionCityCoords = null"
-          required
-          aria-required="true"
-        />
-      </div>
+ return `
+ <div class="step-transition">
+ <!-- Direction — underline input -->
+ <div class="mb-6 relative">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('destinationCity') || 'Direction'} <span class="text-amber-500">*</span></div>
+ <input
+ type="text"
+ id="spot-direction-city"
+ name="directionCity"
+ class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-base outline-none"
+ placeholder="${t('destinationCity') || 'Direction'}"
+ value="${escapeHTML(window.spotFormData?.directionCity || '')}"
+ oninput="window.spotFormData.directionCity = this.value.trim() || null; window.spotFormData.directionCityCoords = null"
+ required
+ aria-required="true"
+ /></div>
 
-      <!-- Extra destinations -->
-      <div class="mb-6">
-        ${(window.spotFormData?.extraDestinations || []).map((d, i) => `
-          <div class="flex items-center gap-2 mb-2">
-            <span class="flex-1 px-3 py-1.5 text-[13px] text-amber-500 border-b border-amber-500">${icon('map-pin', 'w-3.5 h-3.5 inline mr-1')} ${escapeHTML(d.city)}</span>
-            <button type="button" onclick="removeSpotDestination(${i})"
-              class="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 border-0 cursor-pointer"
-              aria-label="${t('removeDestination') || 'Supprimer'}">
-              ${icon('x', 'w-4 h-4')}
-            </button>
-          </div>
-        `).join('')}
-        ${(window.spotFormData?.extraDestinations || []).length < 4 ? `
-          <div class="relative hidden" id="extra-dest-wrapper">
-            <input
-              type="text"
-              id="spot-extra-dest"
-              class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none"
-              placeholder="${t('destinationCityPlaceholder') || 'Ville de destination'}"
-            />
-          </div>
-          <button type="button" onclick="addSpotDestination()"
-            class="w-full py-2 bg-transparent border-0 border-b border-white/5 text-[11px] text-[#475569] cursor-pointer flex items-center justify-center gap-1.5"
-            id="add-dest-btn">
-            ${icon('plus', 'w-3.5 h-3.5')} ${t('addDestination') || 'Ajouter une destination'}
-          </button>
-        ` : `
-          <div class="text-[11px] text-[#475569] text-center">${t('maxDestinations') || 'Maximum 5 destinations'}</div>
-        `}
-      </div>
+ <!-- Extra destinations -->
+ <div class="mb-6">
+ ${(window.spotFormData?.extraDestinations || []).map((d, i) => `
+ <div class="flex items-center gap-2 mb-2">
+ <span class="flex-1 px-3 py-1.5 text-[13px] text-amber-500 border-b border-amber-500">${icon('map-pin', 'w-3.5 h-3.5 inline mr-1')} ${escapeHTML(d.city)}</span>
+ <button type="button" onclick="removeSpotDestination(${i})"
+ class="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 border-0 cursor-pointer"
+ aria-label="${t('removeDestination') || 'Supprimer'}">
+ ${icon('x', 'w-4 h-4')}
+ </button></div>
+ `).join('')}
+ ${(window.spotFormData?.extraDestinations || []).length < 4 ? `
+ <div class="relative hidden" id="extra-dest-wrapper">
+ <input
+ type="text"
+ id="spot-extra-dest"
+ class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none"
+ placeholder="${t('destinationCityPlaceholder') || 'Ville de destination'}"
+ /></div>
+ <button type="button" onclick="addSpotDestination()"
+ class="w-full py-2 bg-transparent border-0 border-b border-white/5 text-[11px] text-[#475569] cursor-pointer flex items-center justify-center gap-1.5"
+ id="add-dest-btn">
+ ${icon('plus', 'w-3.5 h-3.5')} ${t('addDestination') || 'Ajouter une destination'}
+ </button>
+ ` : `
+ <div class="text-[11px] text-[#475569] text-center">${t('maxDestinations') || 'Maximum 5 destinations'}</div>
+ `}
+ </div>
 
-      <!-- Wait Time — range slider + amber value -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('waitTimeLabel') || "Attente"} <span class="text-amber-500">*</span></div>
-        <div class="flex items-center gap-3">
-          <input
-            type="range"
-            min="0"
-            max="${WAIT_STEPS.length - 1}"
-            value="${waitIdx >= 0 ? waitIdx : 4}"
-            class="flex-1 accent-amber-500"
-            oninput="setWaitTime(this.value)"
-            aria-label="${t('waitTimeSliderDesc') || 'Combien de temps as-tu attendu ?'}"
-          />
-          <span class="text-base font-light text-amber-500 min-w-[60px] text-right" id="wait-time-display">
-            ${currentWait ? (currentWait >= 180 ? '3h+' : currentWait + ' min') : '10 min'}
-          </span>
-        </div>
-      </div>
+ <!-- Wait Time — range slider + amber value -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('waitTimeLabel') || "Attente"} <span class="text-amber-500">*</span></div>
+ <div class="flex items-center gap-3">
+ <input
+ type="range"
+ min="0"
+ max="${WAIT_STEPS.length - 1}"
+ value="${waitIdx >= 0 ? waitIdx : 4}"
+ class="flex-1 accent-amber-500"
+ oninput="setWaitTime(this.value)"
+ aria-label="${t('waitTimeSliderDesc') || 'Combien de temps as-tu attendu ?'}"
+ />
+ <span class="text-base font-light text-amber-500 min-w-[60px] text-right" id="wait-time-display">
+ ${currentWait ? (currentWait >= 180 ? '3h+' : currentWait + ' min') : '10 min'}
+ </span></div></div>
 
-      <!-- Method — underline tab bar -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('practicalTips') || 'Méthode'} <span class="text-amber-500">*</span></div>
-        ${tabBar([
-          { value: 'sign', label: t('methodSign') || 'Panneau' },
-          { value: 'thumb', label: t('methodThumb') || 'Pouce' },
-          { value: 'asking', label: t('methodAsking') || 'En demandant' },
-        ], method, 'setMethod')}
-      </div>
+ <!-- Method — underline tab bar -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('practicalTips') || 'Méthode'} <span class="text-amber-500">*</span></div>
+ ${tabBar([
+ { value: 'sign', label: t('methodSign') || 'Panneau' },
+ { value: 'thumb', label: t('methodThumb') || 'Pouce' },
+ { value: 'asking', label: t('methodAsking') || 'En demandant' },
+ ], method, 'setMethod')}
+ </div>
 
-      <!-- Group — underline tab bar -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('groupSizeLabel') || 'Groupe'} <span class="text-amber-500">*</span></div>
-        ${tabBar([
-          { value: 'solo', label: t('groupSolo') || 'Solo' },
-          { value: 'duo', label: t('groupDuo') || 'Duo' },
-          { value: 'group', label: t('groupTrioPlus') || 'Groupe 3+' },
-        ], groupSize, 'setGroupSize')}
-      </div>
+ <!-- Group — underline tab bar -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('groupSizeLabel') || 'Groupe'} <span class="text-amber-500">*</span></div>
+ ${tabBar([
+ { value: 'solo', label: t('groupSolo') || 'Solo' },
+ { value: 'duo', label: t('groupDuo') || 'Duo' },
+ { value: 'group', label: t('groupTrioPlus') || 'Groupe 3+' },
+ ], groupSize, 'setGroupSize')}
+ </div>
 
-      <!-- Moment — underline tab bar -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('timeOfDayLabel') || 'Moment'} <span class="text-amber-500">*</span></div>
-        ${tabBar([
-          { value: 'morning', label: t('timeMorning') || 'Matin' },
-          { value: 'afternoon', label: t('timeAfternoon') || 'Après-midi' },
-          { value: 'evening', label: t('timeEvening') || 'Soir' },
-          { value: 'night', label: t('timeNight') || 'Nuit' },
-        ], timeOfDay, 'setTimeOfDay')}
-      </div>
+ <!-- Moment — underline tab bar -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('timeOfDayLabel') || 'Moment'} <span class="text-amber-500">*</span></div>
+ ${tabBar([
+ { value: 'morning', label: t('timeMorning') || 'Matin' },
+ { value: 'afternoon', label: t('timeAfternoon') || 'Après-midi' },
+ { value: 'evening', label: t('timeEvening') || 'Soir' },
+ { value: 'night', label: t('timeNight') || 'Nuit' },
+ ], timeOfDay, 'setTimeOfDay')}
+ </div>
 
-      <!-- Lift obtenu — underline tab bar (Oui = green, Abandonné = grey) -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('gotARide') || 'Lift obtenu'} <span class="text-amber-500">*</span></div>
-        <div class="flex gap-0 border-b border-slate-700">
-          <div onclick="setRideResult('yes')" role="button" tabindex="0"
-            class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
-            style="${rideResult === 'yes' ? 'color:#22c55e;border-bottom:2px solid #22c55e;margin-bottom:-1px' : 'color:#64748b'}">${t('yes') || 'Oui'}</div>
-          <div onclick="setRideResult('no')" role="button" tabindex="0"
-            class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
-            style="${rideResult === 'no' ? 'color:#ef4444;border-bottom:2px solid #ef4444;margin-bottom:-1px' : 'color:#64748b'}">${t('no') || 'Non'}</div>
-          <div onclick="setRideResult('gaveUp')" role="button" tabindex="0"
-            class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
-            style="${rideResult === 'gaveUp' ? 'color:#64748b;border-bottom:2px solid #64748b;margin-bottom:-1px' : 'color:#64748b'}">${t('gaveUp') || 'Abandonné'}</div>
-        </div>
-      </div>
+ <!-- Lift obtenu — underline tab bar (Oui = green, Abandonné = grey) -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('gotARide') || 'Lift obtenu'} <span class="text-amber-500">*</span></div>
+ <div class="flex gap-0 border-b border-slate-700">
+ <div onclick="setRideResult('yes')" role="button" tabindex="0"
+ class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
+ style="${rideResult === 'yes' ? 'color:#22c55e;border-bottom:2px solid #22c55e;margin-bottom:-1px' : 'color:#64748b'}">${t('yes') || 'Oui'}</div>
+ <div onclick="setRideResult('no')" role="button" tabindex="0"
+ class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
+ style="${rideResult === 'no' ? 'color:#ef4444;border-bottom:2px solid #ef4444;margin-bottom:-1px' : 'color:#64748b'}">${t('no') || 'Non'}</div>
+ <div onclick="setRideResult('gaveUp')" role="button" tabindex="0"
+ class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
+ style="${rideResult === 'gaveUp' ? 'color:#64748b;border-bottom:2px solid #64748b;margin-bottom:-1px' : 'color:#64748b'}">${t('gaveUp') || 'Abandonné'}</div></div></div>
 
-      <!-- RETOUR + SUIVANT buttons -->
-      <div class="flex gap-3 mt-6">
-        <button type="button" onclick="addSpotPrevStep()"
-          class="flex-1 bg-transparent border border-slate-700 text-slate-500 rounded-none p-3.5 text-sm cursor-pointer uppercase">
-          ${t('back') || 'RETOUR'}
-        </button>
-        <button type="button" onclick="addSpotNextStep()"
-          class="flex-[2] bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm font-medium cursor-pointer uppercase">
-          ${t('next') || 'SUIVANT'}
-        </button>
-      </div>
-    </div>
-  `
+ <!-- RETOUR + SUIVANT buttons -->
+ <div class="flex gap-3 mt-6">
+ <button type="button" onclick="addSpotPrevStep()"
+ class="flex-1 bg-transparent border border-slate-700 text-slate-500 rounded-none p-3.5 text-sm cursor-pointer uppercase">
+ ${t('back') || 'RETOUR'}
+ </button>
+ <button type="button" onclick="addSpotNextStep()"
+ class="flex-[2] bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm font-medium cursor-pointer uppercase">
+ ${t('next') || 'SUIVANT'}
+ </button></div></div>
+ `
 }
 
 /**
  * Render Step 3: Ratings (bar segments) + Amenities (underline tabs) + Description + Submit (v3)
  */
 function renderStep3(state) {
-  const isPreview = state.addSpotPreview === true
-  const isValidation = !!state.addSpotValidateId
-  const tags = window.spotFormData.tags || {}
-  return `
-    <div class="step-transition">
-      <!-- Ratings — segmented bars -->
-      ${renderBarRating('safety', t('safetyRating') || 'Sécurité')}
-      ${renderBarRating('traffic', t('traffic') || 'Trafic')}
-      ${renderBarRating('accessibility', t('accessibility') || 'Accessibilité')}
+ const isPreview = state.addSpotPreview === true
+ const isValidation = !!state.addSpotValidateId
+ const tags = window.spotFormData.tags || {}
+ return `
+ <div class="step-transition">
+ <!-- Ratings — segmented bars -->
+ ${renderBarRating('safety', t('safetyRating') || 'Sécurité')}
+ ${renderBarRating('traffic', t('traffic') || 'Trafic')}
+ ${renderBarRating('accessibility', t('accessibility') || 'Accessibilité')}
 
-      <!-- Amenities — underline tab style -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2.5">${t('amenitiesLabel') || 'Commodités'}</div>
-        <div class="flex flex-wrap gap-0">
-          <button type="button" onclick="toggleAmenity('shelter')"
-            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
-            style="border-bottom:${tags.shelter ? '2px solid #f59e0b' : 'none'};color:${tags.shelter ? '#f59e0b' : '#64748b'}">
-            ${t('amenityShelter') || 'Abri'}
-          </button>
-          <button type="button" onclick="toggleAmenity('waterFood')"
-            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
-            style="border-bottom:${tags.waterFood ? '2px solid #f59e0b' : 'none'};color:${tags.waterFood ? '#f59e0b' : '#64748b'}">
-            ${t('amenityWater') || 'Eau'}
-          </button>
-          <button type="button" onclick="toggleAmenity('toilets')"
-            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
-            style="border-bottom:${tags.toilets ? '2px solid #f59e0b' : 'none'};color:${tags.toilets ? '#f59e0b' : '#64748b'}">
-            ${t('amenityToilets') || 'Toilettes'}
-          </button>
-          <button type="button" onclick="toggleAmenity('food')"
-            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
-            style="border-bottom:${tags.food ? '2px solid #f59e0b' : 'none'};color:${tags.food ? '#f59e0b' : '#64748b'}">
-            ${t('amenityFood') || 'Nourriture'}
-          </button>
-          <button type="button" onclick="toggleAmenity('stoppingSpace')"
-            class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
-            style="border-bottom:${tags.stoppingSpace ? '2px solid #f59e0b' : 'none'};color:${tags.stoppingSpace ? '#f59e0b' : '#64748b'}">
-            ${t('stoppingSpaceTag') || 'Parking'}
-          </button>
-        </div>
-      </div>
+ <!-- Amenities — underline tab style -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2.5">${t('amenitiesLabel') || 'Commodités'}</div>
+ <div class="flex flex-wrap gap-0">
+ <button type="button" onclick="toggleAmenity('shelter')"
+ class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+ style="border-bottom:${tags.shelter ? '2px solid #f59e0b' : 'none'};color:${tags.shelter ? '#f59e0b' : '#64748b'}">
+ ${t('amenityShelter') || 'Abri'}
+ </button>
+ <button type="button" onclick="toggleAmenity('waterFood')"
+ class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+ style="border-bottom:${tags.waterFood ? '2px solid #f59e0b' : 'none'};color:${tags.waterFood ? '#f59e0b' : '#64748b'}">
+ ${t('amenityWater') || 'Eau'}
+ </button>
+ <button type="button" onclick="toggleAmenity('toilets')"
+ class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+ style="border-bottom:${tags.toilets ? '2px solid #f59e0b' : 'none'};color:${tags.toilets ? '#f59e0b' : '#64748b'}">
+ ${t('amenityToilets') || 'Toilettes'}
+ </button>
+ <button type="button" onclick="toggleAmenity('food')"
+ class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+ style="border-bottom:${tags.food ? '2px solid #f59e0b' : 'none'};color:${tags.food ? '#f59e0b' : '#64748b'}">
+ ${t('amenityFood') || 'Nourriture'}
+ </button>
+ <button type="button" onclick="toggleAmenity('stoppingSpace')"
+ class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+ style="border-bottom:${tags.stoppingSpace ? '2px solid #f59e0b' : 'none'};color:${tags.stoppingSpace ? '#f59e0b' : '#64748b'}">
+ ${t('stoppingSpaceTag') || 'Parking'}
+ </button></div></div>
 
-      <!-- Description — underline textarea -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">
-          ${t('description')} <span class="text-[10px] text-slate-700 normal-case tracking-normal">(${t('recommended') || 'recommandé'})</span>
-        </div>
-        <textarea
-          id="spot-description"
-          name="description"
-          class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none resize-none min-h-[60px] font-[inherit]"
-          placeholder="${t('spotDescPlaceholder') || 'Quelques mots sur ce spot...'}"
-          maxlength="500"
-          aria-describedby="desc-counter"
-        ></textarea>
-        <div class="text-right text-[11px] text-[#475569] mt-1" id="desc-counter" aria-live="polite">
-          <span id="desc-count">0</span>/500 <span class="sr-only">caractères</span>
-        </div>
-      </div>
+ <!-- Description — underline textarea -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">
+ ${t('description')} <span class="text-[10px] text-slate-700 normal-case tracking-normal">(${t('recommended') || 'recommandé'})</span></div>
+ <textarea
+ id="spot-description"
+ name="description"
+ class="w-full bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none resize-none min-h-[60px] font-[inherit]"
+ placeholder="${t('spotDescPlaceholder') || 'Quelques mots sur ce spot...'}"
+ maxlength="500"
+ aria-describedby="desc-counter"
+ ></textarea>
+ <div class="text-right text-[11px] text-[#475569] mt-1" id="desc-counter" aria-live="polite">
+ <span id="desc-count">0</span>/500 <span class="sr-only">caractères</span></div></div>
 
-      <!-- Experience date -->
-      <div class="mb-6">
-        <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2.5">${t('experienceDateLabel') || 'Quand as-tu fait du stop ici ?'}</div>
-        <div class="flex gap-2 flex-wrap">
-          <button type="button" onclick="setExperienceDate('today')"
-            id="exp-date-today"
-            class="px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
-            style="border-bottom:${(!window.spotFormData._expCustom) ? '2px solid #f59e0b' : 'none'};color:${(!window.spotFormData._expCustom) ? '#f59e0b' : '#64748b'}">
-            ${t('today') || "Aujourd'hui"}
-          </button>
-          <button type="button" onclick="setExperienceDate('custom')"
-            id="exp-date-custom"
-            class="px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
-            style="border-bottom:${window.spotFormData._expCustom ? '2px solid #f59e0b' : 'none'};color:${window.spotFormData._expCustom ? '#f59e0b' : '#64748b'}">
-            ${t('chooseDate') || 'Choisir une date'}
-          </button>
-        </div>
-        <div id="exp-date-selectors" class="gap-3 mt-2.5" style="display:${window.spotFormData._expCustom ? 'flex' : 'none'}">
-          <select id="exp-month" onchange="updateExperienceDate()"
-            class="flex-1 bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none appearance-none cursor-pointer">
-            ${(() => {
-              const now = new Date()
-              const months = [
-                t('monthJan') || 'Janvier', t('monthFeb') || 'Février', t('monthMar') || 'Mars',
-                t('monthApr') || 'Avril', t('monthMay') || 'Mai', t('monthJun') || 'Juin',
-                t('monthJul') || 'Juillet', t('monthAug') || 'Août', t('monthSep') || 'Septembre',
-                t('monthOct') || 'Octobre', t('monthNov') || 'Novembre', t('monthDec') || 'Décembre'
-              ]
-              const selMonth = window.spotFormData.experienceMonth ?? (now.getMonth() + 1)
-              return months.map((m, i) => `<option value="${i + 1}" ${(i + 1) === selMonth ? 'selected' : ''} style="background:#1e293b">${m}</option>`).join('')
-            })()}
-          </select>
-          <select id="exp-year" onchange="updateExperienceDate()"
-            class="flex-[0.6] bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none appearance-none cursor-pointer">
-            ${(() => {
-              const now = new Date()
-              const selYear = window.spotFormData.experienceYear ?? now.getFullYear()
-              const years = []
-              for (let y = now.getFullYear(); y >= 2010; y--) years.push(`<option value="${y}" ${y === selYear ? 'selected' : ''} style="background:#1e293b">${y}</option>`)
-              return years.join('')
-            })()}
-          </select>
-        </div>
-      </div>
+ <!-- Experience date -->
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2.5">${t('experienceDateLabel') || 'Quand as-tu fait du stop ici ?'}</div>
+ <div class="flex gap-2 flex-wrap">
+ <button type="button" onclick="setExperienceDate('today')"
+ id="exp-date-today"
+ class="px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+ style="border-bottom:${(!window.spotFormData._expCustom) ? '2px solid #f59e0b' : 'none'};color:${(!window.spotFormData._expCustom) ? '#f59e0b' : '#64748b'}">
+ ${t('today') || "Aujourd'hui"}
+ </button>
+ <button type="button" onclick="setExperienceDate('custom')"
+ id="exp-date-custom"
+ class="px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
+ style="border-bottom:${window.spotFormData._expCustom ? '2px solid #f59e0b' : 'none'};color:${window.spotFormData._expCustom ? '#f59e0b' : '#64748b'}">
+ ${t('chooseDate') || 'Choisir une date'}
+ </button></div>
+ <div id="exp-date-selectors" class="gap-3 mt-2.5" style="display:${window.spotFormData._expCustom ? 'flex' : 'none'}">
+ <select id="exp-month" onchange="updateExperienceDate()"
+ class="flex-1 bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none appearance-none cursor-pointer">
+ ${(() => {
+ const now = new Date()
+ const months = [
+ t('monthJan') || 'Janvier', t('monthFeb') || 'Février', t('monthMar') || 'Mars',
+ t('monthApr') || 'Avril', t('monthMay') || 'Mai', t('monthJun') || 'Juin',
+ t('monthJul') || 'Juillet', t('monthAug') || 'Août', t('monthSep') || 'Septembre',
+ t('monthOct') || 'Octobre', t('monthNov') || 'Novembre', t('monthDec') || 'Décembre'
+ ]
+ const selMonth = window.spotFormData.experienceMonth ?? (now.getMonth() + 1)
+ return months.map((m, i) => `<option value="${i + 1}" ${(i + 1) === selMonth ? 'selected' : ''} style="background:#1e293b">${m}</option>`).join('')
+ })()}
+ </select>
+ <select id="exp-year" onchange="updateExperienceDate()"
+ class="flex-[0.6] bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none appearance-none cursor-pointer">
+ ${(() => {
+ const now = new Date()
+ const selYear = window.spotFormData.experienceYear ?? now.getFullYear()
+ const years = []
+ for (let y = now.getFullYear(); y >= 2010; y--) years.push(`<option value="${y}" ${y === selYear ? 'selected' : ''} style="background:#1e293b">${y}</option>`)
+ return years.join('')
+ })()}
+ </select></div></div>
 
-      <!-- RETOUR + PUBLIER buttons -->
-      <div class="flex gap-3 mt-6">
-        <button type="button" onclick="addSpotPrevStep()"
-          class="flex-1 bg-transparent border border-slate-700 text-slate-500 rounded-none p-3.5 text-sm cursor-pointer uppercase">
-          ${t('back') || 'RETOUR'}
-        </button>
-        ${isPreview ? `
-        <button type="button" onclick="closeAddSpot()"
-          class="flex-[2] bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm cursor-pointer uppercase" id="submit-spot-btn">
-          ${t('previewModeClose') || 'FERMER'}
-        </button>
-        ` : `
-        <button type="button" onclick="showSpotSummary()"
-          class="flex-[2] bg-amber-500 border-0 text-[#0f1520] rounded-none p-3.5 text-sm font-semibold cursor-pointer uppercase" id="submit-spot-btn">
-          ${isValidation ? (t('reviewAndSubmit') || 'VÉRIFIER ET ENVOYER') : (t('reviewAndPublish') || 'VÉRIFIER ET PUBLIER')}
-        </button>
-        `}
-      </div>
-    </div>
-  `
+ <!-- RETOUR + PUBLIER buttons -->
+ <div class="flex gap-3 mt-6">
+ <button type="button" onclick="addSpotPrevStep()"
+ class="flex-1 bg-transparent border border-slate-700 text-slate-500 rounded-none p-3.5 text-sm cursor-pointer uppercase">
+ ${t('back') || 'RETOUR'}
+ </button>
+ ${isPreview ? `
+ <button type="button" onclick="closeAddSpot()"
+ class="flex-[2] bg-transparent border border-amber-500 text-amber-500 rounded-none p-3.5 text-sm cursor-pointer uppercase" id="submit-spot-btn">
+ ${t('previewModeClose') || 'FERMER'}
+ </button>
+ ` : `
+ <button type="button" onclick="showSpotSummary()"
+ class="flex-[2] bg-amber-500 border-0 text-[#0f1520] rounded-none p-3.5 text-sm font-semibold cursor-pointer uppercase" id="submit-spot-btn">
+ ${isValidation ? (t('reviewAndSubmit') || 'VÉRIFIER ET ENVOYER') : (t('reviewAndPublish') || 'VÉRIFIER ET PUBLIER')}
+ </button>
+ `}
+ </div></div>
+ `
 }
 
 /**
  * Render offline draft button
  */
 function renderOfflineDraftButton() {
-  if (navigator.onLine) return ''
-  return `
-    <div class="mt-3 p-3 rounded-xl bg-warning-500/10 border border-warning-500/20">
-      <p class="text-sm text-warning-400 mb-2">${t('offlineMode') || 'Mode hors-ligne'}</p>
-      <button type="button" onclick="saveDraftAndClose()" class="btn btn-warning btn-sm w-full">
-        ${icon('save', 'w-4 h-4')} ${t('saveDraft') || 'Sauvegarder le brouillon'}
-      </button>
-    </div>
-  `
+ if (navigator.onLine) return ''
+ return `
+ <div class="mt-3 p-3 rounded-xl bg-warning-500/10 border border-warning-500/20">
+ <p class="text-sm text-warning-400 mb-2">${t('offlineMode') || 'Mode hors-ligne'}</p>
+ <button type="button" onclick="saveDraftAndClose()" class="btn btn-warning btn-sm w-full">
+ ${icon('save', 'w-4 h-4')} ${t('saveDraft') || 'Sauvegarder le brouillon'}
+ </button></div>
+ `
 }
 
 function renderPositionBlock() {
-  const hasPosition = window.spotFormData?.lat && window.spotFormData?.lng
-  const lat = window.spotFormData?.lat
-  const lng = window.spotFormData?.lng
+ const hasPosition = window.spotFormData?.lat && window.spotFormData?.lng
+ const lat = window.spotFormData?.lat
+ const lng = window.spotFormData?.lng
 
-  return `
-    <div class="mb-6">
-      <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3" id="location-label">${t('position') || 'Position sur la carte'} <span class="text-amber-500">*</span></div>
+ return `
+ <div class="mb-6">
+ <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3" id="location-label">${t('position') || 'Position sur la carte'} <span class="text-amber-500">*</span></div>
 
-      ${hasPosition ? `
-        <!-- Position chosen — mini map preview + info -->
-        <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
-          onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
-          aria-label="${t('editPosition') || 'Modifier la position'}"
-          class="bg-[#111827] cursor-pointer overflow-hidden">
-          <div id="addspot-mini-map" class="w-full h-[120px] bg-[#161b28]"></div>
-          <div class="px-3.5 py-2.5 flex items-center gap-2.5">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" class="shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <div class="flex-1 min-w-0">
-              <div class="text-[13px] text-slate-200">${escapeHTML(window.spotFormData?.locationName || '')} <span class="text-[#475569] text-[11px]">${lat?.toFixed(4) || '?'}, ${lng?.toFixed(4) || '?'}</span></div>
-              ${window.spotFormData?.departureCity && window.spotFormData?.locationName && window.spotFormData.departureCity !== window.spotFormData.locationName ? `<div class="text-[11px] text-slate-400">${t('departure') || 'Départ'}: ${escapeHTML(window.spotFormData.departureCity)}</div>` : ''}
-              <div class="text-[11px] text-amber-500">${t('modify') || 'Modifier la position'}</div>
-            </div>
-          </div>
-        </div>
-      ` : `
-        <!-- No position — map placeholder + GPS button -->
-        <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
-          onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
-          aria-label="${t('tapToPlaceSpot') || 'Placer le spot sur la carte'}"
-          class="bg-[#111827] h-[110px] flex flex-col items-center justify-center text-[#475569] text-xs gap-1.5 cursor-pointer">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          ${t('tapToPlaceSpot') || 'Toucher pour placer le spot'}
-        </div>
-        <button type="button" onclick="useGPSForSpot()"
-          class="w-full mt-2 py-2.5 bg-transparent border-0 border-b border-white/5 text-xs text-[#475569] cursor-pointer flex items-center justify-center gap-1.5"
-          aria-describedby="location-display">
-          ${icon('crosshair', 'w-4 h-4')} ${t('useMyPosition') || 'Ma position GPS'}
-        </button>
-      `}
+ ${hasPosition ? `
+ <!-- Position chosen — mini map preview + info -->
+ <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
+ onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
+ aria-label="${t('editPosition') || 'Modifier la position'}"
+ class="bg-[#111827] cursor-pointer overflow-hidden">
+ <div id="addspot-mini-map" class="w-full h-[120px] bg-[#161b28]"></div>
+ <div class="px-3.5 py-2.5 flex items-center gap-2.5">
+ <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" class="shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+ <div class="flex-1 min-w-0">
+ <div class="text-[13px] text-slate-200">${escapeHTML(window.spotFormData?.locationName || '')} <span class="text-[#475569] text-[11px]">${lat?.toFixed(4) || '?'}, ${lng?.toFixed(4) || '?'}</span></div>
+ ${window.spotFormData?.departureCity && window.spotFormData?.locationName && window.spotFormData.departureCity !== window.spotFormData.locationName ? `<div class="text-[11px] text-slate-400">${t('departure') || 'Départ'}: ${escapeHTML(window.spotFormData.departureCity)}</div>` : ''}
+ <div class="text-[11px] text-amber-500">${t('modify') || 'Modifier la position'}</div></div></div></div>
+ ` : `
+ <!-- No position — map placeholder + GPS button -->
+ <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
+ onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
+ aria-label="${t('tapToPlaceSpot') || 'Placer le spot sur la carte'}"
+ class="bg-[#111827] h-[110px] flex flex-col items-center justify-center text-[#475569] text-xs gap-1.5 cursor-pointer">
+ <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+ ${t('tapToPlaceSpot') || 'Toucher pour placer le spot'}
+ </div>
+ <button type="button" onclick="useGPSForSpot()"
+ class="w-full mt-2 py-2.5 bg-transparent border-0 border-b border-white/5 text-xs text-[#475569] cursor-pointer flex items-center justify-center gap-1.5"
+ aria-describedby="location-display">
+ ${icon('crosshair', 'w-4 h-4')} ${t('useMyPosition') || 'Ma position GPS'}
+ </button>
+ `}
 
-      <div id="location-display" class="sr-only" aria-live="polite" role="status"></div>
+ <div id="location-display" class="sr-only" aria-live="polite" role="status"></div>
 
-      ${renderGmapsTip()}
-    </div>
-  `
+ ${renderGmapsTip()}
+ </div>
+ `
 }
 
 /**
@@ -554,406 +523,401 @@ function renderPositionBlock() {
  * Dismissed state stored in localStorage key spothitch_gmaps_tip_hidden.
  */
 function renderGmapsTip() {
-  const hidden = (() => {
-    try { return localStorage.getItem('spothitch_gmaps_tip_hidden') === '1' }
-    catch { return false }
-  })()
+ const hidden = (() => {
+ try { return localStorage.getItem('spothitch_gmaps_tip_hidden') === '1' }
+ catch { return false }
+ })()
 
-  if (hidden) {
-    return `
-      <div class="text-center pt-2">
-        <span onclick="window._showGmapsTipFull()"
-          class="text-[11px] text-amber-500 cursor-pointer underline" role="button" tabindex="0"
-          onkeydown="if(event.key==='Enter')window._showGmapsTipFull()">
-          ${t('gmapsTipLink')}
-        </span>
-      </div>`
-  }
+ if (hidden) {
+ return `
+ <div class="text-center pt-2">
+ <span onclick="window._showGmapsTipFull()"
+ class="text-[11px] text-amber-500 cursor-pointer underline" role="button" tabindex="0"
+ onkeydown="if(event.key==='Enter')window._showGmapsTipFull()">
+ ${t('gmapsTipLink')}
+ </span></div>`
+ }
 
-  return renderGmapsTipCard()
+ return renderGmapsTipCard()
 }
 
 export function renderAddSpot(_state) {
-  const isPreview = _state.addSpotPreview === true
-  const isValidation = !!_state.addSpotValidateId
-  const currentStep = _state.addSpotStep || 1
+ const isPreview = _state.addSpotPreview === true
+ const isValidation = !!_state.addSpotValidateId
+ const currentStep = _state.addSpotStep || 1
 
-  return `
-    <div
-      id="addspot-modal"
-      class="addspot-dialog fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-      onclick="closeAddSpot()"
-      tabindex="0"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="addspot-modal-title">
-      <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true"></div>
+ return `
+ <div
+ id="addspot-modal"
+ class="addspot-dialog fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+ onclick="closeAddSpot()"
+ tabindex="0"
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="addspot-modal-title">
+ <!-- Backdrop -->
+ <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true"></div>
 
-      <!-- Modal -->
-      <div
-        class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl bg-[#0f1520] border border-[#1e293b]"
-        onclick="event.stopPropagation()"
-      >
-        <!-- Header — minimal -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-[#1a1f2e]">
-          <h2 id="addspot-modal-title" class="text-base font-semibold text-slate-200">${isValidation ? (t('validateSpotTitle') || 'Valider ce spot') : t('addSpot')}${isPreview ? ` <span class="text-xs font-normal text-amber-500 ml-2">${t('previewMode')}</span>` : ''}</h2>
-          <button
-            onclick="closeAddSpot()"
-            class="w-8 h-8 bg-white/5 flex items-center justify-center border-0 cursor-pointer text-slate-500"
-            aria-label="${t('close') || 'Fermer'}"
-            type="button"
-          >
-            ${icon('x', 'w-5 h-5')}
-          </button>
-        </div>
+ <!-- Modal -->
+ <div
+ class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl bg-[#0f1520] border border-[#1e293b]"
+ onclick="event.stopPropagation()"
+ >
+ <!-- Header — minimal -->
+ <div class="flex items-center justify-between px-5 py-4 border-b border-[#1a1f2e]">
+ <h2 id="addspot-modal-title" class="text-base font-semibold text-slate-200">${isValidation ? (t('validateSpotTitle') || 'Valider ce spot') : t('addSpot')}${isPreview ? ` <span class="text-xs font-normal text-amber-500 ml-2">${t('previewMode')}</span>` : ''}</h2>
+ <button
+ onclick="closeAddSpot()"
+ class="w-8 h-8 bg-white/5 flex items-center justify-center border-0 cursor-pointer text-slate-500"
+ aria-label="${t('close') || 'Fermer'}"
+ type="button"
+ >
+ ${icon('x', 'w-5 h-5')}
+ </button></div>
 
-        <!-- Form -->
-        <div class="px-5 py-6 overflow-y-auto max-h-[calc(90vh-70px)]">
-          ${renderStepProgress(currentStep)}
+ <!-- Form -->
+ <div class="px-5 py-6 overflow-y-auto max-h-[calc(90vh-70px)]">
+ ${renderStepProgress(currentStep)}
 
-          <form id="add-spot-form" onsubmit="handleAddSpot(event)" aria-label="${t('addSpotForm') || "Formulaire d'ajout de spot"}" class="touch-manipulation">
-            ${currentStep === 1 ? renderStep1(_state) : ''}
-            ${currentStep === 2 ? renderStep2(_state) : ''}
-            ${currentStep === 3 ? renderStep3(_state) : ''}
-            ${currentStep >= 2 ? renderOfflineDraftButton() : ''}
-          </form>
-        </div>
-      </div>
-    </div>
-  `
+ <form id="add-spot-form" onsubmit="handleAddSpot(event)" aria-label="${t('addSpotForm') || "Formulaire d'ajout de spot"}" class="touch-manipulation">
+ ${currentStep === 1 ? renderStep1(_state) : ''}
+ ${currentStep === 2 ? renderStep2(_state) : ''}
+ ${currentStep === 3 ? renderStep3(_state) : ''}
+ ${currentStep >= 2 ? renderOfflineDraftButton() : ''}
+ </form></div></div></div>
+ `
 }
 
 // Form state — ALL data structured for export/analysis
 window.spotFormData = window.spotFormData || {
-  photos: [],
-  lat: null,
-  lng: null,
-  ratings: { safety: 0, traffic: 0, accessibility: 0 },
-  tags: {
-    shelter: false,
-    waterFood: false,
-    toilets: false,
-    visibility: false,
-    stoppingSpace: false,
-  },
-  country: null,
-  countryName: null,
-  departureCity: null,
-  departureCityCoords: null,
-  directionCity: null,
-  directionCityCoords: null,
-  locationName: null,
-  roadNumber: null,
-  positionSource: null,
-  method: null,       // 'sign' | 'thumb' | 'asking'
-  groupSize: null,    // 'solo' | 'duo' | 'group'
-  timeOfDay: null,    // 'morning' | 'afternoon' | 'evening' | 'night'
-  waitTime: null,     // minutes (number)
-  season: null,       // auto-detected
-  extraDestinations: [], // additional destinations [{city, coords}]
+ photos: [],
+ lat: null,
+ lng: null,
+ ratings: { safety: 0, traffic: 0, accessibility: 0 },
+ tags: {
+ shelter: false,
+ waterFood: false,
+ toilets: false,
+ visibility: false,
+ stoppingSpace: false,
+ },
+ country: null,
+ countryName: null,
+ departureCity: null,
+ departureCityCoords: null,
+ directionCity: null,
+ directionCityCoords: null,
+ locationName: null,
+ roadNumber: null,
+ positionSource: null,
+ method: null, // 'sign' | 'thumb' | 'asking'
+ groupSize: null, // 'solo' | 'duo' | 'group'
+ timeOfDay: null, // 'morning' | 'afternoon' | 'evening' | 'night'
+ waitTime: null, // minutes (number)
+ season: null, // auto-detected
+ extraDestinations: [], // additional destinations [{city, coords}]
 }
 
 // Star rating descriptions map
 const starDescriptions = {
-  safety: (v) => t(`safetyDesc${v}`) || '',
-  traffic: (v) => t(`trafficDesc${v}`) || '',
-  accessibility: (v) => t(`accessibilityDesc${v}`) || '',
+ safety: (v) => t(`safetyDesc${v}`) || '',
+ traffic: (v) => t(`trafficDesc${v}`) || '',
+ accessibility: (v) => t(`accessibilityDesc${v}`) || '',
 }
 
 // Global handlers
 window.triggerPhotoUpload = () => {
-  document.getElementById('spot-photo')?.click()
+ document.getElementById('spot-photo')?.click()
 }
 
 window.handlePhotoSelect = async (event) => {
-  const file = event.target.files?.[0]
-  if (!file) return
+ const file = event.target.files?.[0]
+ if (!file) return
 
-  if (!window.spotFormData.photos) window.spotFormData.photos = []
-  if (window.spotFormData.photos.length >= 5) {
-    const { showError } = await import('../../services/notifications.js')
-    showError(t('maxPhotos'))
-    return
-  }
+ if (!window.spotFormData.photos) window.spotFormData.photos = []
+ if (window.spotFormData.photos.length >= 5) {
+ const { showError } = await import('../../services/notifications.js')
+ showError(t('maxPhotos'))
+ return
+ }
 
-  try {
-    const { compressImage } = await import('../../utils/image.js')
-    const compressed = await compressImage(file, 1200, 0.75)
-    window.spotFormData.photos.push(compressed)
+ try {
+ const { compressImage } = await import('../../utils/image.js')
+ const compressed = await compressImage(file, 1200, 0.75)
+ window.spotFormData.photos.push(compressed)
 
-    // Update photo thumbnails inline (avoid full re-render that resets type)
-    const photoZone = document.getElementById('spot-photo-zone')
-    if (photoZone) {
-      // Add thumbnail directly
-      const thumb = document.createElement('div')
-      thumb.style.cssText = 'width:60px;height:60px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0'
-      thumb.innerHTML = `<img src="${compressed}" style="width:100%;height:100%;object-fit:cover" alt="Photo ${window.spotFormData.photos.length}">
-        <button type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);border-radius:50%;border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center" aria-label="${escapeHTML(t('removePhoto') || 'Remove photo')}">✕</button>`
-      const uploadBtn = photoZone.querySelector('label, [for="spot-photo"]')?.parentElement
-      if (uploadBtn) photoZone.insertBefore(thumb, uploadBtn)
-      // Hide upload button if max reached
-      if (window.spotFormData.photos.length >= 5 && uploadBtn) uploadBtn.style.display = 'none'
-    } else {
-      // Fallback: full re-render
-      const { setState } = await import('../../stores/state.js')
-      setState({ _photoRefresh: Date.now() })
-    }
-  } catch (error) {
-    console.error('Photo processing failed:', error)
-    const { showError } = await import('../../services/notifications.js')
-    showError(t('photoError') || 'Erreur lors du traitement de la photo')
-  }
+ // Update photo thumbnails inline (avoid full re-render that resets type)
+ const photoZone = document.getElementById('spot-photo-zone')
+ if (photoZone) {
+ // Add thumbnail directly
+ const thumb = document.createElement('div')
+ thumb.style.cssText = 'width:60px;height:60px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0'
+ thumb.innerHTML = `<img src="${compressed}" style="width:100%;height:100%;object-fit:cover" alt="Photo ${window.spotFormData.photos.length}">
+ <button type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);border-radius:50%;border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center" aria-label="${escapeHTML(t('removePhoto') || 'Remove photo')}">✕</button>`
+ const uploadBtn = photoZone.querySelector('label, [for="spot-photo"]')?.parentElement
+ if (uploadBtn) photoZone.insertBefore(thumb, uploadBtn)
+ // Hide upload button if max reached
+ if (window.spotFormData.photos.length >= 5 && uploadBtn) uploadBtn.style.display = 'none'
+ } else {
+ // Fallback: full re-render
+ const { setState } = await import('../../stores/state.js')
+ setState({ _photoRefresh: Date.now() })
+ }
+ } catch (error) {
+ console.error('Photo processing failed:', error)
+ const { showError } = await import('../../services/notifications.js')
+ showError(t('photoError') || 'Erreur lors du traitement de la photo')
+ }
 }
 
 window.removeSpotPhoto = async (index) => {
-  if (!window.spotFormData.photos) return
-  window.spotFormData.photos.splice(index, 1)
-  const { setState } = await import('../../stores/state.js')
-  setState({ _photoRefresh: Date.now() })
+ if (!window.spotFormData.photos) return
+ window.spotFormData.photos.splice(index, 1)
+ const { setState } = await import('../../stores/state.js')
+ setState({ _photoRefresh: Date.now() })
 }
 
 window.setSpotRating = (criterion, value) => {
-  window.spotFormData.ratings = window.spotFormData.ratings || {}
-  window.spotFormData.ratings[criterion] = value
+ window.spotFormData.ratings = window.spotFormData.ratings || {}
+ window.spotFormData.ratings[criterion] = value
 
-  // Update bar segments (v3 design)
-  const buttons = document.querySelectorAll(`button[data-criterion="${criterion}"]`)
-  buttons.forEach((btn) => {
-    const star = parseInt(btn.dataset.star, 10)
-    btn.style.background = star <= value ? '#f59e0b' : '#1a1f2e'
-  })
+ // Update bar segments (v3 design)
+ const buttons = document.querySelectorAll(`button[data-criterion="${criterion}"]`)
+ buttons.forEach((btn) => {
+ const star = parseInt(btn.dataset.star, 10)
+ btn.style.background = star <= value ? '#f59e0b' : '#1a1f2e'
+ })
 
-  const valueEl = document.getElementById(`spot-rating-value-${criterion}`)
-  if (valueEl) valueEl.textContent = `${value}/5`
+ const valueEl = document.getElementById(`spot-rating-value-${criterion}`)
+ if (valueEl) valueEl.textContent = `${value}/5`
 
-  const descEl = document.getElementById(`spot-rating-desc-${criterion}`)
-  if (descEl) {
-    const descFn = starDescriptions[criterion]
-    descEl.textContent = descFn ? descFn(value) : ''
-  }
+ const descEl = document.getElementById(`spot-rating-desc-${criterion}`)
+ if (descEl) {
+ const descFn = starDescriptions[criterion]
+ descEl.textContent = descFn ? descFn(value) : ''
+ }
 }
 
 // Spot type selection (big buttons) — DOM-only update, no re-render
 window.selectSpotType = (type) => {
-  window.spotFormData.spotType = type
-  // Update button styles directly (must override inline styles)
-  document.querySelectorAll('.spot-type-btn').forEach(btn => {
-    const btnType = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
-    const isActive = btnType === type
-    if (isActive) {
-      btn.classList.add('active')
-      btn.style.border = '1px solid #f59e0b'
-      btn.style.background = 'rgba(245,158,11,0.07)'
-      btn.style.color = '#f59e0b'
-    } else {
-      btn.classList.remove('active')
-      btn.style.border = '1px solid #1a1f2e'
-      btn.style.background = '#1a1f2e'
-      btn.style.color = '#64748b'
-    }
-  })
-  // Store in spotFormData AND state for persistence (no re-render)
-  window.spotFormData.spotType = type
-  import('../../stores/state.js').then(({ setState }) => {
-    setState({ addSpotType: type, _skipRender: true })
-  })
+ window.spotFormData.spotType = type
+ // Update button styles directly (must override inline styles)
+ document.querySelectorAll('.spot-type-btn').forEach(btn => {
+ const btnType = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
+ const isActive = btnType === type
+ if (isActive) {
+ btn.classList.add('active')
+ btn.style.border = '1px solid #f59e0b'
+ btn.style.background = 'rgba(245,158,11,0.07)'
+ btn.style.color = '#f59e0b'
+ } else {
+ btn.classList.remove('active')
+ btn.style.border = '1px solid #1a1f2e'
+ btn.style.background = '#1a1f2e'
+ btn.style.color = '#64748b'
+ }
+ })
+ // Store in spotFormData AND state for persistence (no re-render)
+ window.spotFormData.spotType = type
+ import('../../stores/state.js').then(({ setState }) => {
+ setState({ addSpotType: type, _skipRender: true })
+ })
 }
 
 // Wait time slider — DOM-only, no re-render
 window.setWaitTime = (sliderIndex) => {
-  const idx = parseInt(sliderIndex, 10)
-  const minutes = WAIT_STEPS[idx] || 10
-  window.spotFormData.waitTime = minutes
-  const display = document.getElementById('wait-time-display')
-  if (display) {
-    display.textContent = minutes >= 180 ? '3h+' : minutes + ' min'
-  }
+ const idx = parseInt(sliderIndex, 10)
+ const minutes = WAIT_STEPS[idx] || 10
+ window.spotFormData.waitTime = minutes
+ const display = document.getElementById('wait-time-display')
+ if (display) {
+ display.textContent = minutes >= 180 ? '3h+' : minutes + ' min'
+ }
 }
 
 // Helper: update tab bar inline styles (inline styles override CSS classes)
 function updateTabBar(selector, activeValue, activeColor = '#f59e0b') {
-  document.querySelectorAll(selector).forEach(btn => {
-    const val = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
-    const isActive = val === activeValue
-    btn.style.color = isActive ? activeColor : '#64748b'
-    btn.style.borderBottom = isActive ? `2px solid ${activeColor}` : 'none'
-    btn.style.marginBottom = isActive ? '-1px' : ''
-  })
+ document.querySelectorAll(selector).forEach(btn => {
+ const val = btn.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]
+ const isActive = val === activeValue
+ btn.style.color = isActive ? activeColor : '#64748b'
+ btn.style.borderBottom = isActive ? `2px solid ${activeColor}` : 'none'
+ btn.style.marginBottom = isActive ? '-1px' : ''
+ })
 }
 
 // Method selection — DOM-only, no re-render
 window.setMethod = (method) => {
-  window.spotFormData.method = method
-  updateTabBar('[onclick*="setMethod"]', method)
+ window.spotFormData.method = method
+ updateTabBar('[onclick*="setMethod"]', method)
 }
 
 // Group size selection — DOM-only, no re-render
 window.setGroupSize = (size) => {
-  window.spotFormData.groupSize = size
-  updateTabBar('[onclick*="setGroupSize"]', size)
+ window.spotFormData.groupSize = size
+ updateTabBar('[onclick*="setGroupSize"]', size)
 }
 
 // Time of day selection — DOM-only, no re-render
 window.setTimeOfDay = (time) => {
-  window.spotFormData.timeOfDay = time
-  updateTabBar('[onclick*="setTimeOfDay"]', time)
+ window.spotFormData.timeOfDay = time
+ updateTabBar('[onclick*="setTimeOfDay"]', time)
 }
 
 // Ride result — DOM-only, no re-render (prevents data loss)
 window.setRideResult = (result) => {
-  window.spotFormData.rideResult = result
-  const color = result === 'yes' ? '#22c55e' : result === 'no' ? '#ef4444' : '#64748b'
-  updateTabBar('[onclick*="setRideResult"]', result, color)
+ window.spotFormData.rideResult = result
+ const color = result === 'yes' ? '#22c55e' : result === 'no' ? '#ef4444' : '#64748b'
+ updateTabBar('[onclick*="setRideResult"]', result, color)
 }
 
 // Multi-destination handlers
 window.addSpotDestination = async () => {
-  if (!window.spotFormData.extraDestinations) window.spotFormData.extraDestinations = []
-  if (window.spotFormData.extraDestinations.length >= 4) {
-    const { showError } = await import('../../services/notifications.js')
-    showError(t('maxDestinations'))
-    return
-  }
-  const wrapper = document.getElementById('extra-dest-wrapper')
-  const btn = document.getElementById('add-dest-btn')
-  if (wrapper && btn) {
-    wrapper.style.display = 'block'
-    btn.style.display = 'none'
-    const input = document.getElementById('spot-extra-dest')
-    if (input) {
-      input.focus()
-      // Init autocomplete for extra destination
-      import('../../utils/autocomplete.js').then(({ initAutocomplete }) => {
-        import('../../services/osrm.js').then(({ searchPhoton }) => {
-          initAutocomplete({
-            inputId: 'spot-extra-dest',
-            searchFn: (q) => {
-              const depCoords = window.spotFormData.departureCityCoords
-              const spotLat = window.spotFormData.lat
-              const spotLng = window.spotFormData.lng
-              const biasLat = depCoords?.lat || spotLat || null
-              const biasLng = depCoords?.lng || spotLng || null
-              return searchPhoton(q, { biasLat, biasLng })
-            },
-            debounceMs: 100,
-            forceSelection: true,
-            onSelect: async (item) => {
-              const city = item.name
-              const coords = { lat: item.lat, lng: item.lng }
-              // Check for duplicates
-              const mainDest = window.spotFormData.directionCity || ''
-              const extras = window.spotFormData.extraDestinations || []
-              const allCities = [mainDest, ...extras.map(d => d.city)].map(c => c.toLowerCase())
-              if (allCities.includes(city.toLowerCase())) {
-                const { showError } = await import('../../services/notifications.js')
-                showError(t('destinationAlreadyExists'))
-                return
-              }
-              window.spotFormData.extraDestinations.push({ city, coords })
-              // Re-render step 2
-              document.activeElement?.blur()
-              const { setState } = await import('../../stores/state.js')
-              setState({ addSpotStep: 2 })
-            },
-            onClear: () => {},
-          })
-        })
-      })
-    }
-  }
+ if (!window.spotFormData.extraDestinations) window.spotFormData.extraDestinations = []
+ if (window.spotFormData.extraDestinations.length >= 4) {
+ const { showError } = await import('../../services/notifications.js')
+ showError(t('maxDestinations'))
+ return
+ }
+ const wrapper = document.getElementById('extra-dest-wrapper')
+ const btn = document.getElementById('add-dest-btn')
+ if (wrapper && btn) {
+ wrapper.style.display = 'block'
+ btn.style.display = 'none'
+ const input = document.getElementById('spot-extra-dest')
+ if (input) {
+ input.focus()
+ // Init autocomplete for extra destination
+ import('../../utils/autocomplete.js').then(({ initAutocomplete }) => {
+ import('../../services/osrm.js').then(({ searchPhoton }) => {
+ initAutocomplete({
+ inputId: 'spot-extra-dest',
+ searchFn: (q) => {
+ const depCoords = window.spotFormData.departureCityCoords
+ const spotLat = window.spotFormData.lat
+ const spotLng = window.spotFormData.lng
+ const biasLat = depCoords?.lat || spotLat || null
+ const biasLng = depCoords?.lng || spotLng || null
+ return searchPhoton(q, { biasLat, biasLng })
+ },
+ debounceMs: 100,
+ forceSelection: true,
+ onSelect: async (item) => {
+ const city = item.name
+ const coords = { lat: item.lat, lng: item.lng }
+ // Check for duplicates
+ const mainDest = window.spotFormData.directionCity || ''
+ const extras = window.spotFormData.extraDestinations || []
+ const allCities = [mainDest, ...extras.map(d => d.city)].map(c => c.toLowerCase())
+ if (allCities.includes(city.toLowerCase())) {
+ const { showError } = await import('../../services/notifications.js')
+ showError(t('destinationAlreadyExists'))
+ return
+ }
+ window.spotFormData.extraDestinations.push({ city, coords })
+ // Re-render step 2
+ document.activeElement?.blur()
+ const { setState } = await import('../../stores/state.js')
+ setState({ addSpotStep: 2 })
+ },
+ onClear: () => {},
+ })
+ })
+ })
+ }
+ }
 }
 
 window.removeSpotDestination = (index) => {
-  if (!window.spotFormData.extraDestinations) return
-  window.spotFormData.extraDestinations.splice(index, 1)
-  // Remove the destination chip from DOM directly (no re-render)
-  const chips = document.querySelectorAll('[onclick*="removeSpotDestination"]')
-  const chip = chips[index]
-  if (chip) {
-    const row = chip.closest('.flex.items-center')
-    if (row) row.remove()
-    // Re-index remaining remove buttons
-    document.querySelectorAll('[onclick*="removeSpotDestination"]').forEach((btn, i) => {
-      btn.setAttribute('onclick', `removeSpotDestination(${i})`)
-    })
-  }
+ if (!window.spotFormData.extraDestinations) return
+ window.spotFormData.extraDestinations.splice(index, 1)
+ // Remove the destination chip from DOM directly (no re-render)
+ const chips = document.querySelectorAll('[onclick*="removeSpotDestination"]')
+ const chip = chips[index]
+ if (chip) {
+ const row = chip.closest('.flex.items-center')
+ if (row) row.remove()
+ // Re-index remaining remove buttons
+ document.querySelectorAll('[onclick*="removeSpotDestination"]').forEach((btn, i) => {
+ btn.setAttribute('onclick', `removeSpotDestination(${i})`)
+ })
+ }
 }
 
 // Toggle amenity chip — DOM-only, no re-render
 window.toggleAmenity = (name) => {
-  window.spotFormData.tags = window.spotFormData.tags || {}
-  window.spotFormData.tags[name] = !window.spotFormData.tags[name]
-  const isActive = window.spotFormData.tags[name]
-  const chip = document.querySelector(`[onclick*="toggleAmenity('${name}')"]`)
-  if (chip) {
-    chip.style.borderBottom = isActive ? '2px solid #f59e0b' : 'none'
-    chip.style.color = isActive ? '#f59e0b' : '#64748b'
-  }
+ window.spotFormData.tags = window.spotFormData.tags || {}
+ window.spotFormData.tags[name] = !window.spotFormData.tags[name]
+ const isActive = window.spotFormData.tags[name]
+ const chip = document.querySelector(`[onclick*="toggleAmenity('${name}')"]`)
+ if (chip) {
+ chip.style.borderBottom = isActive ? '2px solid #f59e0b' : 'none'
+ chip.style.color = isActive ? '#f59e0b' : '#64748b'
+ }
 }
 
 // Experience date handlers (Step 3)
 window.setExperienceDate = (mode) => {
-  const isCustom = mode === 'custom'
-  window.spotFormData._expCustom = isCustom
+ const isCustom = mode === 'custom'
+ window.spotFormData._expCustom = isCustom
 
-  // Update button styles
-  const todayBtn = document.getElementById('exp-date-today')
-  const customBtn = document.getElementById('exp-date-custom')
-  const selectors = document.getElementById('exp-date-selectors')
-  if (todayBtn) {
-    todayBtn.style.borderBottom = !isCustom ? '2px solid #f59e0b' : 'none'
-    todayBtn.style.color = !isCustom ? '#f59e0b' : '#64748b'
-  }
-  if (customBtn) {
-    customBtn.style.borderBottom = isCustom ? '2px solid #f59e0b' : 'none'
-    customBtn.style.color = isCustom ? '#f59e0b' : '#64748b'
-  }
-  if (selectors) selectors.style.display = isCustom ? 'flex' : 'none'
+ // Update button styles
+ const todayBtn = document.getElementById('exp-date-today')
+ const customBtn = document.getElementById('exp-date-custom')
+ const selectors = document.getElementById('exp-date-selectors')
+ if (todayBtn) {
+ todayBtn.style.borderBottom = !isCustom ? '2px solid #f59e0b' : 'none'
+ todayBtn.style.color = !isCustom ? '#f59e0b' : '#64748b'
+ }
+ if (customBtn) {
+ customBtn.style.borderBottom = isCustom ? '2px solid #f59e0b' : 'none'
+ customBtn.style.color = isCustom ? '#f59e0b' : '#64748b'
+ }
+ if (selectors) selectors.style.display = isCustom ? 'flex' : 'none'
 
-  if (!isCustom) {
-    // Today
-    const now = new Date()
-    window.spotFormData.experienceYear = now.getFullYear()
-    window.spotFormData.experienceMonth = now.getMonth() + 1
-    window.spotFormData.experienceDay = now.getDate()
-  } else {
-    // Custom — read from selectors
-    delete window.spotFormData.experienceDay
-    window.updateExperienceDate()
-  }
+ if (!isCustom) {
+ // Today
+ const now = new Date()
+ window.spotFormData.experienceYear = now.getFullYear()
+ window.spotFormData.experienceMonth = now.getMonth() + 1
+ window.spotFormData.experienceDay = now.getDate()
+ } else {
+ // Custom — read from selectors
+ delete window.spotFormData.experienceDay
+ window.updateExperienceDate()
+ }
 }
 
 window.updateExperienceDate = () => {
-  const monthEl = document.getElementById('exp-month')
-  const yearEl = document.getElementById('exp-year')
-  const now = new Date()
-  let month = monthEl ? parseInt(monthEl.value, 10) : now.getMonth() + 1
-  let year = yearEl ? parseInt(yearEl.value, 10) : now.getFullYear()
-  // Clamp to valid range: not in the future, not before 2000
-  if (year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth() + 1)) {
-    year = now.getFullYear()
-    month = now.getMonth() + 1
-  }
-  if (year < 2000) year = 2000
-  if (month < 1) month = 1
-  if (month > 12) month = 12
-  window.spotFormData.experienceMonth = month
-  window.spotFormData.experienceYear = year
-  delete window.spotFormData.experienceDay
+ const monthEl = document.getElementById('exp-month')
+ const yearEl = document.getElementById('exp-year')
+ const now = new Date()
+ let month = monthEl ? parseInt(monthEl.value, 10) : now.getMonth() + 1
+ let year = yearEl ? parseInt(yearEl.value, 10) : now.getFullYear()
+ // Clamp to valid range: not in the future, not before 2000
+ if (year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth() + 1)) {
+ year = now.getFullYear()
+ month = now.getMonth() + 1
+ }
+ if (year < 2000) year = 2000
+ if (month < 1) month = 1
+ if (month > 12) month = 12
+ window.spotFormData.experienceMonth = month
+ window.spotFormData.experienceYear = year
+ delete window.spotFormData.experienceDay
 }
 
 // Keep backward compat for setSpotTag — DOM-only, no re-render
 window.setSpotTag = (tagName, value) => {
-  window.spotFormData.tags = window.spotFormData.tags || {}
-  if (tagName === 'signMethod') {
-    window.spotFormData.tags.signMethod = window.spotFormData.tags.signMethod === value ? null : value
-  } else {
-    window.spotFormData.tags[tagName] = value === true || value === 'true'
-  }
-  // Update chip visuals directly
-  const chip = document.querySelector(`[onclick*="setSpotTag('${tagName}'"]`)
-  if (chip) chip.classList.toggle('active')
+ window.spotFormData.tags = window.spotFormData.tags || {}
+ if (tagName === 'signMethod') {
+ window.spotFormData.tags.signMethod = window.spotFormData.tags.signMethod === value ? null : value
+ } else {
+ window.spotFormData.tags[tagName] = value === true || value === 'true'
+ }
+ // Update chip visuals directly
+ const chip = document.querySelector(`[onclick*="setSpotTag('${tagName}'"]`)
+ if (chip) chip.classList.toggle('active')
 }
 
 // Alias for wiring compatibility
@@ -961,310 +925,300 @@ window.onSpotTypeChange = (spotType) => { window.selectSpotType(spotType) }
 
 // Fast step swap — updates only the form content instead of re-rendering the entire page
 function swapStepContent(newStep, state) {
-  const form = document.getElementById('add-spot-form')
-  if (!form) return false
-  const stepHtml =
-    newStep === 1 ? renderStep1(state) :
-    newStep === 2 ? renderStep2(state) :
-    newStep === 3 ? renderStep3(state) + (renderOfflineDraftButton() || '') : ''
-  if (!stepHtml) return false
-  form.innerHTML = stepHtml
-  // Update step progress (find the container above the form)
-  const formParent = form.parentElement
-  if (formParent) {
-    const progressEl = formParent.querySelector('[style*="display:flex"][style*="align-items:center"][style*="gap:12px"]')
-    const titleEl = formParent.querySelector('[style*="font-size:22px"]')
-    if (progressEl) {
-      // renderStepProgress includes both circles and title — remove old title first
-      if (titleEl) titleEl.remove()
-      progressEl.outerHTML = renderStepProgress(newStep)
-    } else if (titleEl) {
-      const stepTitles = [
-        t('stepWhereIsSpot') || 'Où est le spot ?',
-        t('stepExperience') || 'Ton expérience',
-        t('stepDetails') || 'Derniers détails',
-      ]
-      titleEl.textContent = stepTitles[newStep - 1]
-    }
-  }
-  // Scroll to top
-  formParent?.scrollTo?.({ top: 0 })
-  // Re-init autocomplete for the new step
-  requestAnimationFrame(() => {
-    cleanupAutocompletes()
-    if (newStep === 1) { initStep1Autocomplete(); initMiniMapPreview() }
-    else if (newStep === 2) {
-      initStep2Autocomplete()
-      // Auto-focus destination input — fixes iOS touch/focus issues after step swap
-      const dirInput = document.getElementById('spot-direction-city')
-      if (dirInput) {
-        // Small delay to let iOS process the DOM change before focusing
-        setTimeout(() => dirInput.focus(), 150)
-      }
-    }
-  })
-  return true
+ const form = document.getElementById('add-spot-form')
+ if (!form) return false
+ const stepHtml =
+ newStep === 1 ? renderStep1(state) :
+ newStep === 2 ? renderStep2(state) :
+ newStep === 3 ? renderStep3(state) + (renderOfflineDraftButton() || '') : ''
+ if (!stepHtml) return false
+ form.innerHTML = stepHtml
+ // Update step progress (find the container above the form)
+ const formParent = form.parentElement
+ if (formParent) {
+ const progressEl = formParent.querySelector('[style*="display:flex"][style*="align-items:center"][style*="gap:12px"]')
+ const titleEl = formParent.querySelector('[style*="font-size:22px"]')
+ if (progressEl) {
+ // renderStepProgress includes both circles and title — remove old title first
+ if (titleEl) titleEl.remove()
+ progressEl.outerHTML = renderStepProgress(newStep)
+ } else if (titleEl) {
+ const stepTitles = [
+ t('stepWhereIsSpot') || 'Où est le spot ?',
+ t('stepExperience') || 'Ton expérience',
+ t('stepDetails') || 'Derniers détails',
+ ]
+ titleEl.textContent = stepTitles[newStep - 1]
+ }
+ }
+ // Scroll to top
+ formParent?.scrollTo?.({ top: 0 })
+ // Re-init autocomplete for the new step
+ requestAnimationFrame(() => {
+ cleanupAutocompletes()
+ if (newStep === 1) { initStep1Autocomplete(); initMiniMapPreview() }
+ else if (newStep === 2) {
+ initStep2Autocomplete()
+ // Auto-focus destination input — fixes iOS touch/focus issues after step swap
+ const dirInput = document.getElementById('spot-direction-city')
+ if (dirInput) {
+ // Small delay to let iOS process the DOM change before focusing
+ setTimeout(() => dirInput.focus(), 150)
+ }
+ }
+ })
+ return true
 }
 
 // Step navigation
 window.addSpotNextStep = async () => {
-  const { getState, setState } = await import('../../stores/state.js')
-  const { showError } = await import('../../services/notifications.js')
-  const state = getState()
-  const currentStep = state.addSpotStep || 1
+ const { getState, setState } = await import('../../stores/state.js')
+ const { showError } = await import('../../services/notifications.js')
+ const state = getState()
+ const currentStep = state.addSpotStep || 1
 
-  if (currentStep === 1) {
-    // Validate type + position + departure city (photo is optional for bonus points)
-    const spotType = state.addSpotType || window.spotFormData.spotType
-    if (!spotType) {
-      showError(t('selectSpotType') || 'Choisis un type de spot')
-      return
-    }
-    if (!window.spotFormData.lat || !window.spotFormData.lng) {
-      showError(t('positionRequired') || 'Position obligatoire')
-      return
-    }
-    if (!window.spotFormData.departureCity) {
-      showError(t('departureRequired') || 'Ville de départ obligatoire')
-      return
-    }
-    document.activeElement?.blur()
+ if (currentStep === 1) {
+ // Validate type + position + departure city (photo is optional for bonus points)
+ const spotType = state.addSpotType || window.spotFormData.spotType
+ if (!spotType) {
+ showError(t('selectSpotType') || 'Choisis un type de spot')
+ return
+ }
+ if (!window.spotFormData.lat || !window.spotFormData.lng) {
+ showError(t('positionRequired') || 'Position obligatoire')
+ return
+ }
+ if (!window.spotFormData.departureCity) {
+ showError(t('departureRequired') || 'Ville de départ obligatoire')
+ return
+ }
+ document.activeElement?.blur()
 
-    // Check for nearby existing spots BEFORE going to step 2
-    if (!window.spotFormData._duplicateConfirmed) {
-      const allSpots = state.spots || []
-      const userLat = Number(window.spotFormData.lat)
-      const userLng = Number(window.spotFormData.lng)
-      if (isFinite(userLat) && isFinite(userLng) && allSpots.length > 0) {
-        const { distanceMeters } = await import('../../services/locationHistory.js')
-        const nearby = allSpots
-          .map(s => {
-            const sLat = s.coordinates?.lat || s.lat
-            const sLng = s.coordinates?.lng || s.lng
-            if (!sLat || !sLng) return null
-            const dist = distanceMeters(userLat, userLng, sLat, sLng)
-            return dist < 500 ? { ...s, _distance: Math.round(dist) } : null
-          })
-          .filter(Boolean)
-          .sort((a, b) => a._distance - b._distance)
-          .slice(0, 3)
-        if (nearby.length > 0) {
-          setState({
-            nearbySpotChoiceData: nearby,
-            nearbyUserPin: { lat: userLat, lng: userLng },
-            addSpotType: spotType,
-          })
-          return // Stop here — user chooses via modal
-        }
-      }
-    }
+ // Check for nearby existing spots BEFORE going to step 2
+ if (!window.spotFormData._duplicateConfirmed) {
+ const allSpots = state.spots || []
+ const userLat = Number(window.spotFormData.lat)
+ const userLng = Number(window.spotFormData.lng)
+ if (isFinite(userLat) && isFinite(userLng) && allSpots.length > 0) {
+ const { distanceMeters } = await import('../../services/locationHistory.js')
+ const nearby = allSpots
+ .map(s => {
+ const sLat = s.coordinates?.lat || s.lat
+ const sLng = s.coordinates?.lng || s.lng
+ if (!sLat || !sLng) return null
+ const dist = distanceMeters(userLat, userLng, sLat, sLng)
+ return dist < 500 ? { ...s, _distance: Math.round(dist) } : null
+ })
+ .filter(Boolean)
+ .sort((a, b) => a._distance - b._distance)
+ .slice(0, 3)
+ if (nearby.length > 0) {
+ setState({
+ nearbySpotChoiceData: nearby,
+ nearbyUserPin: { lat: userLat, lng: userLng },
+ addSpotType: spotType,
+ })
+ return // Stop here — user chooses via modal
+ }
+ }
+ }
 
-    // No nearby spots (or user already confirmed) → go to step 2
-    const newState = { ...state, addSpotStep: 2, addSpotType: spotType }
-    if (swapStepContent(2, newState)) {
-      setState({ addSpotStep: 2, addSpotType: spotType, _skipRender: true })
-    } else {
-      document.activeElement?.blur()
-      setState({ addSpotStep: 2, addSpotType: spotType })
-    }
-  } else if (currentStep === 2) {
-    // Validate direction + experience fields (all mandatory)
-    if (!window.spotFormData.directionCity) {
-      showError(t('destinationRequired') || 'Destination obligatoire')
-      return
-    }
-    if (!window.spotFormData.method) {
-      showError(t('methodRequired'))
-      return
-    }
-    if (!window.spotFormData.groupSize) {
-      showError(t('groupSizeRequired'))
-      return
-    }
-    if (!window.spotFormData.timeOfDay) {
-      showError(t('timeOfDayRequired'))
-      return
-    }
-    if (!window.spotFormData.rideResult) {
-      showError(t('rideResultRequired'))
-      return
-    }
-    document.activeElement?.blur()
-    const newState = { ...state, addSpotStep: 3 }
-    if (swapStepContent(3, newState)) {
-      setState({ addSpotStep: 3, _skipRender: true })
-    } else {
-      setState({ addSpotStep: 3 })
-    }
-  }
+ // No nearby spots (or user already confirmed) → go to step 2
+ const newState = { ...state, addSpotStep: 2, addSpotType: spotType }
+ if (swapStepContent(2, newState)) {
+ setState({ addSpotStep: 2, addSpotType: spotType, _skipRender: true })
+ } else {
+ document.activeElement?.blur()
+ setState({ addSpotStep: 2, addSpotType: spotType })
+ }
+ } else if (currentStep === 2) {
+ // Validate direction + experience fields (all mandatory)
+ if (!window.spotFormData.directionCity) {
+ showError(t('destinationRequired') || 'Destination obligatoire')
+ return
+ }
+ if (!window.spotFormData.method) {
+ showError(t('methodRequired'))
+ return
+ }
+ if (!window.spotFormData.groupSize) {
+ showError(t('groupSizeRequired'))
+ return
+ }
+ if (!window.spotFormData.timeOfDay) {
+ showError(t('timeOfDayRequired'))
+ return
+ }
+ if (!window.spotFormData.rideResult) {
+ showError(t('rideResultRequired'))
+ return
+ }
+ document.activeElement?.blur()
+ const newState = { ...state, addSpotStep: 3 }
+ if (swapStepContent(3, newState)) {
+ setState({ addSpotStep: 3, _skipRender: true })
+ } else {
+ setState({ addSpotStep: 3 })
+ }
+ }
 }
 
 window.addSpotPrevStep = async () => {
-  const { getState, setState } = await import('../../stores/state.js')
-  const state = getState()
-  const currentStep = state.addSpotStep || 1
-  if (currentStep > 1) {
-    document.activeElement?.blur()
-    const newStep = currentStep - 1
-    const newState = { ...state, addSpotStep: newStep }
-    if (swapStepContent(newStep, newState)) {
-      setState({ addSpotStep: newStep, _skipRender: true })
-    } else {
-      document.activeElement?.blur()
-      setState({ addSpotStep: newStep })
-    }
-  }
+ const { getState, setState } = await import('../../stores/state.js')
+ const state = getState()
+ const currentStep = state.addSpotStep || 1
+ if (currentStep > 1) {
+ document.activeElement?.blur()
+ const newStep = currentStep - 1
+ const newState = { ...state, addSpotStep: newStep }
+ if (swapStepContent(newStep, newState)) {
+ setState({ addSpotStep: newStep, _skipRender: true })
+ } else {
+ document.activeElement?.blur()
+ setState({ addSpotStep: newStep })
+ }
+ }
 }
 
 // Google Maps share tip handlers
 window._dismissGmapsTip = (checked) => {
-  try {
-    if (checked) {
-      localStorage.setItem('spothitch_gmaps_tip_hidden', '1')
-      const card = document.getElementById('gmaps-tip-card')
-      if (card) {
-        card.outerHTML = `<div class="text-center pt-2">
-          <span onclick="window._showGmapsTipFull()"
-            class="text-[11px] text-amber-500 cursor-pointer underline" role="button" tabindex="0">
-            ${t('gmapsTipLink')}
-          </span></div>`
-      }
-    } else {
-      localStorage.removeItem('spothitch_gmaps_tip_hidden')
-    }
-  } catch { /* no-op */ }
+ try {
+ if (checked) {
+ localStorage.setItem('spothitch_gmaps_tip_hidden', '1')
+ const card = document.getElementById('gmaps-tip-card')
+ if (card) {
+ card.outerHTML = `<div class="text-center pt-2">
+ <span onclick="window._showGmapsTipFull()"
+ class="text-[11px] text-amber-500 cursor-pointer underline" role="button" tabindex="0">
+ ${t('gmapsTipLink')}
+ </span></div>`
+ }
+ } else {
+ localStorage.removeItem('spothitch_gmaps_tip_hidden')
+ }
+ } catch { /* no-op */ }
 }
 
 window._showGmapsTipFull = () => {
-  try { localStorage.removeItem('spothitch_gmaps_tip_hidden') } catch { /* no-op */ }
-  // Replace the link with the full tip card via DOM
-  const link = document.querySelector('[onclick*="_showGmapsTipFull"]')
-  if (link?.parentElement) {
-    const wrapper = link.parentElement
-    wrapper.outerHTML = renderGmapsTipCard()
-  }
+ try { localStorage.removeItem('spothitch_gmaps_tip_hidden') } catch { /* no-op */ }
+ // Replace the link with the full tip card via DOM
+ const link = document.querySelector('[onclick*="_showGmapsTipFull"]')
+ if (link?.parentElement) {
+ const wrapper = link.parentElement
+ wrapper.outerHTML = renderGmapsTipCard()
+ }
 }
 
 // Exported so _showGmapsTipFull can re-insert the card
 function renderGmapsTipCard() {
-  return `
-    <div id="gmaps-tip-card"
-      class="bg-[#0f1520] border border-[#1e293b] rounded-xl p-4 mt-3.5">
-      <div class="text-sm font-bold text-center mb-3.5">
-        ${t('gmapsTipTitle')}
-      </div>
-      <div class="flex gap-2.5 mb-3.5">
-        <div class="flex-1 bg-[#1a1f2e] rounded-[10px] overflow-hidden border border-red-500/20">
-          <div class="bg-red-500/[0.08] p-1.5 text-center text-[10px] font-bold text-red-500 tracking-wide">
-            ❌ ${t('gmapsTipManual')}
-          </div>
-          <div class="h-20 relative overflow-hidden bg-[#111827]">
-            <img src="https://tile.openstreetmap.org/6/32/22.png"
-              class="w-full h-full object-cover opacity-40"
-              alt="" onerror="this.style.display='none'">
-            <div class="absolute inset-0 flex items-center justify-center">
-              <span class="opacity-80">${icon('search', 'w-7 h-7')}</span>
-            </div>
-          </div>
-          <div class="p-2 text-center text-[10px] text-slate-400">
-            ${t('gmapsTipManualDesc')}
-            <div class="text-red-500 font-semibold mt-1">
-              ⏱ ~2 min
-            </div>
-          </div>
-        </div>
-        <div class="flex-1 bg-[#1a1f2e] rounded-[10px] overflow-hidden border border-emerald-500/20">
-          <div class="bg-emerald-500/[0.08] p-1.5 text-center text-[10px] font-bold text-emerald-500 tracking-wide">
-            ✓ GOOGLE MAPS
-          </div>
-          <div class="h-20 relative overflow-hidden bg-[#111827]">
-            <img src="https://tile.openstreetmap.org/14/8529/5975.png"
-              class="w-full h-full object-cover opacity-50"
-              alt="" onerror="this.style.display='none'">
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full">
-              <svg width="18" height="24" viewBox="0 0 24 32"
-                fill="#f59e0b"><path d="M12 0C5.4 0 0 5.4 0 12c0 9
-                12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z"/></svg>
-            </div>
-          </div>
-          <div class="p-2 text-center text-[10px] text-slate-400">
-            ${t('gmapsTipShareDesc')}
-            <div class="text-emerald-500 font-semibold mt-1">
-              ⏱ 3 sec
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="text-center text-xs text-slate-400 mb-3">
-        ${t('gmapsTipHowTo')}
-      </div>
-      <label class="flex items-center gap-2 text-xs text-slate-500 cursor-pointer justify-center"
-        onclick="event.stopPropagation()">
-        <input type="checkbox"
-          onchange="window._dismissGmapsTip(this.checked)"
-          class="accent-amber-500 w-3.5 h-3.5">
-        ${t('gmapsTipDismiss')}
-      </label>
-    </div>`
+ return `
+ <div id="gmaps-tip-card"
+ class="bg-[#0f1520] border border-[#1e293b] rounded-xl p-4 mt-3.5">
+ <div class="text-sm font-bold text-center mb-3.5">
+ ${t('gmapsTipTitle')}
+ </div>
+ <div class="flex gap-2.5 mb-3.5">
+ <div class="flex-1 bg-[#1a1f2e] rounded-[10px] overflow-hidden border border-red-500/20">
+ <div class="bg-red-500/[0.08] p-1.5 text-center text-[10px] font-bold text-red-500 tracking-wide">
+ ${t('gmapsTipManual')}
+ </div>
+ <div class="h-20 relative overflow-hidden bg-[#111827]">
+ <img src="https://tile.openstreetmap.org/6/32/22.png"
+ class="w-full h-full object-cover opacity-40"
+ alt="" onerror="this.style.display='none'">
+ <div class="absolute inset-0 flex items-center justify-center">
+ <span class="opacity-80">${icon('search', 'w-7 h-7')}</span></div></div>
+ <div class="p-2 text-center text-[10px] text-slate-400">
+ ${t('gmapsTipManualDesc')}
+ <div class="text-red-500 font-semibold mt-1">
+ ⏱ ~2 min
+ </div></div></div>
+ <div class="flex-1 bg-[#1a1f2e] rounded-[10px] overflow-hidden border border-emerald-500/20">
+ <div class="bg-emerald-500/[0.08] p-1.5 text-center text-[10px] font-bold text-emerald-500 tracking-wide">
+ ✓ GOOGLE MAPS
+ </div>
+ <div class="h-20 relative overflow-hidden bg-[#111827]">
+ <img src="https://tile.openstreetmap.org/14/8529/5975.png"
+ class="w-full h-full object-cover opacity-50"
+ alt="" onerror="this.style.display='none'">
+ <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full">
+ <svg width="18" height="24" viewBox="0 0 24 32"
+ fill="#f59e0b"><path d="M12 0C5.4 0 0 5.4 0 12c0 9
+ 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z"/></svg></div></div>
+ <div class="p-2 text-center text-[10px] text-slate-400">
+ ${t('gmapsTipShareDesc')}
+ <div class="text-emerald-500 font-semibold mt-1">
+ ⏱ 3 sec
+ </div></div></div></div>
+ <div class="text-center text-xs text-slate-400 mb-3">
+ ${t('gmapsTipHowTo')}
+ </div>
+ <label class="flex items-center gap-2 text-xs text-slate-500 cursor-pointer justify-center"
+ onclick="event.stopPropagation()">
+ <input type="checkbox"
+ onchange="window._dismissGmapsTip(this.checked)"
+ class="accent-amber-500 w-3.5 h-3.5">
+ ${t('gmapsTipDismiss')}
+ </label></div>`
 }
 
 // GPS position
 window.useGPSForSpot = () => {
-  const display = document.getElementById('location-display')
+ const display = document.getElementById('location-display')
 
-  if (!navigator.geolocation) {
-    if (display) display.textContent = t('geoNotSupported') || 'Géolocalisation non supportée'
-    return
-  }
+ if (!navigator.geolocation) {
+ if (display) display.textContent = t('geoNotSupported') || 'Géolocalisation non supportée'
+ return
+ }
 
-  if (display) display.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('locating') || 'Localisation...'}`
+ if (display) display.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('locating') || 'Localisation...'}`
 
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      window.spotFormData.lat = position.coords.latitude
-      window.spotFormData.lng = position.coords.longitude
-      window.spotFormData.positionSource = 'gps'
+ navigator.geolocation.getCurrentPosition(
+ async (position) => {
+ window.spotFormData.lat = position.coords.latitude
+ window.spotFormData.lng = position.coords.longitude
+ window.spotFormData.positionSource = 'gps'
 
-      try {
-        const { reverseGeocode } = await import('../../services/osrm.js')
-        const location = await reverseGeocode(position.coords.latitude, position.coords.longitude)
+ try {
+ const { reverseGeocode } = await import('../../services/osrm.js')
+ const location = await reverseGeocode(position.coords.latitude, position.coords.longitude)
 
-        if (location) {
-          if (location.countryCode) {
-            window.spotFormData.country = location.countryCode
-            window.spotFormData.countryName = location.country
-          }
-          if (location.city) {
-            const departureCityInput = document.getElementById('spot-departure-city')
-            if (departureCityInput && !departureCityInput.value) {
-              departureCityInput.value = location.city
-              window.spotFormData.departureCity = location.city
-              window.spotFormData.departureCityCoords = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              }
-            }
-          }
-          if (display) {
-            display.innerHTML = `
-              ${icon('circle-check', 'w-5 h-5 text-success-400')}
-              ${location.city || 'Position'} (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})
-            `
-          }
-        }
-      } catch { /* no-op */ }
+ if (location) {
+ if (location.countryCode) {
+ window.spotFormData.country = location.countryCode
+ window.spotFormData.countryName = location.country
+ }
+ if (location.city) {
+ const departureCityInput = document.getElementById('spot-departure-city')
+ if (departureCityInput && !departureCityInput.value) {
+ departureCityInput.value = location.city
+ window.spotFormData.departureCity = location.city
+ window.spotFormData.departureCityCoords = {
+ lat: position.coords.latitude,
+ lng: position.coords.longitude,
+ }
+ }
+ }
+ if (display) {
+ display.innerHTML = `
+ ${icon('circle-check', 'w-5 h-5 text-success-400')}
+ ${location.city || 'Position'} (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})
+ `
+ }
+ }
+ } catch { /* no-op */ }
 
-      // Re-render to show position preview card
-      document.activeElement?.blur()
-      const { setState } = await import('../../stores/state.js')
-      setState({ addSpotStep: 1 })
-    },
-    (error) => {
-      if (display) display.textContent = t('positionError') || "Impossible d'obtenir la position"
-      console.error('Geolocation error:', error)
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
-  )
+ // Re-render to show position preview card
+ document.activeElement?.blur()
+ const { setState } = await import('../../stores/state.js')
+ setState({ addSpotStep: 1 })
+ },
+ (error) => {
+ if (display) display.textContent = t('positionError') || "Impossible d'obtenir la position"
+ console.error('Geolocation error:', error)
+ },
+ { enableHighAccuracy: true, timeout: 10000 }
+ )
 }
 
 
@@ -1274,195 +1228,193 @@ let fullscreenMapMarker = null
 
 // Open fullscreen map picker overlay
 window.openFullscreenMapPicker = async () => {
-  // Create overlay
-  const overlay = document.createElement('div')
-  overlay.id = 'fullscreen-map-picker'
-  overlay.className = 'fixed inset-0 z-[60] bg-dark-primary flex flex-col'
-  overlay.innerHTML = `
-    <div class="flex items-center justify-between px-4 py-3 bg-dark-primary/90 backdrop-blur-sm border-b border-white/10">
-      <button type="button" id="fmp-cancel" class="text-sm text-slate-400 hover:text-white transition-colors px-3 py-1.5">
-        ${icon('arrow-left', 'w-4 h-4 inline mr-1')} ${t('cancel') || 'Annuler'}
-      </button>
-      <span class="text-sm font-medium text-slate-300">${t('chooseOnMap') || 'Choisir sur la carte'}</span>
-      <div class="w-20"></div>
-    </div>
-    <div id="fmp-map" class="flex-1 relative"></div>
-    <div id="fmp-info" class="px-4 py-2 bg-dark-primary/90 backdrop-blur-sm border-t border-white/10 text-center text-xs text-amber-400/80 font-medium">
-      ${t('tapToPlaceSpot') || 'Touche la carte pour placer ton spot'}
-    </div>
-    <div class="px-4 py-3 bg-dark-primary/90 backdrop-blur-sm border-t border-white/10">
-      <button type="button" id="fmp-confirm" class="btn btn-primary w-full text-base" disabled>
-        ${icon('check', 'w-5 h-5')} ${t('confirmPosition') || 'Confirmer la position'}
-      </button>
-    </div>
-  `
-  document.body.appendChild(overlay)
+ // Create overlay
+ const overlay = document.createElement('div')
+ overlay.id = 'fullscreen-map-picker'
+ overlay.className = 'fixed inset-0 z-[60] bg-dark-primary flex flex-col'
+ overlay.innerHTML = `
+ <div class="flex items-center justify-between px-4 py-3 bg-dark-primary/90 backdrop-blur-sm border-b border-white/10">
+ <button type="button" id="fmp-cancel" class="text-sm text-slate-400 hover:text-white transition-colors px-3 py-1.5">
+ ${icon('arrow-left', 'w-4 h-4 inline mr-1')} ${t('cancel') || 'Annuler'}
+ </button>
+ <span class="text-sm font-medium text-slate-300">${t('chooseOnMap') || 'Choisir sur la carte'}</span>
+ <div class="w-20"></div></div>
+ <div id="fmp-map" class="flex-1 relative"></div>
+ <div id="fmp-info" class="px-4 py-2 bg-dark-primary/90 backdrop-blur-sm border-t border-white/10 text-center text-xs text-amber-400/80 font-medium">
+ ${t('tapToPlaceSpot') || 'Touche la carte pour placer ton spot'}
+ </div>
+ <div class="px-4 py-3 bg-dark-primary/90 backdrop-blur-sm border-t border-white/10">
+ <button type="button" id="fmp-confirm" class="btn btn-primary w-full text-base" disabled>
+ ${icon('check', 'w-5 h-5')} ${t('confirmPosition') || 'Confirmer la position'}
+ </button></div>
+ `
+ document.body.appendChild(overlay)
 
-  // Prevent body scroll
-  document.body.style.overflow = 'hidden'
+ // Prevent body scroll
+ document.body.style.overflow = 'hidden'
 
-  let pickedLat = window.spotFormData?.lat || null
-  let pickedLng = window.spotFormData?.lng || null
-  let pickedCity = ''
+ let pickedLat = window.spotFormData?.lat || null
+ let pickedLng = window.spotFormData?.lng || null
+ let pickedCity = ''
 
-  try {
-    await import('maplibre-gl/dist/maplibre-gl.css')
-    const maplibregl = await import('maplibre-gl')
+ try {
+ await import('maplibre-gl/dist/maplibre-gl.css')
+ const maplibregl = await import('maplibre-gl')
 
-    // Center on existing position, user location, or default
-    let center = [2.35, 48.85]
-    let zoom = 5
-    if (window._pendingShareCoords) {
-      center = [window._pendingShareCoords.lng, window._pendingShareCoords.lat]
-      zoom = 14
-      pickedLat = window._pendingShareCoords.lat
-      pickedLng = window._pendingShareCoords.lng
-    } else if (pickedLat && pickedLng) {
-      center = [pickedLng, pickedLat]
-      zoom = 14
-    } else {
-      try {
-        const { getState } = await import('../../stores/state.js')
-        const loc = getState().userLocation
-        if (loc?.lat && loc?.lng) {
-          center = [loc.lng, loc.lat]
-          zoom = 13
-        }
-      } catch { /* no-op */ }
-    }
+ // Center on existing position, user location, or default
+ let center = [2.35, 48.85]
+ let zoom = 5
+ if (window._pendingShareCoords) {
+ center = [window._pendingShareCoords.lng, window._pendingShareCoords.lat]
+ zoom = 14
+ pickedLat = window._pendingShareCoords.lat
+ pickedLng = window._pendingShareCoords.lng
+ } else if (pickedLat && pickedLng) {
+ center = [pickedLng, pickedLat]
+ zoom = 14
+ } else {
+ try {
+ const { getState } = await import('../../stores/state.js')
+ const loc = getState().userLocation
+ if (loc?.lat && loc?.lng) {
+ center = [loc.lng, loc.lat]
+ zoom = 13
+ }
+ } catch { /* no-op */ }
+ }
 
-    // Try to reuse the home map's already-loaded style for instant tiles
-    let styleToUse = 'https://tiles.openfreemap.org/styles/liberty'
-    try {
-      const homeMap = window.homeMapInstance
-      if (homeMap && typeof homeMap.getStyle === 'function') {
-        const s = homeMap.getStyle()
-        if (s && s.sources) styleToUse = s
-      }
-    } catch { /* use default URL */ }
+ // Try to reuse the home map's already-loaded style for instant tiles
+ let styleToUse = 'https://tiles.openfreemap.org/styles/liberty'
+ try {
+ const homeMap = window.homeMapInstance
+ if (homeMap && typeof homeMap.getStyle === 'function') {
+ const s = homeMap.getStyle()
+ if (s && s.sources) styleToUse = s
+ }
+ } catch { /* use default URL */ }
 
-    fullscreenMap = new maplibregl.default.Map({
-      container: document.getElementById('fmp-map'),
-      style: styleToUse,
-      center,
-      zoom,
-    })
+ fullscreenMap = new maplibregl.default.Map({
+ container: document.getElementById('fmp-map'),
+ style: styleToUse,
+ center,
+ zoom,
+ })
 
-    // Ensure map renders properly after container is visible
-    fullscreenMap.on('load', () => fullscreenMap.resize())
-    setTimeout(() => fullscreenMap.resize(), 200)
+ // Ensure map renders properly after container is visible
+ fullscreenMap.on('load', () => fullscreenMap.resize())
+ setTimeout(() => fullscreenMap.resize(), 200)
 
-    const confirmBtn = document.getElementById('fmp-confirm')
-    const infoBar = document.getElementById('fmp-info')
+ const confirmBtn = document.getElementById('fmp-confirm')
+ const infoBar = document.getElementById('fmp-info')
 
-    // Place existing marker if editing
-    if (pickedLat && pickedLng) {
-      fullscreenMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
-        .setLngLat([pickedLng, pickedLat])
-        .addTo(fullscreenMap)
-      confirmBtn.disabled = false
-      // Reverse geocode existing position
-      try {
-        const { reverseGeocode } = await import('../../services/osrm.js')
-        const location = await reverseGeocode(pickedLat, pickedLng)
-        pickedCity = location?.city || ''
-        if (infoBar) {
-          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${escapeHTML(pickedCity || '')} ${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
-        }
-      } catch { /* no-op */ }
-    }
+ // Place existing marker if editing
+ if (pickedLat && pickedLng) {
+ fullscreenMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
+ .setLngLat([pickedLng, pickedLat])
+ .addTo(fullscreenMap)
+ confirmBtn.disabled = false
+ // Reverse geocode existing position
+ try {
+ const { reverseGeocode } = await import('../../services/osrm.js')
+ const location = await reverseGeocode(pickedLat, pickedLng)
+ pickedCity = location?.city || ''
+ if (infoBar) {
+ infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${escapeHTML(pickedCity || '')} ${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
+ }
+ } catch { /* no-op */ }
+ }
 
-    // Handle share coords
-    if (window._pendingShareCoords) {
-      window._pendingShareCoords = null
-    }
+ // Handle share coords
+ if (window._pendingShareCoords) {
+ window._pendingShareCoords = null
+ }
 
-    fullscreenMap.on('click', async (e) => {
-      pickedLat = e.lngLat.lat
-      pickedLng = e.lngLat.lng
+ fullscreenMap.on('click', async (e) => {
+ pickedLat = e.lngLat.lat
+ pickedLng = e.lngLat.lng
 
-      // Move or create marker
-      if (fullscreenMapMarker) {
-        fullscreenMapMarker.setLngLat([pickedLng, pickedLat])
-      } else {
-        fullscreenMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
-          .setLngLat([pickedLng, pickedLat])
-          .addTo(fullscreenMap)
-      }
+ // Move or create marker
+ if (fullscreenMapMarker) {
+ fullscreenMapMarker.setLngLat([pickedLng, pickedLat])
+ } else {
+ fullscreenMapMarker = new maplibregl.default.Marker({ color: '#f59e0b' })
+ .setLngLat([pickedLng, pickedLat])
+ .addTo(fullscreenMap)
+ }
 
-      confirmBtn.disabled = false
+ confirmBtn.disabled = false
 
-      // Update info bar with loading
-      if (infoBar) {
-        infoBar.innerHTML = `<span class="text-amber-400">${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
-      }
+ // Update info bar with loading
+ if (infoBar) {
+ infoBar.innerHTML = `<span class="text-amber-400">${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
+ }
 
-      // Reverse geocode
-      try {
-        const { reverseGeocode } = await import('../../services/osrm.js')
-        const location = await reverseGeocode(pickedLat, pickedLng)
-        pickedCity = location?.city || ''
-        if (location?.countryCode) {
-          window.spotFormData.country = location.countryCode
-          window.spotFormData.countryName = location.country
-        }
-        if (infoBar) {
-          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedCity ? escapeHTML(pickedCity) + ' \u00b7 ' : ''}${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
-        }
-      } catch {
-        if (infoBar) {
-          infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
-        }
-      }
-    })
+ // Reverse geocode
+ try {
+ const { reverseGeocode } = await import('../../services/osrm.js')
+ const location = await reverseGeocode(pickedLat, pickedLng)
+ pickedCity = location?.city || ''
+ if (location?.countryCode) {
+ window.spotFormData.country = location.countryCode
+ window.spotFormData.countryName = location.country
+ }
+ if (infoBar) {
+ infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedCity ? escapeHTML(pickedCity) + ' \u00b7 ' : ''}${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
+ }
+ } catch {
+ if (infoBar) {
+ infoBar.innerHTML = `<span class="text-green-400">${icon('map-pin', 'w-3.5 h-3.5 inline')} ${pickedLat.toFixed(5)}, ${pickedLng.toFixed(5)}</span>`
+ }
+ }
+ })
 
-    // Confirm button
-    confirmBtn.addEventListener('click', async () => {
-      if (pickedLat == null || pickedLng == null) return
+ // Confirm button
+ confirmBtn.addEventListener('click', async () => {
+ if (pickedLat == null || pickedLng == null) return
 
-      window.spotFormData.lat = pickedLat
-      window.spotFormData.lng = pickedLng
-      window.spotFormData.positionSource = 'map'
-      if (pickedCity) {
-        window.spotFormData.locationName = pickedCity
-        const departureCityInput = document.getElementById('spot-departure-city')
-        if (departureCityInput && !departureCityInput.value) {
-          departureCityInput.value = pickedCity
-          window.spotFormData.departureCity = pickedCity
-          window.spotFormData.departureCityCoords = { lat: pickedLat, lng: pickedLng }
-        }
-        if (!window.spotFormData.departureCity) {
-          window.spotFormData.departureCity = pickedCity
-          window.spotFormData.departureCityCoords = { lat: pickedLat, lng: pickedLng }
-        }
-      }
+ window.spotFormData.lat = pickedLat
+ window.spotFormData.lng = pickedLng
+ window.spotFormData.positionSource = 'map'
+ if (pickedCity) {
+ window.spotFormData.locationName = pickedCity
+ const departureCityInput = document.getElementById('spot-departure-city')
+ if (departureCityInput && !departureCityInput.value) {
+ departureCityInput.value = pickedCity
+ window.spotFormData.departureCity = pickedCity
+ window.spotFormData.departureCityCoords = { lat: pickedLat, lng: pickedLng }
+ }
+ if (!window.spotFormData.departureCity) {
+ window.spotFormData.departureCity = pickedCity
+ window.spotFormData.departureCityCoords = { lat: pickedLat, lng: pickedLng }
+ }
+ }
 
-      closeFullscreenMapPicker()
+ closeFullscreenMapPicker()
 
-      // Re-render step 1 to show the position preview card
-      document.activeElement?.blur()
-      const { setState } = await import('../../stores/state.js')
-      setState({ addSpotStep: 1 })
-    })
+ // Re-render step 1 to show the position preview card
+ document.activeElement?.blur()
+ const { setState } = await import('../../stores/state.js')
+ setState({ addSpotStep: 1 })
+ })
 
-    // Cancel button
-    document.getElementById('fmp-cancel').addEventListener('click', closeFullscreenMapPicker)
+ // Cancel button
+ document.getElementById('fmp-cancel').addEventListener('click', closeFullscreenMapPicker)
 
-  } catch (error) {
-    console.error('Fullscreen map init failed:', error)
-    closeFullscreenMapPicker()
-  }
+ } catch (error) {
+ console.error('Fullscreen map init failed:', error)
+ closeFullscreenMapPicker()
+ }
 }
 
 function closeFullscreenMapPicker() {
-  if (fullscreenMap) {
-    try { fullscreenMap.remove() } catch { /* no-op */ }
-    fullscreenMap = null
-    fullscreenMapMarker = null
-  }
-  const overlay = document.getElementById('fullscreen-map-picker')
-  if (overlay) overlay.remove()
-  document.body.style.overflow = ''
+ if (fullscreenMap) {
+ try { fullscreenMap.remove() } catch { /* no-op */ }
+ fullscreenMap = null
+ fullscreenMapMarker = null
+ }
+ const overlay = document.getElementById('fullscreen-map-picker')
+ if (overlay) overlay.remove()
+ document.body.style.overflow = ''
 }
 
 // Legacy stubs for backward compat (wiring tests)
@@ -1471,350 +1423,347 @@ window.spotMapPickLocation = () => {}
 
 // Gas station verification — checks Overpass for fuel amenity within 300m
 async function verifyGasStationNearby(lat, lng) {
-  try {
-    const radius = 300
-    const query = `[out:json][timeout:10];(node["amenity"="fuel"](around:${radius},${lat},${lng}););out center 1;`
-    const resp = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`)
-    if (!resp.ok) return { verified: true } // fail open on API error
-    const ct = resp.headers.get('content-type') || ''
-    if (!ct.includes('json')) return { verified: true } // server overloaded, fail open
-    const data = await resp.json()
-    const found = data.elements && data.elements.length > 0
-    return {
-      verified: found,
-      stationName: '',
-    }
-  } catch {
-    return { verified: true } // fail open on network error
-  }
+ try {
+ const radius = 300
+ const query = `[out:json][timeout:10];(node["amenity"="fuel"](around:${radius},${lat},${lng}););out center 1;`
+ const resp = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`)
+ if (!resp.ok) return { verified: true } // fail open on API error
+ const ct = resp.headers.get('content-type') || ''
+ if (!ct.includes('json')) return { verified: true } // server overloaded, fail open
+ const data = await resp.json()
+ const found = data.elements && data.elements.length > 0
+ return {
+ verified: found,
+ stationName: '',
+ }
+ } catch {
+ return { verified: true } // fail open on network error
+ }
 }
 
 // Show gas station confirmation overlay — returns 'keep' or 'change'
 function showGasStationConfirm() {
-  return new Promise((resolve) => {
-    const overlay = document.createElement('div')
-    overlay.id = 'gas-station-confirm'
-    overlay.className = 'fixed inset-0 z-[10000] bg-black/70 flex items-center justify-center p-5'
-    overlay.innerHTML = `
-      <div class="bg-[#0f1520] rounded-2xl p-6 max-w-[340px] w-full border border-[#1a1f2e]">
-        <div class="text-center mb-4">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-        </div>
-        <div class="text-base font-semibold text-slate-200 mb-2 text-center">${t('noStationConfirmTitle')}</div>
-        <div class="text-sm text-slate-400 mb-6 text-center leading-relaxed">${t('noStationConfirmMessage')}</div>
-        <div class="flex flex-col gap-2.5">
-          <button id="gas-confirm-keep" class="p-3.5 rounded-[10px] border border-slate-700 bg-transparent text-slate-200 text-sm cursor-pointer">${t('noStationKeep')}</button>
-          <button id="gas-confirm-change" class="p-3.5 rounded-[10px] border-0 bg-amber-500 text-[#0f1520] text-sm font-semibold cursor-pointer">${t('noStationChange')}</button>
-        </div>
-      </div>
-    `
-    document.body.appendChild(overlay)
-    document.getElementById('gas-confirm-keep').addEventListener('click', () => {
-      overlay.remove()
-      resolve('keep')
-    })
-    document.getElementById('gas-confirm-change').addEventListener('click', () => {
-      overlay.remove()
-      resolve('change')
-    })
-  })
+ return new Promise((resolve) => {
+ const overlay = document.createElement('div')
+ overlay.id = 'gas-station-confirm'
+ overlay.className = 'fixed inset-0 z-[10000] bg-black/70 flex items-center justify-center p-5'
+ overlay.innerHTML = `
+ <div class="bg-[#0f1520] rounded-2xl p-6 max-w-[340px] w-full border border-[#1a1f2e]">
+ <div class="text-center mb-4">
+ <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
+ <div class="text-base font-semibold text-slate-200 mb-2 text-center">${t('noStationConfirmTitle')}</div>
+ <div class="text-sm text-slate-400 mb-6 text-center leading-relaxed">${t('noStationConfirmMessage')}</div>
+ <div class="flex flex-col gap-2.5">
+ <button id="gas-confirm-keep" class="p-3.5 rounded-[10px] border border-slate-700 bg-transparent text-slate-200 text-sm cursor-pointer">${t('noStationKeep')}</button>
+ <button id="gas-confirm-change" class="p-3.5 rounded-[10px] border-0 bg-amber-500 text-[#0f1520] text-sm font-semibold cursor-pointer">${t('noStationChange')}</button></div></div>
+ `
+ document.body.appendChild(overlay)
+ document.getElementById('gas-confirm-keep').addEventListener('click', () => {
+ overlay.remove()
+ resolve('keep')
+ })
+ document.getElementById('gas-confirm-change').addEventListener('click', () => {
+ overlay.remove()
+ resolve('change')
+ })
+ })
 }
 
 // Auto-detect spot type based on GPS position
 window.autoDetectStation = async () => {
-  const { showSuccess, showError } = await import('../../services/notifications.js')
-  const lat = window.spotFormData?.lat
-  const lng = window.spotFormData?.lng
-  if (!lat || !lng) {
-    showError(t('placeSpotFirst') || 'Place d\'abord ton spot sur la carte')
-    return
-  }
-  try {
-    const btn = document.querySelector('[onclick*="autoDetectStation"]')
-    if (btn) btn.disabled = true
-    const radius = 300
-    const query = `[out:json][timeout:10];(node["amenity"="fuel"](around:${radius},${lat},${lng}););out center 1;`
-    const resp = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`)
-    const data = await resp.json()
-    if (data.elements && data.elements.length > 0) {
-      window.selectSpotType('gas_station')
-      showSuccess(t('stationDetected') || 'Station-service detectee a proximite !')
-    } else {
-      showSuccess(t('noStationNearby') || 'Pas de station-service dans un rayon de 300m')
-    }
-    if (btn) btn.disabled = false
-  } catch {
-    showError(t('detectionFailed') || 'Detection impossible (pas de connexion ?)')
-  }
+ const { showSuccess, showError } = await import('../../services/notifications.js')
+ const lat = window.spotFormData?.lat
+ const lng = window.spotFormData?.lng
+ if (!lat || !lng) {
+ showError(t('placeSpotFirst') || 'Place d\'abord ton spot sur la carte')
+ return
+ }
+ try {
+ const btn = document.querySelector('[onclick*="autoDetectStation"]')
+ if (btn) btn.disabled = true
+ const radius = 300
+ const query = `[out:json][timeout:10];(node["amenity"="fuel"](around:${radius},${lat},${lng}););out center 1;`
+ const resp = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`)
+ const data = await resp.json()
+ if (data.elements && data.elements.length > 0) {
+ window.selectSpotType('gas_station')
+ showSuccess(t('stationDetected') || 'Station-service detectee a proximite !')
+ } else {
+ showSuccess(t('noStationNearby') || 'Pas de station-service dans un rayon de 300m')
+ }
+ if (btn) btn.disabled = false
+ } catch {
+ showError(t('detectionFailed') || 'Detection impossible (pas de connexion ?)')
+ }
 }
 
 window.autoDetectRoad = async () => {
-  const { showSuccess, showError } = await import('../../services/notifications.js')
-  const lat = window.spotFormData?.lat
-  const lng = window.spotFormData?.lng
-  if (!lat || !lng) {
-    showError(t('placeSpotFirst') || 'Place d\'abord ton spot sur la carte')
-    return
-  }
-  try {
-    const btn = document.querySelector('[onclick*="autoDetectRoad"]')
-    if (btn) btn.disabled = true
-    const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=16&accept-language=${document.documentElement.lang || 'en'}`)
-    const data = await resp.json()
-    const road = (data.address?.road || '').toLowerCase()
-    const roadType = data.address?.highway || ''
-    const isHighway = /autoroute|motorway|highway|autobahn|autopista/i.test(road) ||
-      /motorway|trunk/i.test(roadType)
-    if (isHighway) {
-      window.selectSpotType('on_ramp')
-      showSuccess(t('highwayDetected') || 'Autoroute/voie rapide detectee !')
-    } else {
-      window.selectSpotType('roadside')
-      showSuccess(t('roadDetected') || 'Route detectee')
-    }
-    if (btn) btn.disabled = false
-  } catch {
-    showError(t('detectionFailed') || 'Detection impossible (pas de connexion ?)')
-  }
+ const { showSuccess, showError } = await import('../../services/notifications.js')
+ const lat = window.spotFormData?.lat
+ const lng = window.spotFormData?.lng
+ if (!lat || !lng) {
+ showError(t('placeSpotFirst') || 'Place d\'abord ton spot sur la carte')
+ return
+ }
+ try {
+ const btn = document.querySelector('[onclick*="autoDetectRoad"]')
+ if (btn) btn.disabled = true
+ const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=16&accept-language=${document.documentElement.lang || 'en'}`)
+ const data = await resp.json()
+ const road = (data.address?.road || '').toLowerCase()
+ const roadType = data.address?.highway || ''
+ const isHighway = /autoroute|motorway|highway|autobahn|autopista/i.test(road) ||
+ /motorway|trunk/i.test(roadType)
+ if (isHighway) {
+ window.selectSpotType('on_ramp')
+ showSuccess(t('highwayDetected') || 'Autoroute/voie rapide detectee !')
+ } else {
+ window.selectSpotType('roadside')
+ showSuccess(t('roadDetected') || 'Route detectee')
+ }
+ if (btn) btn.disabled = false
+ } catch {
+ showError(t('detectionFailed') || 'Detection impossible (pas de connexion ?)')
+ }
 }
 
 // Draft saving — saves ALL form data
 window.saveDraftAndClose = async () => {
-  const { saveSpotDraft } = await import('../../services/spotDrafts.js')
-  const { setState, getState } = await import('../../stores/state.js')
-  const { showSuccess } = await import('../../services/notifications.js')
-  const state = getState()
+ const { saveSpotDraft } = await import('../../services/spotDrafts.js')
+ const { setState, getState } = await import('../../stores/state.js')
+ const { showSuccess } = await import('../../services/notifications.js')
+ const state = getState()
 
-  saveSpotDraft({
-    ...window.spotFormData,
-    spotType: state.addSpotType,
-    addSpotStep: state.addSpotStep,
-    addSpotMethod: state.addSpotMethod,
-    addSpotGroupSize: state.addSpotGroupSize,
-    addSpotTimeOfDay: state.addSpotTimeOfDay,
-    addSpotWaitTime: state.addSpotWaitTime,
-  })
+ saveSpotDraft({
+ ...window.spotFormData,
+ spotType: state.addSpotType,
+ addSpotStep: state.addSpotStep,
+ addSpotMethod: state.addSpotMethod,
+ addSpotGroupSize: state.addSpotGroupSize,
+ addSpotTimeOfDay: state.addSpotTimeOfDay,
+ addSpotWaitTime: state.addSpotWaitTime,
+ })
 
-  showSuccess(t('draftSaved') || 'Brouillon sauvegardé !')
-  setState({ showAddSpot: false })
+ showSuccess(t('draftSaved') || 'Brouillon sauvegardé !')
+ setState({ showAddSpot: false })
 }
 
 // Keep backward compat
 window.saveSpotAsDraft = window.saveDraftAndClose
 
 window.openSpotDraft = async (draftId) => {
-  const { getSpotDrafts } = await import('../../services/spotDrafts.js')
-  const { setState } = await import('../../stores/state.js')
-  const drafts = getSpotDrafts()
-  const draft = drafts.find(d => d.id === draftId)
-  if (!draft) return
+ const { getSpotDrafts } = await import('../../services/spotDrafts.js')
+ const { setState } = await import('../../stores/state.js')
+ const drafts = getSpotDrafts()
+ const draft = drafts.find(d => d.id === draftId)
+ if (!draft) return
 
-  // Restore ALL form data
-  window.spotFormData = {
-    photos: draft.photos || (draft.photo ? [draft.photo] : []),
-    lat: draft.lat,
-    lng: draft.lng,
-    ratings: draft.ratings || { safety: 0, traffic: 0, accessibility: 0 },
-    tags: draft.tags || {},
-    country: draft.country,
-    countryName: draft.countryName,
-    departureCity: draft.departureCity,
-    departureCityCoords: draft.departureCityCoords,
-    directionCity: draft.directionCity,
-    directionCityCoords: draft.directionCityCoords,
-    locationName: draft.locationName,
-    roadNumber: draft.roadNumber,
-    positionSource: draft.positionSource,
-    method: draft.method,
-    groupSize: draft.groupSize,
-    timeOfDay: draft.timeOfDay,
-    waitTime: draft.waitTime,
-    season: draft.season,
-    stationName: draft.stationName || '',
-    experienceYear: draft.experienceYear || new Date().getFullYear(),
-    experienceMonth: draft.experienceMonth || (new Date().getMonth() + 1),
-    experienceDay: draft.experienceDay || new Date().getDate(),
-    _expCustom: draft._expCustom || false,
-  }
+ // Restore ALL form data
+ window.spotFormData = {
+ photos: draft.photos || (draft.photo ? [draft.photo] : []),
+ lat: draft.lat,
+ lng: draft.lng,
+ ratings: draft.ratings || { safety: 0, traffic: 0, accessibility: 0 },
+ tags: draft.tags || {},
+ country: draft.country,
+ countryName: draft.countryName,
+ departureCity: draft.departureCity,
+ departureCityCoords: draft.departureCityCoords,
+ directionCity: draft.directionCity,
+ directionCityCoords: draft.directionCityCoords,
+ locationName: draft.locationName,
+ roadNumber: draft.roadNumber,
+ positionSource: draft.positionSource,
+ method: draft.method,
+ groupSize: draft.groupSize,
+ timeOfDay: draft.timeOfDay,
+ waitTime: draft.waitTime,
+ season: draft.season,
+ stationName: draft.stationName || '',
+ experienceYear: draft.experienceYear || new Date().getFullYear(),
+ experienceMonth: draft.experienceMonth || (new Date().getMonth() + 1),
+ experienceDay: draft.experienceDay || new Date().getDate(),
+ _expCustom: draft._expCustom || false,
+ }
 
-  setState({
-    showAddSpot: true,
-    addSpotStep: draft.addSpotStep || 2,
-    addSpotType: draft.spotType,
-    addSpotMethod: draft.addSpotMethod || draft.method,
-    addSpotGroupSize: draft.addSpotGroupSize || draft.groupSize,
-    addSpotTimeOfDay: draft.addSpotTimeOfDay || draft.timeOfDay,
-    addSpotWaitTime: draft.addSpotWaitTime || draft.waitTime,
-    spotDraftsBannerVisible: false,
-  })
+ setState({
+ showAddSpot: true,
+ addSpotStep: draft.addSpotStep || 2,
+ addSpotType: draft.spotType,
+ addSpotMethod: draft.addSpotMethod || draft.method,
+ addSpotGroupSize: draft.addSpotGroupSize || draft.groupSize,
+ addSpotTimeOfDay: draft.addSpotTimeOfDay || draft.timeOfDay,
+ addSpotWaitTime: draft.addSpotWaitTime || draft.waitTime,
+ spotDraftsBannerVisible: false,
+ })
 }
 
 window.deleteSpotDraft = async (draftId) => {
-  const { deleteSpotDraft } = await import('../../services/spotDrafts.js')
-  deleteSpotDraft(draftId)
-  const { showToast } = await import('../../services/notifications.js')
-  showToast(t('deleteDraft') || 'Brouillon supprimé', 'info')
-  import('../../stores/state.js').then(({ setState }) => {
-    setState({ spotDraftsBannerVisible: false })
-  })
+ const { deleteSpotDraft } = await import('../../services/spotDrafts.js')
+ deleteSpotDraft(draftId)
+ const { showToast } = await import('../../services/notifications.js')
+ showToast(t('deleteDraft') || 'Brouillon supprimé', 'info')
+ import('../../stores/state.js').then(({ setState }) => {
+ setState({ spotDraftsBannerVisible: false })
+ })
 }
 
 // Initialize autocomplete fields when step renders
 let autocompleteCleanups = []
 
 function initStep1Autocomplete() {
-  if (!navigator.onLine) return
+ if (!navigator.onLine) return
 
-  import('../../utils/autocomplete.js').then(({ initAutocomplete }) => {
-    import('../../services/osrm.js').then(({ searchPhoton }) => {
-      const depInput = document.getElementById('spot-departure-city')
-      if (depInput) {
-        const ac = initAutocomplete({
-          inputId: 'spot-departure-city',
-          searchFn: (q) => searchPhoton(q, { countryCode: window.spotFormData.country }),
-          debounceMs: 100,
-          forceSelection: true,
-          onSelect: (item) => {
-            window.spotFormData.departureCity = item.name
-            window.spotFormData.departureCityCoords = { lat: item.lat, lng: item.lng }
-            if (item.countryCode && !window.spotFormData.country) {
-              window.spotFormData.country = item.countryCode
-              window.spotFormData.countryName = item.countryName
-            }
-          },
-          onClear: () => {
-            window.spotFormData.departureCity = null
-            window.spotFormData.departureCityCoords = null
-          },
-        })
-        // Restore selected item if city was already chosen (after re-render)
-        if (window.spotFormData.departureCity && ac.setSelectedItem) {
-          ac.setSelectedItem({
-            name: window.spotFormData.departureCity,
-            lat: window.spotFormData.departureCityCoords?.lat,
-            lng: window.spotFormData.departureCityCoords?.lng,
-          })
-        }
-        autocompleteCleanups.push(ac)
-      }
-    })
-  })
+ import('../../utils/autocomplete.js').then(({ initAutocomplete }) => {
+ import('../../services/osrm.js').then(({ searchPhoton }) => {
+ const depInput = document.getElementById('spot-departure-city')
+ if (depInput) {
+ const ac = initAutocomplete({
+ inputId: 'spot-departure-city',
+ searchFn: (q) => searchPhoton(q, { countryCode: window.spotFormData.country }),
+ debounceMs: 100,
+ forceSelection: true,
+ onSelect: (item) => {
+ window.spotFormData.departureCity = item.name
+ window.spotFormData.departureCityCoords = { lat: item.lat, lng: item.lng }
+ if (item.countryCode && !window.spotFormData.country) {
+ window.spotFormData.country = item.countryCode
+ window.spotFormData.countryName = item.countryName
+ }
+ },
+ onClear: () => {
+ window.spotFormData.departureCity = null
+ window.spotFormData.departureCityCoords = null
+ },
+ })
+ // Restore selected item if city was already chosen (after re-render)
+ if (window.spotFormData.departureCity && ac.setSelectedItem) {
+ ac.setSelectedItem({
+ name: window.spotFormData.departureCity,
+ lat: window.spotFormData.departureCityCoords?.lat,
+ lng: window.spotFormData.departureCityCoords?.lng,
+ })
+ }
+ autocompleteCleanups.push(ac)
+ }
+ })
+ })
 }
 
 function initStep2Autocomplete() {
-  if (!navigator.onLine) return
+ if (!navigator.onLine) return
 
-  import('../../utils/autocomplete.js').then(({ initAutocomplete }) => {
-    import('../../services/osrm.js').then(({ searchPhoton }) => {
-      const dirInput = document.getElementById('spot-direction-city')
-      if (dirInput) {
-        const ac = initAutocomplete({
-          inputId: 'spot-direction-city',
-          searchFn: (q) => {
-            // Bias results toward departure city / spot location for relevant suggestions
-            const depCoords = window.spotFormData.departureCityCoords
-            const spotLat = window.spotFormData.lat
-            const spotLng = window.spotFormData.lng
-            const biasLat = depCoords?.lat || spotLat || null
-            const biasLng = depCoords?.lng || spotLng || null
-            return searchPhoton(q, { biasLat, biasLng })
-          },
-          debounceMs: 100,
-          forceSelection: false,
-          onSelect: (item) => {
-            window.spotFormData.directionCity = item.name
-            window.spotFormData.directionCityCoords = { lat: item.lat, lng: item.lng }
-          },
-          onClear: () => {
-            window.spotFormData.directionCityCoords = null
-          },
-        })
-        // Restore selected item if direction was already chosen (after re-render)
-        if (window.spotFormData.directionCity && ac.setSelectedItem) {
-          ac.setSelectedItem({
-            name: window.spotFormData.directionCity,
-            lat: window.spotFormData.directionCityCoords?.lat,
-            lng: window.spotFormData.directionCityCoords?.lng,
-          })
-        }
-        autocompleteCleanups.push(ac)
-      }
-    })
-  })
+ import('../../utils/autocomplete.js').then(({ initAutocomplete }) => {
+ import('../../services/osrm.js').then(({ searchPhoton }) => {
+ const dirInput = document.getElementById('spot-direction-city')
+ if (dirInput) {
+ const ac = initAutocomplete({
+ inputId: 'spot-direction-city',
+ searchFn: (q) => {
+ // Bias results toward departure city / spot location for relevant suggestions
+ const depCoords = window.spotFormData.departureCityCoords
+ const spotLat = window.spotFormData.lat
+ const spotLng = window.spotFormData.lng
+ const biasLat = depCoords?.lat || spotLat || null
+ const biasLng = depCoords?.lng || spotLng || null
+ return searchPhoton(q, { biasLat, biasLng })
+ },
+ debounceMs: 100,
+ forceSelection: false,
+ onSelect: (item) => {
+ window.spotFormData.directionCity = item.name
+ window.spotFormData.directionCityCoords = { lat: item.lat, lng: item.lng }
+ },
+ onClear: () => {
+ window.spotFormData.directionCityCoords = null
+ },
+ })
+ // Restore selected item if direction was already chosen (after re-render)
+ if (window.spotFormData.directionCity && ac.setSelectedItem) {
+ ac.setSelectedItem({
+ name: window.spotFormData.directionCity,
+ lat: window.spotFormData.directionCityCoords?.lat,
+ lng: window.spotFormData.directionCityCoords?.lng,
+ })
+ }
+ autocompleteCleanups.push(ac)
+ }
+ })
+ })
 }
 
 // Init mini-map preview — try to snapshot the existing home map, fallback to lightweight MapLibre
 let miniMapInstance = null
 function initMiniMapPreview() {
-  const container = document.getElementById('addspot-mini-map')
-  const lat = window.spotFormData?.lat
-  const lng = window.spotFormData?.lng
-  if (!container || !lat || !lng) return
-  if (container.dataset.initialized === 'true') return
-  container.dataset.initialized = 'true'
+ const container = document.getElementById('addspot-mini-map')
+ const lat = window.spotFormData?.lat
+ const lng = window.spotFormData?.lng
+ if (!container || !lat || !lng) return
+ if (container.dataset.initialized === 'true') return
+ container.dataset.initialized = 'true'
 
-  // Try to use existing home map for instant snapshot
-  const homeMap = window.homeMapInstance
-  if (homeMap && typeof homeMap.getCanvas === 'function') {
-    try {
-      // Save current state, fly to spot, capture, restore
-      const origCenter = homeMap.getCenter()
-      const origZoom = homeMap.getZoom()
-      homeMap.jumpTo({ center: [lng, lat], zoom: 14 })
-      // Wait for tiles to render then capture
-      const capture = () => {
-        try {
-          const srcCanvas = homeMap.getCanvas()
-          const destCanvas = document.createElement('canvas')
-          destCanvas.width = srcCanvas.width
-          destCanvas.height = srcCanvas.height
-          destCanvas.style.width = '100%'
-          destCanvas.style.height = '100%'
-          destCanvas.style.objectFit = 'cover'
-          destCanvas.getContext('2d').drawImage(srcCanvas, 0, 0)
-          container.innerHTML = ''
-          container.appendChild(destCanvas)
-          // Add amber marker overlay
-          const marker = document.createElement('div')
-          marker.innerHTML = '<svg width="28" height="38" viewBox="0 0 28 38"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.27 21.73 0 14 0z" fill="#f59e0b"/><circle cx="14" cy="14" r="6" fill="#fff"/></svg>'
-          marker.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);pointer-events:none'
-          container.style.position = 'relative'
-          container.appendChild(marker)
-        } catch { /* canvas tainted — fall through to MapLibre */ }
-        // Restore home map position
-        homeMap.jumpTo({ center: origCenter, zoom: origZoom })
-      }
-      // Give a frame for tiles to render
-      homeMap.once('idle', capture)
-      setTimeout(capture, 500) // safety fallback
-      return
-    } catch { /* fall through to MapLibre */ }
-  }
+ // Try to use existing home map for instant snapshot
+ const homeMap = window.homeMapInstance
+ if (homeMap && typeof homeMap.getCanvas === 'function') {
+ try {
+ // Save current state, fly to spot, capture, restore
+ const origCenter = homeMap.getCenter()
+ const origZoom = homeMap.getZoom()
+ homeMap.jumpTo({ center: [lng, lat], zoom: 14 })
+ // Wait for tiles to render then capture
+ const capture = () => {
+ try {
+ const srcCanvas = homeMap.getCanvas()
+ const destCanvas = document.createElement('canvas')
+ destCanvas.width = srcCanvas.width
+ destCanvas.height = srcCanvas.height
+ destCanvas.style.width = '100%'
+ destCanvas.style.height = '100%'
+ destCanvas.style.objectFit = 'cover'
+ destCanvas.getContext('2d').drawImage(srcCanvas, 0, 0)
+ container.innerHTML = ''
+ container.appendChild(destCanvas)
+ // Add amber marker overlay
+ const marker = document.createElement('div')
+ marker.innerHTML = '<svg width="28" height="38" viewBox="0 0 28 38"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 24 14 24s14-13.5 14-24C28 6.27 21.73 0 14 0z" fill="#f59e0b"/><circle cx="14" cy="14" r="6" fill="#fff"/></svg>'
+ marker.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);pointer-events:none'
+ container.style.position = 'relative'
+ container.appendChild(marker)
+ } catch { /* canvas tainted — fall through to MapLibre */ }
+ // Restore home map position
+ homeMap.jumpTo({ center: origCenter, zoom: origZoom })
+ }
+ // Give a frame for tiles to render
+ homeMap.once('idle', capture)
+ setTimeout(capture, 500) // safety fallback
+ return
+ } catch { /* fall through to MapLibre */ }
+ }
 
-  // Fallback: create a lightweight MapLibre instance
-  import('maplibre-gl').then(maplibregl => {
-    if (miniMapInstance) {
-      try { miniMapInstance.remove() } catch { /* ok */ }
-    }
-    miniMapInstance = new maplibregl.default.Map({
-      container,
-      style: 'https://tiles.openfreemap.org/styles/liberty',
-      center: [lng, lat],
-      zoom: 14,
-      interactive: false,
-      attributionControl: false,
-    })
-    new maplibregl.default.Marker({ color: '#f59e0b' })
-      .setLngLat([lng, lat])
-      .addTo(miniMapInstance)
-    miniMapInstance.on('load', () => miniMapInstance.resize())
-    setTimeout(() => miniMapInstance.resize(), 300)
-  })
+ // Fallback: create a lightweight MapLibre instance
+ import('maplibre-gl').then(maplibregl => {
+ if (miniMapInstance) {
+ try { miniMapInstance.remove() } catch { /* ok */ }
+ }
+ miniMapInstance = new maplibregl.default.Map({
+ container,
+ style: 'https://tiles.openfreemap.org/styles/liberty',
+ center: [lng, lat],
+ zoom: 14,
+ interactive: false,
+ attributionControl: false,
+ })
+ new maplibregl.default.Marker({ color: '#f59e0b' })
+ .setLngLat([lng, lat])
+ .addTo(miniMapInstance)
+ miniMapInstance.on('load', () => miniMapInstance.resize())
+ setTimeout(() => miniMapInstance.resize(), 300)
+ })
 }
 
 function cleanupAutocompletes() {
-  autocompleteCleanups.forEach(c => c.destroy())
-  autocompleteCleanups = []
+ autocompleteCleanups.forEach(c => c.destroy())
+ autocompleteCleanups = []
 }
 
 // Init autocomplete when AddSpot modal DOM is ready
@@ -1822,690 +1771,685 @@ function cleanupAutocompletes() {
 let lastAutocompleteStep = 0
 
 export function initAddSpotAfterRender() {
-  const depInput = document.getElementById('spot-departure-city')
-  const dirInput = document.getElementById('spot-direction-city')
+ const depInput = document.getElementById('spot-departure-city')
+ const dirInput = document.getElementById('spot-direction-city')
 
-  if (depInput && !dirInput) {
-    // Always cleanup + re-init: DOM is recreated on each render
-    cleanupAutocompletes()
-    lastAutocompleteStep = 1
-    initStep1Autocomplete()
-    // Init mini-map preview if position is set
-    initMiniMapPreview()
-    // If share coords pending, auto-open fullscreen map picker
-    if (window._pendingShareCoords) {
-      requestAnimationFrame(() => window.openFullscreenMapPicker?.())
-    }
-  } else if (dirInput) {
-    cleanupAutocompletes()
-    lastAutocompleteStep = 2
-    initStep2Autocomplete()
-  } else if (!depInput && !dirInput && lastAutocompleteStep !== 0) {
-    lastAutocompleteStep = 0
-    cleanupAutocompletes()
-    // Cleanup fullscreen map if modal closes
-    closeFullscreenMapPicker()
-  }
+ if (depInput && !dirInput) {
+ // Always cleanup + re-init: DOM is recreated on each render
+ cleanupAutocompletes()
+ lastAutocompleteStep = 1
+ initStep1Autocomplete()
+ // Init mini-map preview if position is set
+ initMiniMapPreview()
+ // If share coords pending, auto-open fullscreen map picker
+ if (window._pendingShareCoords) {
+ requestAnimationFrame(() => window.openFullscreenMapPicker?.())
+ }
+ } else if (dirInput) {
+ cleanupAutocompletes()
+ lastAutocompleteStep = 2
+ initStep2Autocomplete()
+ } else if (!depInput && !dirInput && lastAutocompleteStep !== 0) {
+ lastAutocompleteStep = 0
+ cleanupAutocompletes()
+ // Cleanup fullscreen map if modal closes
+ closeFullscreenMapPicker()
+ }
 }
 
 // Show summary overlay before publishing — user must confirm
 window.showSpotSummary = async () => {
-  const fd = window.spotFormData
-  const { getState, setState } = await import('../../stores/state.js')
-  const state = getState()
-  const spotType = state.addSpotType || 'custom'
-  const description = document.getElementById('spot-description')?.value.trim() || ''
+ const fd = window.spotFormData
+ const { getState, setState } = await import('../../stores/state.js')
+ const state = getState()
+ const spotType = state.addSpotType || 'custom'
+ const description = document.getElementById('spot-description')?.value.trim() || ''
 
-  // Auth check — check Firebase Auth directly (state.isLoggedIn can lag)
-  let isAuthed = state.isLoggedIn
-  if (!isAuthed) {
-    try {
-      const fb = await import('../../services/firebase.js')
-      const auth = fb.getFirebaseAuth?.()
-      isAuthed = !!auth?.currentUser
-      if (isAuthed) setState({ isLoggedIn: true, currentUser: auth.currentUser })
-    } catch { /* no-op */ }
-  }
-  if (!isAuthed) {
-    const { showError } = await import('../../services/notifications.js')
-    showError(t('authRequiredAddSpot'))
-    setState({
-      showAuth: true,
-      authPendingAction: 'submitSpot',
-      showAuthReason: t('authRequiredAddSpot'),
-    })
-    return
-  }
+ // Auth check — check Firebase Auth directly (state.isLoggedIn can lag)
+ let isAuthed = state.isLoggedIn
+ if (!isAuthed) {
+ try {
+ const fb = await import('../../services/firebase.js')
+ const auth = fb.getFirebaseAuth?.()
+ isAuthed = !!auth?.currentUser
+ if (isAuthed) setState({ isLoggedIn: true, currentUser: auth.currentUser })
+ } catch { /* no-op */ }
+ }
+ if (!isAuthed) {
+ const { showError } = await import('../../services/notifications.js')
+ showError(t('authRequiredAddSpot'))
+ setState({
+ showAuth: true,
+ authPendingAction: 'submitSpot',
+ showAuthReason: t('authRequiredAddSpot'),
+ })
+ return
+ }
 
-  // Quick validation first (same checks as handleAddSpot)
-  const { showError } = await import('../../services/notifications.js')
-  if (!fd.lat || !fd.lng) { showError(t('positionRequired') || 'Position obligatoire'); return }
-  if (!fd.departureCity) { showError(t('departureRequired') || 'Ville de départ obligatoire'); return }
-  if (!fd.directionCity) { showError(t('directionRequired')); return }
-  if (!fd.method) { showError(t('methodRequired')); return }
-  if (!fd.groupSize) { showError(t('groupSizeRequired')); return }
-  if (!fd.timeOfDay) { showError(t('timeOfDayRequired')); return }
-  if (!fd.rideResult) { showError(t('rideResultRequired')); return }
-  const r = fd.ratings || {}
-  if (!r.safety || !r.traffic || !r.accessibility) { showError(t('ratingsRequired') || 'Note les 3 critères'); return }
+ // Quick validation first (same checks as handleAddSpot)
+ const { showError } = await import('../../services/notifications.js')
+ if (!fd.lat || !fd.lng) { showError(t('positionRequired') || 'Position obligatoire'); return }
+ if (!fd.departureCity) { showError(t('departureRequired') || 'Ville de départ obligatoire'); return }
+ if (!fd.directionCity) { showError(t('directionRequired')); return }
+ if (!fd.method) { showError(t('methodRequired')); return }
+ if (!fd.groupSize) { showError(t('groupSizeRequired')); return }
+ if (!fd.timeOfDay) { showError(t('timeOfDayRequired')); return }
+ if (!fd.rideResult) { showError(t('rideResultRequired')); return }
+ const r = fd.ratings || {}
+ if (!r.safety || !r.traffic || !r.accessibility) { showError(t('ratingsRequired') || 'Note les 3 critères'); return }
 
-  // Type labels
-  const typeLabels = {
-    gas_station: t('spotTypeGasStation') || 'Station / Aire',
-    toll: t('spotTypeToll') || 'Péage',
-    roundabout: t('spotTypeRoundabout') || 'Rond-point',
-    on_ramp: t('spotTypeOnRamp') || 'Bretelle',
-    roadside: t('spotTypeRoadside') || 'Bord de route',
-    custom: t('spotTypeCustom') || 'Autre',
-  }
-  const methodLabels = {
-    sign: t('methodSign') || 'Panneau', thumb: t('methodThumb') || 'Pouce', asking: t('methodAsking') || 'En demandant',
-  }
-  const groupLabels = {
-    solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+',
-  }
-  const timeLabels = {
-    morning: t('timeMorning') || 'Matin', afternoon: t('timeAfternoon') || 'Après-midi',
-    evening: t('timeEvening') || 'Soir', night: t('timeNight') || 'Nuit',
-  }
-  const rideLabels = {
-    yes: icon('circle-check', 'w-4 h-4 inline text-emerald-400') + ' ' + (t('yes') || 'Oui'), no: icon('circle-x', 'w-4 h-4 inline text-red-400') + ' ' + (t('no') || 'Non'), gaveUp: icon('flag', 'w-4 h-4 inline text-slate-400') + ' ' + (t('gaveUp') || 'Abandonné'),
-  }
+ // Type labels
+ const typeLabels = {
+ gas_station: t('spotTypeGasStation') || 'Station / Aire',
+ toll: t('spotTypeToll') || 'Péage',
+ roundabout: t('spotTypeRoundabout') || 'Rond-point',
+ on_ramp: t('spotTypeOnRamp') || 'Bretelle',
+ roadside: t('spotTypeRoadside') || 'Bord de route',
+ custom: t('spotTypeCustom') || 'Autre',
+ }
+ const methodLabels = {
+ sign: t('methodSign') || 'Panneau', thumb: t('methodThumb') || 'Pouce', asking: t('methodAsking') || 'En demandant',
+ }
+ const groupLabels = {
+ solo: 'Solo', duo: 'Duo', group: t('groupTrioPlus') || 'Groupe 3+',
+ }
+ const timeLabels = {
+ morning: t('timeMorning') || 'Matin', afternoon: t('timeAfternoon') || 'Après-midi',
+ evening: t('timeEvening') || 'Soir', night: t('timeNight') || 'Nuit',
+ }
+ const rideLabels = {
+ yes: icon('circle-check', 'w-4 h-4 inline text-emerald-400') + ' ' + (t('yes') || 'Oui'), no: icon('circle-x', 'w-4 h-4 inline text-red-400') + ' ' + (t('no') || 'Non'), gaveUp: icon('flag', 'w-4 h-4 inline text-slate-400') + ' ' + (t('gaveUp') || 'Abandonné'),
+ }
 
-  // Build destinations text
-  const allDests = [fd.directionCity, ...(fd.extraDestinations || []).map(d => d.city)].filter(Boolean)
+ // Build destinations text
+ const allDests = [fd.directionCity, ...(fd.extraDestinations || []).map(d => d.city)].filter(Boolean)
 
-  // Build amenities list
-  const tags = fd.tags || {}
-  const amenityList = []
-  if (tags.shelter) amenityList.push(t('amenityShelter') || 'Abri')
-  if (tags.waterFood) amenityList.push(t('amenityWater') || 'Eau')
-  if (tags.toilets) amenityList.push(t('amenityToilets') || 'Toilettes')
-  if (tags.food) amenityList.push(t('amenityFood') || 'Nourriture')
-  if (tags.stoppingSpace) amenityList.push(t('stoppingSpaceTag') || 'Parking')
+ // Build amenities list
+ const tags = fd.tags || {}
+ const amenityList = []
+ if (tags.shelter) amenityList.push(t('amenityShelter') || 'Abri')
+ if (tags.waterFood) amenityList.push(t('amenityWater') || 'Eau')
+ if (tags.toilets) amenityList.push(t('amenityToilets') || 'Toilettes')
+ if (tags.food) amenityList.push(t('amenityFood') || 'Nourriture')
+ if (tags.stoppingSpace) amenityList.push(t('stoppingSpaceTag') || 'Parking')
 
-  const row = (label, value) => value ? `
-    <div class="flex justify-between py-2 border-b border-[#1e293b]">
-      <span class="text-xs text-slate-500">${escapeHTML(label)}</span>
-      <span class="text-xs text-slate-200 text-right max-w-[60%]">${escapeHTML(String(value))}</span>
-    </div>` : ''
+ const row = (label, value) => value ? `
+ <div class="flex justify-between py-2 border-b border-[#1e293b]">
+ <span class="text-xs text-slate-500">${escapeHTML(label)}</span>
+ <span class="text-xs text-slate-200 text-right max-w-[60%]">${escapeHTML(String(value))}</span></div>` : ''
 
-  const photoCount = (fd.photos || []).length
+ const photoCount = (fd.photos || []).length
 
-  const overlay = document.createElement('div')
-  overlay.id = 'spot-summary-overlay'
-  overlay.className = 'fixed inset-0 z-[60] flex items-center justify-center p-4'
-  overlay.innerHTML = `
-    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeSpotSummary()" role="button" tabindex="0" aria-label="Fermer"></div>
-    <div class="relative bg-[#0f1520] border border-[#1e293b] rounded-xl max-w-[400px] w-full max-h-[80vh] overflow-y-auto p-5" onclick="event.stopPropagation()">
-      <h3 class="text-lg font-semibold text-slate-200 mb-4 text-center">${state.addSpotValidateId ? (t('summaryTitle') || 'Récapitulatif') : (t('summaryTitle') || 'Récapitulatif du spot')}</h3>
+ const overlay = document.createElement('div')
+ overlay.id = 'spot-summary-overlay'
+ overlay.className = 'fixed inset-0 z-[60] flex items-center justify-center p-4'
+ overlay.innerHTML = `
+ <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeSpotSummary()" role="button" tabindex="0" aria-label="Fermer"></div>
+ <div class="relative bg-[#0f1520] border border-[#1e293b] rounded-xl max-w-[400px] w-full max-h-[80vh] overflow-y-auto p-5" onclick="event.stopPropagation()">
+ <h3 class="text-lg font-semibold text-slate-200 mb-4 text-center">${state.addSpotValidateId ? (t('summaryTitle') || 'Récapitulatif') : (t('summaryTitle') || 'Récapitulatif du spot')}</h3>
 
-      ${!state.addSpotValidateId ? row(t('spotTypeLabel') || 'Type', typeLabels[spotType] || spotType) : ''}
-      ${!state.addSpotValidateId ? row(t('departureCity') || 'Départ', fd.departureCity) : ''}
-      ${row(t('position') || 'Position', fd.locationName || (fd.lat?.toFixed(4) + ', ' + fd.lng?.toFixed(4)))}
-      ${row(t('destinationCity') || 'Direction', allDests.join(', '))}
-      ${row(t('waitTimeLabel') || 'Attente', fd.waitTime ? (fd.waitTime >= 180 ? '3h+' : fd.waitTime + ' min') : '')}
-      ${row(t('practicalTips') || 'Méthode', methodLabels[fd.method] || '')}
-      ${row(t('groupSizeLabel') || 'Groupe', groupLabels[fd.groupSize] || '')}
-      ${row(t('timeOfDayLabel') || 'Moment', timeLabels[fd.timeOfDay] || '')}
-      ${row(t('gotARide') || 'Lift obtenu', rideLabels[fd.rideResult] || '')}
-      ${row(t('safety') || 'Sécurité', r.safety + '/5')}
-      ${row(t('traffic') || 'Trafic', r.traffic + '/5')}
-      ${row(t('accessibility') || 'Accessibilité', r.accessibility + '/5')}
-      ${amenityList.length > 0 ? row(t('amenitiesLabel') || 'Commodités', amenityList.join(', ')) : ''}
-      ${description ? row(t('description') || 'Description', description.length > 80 ? description.slice(0, 80) + '...' : description) : ''}
-      ${row(t('photoLabel') || 'Photos', photoCount > 0 ? photoCount + ' photo' + (photoCount > 1 ? 's' : '') : (t('noPhoto') || 'Aucune photo'))}
+ ${!state.addSpotValidateId ? row(t('spotTypeLabel') || 'Type', typeLabels[spotType] || spotType) : ''}
+ ${!state.addSpotValidateId ? row(t('departureCity') || 'Départ', fd.departureCity) : ''}
+ ${row(t('position') || 'Position', fd.locationName || (fd.lat?.toFixed(4) + ', ' + fd.lng?.toFixed(4)))}
+ ${row(t('destinationCity') || 'Direction', allDests.join(', '))}
+ ${row(t('waitTimeLabel') || 'Attente', fd.waitTime ? (fd.waitTime >= 180 ? '3h+' : fd.waitTime + ' min') : '')}
+ ${row(t('practicalTips') || 'Méthode', methodLabels[fd.method] || '')}
+ ${row(t('groupSizeLabel') || 'Groupe', groupLabels[fd.groupSize] || '')}
+ ${row(t('timeOfDayLabel') || 'Moment', timeLabels[fd.timeOfDay] || '')}
+ ${row(t('gotARide') || 'Lift obtenu', rideLabels[fd.rideResult] || '')}
+ ${row(t('safety') || 'Sécurité', r.safety + '/5')}
+ ${row(t('traffic') || 'Trafic', r.traffic + '/5')}
+ ${row(t('accessibility') || 'Accessibilité', r.accessibility + '/5')}
+ ${amenityList.length > 0 ? row(t('amenitiesLabel') || 'Commodités', amenityList.join(', ')) : ''}
+ ${description ? row(t('description') || 'Description', description.length > 80 ? description.slice(0, 80) + '...' : description) : ''}
+ ${row(t('photoLabel') || 'Photos', photoCount > 0 ? photoCount + ' photo' + (photoCount > 1 ? 's' : '') : (t('noPhoto') || 'Aucune photo'))}
 
-      <!-- Street View check -->
-      ${!state.addSpotValidateId && fd.lat ? `
-      <div class="my-3.5 bg-[rgba(15,30,60,0.6)] border border-blue-400/20 rounded-[10px] px-3 py-2.5 flex items-center gap-2.5">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" class="shrink-0"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
-        <div class="flex-1">
-          <div class="text-[11px] text-blue-300" id="sv-check-label">${t('streetViewCheckLabel') || 'Street View disponible ici ?'}</div>
-        </div>
-        <button type="button" onclick="checkStreetViewForNewSpot(${fd.lat}, ${fd.lng})"
-          id="sv-check-btn"
-          class="bg-blue-400/20 border border-blue-400/30 text-blue-300 px-2.5 py-1 rounded-lg text-[11px] cursor-pointer whitespace-nowrap">
-          ${t('streetViewCheck') || 'Vérifier'}
-        </button>
-      </div>
-      ` : ''}
+ <!-- Street View check -->
+ ${!state.addSpotValidateId && fd.lat ? `
+ <div class="my-3.5 bg-[rgba(15,30,60,0.6)] border border-blue-400/20 rounded-[10px] px-3 py-2.5 flex items-center gap-2.5">
+ <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" class="shrink-0"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg>
+ <div class="flex-1">
+ <div class="text-[11px] text-blue-300" id="sv-check-label">${t('streetViewCheckLabel') || 'Street View disponible ici ?'}</div></div>
+ <button type="button" onclick="checkStreetViewForNewSpot(${fd.lat}, ${fd.lng})"
+ id="sv-check-btn"
+ class="bg-blue-400/20 border border-blue-400/30 text-blue-300 px-2.5 py-1 rounded-lg text-[11px] cursor-pointer whitespace-nowrap">
+ ${t('streetViewCheck') || 'Vérifier'}
+ </button></div>
+ ` : ''}
 
-      ${!state.addSpotValidateId ? `<p class="text-[11px] text-slate-500 text-center my-4">${t('summaryWarning') || 'Une fois publié, ce spot ne pourra plus être modifié.'}</p>` : '<div class="mt-4"></div>'}
+ ${!state.addSpotValidateId ? `<p class="text-[11px] text-slate-500 text-center my-4">${t('summaryWarning') || 'Une fois publié, ce spot ne pourra plus être modifié.'}</p>` : '<div class="mt-4"></div>'}
 
-      <div class="flex gap-2.5">
-        <button type="button" onclick="closeSpotSummary()"
-          class="flex-1 bg-transparent border border-slate-700 text-slate-500 p-3 text-[13px] cursor-pointer rounded-lg">
-          ${t('modify') || 'Modifier'}
-        </button>
-        <button type="button" onclick="closeSpotSummary();document.getElementById('add-spot-form')?.dispatchEvent(new Event('submit',{cancelable:true}))"
-          class="flex-[2] bg-amber-500 border-0 text-[#0f1520] p-3 text-sm font-semibold cursor-pointer rounded-lg">
-          ${state.addSpotValidateId ? (t('confirmSubmit') || 'Confirmer et envoyer') : (t('confirmPublish') || 'Confirmer et publier')}
-        </button>
-      </div>
-    </div>
-  `
-  document.body.appendChild(overlay)
+ <div class="flex gap-2.5">
+ <button type="button" onclick="closeSpotSummary()"
+ class="flex-1 bg-transparent border border-slate-700 text-slate-500 p-3 text-[13px] cursor-pointer rounded-lg">
+ ${t('modify') || 'Modifier'}
+ </button>
+ <button type="button" onclick="closeSpotSummary();document.getElementById('add-spot-form')?.dispatchEvent(new Event('submit',{cancelable:true}))"
+ class="flex-[2] bg-amber-500 border-0 text-[#0f1520] p-3 text-sm font-semibold cursor-pointer rounded-lg">
+ ${state.addSpotValidateId ? (t('confirmSubmit') || 'Confirmer et envoyer') : (t('confirmPublish') || 'Confirmer et publier')}
+ </button></div></div>
+ `
+ document.body.appendChild(overlay)
 }
 
 window.closeSpotSummary = () => {
-  document.getElementById('spot-summary-overlay')?.remove()
+ document.getElementById('spot-summary-overlay')?.remove()
 }
 
 // Handler: check Street View availability during spot creation
 window.checkStreetViewForNewSpot = (lat, lng) => {
-  if (!isFinite(Number(lat)) || !isFinite(Number(lng))) return
-  // Open Street View so user can check manually
-  const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0`
-  window.open(url, '_blank', 'noopener,noreferrer')
-  // Mark as verified (user clicked to check)
-  window.spotFormData._streetViewChecked = true
-  const btn = document.getElementById('sv-check-btn')
-  const label = document.getElementById('sv-check-label')
-  if (btn) {
-    btn.style.background = 'rgba(34,197,94,0.2)'
-    btn.style.borderColor = 'rgba(34,197,94,0.4)'
-    btn.style.color = '#22c55e'
-    btn.textContent = '✓ ' + (t('streetViewChecked') || 'Vérifié')
-  }
-  if (label) {
-    label.style.color = '#22c55e'
-    label.textContent = t('streetViewCheckedLabel') || 'Street View vérifié pour ce spot'
-  }
+ if (!isFinite(Number(lat)) || !isFinite(Number(lng))) return
+ // Open Street View so user can check manually
+ const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0`
+ window.open(url, '_blank', 'noopener,noreferrer')
+ // Mark as verified (user clicked to check)
+ window.spotFormData._streetViewChecked = true
+ const btn = document.getElementById('sv-check-btn')
+ const label = document.getElementById('sv-check-label')
+ if (btn) {
+ btn.style.background = 'rgba(34,197,94,0.2)'
+ btn.style.borderColor = 'rgba(34,197,94,0.4)'
+ btn.style.color = '#22c55e'
+ btn.textContent = '✓ ' + (t('streetViewChecked') || 'Vérifié')
+ }
+ if (label) {
+ label.style.color = '#22c55e'
+ label.textContent = t('streetViewCheckedLabel') || 'Street View vérifié pour ce spot'
+ }
 }
 
 window.handleAddSpot = async (event) => {
-  event.preventDefault()
-  if (window.handleAddSpot._busy) return
-  if (!window.requireOnline?.()) return
-  window.handleAddSpot._busy = true
-  setTimeout(() => { window.handleAddSpot._busy = false }, 3000)
+ event.preventDefault()
+ if (window.handleAddSpot._busy) return
+ if (!window.requireOnline?.()) return
+ window.handleAddSpot._busy = true
+ setTimeout(() => { window.handleAddSpot._busy = false }, 3000)
 
-  const { getState, setState } = await import('../../stores/state.js')
-  const state = getState()
+ const { getState, setState } = await import('../../stores/state.js')
+ const state = getState()
 
-  // Auth check — check Firebase Auth directly (state.isLoggedIn can lag behind on slow connections)
-  let isAuthed = state.isLoggedIn
-  if (!isAuthed) {
-    try {
-      const fb = await import('../../services/firebase.js')
-      const auth = fb.getFirebaseAuth?.()
-      isAuthed = !!auth?.currentUser
-      if (isAuthed) setState({ isLoggedIn: true, currentUser: auth.currentUser })
-    } catch { /* no-op */ }
-  }
-  if (!isAuthed) {
-    const { showError } = await import('../../services/notifications.js')
-    showError(t('authRequiredAddSpot'))
-    setState({
-      showAuth: true,
-      authPendingAction: 'submitSpot',
-      showAuthReason: t('authRequiredAddSpot'),
-    })
-    return
-  }
+ // Auth check — check Firebase Auth directly (state.isLoggedIn can lag behind on slow connections)
+ let isAuthed = state.isLoggedIn
+ if (!isAuthed) {
+ try {
+ const fb = await import('../../services/firebase.js')
+ const auth = fb.getFirebaseAuth?.()
+ isAuthed = !!auth?.currentUser
+ if (isAuthed) setState({ isLoggedIn: true, currentUser: auth.currentUser })
+ } catch { /* no-op */ }
+ }
+ if (!isAuthed) {
+ const { showError } = await import('../../services/notifications.js')
+ showError(t('authRequiredAddSpot'))
+ setState({
+ showAuth: true,
+ authPendingAction: 'submitSpot',
+ showAuthReason: t('authRequiredAddSpot'),
+ })
+ return
+ }
 
-  let spotType = state.addSpotType || 'custom'
-  const description = document.getElementById('spot-description')?.value.trim()
-  const submitBtn = document.getElementById('submit-spot-btn')
+ let spotType = state.addSpotType || 'custom'
+ const description = document.getElementById('spot-description')?.value.trim()
+ const submitBtn = document.getElementById('submit-spot-btn')
 
-  // Build fields
-  const from = window.spotFormData.departureCity || ''
-  const to = window.spotFormData.directionCity || ''
-  const direction = window.spotFormData.directionCity || ''
+ // Build fields
+ const from = window.spotFormData.departureCity || ''
+ const to = window.spotFormData.directionCity || ''
+ const direction = window.spotFormData.directionCity || ''
 
-  // Validation — ALL fields mandatory EXCEPT photo (bonus points)
-  const { showError } = await import('../../services/notifications.js')
+ // Validation — ALL fields mandatory EXCEPT photo (bonus points)
+ const { showError } = await import('../../services/notifications.js')
 
-  const lat = Number(window.spotFormData.lat)
-  const lng = Number(window.spotFormData.lng)
-  if (!lat || !lng || !isFinite(lat) || !isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-    showError(t('positionRequired') || 'Position obligatoire')
-    return
-  }
-  if (!window.spotFormData.departureCity) {
-    showError(t('departureRequired') || 'Ville de départ obligatoire')
-    return
-  }
-  if (!direction) {
-    showError(t('directionRequired'))
-    return
-  }
+ const lat = Number(window.spotFormData.lat)
+ const lng = Number(window.spotFormData.lng)
+ if (!lat || !lng || !isFinite(lat) || !isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+ showError(t('positionRequired') || 'Position obligatoire')
+ return
+ }
+ if (!window.spotFormData.departureCity) {
+ showError(t('departureRequired') || 'Ville de départ obligatoire')
+ return
+ }
+ if (!direction) {
+ showError(t('directionRequired'))
+ return
+ }
 
-  // Duplicate detection now happens at step 1 (addSpotNextStep)
-  // No need to check again here — eliminates the infinite loop bug
-  if (!window.spotFormData.method) {
-    showError(t('methodRequired'))
-    return
-  }
-  if (!window.spotFormData.groupSize) {
-    showError(t('groupSizeRequired'))
-    return
-  }
-  if (!window.spotFormData.timeOfDay) {
-    showError(t('timeOfDayRequired'))
-    return
-  }
-  if (!window.spotFormData.rideResult) {
-    showError(t('rideResultRequired'))
-    return
-  }
-  // Description is optional — skip validation
+ // Duplicate detection now happens at step 1 (addSpotNextStep)
+ // No need to check again here — eliminates the infinite loop bug
+ if (!window.spotFormData.method) {
+ showError(t('methodRequired'))
+ return
+ }
+ if (!window.spotFormData.groupSize) {
+ showError(t('groupSizeRequired'))
+ return
+ }
+ if (!window.spotFormData.timeOfDay) {
+ showError(t('timeOfDayRequired'))
+ return
+ }
+ if (!window.spotFormData.rideResult) {
+ showError(t('rideResultRequired'))
+ return
+ }
+ // Description is optional — skip validation
 
-  // Ratings validation — all 3 criteria required
-  const ratingsCheck = window.spotFormData.ratings || {}
-  if (!ratingsCheck.safety || !ratingsCheck.traffic || !ratingsCheck.accessibility) {
-    showError(t('ratingsRequired') || 'Note les 3 critères (sécurité, trafic, accessibilité)')
-    return
-  }
+ // Ratings validation — all 3 criteria required
+ const ratingsCheck = window.spotFormData.ratings || {}
+ if (!ratingsCheck.safety || !ratingsCheck.traffic || !ratingsCheck.accessibility) {
+ showError(t('ratingsRequired') || 'Note les 3 critères (sécurité, trafic, accessibilité)')
+ return
+ }
 
-  // Gas station verification — check Overpass for nearby fuel amenity
-  if (spotType === 'gas_station' && window.spotFormData.lat && window.spotFormData.lng) {
-    if (submitBtn) {
-      submitBtn.disabled = true
-      submitBtn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('verifyingStation')}`
-    }
-    const verification = await verifyGasStationNearby(window.spotFormData.lat, window.spotFormData.lng)
-    if (!verification.verified) {
-      if (submitBtn) {
-        submitBtn.disabled = false
-        submitBtn.innerHTML = t('submit') || 'Publier'
-      }
-      const decision = await showGasStationConfirm()
-      if (decision === 'change') {
-        spotType = 'custom'
-        window.selectSpotType('custom')
-        import('../../stores/state.js').then(({ getState: gs }) => {
-          gs().addSpotType = 'custom'
-        })
-      }
-      // Either way, continue with submission
-    }
-  }
+ // Gas station verification — check Overpass for nearby fuel amenity
+ if (spotType === 'gas_station' && window.spotFormData.lat && window.spotFormData.lng) {
+ if (submitBtn) {
+ submitBtn.disabled = true
+ submitBtn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('verifyingStation')}`
+ }
+ const verification = await verifyGasStationNearby(window.spotFormData.lat, window.spotFormData.lng)
+ if (!verification.verified) {
+ if (submitBtn) {
+ submitBtn.disabled = false
+ submitBtn.innerHTML = t('submit') || 'Publier'
+ }
+ const decision = await showGasStationConfirm()
+ if (decision === 'change') {
+ spotType = 'custom'
+ window.selectSpotType('custom')
+ import('../../stores/state.js').then(({ getState: gs }) => {
+ gs().addSpotType = 'custom'
+ })
+ }
+ // Either way, continue with submission
+ }
+ }
 
-  // Proximity check disabled — users need to add spots from memory
-  // (places they hitchhiked from in the past without being there now)
+ // Proximity check disabled — users need to add spots from memory
+ // (places they hitchhiked from in the past without being there now)
 
-  // Disable button
-  if (submitBtn) {
-    submitBtn.disabled = true
-    submitBtn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('submittingSpot') || 'Envoi...'}`
-  }
+ // Disable button
+ if (submitBtn) {
+ submitBtn.disabled = true
+ submitBtn.innerHTML = `${icon('loader-circle', 'w-5 h-5 animate-spin')} ${t('submittingSpot') || 'Envoi...'}`
+ }
 
-  const ratings = window.spotFormData.ratings || { safety: 0, traffic: 0, accessibility: 0 }
-  const ratingValues = [ratings.safety, ratings.traffic, ratings.accessibility].filter(v => v > 0)
-  const globalRating = ratingValues.length > 0
-    ? Math.round((ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length) * 10) / 10
-    : 0
+ const ratings = window.spotFormData.ratings || { safety: 0, traffic: 0, accessibility: 0 }
+ const ratingValues = [ratings.safety, ratings.traffic, ratings.accessibility].filter(v => v > 0)
+ const globalRating = ratingValues.length > 0
+ ? Math.round((ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length) * 10) / 10
+ : 0
 
-  try {
-    const { uploadImage, addSpot } = await import('../../services/firebase.js')
+ try {
+ const { uploadImage, addSpot } = await import('../../services/firebase.js')
 
-    // Photos are optional — upload if provided (bonus points for at least 1)
-    const photosToUpload = window.spotFormData.photos || []
-    const hasPhoto = photosToUpload.length > 0
-    const uploadedUrls = []
-    let photoUploadFailed = false
-    for (let i = 0; i < photosToUpload.length; i++) {
-      const photoPath = `spots/${Date.now()}_${i}.jpg`
-      const photoResult = await uploadImage(photosToUpload[i], photoPath)
-      if (photoResult.success) {
-        uploadedUrls.push(photoResult.url)
-      } else {
-        photoUploadFailed = true
-        console.error('Photo upload failed:', photoResult.error)
-      }
-    }
-    if (photoUploadFailed && uploadedUrls.length === 0 && hasPhoto) {
-      window.showToast?.(t('photoUploadFailed') || 'La photo n\'a pas pu être envoyée. Le spot sera créé sans photo.', 'warning')
-    }
-    const photoUrl = uploadedUrls[0] || ''
+ // Photos are optional — upload if provided (bonus points for at least 1)
+ const photosToUpload = window.spotFormData.photos || []
+ const hasPhoto = photosToUpload.length > 0
+ const uploadedUrls = []
+ let photoUploadFailed = false
+ for (let i = 0; i < photosToUpload.length; i++) {
+ const photoPath = `spots/${Date.now()}_${i}.jpg`
+ const photoResult = await uploadImage(photosToUpload[i], photoPath)
+ if (photoResult.success) {
+ uploadedUrls.push(photoResult.url)
+ } else {
+ photoUploadFailed = true
+ console.error('Photo upload failed:', photoResult.error)
+ }
+ }
+ if (photoUploadFailed && uploadedUrls.length === 0 && hasPhoto) {
+ window.showToast?.(t('photoUploadFailed') || 'La photo n\'a pas pu être envoyée. Le spot sera créé sans photo.', 'warning')
+ }
+ const photoUrl = uploadedUrls[0] || ''
 
-    // --- VALIDATION MODE: save as validation on existing spot ---
-    if (state.addSpotValidateId) {
-      const destinations = [{ city: to, coords: window.spotFormData.directionCityCoords || null }]
-      for (const extra of (window.spotFormData.extraDestinations || [])) {
-        destinations.push({ city: extra.city, coords: extra.coords || null })
-      }
-      const validationData = {
-        spotId: state.addSpotValidateId,
-        type: 'test',
-        waitTime: window.spotFormData.waitTime || 10,
-        method: window.spotFormData.method,
-        groupSize: window.spotFormData.groupSize,
-        timeOfDay: window.spotFormData.timeOfDay,
-        rideResult: window.spotFormData.rideResult,
-        directionCity: to,
-        destinations,
-        ratings: {
-          safety: ratings.safety || 0,
-          traffic: ratings.traffic || 0,
-          accessibility: ratings.accessibility || 0,
-        },
-        tags: window.spotFormData.tags || {},
-        comment: description,
-        season: detectSeason(),
-        timestamp: new Date().toISOString(),
-        dataSource: 'community',
-        experienceDate: {
-          year: window.spotFormData.experienceYear || new Date().getFullYear(),
-          month: window.spotFormData.experienceMonth || (new Date().getMonth() + 1),
-          ...(window.spotFormData.experienceDay ? { day: window.spotFormData.experienceDay } : {}),
-        },
-        // GPS verification from openTestSpot check
-        gpsVerified: !!window.spotFormData._gpsVerifiedOnOpen,
-        gpsDistance: window.spotFormData._gpsDistance || null,
-      }
-      if (uploadedUrls.length > 0) {
-        validationData.photoUrl = uploadedUrls[0]
-        validationData.photos = uploadedUrls
-      }
+ // --- VALIDATION MODE: save as validation on existing spot ---
+ if (state.addSpotValidateId) {
+ const destinations = [{ city: to, coords: window.spotFormData.directionCityCoords || null }]
+ for (const extra of (window.spotFormData.extraDestinations || [])) {
+ destinations.push({ city: extra.city, coords: extra.coords || null })
+ }
+ const validationData = {
+ spotId: state.addSpotValidateId,
+ type: 'test',
+ waitTime: window.spotFormData.waitTime || 10,
+ method: window.spotFormData.method,
+ groupSize: window.spotFormData.groupSize,
+ timeOfDay: window.spotFormData.timeOfDay,
+ rideResult: window.spotFormData.rideResult,
+ directionCity: to,
+ destinations,
+ ratings: {
+ safety: ratings.safety || 0,
+ traffic: ratings.traffic || 0,
+ accessibility: ratings.accessibility || 0,
+ },
+ tags: window.spotFormData.tags || {},
+ comment: description,
+ season: detectSeason(),
+ timestamp: new Date().toISOString(),
+ dataSource: 'community',
+ experienceDate: {
+ year: window.spotFormData.experienceYear || new Date().getFullYear(),
+ month: window.spotFormData.experienceMonth || (new Date().getMonth() + 1),
+ ...(window.spotFormData.experienceDay ? { day: window.spotFormData.experienceDay } : {}),
+ },
+ // GPS verification from openTestSpot check
+ gpsVerified: !!window.spotFormData._gpsVerifiedOnOpen,
+ gpsDistance: window.spotFormData._gpsDistance || null,
+ }
+ if (uploadedUrls.length > 0) {
+ validationData.photoUrl = uploadedUrls[0]
+ validationData.photos = uploadedUrls
+ }
 
-      // Update GPS trust counters
-      try {
-        const { updateTrustCounters, isValidationTrusted } = await import('../../services/gpsTrust.js')
-        updateTrustCounters(!!window.spotFormData._gpsVerifiedOnOpen)
-        if (!isValidationTrusted()) {
-          const { showToast } = await import('../../services/notifications.js')
-          showToast(t('enableGpsForValidation') || 'Active le GPS pour que tes validations soient comptées', 'warning')
-          // Still save locally but don't send to Firebase
-          return
-        }
-      } catch { /* non-blocking */ }
+ // Update GPS trust counters
+ try {
+ const { updateTrustCounters, isValidationTrusted } = await import('../../services/gpsTrust.js')
+ updateTrustCounters(!!window.spotFormData._gpsVerifiedOnOpen)
+ if (!isValidationTrusted()) {
+ const { showToast } = await import('../../services/notifications.js')
+ showToast(t('enableGpsForValidation') || 'Active le GPS pour que tes validations soient comptées', 'warning')
+ // Still save locally but don't send to Firebase
+ return
+ }
+ } catch { /* non-blocking */ }
 
-      const { addValidation } = await import('../../services/firebase.js')
-      if (typeof addValidation === 'function') {
-        await addValidation(validationData)
-      }
+ const { addValidation } = await import('../../services/firebase.js')
+ if (typeof addValidation === 'function') {
+ await addValidation(validationData)
+ }
 
-      // Local checkin history + points
-      const { actions } = await import('../../stores/state.js')
-      actions.addCheckinToHistory({
-        spotId: state.addSpotValidateId,
-        type: 'test',
-        ...validationData,
-      })
-      actions.incrementCheckins()
-      if (hasPhoto) actions.addPoints?.(50)
+ // Local checkin history + points
+ const { actions } = await import('../../stores/state.js')
+ actions.addCheckinToHistory({
+ spotId: state.addSpotValidateId,
+ type: 'test',
+ ...validationData,
+ })
+ actions.incrementCheckins()
+ if (hasPhoto) actions.addPoints?.(50)
 
-      const { showSuccess } = await import('../../services/notifications.js')
-      const photoMsg = hasPhoto ? ' +50 pts' : ''
-      showSuccess((t('testSubmitted') || 'Test envoyé ! Merci') + photoMsg)
-      setState({
-        showAddSpot: false, addSpotStep: 1, addSpotType: null,
-        addSpotValidateId: null,
-        addSpotMethod: null,
-        addSpotGroupSize: null,
-        addSpotTimeOfDay: null,
-        addSpotWaitTime: null,
-        addSpotRideResult: null,
-      })
+ const { showSuccess } = await import('../../services/notifications.js')
+ const photoMsg = hasPhoto ? ' +50 pts' : ''
+ showSuccess((t('testSubmitted') || 'Test envoyé ! Merci') + photoMsg)
+ setState({
+ showAddSpot: false, addSpotStep: 1, addSpotType: null,
+ addSpotValidateId: null,
+ addSpotMethod: null,
+ addSpotGroupSize: null,
+ addSpotTimeOfDay: null,
+ addSpotWaitTime: null,
+ addSpotRideResult: null,
+ })
 
-      // Refresh live data so SpotDetail shows updated stats
-      try {
-        const { invalidateSpotCache, enrichSpotWithLiveData } = await import('../../services/spotLiveData.js')
-        invalidateSpotCache(state.addSpotValidateId)
-        const currentSpot = getState().selectedSpot
-        if (currentSpot && String(currentSpot.id) === String(state.addSpotValidateId)) {
-          const enriched = await enrichSpotWithLiveData({ ...currentSpot, _liveLoaded: false })
-          setState({ selectedSpot: enriched })
-        }
-      } catch { /* non-blocking */ }
+ // Refresh live data so SpotDetail shows updated stats
+ try {
+ const { invalidateSpotCache, enrichSpotWithLiveData } = await import('../../services/spotLiveData.js')
+ invalidateSpotCache(state.addSpotValidateId)
+ const currentSpot = getState().selectedSpot
+ if (currentSpot && String(currentSpot.id) === String(state.addSpotValidateId)) {
+ const enriched = await enrichSpotWithLiveData({ ...currentSpot, _liveLoaded: false })
+ setState({ selectedSpot: enriched })
+ }
+ } catch { /* non-blocking */ }
 
-      // Reset form
-      window.spotFormData = {
-        photos: [], lat: null, lng: null,
-        ratings: { safety: 0, traffic: 0, accessibility: 0 },
-        tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
-        country: null, countryName: null,
-        departureCity: null, departureCityCoords: null,
-        directionCity: null, directionCityCoords: null,
-        locationName: null, roadNumber: null, positionSource: null,
-        method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
-        rideResult: null, stationName: '', extraDestinations: [],
-        experienceYear: new Date().getFullYear(),
-        experienceMonth: new Date().getMonth() + 1,
-        experienceDay: new Date().getDate(), _expCustom: false,
-      }
-      return
-    }
+ // Reset form
+ window.spotFormData = {
+ photos: [], lat: null, lng: null,
+ ratings: { safety: 0, traffic: 0, accessibility: 0 },
+ tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
+ country: null, countryName: null,
+ departureCity: null, departureCityCoords: null,
+ directionCity: null, directionCityCoords: null,
+ locationName: null, roadNumber: null, positionSource: null,
+ method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
+ rideResult: null, stationName: '', extraDestinations: [],
+ experienceYear: new Date().getFullYear(),
+ experienceMonth: new Date().getMonth() + 1,
+ experienceDay: new Date().getDate(), _expCustom: false,
+ }
+ return
+ }
 
-    // --- CREATION MODE: create new spot ---
+ // --- CREATION MODE: create new spot ---
 
-    // Build destinations array (primary + extras)
-    const destinations = [{
-      city: to,
-      coords: window.spotFormData.directionCityCoords || null,
-      addedBy: null, // will be set by Firebase addSpot
-      addedByName: null,
-      addedAt: new Date().toISOString(),
-      method: window.spotFormData.method || null,
-      waitTime: window.spotFormData.waitTime || null,
-    }]
-    for (const extra of (window.spotFormData.extraDestinations || [])) {
-      destinations.push({
-        city: extra.city,
-        coords: extra.coords || null,
-        addedBy: null,
-        addedByName: null,
-        addedAt: new Date().toISOString(),
-        method: null,
-        waitTime: null,
-      })
-    }
+ // Build destinations array (primary + extras)
+ const destinations = [{
+ city: to,
+ coords: window.spotFormData.directionCityCoords || null,
+ addedBy: null, // will be set by Firebase addSpot
+ addedByName: null,
+ addedAt: new Date().toISOString(),
+ method: window.spotFormData.method || null,
+ waitTime: window.spotFormData.waitTime || null,
+ }]
+ for (const extra of (window.spotFormData.extraDestinations || [])) {
+ destinations.push({
+ city: extra.city,
+ coords: extra.coords || null,
+ addedBy: null,
+ addedByName: null,
+ addedAt: new Date().toISOString(),
+ method: null,
+ waitTime: null,
+ })
+ }
 
-    // Safety net: if country is empty but we have coordinates, reverse geocode now
-    if (!window.spotFormData.country && window.spotFormData.lat && window.spotFormData.lng) {
-      try {
-        const { reverseGeocode } = await import('../../services/osrm.js')
-        const loc = await reverseGeocode(window.spotFormData.lat, window.spotFormData.lng)
-        if (loc?.countryCode) {
-          window.spotFormData.country = loc.countryCode
-          window.spotFormData.countryName = loc.country
-        }
-      } catch { /* continue without country */ }
-    }
+ // Safety net: if country is empty but we have coordinates, reverse geocode now
+ if (!window.spotFormData.country && window.spotFormData.lat && window.spotFormData.lng) {
+ try {
+ const { reverseGeocode } = await import('../../services/osrm.js')
+ const loc = await reverseGeocode(window.spotFormData.lat, window.spotFormData.lng)
+ if (loc?.countryCode) {
+ window.spotFormData.country = loc.countryCode
+ window.spotFormData.countryName = loc.country
+ }
+ } catch { /* continue without country */ }
+ }
 
-    // Calculate cityNumber: count existing spots in the same city + 1
-    let cityNumber = 1
-    try {
-      const allSpots = window.getState?.()?.spots || []
-      const cityName = (window.spotFormData.departureCity || from || '').toLowerCase().trim()
-      if (cityName) {
-        const sameCity = allSpots.filter(s => {
-          const sCity = (s.departureCity || s.from || s.fromCity || s.city || '').toLowerCase().trim()
-          return sCity === cityName
-        })
-        cityNumber = sameCity.length + 1
-      }
-    } catch { /* default to 1 */ }
+ // Calculate cityNumber: count existing spots in the same city + 1
+ let cityNumber = 1
+ try {
+ const allSpots = window.getState?.()?.spots || []
+ const cityName = (window.spotFormData.departureCity || from || '').toLowerCase().trim()
+ if (cityName) {
+ const sameCity = allSpots.filter(s => {
+ const sCity = (s.departureCity || s.from || s.fromCity || s.city || '').toLowerCase().trim()
+ return sCity === cityName
+ })
+ cityNumber = sameCity.length + 1
+ }
+ } catch { /* default to 1 */ }
 
-    // Build complete spot data — ALL fields structured
-    const spotData = {
-      // Structured fields (unique data!)
-      country: window.spotFormData.country || '',
-      countryName: window.spotFormData.countryName || '',
-      departureCity: window.spotFormData.departureCity || '',
-      departureCityCoords: window.spotFormData.departureCityCoords || null,
-      directionCity: window.spotFormData.directionCity || '',
-      directionCityCoords: window.spotFormData.directionCityCoords || null,
-      locationName: window.spotFormData.locationName || '',
-      roadNumber: window.spotFormData.roadNumber || '',
-      positionSource: window.spotFormData.positionSource || 'gps',
+ // Build complete spot data — ALL fields structured
+ const spotData = {
+ // Structured fields (unique data!)
+ country: window.spotFormData.country || '',
+ countryName: window.spotFormData.countryName || '',
+ departureCity: window.spotFormData.departureCity || '',
+ departureCityCoords: window.spotFormData.departureCityCoords || null,
+ directionCity: window.spotFormData.directionCity || '',
+ directionCityCoords: window.spotFormData.directionCityCoords || null,
+ locationName: window.spotFormData.locationName || '',
+ roadNumber: window.spotFormData.roadNumber || '',
+ positionSource: window.spotFormData.positionSource || 'gps',
 
-      // Experience data (ALL mandatory!)
-      method: window.spotFormData.method,
-      groupSize: window.spotFormData.groupSize,
-      timeOfDay: window.spotFormData.timeOfDay,
-      waitTime: window.spotFormData.waitTime || 10,
-      rideResult: window.spotFormData.rideResult,
-      season: detectSeason(),
+ // Experience data (ALL mandatory!)
+ method: window.spotFormData.method,
+ groupSize: window.spotFormData.groupSize,
+ timeOfDay: window.spotFormData.timeOfDay,
+ waitTime: window.spotFormData.waitTime || 10,
+ rideResult: window.spotFormData.rideResult,
+ season: detectSeason(),
 
-      // Legacy fields (backward compat)
-      from: from,
-      to: to,
-      direction: direction,
+ // Legacy fields (backward compat)
+ from: from,
+ to: to,
+ direction: direction,
 
-      // Standard fields
-      description,
-      photoUrl: photoUrl,
-      photos: uploadedUrls,
-      hasPhoto: hasPhoto,
-      coordinates: {
-        lat: window.spotFormData.lat,
-        lng: window.spotFormData.lng,
-      },
-      ratings: {
-        safety: ratings.safety || 0,
-        traffic: ratings.traffic || 0,
-        accessibility: ratings.accessibility || 0,
-      },
-      globalRating,
-      avgWaitTime: window.spotFormData.waitTime || 30,
-      spotType,
-      fromCity: from,
-      tags: {
-        ...(window.spotFormData.tags || {}),
-        signMethod: window.spotFormData.method || null,
-      },
-      cityNumber,
-      stationName: window.spotFormData.stationName || '',
-      streetViewVerified: !!window.spotFormData._streetViewChecked,
-      dataSource: 'community',
-      createdAt: new Date().toISOString(),
-      experienceDate: {
-        year: window.spotFormData.experienceYear || new Date().getFullYear(),
-        month: window.spotFormData.experienceMonth || (new Date().getMonth() + 1),
-        ...(window.spotFormData.experienceDay ? { day: window.spotFormData.experienceDay } : {}),
-      },
-      destinations,
-    }
+ // Standard fields
+ description,
+ photoUrl: photoUrl,
+ photos: uploadedUrls,
+ hasPhoto: hasPhoto,
+ coordinates: {
+ lat: window.spotFormData.lat,
+ lng: window.spotFormData.lng,
+ },
+ ratings: {
+ safety: ratings.safety || 0,
+ traffic: ratings.traffic || 0,
+ accessibility: ratings.accessibility || 0,
+ },
+ globalRating,
+ avgWaitTime: window.spotFormData.waitTime || 30,
+ spotType,
+ fromCity: from,
+ tags: {
+ ...(window.spotFormData.tags || {}),
+ signMethod: window.spotFormData.method || null,
+ },
+ cityNumber,
+ stationName: window.spotFormData.stationName || '',
+ streetViewVerified: !!window.spotFormData._streetViewChecked,
+ dataSource: 'community',
+ createdAt: new Date().toISOString(),
+ experienceDate: {
+ year: window.spotFormData.experienceYear || new Date().getFullYear(),
+ month: window.spotFormData.experienceMonth || (new Date().getMonth() + 1),
+ ...(window.spotFormData.experienceDay ? { day: window.spotFormData.experienceDay } : {}),
+ },
+ destinations,
+ }
 
-    // GPS check for spot creation when date = today
-    const expYear = window.spotFormData.experienceYear || new Date().getFullYear()
-    const expMonth = window.spotFormData.experienceMonth || (new Date().getMonth() + 1)
-    const isToday = expYear === new Date().getFullYear()
-      && expMonth === (new Date().getMonth() + 1)
-    if (isToday && window.spotFormData.lat && window.spotFormData.lng) {
-      try {
-        const { verifyProximity } = await import('../../services/locationHistory.js')
-        const proximity = await verifyProximity(
-          window.spotFormData.lat,
-          window.spotFormData.lng,
-          'validation',
-        )
-        if (proximity.allowed) {
-          spotData.gpsVerified = true
-          spotData.gpsDistance = proximity.closestM
-        }
-      } catch { /* GPS unavailable */ }
-    }
+ // GPS check for spot creation when date = today
+ const expYear = window.spotFormData.experienceYear || new Date().getFullYear()
+ const expMonth = window.spotFormData.experienceMonth || (new Date().getMonth() + 1)
+ const isToday = expYear === new Date().getFullYear()
+ && expMonth === (new Date().getMonth() + 1)
+ if (isToday && window.spotFormData.lat && window.spotFormData.lng) {
+ try {
+ const { verifyProximity } = await import('../../services/locationHistory.js')
+ const proximity = await verifyProximity(
+ window.spotFormData.lat,
+ window.spotFormData.lng,
+ 'validation',
+ )
+ if (proximity.allowed) {
+ spotData.gpsVerified = true
+ spotData.gpsDistance = proximity.closestM
+ }
+ } catch { /* GPS unavailable */ }
+ }
 
-    const result = await addSpot(spotData)
+ const result = await addSpot(spotData)
 
-    if (result.success) {
-      const { showSuccess } = await import('../../services/notifications.js')
-      const { actions, setState: setStateFn } = await import('../../stores/state.js')
+ if (result.success) {
+ const { showSuccess } = await import('../../services/notifications.js')
+ const { actions, setState: setStateFn } = await import('../../stores/state.js')
 
-      showSuccess(hasPhoto
-        ? (t('spotShared') || 'Spot partagé !') + ` +50 pts (${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''})`
-        : (t('spotShared') || 'Spot partagé avec succès !'))
-      actions.incrementSpotsCreated()
-      // Add new spot to map immediately (so user sees it without reload)
-      try {
-        const { getState: getStateFn } = await import('../../stores/state.js')
-        const currentSpots = getStateFn().spots || []
-        const newSpot = {
-          ...spotData,
-          id: result.id,
-          creatorId: window.__firebaseUser?.uid || 'anonymous',
-          creator: window.__firebaseUser?.displayName || 'Anonyme',
-        }
-        setStateFn({ spots: [...currentSpots, newSpot] })
-        if (window._refreshMapSpots) window._refreshMapSpots()
-      } catch { /* map refresh is nice-to-have, not critical */ }
-      // Record country visit for "Pays visités" in profile
-      if (spotData.country) {
-        try {
-          const { recordCountryVisit } = await import('../../services/gamification.js')
-          recordCountryVisit(spotData.country)
-        } catch { /* no-op */ }
-      }
-      // Bonus points for photo (50 pts if at least 1 photo)
-      if (hasPhoto) {
-        actions.addPoints?.(50)
-      }
-      setStateFn({
-        showAddSpot: false,
-        addSpotStep: 1,
-        addSpotType: null,
-        addSpotMethod: null,
-        addSpotGroupSize: null,
-        addSpotTimeOfDay: null,
-        addSpotWaitTime: null,
-        addSpotRideResult: null,
-      })
+ showSuccess(hasPhoto
+ ? (t('spotShared') || 'Spot partagé !') + ` +50 pts (${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''})`
+ : (t('spotShared') || 'Spot partagé avec succès !'))
+ actions.incrementSpotsCreated()
+ // Add new spot to map immediately (so user sees it without reload)
+ try {
+ const { getState: getStateFn } = await import('../../stores/state.js')
+ const currentSpots = getStateFn().spots || []
+ const newSpot = {
+ ...spotData,
+ id: result.id,
+ creatorId: window.__firebaseUser?.uid || 'anonymous',
+ creator: window.__firebaseUser?.displayName || 'Anonyme',
+ }
+ setStateFn({ spots: [...currentSpots, newSpot] })
+ if (window._refreshMapSpots) window._refreshMapSpots()
+ } catch { /* map refresh is nice-to-have, not critical */ }
+ // Record country visit for "Pays visités" in profile
+ if (spotData.country) {
+ try {
+ const { recordCountryVisit } = await import('../../services/gamification.js')
+ recordCountryVisit(spotData.country)
+ } catch { /* no-op */ }
+ }
+ // Bonus points for photo (50 pts if at least 1 photo)
+ if (hasPhoto) {
+ actions.addPoints?.(50)
+ }
+ setStateFn({
+ showAddSpot: false,
+ addSpotStep: 1,
+ addSpotType: null,
+ addSpotMethod: null,
+ addSpotGroupSize: null,
+ addSpotTimeOfDay: null,
+ addSpotWaitTime: null,
+ addSpotRideResult: null,
+ })
 
-      // Reset form data
-      window.spotFormData = {
-        photos: [], lat: null, lng: null,
-        ratings: { safety: 0, traffic: 0, accessibility: 0 },
-        tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
-        country: null, countryName: null,
-        departureCity: null, departureCityCoords: null,
-        directionCity: null, directionCityCoords: null,
-        locationName: null, roadNumber: null, positionSource: null,
-        method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
-        rideResult: null, stationName: '',
-        extraDestinations: [],
-      }
+ // Reset form data
+ window.spotFormData = {
+ photos: [], lat: null, lng: null,
+ ratings: { safety: 0, traffic: 0, accessibility: 0 },
+ tags: { shelter: false, waterFood: false, toilets: false, visibility: false, stoppingSpace: false },
+ country: null, countryName: null,
+ departureCity: null, departureCityCoords: null,
+ directionCity: null, directionCityCoords: null,
+ locationName: null, roadNumber: null, positionSource: null,
+ method: null, groupSize: null, timeOfDay: null, waitTime: null, season: null,
+ rideResult: null, stationName: '',
+ extraDestinations: [],
+ }
 
-      // Show contextual tip for first spot created
-      try {
-        const { triggerSpotCreatedTip } = await import('../../services/contextualTips.js')
-        triggerSpotCreatedTip()
-      } catch { /* no-op */ }
+ // Show contextual tip for first spot created
+ try {
+ const { triggerSpotCreatedTip } = await import('../../services/contextualTips.js')
+ triggerSpotCreatedTip()
+ } catch { /* no-op */ }
 
-      // Guide nudge: invite user to share tips for the country they just added a spot in
-      try {
-        const countryCode = spotData.country
-        const countryName = spotData.countryName
-        if (countryCode) {
-          const nudgeSeenGlobal = localStorage.getItem('spothitch_guide_nudge_seen')
-          const dismissedCountries = JSON.parse(localStorage.getItem('spothitch_guide_nudge_countries') || '[]')
-          const countryDismissed = dismissedCountries.includes(countryCode)
-          const shouldShow = !nudgeSeenGlobal && !countryDismissed
-          // Get country flag emoji from country code
-          const flagEmoji = countryCode
-            .toUpperCase()
-            .replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)))
-          setStateFn({
-            pendingGuideCountry: { code: countryCode, name: countryName || countryCode, flag: flagEmoji },
-            showGuideNudge: shouldShow,
-          })
-        }
-      } catch { /* no-op */ }
-    } else {
-      throw new Error('Failed to add spot')
-    }
-  } catch (error) {
-    console.error('Add spot failed:', error)
-    const { showError } = await import('../../services/notifications.js')
-    showError(t('addSpotError') || "Erreur lors de l'ajout du spot")
-  } finally {
-    if (submitBtn) {
-      submitBtn.disabled = false
-      submitBtn.innerHTML = `${icon('share', 'w-5 h-5')} ${t('shareThisSpot') || t('create')}`
-    }
-  }
+ // Guide nudge: invite user to share tips for the country they just added a spot in
+ try {
+ const countryCode = spotData.country
+ const countryName = spotData.countryName
+ if (countryCode) {
+ const nudgeSeenGlobal = localStorage.getItem('spothitch_guide_nudge_seen')
+ const dismissedCountries = JSON.parse(localStorage.getItem('spothitch_guide_nudge_countries') || '[]')
+ const countryDismissed = dismissedCountries.includes(countryCode)
+ const shouldShow = !nudgeSeenGlobal && !countryDismissed
+ // Get country flag emoji from country code
+ const flagEmoji = countryCode
+ .toUpperCase()
+ .replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)))
+ setStateFn({
+ pendingGuideCountry: { code: countryCode, name: countryName || countryCode, flag: flagEmoji },
+ showGuideNudge: shouldShow,
+ })
+ }
+ } catch { /* no-op */ }
+ } else {
+ throw new Error('Failed to add spot')
+ }
+ } catch (error) {
+ console.error('Add spot failed:', error)
+ const { showError } = await import('../../services/notifications.js')
+ showError(t('addSpotError') || "Erreur lors de l'ajout du spot")
+ } finally {
+ if (submitBtn) {
+ submitBtn.disabled = false
+ submitBtn.innerHTML = `${icon('share', 'w-5 h-5')} ${t('shareThisSpot') || t('create')}`
+ }
+ }
 }
 
 // Character counter for description (named handler for cleanup)
 function _addSpotInputHandler(e) {
-  if (e.target.id === 'spot-description') {
-    const count = document.getElementById('desc-count')
-    if (count) count.textContent = e.target.value.length
-  }
+ if (e.target.id === 'spot-description') {
+ const count = document.getElementById('desc-count')
+ if (count) count.textContent = e.target.value.length
+ }
 }
 document.addEventListener('input', _addSpotInputHandler)
 
@@ -2513,172 +2457,165 @@ document.addEventListener('input', _addSpotInputHandler)
  * Cleanup AddSpot event listeners — called from closeAddSpot
  */
 export function cleanupAddSpotListeners() {
-  document.removeEventListener('input', _addSpotInputHandler)
+ document.removeEventListener('input', _addSpotInputHandler)
 }
 
 /**
  * Re-attach AddSpot event listeners — called when modal opens
  */
 export function attachAddSpotListeners() {
-  document.removeEventListener('input', _addSpotInputHandler) // prevent duplicates
-  document.addEventListener('input', _addSpotInputHandler)
+ document.removeEventListener('input', _addSpotInputHandler) // prevent duplicates
+ document.addEventListener('input', _addSpotInputHandler)
 }
 
 // ==================== NEARBY SPOT CHOICE MODAL ====================
 
 export function renderNearbySpotChoice(state) {
-  const nearbySpots = state.nearbySpotChoiceData
-  if (!nearbySpots || nearbySpots.length === 0) return ''
+ const nearbySpots = state.nearbySpotChoiceData
+ if (!nearbySpots || nearbySpots.length === 0) return ''
 
-  const spotsHtml = nearbySpots.slice(0, 3).map(spot => {
-    const name = spot.departureCity || spot.city || spot.fromCity || spot.locationName || 'Spot'
-    const dir = spot.directionCity || spot.to || ''
-    const r = spot.liveRatings || spot.ratings || {}
-    const avgRating = ((r.safety || 0) + (r.traffic || 0) + (r.accessibility || 0)) / 3
-    const ratingStr = avgRating > 0 ? `${avgRating.toFixed(1)}/5` : ''
-    const tests = spot.liveTestCount || spot.testCount || spot.validationCount || 0
-    const waitTime = spot.liveAvgWaitTime || spot.avgWaitTime || ''
-    const dist = spot._distance || ''
-    const spotId = spot.id
+ const spotsHtml = nearbySpots.slice(0, 3).map(spot => {
+ const name = spot.departureCity || spot.city || spot.fromCity || spot.locationName || 'Spot'
+ const dir = spot.directionCity || spot.to || ''
+ const r = spot.liveRatings || spot.ratings || {}
+ const avgRating = ((r.safety || 0) + (r.traffic || 0) + (r.accessibility || 0)) / 3
+ const ratingStr = avgRating > 0 ? `${avgRating.toFixed(1)}/5` : ''
+ const tests = spot.liveTestCount || spot.testCount || spot.validationCount || 0
+ const waitTime = spot.liveAvgWaitTime || spot.avgWaitTime || ''
+ const dist = spot._distance || ''
+ const spotId = spot.id
 
-    return `
-      <button onclick="nearbySpotChooseValidate('${escapeHTML(String(spotId))}')"
-        class="w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-primary-500/20 flex items-center justify-center shrink-0">
-          ${icon('map-pin', 'w-5 h-5 text-primary-400')}
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="font-medium text-sm truncate">${escapeHTML(name)}${dir ? ' → ' + escapeHTML(dir) : ''}</div>
-          <div class="text-xs text-slate-400 flex flex-wrap gap-x-2">
-            ${dist ? `<span>${dist}m</span>` : ''}
-            ${tests ? `<span>${tests} ${t('validations') || 'validations'}</span>` : ''}
-            ${ratingStr ? `<span>${ratingStr}</span>` : ''}
-            ${waitTime ? `<span>${waitTime} min</span>` : ''}
-          </div>
-        </div>
-        <div class="text-primary-400 text-xs font-medium shrink-0 flex items-center gap-1">
-          ${icon('check-circle', 'w-3.5 h-3.5')}
-          ${t('sameSpotValidate') || 'Valider'}
-        </div>
-      </button>`
-  }).join('')
+ return `
+ <button onclick="nearbySpotChooseValidate('${escapeHTML(String(spotId))}')"
+ class="w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left flex items-center gap-3">
+ <div class="w-10 h-10 rounded-xl bg-primary-500/20 flex items-center justify-center shrink-0">
+ ${icon('map-pin', 'w-5 h-5 text-primary-400')}
+ </div>
+ <div class="flex-1 min-w-0">
+ <div class="font-medium text-sm truncate">${escapeHTML(name)}${dir ? ' → ' + escapeHTML(dir) : ''}</div>
+ <div class="text-xs text-slate-400 flex flex-wrap gap-x-2">
+ ${dist ? `<span>${dist}m</span>` : ''}
+ ${tests ? `<span>${tests} ${t('validations') || 'validations'}</span>` : ''}
+ ${ratingStr ? `<span>${ratingStr}</span>` : ''}
+ ${waitTime ? `<span>${waitTime} min</span>` : ''}
+ </div></div>
+ <div class="text-primary-400 text-xs font-medium shrink-0 flex items-center gap-1">
+ ${icon('check-circle', 'w-3.5 h-3.5')}
+ ${t('sameSpotValidate') || 'Valider'}
+ </div></button>`
+ }).join('')
 
-  return `
-    <div class="fixed inset-0 bg-black/80 z-[60] flex items-end sm:items-center justify-center"
-      onclick="if(event.target===this)closeNearbySpotChoice()" role="dialog" aria-modal="true">
-      <div class="modal-panel w-full sm:max-w-md sm:rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
-        <div class="bg-gradient-to-r from-primary-500 to-amber-500 p-4">
-          <h2 class="text-lg font-bold text-white">${t('nearbySpotFound') || 'Spot à proximité'}</h2>
-          <p class="text-white/80 text-sm mt-1">${t('nearbySpotDescription') || 'Un spot existe déjà près de cet endroit. Vérifie sur la carte si c\'est le même.'}</p>
-        </div>
+ return `
+ <div class="fixed inset-0 bg-black/80 z-[60] flex items-end sm:items-center justify-center"
+ onclick="if(event.target===this)closeNearbySpotChoice()" role="dialog" aria-modal="true">
+ <div class="modal-panel w-full sm:max-w-md sm:rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+ <div class="bg-gradient-to-r from-primary-500 to-amber-500 p-4">
+ <h2 class="text-lg font-bold text-white">${t('nearbySpotFound') || 'Spot à proximité'}</h2>
+ <p class="text-white/80 text-sm mt-1">${t('nearbySpotDescription') || 'Un spot existe déjà près de cet endroit. Vérifie sur la carte si c\'est le même.'}</p></div>
 
-        <!-- Mini-map comparing positions -->
-        <div id="nearby-comparison-map" class="w-full h-[180px] bg-[#161b28]"></div>
-        <div class="flex justify-around text-[10px] text-slate-500 py-1.5 px-4 bg-[#0f1520]">
-          <span class="flex items-center gap-1">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-            ${t('nearbyYourPosition') || 'Ta position'}
-          </span>
-          <span class="flex items-center gap-1">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
-            ${t('nearbyExistingSpot') || 'Spot existant'}
-          </span>
-        </div>
+ <!-- Mini-map comparing positions -->
+ <div id="nearby-comparison-map" class="w-full h-[180px] bg-[#161b28]"></div>
+ <div class="flex justify-around text-[10px] text-slate-500 py-1.5 px-4 bg-[#0f1520]">
+ <span class="flex items-center gap-1">
+ <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+ ${t('nearbyYourPosition') || 'Ta position'}
+ </span>
+ <span class="flex items-center gap-1">
+ <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+ ${t('nearbyExistingSpot') || 'Spot existant'}
+ </span></div>
 
-        <div class="p-4 space-y-2">
-          <p class="text-xs text-slate-400 mb-1">${t('nearbySpotExisting') || 'Spots existants à moins de 500m :'}</p>
-          ${spotsHtml}
-        </div>
+ <div class="p-4 space-y-2">
+ <p class="text-xs text-slate-400 mb-1">${t('nearbySpotExisting') || 'Spots existants à moins de 500m :'}</p>
+ ${spotsHtml}
+ </div>
 
-        <div class="p-4 border-t border-white/10">
-          <button onclick="nearbySpotChooseCreate()" class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium transition-colors flex items-center justify-center gap-2">
-            ${icon('circle-plus', 'w-4 h-4')}
-            ${t('differentSpotCreate') || 'C\'est un autre spot, je crée'}
-          </button>
-        </div>
-      </div>
-    </div>
-  `
+ <div class="p-4 border-t border-white/10">
+ <button onclick="nearbySpotChooseCreate()" class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-medium transition-colors flex items-center justify-center gap-2">
+ ${icon('circle-plus', 'w-4 h-4')}
+ ${t('differentSpotCreate') || 'C\'est un autre spot, je crée'}
+ </button></div></div></div>
+ `
 }
 
 /** Initialize the comparison mini-map showing user pin + existing spot(s) */
 export async function initNearbyComparisonMap() {
-  const container = document.getElementById('nearby-comparison-map')
-  if (!container || container.dataset.init) return
-  container.dataset.init = '1'
+ const container = document.getElementById('nearby-comparison-map')
+ if (!container || container.dataset.init) return
+ container.dataset.init = '1'
 
-  const state = window.getState?.() || {}
-  const userPin = state.nearbyUserPin
-  const spots = state.nearbySpotChoiceData
-  if (!userPin || !spots?.length) return
+ const state = window.getState?.() || {}
+ const userPin = state.nearbyUserPin
+ const spots = state.nearbySpotChoiceData
+ if (!userPin || !spots?.length) return
 
-  try {
-    const maplibregl = await import('maplibre-gl')
-    const bounds = new maplibregl.LngLatBounds()
-    bounds.extend([userPin.lng, userPin.lat])
-    spots.forEach(s => {
-      const lat = s.coordinates?.lat || s.lat
-      const lng = s.coordinates?.lng || s.lng
-      if (lat && lng) bounds.extend([lng, lat])
-    })
+ try {
+ const maplibregl = await import('maplibre-gl')
+ const bounds = new maplibregl.LngLatBounds()
+ bounds.extend([userPin.lng, userPin.lat])
+ spots.forEach(s => {
+ const lat = s.coordinates?.lat || s.lat
+ const lng = s.coordinates?.lng || s.lng
+ if (lat && lng) bounds.extend([lng, lat])
+ })
 
-    const map = new maplibregl.Map({
-      container,
-      style: 'https://tiles.openfreemap.org/styles/positron',
-      bounds,
-      fitBoundsOptions: { padding: 40, maxZoom: 16 },
-      interactive: false,
-      attributionControl: false,
-    })
+ const map = new maplibregl.Map({
+ container,
+ style: 'https://tiles.openfreemap.org/styles/positron',
+ bounds,
+ fitBoundsOptions: { padding: 40, maxZoom: 16 },
+ interactive: false,
+ attributionControl: false,
+ })
 
-    map.on('load', () => {
-      // User pin (orange)
-      const userEl = document.createElement('div')
-      userEl.style.cssText = 'width:14px;height:14px;background:#f59e0b;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(245,158,11,0.5)'
-      new maplibregl.Marker({ element: userEl }).setLngLat([userPin.lng, userPin.lat]).addTo(map)
+ map.on('load', () => {
+ // User pin (orange)
+ const userEl = document.createElement('div')
+ userEl.style.cssText = 'width:14px;height:14px;background:#f59e0b;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(245,158,11,0.5)'
+ new maplibregl.Marker({ element: userEl }).setLngLat([userPin.lng, userPin.lat]).addTo(map)
 
-      // Existing spot(s) (blue)
-      spots.forEach(s => {
-        const lat = s.coordinates?.lat || s.lat
-        const lng = s.coordinates?.lng || s.lng
-        if (!lat || !lng) return
-        const spotEl = document.createElement('div')
-        spotEl.style.cssText = 'width:14px;height:14px;background:#3b82f6;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(59,130,246,0.5)'
-        new maplibregl.Marker({ element: spotEl }).setLngLat([lng, lat]).addTo(map)
-      })
-    })
-  } catch (e) {
-    console.warn('Nearby comparison map init failed:', e)
-  }
+ // Existing spot(s) (blue)
+ spots.forEach(s => {
+ const lat = s.coordinates?.lat || s.lat
+ const lng = s.coordinates?.lng || s.lng
+ if (!lat || !lng) return
+ const spotEl = document.createElement('div')
+ spotEl.style.cssText = 'width:14px;height:14px;background:#3b82f6;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(59,130,246,0.5)'
+ new maplibregl.Marker({ element: spotEl }).setLngLat([lng, lat]).addTo(map)
+ })
+ })
+ } catch (e) {
+ console.warn('Nearby comparison map init failed:', e)
+ }
 }
 
 window.nearbySpotChooseValidate = (spotId) => {
-  // Close nearby modal + AddSpot, then open the spot detail for validation
-  window.setState?.({
-    nearbySpotChoiceData: null,
-    nearbyUserPin: null,
-    showAddSpot: false,
-  })
-  // Open spot detail with the existing spot so user can validate via CheckinModal
-  setTimeout(() => {
-    window.selectSpot?.(spotId)
-    window.showToast?.(
-      window.t?.('nearbySpotValidateHint') || 'Utilise le bouton "Check-in" pour donner ton avis sur ce spot',
-      'info'
-    )
-  }, 400)
+ // Close nearby modal + AddSpot, then open the spot detail for validation
+ window.setState?.({
+ nearbySpotChoiceData: null,
+ nearbyUserPin: null,
+ showAddSpot: false,
+ })
+ // Open spot detail with the existing spot so user can validate via CheckinModal
+ setTimeout(() => {
+ window.selectSpot?.(spotId)
+ window.showToast?.(
+ window.t?.('nearbySpotValidateHint') || 'Utilise le bouton "Check-in" pour donner ton avis sur ce spot',
+ 'info'
+ )
+ }, 400)
 }
 
 window.nearbySpotChooseCreate = () => {
-  // User confirmed it's a different spot → continue to step 2
-  window.spotFormData._duplicateConfirmed = true
-  window.setState?.({ nearbySpotChoiceData: null, nearbyUserPin: null })
-  // Continue the step 1 → step 2 transition
-  setTimeout(() => window.addSpotNextStep?.(), 100)
+ // User confirmed it's a different spot → continue to step 2
+ window.spotFormData._duplicateConfirmed = true
+ window.setState?.({ nearbySpotChoiceData: null, nearbyUserPin: null })
+ // Continue the step 1 → step 2 transition
+ setTimeout(() => window.addSpotNextStep?.(), 100)
 }
 
 window.closeNearbySpotChoice = () => {
-  window.setState?.({ nearbySpotChoiceData: null, nearbyUserPin: null })
+ window.setState?.({ nearbySpotChoiceData: null, nearbyUserPin: null })
 }
 
 export default { renderAddSpot, renderNearbySpotChoice }
