@@ -126,8 +126,9 @@ describe('Impact Analysis: main.js window handlers', () => {
     expect(content).toMatch(/function render\b/)
   })
 
-  it('auto-update code exists (version check)', () => {
+  it('auto-update is a no-op (zero reload PWA — rule #23)', () => {
     const content = readFileSync(join(SRC_PATH, 'services', 'autoUpdate.js'), 'utf-8')
-    expect(content).toContain('version.json')
+    expect(content).not.toContain('location.reload')
+    expect(content).toContain('startVersionCheck')
   })
 })
