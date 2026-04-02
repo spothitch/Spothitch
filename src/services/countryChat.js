@@ -85,9 +85,9 @@ export async function joinCountryChat(countryCode) {
       updatedAt: serverTimestamp(),
     }, { merge: true })
 
-    // Open the conversation
+    // Open the conversation — switch to social tab + open the group chat
     const { setState } = await import('../stores/state.js')
-    setState({ activeGroupConversation: groupId, socialSubTab: 'messagerie' })
+    setState({ activeTab: 'social', activeGroupConversation: groupId })
 
     return groupId
   } catch (err) {
