@@ -28,8 +28,8 @@
       "warnings": 11
     },
     "Error Patterns": {
-      "score": 55,
-      "errors": 26,
+      "score": 50,
+      "errors": 42,
       "warnings": 0
     },
     "Duplicate Handlers": {

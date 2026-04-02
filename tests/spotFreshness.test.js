@@ -221,7 +221,7 @@ describe('spotFreshness', () => {
     it('should render crown for certified spot', () => {
       const spot = { ambassadorVerified: true, validationCount: 0, testCount: 0 }
       const html = renderFreshnessBadge(spot)
-      expect(html).toContain('👑')
+      expect(html).toContain('crown')
     })
 
     it('should render blue badge for any spot', () => {
