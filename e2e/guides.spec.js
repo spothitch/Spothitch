@@ -8,7 +8,7 @@ import { skipOnboarding, navigateToTab } from './helpers.js'
 
 test.describe('Guides', () => {
   test.beforeEach(async ({ page }) => {
-    await skipOnboarding(page, { tab: 'travel' })
+    await skipOnboarding(page, { tab: 'voyage' })
     await page.waitForTimeout(1500)
   })
 

@@ -305,8 +305,8 @@ export async function triggerModuleLoad(page, module) {
       await navigateToTab(page, 'social')
       await page.waitForTimeout(2000)
       break
-    case 'travel':
-      await navigateToTab(page, 'travel')
+    case 'voyage':
+      await navigateToTab(page, 'voyage')
       await page.waitForTimeout(2000)
       break
     case 'sos':

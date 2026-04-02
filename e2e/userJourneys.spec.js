@@ -294,14 +294,12 @@ test.describe('Journey: Voyage Tab', () => {
     await navigateToTab(page, 'voyage')
   })
 
-  test('should display guides as default sub-tab', async ({ page }) => {
-    // Default sub-tab is Guides (trip planner hidden during alpha)
-    const guidesContent = page
-      .locator('.guide-card')
-      .or(page.locator('#guides-search'))
-      .or(page.locator('text=/Guides/i'))
+  test('should display journal as default sub-tab', async ({ page }) => {
+    // Default sub-tab is Journal (trip planner hidden during alpha)
+    const journalContent = page
+      .locator('text=/Journal|Mes Voyages|My Trips|Nouveau|New/i')
       .first()
-    await expect(guidesContent).toBeVisible({ timeout: 8000 })
+    await expect(journalContent).toBeVisible({ timeout: 8000 })
   })
 
   test('should show voyage sub-tab navigation', async ({ page }) => {

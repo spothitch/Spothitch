@@ -67,7 +67,7 @@ test.describe('Deep Links & URL Routing', () => {
     await expect(auth.first()).toBeVisible({ timeout: 5000 })
   })
 
-  test('?action=quiz opens Quiz modal', async ({ page }) => {
+  test.skip('?action=quiz opens Quiz modal (hidden during alpha)', async ({ page }) => {
     await page.goto('/?action=quiz', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(3000)
     await dismissOverlays(page)
@@ -76,7 +76,7 @@ test.describe('Deep Links & URL Routing', () => {
     expect(count).toBeGreaterThan(0)
   })
 
-  test('?action=shop opens Shop modal', async ({ page }) => {
+  test.skip('?action=shop opens Shop modal (hidden during alpha)', async ({ page }) => {
     await page.goto('/?action=shop', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(3000)
     await dismissOverlays(page)

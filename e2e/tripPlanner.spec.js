@@ -6,7 +6,7 @@
 import { test, expect } from '@playwright/test'
 import { skipOnboarding, navigateToTab } from './helpers.js'
 
-test.describe('Trip Planner Deep', () => {
+test.describe.skip('Trip Planner Deep (hidden during alpha)', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page, { tab: 'voyage' })
     // Force voyage sub-tab (default is 'journal' when VITE_SHOW_BETA is unset)

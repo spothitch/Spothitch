@@ -6,7 +6,7 @@
 import { test, expect } from '@playwright/test'
 import { skipOnboarding, navigateToTab } from './helpers.js'
 
-test.describe('Voyage Tab', () => {
+test.describe.skip('Voyage Tab — trip planner (hidden during alpha)', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'voyage')

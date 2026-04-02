@@ -434,7 +434,7 @@ test.describe('8.8 Tab navigation', () => {
 
   test('rapid tab switching does not crash', async () => {
     const capture = captureConsoleErrors(page)
-    const tabs = ['map', 'travel', 'social', 'profile', 'map']
+    const tabs = ['map', 'voyage', 'social', 'profile', 'map']
     for (const tab of tabs) {
       await navigateToTab(page, tab)
       await page.waitForTimeout(300)
