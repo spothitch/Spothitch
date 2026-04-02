@@ -14,22 +14,40 @@ import { FEATURES_MAP } from '../../data/featuresData.js'
 import { markFeatureSeen } from '../../services/featureIntro.js'
 import { getUserVote, submitVote } from '../../services/featureVotes.js'
 import { escapeHTML } from '../../utils/sanitize.js'
+import { icon } from '../../utils/icons.js'
 import { t } from '../../i18n/index.js'
+
+// ==================== EMOJI → ICON CONVERTER ====================
+const FEATURE_EMOJI_MAP = {
+  '🗺️': 'map', '⛽': 'fuel', '📍': 'map-pin', '👤': 'user', '🤝': 'handshake',
+  '💬': 'message-circle', '📔': 'notebook-pen', '📊': 'bar-chart-3', '🏆': 'trophy',
+  '📈': 'trending-up', '💡': 'lightbulb', '💛': 'heart', '📴': 'wifi-off',
+  '🚨': 'siren', '🧑‍🤝‍🧑': 'users', '🔔': 'bell', '👥': 'users', '🥇': 'medal',
+  '📡': 'radio', '🧭': 'compass', '🎤': 'mic', '📚': 'book-open', '🛡️': 'shield-check',
+  '🎉': 'party-popper', '🏨': 'building', '🏙️': 'building-2',
+  '🔥': 'flame', '👍': 'thumbs-up', '🤷': 'help-circle', '❤️': 'heart',
+  '✅': 'circle-check', '🛠️': 'wrench',
+}
+function featureIcon(emoji, size = 'w-5 h-5') {
+  const name = FEATURE_EMOJI_MAP[emoji]
+  if (name) return icon(name, `${size} text-current`)
+  return `<span class="${size}">${emoji}</span>`
+}
 
 // ==================== VOTE CHOICES ====================
 
 // Beta features: prioritize what to build
 const VOTE_CHOICES_BETA = [
-  { type: 'essential', emoji: '🔥', labelKey: 'voteEssential', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-  { type: 'useful', emoji: '👍', labelKey: 'voteUseful', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-  { type: 'notUrgent', emoji: '🤷', labelKey: 'voteNotUrgent', color: '#6b7280', bg: 'rgba(107,114,128,0.12)' },
+  { type: 'essential', iconName: 'flame', labelKey: 'voteEssential', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+  { type: 'useful', iconName: 'thumbs-up', labelKey: 'voteUseful', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  { type: 'notUrgent', iconName: 'help-circle', labelKey: 'voteNotUrgent', color: '#6b7280', bg: 'rgba(107,114,128,0.12)' },
 ]
 
 // Available features: quality feedback
 const VOTE_CHOICES_AVAILABLE = [
-  { type: 'love', emoji: '❤️', labelKey: 'voteLove', color: '#ec4899', bg: 'rgba(236,72,153,0.12)' },
-  { type: 'works', emoji: '✅', labelKey: 'voteWorks', color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
-  { type: 'improve', emoji: '🛠️', labelKey: 'voteImprove', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  { type: 'love', iconName: 'heart', labelKey: 'voteLove', color: '#ec4899', bg: 'rgba(236,72,153,0.12)' },
+  { type: 'works', iconName: 'circle-check', labelKey: 'voteWorks', color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
+  { type: 'improve', iconName: 'wrench', labelKey: 'voteImprove', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
 ]
 
 // All vote types for lookup
@@ -70,7 +88,7 @@ function renderContent(content, color) {
       case 'highlights':
         return c.items.map(item => `
           <div class="bg-white/[0.06] rounded-[10px] px-2.5 py-2 mb-2 text-left">
-            <p class="text-[0.64rem] font-bold text-white mb-0.5">${item.emoji ? item.emoji + ' ' : ''}${escapeHTML(item.title)}</p>
+            <p class="text-[0.64rem] font-bold text-white mb-0.5">${item.emoji ? featureIcon(item.emoji, 'w-3 h-3 inline') + ' ' : ''}${escapeHTML(item.title)}</p>
             <p class="text-[0.6rem] text-slate-400 leading-[1.4]">${escapeHTML(item.desc)}</p>
           </div>
         `).join('')
@@ -118,7 +136,7 @@ function buildModalHTML(feature) {
         data-featureid="${id}"
         aria-pressed="${isSel}"
         style="${style}">
-        <span class="text-[1.1rem] block">${v.emoji}</span>
+        <span class="block">${icon(v.iconName, 'w-5 h-5 mx-auto')}</span>
         <span class="text-[0.55rem] block mt-0.5 text-slate-400">${escapeHTML(t(v.labelKey) || v.type)}</span>
       </button>
     `

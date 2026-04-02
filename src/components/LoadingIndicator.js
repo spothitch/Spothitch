@@ -4,25 +4,26 @@
  */
 
 import { t } from '../i18n/index.js'
+import { icon } from '../utils/icons.js'
 
-// Messages de chargement amusants (liés à l'autostop)
+// Messages de chargement (liés à l'autostop) — Lucide icons (Rule #24)
 function getLoadingMessages() {
   return [
-    { text: t('loadingThumbUp') || 'Pouce en l\'air...', emoji: '👍' },
-    { text: t('loadingSearchCar') || 'On cherche une voiture...', emoji: '🚗' },
-    { text: t('loadingNegotiation') || 'Négociation avec le conducteur...', emoji: '🤝' },
-    { text: t('loadingKarma') || 'Vérification du karma routier...', emoji: '✨' },
-    { text: t('loadingDistance') || 'Calcul de la distance jusqu\'à l\'aventure...', emoji: '🗺️' },
-    { text: t('loadingTreasureMap') || 'Consultation de la carte au trésor...', emoji: '📜' },
-    { text: t('loadingEngine') || 'Démarrage du moteur...', emoji: '🔑' },
-    { text: t('loadingRoadside') || 'Attente sur le bord de la route...', emoji: '🛤️' },
-    { text: t('loadingGoodVibes') || 'Chargement des bonnes ondes...', emoji: '🌊' },
-    { text: t('loadingBackpack') || 'Préparation du sac à dos...', emoji: '🎒' },
-    { text: t('loadingSigns') || 'Lecture des panneaux de signalisation...', emoji: '🪧' },
-    { text: t('loadingWeather') || 'Vérification de la météo...', emoji: '☀️' },
-    { text: t('loadingThumbWarmup') || 'Échauffement du pouce...', emoji: '💪' },
-    { text: t('loadingUniverse') || 'Synchronisation avec l\'univers...', emoji: '🌌' },
-    { text: t('loadingStars') || 'Alignement des étoiles...', emoji: '⭐' },
+    { text: t('loadingThumbUp') || 'Pouce en l\'air...', iconHtml: icon('thumbs-up', 'w-5 h-5') },
+    { text: t('loadingSearchCar') || 'On cherche une voiture...', iconHtml: icon('car', 'w-5 h-5') },
+    { text: t('loadingNegotiation') || 'Négociation avec le conducteur...', iconHtml: icon('handshake', 'w-5 h-5') },
+    { text: t('loadingKarma') || 'Vérification du karma routier...', iconHtml: icon('sparkles', 'w-5 h-5') },
+    { text: t('loadingDistance') || 'Calcul de la distance...', iconHtml: icon('map', 'w-5 h-5') },
+    { text: t('loadingTreasureMap') || 'Consultation de la carte...', iconHtml: icon('scroll', 'w-5 h-5') },
+    { text: t('loadingEngine') || 'Démarrage du moteur...', iconHtml: icon('key', 'w-5 h-5') },
+    { text: t('loadingRoadside') || 'Attente sur le bord de la route...', iconHtml: icon('road', 'w-5 h-5') },
+    { text: t('loadingGoodVibes') || 'Chargement des bonnes ondes...', iconHtml: icon('waves', 'w-5 h-5') },
+    { text: t('loadingBackpack') || 'Préparation du sac à dos...', iconHtml: icon('backpack', 'w-5 h-5') },
+    { text: t('loadingSigns') || 'Lecture des panneaux...', iconHtml: icon('sign-post', 'w-5 h-5') },
+    { text: t('loadingWeather') || 'Vérification de la météo...', iconHtml: icon('sun', 'w-5 h-5') },
+    { text: t('loadingThumbWarmup') || 'Échauffement du pouce...', iconHtml: icon('zap', 'w-5 h-5') },
+    { text: t('loadingUniverse') || 'Synchronisation avec l\'univers...', iconHtml: icon('orbit', 'w-5 h-5') },
+    { text: t('loadingStars') || 'Alignement des étoiles...', iconHtml: icon('star', 'w-5 h-5') },
   ]
 }
 
@@ -90,7 +91,7 @@ function renderSpinner() {
     <div class="loading-overlay">
       <div class="loading-content">
         <div class="loading-thumb-container">
-          <div class="loading-thumb">${msg.emoji}</div>
+          <div class="loading-thumb">${msg.iconHtml || icon('thumbs-up', 'w-5 h-5')}</div>
           <div class="loading-ripple"></div>
           <div class="loading-ripple loading-ripple-delayed"></div>
         </div>
@@ -157,7 +158,7 @@ export function showLoading(options = {}) {
 
   loaderState.isVisible = true
   loaderState.mode = mode
-  loaderState.message = message ? { text: message, emoji: '👍' } : getRandomMessage()
+  loaderState.message = message ? { text: message, iconHtml: icon('thumbs-up', 'w-5 h-5') } : getRandomMessage()
   loaderState.progress = mode === 'bar' ? 10 : 0
 
   updateRender()
@@ -230,7 +231,7 @@ export function hideLoading(options = {}) {
  */
 export function setLoadingMessage(message) {
   if (loaderState.isVisible) {
-    loaderState.message = { text: message, emoji: '👍' }
+    loaderState.message = { text: message, iconHtml: icon('thumbs-up', 'w-5 h-5') }
     updateRender()
   }
 }
