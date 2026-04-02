@@ -237,7 +237,7 @@ window.completeWelcome = () => {
   const { selectedAvatar, pendingProfileAction } = window.getState()
   window.setState({
     username,
-    avatar: selectedAvatar || '👍',
+    avatar: selectedAvatar || 'thumbs-up',
     showWelcome: false,
     pendingProfileAction: null,
   })

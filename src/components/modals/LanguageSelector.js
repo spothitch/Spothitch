@@ -28,7 +28,7 @@ export function renderLanguageSelector(_state) {
       aria-labelledby="language-title">
       <div class="card p-8 max-w-md w-full text-center fade-in">
         <!-- Logo -->
-        <div class="text-6xl mb-4" aria-hidden="true">🌍</div>
+        <div class="flex justify-center mb-4" aria-hidden="true">${icon("globe", "w-14 h-14 text-amber-400")}</div>
         <h1 id="language-title" class="text-3xl font-display font-bold gradient-text mb-2">SpotHitch</h1>
         <p class="text-slate-400 mb-8">${t('chooseYourLanguage') || 'Choose your language / Choisis ta langue'}</p>
 

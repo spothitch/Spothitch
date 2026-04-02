@@ -326,7 +326,7 @@ export function renderFAQ(state) {
         ` : `
           <!-- No Results -->
           <div class="text-center py-12">
-            <div class="text-6xl mb-4">🔍</div>
+            <div class="flex justify-center mb-4">${icon("search", "w-14 h-14 text-slate-400")}</div>
             <h3 class="text-xl font-bold mb-2">${t('noResults', 'Aucun résultat')}</h3>
             <p class="text-slate-400 mb-6">${t('faqNoResultsMsg', 'Désolé, nous n\'avons pas trouvé de réponse pour votre recherche.')}</p>
             <button
@@ -342,7 +342,7 @@ export function renderFAQ(state) {
 
       <!-- Still need help? -->
       <div class="mx-4 mb-4 p-6 rounded-xl bg-gradient-to-br from-primary-500/20 to-emerald-500/20 border border-primary-500/30 text-center">
-        <div class="text-2xl mb-3">💬</div>
+        <div class="flex justify-center mb-3">${icon("message-circle", "w-6 h-6 text-amber-400")}</div>
         <h3 class="text-lg font-bold mb-2">${t('faqNeedHelp', 'Vous n\'avez pas trouvé votre réponse ?')}</h3>
         <p class="text-slate-300 mb-4">${t('faqHelpMsg', 'Notre équipe est là pour vous aider !')}</p>
         <button

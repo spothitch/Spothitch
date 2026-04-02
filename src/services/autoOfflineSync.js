@@ -311,7 +311,7 @@ export async function forceOfflineSync() {
   const result = await performAutoSync()
 
   if (result.success) {
-    showToast(`✅ ${t('autoOfflineSyncComplete') || 'Synchronisation terminée !'}`, 'success')
+    showToast(`${t('autoOfflineSyncComplete') || 'Synchronisation terminée !'}`, 'success')
   } else {
     showToast(t('autoOfflineSyncError') || 'Erreur lors de la synchronisation', 'error')
   }

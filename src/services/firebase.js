@@ -1312,7 +1312,7 @@ export async function saveCommentToFirebase(comment) {
       safety: comment.rating || null,
       userId: user.uid,
       userName: user.displayName || 'Anonyme',
-      userAvatar: user.photoURL || '👍',
+      userAvatar: user.photoURL || 'thumbs-up',
       type: 'review',
       createdAt: serverTimestamp(),
     };

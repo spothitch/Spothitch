@@ -47,7 +47,7 @@ export function renderShopModal() {
           <!-- Balance -->
           <div class="mt-4 flex items-center justify-center bg-white/20 rounded-xl p-4">
             <div class="text-center">
-              <div class="text-4xl mb-1">👍</div>
+              <div class="flex justify-center mb-1">${icon('thumbs-up', 'w-10 h-10 text-amber-400')}</div>
               <div class="text-3xl font-bold text-white">${userThumbs.toLocaleString()}</div>
               <div class="text-white/70 text-sm">${t('thumbsAvailable') || 'Pouces disponibles'}</div>
             </div>
@@ -62,7 +62,7 @@ export function renderShopModal() {
                            ${shopCategory === cat.id
     ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
     : 'bg-white/10 text-slate-200 border border-white/20 hover:bg-white/15 hover:border-primary-500/30'}">
-              ${cat.icon} ${cat.name}
+              ${icon(cat.iconName || 'circle', 'w-4 h-4 inline mr-1')} ${cat.name}
             </button>
           `).join('')}
         </div>
@@ -75,7 +75,7 @@ export function renderShopModal() {
 
           ${categoryRewards.length === 0 ? `
             <div class="text-center py-10 text-slate-400">
-              <span class="text-4xl">🎁</span>
+              <span class="flex justify-center">${icon('gift', 'w-10 h-10 text-slate-400')}</span>
               <p class="mt-2">${t('noOffersInCategory') || 'Aucune offre dans cette catégorie'}</p>
             </div>
           ` : ''}
@@ -108,7 +108,7 @@ function renderPartnerReward(reward, userThumbs, redeemedCodes, lang) {
       <div class="flex gap-4">
         <!-- Partner Logo -->
         <div class="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center text-3xl shrink-0">
-          ${reward.partnerLogo}
+          ${icon(reward.partnerLogo || 'package', 'w-8 h-8')}
         </div>
 
         <!-- Info -->
@@ -129,7 +129,7 @@ function renderPartnerReward(reward, userThumbs, redeemedCodes, lang) {
 
           <div class="flex items-center justify-between mt-3">
             <div class="flex items-center gap-1 text-sm ${canBuy ? 'text-amber-400' : 'text-slate-400'}">
-              <span>👍</span>
+              <span>${icon('thumbs-up', 'w-4 h-4 inline')}</span>
               <span class="font-bold">${reward.cost}</span>
               <span class="text-slate-400">${t('thumbsUnit') || 'pouces'}</span>
             </div>
@@ -146,7 +146,7 @@ function renderPartnerReward(reward, userThumbs, redeemedCodes, lang) {
               </button>
             ` : `
               <span class="text-slate-400 text-sm">
-                ${userThumbs < reward.cost ? `${t('youNeed') || 'Il te manque'} ${reward.cost - userThumbs} 👍` : ''}
+                ${userThumbs < reward.cost ? `${t('youNeed') || 'Il te manque'} ${reward.cost - userThumbs}` : ''}
               </span>
             `}
           </div>
@@ -195,7 +195,7 @@ export function renderMyRewardsModal() {
         <div class="flex-1 overflow-y-auto p-5">
           ${redeemedRewards.length === 0 ? `
             <div class="text-center py-10 text-slate-400">
-              <span class="text-5xl mb-4 block">🎫</span>
+              <span class="flex justify-center mb-4">${icon('ticket', 'w-12 h-12 text-slate-400')}</span>
               <p class="font-medium">${t('noPromoCode') || 'Aucun code promo'}</p>
               <p class="text-sm mt-1">${t('exchangeThumbsForDiscounts') || 'Échange tes pouces contre des réductions !'}</p>
               <button onclick="closeMyRewards(); openShop()"
@@ -209,7 +209,7 @@ export function renderMyRewardsModal() {
                 <div class="card p-4 border-emerald-500/30">
                   <div class="flex items-start gap-4">
                     <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-2xl">
-                      ${reward.partnerLogo}
+                      ${icon(reward.partnerLogo || 'package', 'w-8 h-8')}
                     </div>
                     <div class="flex-1">
                       <div class="flex items-center justify-between">
@@ -265,7 +265,7 @@ export function redeemReward(rewardId) {
   const userThumbs = state.thumbs || state.points || 0;
 
   if (userThumbs < reward.cost) {
-    showToast(t('notEnoughThumbs') || 'Pas assez de pouces ! 👍', 'error');
+    showToast(t('notEnoughThumbs') || 'Pas assez de pouces !', 'error');
     return;
   }
 
@@ -280,14 +280,14 @@ export function redeemReward(rewardId) {
     redeemedCodes: [...(state.redeemedCodes || []), rewardId],
   });
 
-  showToast(t('codeObtained') || `🎉 Code ${reward.partner} obtenu !`, 'success');
+  showToast(t('codeObtained') || `Code ${reward.partner} obtenu !`, 'success');
 }
 
 // Global handlers
 window.redeemReward = redeemReward;
 window.copyCode = (code) => {
   navigator.clipboard?.writeText(code).catch(() => {});
-  showToast(t('codeCopied') || 'Code copié ! 📋', 'success');
+  showToast(t('codeCopied') || 'Code copié !', 'success');
 };
 
 export default {

@@ -4,6 +4,7 @@
  */
 
 import { getState } from '../../stores/state.js';
+import { icon } from '../../utils/icons.js'
 import { t } from '../../i18n/index.js';
 
 /**
@@ -68,7 +69,7 @@ export function renderFriends(state) {
               <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20
                           border border-amber-500/30 rounded-xl">
                 <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-xl">
-                  ${request.avatar || '👍'}
+                  ${request.avatar ? request.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}
                 </div>
                 <div class="flex-1">
                   <div class="text-white font-medium">${request.name}</div>
@@ -115,7 +116,7 @@ export function renderFriends(state) {
       <!-- Empty State -->
       ${friends.length === 0 ? `
         <div class="text-center py-20 px-8">
-          <div class="text-6xl mb-4">👋</div>
+          <div class="flex justify-center mb-4">${icon("hand", "w-14 h-14 text-amber-400")}</div>
           <h2 class="text-xl font-bold text-white mb-2">${t('noFriendsYet') || 'Aucun ami pour l\'instant'}</h2>
           <p class="text-slate-400 mb-6">
             ${t('addFriendsToTravel') || 'Ajoute des amis pour discuter et voyager ensemble !'}
@@ -140,7 +141,7 @@ function renderFriendCard(friend, isOnline) {
          onclick="openFriendsChat('${friend.id}')" role="button" tabindex="0">
       <div class="relative">
         <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-2xl">
-          ${friend.avatar || '👍'}
+          ${friend.avatar ? friend.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}
         </div>
         <div class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white/5
                     ${isOnline ? 'bg-green-500' : 'bg-slate-500'}"></div>
@@ -188,7 +189,7 @@ export function renderFriendsChat(friendId) {
   if (!friend) {
     return `
       <div class="text-center py-20 text-slate-400">
-        <span class="text-4xl">❌</span>
+        <span>${icon("x", "w-10 h-10 text-red-400")}</span>
         <p class="mt-4">${t('friendNotFound') || 'Ami non trouvé'}</p>
         <button onclick="showFriends()" class="mt-4 text-amber-400 hover:text-amber-300">
           ${t('backToFriends') || 'Retour aux amis'}
@@ -209,7 +210,7 @@ export function renderFriendsChat(friendId) {
           </button>
           <div class="relative">
             <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-xl">
-              ${friend.avatar || '👍'}
+              ${friend.avatar ? friend.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}
             </div>
             <div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-dark-primary
                         ${friend.online ? 'bg-green-500' : 'bg-slate-500'}"></div>
@@ -231,7 +232,7 @@ export function renderFriendsChat(friendId) {
       <div class="flex-1 overflow-y-auto p-4 space-y-3" id="private-chat-messages">
         ${messages.length === 0 ? `
           <div class="text-center py-10 text-slate-400">
-            <span class="text-3xl">💬</span>
+            <span>${icon("message-circle", "w-8 h-8")}</span>
             <p class="mt-2 text-sm">${t('noMessagesYet') || 'Aucun message encore'}</p>
             <p class="text-xs">${t('sayHello') || 'Dis bonjour !'}</p>
           </div>
@@ -274,7 +275,7 @@ function renderPrivateMessage(message, friend) {
       <div class="flex items-end gap-2 max-w-[80%]">
         ${!isOwn ? `
           <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-sm shrink-0">
-            ${friend.avatar || '👍'}
+            ${friend.avatar ? friend.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}
           </div>
         ` : ''}
         <div class="${isOwn ? 'bg-amber-500 text-white' : 'bg-white/5 text-slate-100'}
@@ -332,7 +333,7 @@ export function renderAddFriendModal() {
             />
             <button onclick="copyFriendLink()"
                     class="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10">
-              📋
+              ${icon("clipboard", "w-3 h-3 inline")}
             </button>
           </div>
         </div>

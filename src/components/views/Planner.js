@@ -4,6 +4,7 @@
  */
 
 import { t } from '../../i18n/index.js';
+import { icon } from '../../utils/icons.js'
 import { formatDistance, formatDuration } from '../../services/osrm.js';
 import { getTripById } from '../../services/planner.js';
 
@@ -29,7 +30,7 @@ export function renderPlanner(state) {
           ${tripSteps.length === 0
     ? `
               <div class="text-center py-8 text-slate-400">
-                <span class="text-4xl">🗺️</span>
+                ${icon("map", "w-10 h-10 text-amber-400")}
                 <p class="mt-2">${t('addStartCity') || 'Ajoute une ville de départ'}</p>
               </div>
             `
@@ -91,7 +92,7 @@ export function renderPlanner(state) {
         ${savedTrips.length === 0
     ? `
             <div class="text-center py-6 text-slate-400">
-              <span class="text-3xl">📋</span>
+              ${icon("clipboard", "w-8 h-8")}
               <p class="mt-2 text-sm">${t('noTrips')}</p>
             </div>
           `
@@ -119,7 +120,7 @@ function renderTripStep(step, index, totalSteps) {
       <div class="flex flex-col items-center">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
                     ${isFirst ? 'bg-green-500 text-white' : isLast ? 'bg-red-500 text-white' : 'bg-dark-secondary text-slate-300'}">
-          ${isFirst ? '🚀' : isLast ? '🏁' : index}
+          ${isFirst ? icon('rocket', 'w-4 h-4 inline') : isLast ? icon('flag', 'w-4 h-4 inline') : index}
         </div>
         ${!isLast ? '<div class="w-0.5 h-4 bg-dark-secondary mt-1"></div>' : ''}
       </div>
@@ -162,7 +163,7 @@ function renderActiveTripDetails(trip) {
       <div class="flex justify-between items-start mb-3">
         <h3 class="text-lg font-bold text-white">Itinéraire calculé</h3>
         <button onclick="saveCurrentTrip()" class="text-amber-400 hover:text-amber-300 text-sm">
-          💾 Sauvegarder
+          ${icon('save', 'w-4 h-4 inline mr-1')} Sauvegarder
         </button>
       </div>
 
@@ -222,7 +223,7 @@ function renderSavedTripCard(trip) {
          onclick="loadSavedTrip('${trip.id}')" role="button" tabindex="0">
       <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl
                   flex items-center justify-center text-white text-lg">
-        🗺️
+        ${icon("map", "w-4 h-4 inline")}
       </div>
       <div class="flex-1 min-w-0">
         <div class="text-white font-medium truncate">${route}</div>
@@ -233,7 +234,7 @@ function renderSavedTripCard(trip) {
       </div>
       <button onclick="event.stopPropagation(); deleteSavedTrip('${trip.id}')"
               class="p-2 text-slate-400 hover:text-red-400">
-        🗑️
+        ${icon("trash-2", "w-4 h-4 inline")}
       </button>
     </div>
   `;
@@ -248,7 +249,7 @@ export function renderSavedTripDetail(tripId) {
   if (!trip) {
     return `
       <div class="text-center py-20 text-slate-400">
-        <span class="text-4xl">❌</span>
+        <span>${icon("x", "w-10 h-10 text-red-400")}</span>
         <p class="mt-4">Voyage non trouvé</p>
         <button onclick="changeTab('planner')" class="mt-4 text-amber-400 hover:text-amber-300">
           Retour au planificateur
@@ -270,7 +271,7 @@ export function renderSavedTripDetail(tripId) {
             <p class="text-slate-400 text-xs">Créé le ${new Date(trip.createdAt).toLocaleDateString()}</p>
           </div>
           <button onclick="deleteSavedTrip('${trip.id}')" class="p-2 text-red-400 hover:bg-dark-secondary rounded-full">
-            🗑️
+            ${icon("trash-2", "w-4 h-4 inline")}
           </button>
         </div>
       </div>

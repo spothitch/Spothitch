@@ -199,7 +199,7 @@ function showNearbyFriendNotification(friend, proximity) {
   // Toast notification
   const proximityLabel = typeof proximity.label === 'function' ? proximity.label() : proximity.label;
   showToast(
-    `📍 ${friend.username} ${t('nearbyFriendsIs') || 'est'} ${proximityLabel} (${friend.distance}km)`,
+    `${friend.username} ${t('nearbyFriendsIs') || 'est'} ${proximityLabel} (${friend.distance}km)`,
     'info'
   );
 
@@ -352,7 +352,7 @@ export function renderNearbyFriendsList(state) {
     return `
                   <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
                     <div class="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-xl">
-                      ${friend.avatar || '👤'}
+                      ${friend.avatar || 'thumbs-up'}
                     </div>
                     <div class="flex-1">
                       <div class="font-medium">${friend.username}</div>

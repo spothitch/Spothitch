@@ -552,10 +552,10 @@ export function renderDeviceList() {
   }
 
   const deviceIcons = {
-    mobile: '📱',
-    desktop: '💻',
-    tablet: '📲',
-    unknown: '🖥️',
+    mobile: 'smartphone',
+    desktop: 'monitor',
+    tablet: 'tablet',
+    unknown: 'monitor',
   }
 
   return `

@@ -142,7 +142,7 @@ async function syncPendingActions() {
     try {
       await processAction(action);
     } catch (error) {
-      console.error(`❌ Failed to sync action: ${action.type}`, error);
+      console.error(`Failed to sync action: ${action.type}`, error);
       // Re-queue failed action
       pendingActions.push(action);
     }

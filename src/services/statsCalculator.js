@@ -14,17 +14,17 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
  * Fun distance comparisons
  */
 const DISTANCE_COMPARISONS = [
-  { km: 100, emoji: '🚶', text: 'Un marathon x2.5 !' },
-  { km: 300, emoji: '🚅', text: 'Paris-Lyon en TGV' },
+  { km: 100, iconName: 'footprints', text: 'Un marathon x2.5 !' },
+  { km: 300, iconName: 'train-front', text: 'Paris-Lyon en TGV' },
   { km: 500, emoji: '🇫🇷', text: 'Traversee de la France' },
-  { km: 800, emoji: '🏔️', text: 'Paris-Marseille' },
-  { km: 1500, emoji: '🌍', text: 'Paris-Barcelone' },
-  { km: 2500, emoji: '✈️', text: 'Paris-Moscou' },
-  { km: 4000, emoji: '🗺️', text: 'Tour du monde' },
-  { km: 6000, emoji: '🌐', text: 'Paris-New York (a vol d\'oiseau)' },
-  { km: 10000, emoji: '🚀', text: 'Un quart du tour du monde !' },
-  { km: 20000, emoji: '🌎', text: 'La moitie du tour du monde !' },
-  { km: 40000, emoji: '🌍', text: 'Le tour de la Terre !' },
+  { km: 800, iconName: 'mountain', text: 'Paris-Marseille' },
+  { km: 1500, iconName: 'globe', text: 'Paris-Barcelone' },
+  { km: 2500, iconName: 'plane', text: 'Paris-Moscou' },
+  { km: 4000, iconName: 'map', text: 'Tour du monde' },
+  { km: 6000, iconName: 'globe', text: 'Paris-New York (a vol d\'oiseau)' },
+  { km: 10000, iconName: 'rocket', text: 'Un quart du tour du monde !' },
+  { km: 20000, iconName: 'globe', text: 'La moitie du tour du monde !' },
+  { km: 40000, iconName: 'globe', text: 'Le tour de la Terre !' },
 ];
 
 /**
@@ -34,7 +34,7 @@ const DISTANCE_COMPARISONS = [
  */
 export function getDistanceComparison(distanceKm) {
   if (!distanceKm || distanceKm < 50) {
-    return { emoji: '🚶', text: 'Continue a voyager pour debloquer des comparaisons !' };
+    return { iconName: 'footprints', text: 'Continue a voyager pour debloquer des comparaisons !' };
   }
 
   // Find the highest matching comparison

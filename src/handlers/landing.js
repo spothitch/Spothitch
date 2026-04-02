@@ -85,7 +85,7 @@ window.installFromLanding = async () => {
   try { installed = await installPWA() } catch { /* PWA not supported */ }
   const btn = document.getElementById('landing-install-btn')
   if (installed && btn) {
-    btn.textContent = `✅ ${t('appInstalled') || 'Application installée !'}`
+    btn.textContent = `icon('circle-check', 'w-4 h-4 inline mr-1') + ' ' + (t('appInstalled') || 'Application installée !'}`
     btn.style.background = '#22c55e'
     btn.disabled = true
     // Close after showing success
@@ -108,7 +108,7 @@ function _showInstallInstructions(t) {
   popup.innerHTML = `
     <div style="background:rgba(15,23,42,0.97);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <span style="color:#fbbf24;font-weight:700;font-size:14px">📲 ${t('manualInstallTitle') || 'Installation manuelle'}</span>
+        <span style="color:#fbbf24;font-weight:700;font-size:14px">${t('manualInstallTitle') || 'Installation manuelle'}</span>
         <button onclick="this.closest('#install-instructions-popup').remove()" style="color:#64748b;font-size:20px;background:none;border:none;cursor:pointer" aria-label="${t('close') || 'Close'}">×</button>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
@@ -175,7 +175,7 @@ export function initDraggableFeedbackBtn() {
   const btn = document.createElement('button')
   btn.id = 'fb-side-btn'
   btn.setAttribute('aria-label', t('fbSideTab') || 'Avis')
-  btn.innerHTML = `<span class="fb-badge" id="fb-badge"></span><span class="fb-label">💬 ${escapeHTML(t('fbSideTab') || 'Avis')}</span>`
+  btn.innerHTML = `<span class="fb-badge" id="fb-badge"></span><span class="fb-label">${escapeHTML(t('fbSideTab') || 'Avis')}</span>`
 
   // Styles — amber on dark, darker amber on light for visibility
   const isLight = document.documentElement.classList.contains('light-theme')

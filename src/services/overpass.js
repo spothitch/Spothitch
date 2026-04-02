@@ -215,11 +215,11 @@ export async function getAmenitiesAlongRoute(routeGeometry, corridorKm = 2, opti
         const tags = el.tags || {}
         const services = new Set()
         // Read services directly from way tags
-        if (tags.toilets === 'yes') services.add('🚻')
-        if (tags.shower === 'yes') services.add('🚿')
-        if (tags.shop?.includes('convenience') || tags.shop?.includes('supermarket')) services.add('🛒')
-        if (tags.amenity?.includes('restaurant') || tags.amenity?.includes('fast_food')) services.add('🍔')
-        if (tags.amenity?.includes('cafe')) services.add('☕')
+        if (tags.toilets === 'yes') services.add('toilets')
+        if (tags.shower === 'yes') services.add('shower')
+        if (tags.shop?.includes('convenience') || tags.shop?.includes('supermarket')) services.add('shop')
+        if (tags.amenity?.includes('restaurant') || tags.amenity?.includes('fast_food')) services.add('food')
+        if (tags.amenity?.includes('cafe')) services.add('cafe')
         return { name: tags.name || '', lat: el.center.lat, lng: el.center.lon, services }
       })
 
@@ -353,8 +353,8 @@ async function enrichServiceAreasWithAmenities(areas, allPois) {
   const data = await response.json()
   const amenityNodes = data.elements || []
 
-  const iconMap = { restaurant: '🍔', fast_food: '🍔', cafe: '☕', toilets: '🚻', shower: '🚿' }
-  const shopMap = { convenience: '🛒', supermarket: '🛒' }
+  const iconMap = { restaurant: 'utensils', fast_food: 'utensils', cafe: 'coffee', toilets: 'bath', shower: 'shower-head' }
+  const shopMap = { convenience: 'shopping-cart', supermarket: 'shopping-cart' }
 
   // Associate each amenity with nearest service area
   for (const node of amenityNodes) {

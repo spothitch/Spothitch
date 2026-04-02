@@ -49,7 +49,7 @@ export function getCountryName(code) {
  * Get flag emoji for a country code
  */
 export function getCountryFlag(code) {
-  return COUNTRY_FLAGS[code] || '🌍'
+  return COUNTRY_FLAGS[code] || 'globe'
 }
 
 /**

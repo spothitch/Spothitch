@@ -154,7 +154,7 @@ window.handleCreateTeam = async () => {
     return
   }
   const { createTeam } = await import('../services/teamChallenges.js')
-  const team = createTeam({ name, description: descInput?.value?.trim() || '', avatar: avatarInput?.value || '👥' })
+  const team = createTeam({ name, description: descInput?.value?.trim() || '', avatar: avatarInput?.value || 'users' })
   if (team) window.setState({ showCreateTeam: false })
 }
 window.createTeamAction = async (...args) => {

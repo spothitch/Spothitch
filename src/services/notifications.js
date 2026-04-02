@@ -5,6 +5,7 @@
  */
 
 import { requestNotificationPermission, onForegroundMessage, saveFCMToken } from './firebase.js';
+import { icon } from '../utils/icons.js'
 import { escapeHTML } from '../utils/sanitize.js';
 import { getErrorMessage } from '../utils/errorMessages.js';
 import { getState, setState } from '../stores/state.js';
@@ -427,7 +428,7 @@ export function notifySpotActivity(type, data) {
 
   const messages = {
     checkin: {
-      title: '📍 Nouveau check-in !',
+      title: 'Nouveau check-in !',
       body: `${data.userName || 'Un voyageur'} a validé ton spot "${data.spotName}"`,
     },
     rating: {
@@ -435,7 +436,7 @@ export function notifySpotActivity(type, data) {
       body: `${data.userName || 'Un voyageur'} a noté ton spot "${data.spotName}" : ${data.rating}/5`,
     },
     comment: {
-      title: '💬 Nouveau commentaire !',
+      title: 'Nouveau commentaire !',
       body: `${data.userName || 'Un voyageur'} a commenté ton spot "${data.spotName}"`,
     },
   };
@@ -683,7 +684,7 @@ export function notifyLevelUp(newLevel, rewards = {}) {
   let body = t('notifLevelUpBody') || 'Felicitations ! Continue comme ca !';
 
   if (rewards.points) {
-    body += ` ${(t('notifLevelUpBonus') || '+{n} 👍 bonus !').replace('{n}', rewards.points)}`;
+    body += ` ${(t('notifLevelUpBonus') || '+{n} pts bonus !').replace('{n}', rewards.points)}`;
   }
   if (rewards.title) {
     body = (t('notifLevelUpTitle2') || 'Nouveau titre: {name} !').replace('{name}', rewards.title.name);
@@ -868,7 +869,7 @@ function _showCommunitySOSBanner(data) {
     <style>@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}</style>
     <div style="max-width:400px;margin:0 auto">
       <div style="font-weight:800;font-size:15px;margin-bottom:4px">
-        ${alertType === 'silent' ? '🔇' : '🆘'} SOS ${distText}
+        ${alertType === 'silent' ? 'volume-x' : 'siren'} SOS ${distText}
       </div>
       <div style="font-size:13px;opacity:.9;margin-bottom:12px">
         ${name} ${t('needsHelpNearYou') || 'a besoin d\'aide près de vous'}
@@ -882,7 +883,7 @@ function _showCommunitySOSBanner(data) {
           padding:10px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
           background:transparent;color:white;font-weight:700;font-size:13px;
           text-decoration:none;display:flex;align-items:center;gap:4px;
-        ">📞 112</a>
+        ">${icon('phone', 'w-4 h-4 inline mr-1')} 112</a>
         <button onclick="document.getElementById('community-sos-banner')?.remove()" style="
           padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
           background:transparent;color:white;font-size:13px;cursor:pointer;
@@ -941,9 +942,9 @@ function _addSOSMarker(map, lat, lng, name) {
     if (maplibregl) {
       const popup = new maplibregl.Popup({ offset: 25, closeOnClick: false })
         .setHTML(`<div style="padding:8px;text-align:center;font-size:13px;">
-          <strong style="color:#dc2626">🆘 SOS</strong><br/>
+          <strong style="color:#dc2626">SOS</strong><br/>
           ${name ? escapeHTML(name) : 'Voyageur en détresse'}<br/>
-          <a href="tel:112" style="color:#dc2626;font-weight:700">📞 Appeler 112</a>
+          <a href="tel:112" style="color:#dc2626;font-weight:700">Appeler 112</a>
         </div>`)
 
       const marker = new maplibregl.Marker({ element: el })

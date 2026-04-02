@@ -92,10 +92,10 @@ export function renderCommunityTips(countryCode) {
                 <span class="text-xs text-slate-400">${tip.author} - ${new Date(tip.createdAt).toLocaleDateString('fr-FR')}</span>
                 <div class="flex items-center gap-2">
                   <button onclick="voteCommunityTip('${tip.id}', 'up')" class="text-xs px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20">
-                    👍 ${tip.upvotes || 0}
+                    ${icon("thumbs-up", "w-3 h-3 inline")} ${tip.upvotes || 0}
                   </button>
                   <button onclick="voteCommunityTip('${tip.id}', 'down')" class="text-xs px-2 py-1 rounded bg-danger-500/10 text-danger-400 hover:bg-danger-500/20">
-                    👎 ${tip.downvotes || 0}
+                    ${icon("thumbs-down", "w-3 h-3 inline")} ${tip.downvotes || 0}
                   </button>
                 </div>
               </div>

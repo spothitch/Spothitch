@@ -184,11 +184,11 @@ export function renderCheckinModal(state) {
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2 text-sm">
               ${icon('gift', 'w-5 h-5 text-warning-400')}
-              <span>${t('reward') || 'Récompense'}: <strong class="text-warning-400">+15 👍</strong></span>
+              <span>${t('reward') || 'Récompense'}: <strong class="text-warning-400">+15</strong></span>
             </div>
             ${state.checkinPhotoData ? `
               <span class="text-xs text-emerald-400">
-                ${icon('check', 'w-5 h-5 mr-1')} ${t('photoAdded') || 'Photo ajoutée'} (+5 👍)
+                ${icon('check', 'w-5 h-5 mr-1')} ${t('photoAdded') || 'Photo ajoutée'} (+5)
               </span>
             ` : ''}
           </div>
@@ -379,7 +379,7 @@ export function registerCheckinHandlers() {
 
       // Close modal and show success
       window.closeCheckinModal();
-      showToast(t('checkinValidated') || `Check-in validé ! +${points} 👍`, 'success');
+      showToast(t('checkinValidated') || `Check-in validé ! +${points}`, 'success');
 
       // Animation
       const { launchConfettiBurst } = await import('../../utils/confetti.js');

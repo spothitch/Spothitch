@@ -4,6 +4,7 @@
  */
 
 import { launchConfettiBurst, floatingEmojisBurst } from './confetti.js';
+import { icon } from './icons.js'
 import { t } from '../i18n/index.js';
 
 /**
@@ -14,7 +15,7 @@ import { t } from '../i18n/index.js';
 export function showSuccessAnimation(message, options = {}) {
   const {
     confetti = false,
-    emoji = '✓',
+    emoji = icon('check', 'w-8 h-8 text-emerald-400'),
     duration = 2000,
     position = 'center', // 'center', 'top', 'bottom'
   } = options;
@@ -93,7 +94,7 @@ export function showErrorAnimation(message) {
       box-shadow: 0 20px 60px rgba(239, 68, 68, 0.4);
       animation: errorShake 0.5s ease-out;
     ">
-      <div style="font-size: 3rem; margin-bottom: 12px;">❌</div>
+      <div style="margin-bottom: 12px;">${icon("x", "w-12 h-12 text-red-400")}</div>
       <div style="color: white; font-size: 1.25rem; font-weight: 600;">${message}</div>
     </div>
   `;
@@ -170,7 +171,7 @@ export function showBadgeUnlockAnimation(badge) {
         color: #f59e0b;
         font-weight: bold;
       ">
-        +${badge.points} 👍
+        +${badge.points} pts
       </div>
     </div>
   `;
@@ -227,7 +228,7 @@ export function showLevelUpAnimation(newLevel) {
       box-shadow: 0 20px 60px rgba(59, 130, 246, 0.4);
       animation: levelUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     ">
-      <div style="font-size: 3rem; margin-bottom: 8px;">🎉</div>
+      <div style="margin-bottom: 8px;">${icon("party-popper", "w-12 h-12 text-amber-400")}</div>
       <div style="color: white; font-size: 1rem; opacity: 0.8;">${t('levelLabel') || 'NIVEAU'}</div>
       <div style="color: white; font-size: 3rem; font-weight: 800;">${newLevel}</div>
     </div>

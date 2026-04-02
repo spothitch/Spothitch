@@ -7,10 +7,10 @@
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
 
-const avatars = ['👍', '😎', '🧳', '🎒', '🌍', '✌️', '🚗', '🛣️', '⛺', '🏕️', '🌄', '🗺️']
+const avatarIcons = ['thumbs-up', 'smile', 'briefcase', 'backpack', 'globe', 'hand', 'car', 'route', 'tent', 'tent', 'mountain', 'map']
 
 export function renderWelcome(state) {
-  const selectedAvatar = state.selectedAvatar || '👍'
+  const selectedAvatar = state.selectedAvatar || 'thumbs-up'
 
   return `
     <div
@@ -31,7 +31,7 @@ export function renderWelcome(state) {
       >
         <!-- Header -->
         <div class="bg-primary-500/10 p-6 text-center rounded-t-3xl">
-          <div class="text-5xl mb-3" aria-hidden="true">🤙</div>
+          <div class="flex justify-center mb-3" aria-hidden="true">${icon("thumbs-up", "w-12 h-12 text-amber-400")}</div>
           <h2 id="welcome-title" class="text-xl font-bold text-white">
             ${t('profileSetupTitle') || 'Quick profile setup'}
           </h2>
@@ -73,19 +73,19 @@ export function renderWelcome(state) {
               ${t('chooseAvatar') || 'Choose your avatar'}
             </label>
             <div class="grid grid-cols-6 gap-2" role="radiogroup" aria-label="${t('chooseAvatar') || 'Avatar selection'}">
-              ${avatars.map((avatar) => `
+              ${avatarIcons.map((name) => `
                 <button
                   type="button"
-                  class="w-11 h-11 rounded-xl flex items-center justify-center text-xl transition-colors
-                    ${avatar === selectedAvatar
+                  class="w-11 h-11 rounded-xl flex items-center justify-center transition-colors
+                    ${name === selectedAvatar
                       ? 'bg-primary-500/20 border-2 border-primary-500 scale-110'
                       : 'bg-white/5 border border-white/10 hover:bg-white/10'}"
-                  onclick="selectAvatar('${avatar}')"
+                  onclick="selectAvatar('${name}')"
                   role="radio"
-                  aria-checked="${avatar === selectedAvatar ? 'true' : 'false'}"
-                  aria-label="Avatar ${avatar}"
+                  aria-checked="${name === selectedAvatar ? 'true' : 'false'}"
+                  aria-label="Avatar ${name}"
                 >
-                  ${avatar}
+                  ${icon(name, 'w-5 h-5')}
                 </button>
               `).join('')}
             </div>

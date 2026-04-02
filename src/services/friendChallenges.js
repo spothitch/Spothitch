@@ -14,12 +14,12 @@ import { t } from '../i18n/index.js';
  */
 // Challenge type definitions — names resolved lazily via t() for i18n
 const challengeTypeDefs = [
-  { id: 'checkins_race', nameKey: 'friendChallengeCheckinsRaceName', descKey: 'friendChallengeCheckinsRaceDesc', nameEn: 'Check-in Race', descriptionEn: 'First to complete X check-ins wins', icon: '🏁', metric: 'checkins', defaultTarget: 10, minTarget: 5, maxTarget: 50, rewardPoints: 100 },
-  { id: 'spots_discovery', nameKey: 'friendChallengeSpotsDiscoveryName', descKey: 'friendChallengeSpotsDiscoveryDesc', nameEn: 'Spot Discovery', descriptionEn: 'First to visit X new spots wins', icon: '🗺️', metric: 'spotsVisited', defaultTarget: 5, minTarget: 3, maxTarget: 20, rewardPoints: 150 },
-  { id: 'countries_explored', nameKey: 'friendChallengeCountriesExploredName', descKey: 'friendChallengeCountriesExploredDesc', nameEn: 'World Tour', descriptionEn: 'First to visit X countries wins', icon: '🌍', metric: 'countriesVisited', defaultTarget: 3, minTarget: 2, maxTarget: 10, rewardPoints: 300 },
-  { id: 'reviews_battle', nameKey: 'friendChallengeReviewsBattleName', descKey: 'friendChallengeReviewsBattleDesc', nameEn: 'Review Battle', descriptionEn: 'First to give X reviews wins', icon: '✍️', metric: 'reviewsGiven', defaultTarget: 10, minTarget: 5, maxTarget: 30, rewardPoints: 120 },
-  { id: 'distance_race', nameKey: 'friendChallengeDistanceRaceName', descKey: 'friendChallengeDistanceRaceDesc', nameEn: 'Distance Race', descriptionEn: 'First to travel X km hitchhiking wins', icon: '🚗', metric: 'totalDistance', defaultTarget: 500, minTarget: 100, maxTarget: 2000, rewardPoints: 250 },
-  { id: 'night_hitchhiker', nameKey: 'friendChallengeNightHitchhikerName', descKey: 'friendChallengeNightHitchhikerDesc', nameEn: 'Night Hitchhiker', descriptionEn: 'First to complete X night check-ins wins', icon: '🌙', metric: 'nightCheckins', defaultTarget: 3, minTarget: 1, maxTarget: 10, rewardPoints: 180 },
+  { id: 'checkins_race', nameKey: 'friendChallengeCheckinsRaceName', descKey: 'friendChallengeCheckinsRaceDesc', nameEn: 'Check-in Race', descriptionEn: 'First to complete X check-ins wins', iconName: 'flag-checkered', metric: 'checkins', defaultTarget: 10, minTarget: 5, maxTarget: 50, rewardPoints: 100 },
+  { id: 'spots_discovery', nameKey: 'friendChallengeSpotsDiscoveryName', descKey: 'friendChallengeSpotsDiscoveryDesc', nameEn: 'Spot Discovery', descriptionEn: 'First to visit X new spots wins', iconName: 'map', metric: 'spotsVisited', defaultTarget: 5, minTarget: 3, maxTarget: 20, rewardPoints: 150 },
+  { id: 'countries_explored', nameKey: 'friendChallengeCountriesExploredName', descKey: 'friendChallengeCountriesExploredDesc', nameEn: 'World Tour', descriptionEn: 'First to visit X countries wins', iconName: 'globe', metric: 'countriesVisited', defaultTarget: 3, minTarget: 2, maxTarget: 10, rewardPoints: 300 },
+  { id: 'reviews_battle', nameKey: 'friendChallengeReviewsBattleName', descKey: 'friendChallengeReviewsBattleDesc', nameEn: 'Review Battle', descriptionEn: 'First to give X reviews wins', iconName: 'pen-line', metric: 'reviewsGiven', defaultTarget: 10, minTarget: 5, maxTarget: 30, rewardPoints: 120 },
+  { id: 'distance_race', nameKey: 'friendChallengeDistanceRaceName', descKey: 'friendChallengeDistanceRaceDesc', nameEn: 'Distance Race', descriptionEn: 'First to travel X km hitchhiking wins', iconName: 'car', metric: 'totalDistance', defaultTarget: 500, minTarget: 100, maxTarget: 2000, rewardPoints: 250 },
+  { id: 'night_hitchhiker', nameKey: 'friendChallengeNightHitchhikerName', descKey: 'friendChallengeNightHitchhikerDesc', nameEn: 'Night Hitchhiker', descriptionEn: 'First to complete X night check-ins wins', iconName: 'moon', metric: 'nightCheckins', defaultTarget: 3, minTarget: 1, maxTarget: 10, rewardPoints: 180 },
 ]
 
 export function getChallengeTypes() {
@@ -396,7 +396,7 @@ export function renderChallengeCard(challenge) {
     <div class="bg-dark-primary rounded-xl p-4 border border-white/10">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-          <span class="text-2xl">${challengeType?.icon || '🎯'}</span>
+          <span class="text-2xl">${challengeType?.icon || 'target'}</span>
           <div>
             <h4 class="font-semibold text-white">${challengeType?.name || challenge.type}</h4>
             <p class="text-xs text-slate-400">vs ${opponentName}</p>

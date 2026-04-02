@@ -4,6 +4,7 @@
  */
 
 import { getState, setState } from '../../stores/state.js';
+import { icon } from '../../utils/icons.js'
 import { t } from '../../i18n/index.js';
 import { getFirestore, collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { getApps, getApp } from 'firebase/app';
@@ -33,7 +34,7 @@ async function fetchLeaderboardData(tab) {
           id: i + 1,
           uid: d.id,
           username: p.username || p.displayName || (t('defaultDisplayName') || 'Hitchhiker'),
-          avatar: p.avatar || '👍',
+          avatar: p.avatar || icon('thumbs-up', 'w-5 h-5 text-amber-400'),
           points: tab === 'allTime' ? (p.points || 0) : (p.seasonPoints || 0),
           level: p.level || 1,
           country: p.country || '',
@@ -94,7 +95,7 @@ export function renderLeaderboardModal() {
 
   const currentUser = {
     username: state.username || 'Vous',
-    avatar: state.avatar || '👍',
+    avatar: state.avatar || icon('thumbs-up', 'w-5 h-5 text-amber-400'),
     points: state.points || 0,
     level: state.level || 1,
     rank: userRank,
@@ -128,7 +129,7 @@ export function renderLeaderboardModal() {
               <div class="text-4xl">${currentUser.avatar}</div>
               <div class="flex-1">
                 <div class="font-bold text-white">${currentUser.username}</div>
-                <div class="text-white/70 text-sm">${t('levelN') || 'Level'} ${currentUser.level} • ${currentUser.points.toLocaleString()} 👍</div>
+                <div class="text-white/70 text-sm">${t('levelN') || 'Level'} ${currentUser.level} • ${currentUser.points.toLocaleString()} pts</div>
               </div>
               <div class="text-right">
                 <div class="text-3xl font-bold text-white">${currentUser.rank ? `#${currentUser.rank}` : '—'}</div>
@@ -164,14 +165,14 @@ export function renderLeaderboardModal() {
                     type="button"
                     class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer
                            ${leaderboardCountry === 'all' ? 'bg-amber-500 text-white' : 'bg-white/10 text-slate-400 hover:bg-white/20'}">
-              🌍 ${t('allCountries') || 'All'}
+              ${icon('globe', 'w-3 h-3 inline')} ${t('allCountries') || 'All'}
             </button>
             ${availableCountries.map(code => `
               <button onclick="setLeaderboardCountry('${code}')"
                       type="button"
                       class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer
                              ${leaderboardCountry === code ? 'bg-amber-500 text-white' : 'bg-white/10 text-slate-400 hover:bg-white/20'}">
-                ${countryFlags[code] || '🌍'} ${countryNames[code] || code}
+                ${countryFlags[code] || icon('globe', 'w-3 h-3 inline')} ${countryNames[code] || code}
               </button>
             `).join('')}
           </div>
@@ -182,13 +183,13 @@ export function renderLeaderboardModal() {
         <div class="mx-5 mt-2 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
           <div class="text-xs font-bold text-amber-400 mb-2">${t('monthlyRewards') || 'Monthly rewards'}</div>
           <div class="flex justify-between text-[10px]">
-            <span class="text-amber-300">🥇 ${t('monthlyRewardGold') || '1st: Gold + 500 👍'}</span>
+            <span class="text-amber-300">${icon('medal', 'w-3 h-3 inline')} ${t('monthlyRewardGold') || '1st: Gold + 500 pts'}</span>
           </div>
           <div class="flex justify-between text-[10px] mt-0.5">
-            <span class="text-slate-300">🥈 ${t('monthlyRewardSilver') || '2nd: Silver + 300 👍'}</span>
+            <span class="text-slate-300">${icon('medal', 'w-3 h-3 inline')} ${t('monthlyRewardSilver') || '2nd: Silver + 300 pts'}</span>
           </div>
           <div class="flex justify-between text-[10px] mt-0.5">
-            <span class="text-orange-300">🥉 ${t('monthlyRewardBronze') || '3rd: Bronze + 100 👍'}</span>
+            <span class="text-orange-300">${icon('medal', 'w-3 h-3 inline')} ${t('monthlyRewardBronze') || '3rd: Bronze + 100 pts'}</span>
           </div>
         </div>
         ` : ''}
@@ -198,7 +199,7 @@ export function renderLeaderboardModal() {
           ${isLoading ? `
           <div class="flex justify-center items-center py-16">
             <div class="text-center">
-              <div class="text-4xl mb-3 animate-bounce">🏆</div>
+              <div class="flex justify-center mb-3 animate-bounce">${icon('trophy', 'w-10 h-10 text-amber-400')}</div>
               <div class="text-slate-400 text-sm">${t('loading') || 'Chargement...'}</div>
             </div>
           </div>
@@ -216,7 +217,7 @@ export function renderLeaderboardModal() {
           </div>
           ` : `
           <div class="text-center text-slate-400 py-12">
-            <div class="text-4xl mb-3">🌍</div>
+            <div class="flex justify-center mb-3">${icon("globe", "w-10 h-10 text-slate-400")}</div>
             <div>${t('leaderboardEmpty') || 'Sois le premier à apparaître ici !'}</div>
           </div>
           `}
@@ -251,9 +252,9 @@ function renderPodiumPlace(user, position, showReward = false) {
   if (!user) return '';
 
   const podiumStyles = {
-    1: { height: 'h-28', medal: '🥇', bg: 'from-amber-500/30 to-amber-600/30', border: 'border-amber-500/50' },
-    2: { height: 'h-24', medal: '🥈', bg: 'from-slate-400/30 to-slate-500/30', border: 'border-slate-400/50' },
-    3: { height: 'h-20', medal: '🥉', bg: 'from-orange-700/30 to-orange-800/30', border: 'border-orange-700/50' },
+    1: { height: 'h-28', medal: icon('medal', 'w-5 h-5 text-amber-400'), bg: 'from-amber-500/30 to-amber-600/30', border: 'border-amber-500/50' },
+    2: { height: 'h-24', medal: icon('medal', 'w-5 h-5 text-slate-300'), bg: 'from-slate-400/30 to-slate-500/30', border: 'border-slate-400/50' },
+    3: { height: 'h-20', medal: icon('medal', 'w-5 h-5 text-orange-400'), bg: 'from-orange-700/30 to-orange-800/30', border: 'border-orange-700/50' },
   };
 
   const rewardThumbs = { 1: 500, 2: 300, 3: 100 };
@@ -264,8 +265,8 @@ function renderPodiumPlace(user, position, showReward = false) {
     <div class="flex flex-col items-center ${position === 1 ? 'order-2' : position === 2 ? 'order-1' : 'order-3'}">
       <div class="text-3xl mb-2">${user.avatar}</div>
       <div class="text-white font-medium text-sm truncate max-w-20">${user.username}</div>
-      <div class="text-slate-400 text-xs">${user.points.toLocaleString()} 👍</div>
-      ${showReward ? `<div class="text-amber-400 text-[10px] font-bold mt-0.5">+${rewardThumbs[position]} 👍</div>` : ''}
+      <div class="text-slate-400 text-xs">${user.points.toLocaleString()} pts</div>
+      ${showReward ? `<div class="text-amber-400 text-[10px] font-bold mt-0.5">+${rewardThumbs[position]} pts</div>` : ''}
       <div class="mt-2 w-20 ${style.height} rounded-t-lg bg-gradient-to-b ${style.bg} border-2 ${style.border} flex items-start justify-center pt-2">
         <span class="text-2xl">${style.medal}</span>
       </div>
@@ -286,13 +287,13 @@ function renderLeaderboardRow(user, rank) {
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2">
           <span class="text-white font-medium truncate">${user.username}</span>
-          <span class="text-sm">${countryFlags[user.country] || '🌍'}</span>
+          <span class="text-sm">${countryFlags[user.country] || icon('globe', 'w-3 h-3 inline')}</span>
         </div>
         <div class="text-slate-400 text-xs">${t('levelShort') || 'Lv.'} ${user.level}</div>
       </div>
       <div class="text-right">
         <div class="text-amber-400 font-bold">${user.points.toLocaleString()}</div>
-        <div class="text-slate-400 text-xs">👍</div>
+        <div class="text-slate-400 text-xs">${icon('thumbs-up', 'w-3 h-3 inline')}</div>
       </div>
     </div>
   `;

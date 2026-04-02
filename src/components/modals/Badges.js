@@ -4,6 +4,7 @@
  */
 
 import { getState } from '../../stores/state.js';
+import { icon } from '../../utils/icons.js'
 import { t } from '../../i18n/index.js';
 import { allBadges, getBadgesByCategory, getEarnedBadges, getNextBadges } from '../../data/badges.js';
 
@@ -28,8 +29,8 @@ export function renderBadgesModal() {
   const nextBadges = getNextBadges(userStats, earnedBadgeIds, 3);
 
   const categories = [
-    { id: 'beginner', name: t('beginner') || 'Beginner', icon: '🌱' },
-    { id: 'progress', name: t('progress') || 'Progress', icon: '📈' },
+    { id: 'beginner', name: t('beginner') || 'Beginner', iconName: 'sprout' },
+    { id: 'progress', name: t('progress') || 'Progress', iconName: 'trending-up' },
     { id: 'special', name: t('special') || 'Special', icon: '⭐' },
   ];
 
@@ -78,10 +79,10 @@ export function renderBadgesModal() {
                   <div class="bg-white/5 rounded-xl p-3 text-center opacity-60">
                     ${badge.image
     ? `<img src="${badge.image}" alt="${badge.name}" class="w-12 h-12 mx-auto mb-2 grayscale" loading="lazy" />`
-    : `<div class="text-3xl mb-2 grayscale">${badge.icon}</div>`
+    : `<div class="text-3xl mb-2 grayscale">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
 }
                     <div class="text-white text-xs font-medium">${badge.name}</div>
-                    <div class="text-slate-400 text-xs mt-1">+${badge.points} 👍</div>
+                    <div class="text-slate-400 text-xs mt-1">+${badge.points}</div>
                   </div>
                 `).join('')}
               </div>
@@ -96,7 +97,7 @@ export function renderBadgesModal() {
     return `
               <section class="mb-6">
                 <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-                  ${category.icon} ${category.name}
+                  ${icon(category.iconName || 'circle', 'w-4 h-4 inline mr-1')} ${category.name}
                   <span class="text-xs text-slate-400">(${earned.length}/${categoryBadges.length})</span>
                 </h3>
                 <div class="grid grid-cols-3 gap-4">
@@ -109,7 +110,7 @@ export function renderBadgesModal() {
                            onclick="${isEarned ? `showBadgeDetail('${badge.id}')` : ''}">
                         ${badge.image
     ? `<img src="${badge.image}" alt="${badge.name}" class="w-12 h-12 mx-auto mb-2 ${isEarned ? '' : 'grayscale'}" loading="lazy" />`
-    : `<div class="text-3xl mb-2 ${isEarned ? '' : 'grayscale'}">${badge.icon}</div>`
+    : `<div class="text-3xl mb-2 ${isEarned ? '' : 'grayscale'}">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
 }
                         <div class="text-white text-xs font-medium truncate">${badge.name}</div>
                         ${isEarned
@@ -153,7 +154,7 @@ export function renderBadgePopup() {
                 top: ${Math.random() * 100}%;
                 left: ${Math.random() * 100}%;
                 animation-delay: ${Math.random() * 2}s;
-              ">✨</span>
+              ">${icon('sparkles', 'w-3 h-3 text-amber-400')}</span>
             `).join('')}
           </div>
 
@@ -172,7 +173,7 @@ export function renderBadgePopup() {
 
           <div class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-400 mb-6">
             <span>+${newBadge.points}</span>
-            <span>👍</span>
+            <span>${icon('thumbs-up', 'w-4 h-4 inline text-amber-400')}</span>
           </div>
 
           <button onclick="dismissBadgePopup()"
@@ -203,7 +204,7 @@ export function renderBadgeDetail(badgeId) {
         <div class="bg-gradient-to-r from-amber-500/20 to-orange-500/20 p-8 text-center">
           ${badge.image
     ? `<img src="${badge.image}" alt="${badge.name}" class="w-20 h-20 mx-auto" loading="lazy" />`
-    : `<div class="text-6xl">${badge.icon}</div>`
+    : `<div class="text-6xl">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`
 }
         </div>
 
@@ -214,7 +215,7 @@ export function renderBadgeDetail(badgeId) {
           <div class="flex justify-center gap-4 text-sm">
             <div class="text-center">
               <div class="text-amber-400 font-bold">${badge.points}</div>
-              <div class="text-slate-400">👍</div>
+              <div class="text-slate-400">${icon('thumbs-up', 'w-4 h-4 inline')}</div>
             </div>
             <div class="text-center">
               <div class="text-purple-400 font-bold">${badge.category}</div>

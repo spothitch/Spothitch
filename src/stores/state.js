@@ -11,7 +11,7 @@ const initialState = {
   user: null,
   username: '',
   bio: '',
-  avatar: '👍',
+  avatar: 'thumbs-up',
   isLoggedIn: false,
   currentUser: null,
   userProfile: null,

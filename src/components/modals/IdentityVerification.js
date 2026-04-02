@@ -191,7 +191,7 @@ function renderOverviewStep(progress, currentLevel, nextLevel, reasons, lang) {
         </button>
       ` : `
         <div class="text-center p-4 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
-          <span class="text-3xl mr-2">🎉</span>
+          <span class="mr-2">${icon("party-popper", "w-8 h-8 inline text-amber-400")}</span>
           <span class="text-purple-300 font-bold">${t('verificationComplete')}</span>
         </div>
       `}

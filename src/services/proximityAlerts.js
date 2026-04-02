@@ -132,7 +132,7 @@ export function checkNearbySpots(lat, lng) {
       const distanceText = Math.round(distance) + 'm'
       const rating = spot.globalRating || spot.rating || 0
       const ratingText = rating > 0 ? ` ${t('proximityAlertsRating') || 'Note'}: ${rating.toFixed(1)} ⭐` : ''
-      const message = `📍 ${t('proximityAlertsSpotAt') || 'Spot d\'autostop à'} ${distanceText} !${ratingText}`
+      const message = `${t('proximityAlertsSpotAt') || 'Spot d\'autostop à'} ${distanceText} !${ratingText}`
 
       showToast(message, 'info', 6000)
 

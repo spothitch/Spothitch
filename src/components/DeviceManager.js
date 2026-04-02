@@ -56,10 +56,10 @@ function formatLastSeen(isoDate) {
  */
 function getDeviceIcon(type) {
   const icons = {
-    mobile: '📱',
-    desktop: '💻',
-    tablet: '📲',
-    unknown: '🖥️',
+    mobile: 'smartphone',
+    desktop: 'monitor',
+    tablet: 'tablet',
+    unknown: 'monitor',
   }
   return icons[type] || icons.unknown
 }
@@ -206,7 +206,7 @@ function renderDeviceItem(device, isCurrent) {
       aria-label="${deviceName} · ${deviceOS}"
     >
       <div class="flex items-center gap-4">
-        <span class="text-3xl" aria-hidden="true">${deviceEmoji}</span>
+        <span aria-hidden="true">${icon(deviceEmoji, 'w-8 h-8 text-slate-300')}</span>
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <span class="font-medium text-white truncate">${deviceName}</span>
@@ -246,7 +246,7 @@ function renderDeviceItem(device, isCurrent) {
 function renderEmptyState() {
   return `
     <div class="mt-6 text-center py-8">
-      <div class="text-5xl mb-4" aria-hidden="true">🔒</div>
+      <div class="flex justify-center mb-4" aria-hidden="true">${icon("lock", "w-12 h-12 text-amber-400")}</div>
       <h3 class="text-lg font-medium text-white mb-2">${t('noOtherDevices')}</h3>
       <p class="text-slate-400 text-sm">${t('noOtherDevicesDesc')}</p>
     </div>

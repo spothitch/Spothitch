@@ -4,6 +4,7 @@
  */
 
 import { getState } from '../stores/state.js'
+import { icon } from '../utils/icons.js'
 import { copyToClipboard } from '../utils/share.js'
 import { showToast } from './notifications.js'
 import { t } from '../i18n/index.js'
@@ -19,7 +20,7 @@ export function generateShareCard(spot) {
   if (!spot) return ''
 
   const spotName = spot.name || spot.from || 'Spot'
-  const country = spot.country || '🌍'
+  const country = spot.country || ''
   const rating = spot.globalRating?.toFixed(1) || '?'
   const waitTime = spot.avgWaitTime || '?'
 
@@ -35,7 +36,7 @@ export function generateShareCard(spot) {
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     ">
       <div style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">
-        📍 Check-in!
+        Check-in!
       </div>
       <div style="font-size: 18px; margin-bottom: 4px; line-height: 1.4;">
         ${escapeHTML(spotName)}
@@ -60,7 +61,7 @@ export function generateShareCard(spot) {
         color: #64748b;
         text-align: center;
       ">
-        🤙 SpotHitch — ${t('shareCardTagline') || 'La communauté des autostoppeurs'}
+        SpotHitch — ${t('shareCardTagline') || 'La communauté des autostoppeurs'}
       </div>
     </div>
   `
@@ -83,7 +84,7 @@ export function showShareModal(spot) {
   const spotName = spot.name || spot.from || 'Spot'
   const spotUrl = `${APP_URL}/?spot=${spot.id}`
   const SMSText = encodeURIComponent(
-    `🚗 ${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} ! 🤙\n\n${spotUrl}`
+    `${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} !\n\n${spotUrl}`
   )
 
   const modal = document.createElement('div')
@@ -151,7 +152,7 @@ export function showShareModal(spot) {
         text-align: center;
       ">
         <span style="color: #60a5fa; font-size: 14px;">
-          📸 ${t('shareCardScreenshotHint') || 'Fais une capture d\'écran pour partager cette carte !'}
+          ${t('shareCardScreenshotHint') || 'Fais une capture d\'écran pour partager cette carte !'}
         </span>
       </div>
 
@@ -171,7 +172,7 @@ export function showShareModal(spot) {
           transition: all 0.2s;
         " onmouseover="this.style.background='#20c05c'"
            onmouseout="this.style.background='#25d366'">
-          <span style="font-size: 24px;">📱</span>
+          ${icon('smartphone', 'w-6 h-6')}
           <span>${t('shareCardSMS') || 'Partager sur SMS'}</span>
         </a>
 
@@ -191,7 +192,7 @@ export function showShareModal(spot) {
           transition: all 0.2s;
         " onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'"
            onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
-          <span style="font-size: 24px;">🔗</span>
+          ${icon('link', 'w-6 h-6')}
           <span>${t('shareCardCopyLink') || 'Copier le lien du spot'}</span>
         </button>
       </div>
@@ -283,7 +284,7 @@ export function shareOnSMS(spotId) {
   const spotName = spot.name || spot.from || 'Spot'
   const spotUrl = `${APP_URL}/?spot=${spotId}`
   const text = encodeURIComponent(
-    `🚗 ${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} ! 🤙\n\n${spotUrl}`
+    `${t('shareCardCheckedSpot') || 'Je viens de checker un spot d\'autostop'} : ${spotName} !\n\n${spotUrl}`
   )
 
   window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer')
@@ -314,7 +315,7 @@ export function shareProfileModal(uid, username, avatar) {
   const profileUrl = `${APP_URL}/?u=${uid}`
   const displayName = username ? `@${username}` : 'Profil SpotHitch'
   const SMSText = encodeURIComponent(
-    `${avatar || '👍'} ${t('shareProfileText') || 'Rejoins-moi sur SpotHitch, la communauté des autostoppeurs !'}\n\n${profileUrl}`
+    `${avatar || 'thumbs-up'} ${t('shareProfileText') || 'Rejoins-moi sur SpotHitch, la communauté des autostoppeurs !'}\n\n${profileUrl}`
   )
 
   const modal = document.createElement('div')
@@ -329,16 +330,16 @@ export function shareProfileModal(uid, username, avatar) {
         <button onclick="window.closeShareModal()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.25rem;" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button>
       </div>
       <div style="background:linear-gradient(135deg,#1e2a3a,#0f1520);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;border:1px solid rgba(245,158,11,0.3);">
-        <div style="font-size:3rem;margin-bottom:8px;">${avatar || '👍'}</div>
+        <div style="font-size:3rem;margin-bottom:8px;">${avatar || 'thumbs-up'}</div>
         <div style="color:white;font-weight:700;font-size:1.1rem;">${escapeHTML(displayName)}</div>
         <div style="color:#64748b;font-size:0.75rem;margin-top:6px;word-break:break-all;">${profileUrl}</div>
       </div>
       <div style="display:grid;gap:12px;margin-bottom:12px;">
         <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:14px;background:#25d366;border-radius:12px;text-decoration:none;color:white;font-weight:600;">
-          <span style="font-size:24px;">📱</span><span>${t('shareCardSMS') || 'Partager sur SMS'}</span>
+          ${icon('smartphone', 'w-6 h-6')}<span>${t('shareCardSMS') || 'Partager sur SMS'}</span>
         </a>
         <button onclick="window.copyProfileLink('${escapeHTML(uid)}')" style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);border-radius:12px;color:#60a5fa;font-weight:600;cursor:pointer;width:100%;">
-          <span style="font-size:24px;">🔗</span><span>${t('copyProfileLink') || 'Copier le lien du profil'}</span>
+          ${icon('link', 'w-6 h-6')}<span>${t('copyProfileLink') || 'Copier le lien du profil'}</span>
         </button>
       </div>
       <button onclick="window.closeShareModal()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-weight:600;cursor:pointer;">

@@ -50,7 +50,7 @@ export function renderFriends(state) {
               : searchResults.map(user => `
                 <div class="flex items-center justify-between py-2">
                   <div class="flex items-center gap-2">
-                    <span class="text-xl">${escapeHTML(user.avatar || '👍')}</span>
+                    <span class="text-xl">${escapeHTML(user.avatar || 'thumbs-up')}</span>
                     <div>
                       <div class="text-sm font-medium">${escapeHTML(user.displayName || user.username || 'Traveler')}</div>
                       ${user.username ? `<div class="text-xs text-slate-400">@${escapeHTML(user.username)}</div>` : ''}
@@ -77,7 +77,7 @@ export function renderFriends(state) {
             ${friendRequests.map(req => `
               <div class="flex items-center justify-between py-2">
                 <div class="flex items-center gap-2">
-                  <span class="text-xl">${req.avatar || '👍'}</span>
+                  <span class="text-xl">${req.avatar ? req.avatar : icon('thumbs-up', 'w-4 h-4 text-amber-400')}</span>
                   <span class="text-sm font-medium">${escapeHTML(req.name || '')}</span>
                 </div>
                 <div class="flex gap-1">
@@ -102,7 +102,7 @@ export function renderFriends(state) {
             ${friends.map(friend => `
               <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors">
                 <div class="relative shrink-0">
-                  <span class="text-2xl">${friend.avatar || '👍'}</span>
+                  <span class="text-2xl">${friend.avatar ? friend.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}</span>
                   <span class="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-dark-primary ${friend.online ? 'bg-emerald-500' : 'bg-slate-500'}"></span>
                 </div>
                 <div class="flex-1 min-w-0">
@@ -124,7 +124,7 @@ export function renderFriends(state) {
         </div>
       ` : `
         <div class="text-center py-8 px-4">
-          <span class="text-4xl mb-3 block">👥</span>
+          <span class="flex justify-center mb-3">${icon("users", "w-10 h-10 text-slate-400")}</span>
           <h3 class="text-base font-bold mb-1">${t('noFriendsYet')}</h3>
           <p class="text-slate-400 text-sm">${t('addFriendsToChat')}</p>
         </div>
@@ -181,7 +181,7 @@ function renderAmbassadorList(state) {
     return `
           <div class="card p-3">
             <div class="flex items-center gap-3">
-              <span class="text-2xl">${amb.userAvatar || '👍'}</span>
+              <span class="text-2xl">${amb.userAvatar ? amb.userAvatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}</span>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium truncate">${escapeHTML(amb.userName)}</span>

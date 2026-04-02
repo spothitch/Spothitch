@@ -141,7 +141,7 @@ export async function initSentry() {
 
     return true;
   } catch (error) {
-    console.error('❌ Sentry initialization failed:', error);
+    console.error('Sentry initialization failed:', error);
     return false;
   }
 }

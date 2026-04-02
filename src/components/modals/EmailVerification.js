@@ -52,7 +52,7 @@ export function renderEmailVerification(email) {
 
         <!-- Header -->
         <div class="p-8 text-center border-b border-white/10">
-          <div class="text-5xl mb-4 animate-bounce-slow" aria-hidden="true">📧</div>
+          <div class="flex justify-center mb-4 animate-bounce-slow" aria-hidden="true">${icon("mail", "w-12 h-12 text-amber-400")}</div>
           <h2 id="email-verification-title" class="text-2xl font-bold gradient-text mb-2">
             ${t('emailVerificationTitle')}
           </h2>
@@ -108,7 +108,7 @@ export function renderEmailVerification(email) {
 
           <!-- Help Text -->
           <div class="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4 text-center text-sm text-slate-300">
-            <p class="mb-2">💡 ${t('emailVerificationMessage')} <strong>${email}</strong></p>
+            <p class="mb-2">${icon("lightbulb", "w-4 h-4 inline mr-1")} ${t('emailVerificationMessage')} <strong>${email}</strong></p>
             <p>${t('emailVerificationSubtitle')}</p>
           </div>
         </div>

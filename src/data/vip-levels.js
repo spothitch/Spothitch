@@ -13,7 +13,7 @@ export const vipLevels = [
     id: 'novice',
     name: 'Novice',
     nameEn: 'Novice',
-    icon: '🌱',
+    iconName: 'sprout',
     image: `${VIP_IMG_PATH}/novice.webp`,
     color: '#10b981', // green
     minPoints: 0,
@@ -35,7 +35,7 @@ export const vipLevels = [
     id: 'explorer',
     name: 'Explorateur',
     nameEn: 'Explorer',
-    icon: '🧭',
+    iconName: 'compass',
     image: `${VIP_IMG_PATH}/explorer.webp`,
     color: '#3b82f6', // blue
     minPoints: 500,
@@ -59,7 +59,7 @@ export const vipLevels = [
     id: 'adventurer',
     name: 'Aventurier',
     nameEn: 'Adventurer',
-    icon: '🏔️',
+    iconName: 'mountain',
     image: `${VIP_IMG_PATH}/adventurer.webp`,
     color: '#8b5cf6', // purple
     minPoints: 1500,
@@ -85,7 +85,7 @@ export const vipLevels = [
     id: 'sage',
     name: 'Sage',
     nameEn: 'Sage',
-    icon: '🦉',
+    iconName: 'bird',
     image: `${VIP_IMG_PATH}/sage.webp`,
     color: '#f59e0b', // amber
     minPoints: 4000,
@@ -113,7 +113,7 @@ export const vipLevels = [
     id: 'legend',
     name: 'Légende',
     nameEn: 'Legend',
-    icon: '👑',
+    iconName: 'crown',
     image: `${VIP_IMG_PATH}/legend.webp`,
     color: '#ef4444', // red
     minPoints: 10000,
@@ -148,7 +148,7 @@ export const leagues = [
   {
     id: 'bronze',
     name: 'Bronze',
-    icon: '🥉',
+    iconName: 'medal',
     image: `${LEAGUE_IMG_PATH}/bronze.webp`,
     color: '#cd7f32',
     minSeasonPoints: 0,
@@ -158,7 +158,7 @@ export const leagues = [
     id: 'silver',
     name: 'Argent',
     nameEn: 'Silver',
-    icon: '🥈',
+    iconName: 'medal',
     image: `${LEAGUE_IMG_PATH}/silver.webp`,
     color: '#c0c0c0',
     minSeasonPoints: 200,
@@ -168,7 +168,7 @@ export const leagues = [
     id: 'gold',
     name: 'Or',
     nameEn: 'Gold',
-    icon: '🥇',
+    iconName: 'medal',
     image: `${LEAGUE_IMG_PATH}/gold.webp`,
     color: '#ffd700',
     minSeasonPoints: 500,

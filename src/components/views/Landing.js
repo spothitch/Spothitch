@@ -377,7 +377,7 @@ export function renderLanding(_state) {
       <!-- Auth Section (connexion obligatoire) -->
       <section id="landing-auth-section" class="py-20 px-4 bg-gradient-to-br from-primary-900/50 to-emerald-900/50">
         <div class="max-w-md mx-auto text-center">
-          <div class="text-5xl mb-4" aria-hidden="true">🔐</div>
+          <div class="flex justify-center mb-4" aria-hidden="true">${icon("lock", "w-12 h-12 text-amber-400")}</div>
           <h2 class="text-3xl md:text-4xl font-bold mb-4">
             ${t('landingAuthTitle')}
           </h2>

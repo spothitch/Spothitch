@@ -160,7 +160,7 @@ export function renderFreshnessBadge(spot, size = 'md') {
 
   const validations = (spot?.validationCount || spot?.userValidations || 0) + (spot?.testCount || 0)
   const countText = validations > 0 ? ` (${validations})` : ''
-  const crownHtml = freshness.isCertified ? ' 👑' : ''
+  const crownHtml = freshness.isCertified ? ' ' + icon('crown', 'w-3 h-3 inline text-amber-400') : ''
 
   let html = `
     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${sizes[size]} font-medium ${freshness.bgClass} ${freshness.textClass} border ${freshness.borderClass}">
@@ -173,7 +173,7 @@ export function renderFreshnessBadge(spot, size = 'md') {
   if (freshness.isStation) {
     html += `
       <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${sizes[size]} font-medium bg-red-500/20 text-red-400 border border-red-500/30">
-        ⛽ <span>${t('spotStation') || 'Station'}</span>
+        ${icon("fuel", "w-3 h-3 inline")} <span>${t('spotStation') || 'Station'}</span>
       </span>
     `
   }

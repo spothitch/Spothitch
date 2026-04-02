@@ -13,16 +13,16 @@ const CACHE_KEY = 'my_guide_tips'
 // ==================== GUIDE CATEGORIES ====================
 
 export const GUIDE_CATEGORIES = [
-  { id: 'laws', labelKey: 'guideCatLaws', fallback: 'Lois et légalité', icon: 'scale', emoji: '⚖️', ratingEnabled: false },
-  { id: 'hitchhiking', labelKey: 'guideCatHitchhiking', fallback: "Facilité de l'auto-stop", icon: 'thumbs-up', emoji: '👍', ratingEnabled: true },
-  { id: 'safety', labelKey: 'guideCatSafety', fallback: 'Sécurité', icon: 'shield', emoji: '🛡️', ratingEnabled: false },
-  { id: 'women', labelKey: 'guideCatWomen', fallback: 'Femmes seules', icon: 'heart', emoji: '👩', ratingEnabled: false },
-  { id: 'language', labelKey: 'guideCatLanguage', fallback: 'Langue et communication', icon: 'message-circle', emoji: '💬', ratingEnabled: false },
-  { id: 'budget', labelKey: 'guideCatBudget', fallback: 'Budget et coûts', icon: 'coins', emoji: '💰', ratingEnabled: false },
-  { id: 'sleep', labelKey: 'guideCatSleep', fallback: 'Dormir gratuit', icon: 'moon', emoji: '🏕️', ratingEnabled: false },
-  { id: 'transport', labelKey: 'guideCatTransport', fallback: 'Transports alternatifs', icon: 'car', emoji: '🚌', ratingEnabled: false },
-  { id: 'season', labelKey: 'guideCatSeason', fallback: 'Meilleure saison', icon: 'calendar', emoji: '📅', ratingEnabled: false },
-  { id: 'culture', labelKey: 'guideCatCulture', fallback: 'Culture et rencontres', icon: 'heart', emoji: '🎭', ratingEnabled: false },
+  { id: 'laws', labelKey: 'guideCatLaws', fallback: 'Lois et légalité', icon: 'scale', iconName: 'scale', ratingEnabled: false },
+  { id: 'hitchhiking', labelKey: 'guideCatHitchhiking', fallback: "Facilité de l'auto-stop", icon: 'thumbs-up', iconName: 'thumbs-up', ratingEnabled: true },
+  { id: 'safety', labelKey: 'guideCatSafety', fallback: 'Sécurité', icon: 'shield', iconName: 'shield-check', ratingEnabled: false },
+  { id: 'women', labelKey: 'guideCatWomen', fallback: 'Femmes seules', icon: 'heart', iconName: 'user', ratingEnabled: false },
+  { id: 'language', labelKey: 'guideCatLanguage', fallback: 'Langue et communication', icon: 'message-circle', iconName: 'message-circle', ratingEnabled: false },
+  { id: 'budget', labelKey: 'guideCatBudget', fallback: 'Budget et coûts', icon: 'coins', iconName: 'coins', ratingEnabled: false },
+  { id: 'sleep', labelKey: 'guideCatSleep', fallback: 'Dormir gratuit', icon: 'moon', iconName: 'tent', ratingEnabled: false },
+  { id: 'transport', labelKey: 'guideCatTransport', fallback: 'Transports alternatifs', icon: 'car', iconName: 'bus', ratingEnabled: false },
+  { id: 'season', labelKey: 'guideCatSeason', fallback: 'Meilleure saison', icon: 'calendar', iconName: 'calendar', ratingEnabled: false },
+  { id: 'culture', labelKey: 'guideCatCulture', fallback: 'Culture et rencontres', icon: 'heart', iconName: 'theater', ratingEnabled: false },
 ]
 
 // ==================== LOCAL CACHE ====================

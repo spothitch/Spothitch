@@ -46,7 +46,7 @@ export function renderFriendProfileModal(state) {
           <!-- Avatar + Name -->
           <div class="text-center">
             <div class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500/30 to-emerald-500/30 flex items-center justify-center text-5xl mx-auto">
-              ${friend.avatar || '👍'}
+              ${friend.avatar ? friend.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}
             </div>
             <div class="mt-3">
               <div class="flex items-center justify-center gap-2">
@@ -144,7 +144,7 @@ export function renderFriendProfileModal(state) {
             `}
             <div class="flex gap-2">
               <button
-                onclick="shareProfile('${friend.id}', '${escapeHTML(friend.name)}', '${friend.avatar || '👍'}')"
+                onclick="shareProfile('${friend.id}', '${escapeHTML(friend.name)}', '${friend.avatar ? friend.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}')"
                 class="flex-1 py-2 rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 transition-colors text-sm flex items-center justify-center gap-1"
               >
                 ${icon('share', 'w-4 h-4')}
@@ -295,7 +295,7 @@ function renderProfileReviews(state, targetUid) {
           ${reviews.slice(0, 5).map(r => `
             <div class="bg-white/5 rounded-xl p-2.5 text-xs">
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-base">${r.reviewerAvatar || '👍'}</span>
+                <span class="text-base">${r.reviewerAvatar ? r.reviewerAvatar : icon('thumbs-up', 'w-4 h-4 text-amber-400')}</span>
                 <span class="font-medium text-slate-300">${escapeHTML(r.reviewerName || (t('defaultDisplayName') || 'Hitchhiker'))}</span>
               </div>
               ${r.comment ? `<p class="text-slate-400 leading-relaxed">${escapeHTML(r.comment)}</p>` : ''}

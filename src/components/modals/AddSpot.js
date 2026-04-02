@@ -1163,7 +1163,7 @@ function renderGmapsTipCard() {
               class="w-full h-full object-cover opacity-40"
               alt="" onerror="this.style.display='none'">
             <div class="absolute inset-0 flex items-center justify-center">
-              <span class="text-[28px] opacity-80">🔍</span>
+              <span class="opacity-80">${icon('search', 'w-7 h-7')}</span>
             </div>
           </div>
           <div class="p-2 text-center text-[10px] text-slate-400">
@@ -1909,7 +1909,7 @@ window.showSpotSummary = async () => {
     evening: t('timeEvening') || 'Soir', night: t('timeNight') || 'Nuit',
   }
   const rideLabels = {
-    yes: '✅ ' + (t('yes') || 'Oui'), no: '❌ ' + (t('no') || 'Non'), gaveUp: '🏳️ ' + (t('gaveUp') || 'Abandonné'),
+    yes: icon('circle-check', 'w-4 h-4 inline text-emerald-400') + ' ' + (t('yes') || 'Oui'), no: icon('circle-x', 'w-4 h-4 inline text-red-400') + ' ' + (t('no') || 'Non'), gaveUp: icon('flag', 'w-4 h-4 inline text-slate-400') + ' ' + (t('gaveUp') || 'Abandonné'),
   }
 
   // Build destinations text
@@ -2408,7 +2408,7 @@ window.handleAddSpot = async (event) => {
       const { actions, setState: setStateFn } = await import('../../stores/state.js')
 
       showSuccess(hasPhoto
-        ? (t('spotShared') || 'Spot partagé !') + ` 📸 +50 pts (${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''})`
+        ? (t('spotShared') || 'Spot partagé !') + ` +50 pts (${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''})`
         : (t('spotShared') || 'Spot partagé avec succès !'))
       actions.incrementSpotsCreated()
       // Add new spot to map immediately (so user sees it without reload)

@@ -39,7 +39,7 @@ export function renderAuth(state) {
 
         <!-- Header -->
         <div class="px-6 pt-4 pb-3 text-center">
-          <div class="text-3xl mb-2" aria-hidden="true">🤙</div>
+          <div class="flex justify-center mb-2" aria-hidden="true">${icon("thumbs-up", "w-8 h-8 text-amber-400")}</div>
           <h2 id="auth-modal-title" class="text-xl font-bold gradient-text">
             ${isSignUp ? t('signUpTitle') : t('signInTitle')}
           </h2>
@@ -267,7 +267,7 @@ export function renderCompleteProfile(_state) {
         onclick="event.stopPropagation()"
       >
         <div class="p-6 pb-4 text-center">
-          <div class="text-4xl mb-3" aria-hidden="true">👋</div>
+          <div class="flex justify-center mb-3" aria-hidden="true">${icon("hand", "w-10 h-10 text-amber-400")}</div>
           <h2 id="complete-profile-title" class="text-2xl font-bold gradient-text">
             ${t('completeYourProfile')}
           </h2>
@@ -895,7 +895,7 @@ window.loginAsAdmin = async () => {
         createdAt: new Date().toISOString(),
       },
       username: 'Admin',
-      avatar: '👑',
+      avatar: 'crown',
       level: 1,
       points: 0,
       seasonPoints: 0,

@@ -13,7 +13,7 @@ export const FEATURES_DATA = [
   // ===== AVAILABLE =====
   {
     id: 'carte',
-    emoji: '🗺️',
+    iconName: 'map',
     name: 'Carte collaborative',
     title: 'Planifie avant de partir',
     status: 'available',
@@ -29,7 +29,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'stations',
-    emoji: '⛽',
+    iconName: 'fuel',
     name: 'Stations-service',
     title: 'Avant l\'autoroute ou à la sortie ?',
     status: 'available',
@@ -50,7 +50,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'add-spot',
-    emoji: '📍',
+    iconName: 'map-pin',
     name: 'Ajouter un spot',
     title: 'Tu passes le flambeau',
     status: 'available',
@@ -66,7 +66,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'profil',
-    emoji: '👤',
+    iconName: 'user',
     name: 'Profil voyageur',
     title: 'Ton identité de voyageur',
     status: 'available',
@@ -82,7 +82,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'amis',
-    emoji: '🤝',
+    iconName: 'handshake',
     name: 'Amis',
     title: 'Retrouve ceux que tu as croisés sur la route',
     status: 'available',
@@ -98,7 +98,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'chat',
-    emoji: '💬',
+    iconName: 'message-circle',
     name: 'Chat par pays',
     title: 'Un canal par pays. Des infos ciblées.',
     status: 'beta',
@@ -107,8 +107,8 @@ export const FEATURES_DATA = [
     content: [
       { type: 'highlights', items: [
         { emoji: '🇬🇷', title: 'Rejoins le canal de ton pays', desc: 'Tu arrives en Grèce ? Rejoins le canal Grèce. Les dernières infos des gens sur place.' },
-        { emoji: '📌', title: 'Messages épinglés', desc: 'Les infos essentielles en haut. Pas besoin de scroller 500 messages.' },
-        { emoji: '🔔', title: 'Notifs ciblées', desc: 'Notifié uniquement sur les pays qui t\'intéressent. Pas de bruit sur le reste.' },
+        { iconName: 'map-pin', title: 'Messages épinglés', desc: 'Les infos essentielles en haut. Pas besoin de scroller 500 messages.' },
+        { iconName: 'bell', title: 'Notifs ciblées', desc: 'Notifié uniquement sur les pays qui t\'intéressent. Pas de bruit sur le reste.' },
       ]},
     ],
     tags: ['Réponses rapides', 'Communauté mondiale', '24/7', '4 langues'],
@@ -131,7 +131,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'stats',
-    emoji: '📊',
+    iconName: 'bar-chart-3',
     name: 'Statistiques',
     title: 'Turquie : 2 300 km. 14 lifts. 18 min d\'attente moyenne.',
     status: 'beta',
@@ -139,16 +139,16 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '🌍', title: 'Stats par pays', desc: 'Tes stats détaillées par pays. Chaque pays que tu as traversé en stop.' },
-        { emoji: '📊', title: 'Compare les pays', desc: 'Temps d\'attente, distance, nombre de lifts. Tu compares les pays entre eux.' },
-        { emoji: '🏆', title: 'Ton meilleur pays', desc: '"Ton meilleur pays : la Roumanie. 8 min d\'attente en moyenne." Info utile pour le prochain voyage.' },
+        { iconName: 'globe', title: 'Stats par pays', desc: 'Tes stats détaillées par pays. Chaque pays que tu as traversé en stop.' },
+        { iconName: 'bar-chart-3', title: 'Compare les pays', desc: 'Temps d\'attente, distance, nombre de lifts. Tu compares les pays entre eux.' },
+        { iconName: 'trophy', title: 'Ton meilleur pays', desc: '"Ton meilleur pays : la Roumanie. 8 min d\'attente en moyenne." Info utile pour le prochain voyage.' },
       ]},
     ],
     tags: ['Par année', 'Par pays', 'Comparatif mois'],
   },
   {
     id: 'classements',
-    emoji: '🏆',
+    iconName: 'trophy',
     name: 'Classements',
     title: 'Contribue. Monte. Sois vu.',
     status: 'beta',
@@ -156,16 +156,16 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '🏆', title: 'Classements hebdo', desc: 'Classements hebdo par pays et mondial. Les meilleurs contributeurs en haut.' },
-        { emoji: '🏅', title: 'Ligues et saisons', desc: 'Badges de saison, ligues, classement amis. Du fun qui motive à contribuer.' },
-        { emoji: '🌍', title: 'La carte grandit', desc: 'Plus tu contribues, plus la carte est utile. Le classement, c\'est le bonus.' },
+        { iconName: 'trophy', title: 'Classements hebdo', desc: 'Classements hebdo par pays et mondial. Les meilleurs contributeurs en haut.' },
+        { iconName: 'medal', title: 'Ligues et saisons', desc: 'Badges de saison, ligues, classement amis. Du fun qui motive à contribuer.' },
+        { iconName: 'globe', title: 'La carte grandit', desc: 'Plus tu contribues, plus la carte est utile. Le classement, c\'est le bonus.' },
       ]},
     ],
     tags: ['Chaque semaine un nouveau leader', 'Tu peux être là'],
   },
   {
     id: 'niveaux',
-    emoji: '📈',
+    iconName: 'trending-up',
     name: 'Niveaux et badges',
     title: 'Tes badges disent qui tu es sans un mot.',
     status: 'beta',
@@ -173,9 +173,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '👤', title: 'Ton profil parle', desc: 'Quelqu\'un regarde ton profil. Il voit : 15 pays, Niveau 22, badge "Routard des Balkans".' },
-        { emoji: '🤝', title: 'Confiance immédiate', desc: 'Il sait immédiatement que tu es expérimenté(e). Il te fait confiance pour voyager ensemble.' },
-        { emoji: '📍', title: 'Tes spots pèsent', desc: 'Tes spots sont pris plus au sérieux. Un spot posé par un Niveau 22, ça pèse plus.' },
+        { iconName: 'user', title: 'Ton profil parle', desc: 'Quelqu\'un regarde ton profil. Il voit : 15 pays, Niveau 22, badge "Routard des Balkans".' },
+        { iconName: 'handshake', title: 'Confiance immédiate', desc: 'Il sait immédiatement que tu es expérimenté(e). Il te fait confiance pour voyager ensemble.' },
+        { iconName: 'map-pin', title: 'Tes spots pèsent', desc: 'Tes spots sont pris plus au sérieux. Un spot posé par un Niveau 22, ça pèse plus.' },
       ]},
     ],
     tags: [],
@@ -184,7 +184,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'conseils',
-    emoji: '💡',
+    iconName: 'lightbulb',
     name: 'Conseils par pays',
     title: '1 phrase. C\'est tout ce qu\'il faut.',
     status: 'available',
@@ -199,7 +199,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'dons',
-    emoji: '💛',
+    iconName: 'heart',
     name: 'Dons',
     title: 'Sois parmi les premiers à soutenir',
     status: 'available',
@@ -215,7 +215,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'hors-ligne',
-    emoji: '📴',
+    iconName: 'wifi-off',
     name: 'Mode hors-ligne',
     title: 'Télécharge avant de partir',
     status: 'available',
@@ -235,7 +235,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'sos',
-    emoji: '🚨',
+    iconName: 'siren',
     name: 'SOS d\'urgence',
     title: '3 taps. Tes proches savent.',
     status: 'beta',
@@ -243,9 +243,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '🚨', title: 'Bouton SOS intégré', desc: 'Position GPS envoyée par SMS à tes contacts de confiance.' },
-        { emoji: '📞', title: 'Tout est prévu', desc: 'Faux appel, alerte silencieuse, enregistrement discret.' },
-        { emoji: '📴', title: 'Toujours disponible', desc: 'Fonctionne hors-ligne. Fonctionne partout. Fonctionne toujours.' },
+        { iconName: 'siren', title: 'Bouton SOS intégré', desc: 'Position GPS envoyée par SMS à tes contacts de confiance.' },
+        { iconName: 'phone', title: 'Tout est prévu', desc: 'Faux appel, alerte silencieuse, enregistrement discret.' },
+        { iconName: 'wifi-off', title: 'Toujours disponible', desc: 'Fonctionne hors-ligne. Fonctionne partout. Fonctionne toujours.' },
       ]},
     ],
     tags: ['3 pressions', 'SMS + GPS', 'Offline', 'Même sans parler'],
@@ -256,7 +256,7 @@ export const FEATURES_DATA = [
   // ===== BETA =====
   {
     id: 'compagnon',
-    emoji: '🧑‍🤝‍🧑',
+    iconName: 'handshake',
     name: 'Compagnon de route',
     title: 'Même direction ? Partons ensemble.',
     status: 'beta',
@@ -264,9 +264,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '🗺️', title: 'Même destination', desc: 'Trouve quelqu\'un qui va au même endroit, aux mêmes dates.' },
-        { emoji: '👤', title: 'Profils vérifiés', desc: 'Avis d\'autres voyageurs. Tu sais à qui tu as affaire.' },
-        { emoji: '🤝', title: 'Le stop à deux', desc: 'Plus sûr, plus fun, plus rapide.' },
+        { iconName: 'map', title: 'Même destination', desc: 'Trouve quelqu\'un qui va au même endroit, aux mêmes dates.' },
+        { iconName: 'user', title: 'Profils vérifiés', desc: 'Avis d\'autres voyageurs. Tu sais à qui tu as affaire.' },
+        { iconName: 'handshake', title: 'Le stop à deux', desc: 'Plus sûr, plus fun, plus rapide.' },
       ]},
     ],
     tags: ['Match par destination', 'Date flexible', 'Profil vérifié'],
@@ -274,7 +274,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'notif-spot',
-    emoji: '🔔',
+    iconName: 'bell',
     name: 'Alertes spot proche',
     title: 'Tu passes à côté d\'un spot. 30 secondes pour aider.',
     status: 'beta',
@@ -282,9 +282,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '📍', title: 'Détection automatique', desc: 'L\'app détecte que tu es à 200m d\'un spot qui n\'a pas été vérifié depuis longtemps.' },
+        { iconName: 'map-pin', title: 'Détection automatique', desc: 'L\'app détecte que tu es à 200m d\'un spot qui n\'a pas été vérifié depuis longtemps.' },
         { emoji: '✅', title: 'Un tap suffit', desc: 'Confirme : "oui, ce spot existe encore". C\'est tout.' },
-        { emoji: '🏅', title: '+5 points', desc: 'Tu as rendu la carte plus fiable pour le prochain voyageur. En 30 secondes.' },
+        { iconName: 'medal', title: '+5 points', desc: 'Tu as rendu la carte plus fiable pour le prochain voyageur. En 30 secondes.' },
       ]},
     ],
     tags: ['Alerte intelligente', 'Seulement si tu veux', '+5 points'],
@@ -292,7 +292,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'activite-amis',
-    emoji: '👥',
+    iconName: 'users',
     name: 'Activité amis',
     title: 'Jour 1 : Barcelone. Jour 3 : Marseille. Jour 5 : Rome.',
     status: 'beta',
@@ -300,9 +300,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '📖', title: 'Carnet de route live', desc: 'Suis le voyage de ton ami étape par étape. Comme un carnet de route en temps réel.' },
-        { emoji: '📍', title: 'Chaque étape visible', desc: 'Chaque spot posé, chaque pays traversé. Tu vois exactement par où il passe.' },
-        { emoji: '💬', title: 'Commente les étapes', desc: 'Tu peux commenter ses étapes. "Attends, t\'es passé par Split ? Faut que je te raconte."' },
+        { iconName: 'book-open', title: 'Carnet de route live', desc: 'Suis le voyage de ton ami étape par étape. Comme un carnet de route en temps réel.' },
+        { iconName: 'map-pin', title: 'Chaque étape visible', desc: 'Chaque spot posé, chaque pays traversé. Tu vois exactement par où il passe.' },
+        { iconName: 'message-circle', title: 'Commente les étapes', desc: 'Tu peux commenter ses étapes. "Attends, t\'es passé par Split ? Faut que je te raconte."' },
       ]},
     ],
     tags: [],
@@ -310,7 +310,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'defis',
-    emoji: '🥇',
+    iconName: 'medal',
     name: 'Défis',
     title: '🏅 Routard des Balkans',
     status: 'beta',
@@ -325,7 +325,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'score-confiance',
-    emoji: '🛡️',
+    iconName: 'shield-check',
     name: 'Score de confiance',
     title: 'Ton score, c\'est ta réputation de voyageur.',
     status: 'beta',
@@ -333,9 +333,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '🏆', title: 'Confiance méritée', desc: 'Un bon score, ça veut dire que la communauté te fait confiance. C\'est gratifiant.' },
-        { emoji: '📈', title: 'Chaque action compte', desc: 'Chaque spot ajouté, chaque aide dans le chat, chaque bon avis fait monter ton score.' },
-        { emoji: '👥', title: 'Cercle vertueux', desc: 'Plus ton score est haut, plus les gens veulent voyager avec toi.' },
+        { iconName: 'trophy', title: 'Confiance méritée', desc: 'Un bon score, ça veut dire que la communauté te fait confiance. C\'est gratifiant.' },
+        { iconName: 'trending-up', title: 'Chaque action compte', desc: 'Chaque spot ajouté, chaque aide dans le chat, chaque bon avis fait monter ton score.' },
+        { iconName: 'users', title: 'Cercle vertueux', desc: 'Plus ton score est haut, plus les gens veulent voyager avec toi.' },
       ]},
     ],
     tags: ['Profil vérifié', 'Historique voyage', 'Avis communauté'],
@@ -343,7 +343,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'avis-profils',
-    emoji: '💬',
+    iconName: 'message-circle',
     name: 'Avis profils',
     title: 'Vous avez voyagé ensemble. Raconte comment c\'était.',
     status: 'beta',
@@ -352,8 +352,8 @@ export const FEATURES_DATA = [
     content: [
       { type: 'highlights', items: [
         { emoji: '✏️', title: 'Laisse un avis', desc: 'Après un voyage partagé, tu laisses un avis. Quelques phrases suffisent.' },
-        { emoji: '🤝', title: 'Évaluation mutuelle', desc: 'L\'autre fait pareil. Vous vous évaluez mutuellement, en toute transparence.' },
-        { emoji: '🌍', title: 'Aide les suivants', desc: 'Tes avis aident les futurs voyageurs à savoir à qui ils ont affaire.' },
+        { iconName: 'handshake', title: 'Évaluation mutuelle', desc: 'L\'autre fait pareil. Vous vous évaluez mutuellement, en toute transparence.' },
+        { iconName: 'globe', title: 'Aide les suivants', desc: 'Tes avis aident les futurs voyageurs à savoir à qui ils ont affaire.' },
       ]},
     ],
     tags: [],
@@ -361,7 +361,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'itineraire',
-    emoji: '🧭',
+    iconName: 'compass',
     name: 'Itinéraire',
     title: 'Ta destination. Ta route. Spot par spot.',
     status: 'beta',
@@ -369,9 +369,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '📍', title: 'Route optimale', desc: 'Entre ta destination. L\'app calcule la route via les meilleurs spots.' },
-        { emoji: '⛽', title: 'Tout sur ta route', desc: 'Stations-service, sorties d\'autoroute, tout est sur ta route.' },
-        { emoji: '📴', title: 'Voyage sans internet', desc: 'Télécharge tout. Voyage sans internet.' },
+        { iconName: 'map-pin', title: 'Route optimale', desc: 'Entre ta destination. L\'app calcule la route via les meilleurs spots.' },
+        { iconName: 'fuel', title: 'Tout sur ta route', desc: 'Stations-service, sorties d\'autoroute, tout est sur ta route.' },
+        { iconName: 'wifi-off', title: 'Voyage sans internet', desc: 'Télécharge tout. Voyage sans internet.' },
       ]},
     ],
     tags: ['📍 Spots 4★+', '⛽ Stations', '📴 Offline'],
@@ -379,7 +379,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'radar',
-    emoji: '📡',
+    iconName: 'radio',
     name: 'Radar de proximité',
     title: 'Qui est autour de toi ? Active le radar.',
     status: 'beta',
@@ -387,9 +387,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '📡', title: 'Temps réel', desc: 'Vois les autostoppeurs proches en temps réel. Contacte-les directement.' },
-        { emoji: '🔒', title: '100% privé', desc: 'Tu actives quand tu veux, tu coupes quand tu veux.' },
-        { emoji: '🤝', title: 'Ensemble', desc: 'Se rejoindre, partager un lift, ou juste savoir qu\'on n\'est pas seul.' },
+        { iconName: 'radio', title: 'Temps réel', desc: 'Vois les autostoppeurs proches en temps réel. Contacte-les directement.' },
+        { iconName: 'lock', title: '100% privé', desc: 'Tu actives quand tu veux, tu coupes quand tu veux.' },
+        { iconName: 'handshake', title: 'Ensemble', desc: 'Se rejoindre, partager un lift, ou juste savoir qu\'on n\'est pas seul.' },
       ]},
     ],
     tags: ['Radar ON/OFF', 'Message direct', 'Vie privée protégée'],
@@ -397,7 +397,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'quiz',
-    emoji: '🧠',
+    iconName: 'brain',
     name: 'Quiz',
     title: '"Quel geste signifie stop en Grèce ?" Tu le sais ?',
     status: 'beta',
@@ -406,8 +406,8 @@ export const FEATURES_DATA = [
     content: [
       { type: 'highlights', items: [
         { emoji: '✋', title: 'Questions utiles', desc: 'Des questions utiles pour le voyage. Pas de la culture générale random. Du concret.' },
-        { emoji: '💡', title: 'Apprends en jouant', desc: 'Chaque bonne réponse t\'apprend quelque chose. "En Grèce, le pouce levé est une insulte."' },
-        { emoji: '🌍', title: 'Découvre avant de partir', desc: 'Tu découvres des pays avant d\'y aller. Mieux préparé, moins de surprises.' },
+        { iconName: 'lightbulb', title: 'Apprends en jouant', desc: 'Chaque bonne réponse t\'apprend quelque chose. "En Grèce, le pouce levé est une insulte."' },
+        { iconName: 'globe', title: 'Découvre avant de partir', desc: 'Tu découvres des pays avant d\'y aller. Mieux préparé, moins de surprises.' },
       ]},
     ],
     tags: [],
@@ -415,7 +415,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'guides',
-    emoji: '📚',
+    iconName: 'book-open',
     name: 'Guides par pays',
     title: 'Le guide du stop. Par pays. Par des stoppeurs.',
     status: 'beta',
@@ -423,9 +423,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '🌍', title: 'Chaque pays couvert', desc: 'Comment fonctionne le stop dans chaque pays. Les astuces que seuls les voyageurs connaissent.' },
+        { iconName: 'globe', title: 'Chaque pays couvert', desc: 'Comment fonctionne le stop dans chaque pays. Les astuces que seuls les voyageurs connaissent.' },
         { emoji: '✏️', title: 'Par la communauté', desc: 'Écrit et mis à jour par la communauté. Du vécu, pas du copié-collé.' },
-        { emoji: '🛡️', title: 'Tout en un endroit', desc: 'Sécurité, culture locale, mots utiles, erreurs à éviter.' },
+        { iconName: 'shield-check', title: 'Tout en un endroit', desc: 'Sécurité, culture locale, mots utiles, erreurs à éviter.' },
       ]},
     ],
     tags: [],
@@ -433,7 +433,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'gardien',
-    emoji: '🛡️',
+    iconName: 'shield-check',
     name: 'Mode gardien',
     title: 'Quelqu\'un veille. Toujours.',
     status: 'beta',
@@ -441,7 +441,7 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '📍', title: 'Position live', desc: 'Position live partagée avec tes gardiens. Automatique, silencieux, privé.' },
+        { iconName: 'map-pin', title: 'Position live', desc: 'Position live partagée avec tes gardiens. Automatique, silencieux, privé.' },
         { emoji: '⏰', title: 'Check-in régulier', desc: 'Si tu ne réponds plus, alerte envoyée.' },
         { emoji: '✅', title: 'Arrivée notifiée', desc: 'Notification d\'arrivée automatique. Personne ne s\'inquiète pour rien.' },
       ]},
@@ -451,7 +451,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'evenements',
-    emoji: '🎉',
+    iconName: 'party-popper',
     name: 'Événements',
     title: 'La communauté se retrouve. En vrai.',
     status: 'beta',
@@ -461,7 +461,7 @@ export const FEATURES_DATA = [
       { type: 'highlights', items: [
         { emoji: '🍺', title: 'Meetups et courses', desc: 'Meetups, courses de stop, festivals. Organisés par la communauté, pour la communauté.' },
         { emoji: '✏️', title: 'Crée un événement', desc: 'Crée un événement n\'importe où. Les voyageurs proches sont notifiés.' },
-        { emoji: '🤝', title: 'Rencontres de voyage', desc: 'Les meilleures amitiés du voyage commencent par une rencontre. On en crée les occasions.' },
+        { iconName: 'handshake', title: 'Rencontres de voyage', desc: 'Les meilleures amitiés du voyage commencent par une rencontre. On en crée les occasions.' },
       ]},
     ],
     tags: ['Créer un événement', 'Rejoindre', 'Agenda communauté'],
@@ -469,7 +469,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'auberges',
-    emoji: '🏨',
+    iconName: 'building',
     name: 'Auberges',
     title: 'Les auberges testées par des routards. Pas par des algorithmes.',
     status: 'beta',
@@ -477,9 +477,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '🎒', title: 'Sélection communautaire', desc: 'Notées par des voyageurs comme toi, pas par des touristes.' },
-        { emoji: '📍', title: 'Sur ta route', desc: 'Liées à ta route. Proches des spots de stop. Pratiques pour repartir le matin.' },
-        { emoji: '💰', title: 'Budget routard', desc: 'Filtrées par budget routard. Pas de resort à 80€ la nuit dans les résultats.' },
+        { iconName: 'backpack', title: 'Sélection communautaire', desc: 'Notées par des voyageurs comme toi, pas par des touristes.' },
+        { iconName: 'map-pin', title: 'Sur ta route', desc: 'Liées à ta route. Proches des spots de stop. Pratiques pour repartir le matin.' },
+        { iconName: 'coins', title: 'Budget routard', desc: 'Filtrées par budget routard. Pas de resort à 80€ la nuit dans les résultats.' },
       ]},
     ],
     tags: ['Sélection communautaire', 'Note autostoppeur', 'Avis vrais', 'Critères route'],
@@ -487,7 +487,7 @@ export const FEATURES_DATA = [
   },
   {
     id: 'villes',
-    emoji: '🏙️',
+    iconName: 'building-2',
     name: 'Guides villes',
     title: 'T\'arrives dans une ville que tu connais pas. Et pourtant, t\'es prêt.',
     status: 'beta',
@@ -495,9 +495,9 @@ export const FEATURES_DATA = [
     badge: 'Arrive bientôt',
     content: [
       { type: 'highlights', items: [
-        { emoji: '📍', title: 'Spots par direction', desc: 'Spots de sortie classés par direction avec les avis des voyageurs. Tu sais déjà où aller demain matin.' },
-        { emoji: '🌙', title: 'Infos pratiques', desc: 'Où dormir pas cher, quoi manger, comment se déplacer. Les infos qu\'on cherche tous en arrivant.' },
-        { emoji: '📴', title: 'Tout hors-ligne', desc: 'Tout dispo sans internet. Tu atterris dans une ville à minuit sans data ? T\'as quand même tout.' },
+        { iconName: 'map-pin', title: 'Spots par direction', desc: 'Spots de sortie classés par direction avec les avis des voyageurs. Tu sais déjà où aller demain matin.' },
+        { iconName: 'moon', title: 'Infos pratiques', desc: 'Où dormir pas cher, quoi manger, comment se déplacer. Les infos qu\'on cherche tous en arrivant.' },
+        { iconName: 'wifi-off', title: 'Tout hors-ligne', desc: 'Tout dispo sans internet. Tu atterris dans une ville à minuit sans data ? T\'as quand même tout.' },
       ]},
     ],
     tags: ['428 villes', 'Par direction', 'Hors-ligne'],

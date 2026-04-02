@@ -14,10 +14,10 @@ const COMMENTS_KEY = 'spothitch_event_comments'
 
 // Event types
 export const EVENT_TYPES = {
-  meetup: { id: 'meetup', icon: '🤝', color: 'text-primary-400', bg: 'bg-primary-500/20' },
-  group_departure: { id: 'group_departure', icon: '🚗', color: 'text-emerald-400', bg: 'bg-emerald-500/20' },
-  hostel_party: { id: 'hostel_party', icon: '🎉', color: 'text-amber-400', bg: 'bg-amber-500/20' },
-  tips_exchange: { id: 'tips_exchange', icon: '💡', color: 'text-purple-400', bg: 'bg-purple-500/20' },
+  meetup: { id: 'meetup', iconName: 'handshake', color: 'text-primary-400', bg: 'bg-primary-500/20' },
+  group_departure: { id: 'group_departure', iconName: 'car', color: 'text-emerald-400', bg: 'bg-emerald-500/20' },
+  hostel_party: { id: 'hostel_party', iconName: 'party-popper', color: 'text-amber-400', bg: 'bg-amber-500/20' },
+  tips_exchange: { id: 'tips_exchange', iconName: 'lightbulb', color: 'text-purple-400', bg: 'bg-purple-500/20' },
 }
 
 /**
@@ -128,10 +128,10 @@ export function createEvent(eventData) {
     visibility: eventData.visibility || 'public',
     creatorId: userId,
     creatorName: state.username || t('traveler') || 'Voyageur',
-    creatorAvatar: state.avatar || '👍',
+    creatorAvatar: state.avatar || 'thumbs-up',
     participants: [userId],
     participantNames: { [userId]: state.username || t('traveler') || 'Voyageur' },
-    participantAvatars: { [userId]: state.avatar || '👍' },
+    participantAvatars: { [userId]: state.avatar || 'thumbs-up' },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
@@ -213,7 +213,7 @@ export function joinEvent(eventId) {
   event.participantNames = event.participantNames || {}
   event.participantNames[userId] = state.username || t('traveler') || 'Voyageur'
   event.participantAvatars = event.participantAvatars || {}
-  event.participantAvatars[userId] = state.avatar || '👍'
+  event.participantAvatars[userId] = state.avatar || 'thumbs-up'
   event.updatedAt = new Date().toISOString()
 
   events[eventIndex] = event
@@ -311,7 +311,7 @@ export function postEventComment(eventId, text, replyToId = null) {
     text: text.trim(),
     userId,
     userName: state.username || t('traveler') || 'Voyageur',
-    userAvatar: state.avatar || '👍',
+    userAvatar: state.avatar || 'thumbs-up',
     replyToId,
     reactions: {},
     createdAt: new Date().toISOString(),

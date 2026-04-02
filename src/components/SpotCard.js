@@ -51,18 +51,18 @@ function renderDefaultCard(spot) {
           class="w-full h-full object-cover"
           loading="lazy"
         />` : `<div class="w-full h-full bg-gradient-to-br from-dark-secondary to-dark-primary flex items-center justify-center">
-          <span class="text-4xl">📍</span>
+          ${icon("map-pin", "w-10 h-10 text-amber-400")}
         </div>`}
         <div class="absolute top-3 right-3 flex flex-col gap-2 items-end">
           <!-- Tier badge (grey/green/gold) -->
           <span class="badge bg-${freshness.color}-500/20 text-${freshness.color}-300 border border-${freshness.color}-500/30 text-xs">
             ${icon(freshness.icon, `w-4 h-4 mr-1`)}
             ${t(freshness.labelKey)}
-            ${freshness.isCertified ? ' 👑' : ''}
+            ${freshness.isCertified ? icon('crown', 'w-3 h-3 inline text-amber-400') : ''}
           </span>
           ${freshness.isStation ? `
             <span class="badge bg-red-500/20 text-red-300 border border-red-500/30 text-xs">
-              ⛽ ${t('spotStation') || 'Station'}
+              ${icon("fuel", "w-3 h-3 inline mr-0.5")} ${t('spotStation') || 'Station'}
             </span>` : ''}
         </div>
         ${(() => {
@@ -85,8 +85,8 @@ function renderDefaultCard(spot) {
           ${safeFrom && safeTo
             ? `${safeFrom}${spot.cityNumber ? ' #' + spot.cityNumber : ''} ${icon('arrow-right', 'w-4 h-4 text-primary-400 mx-1')} ${safeTo}`
             : spot.direction
-              ? `📍 ${escapeHTML(spot.direction)}`
-              : `📍 ${t('spotLocation') || 'Spot'}`}
+              ? `${icon("map-pin", "w-3 h-3 inline mr-0.5")} ${escapeHTML(spot.direction)}`
+              : `${icon("map-pin", "w-3 h-3 inline mr-0.5")} ${t('spotLocation') || 'Spot'}`}
         </h3>
 
         <p class="text-slate-400 text-sm line-clamp-2 mb-3">
@@ -157,7 +157,7 @@ function renderCompactCard(spot) {
           class="w-full h-full object-cover"
           loading="lazy"
         />` : `<div class="w-full h-full bg-gradient-to-br from-dark-secondary to-dark-primary flex items-center justify-center">
-          <span class="text-2xl">📍</span>
+          ${icon("map-pin", "w-6 h-6 text-amber-400")}
         </div>`}
         <!-- Tier color indicator -->
         <div class="absolute bottom-1 right-1">
@@ -171,8 +171,8 @@ function renderCompactCard(spot) {
           ${safeFrom && safeTo
             ? `${safeFrom} <span aria-hidden="true">→</span><span class="sr-only">${t('towards') || 'vers'}</span> ${safeTo}`
             : spot.direction
-              ? `📍 ${escapeHTML(spot.direction)}`
-              : `📍 ${t('spotLocation') || 'Spot'} #${spot.id}`}
+              ? `${icon("map-pin", "w-3 h-3 inline mr-0.5")} ${escapeHTML(spot.direction)}`
+              : `${icon("map-pin", "w-3 h-3 inline mr-0.5")} ${t('spotLocation') || 'Spot'} #${spot.id}`}
         </h3>
         <div class="flex items-center gap-2 mt-1 text-xs text-slate-400">
           <span class="flex items-center gap-1 text-${freshness.color}-400" aria-label="${ratingText}">

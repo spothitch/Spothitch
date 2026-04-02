@@ -871,8 +871,8 @@ function _renderConfigContact(contact, index, primaryIdx) {
 
 window.sendSOSTemplate = async (type) => {
   const templates = {
-    danger: t('sosTemplateDanger') || "🚨 URGENCE. Je suis en danger et j'ai besoin d'aide immédiatement !",
-    stuck: t('sosTemplateStuck') || "📍 Je suis bloqué(e) en auto-stop et j'ai besoin qu'on vienne me chercher.",
+    danger: t('sosTemplateDanger') || "URGENCE. Je suis en danger et j'ai besoin d'aide immédiatement !",
+    stuck: t('sosTemplateStuck') || "Je suis bloqué(e) en auto-stop et j'ai besoin qu'on vienne me chercher.",
     help: t('sosTemplateHelp') || "🆘 J'ai besoin d'aide. Voici ma position actuelle.",
   }
 

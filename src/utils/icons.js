@@ -592,11 +592,16 @@ export function spinnerIcon(cls = '', size = 20) {
 
 // ── Avatar renderer ─────────────────────────────────────────────────
 // Shows emoji avatar if set, otherwise SpotHitch logo
-export function renderAvatar(avatar, size = 'text-xl') {
-  if (avatar && avatar !== '👍') {
-    return `<span class="${size}">${avatar}</span>`
+export function renderAvatar(avatar, cls = 'w-6 h-6') {
+  if (!avatar || avatar === '👍') {
+    return icon('thumbs-up', cls + ' text-amber-400')
   }
-  return `<img src="/avatar-default.png" alt="" class="w-6 h-6 rounded-full" style="display:inline-block;vertical-align:middle">`
+  // If avatar is a Lucide icon name (ASCII letters/hyphens only), render as icon
+  if (/^[a-z][a-z0-9-]*$/.test(avatar) && ICON_MAP[avatar]) {
+    return icon(avatar, cls + ' text-amber-400')
+  }
+  // Legacy emoji avatars from existing users
+  return `<span class="inline-flex items-center justify-center">${avatar}</span>`
 }
 
-export const DEFAULT_AVATAR = '👍'
+export const DEFAULT_AVATAR_ICON = 'thumbs-up'

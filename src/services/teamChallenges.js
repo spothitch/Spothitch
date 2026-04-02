@@ -121,7 +121,7 @@ export function createTeam(teamData) {
     id: `team_${Date.now()}`,
     name: teamData.name,
     description: teamData.description || '',
-    avatar: teamData.avatar || '👥',
+    avatar: teamData.avatar || 'users',
     leader: userId,
     members: [userId],
     createdAt: new Date().toISOString(),
@@ -384,7 +384,7 @@ function completeTeamChallenge(team, challengeIndex) {
   });
 
   showToast(
-    (t('teamChallengeCompleted') || '🎉 Défi d\'équipe "{name}" terminé ! +{points} 👍')
+    (t('teamChallengeCompleted') || 'Défi d\'équipe "{name}" terminé ! +{points} pts')
       .replace('{name}', challenge.name)
       .replace('{points}', pointsPerMember),
     'success'
@@ -556,8 +556,8 @@ export function renderTeamDashboard(state) {
     .map(
       (memberId) => `
             <div class="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-full text-sm">
-              <span class="w-6 h-6 rounded-full bg-primary-500 flex items-center justify-center text-xs">👤</span>
-              <span>${memberId === team.leader ? '👑 ' : ''}${t('teamMember') || 'Membre'}</span>
+              ${icon("user", "w-4 h-4")}
+              <span>${memberId === team.leader ? icon('crown', 'w-3 h-3 inline text-amber-400') + ' ' : ''}${t('teamMember') || 'Membre'}</span>
             </div>
           `
     )

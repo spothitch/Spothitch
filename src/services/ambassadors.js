@@ -53,7 +53,7 @@ export function registerAsAmbassador(data) {
   const ambassador = {
     userId: state.user.uid,
     userName: state.user.displayName || state.user.email,
-    userAvatar: state.user.avatar || '👤',
+    userAvatar: state.user.avatar || 'thumbs-up',
     city,
     country,
     bio,

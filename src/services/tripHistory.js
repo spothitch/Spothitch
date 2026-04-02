@@ -10,6 +10,7 @@
  */
 
 import { getState } from '../stores/state.js'
+import { icon } from '../utils/icons.js'
 import { showToast } from './notifications.js'
 import { t } from '../i18n/index.js'
 
@@ -23,12 +24,12 @@ const CONFIG = {
 // ==================== EVENT TYPES ====================
 
 const EVENT_TYPES = {
-  start_trip: { icon: '🚀', labelKey: 'tripEventStartTrip' },
-  checkin: { icon: '📍', labelKey: 'tripEventCheckin' },
-  ride_start: { icon: '🚗', labelKey: 'tripEventRideStart' },
-  ride_end: { icon: '🏁', labelKey: 'tripEventRideEnd' },
-  arrive: { icon: '🎉', labelKey: 'tripEventArrive' },
-  spot_visited: { icon: '👁️', labelKey: 'tripEventSpotVisited' },
+  start_trip: { iconName: 'rocket', labelKey: 'tripEventStartTrip' },
+  checkin: { iconName: 'map-pin', labelKey: 'tripEventCheckin' },
+  ride_start: { iconName: 'car', labelKey: 'tripEventRideStart' },
+  ride_end: { iconName: 'flag-checkered', labelKey: 'tripEventRideEnd' },
+  arrive: { iconName: 'party-popper', labelKey: 'tripEventArrive' },
+  spot_visited: { iconName: 'eye', labelKey: 'tripEventSpotVisited' },
 }
 
 // Get translated label for event type
@@ -190,7 +191,7 @@ export function renderTripHistory(limit = 50) {
   if (history.length === 0) {
     return `
       <div class="text-center py-12 text-slate-400">
-        <div class="text-4xl mb-3">📋</div>
+        <div class="flex justify-center mb-3">${icon("clipboard", "w-10 h-10 text-slate-400")}</div>
         <p>${t('tripHistoryEmpty') || 'Aucun événement enregistré'}</p>
         <p class="text-sm mt-2">${t('tripHistoryEmptyDesc') || 'Tes futurs voyages seront enregistrés ici'}</p>
       </div>
@@ -225,7 +226,7 @@ export function renderTripHistory(limit = 50) {
     `
 
     events.forEach(event => {
-      const eventType = EVENT_TYPES[event.type] || { icon: '📌', labelKey: event.type }
+      const eventType = EVENT_TYPES[event.type] || { iconName: 'map-pin', labelKey: event.type }
       const eventLabel = getEventLabel(event.type)
       const locationText = getLocationText(event)
       const timeText = formatTime(event.timestamp)

@@ -232,7 +232,7 @@ function renderOfflinePanel(state) {
   const countryFlag = (code) => {
     try {
       return String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65))
-    } catch { return '🌍' }
+    } catch { return icon('globe', 'w-4 h-4 inline') }
   }
 
   // Spot counts per country: from Firestore state spots + spotIndex fallback
@@ -456,7 +456,7 @@ function renderAmbassadorSuccessModal(_state) {
   return `
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onclick="if(event.target===this)closeAmbassadorSuccess()" role="dialog" aria-modal="true" aria-labelledby="amb-success-title">
       <div class="modal-panel rounded-2xl max-w-sm w-full p-6 text-center slide-up">
-        <div class="text-6xl mb-4">🌟</div>
+        <div class="flex justify-center mb-4">${icon("star", "w-14 h-14 text-amber-400")}</div>
         <h2 id="amb-success-title" class="text-2xl font-bold mb-2">${t('ambassadorSuccessTitle') || 'Tu es maintenant Ambassadeur !'}</h2>
         <p class="text-slate-300 text-sm mb-6">${t('ambassadorSuccessDesc') || 'Tu représentes désormais ta ville sur SpotHitch. Merci pour ton engagement !'}</p>
         <button onclick="closeAmbassadorSuccess()" class="w-full py-3 px-6 rounded-xl bg-primary-500 text-white font-medium hover:bg-primary-600 transition-colors">
@@ -473,7 +473,7 @@ function renderContactAmbassadorModal(state) {
       <div class="modal-panel w-full max-w-md rounded-2xl overflow-hidden slide-up">
         <div class="flex items-center justify-between p-4 border-b border-white/10">
           <div class="flex items-center gap-3">
-            <span class="text-2xl">${state.selectedAmbassador.userAvatar || '👍'}</span>
+            <span class="text-2xl">${state.selectedAmbassador.userAvatar || icon('thumbs-up', 'w-6 h-6 text-amber-400')}</span>
             <div>
               <h2 id="contact-amb-title" class="text-base font-bold">${escapeHTML(state.selectedAmbassador.userName || '')}</h2>
               <p class="text-xs text-slate-400">${escapeHTML(state.selectedAmbassador.city || '')}, ${escapeHTML(state.selectedAmbassador.country || '')}</p>
@@ -555,14 +555,14 @@ function renderCreateTeamModal(_state) {
             <textarea id="create-team-desc" rows="2" maxlength="100" placeholder="${t('teamDescPlaceholder') || 'Décrivez votre équipe...'}" class="input-field w-full resize-none"></textarea>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-2">${t('teamAvatarLabel') || 'Emoji de l\'équipe'}</label>
+            <label class="block text-sm font-medium mb-2">${t('teamAvatarLabel') || 'Icône de l\'équipe'}</label>
             <div class="flex flex-wrap gap-2">
-              ${['👥','🚗','🌍','🏕️','✈️','🚀','🦅','🔥','⚡','🌟'].map(emoji => `
-                <button onclick="document.getElementById('create-team-avatar').value='${emoji}';document.querySelectorAll('.team-avatar-btn').forEach(b=>b.classList.remove('ring-2','ring-primary-400'));this.classList.add('ring-2','ring-primary-400')"
-                  class="team-avatar-btn w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl hover:bg-white/20 transition-colors">${emoji}</button>
+              ${['users','car','globe','tent','plane','rocket','bird','flame','zap','star'].map(name => `
+                <button onclick="document.getElementById('create-team-avatar').value='${name}';document.querySelectorAll('.team-avatar-btn').forEach(b=>b.classList.remove('ring-2','ring-primary-400'));this.classList.add('ring-2','ring-primary-400')"
+                  class="team-avatar-btn w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">${icon(name, 'w-5 h-5')}</button>
               `).join('')}
             </div>
-            <input id="create-team-avatar" type="hidden" value="👥" />
+            <input id="create-team-avatar" type="hidden" value="users" />
           </div>
           <button onclick="handleCreateTeam()" class="btn btn-primary w-full">
             ${icon('plus', 'w-5 h-5 mr-2')}${t('teamCreateConfirm') || 'Créer l\'équipe'}
@@ -803,7 +803,7 @@ function initHomeMap(state) {
 
   if (!_supportsWebGL) {
     container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center p-6">
-      <div class="text-4xl mb-3">🗺️</div>
+      <div class="flex justify-center mb-3">${icon("map", "w-10 h-10 text-amber-400")}</div>
       <p class="text-white font-semibold mb-2">${t('mapNotSupported') || 'La carte n\'est pas disponible sur ce navigateur'}</p>
       <p class="text-slate-400 text-sm">${t('mapNotSupportedHint') || 'Utilise un navigateur plus récent pour voir la carte interactive'}</p>
     </div>`
@@ -1062,7 +1062,7 @@ function initHomeMap(state) {
           : (t('createSpotHere') || 'Créer un spot ici')
         const popup = new maplibregl.Popup({ offset: 10, closeButton: false, className: 'create-spot-popup' })
           .setLngLat([lngLat.lng, lngLat.lat])
-          .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'${spotType || ''}')" class="flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 text-slate-900 border-none rounded-full text-sm font-semibold cursor-pointer whitespace-nowrap"><span class="text-base">📍</span>${label}</button>`)
+          .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'${spotType || ''}')" class="flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 text-slate-900 border-none rounded-full text-sm font-semibold cursor-pointer whitespace-nowrap">${icon('map-pin', 'w-4 h-4 inline')}${label}</button>`)
           .addTo(mapInst)
         // Auto-close after 4s
         setTimeout(() => { try { popup.remove() } catch { /* already removed */ } }, 4000)
@@ -1215,7 +1215,7 @@ function initHomeMap(state) {
     // Show fallback message instead of blank screen
     if (container) {
       container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center p-6">
-        <div class="text-4xl mb-3">⚠️</div>
+        <div class="flex justify-center mb-3">${icon("alert-triangle", "w-10 h-10 text-amber-400")}</div>
         <p class="text-white font-semibold mb-2">${t('mapLoadError') || 'La carte n\'a pas pu charger'}</p>
         <p class="text-slate-400 text-sm mb-4">${t('mapLoadErrorHint') || 'Vérifie ta connexion et réessaie'}</p>
         <button onclick="location.reload()" class="btn btn-primary text-sm px-4 py-2">${t('retry') || 'Réessayer'}</button>
@@ -1450,7 +1450,7 @@ function addAmenityMarkers(amenities) {
     let popupHTML = `<div class="p-0.5 font-sans text-[13px]">`
     popupHTML += `<div class="font-semibold text-white">${label} ${stationName}</div>`
     if (areaName) {
-      popupHTML += `<div class="text-[11px] text-slate-400 mt-0.5">📍 ${areaName}</div>`
+      popupHTML += `<div class="text-[11px] text-slate-400 mt-0.5">${icon('map-pin', 'w-3 h-3 inline mr-0.5')} ${areaName}</div>`
     }
     if (services.length > 0) {
       popupHTML += `<div class="mt-1 text-[15px] tracking-widest">${services.join(' ')}</div>`
@@ -1537,18 +1537,18 @@ function showTripSpotPopup(map, maplibregl, spotId, coords, spots) {
   }
   const btnRow = document.createElement('div')
   btnRow.style.cssText = 'display:flex;gap:6px'
-  const mkBtn = (text, fn) => {
+  const mkBtn = (html, fn) => {
     const b = document.createElement('button')
-    b.style.cssText = 'padding:4px 10px;border-radius:8px;font-size:12px;cursor:pointer;border:none;font-weight:600'
-    b.textContent = text
+    b.style.cssText = 'padding:4px 10px;border-radius:8px;font-size:12px;cursor:pointer;border:none;font-weight:600;display:flex;align-items:center;justify-content:center'
+    b.innerHTML = html
     b.onclick = fn
     return b
   }
-  const heartBtn = mkBtn('❤️', () => { window.toggleFavorite?.(spotId); tripActivePopup?.remove() })
+  const heartBtn = mkBtn(icon('heart', 'w-4 h-4'), () => { window.toggleFavorite?.(spotId); tripActivePopup?.remove() })
   heartBtn.style.background = 'rgba(239,68,68,0.2)'; heartBtn.style.color = '#f87171'
-  const removeBtn = mkBtn('✕', () => { window.removeTripMapSpot?.(spotId); tripActivePopup?.remove() })
+  const removeBtn = mkBtn(icon('x', 'w-4 h-4'), () => { window.removeTripMapSpot?.(spotId); tripActivePopup?.remove() })
   removeBtn.style.background = 'rgba(239,68,68,0.2)'; removeBtn.style.color = '#f87171'
-  const detailBtn = mkBtn('🔍', () => { window.selectSpot?.(spotId) })
+  const detailBtn = mkBtn(icon('search', 'w-4 h-4'), () => { window.selectSpot?.(spotId) })
   detailBtn.style.background = 'rgba(59,130,246,0.2)'; detailBtn.style.color = '#60a5fa'
   btnRow.appendChild(heartBtn)
   btnRow.appendChild(removeBtn)

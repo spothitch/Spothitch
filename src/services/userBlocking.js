@@ -319,7 +319,7 @@ export function renderBlockedUsersList() {
   if (blockedUsers.length === 0) {
     return `
       <div class="empty-state p-8 text-center" role="status" aria-live="polite">
-        <div class="text-6xl mb-4">🤝</div>
+        <div class="flex justify-center mb-4">${icon("handshake", "w-14 h-14 text-slate-400")}</div>
         <h3 class="text-lg font-semibold text-white mb-2">${escapeHTML(t('noBlockedUsers') || 'Aucun utilisateur bloque')}</h3>
         <p class="text-slate-400 text-sm">${escapeHTML(t('noBlockedUsersDesc') || 'Tu n\'as bloque personne pour le moment')}</p>
       </div>

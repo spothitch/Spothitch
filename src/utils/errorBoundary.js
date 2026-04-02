@@ -4,6 +4,7 @@
  */
 
 import { t } from '../i18n/index.js';
+import { icon } from './icons.js'
 
 // Error log for debugging
 const errorLog = [];
@@ -75,7 +76,7 @@ function renderErrorFallback(componentName, error) {
 
   return `
     <div class="error-boundary p-4 bg-danger-500/10 border border-danger-500/30 rounded-xl text-center">
-      <div class="text-3xl mb-2">⚠️</div>
+      <div class="flex justify-center mb-2">${icon("alert-triangle", "w-8 h-8 text-amber-400")}</div>
       <h3 class="font-bold text-danger-400">${t('errorOccurred') || 'Une erreur est survenue'}</h3>
       <p class="text-sm text-slate-400 mt-1">${t('componentLoadFailed') || 'Le composant n\'a pas pu se charger.'}</p>
       ${isDev ? `

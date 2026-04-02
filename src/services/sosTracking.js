@@ -42,7 +42,7 @@ export async function startSOSTracking(options = {}) {
     startTime: new Date().toISOString(),
     userId: getState().user?.uid || 'anonymous',
     userName: getState().username || (t('user') || 'Utilisateur'),
-    userAvatar: getState().avatar || '👍',
+    userAvatar: getState().avatar || 'thumbs-up',
     status: 'active',
     reason: options.reason || (t('sosActivated') || 'SOS activé'),
     positions: [],

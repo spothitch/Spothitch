@@ -6,6 +6,7 @@
  */
 
 import { t } from '../i18n/index.js'
+import { icon } from '../utils/icons.js'
 
 const STORAGE_KEY = 'spothitch_spot_drafts'
 const EXPIRY_DAYS = 7
@@ -150,7 +151,7 @@ export function renderDraftBanner() {
     <div class="draft-banner" role="button" tabindex="0" onclick="openSpotDraft('${latest.id}')">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3 min-w-0 text-white">
-          <span class="text-xl">📝</span>
+          ${icon("pen-line", "w-5 h-5")}
           <div class="min-w-0">
             <div class="text-sm font-semibold">${t('draftBannerTitle') || 'Brouillon en attente'}</div>
             <div class="text-xs opacity-80 truncate">${cityName ? cityName : (t('draftBannerDesc') || 'Tu as un spot à terminer')}</div>

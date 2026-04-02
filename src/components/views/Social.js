@@ -156,7 +156,7 @@ function renderMessagerieTab(state, _sidePanel = false) {
   dmConversations.forEach(conv => {
     allConversations.push({
       type: 'dm', id: conv.recipientId, name: conv.recipientName,
-      avatar: conv.recipientAvatar || '👍', lastMessage: conv.lastMessage,
+      avatar: conv.recipientAvatar || 'thumbs-up', lastMessage: conv.lastMessage,
       lastMessageTime: conv.lastMessageTime, unreadCount: conv.unreadCount,
       online: conv.online, isGroup: false,
     })
@@ -164,7 +164,7 @@ function renderMessagerieTab(state, _sidePanel = false) {
   fbGroups.forEach(group => {
     allConversations.push({
       type: 'fbgroup', id: group.id, name: group.name,
-      avatar: group.icon || '👥', lastMessage: group.lastMessage?.text || t('noMessagesYet'),
+      avatar: group.icon || 'users', lastMessage: group.lastMessage?.text || t('noMessagesYet'),
       lastMessageTime: group.updatedAt, unreadCount: 0,
       online: false, isGroup: true,
       memberCount: Array.isArray(group.members) ? group.members.length : 0,
@@ -222,7 +222,7 @@ function renderMessagerieTab(state, _sidePanel = false) {
               <div class="relative">
                 <div class="w-14 h-14 rounded-full ${f.online ? 'bg-gradient-to-br from-primary-400 to-amber-500 p-[2px]' : 'bg-white/10 p-[2px]'}">
                   <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-2xl">
-                    ${f.avatar || '👍'}
+                    ${f.avatar ? f.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}
                   </div>
                 </div>
                 ${f.online ? `<span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-dark-primary bg-emerald-500"></span>` : ''}
@@ -247,7 +247,7 @@ function renderMessagerieTab(state, _sidePanel = false) {
             <div class="flex gap-2 mt-2 overflow-x-auto scrollbar-none">
               ${friendRequests.slice(0, 3).map(req => `
                 <div class="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5">
-                  <span class="text-lg">${req.avatar || '👍'}</span>
+                  <span class="text-lg">${req.avatar ? req.avatar : icon('thumbs-up', 'w-4 h-4 text-amber-400')}</span>
                   <span class="text-xs font-medium truncate max-w-[80px]">${escapeHTML(req.name || '')}</span>
                   <button onclick="acceptFriendRequest('${req.id}')" class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center" aria-label="${t('accept')}">
                     ${icon('check', 'w-3 h-3')}
@@ -542,7 +542,7 @@ function renderCompanionRequests(state) {
         <div class="card p-4">
           <!-- Profile header (clickable) -->
           <button onclick="showFriendProfile('${escapeHTML(req.userId)}')" class="flex items-center gap-3 mb-3 w-full text-left">
-            <span class="text-2xl">${req.avatar || '👍'}</span>
+            <span class="text-2xl">${req.avatar ? req.avatar : icon('thumbs-up', 'w-4 h-4 text-amber-400')}</span>
             <div class="flex-1 min-w-0">
               <div class="font-medium text-sm truncate">${escapeHTML(req.name || '')}</div>
               <div class="text-xs text-slate-400">${formatRelativeTime(req.createdAt)}</div>
@@ -641,7 +641,7 @@ function renderEventDetail(state, event) {
               <div class="flex items-center gap-2 text-slate-300">${icon('calendar', 'w-5 h-5 text-slate-400')} ${formatEventDate(event.date)}${event.time ? ` ${t('at')} ${event.time}` : ''}</div>
               ${event.location ? `<div class="flex items-center gap-2 text-slate-300">${icon('map-pin', 'w-5 h-5 text-slate-400')} ${escapeHTML(event.location)}</div>` : ''}
               <div class="flex items-center gap-2 text-slate-300">${icon('users', 'w-5 h-5 text-slate-400')} ${participantCount} ${t('participants')}</div>
-              <div class="flex items-center gap-2 text-slate-300">${icon('user', 'w-5 h-5 text-slate-400')} ${t('createdBy')} ${event.creatorAvatar || '👍'} ${escapeHTML(event.creatorName || '')}</div>
+              <div class="flex items-center gap-2 text-slate-300">${icon('user', 'w-5 h-5 text-slate-400')} ${t('createdBy')} ${event.creatorAvatar ? event.creatorAvatar : icon('thumbs-up', 'w-4 h-4 text-amber-400')} ${escapeHTML(event.creatorName || '')}</div>
             </div>
             ${event.description ? `<div class="mt-3 pt-3 border-t border-white/10"><p class="text-sm text-slate-300">${escapeHTML(event.description)}</p></div>` : ''}
           </div>
@@ -688,20 +688,25 @@ function renderEventDetail(state, event) {
 function renderEventComment(comment, allReplies, eventId, userId) {
   const isAuthor = comment.userId === userId
   const commentReplies = allReplies.filter(r => r.replyToId === comment.id)
-  const reactionEmojis = ['👍', '❤️', '😂', '👍']
+  const reactionIcons = [
+    { key: 'thumbs-up', icon: 'thumbs-up' },
+    { key: 'heart', icon: 'heart' },
+    { key: 'smile', icon: 'smile' },
+    { key: 'thumbs-up', icon: 'thumbs-up' },
+  ]
 
   const reactionDisplay = Object.entries(comment.reactions || {})
     .filter(([, users]) => users.length > 0)
-    .map(([emoji, users]) => `
-      <button onclick="reactToEventComment('${eventId}', '${comment.id}', '${emoji}')" class="px-2 py-0.5 rounded-full text-xs ${users.includes(userId) ? 'bg-primary-500/30 text-primary-300' : 'bg-white/10 text-slate-400'} hover:bg-white/20 transition-colors">
-        ${emoji} ${users.length}
+    .map(([key, users]) => `
+      <button onclick="reactToEventComment('${eventId}', '${comment.id}', '${key}')" class="px-2 py-0.5 rounded-full text-xs ${users.includes(userId) ? 'bg-primary-500/30 text-primary-300' : 'bg-white/10 text-slate-400'} hover:bg-white/20 transition-colors inline-flex items-center gap-1">
+        ${icon(key, 'w-3 h-3')} ${users.length}
       </button>
     `).join('')
 
   return `
     <div class="bg-white/5 rounded-xl p-3">
       <div class="flex items-start gap-2">
-        <span class="text-xl shrink-0">${comment.userAvatar || '👍'}</span>
+        <span class="text-xl shrink-0">${comment.userAvatar ? comment.userAvatar : icon('thumbs-up', 'w-5 h-5 text-amber-400')}</span>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
             <span class="font-medium text-sm">${escapeHTML(comment.userName || '')}</span>
@@ -715,9 +720,9 @@ function renderEventComment(comment, allReplies, eventId, userId) {
           <p class="text-sm text-slate-300 mt-1">${escapeHTML(comment.text || '')}</p>
           <div class="flex items-center gap-1 mt-2 flex-wrap">
             ${reactionDisplay}
-            ${reactionEmojis.map(emoji => `
-              <button onclick="reactToEventComment('${eventId}', '${comment.id}', '${emoji}')" class="px-1.5 py-0.5 rounded-full text-xs bg-white/5 text-slate-400 hover:bg-white/10 transition-colors" title="${emoji}">
-                ${emoji}
+            ${reactionIcons.map(r => `
+              <button onclick="reactToEventComment('${eventId}', '${comment.id}', '${r.key}')" class="px-1.5 py-0.5 rounded-full text-xs bg-white/5 text-slate-400 hover:bg-white/10 transition-colors inline-flex items-center" title="${r.key}">
+                ${icon(r.icon, 'w-3 h-3')}
               </button>
             `).join('')}
             <button onclick="toggleReplyInput('${comment.id}')" class="px-2 py-0.5 rounded-full text-xs bg-white/5 text-slate-400 hover:bg-white/10 transition-colors ml-1">
@@ -728,7 +733,7 @@ function renderEventComment(comment, allReplies, eventId, userId) {
             <div class="mt-2 pl-3 border-l-2 border-white/10 space-y-2">
               ${commentReplies.map(reply => `
                 <div class="flex items-start gap-2">
-                  <span class="text-sm shrink-0">${reply.userAvatar || '👍'}</span>
+                  <span class="text-sm shrink-0">${reply.userAvatar ? reply.userAvatar : icon('thumbs-up', 'w-4 h-4 text-amber-400')}</span>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
                       <span class="font-medium text-xs">${escapeHTML(reply.userName || '')}</span>
@@ -850,7 +855,7 @@ window.postCompanionRequest = async () => {
     id: `comp_${Date.now()}`,
     userId: state.user?.uid || 'local-user',
     name: state.username || t('traveler'),
-    avatar: state.avatar || '👍',
+    avatar: state.avatar || 'thumbs-up',
     from,
     to,
     date: date || null,
@@ -893,7 +898,7 @@ window.sendPrivateMessage = async (friendId) => {
     id: Date.now().toString(),
     text,
     userName: state.username || t('me'),
-    userAvatar: state.avatar || '👍',
+    userAvatar: state.avatar || 'thumbs-up',
     userId: state.user?.uid || 'local-user',
     createdAt: new Date().toISOString(),
   }
@@ -1065,7 +1070,7 @@ window.showFriendProfile = async (friendId) => {
         window.setState?.({ guestProfile: {
           id: friendId,
           name: p.username || p.displayName || (t('defaultDisplayName') || 'Hitchhiker'),
-          avatar: p.avatar || '👍',
+          avatar: p.avatar || 'thumbs-up',
           level: p.level || 1,
           points: p.points || 0,
           spotsCreated: p.spotsCreated || 0,
@@ -1123,7 +1128,7 @@ window.submitProfileReview = async (targetUid, comment) => {
 window.shareMyProfile = () => {
   const state = window.getState?.() || {}
   import('../../services/shareCard.js').then(m => {
-    m.shareProfileModal(state.user?.uid || '', state.username || '', state.avatar || '👍')
+    m.shareProfileModal(state.user?.uid || '', state.username || '', state.avatar || 'thumbs-up')
   })
 }
 

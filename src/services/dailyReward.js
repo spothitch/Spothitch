@@ -10,20 +10,20 @@ import { t } from '../i18n/index.js';
 
 // Reward calendar configuration
 export const DAILY_REWARDS = [
-  { day: 1, points: 10, label: 'Jour 1', icon: '🎁' },
-  { day: 2, points: 15, label: 'Jour 2', icon: '🎁' },
-  { day: 3, points: 20, label: 'Jour 3', icon: '🎁' },
-  { day: 4, points: 25, label: 'Jour 4', icon: '🎁' },
-  { day: 5, points: 30, label: 'Jour 5', icon: '🎁' },
-  { day: 6, points: 40, label: 'Jour 6', icon: '🎁' },
-  { day: 7, points: null, label: 'Jour 7', icon: '🎁', isMystery: true }, // Mystery chest
+  { day: 1, points: 10, label: 'Jour 1', iconName: 'gift' },
+  { day: 2, points: 15, label: 'Jour 2', iconName: 'gift' },
+  { day: 3, points: 20, label: 'Jour 3', iconName: 'gift' },
+  { day: 4, points: 25, label: 'Jour 4', iconName: 'gift' },
+  { day: 5, points: 30, label: 'Jour 5', iconName: 'gift' },
+  { day: 6, points: 40, label: 'Jour 6', iconName: 'gift' },
+  { day: 7, points: null, label: 'Jour 7', iconName: 'gift', isMystery: true }, // Mystery chest
 ];
 
 // Possible badge rewards from mystery chest
 const MYSTERY_BADGES = [
-  { id: 'lucky_seven', name: 'Lucky Seven', icon: '🍀', rarity: 'rare' },
-  { id: 'treasure_hunter', name: 'Chasseur de Tresor', icon: '🏴‍☠️', rarity: 'epic' },
-  { id: 'daily_champion', name: 'Champion Quotidien', icon: '🏆', rarity: 'legendary' },
+  { id: 'lucky_seven', name: 'Lucky Seven', iconName: 'clover', rarity: 'rare' },
+  { id: 'treasure_hunter', name: 'Chasseur de Tresor', iconName: 'skull', rarity: 'epic' },
+  { id: 'daily_champion', name: 'Champion Quotidien', iconName: 'trophy', rarity: 'legendary' },
 ];
 
 /**

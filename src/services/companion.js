@@ -457,7 +457,7 @@ function buildBatteryAlertMessage(state, pct) {
   const lastPos = state.positions.length > 0
     ? state.positions[state.positions.length - 1]
     : null
-  let msg = `🔋 SpotHitch — ${guardianName}${battMsg}`
+  let msg = `SpotHitch — ${guardianName}${battMsg}`
   if (state.licensePlate) {
     const plateLabel = t('licensePlateLabel') || 'License plate'
     msg += `\n\u{1F697} ${plateLabel}: ${state.licensePlate}`

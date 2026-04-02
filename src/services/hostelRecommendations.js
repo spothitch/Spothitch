@@ -282,7 +282,7 @@ export async function renderHostelSection(cityName) {
     return `
       <div class="card p-4 mt-4">
         <h3 class="font-bold text-lg flex items-center gap-2 mb-3">
-          🏠 ${t('hostelRecommendations') || 'Auberges recommandées'} à ${cityName}
+          ${icon("home", "w-4 h-4 inline mr-1")} ${t('hostelRecommendations') || 'Auberges recommandées'} à ${cityName}
         </h3>
         <div class="text-center py-6 text-slate-400">
           <p class="mb-3">${t('hostelNoneYet') || 'Aucune auberge recommandée pour l\'instant'}</p>
@@ -299,7 +299,7 @@ export async function renderHostelSection(cityName) {
     <div class="card p-4 mt-4">
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-bold text-lg flex items-center gap-2">
-          🏠 ${t('hostelRecommendations') || 'Auberges recommandées'} à ${cityName}
+          ${icon("home", "w-4 h-4 inline mr-1")} ${t('hostelRecommendations') || 'Auberges recommandées'} à ${cityName}
         </h3>
         <button onclick="openAddHostel('${cityName}')" class="text-sm text-primary-400 hover:text-primary-300">
           ${icon('plus', 'w-5 h-5 mr-1')}
@@ -314,7 +314,7 @@ export async function renderHostelSection(cityName) {
           class="hostel-tab flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-colors bg-primary-500 text-white"
           data-category="party"
         >
-          🎉 ${t('hostelParty') || 'Festif'}
+          ${icon("party-popper", "w-4 h-4 inline mr-1")} ${t('hostelParty') || 'Festif'}
           ${recommendations.party.length > 0 ? `<span class="ml-1">(${recommendations.party.length})</span>` : ''}
         </button>
         <button
@@ -322,7 +322,7 @@ export async function renderHostelSection(cityName) {
           class="hostel-tab flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:text-white hover:bg-white/5"
           data-category="cozy"
         >
-          🛋️ ${t('hostelCozy') || 'Cozy'}
+          ${icon("sofa", "w-4 h-4 inline mr-1")} ${t('hostelCozy') || 'Cozy'}
           ${recommendations.cozy.length > 0 ? `<span class="ml-1">(${recommendations.cozy.length})</span>` : ''}
         </button>
         <button
@@ -330,7 +330,7 @@ export async function renderHostelSection(cityName) {
           class="hostel-tab flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:text-white hover:bg-white/5"
           data-category="budget"
         >
-          💰 ${t('hostelBudget') || 'Pas cher'}
+          ${icon("coins", "w-4 h-4 inline mr-1")} ${t('hostelBudget') || 'Pas cher'}
           ${recommendations.budget.length > 0 ? `<span class="ml-1">(${recommendations.budget.length})</span>` : ''}
         </button>
       </div>
@@ -471,7 +471,7 @@ export function renderAddHostelForm(cityName) {
                 class="category-btn py-3 px-2 rounded-xl text-center transition-colors border border-white/10 hover:border-primary-500"
                 data-category="party"
               >
-                <div class="text-2xl mb-1">🎉</div>
+                <div class="flex justify-center mb-1">${icon("party-popper", "w-6 h-6")}</div>
                 <div class="text-xs">${t('hostelParty') || 'Festif'}</div>
               </button>
               <button
@@ -479,7 +479,7 @@ export function renderAddHostelForm(cityName) {
                 class="category-btn py-3 px-2 rounded-xl text-center transition-colors border border-white/10 hover:border-primary-500"
                 data-category="cozy"
               >
-                <div class="text-2xl mb-1">🛋️</div>
+                <div class="flex justify-center mb-1">${icon("sofa", "w-6 h-6")}</div>
                 <div class="text-xs">${t('hostelCozy') || 'Cozy'}</div>
               </button>
               <button
@@ -487,7 +487,7 @@ export function renderAddHostelForm(cityName) {
                 class="category-btn py-3 px-2 rounded-xl text-center transition-colors border border-white/10 hover:border-primary-500"
                 data-category="budget"
               >
-                <div class="text-2xl mb-1">💰</div>
+                <div class="flex justify-center mb-1">${icon("coins", "w-6 h-6")}</div>
                 <div class="text-xs">${t('hostelBudget') || 'Pas cher'}</div>
               </button>
             </div>

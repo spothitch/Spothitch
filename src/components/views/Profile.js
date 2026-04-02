@@ -328,7 +328,7 @@ function renderProfileHeader(state) {
           <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-3xl overflow-hidden">
             ${(state.userProfile?.photoURL || state.user?.photoURL)
               ? `<img src="${escapeHTML(state.userProfile?.photoURL || state.user?.photoURL)}" class="w-full h-full object-cover" alt="" onerror="this.style.display='none';this.parentElement.textContent='👍'">`
-              : (state.avatar || '👍')}
+              : (state.avatar ? state.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400'))}
           </div>
         </div>
       </div>
@@ -1179,7 +1179,7 @@ function renderSettingsMiniHeader(state) {
     <div class="flex items-center gap-3 mb-1">
       <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 p-[2px]">
         <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-xl">
-          ${state.avatar || '👍'}
+          ${state.avatar || 'thumbs-up'}
         </div>
       </div>
       <div>

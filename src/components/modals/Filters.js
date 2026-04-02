@@ -4,6 +4,7 @@
  */
 
 import { getState, setState } from '../../stores/state.js';
+import { icon } from '../../utils/icons.js'
 import { t } from '../../i18n/index.js';
 import { haversineKm } from '../../utils/geo.js';
 import { renderToggle } from '../../utils/toggle.js';
@@ -116,16 +117,16 @@ export function renderFiltersModal() {
             <div class="grid grid-cols-2 gap-3">
               ${[
     { value: 'rating', label: t('rating') || 'Note', icon: '⭐' },
-    { value: 'recent', label: t('recent') || 'Récent', icon: '🕐' },
-    { value: 'popular', label: t('popular') || 'Populaire', icon: '🔥' },
-    { value: 'distance', label: 'Distance', icon: '📍' },
+    { value: 'recent', label: t('recent') || 'Récent', iconName: 'clock' },
+    { value: 'popular', label: t('popular') || 'Populaire', iconName: 'flame' },
+    { value: 'distance', label: 'Distance', iconName: 'map-pin' },
   ].map(opt => `
                 <button onclick="setSortBy('${opt.value}')"
                         class="p-3 rounded-xl text-left transition-colors flex items-center gap-2
                                ${state.sortBy === opt.value
     ? 'bg-amber-500 text-white'
     : 'bg-white/5 text-slate-300 hover:bg-white/10'}">
-                  <span>${opt.icon}</span>
+                  <span>${icon(opt.iconName || 'circle', 'w-4 h-4')}</span>
                   <span>${opt.label}</span>
                 </button>
               `).join('')}

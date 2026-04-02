@@ -104,10 +104,10 @@ export function renderSpotDetail(state) {
     evening: t('timeEvening') || 'Soir',
     night: t('timeNight') || 'Nuit',
   }
-  const timeEmojis = { dawn: '🌅', morning: '☀️', noon: '🌤', afternoon: '🌆', evening: '🌇', night: '🌙' }
+  const timeIcons = { dawn: 'sunrise', morning: 'sun', noon: 'cloud-sun', afternoon: 'sunset', evening: 'sunset', night: 'moon' }
 
   // Build distribution with counts for display
-  const countItems = (arr, labels, emojis) => {
+  const countItems = (arr, labels, iconMap) => {
     const total = arr.length
     if (total === 0) return []
     const counts = {}
@@ -117,13 +117,13 @@ export function renderSpotDetail(state) {
       .map(([k, c]) => ({
         key: k,
         label: labels[k] || k,
-        emoji: emojis?.[k] || '',
+        iconName: iconMap?.[k] || '',
         pct: total > 1 ? Math.round(c / total * 100) : 0,
       }))
   }
-  const methodStats = countItems(allMethods, methodLabels, { thumb: '👍', sign: '📋', asking: '🗣' })
-  const groupStats = countItems(allGroups, groupLabels, { solo: '👤', duo: '👥', group: '👥' })
-  const timeStats = countItems(allTimes, timeLabels, timeEmojis)
+  const methodStats = countItems(allMethods, methodLabels, { thumb: 'thumbs-up', sign: 'clipboard', asking: 'message-circle' })
+  const groupStats = countItems(allGroups, groupLabels, { solo: 'user', duo: 'users', group: 'users' })
+  const timeStats = countItems(allTimes, timeLabels, timeIcons)
 
   const hasTags = methodStats.length > 0 || groupStats.length > 0 || timeStats.length > 0
   const isFav = isFavorite(spot.id)
@@ -131,11 +131,11 @@ export function renderSpotDetail(state) {
   // Active amenities only
   const tags = spot.tags || {}
   const amenities = [
-    { label: t('amenityShelter') || 'Abri', emoji: '🏕', has: tags.shelter || tags.hasShelter },
-    { label: t('amenityWater') || 'Eau', emoji: '💧', has: tags.waterFood },
-    { label: t('amenityToilets') || 'Toilettes', emoji: '🚻', has: tags.toilets },
-    { label: t('amenityFood') || 'Nourriture', emoji: '🍔', has: tags.food },
-    { label: t('stoppingSpaceTag') || 'Parking', emoji: '🅿️', has: tags.stoppingSpace },
+    { label: t('amenityShelter') || 'Abri', iconName: 'tent', has: tags.shelter || tags.hasShelter },
+    { label: t('amenityWater') || 'Eau', iconName: 'droplets', has: tags.waterFood },
+    { label: t('amenityToilets') || 'Toilettes', iconName: 'bath', has: tags.toilets },
+    { label: t('amenityFood') || 'Nourriture', iconName: 'utensils', has: tags.food },
+    { label: t('stoppingSpaceTag') || 'Parking', iconName: 'parking-meter', has: tags.stoppingSpace },
   ].filter(a => a.has)
 
   // Reviews — use comments array or liveComments from Firebase
@@ -247,7 +247,7 @@ export function renderSpotDetail(state) {
               }
               // Time breakdown
               const timeBreakdown = {}
-              const tLabels = { dawn: '🌅 ' + (t('timeDawn') || 'Aube'), morning: '☀️ ' + (t('timeMorning') || 'Matin'), noon: '🌤 Midi', afternoon: '🌆 ' + (t('timeAfternoon') || 'Après-midi'), evening: '🌇 ' + (t('timeEvening') || 'Soir'), night: '🌙 ' + (t('timeNight') || 'Nuit') }
+              const tLabels = { dawn: icon('sunrise', 'w-3 h-3 inline') + ' ' + (t('timeDawn') || 'Aube'), morning: icon('sun', 'w-3 h-3 inline') + ' ' + (t('timeMorning') || 'Matin'), noon: icon('cloud-sun', 'w-3 h-3 inline') + ' Midi', afternoon: icon('sunset', 'w-3 h-3 inline') + ' ' + (t('timeAfternoon') || 'Après-midi'), evening: icon('sunset', 'w-3 h-3 inline') + ' ' + (t('timeEvening') || 'Soir'), night: icon('moon', 'w-3 h-3 inline') + ' ' + (t('timeNight') || 'Nuit') }
               for (const r of displayReviews) {
                 if (!r.timeOfDay) continue
                 const label = tLabels[r.timeOfDay] || r.timeOfDay
@@ -403,16 +403,16 @@ export function renderSpotDetail(state) {
           ${hasTags ? `
           <div class="px-4 pb-1.5 text-[10px] text-emerald-500 uppercase tracking-wide font-semibold">${t('whatWorks') || 'Ce qui marche ici'}</div>
           <div class="px-4 pb-1 flex flex-wrap gap-1.5">
-            ${methodStats.map(s => `<span class="text-[11px] text-primary-500 bg-[rgba(245,158,11,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
-            ${groupStats.map(s => `<span class="text-[11px] text-blue-500 bg-[rgba(59,130,246,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
-            ${timeStats.map(s => `<span class="text-[11px] text-emerald-500 bg-[rgba(34,197,94,0.08)] py-1 px-2.5 rounded-full">${s.emoji} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
+            ${methodStats.map(s => `<span class="text-[11px] text-primary-500 bg-[rgba(245,158,11,0.08)] py-1 px-2.5 rounded-full inline-flex items-center gap-1">${s.iconName ? icon(s.iconName, 'w-3 h-3') : ''} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
+            ${groupStats.map(s => `<span class="text-[11px] text-blue-500 bg-[rgba(59,130,246,0.08)] py-1 px-2.5 rounded-full inline-flex items-center gap-1">${s.iconName ? icon(s.iconName, 'w-3 h-3') : ''} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
+            ${timeStats.map(s => `<span class="text-[11px] text-emerald-500 bg-[rgba(34,197,94,0.08)] py-1 px-2.5 rounded-full inline-flex items-center gap-1">${s.iconName ? icon(s.iconName, 'w-3 h-3') : ''} ${escapeHTML(s.label)}${s.pct > 0 ? ` <span class="text-slate-500 text-[10px]">${s.pct}%</span>` : ''}</span>`).join('')}
           </div>
           ` : ''}
 
           <!-- Active amenities (pills) -->
           ${amenities.length > 0 ? `
           <div class="px-4 pb-3 flex flex-wrap gap-1.5 ${hasTags ? 'mt-1' : ''}">
-            ${amenities.map(a => `<span class="text-[11px] text-slate-400 bg-[rgba(148,163,184,0.08)] py-1 px-2.5 rounded-full">${a.emoji} ${escapeHTML(a.label)}</span>`).join('')}
+            ${amenities.map(a => `<span class="text-[11px] text-slate-400 bg-[rgba(148,163,184,0.08)] py-1 px-2.5 rounded-full inline-flex items-center gap-1">${icon(a.iconName, 'w-3 h-3')} ${escapeHTML(a.label)}</span>`).join('')}
           </div>
           ` : ''}
 

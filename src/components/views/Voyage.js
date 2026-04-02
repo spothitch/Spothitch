@@ -221,7 +221,7 @@ function renderMapFirstView(state) {
           class="w-10 h-10 rounded-xl ${showGas ? 'bg-amber-500/20 border-amber-500/40' : 'bg-dark-secondary/90 border-white/10'} backdrop-blur border flex items-center justify-center transition-colors shadow-lg"
           aria-label="${t('tripGasStations') || 'Stations-service'}"
         >
-          <span class="text-lg">⛽</span>
+          ${icon('fuel', 'w-5 h-5')}
         </button>
         <button
           onclick="tripFitBounds()"
@@ -276,10 +276,10 @@ function renderMapFirstView(state) {
               ${renderFilterChip('all', `${t('tripFilterAll') || 'Tous'} (${counts.all})`, !routeFilter || routeFilter === 'all', false)}
               ${renderFilterChip('rating4', `⭐ 4+ (${counts.rating4})`, routeFilter === 'rating4', counts.rating4 === 0)}
               ${renderFilterChip('wait20', `⏱ <20min (${counts.wait20})`, routeFilter === 'wait20', counts.wait20 === 0)}
-              ${renderFilterChip('station', `⛽ Station (${counts.station})`, routeFilter === 'station', counts.station === 0)}
+              ${renderFilterChip('station', `${icon('fuel', 'w-3 h-3 inline mr-0.5')} Station (${counts.station})`, routeFilter === 'station', counts.station === 0)}
               ${renderFilterChip('verified', `✓ ${t('tripFilterVerified') || 'Vérifié'} (${counts.verified})`, routeFilter === 'verified', counts.verified === 0)}
-              ${renderFilterChip('shelter', `🏠 ${t('filterShelter') || 'Abri'} (${counts.shelter})`, routeFilter === 'shelter', counts.shelter === 0)}
-              ${renderFilterChip('recent', `🕐 ${t('filterRecent') || 'Récent'} (${counts.recent})`, routeFilter === 'recent', counts.recent === 0)}
+              ${renderFilterChip('shelter', `${icon('home', 'w-3 h-3 inline mr-0.5')} ${t('filterShelter') || 'Abri'} (${counts.shelter})`, routeFilter === 'shelter', counts.shelter === 0)}
+              ${renderFilterChip('recent', `${icon('clock', 'w-3 h-3 inline mr-0.5')} ${t('filterRecent') || 'Récent'} (${counts.recent})`, routeFilter === 'recent', counts.recent === 0)}
             </div>
 
             <!-- Spot list -->
@@ -369,7 +369,7 @@ function renderBottomSheetSpotItem(spot, i, results, favSet) {
         class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${isFav ? 'text-red-500' : 'text-slate-600 hover:text-red-400'}"
         aria-label="${isFav ? (t('removeFromFavorites') || 'Retirer des favoris') : (t('addToFavorites') || 'Ajouter aux favoris')}"
       >
-        ${isFav ? '❤️' : '🤍'}
+        ${icon(isFav ? 'heart' : 'heart', isFav ? 'w-5 h-5 text-red-400 fill-red-400' : 'w-5 h-5 text-slate-400')}
       </button>
     </div>
   `
@@ -462,7 +462,7 @@ function renderEnRouteRadar(_state, activeTrip) {
       ${closestSpot ? `
         <div class="card p-4 border-amber-500/30 bg-amber-500/5">
           <div class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-2">
-            📍 ${t('voyageClosestSpot') || 'Spot le plus proche devant toi'}
+            ${icon('map-pin', 'w-3 h-3 inline mr-0.5')} ${t('voyageClosestSpot') || 'Spot le plus proche devant toi'}
           </div>
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
@@ -486,7 +486,7 @@ function renderEnRouteRadar(_state, activeTrip) {
         </div>
       ` : `
         <div class="card p-4 text-center border-amber-500/30 bg-amber-500/5">
-          <p class="text-amber-400 font-semibold">🎉 ${t('voyageAlmostThere') || 'Presque arrivé !'}</p>
+          <p class="text-amber-400 font-semibold">${icon('party-popper', 'w-4 h-4 inline mr-1')} ${t('voyageAlmostThere') || 'Presque arrivé !'}</p>
         </div>
       `}
 
@@ -494,7 +494,7 @@ function renderEnRouteRadar(_state, activeTrip) {
       ${spots.length > 1 ? `
         <div class="card p-4">
           <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-            📍 ${t('voyageAllSpotsAhead') || 'Tous les spots devant toi'} (${spots.length})
+            ${icon('map-pin', 'w-3 h-3 inline mr-0.5')} ${t('voyageAllSpotsAhead') || 'Tous les spots devant toi'} (${spots.length})
           </div>
           <div class="space-y-2 max-h-64 overflow-y-auto">
             ${spots.map((spot, i) => {
