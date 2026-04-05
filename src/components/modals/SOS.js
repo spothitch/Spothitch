@@ -453,13 +453,13 @@ async function _writeSOSAlertToFirestore(pos, type) {
     const user = getCurrentUser()
     if (!user || !db) return
 
-    // Get guardian IDs from companion state or friends
-    const companionRaw = localStorage.getItem('spothitch_companion')
+    // Get guardian IDs from guardian state or friends
+    const guardianRaw = localStorage.getItem('spothitch_guardian')
     let guardianIds = []
-    if (companionRaw) {
+    if (guardianRaw) {
       try {
-        const companion = JSON.parse(companionRaw)
-        guardianIds = (companion.trustedContacts || [])
+        const gState = JSON.parse(guardianRaw)
+        guardianIds = (gState.trustedContacts || [])
           .map(c => c.userId || c.uid)
           .filter(Boolean)
       } catch { /* ignore */ }

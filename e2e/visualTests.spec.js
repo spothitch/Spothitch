@@ -124,7 +124,7 @@ test.describe('Visual Regression — Modals', () => {
     { name: 'leaderboard', flag: 'showLeaderboard' },
     { name: 'quiz', flag: 'showQuiz' },
     { name: 'voyage', flag: 'showChallenges' },
-    { name: 'companion', flag: 'showCompanionModal' },
+    { name: 'companion', flag: 'showGuardianModal' },
     { name: 'mydata', flag: 'showMyData' },
     { name: 'donation', flag: 'showDonation' },
     { name: 'titles', flag: 'showTitles' },

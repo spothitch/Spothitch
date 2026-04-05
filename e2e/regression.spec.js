@@ -356,7 +356,7 @@ test.describe('Regression: SOS', () => {
 test.describe('Regression: Companion', () => {
   test('companion modal shows consent or setup form', async ({ page }) => {
     await skipOnboarding(page)
-    await page.evaluate(() => window.setState?.({ showCompanionModal: true }))
+    await page.evaluate(() => window.setState?.({ showGuardianModal: true }))
     await page.waitForTimeout(2000)
     const html = await page.evaluate(() => document.body.innerText)
     expect(html).toMatch(/gardien|guardian|compagnon|companion|consent|location|check-in|téléphone|phone/i)
@@ -365,9 +365,9 @@ test.describe('Regression: Companion', () => {
   test('companion modal after consent shows interval selector', async ({ page }) => {
     await skipOnboarding(page)
     await page.evaluate(() => {
-      sessionStorage.setItem('spothitch_companion_consent', '1')
+      sessionStorage.setItem('spothitch_guardian_consent', '1')
     })
-    await page.evaluate(() => window.setState?.({ showCompanionModal: true }))
+    await page.evaluate(() => window.setState?.({ showGuardianModal: true }))
     await page.waitForTimeout(2000)
     const html = await page.evaluate(() => document.body.innerText)
     expect(html).toMatch(/30 min|15 min|intervalle|interval|check-in|heure|hour/i)

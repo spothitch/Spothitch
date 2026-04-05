@@ -1,5 +1,5 @@
 /**
- * Companion Mode Modal — Guardian v2 Redesign
+ * Guardian Mode Modal — Guardian v2 Redesign
  * Screens: Intro, Config (main), Active (timeline), Guardian View, Alert, Overdue, Arrival
  *
  * Features:
@@ -16,7 +16,7 @@ import { icon } from '../../utils/icons.js'
 import { escapeHTML } from '../../utils/sanitize.js'
 import { getState } from '../../stores/state.js'
 import {
-  getCompanionState,
+  getGuardianState,
   getTimeUntilNextCheckIn,
   isCheckInOverdue,
   loadTripHistory,
@@ -24,7 +24,7 @@ import {
   getBatteryLevel,
   getTripEvents,
   getTripPhoto,
-} from '../../services/companion.js'
+} from '../../services/guardian.js'
 
 // Track which screen is active
 let _currentScreen = null // null = auto-detect, 'intro', 'main', 'active', 'guardian', 'alert', 'overdue', 'arrival'
@@ -80,18 +80,18 @@ function colorInfo(hex) {
 }
 
 /**
- * Render the Companion Mode modal
+ * Render the Guardian Mode modal
  */
-export function renderCompanionModal(_state) {
-  const companion = getCompanionState()
-  const active = companion.active
+export function renderGuardianModal(_state) {
+  const guardianState = getGuardianState()
+  const active = guardianState.active
 
   // Check auto-expiration (8 hours max)
-  if (active && companion.tripStart) {
-    const elapsed = Date.now() - companion.tripStart
+  if (active && guardianState.tripStart) {
+    const elapsed = Date.now() - guardianState.tripStart
     const maxDuration = 8 * 60 * 60 * 1000
     if (elapsed > maxDuration) {
-      import('../../services/companion.js').then(m => m.stopCompanionMode?.())
+      import('../../services/guardian.js').then(m => m.stopGuardianMode?.())
       return ''
     }
   }
@@ -101,12 +101,13 @@ export function renderCompanionModal(_state) {
   // Determine screen — respect _currentScreen if set
   let screen = _currentScreen
   if (!screen) {
-    if (active && isCheckInOverdue() && !companion.alertSent) {
+    if (active && isCheckInOverdue() && !guardianState.alertSent) {
       screen = 'overdue'
     } else if (active) {
       screen = 'active'
     } else {
-      const hasGuardian = (companion.guardians && companion.guardians.length > 0) || !!companion.guardian?.name
+      const gs = guardianState
+      const hasGuardian = (gs.guardians && gs.guardians.length > 0) || !!gs.guardian?.name
       screen = hasGuardian ? 'main' : 'intro'
     }
   }
@@ -114,7 +115,7 @@ export function renderCompanionModal(_state) {
   // Show consent screen if not yet consented this session and not already active
   const consentGiven =
     typeof sessionStorage !== 'undefined' &&
-    sessionStorage.getItem('spothitch_companion_consent')
+    sessionStorage.getItem('spothitch_guardian_consent')
   if (!active && !consentGiven && screen === 'intro') {
     // Keep intro but add consent acceptance on the CTA
   }
@@ -126,37 +127,37 @@ export function renderCompanionModal(_state) {
       content = renderIntroScreen()
       break
     case 'main':
-      content = renderMainScreen(companion)
+      content = renderMainScreen(guardianState)
       break
     case 'active':
-      content = renderActiveScreen(companion)
+      content = renderActiveScreen(guardianState)
       break
     case 'guardian':
-      content = renderGuardianScreen(companion)
+      content = renderGuardianScreen(guardianState)
       break
     case 'alert':
-      content = renderAlertScreen(companion)
+      content = renderAlertScreen(guardianState)
       break
     case 'overdue':
-      content = renderOverdueScreen(companion)
+      content = renderOverdueScreen(guardianState)
       break
     case 'arrival':
-      content = renderArrivalScreen(companion)
+      content = renderArrivalScreen(guardianState)
       break
     default:
       content = renderIntroScreen()
   }
 
   // Bottom sheet overlay
-  const sheetHTML = _guardianSheet ? renderBottomSheet(companion) : ''
+  const sheetHTML = _guardianSheet ? renderBottomSheet(guardianState) : ''
 
   return `
     <div
       class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onclick="closeCompanionModal()"
+      onclick="closeGuardianModal()"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="companion-modal-title"
+      aria-labelledby="guardian-modal-title"
       tabindex="0">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
       <div
@@ -215,7 +216,7 @@ function renderIntroScreen() {
     <div class="p-6 flex flex-col items-center text-center">
       <!-- Close button -->
       <div class="w-full flex justify-end mb-2">
-        <button onclick="closeCompanionModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" type="button" aria-label="${t('close') || 'Fermer'}">
+        <button onclick="closeGuardianModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" type="button" aria-label="${t('close') || 'Fermer'}">
           ${icon('x', 'w-3.5 h-3.5 text-slate-400')}
         </button>
       </div>
@@ -225,7 +226,7 @@ function renderIntroScreen() {
         ${icon('shield-check', 'w-6 h-6 text-emerald-500')}
       </div>
 
-      <h2 id="companion-modal-title" class="text-lg font-extrabold text-slate-200 mb-1">
+      <h2 id="guardian-modal-title" class="text-lg font-extrabold text-slate-200 mb-1">
         ${t('guardianModeTitle') || 'Mode Guardian'}
       </h2>
       <p class="text-[13px] text-slate-400 leading-relaxed max-w-[280px]">
@@ -255,14 +256,14 @@ function renderIntroScreen() {
         ${icon('settings', 'w-[18px] h-[18px]')}
         ${t('guardianConfigure') || 'Configurer'}
       </button>
-      <button onclick="closeCompanionModal()" class="text-[13px] text-slate-500 mt-2 py-1">${t('later') || 'Plus tard'}</button>
+      <button onclick="closeGuardianModal()" class="text-[13px] text-slate-500 mt-2 py-1">${t('later') || 'Plus tard'}</button>
     </div>
   `
 }
 
 // ─── SCREEN 2: CONFIG (v2 single scrollable) ───
 
-function renderMainScreen(companion) {
+function renderMainScreen(guardianState) {
   // If edit overlay is active, show it
   if (_editOverlay) {
     return `
@@ -270,8 +271,8 @@ function renderMainScreen(companion) {
         <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,.08)">
           ${icon('shield-check', 'w-3.5 h-3.5 text-emerald-500')}
         </div>
-        <h2 id="companion-modal-title" class="text-[15px] font-extrabold text-white flex-1">${t('guardianModeTitle') || 'Mode Gardien'}</h2>
-        <button onclick="closeCompanionModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
+        <h2 id="guardian-modal-title" class="text-[15px] font-extrabold text-white flex-1">${t('guardianModeTitle') || 'Mode Gardien'}</h2>
+        <button onclick="closeGuardianModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
           ${icon('x', 'w-3.5 h-3.5 text-slate-400')}
         </button>
       </div>
@@ -281,13 +282,13 @@ function renderMainScreen(companion) {
     `
   }
 
-  const guardians = companion.guardians || []
+  const guardians = guardianState.guardians || []
   const guardianCount = guardians.length
   const remaining = 5 - guardianCount
-  const interval = companion.checkInInterval || 30
-  const destination = companion.destination || ''
-  const licensePlate = companion.licensePlate || ''
-  const customMessage = companion.customMessage || ''
+  const interval = guardianState.checkInInterval || 30
+  const destination = guardianState.destination || ''
+  const licensePlate = guardianState.licensePlate || ''
+  const customMessage = guardianState.customMessage || ''
   const tripPhoto = getTripPhoto()
 
   // Guardian names for tip box
@@ -299,8 +300,8 @@ function renderMainScreen(companion) {
       <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,.08)">
         ${icon('shield-check', 'w-3.5 h-3.5 text-emerald-500')}
       </div>
-      <h2 id="companion-modal-title" class="text-[15px] font-extrabold text-white flex-1">${t('guardianModeTitle') || 'Mode Gardien'}</h2>
-      <button onclick="closeCompanionModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
+      <h2 id="guardian-modal-title" class="text-[15px] font-extrabold text-white flex-1">${t('guardianModeTitle') || 'Mode Gardien'}</h2>
+      <button onclick="closeGuardianModal()" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Fermer'}">
         ${icon('x', 'w-3.5 h-3.5 text-slate-400')}
       </button>
     </div>
@@ -355,7 +356,7 @@ function renderMainScreen(companion) {
           <!-- Check-in interval -->
           ${cfgRow('clock', '#3b82f6', t('guardianCheckinInterval') || 'Check-in toutes les', formatInterval(interval), "guardianEditField('interval')")}
           <!-- Destination -->
-          ${cfgRow('map-pin', '#f59e0b', t('companionDestination') || 'Destination', destination ? escapeHTML(destination) : '', "guardianEditField('destination')")}
+          ${cfgRow('map-pin', '#f59e0b', t('guardianDestination') || 'Destination', destination ? escapeHTML(destination) : '', "guardianEditField('destination')")}
           <!-- Plate -->
           ${cfgRow('car', '#06b6d4', t('licensePlateLabel') || 'Plaque du vehicule', licensePlate ? escapeHTML(licensePlate) : '', "guardianEditField('licensePlate')")}
           <!-- Photo -->
@@ -368,11 +369,11 @@ function renderMainScreen(companion) {
       <!-- Start button -->
       <div class="px-4 pt-4 pb-2">
         <button
-          onclick="startCompanion()"
+          onclick="startGuardian()"
           class="w-full py-[15px] rounded-2xl text-white text-[15px] font-extrabold flex items-center justify-center gap-2.5"
           style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 24px rgba(34,197,94,.3)">
           ${icon('play', 'w-[18px] h-[18px]')}
-          ${t('companionStartTrip') || 'Demarrer mon voyage'}
+          ${t('guardianStartTrip') || 'Demarrer mon voyage'}
         </button>
       </div>
 
@@ -505,7 +506,7 @@ function renderEditOverlay() {
 
 // ─── SCREEN 3: ACTIVE (v2 Timeline) ───
 
-function renderActiveScreen(companion) {
+function renderActiveScreen(guardianState) {
   const secondsRemaining = getTimeUntilNextCheckIn()
   const overdue = secondsRemaining < 0
   const absSeconds = Math.abs(secondsRemaining)
@@ -519,14 +520,14 @@ function renderActiveScreen(companion) {
   const pillColor = overdue ? '#ef4444' : isWarning ? '#f59e0b' : '#22c55e'
 
   // Trip duration
-  const tripMs = companion.tripStart ? Date.now() - companion.tripStart : 0
+  const tripMs = guardianState.tripStart ? Date.now() - guardianState.tripStart : 0
   const tripMinutes = Math.floor(tripMs / 60_000)
   const tripHours = Math.floor(tripMinutes / 60)
   const tripMins = tripMinutes % 60
   const durationText = tripHours > 0 ? `${tripHours}h${String(tripMins).padStart(2, '0')}` : `${tripMins}min`
 
   // ETA
-  const etaInfo = getETAInfo(companion)
+  const etaInfo = getETAInfo(guardianState)
   const etaText = etaInfo.etaMinutes !== null
     ? (etaInfo.etaMinutes < 60 ? `~${etaInfo.etaMinutes}min` : `~${Math.floor(etaInfo.etaMinutes / 60)}h${String(etaInfo.etaMinutes % 60).padStart(2, '0')}`)
     : '...'
@@ -540,10 +541,10 @@ function renderActiveScreen(companion) {
   const checkInCount = events.filter(e => e.type === 'checkin').length
 
   // Guardians
-  const guardians = companion.guardians || []
+  const guardians = guardianState.guardians || []
 
   // Destination / origin
-  const destination = companion.destination || ''
+  const destination = guardianState.destination || ''
   const headerTitle = destination ? `${t('trip') || 'Trajet'} → ${escapeHTML(destination)}` : (t('tripActive') || 'Voyage en cours')
 
   return `
@@ -553,7 +554,7 @@ function renderActiveScreen(companion) {
         ${icon('chevron-left', 'w-3.5 h-3.5 text-slate-400')}
       </button>
       <div class="flex-1 min-w-0">
-        <h2 id="companion-modal-title" class="text-sm font-extrabold text-white truncate">${headerTitle}</h2>
+        <h2 id="guardian-modal-title" class="text-sm font-extrabold text-white truncate">${headerTitle}</h2>
         <div class="text-[10px] text-slate-500 mt-0.5">${t('onTheRoadSince') || 'En route depuis'} ${durationText}</div>
       </div>
       <div class="shrink-0 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold" style="background:${pillBg};color:${pillColor}">
@@ -573,7 +574,7 @@ function renderActiveScreen(companion) {
         <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">check-ins</div>
       </div>
       <div class="flex-1 text-center">
-        <div class="text-[13px] font-extrabold" id="companion-battery-row" style="color:${battColor}">${battText}</div>
+        <div class="text-[13px] font-extrabold" id="guardian-battery-row" style="color:${battColor}">${battText}</div>
         <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">${t('batteryLevel') || 'batterie'}</div>
       </div>
       <div class="flex-1 text-center">
@@ -617,7 +618,7 @@ function renderActiveScreen(companion) {
           ${icon('camera', 'w-3.5 h-3.5')} ${t('photo') || 'Photo'}
         </button>
         <button onclick="guardianUpdateDestination()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#f59e0b">
-          ${icon('map-pin', 'w-3.5 h-3.5')} ${t('companionDestination') || 'Destination'}
+          ${icon('map-pin', 'w-3.5 h-3.5')} ${t('guardianDestination') || 'Destination'}
         </button>
       </div>
       <!-- Message row -->
@@ -749,10 +750,10 @@ function tagHTML(color, iconName, text) {
 
 // ─── SCREEN 4: GUARDIAN VIEW ───
 
-function renderGuardianScreen(companion) {
-  const guardianName = companion.guardian?.name || 'Voyageur'
-  const destination = companion.destination || ''
-  const tripMs = companion.tripStart ? Date.now() - companion.tripStart : 0
+function renderGuardianScreen(guardianState) {
+  const guardianName = guardianState.guardian?.name || 'Voyageur'
+  const destination = guardianState.destination || ''
+  const tripMs = guardianState.tripStart ? Date.now() - guardianState.tripStart : 0
   const tripMinutes = Math.floor(tripMs / 60_000)
   const tripHours = Math.floor(tripMinutes / 60)
   const tripMins = tripMinutes % 60
@@ -764,7 +765,7 @@ function renderGuardianScreen(companion) {
       <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(245,158,11,.08)">
         ${icon('eye', 'w-3.5 h-3.5 text-amber-500')}
       </div>
-      <h2 id="companion-modal-title" class="text-[15px] font-extrabold text-white flex-1">
+      <h2 id="guardian-modal-title" class="text-[15px] font-extrabold text-white flex-1">
         ${t('trackingOf') || 'Suivi de'} ${escapeHTML(guardianName)}
       </h2>
       <button onclick="guardianGoToScreen('main')" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Close'}">
@@ -794,7 +795,7 @@ function renderGuardianScreen(companion) {
         </div>
         <div class="grid grid-cols-3 gap-1 mt-2">
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
-            <div class="text-xs font-bold text-emerald-400">${icon('check', 'w-3 h-3 inline')} ${companion.lastCheckIn ? formatTimeAgo(companion.lastCheckIn) : '...'}</div>
+            <div class="text-xs font-bold text-emerald-400">${icon('check', 'w-3 h-3 inline')} ${guardianState.lastCheckIn ? formatTimeAgo(guardianState.lastCheckIn) : '...'}</div>
             <div class="text-[8px] text-slate-500">Check-in</div>
           </div>
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
@@ -811,7 +812,7 @@ function renderGuardianScreen(companion) {
       <!-- Timeline -->
       <div class="mt-2">
         <div class="text-[11px] font-semibold text-slate-300 mb-1.5">${icon('clock', 'w-3 h-3 inline')} ${t('timeline') || 'Historique'}</div>
-        ${renderTimelineEvents(companion)}
+        ${renderTimelineEvents(guardianState)}
       </div>
 
       <!-- Action buttons -->
@@ -832,17 +833,17 @@ function renderGuardianScreen(companion) {
 
 // ─── SCREEN 5: ALERT ───
 
-function renderAlertScreen(companion) {
-  const guardianName = companion.guardian?.name || 'Voyageur'
+function renderAlertScreen(guardianState) {
+  const guardianName = guardianState.guardian?.name || 'Voyageur'
   const initial = (guardianName)[0].toUpperCase()
-  const positions = companion.positions || []
+  const positions = guardianState.positions || []
   const lastPos = positions.length > 0 ? positions[positions.length - 1] : null
 
   const overdueSeconds = Math.abs(getTimeUntilNextCheckIn())
   const overdueMin = Math.floor(overdueSeconds / 60)
 
-  const lastCheckInTime = companion.lastCheckIn
-    ? new Date(companion.lastCheckIn).toLocaleTimeString(getState().lang || 'fr', { hour: '2-digit', minute: '2-digit' })
+  const lastCheckInTime = guardianState.lastCheckIn
+    ? new Date(guardianState.lastCheckIn).toLocaleTimeString(getState().lang || 'fr', { hour: '2-digit', minute: '2-digit' })
     : ''
 
   return `
@@ -851,7 +852,7 @@ function renderAlertScreen(companion) {
       <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(239,68,68,.1)">
         ${icon('triangle-alert', 'w-3.5 h-3.5 text-red-500')}
       </div>
-      <h2 id="companion-modal-title" class="text-[15px] font-extrabold text-red-500 flex-1">
+      <h2 id="guardian-modal-title" class="text-[15px] font-extrabold text-red-500 flex-1">
         ${t('alert') || 'Alerte'} !
       </h2>
       <button onclick="guardianGoToScreen('active')" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Close'}">
@@ -923,7 +924,7 @@ function renderAlertScreen(companion) {
 
 // ─── SCREEN 6: OVERDUE (voyageur) ───
 
-function renderOverdueScreen(_companion) {
+function renderOverdueScreen(_guardianState) {
   const secondsRemaining = getTimeUntilNextCheckIn()
   const absSeconds = Math.abs(secondsRemaining)
   const minutes = Math.floor(absSeconds / 60)
@@ -937,7 +938,7 @@ function renderOverdueScreen(_companion) {
         ${icon('chevron-left', 'w-3.5 h-3.5 text-slate-400')}
       </button>
       <div class="flex-1 min-w-0">
-        <h2 id="companion-modal-title" class="text-sm font-extrabold" style="color:#ef4444">${t('checkInLate') || 'Check-in en retard'}</h2>
+        <h2 id="guardian-modal-title" class="text-sm font-extrabold" style="color:#ef4444">${t('checkInLate') || 'Check-in en retard'}</h2>
       </div>
       <div class="shrink-0 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold" style="background:rgba(239,68,68,.12);color:#ef4444">
         <span class="w-[7px] h-[7px] rounded-full" style="background:#ef4444;animation:pulse 2s infinite"></span>
@@ -960,7 +961,7 @@ function renderOverdueScreen(_companion) {
       </div>
 
       <!-- Big check-in button -->
-      <button onclick="companionCheckIn()" class="w-4/5 max-w-[280px] py-4 rounded-2xl text-white text-base font-extrabold flex items-center justify-center gap-2 mb-4"
+      <button onclick="guardianCheckIn()" class="w-4/5 max-w-[280px] py-4 rounded-2xl text-white text-base font-extrabold flex items-center justify-center gap-2 mb-4"
         style="background:#22c55e;box-shadow:0 4px 24px rgba(34,197,94,.3)">
         ${icon('check', 'w-5 h-5')}
         ${t('imSafe') || 'Je vais bien'}
@@ -985,9 +986,9 @@ function renderOverdueScreen(_companion) {
 
 // ─── SCREEN 7: ARRIVAL ───
 
-function renderArrivalScreen(companion) {
+function renderArrivalScreen(guardianState) {
   // Trip stats
-  const tripMs = companion.tripStart ? Date.now() - companion.tripStart : 0
+  const tripMs = guardianState.tripStart ? Date.now() - guardianState.tripStart : 0
   const tripMinutes = Math.floor(tripMs / 60_000)
   const tripHours = Math.floor(tripMinutes / 60)
   const tripMins = tripMinutes % 60
@@ -998,7 +999,7 @@ function renderArrivalScreen(companion) {
   const vehicleCount = events.filter(e => e.type === 'vehicle').length
 
   // Distance (rough estimate from positions)
-  const positions = companion.positions || []
+  const positions = guardianState.positions || []
   let distKm = 0
   for (let i = 1; i < positions.length; i++) {
     const dx = (positions[i].lat - positions[i - 1].lat) * 111
@@ -1008,13 +1009,13 @@ function renderArrivalScreen(companion) {
   const distText = distKm > 1 ? `${Math.round(distKm)} km` : '...'
 
   // Guardian names
-  const guardians = companion.guardians || []
+  const guardians = guardianState.guardians || []
   const guardianNames = guardians.map(g => escapeHTML(g.name)).join(', ')
 
   return `
     <!-- Header -->
     <div class="px-5 py-3 flex items-center justify-center shrink-0" style="border-bottom:1px solid rgba(34,197,94,.15)">
-      <h2 id="companion-modal-title" class="text-[14px] font-extrabold" style="color:#22c55e">${t('tripFinished') || 'Voyage termine'}</h2>
+      <h2 id="guardian-modal-title" class="text-[14px] font-extrabold" style="color:#22c55e">${t('tripFinished') || 'Voyage termine'}</h2>
     </div>
 
     <!-- Content -->
@@ -1063,7 +1064,7 @@ function renderArrivalScreen(companion) {
       </button>
 
       <!-- Close -->
-      <button onclick="closeCompanionModal()" class="w-full py-3.5 rounded-xl flex items-center justify-center text-[13px] font-semibold text-slate-500"
+      <button onclick="closeGuardianModal()" class="w-full py-3.5 rounded-xl flex items-center justify-center text-[13px] font-semibold text-slate-500"
         style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)">
         ${t('close') || 'Fermer'}
       </button>
@@ -1080,12 +1081,12 @@ function renderArrivalScreen(companion) {
 
 // ─── BOTTOM SHEETS ───
 
-function renderBottomSheet(companion) {
+function renderBottomSheet(guardianState) {
   const sheetType = _guardianSheet
   let sheetContent = ''
 
   if (sheetType === 'plate') {
-    const currentPlate = companion.licensePlate || ''
+    const currentPlate = guardianState.licensePlate || ''
     sheetContent = `
       <div class="w-9 h-1 rounded bg-white/10 mx-auto mb-4"></div>
       <div class="flex items-center gap-2 text-[15px] font-extrabold text-white mb-1">
@@ -1139,12 +1140,12 @@ function renderBottomSheet(companion) {
       </div>
     `
   } else if (sheetType === 'destination') {
-    const currentDest = companion.destination || ''
+    const currentDest = guardianState.destination || ''
     sheetContent = `
       <div class="w-9 h-1 rounded bg-white/10 mx-auto mb-4"></div>
       <div class="flex items-center gap-2 text-[15px] font-extrabold text-white mb-1">
         <span style="color:#f59e0b">${icon('map-pin', 'w-[18px] h-[18px]')}</span>
-        ${t('companionDestination') || 'Destination'}
+        ${t('guardianDestination') || 'Destination'}
       </div>
       <div class="text-[11px] text-slate-500 mb-4">${t('destSheetDesc') || 'Change ta destination si ton trajet a evolue.'}</div>
       ${currentDest ? `
@@ -1186,14 +1187,14 @@ function renderBottomSheet(companion) {
 
 // ─── HELPERS ───
 
-function renderTimelineEvents(companion) {
-  const positions = companion.positions || []
+function renderTimelineEvents(guardianState) {
+  const positions = guardianState.positions || []
   const events = []
 
-  if (companion.lastCheckIn) {
+  if (guardianState.lastCheckIn) {
     events.push({
       color: '#22c55e',
-      time: new Date(companion.lastCheckIn).toLocaleTimeString(getState().lang || 'fr', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date(guardianState.lastCheckIn).toLocaleTimeString(getState().lang || 'fr', { hour: '2-digit', minute: '2-digit' }),
       text: `Check-in OK ${icon('check', 'w-3 h-3 inline')}`,
     })
   }
@@ -1207,11 +1208,11 @@ function renderTimelineEvents(companion) {
     })
   }
 
-  if (companion.tripStart) {
+  if (guardianState.tripStart) {
     events.push({
       color: '#f59e0b',
-      time: new Date(companion.tripStart).toLocaleTimeString(getState().lang || 'fr', { hour: '2-digit', minute: '2-digit' }),
-      text: companion.destination ? `${t('departureFrom') || 'Depart vers'} ${escapeHTML(companion.destination)}` : (t('tripStarted') || 'Depart'),
+      time: new Date(guardianState.tripStart).toLocaleTimeString(getState().lang || 'fr', { hour: '2-digit', minute: '2-digit' }),
+      text: guardianState.destination ? `${t('departureFrom') || 'Depart vers'} ${escapeHTML(guardianState.destination)}` : (t('tripStarted') || 'Depart'),
     })
   }
 
@@ -1269,7 +1270,7 @@ function renderTripHistory(history) {
         }).join('')}
         ${history.length > 5 ? `<p class="text-xs text-slate-500 text-center">${t('andMoreTrips') || `+${history.length - 5} more trips`}</p>` : ''}
         <button
-          onclick="companionClearHistory()"
+          onclick="guardianClearHistory()"
           class="w-full mt-1 py-2 text-xs text-slate-500 hover:text-red-400 transition-colors text-center"
         >
           ${t('clearHistory') || 'Clear history'}
@@ -1291,8 +1292,8 @@ function formatTimeAgo(timestamp) {
 // ─── GLOBAL HANDLERS ───
 
 /** Accept consent and go to main screen */
-window.acceptCompanionConsent = () => {
-  sessionStorage.setItem('spothitch_companion_consent', '1')
+window.acceptGuardianConsent = () => {
+  sessionStorage.setItem('spothitch_guardian_consent', '1')
   _currentScreen = 'main'
   window._forceRender?.()
 }
@@ -1301,7 +1302,7 @@ window.acceptCompanionConsent = () => {
 window.guardianGoToScreen = (screen) => {
   _currentScreen = screen
   if (screen === 'main') {
-    try { sessionStorage.setItem('spothitch_companion_consent', '1') } catch { /* ignore */ }
+    try { sessionStorage.setItem('spothitch_guardian_consent', '1') } catch { /* ignore */ }
   }
   window._forceRender?.()
 }
@@ -1314,7 +1315,7 @@ window.guardianSwitchTab = (_index) => {
 
 /** Edit config fields — opens in-app overlay instead of native prompt() */
 window.guardianEditField = async (field) => {
-  const { getCompanionState: gcs } = await import('../../services/companion.js')
+  const { getGuardianState: gcs } = await import('../../services/guardian.js')
   const state = gcs()
 
   const fieldConfig = {
@@ -1332,7 +1333,7 @@ window.guardianEditField = async (field) => {
       placeholder: '30',
     },
     destination: {
-      label: t('companionDestination') || 'Destination',
+      label: t('guardianDestination') || 'Destination',
       value: state.destination || '',
       inputType: 'text',
       placeholder: t('guardianDestPrompt') || 'Destination',
@@ -1395,11 +1396,11 @@ window.guardianEditField = async (field) => {
 
 /** Select interval from the preset list — saves and closes immediately */
 window.guardianSelectInterval = async (minutes) => {
-  const { getCompanionState: gcs } = await import('../../services/companion.js')
+  const { getGuardianState: gcs } = await import('../../services/guardian.js')
   const state = gcs()
   state.checkInInterval = minutes
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+    localStorage.setItem('spothitch_guardian', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
   _editOverlay = null
   window._forceRender?.()
@@ -1408,7 +1409,7 @@ window.guardianSelectInterval = async (minutes) => {
 /** Save the edited field from in-app overlay */
 window.guardianSaveField = async () => {
   if (!_editOverlay) return
-  const { getCompanionState: gcs } = await import('../../services/companion.js')
+  const { getGuardianState: gcs } = await import('../../services/guardian.js')
   const state = gcs()
   const input = document.getElementById('guardian-edit-input')
   const val = input?.value?.trim() || ''
@@ -1453,7 +1454,7 @@ window.guardianSaveField = async () => {
   }
 
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+    localStorage.setItem('spothitch_guardian', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
 
   _editOverlay = null
@@ -1468,29 +1469,29 @@ window.guardianCancelEdit = () => {
 
 /** Toggle departure notification */
 window.guardianToggleDeparture = async () => {
-  const { getCompanionState: gcs } = await import('../../services/companion.js')
+  const { getGuardianState: gcs } = await import('../../services/guardian.js')
   const state = gcs()
   state.notifyOnDeparture = !(state.notifyOnDeparture !== false)
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+    localStorage.setItem('spothitch_guardian', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
   window._forceRender?.()
 }
 
 /** Toggle arrival notification */
 window.guardianToggleArrival = async () => {
-  const { getCompanionState: gcs } = await import('../../services/companion.js')
+  const { getGuardianState: gcs } = await import('../../services/guardian.js')
   const state = gcs()
   state.notifyOnArrival = !(state.notifyOnArrival !== false)
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+    localStorage.setItem('spothitch_guardian', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
   window._forceRender?.()
 }
 
 /** Guardian action: call traveler */
 window.guardianCallTraveler = () => {
-  const state = getCompanionState()
+  const state = getGuardianState()
   const phone = state.travelerPhone
   if (phone) {
     window.open(`tel:${phone}`, '_self')
@@ -1503,7 +1504,7 @@ window.guardianCallTraveler = () => {
 
 /** Guardian action: message traveler */
 window.guardianMessageTraveler = () => {
-  const state = getCompanionState()
+  const state = getGuardianState()
   const phone = state.travelerPhone
   if (phone) {
     window.open(`sms:${phone}`, '_self')
@@ -1516,7 +1517,7 @@ window.guardianMessageTraveler = () => {
 
 /** Guardian action: show on map */
 window.guardianShowMap = () => {
-  const state = getCompanionState()
+  const state = getGuardianState()
   const positions = state.positions || []
   const lastPos = positions.length > 0 ? positions[positions.length - 1] : null
   if (lastPos) {
@@ -1529,10 +1530,10 @@ window.guardianCallEmergency = () => {
   window.open('tel:112', '_self')
 }
 
-/** Add a trusted contact to the saved companion state */
-window.companionAddTrustedContact = async () => {
-  const nameEl = document.getElementById('companion-tc-name')
-  const phoneEl = document.getElementById('companion-tc-phone')
+/** Add a trusted contact to the saved guardian state */
+window.guardianAddTrustedContact = async () => {
+  const nameEl = document.getElementById('guardian-tc-name')
+  const phoneEl = document.getElementById('guardian-tc-phone')
   const name = nameEl?.value?.trim() || ''
   const phone = phoneEl?.value?.trim() || ''
 
@@ -1542,7 +1543,7 @@ window.companionAddTrustedContact = async () => {
     return
   }
 
-  const { getCompanionState: gcs } = await import('../../services/companion.js')
+  const { getGuardianState: gcs } = await import('../../services/guardian.js')
   const state = gcs()
   const contacts = Array.isArray(state.trustedContacts) ? state.trustedContacts : []
 
@@ -1556,7 +1557,7 @@ window.companionAddTrustedContact = async () => {
   state.trustedContacts = contacts
 
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data] — trusted contacts, local device only, declared in RGPD registry
+    localStorage.setItem('spothitch_guardian', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data] — trusted contacts, local device only, declared in RGPD registry
   } catch {
     // ignore
   }
@@ -1564,31 +1565,31 @@ window.companionAddTrustedContact = async () => {
   if (nameEl) nameEl.value = ''
   if (phoneEl) phoneEl.value = ''
 
-  window.setState?.({ showCompanionModal: true })
+  window.setState?.({ showGuardianModal: true })
 }
 
 /** Remove a trusted contact by index */
-window.companionRemoveTrustedContact = async (index) => {
-  const { getCompanionState: gcs } = await import('../../services/companion.js')
+window.guardianRemoveTrustedContact = async (index) => {
+  const { getGuardianState: gcs } = await import('../../services/guardian.js')
   const state = gcs()
   const contacts = Array.isArray(state.trustedContacts) ? [...state.trustedContacts] : []
   contacts.splice(index, 1)
   state.trustedContacts = contacts
 
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data] — trusted contacts, local device only
+    localStorage.setItem('spothitch_guardian', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data] — trusted contacts, local device only
   } catch {
     // ignore
   }
 
-  window.setState?.({ showCompanionModal: true })
+  window.setState?.({ showGuardianModal: true })
 }
 
 /** Clear trip history */
-window.companionClearHistory = async () => {
-  const { clearTripHistory } = await import('../../services/companion.js')
+window.guardianClearHistory = async () => {
+  const { clearTripHistory } = await import('../../services/guardian.js')
   clearTripHistory()
-  window.setState?.({ showCompanionModal: true })
+  window.setState?.({ showGuardianModal: true })
 }
 
 // ─── V2 HANDLERS ───
@@ -1613,12 +1614,12 @@ window.guardianSavePlate = async () => {
   const input = document.getElementById('guardian-sheet-plate')
   const val = input?.value?.trim()?.toUpperCase() || ''
   if (!val) return
-  const { getCompanionState: gcs, addTripEvent } = await import('../../services/companion.js')
+  const { getGuardianState: gcs, addTripEvent } = await import('../../services/guardian.js')
   const state = gcs()
   const isNew = !!state.licensePlate && state.licensePlate !== val
   state.licensePlate = val
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+    localStorage.setItem('spothitch_guardian', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
   if (state.active) {
     addTripEvent('vehicle', { plate: val, isNew })
@@ -1637,7 +1638,7 @@ window.guardianAddTripPhoto = () => {
 window.guardianSaveTripPhoto = async () => {
   // In a real implementation, this would open the camera
   // For now, just add a photo event
-  const { setTripPhoto } = await import('../../services/companion.js')
+  const { setTripPhoto } = await import('../../services/guardian.js')
   setTripPhoto('placeholder')
   _guardianSheet = null
   window._forceRender?.()
@@ -1657,11 +1658,11 @@ window.guardianSaveDestination = async () => {
   const input = document.getElementById('guardian-sheet-dest')
   const val = input?.value?.trim() || ''
   if (!val) return
-  const { getCompanionState: gcs, addTripEvent } = await import('../../services/companion.js')
+  const { getGuardianState: gcs, addTripEvent } = await import('../../services/guardian.js')
   const state = gcs()
   state.destination = val
   try {
-    localStorage.setItem('spothitch_companion', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
+    localStorage.setItem('spothitch_guardian', JSON.stringify(state)) // lgtm[js/clear-text-storage-of-sensitive-data]
   } catch { /* ignore */ }
   if (state.active) {
     addTripEvent('destination', { destination: val })
@@ -1675,7 +1676,7 @@ window.guardianSendMessage = async () => {
   const input = document.getElementById('guardian-message-input')
   const text = input?.value?.trim() || ''
   if (!text) return
-  const { addTripEvent, getCompanionState: gcs } = await import('../../services/companion.js')
+  const { addTripEvent, getGuardianState: gcs } = await import('../../services/guardian.js')
   const state = gcs()
   if (!state.active) return
   const username = getState().username || t('me') || 'Moi'
@@ -1690,7 +1691,7 @@ window.guardianSendMessage = async () => {
 
 /** Quick check-in from compose bar */
 window.guardianQuickCheckin = async () => {
-  const { checkIn, addTripEvent } = await import('../../services/companion.js')
+  const { checkIn, addTripEvent } = await import('../../services/guardian.js')
   checkIn()
   addTripEvent('checkin', {})
   window._forceRender?.()
@@ -1710,12 +1711,12 @@ window.guardianShowArrival = () => {
 window.guardianAddToJournal = () => {
   // Navigate to journal view
   window.showJournal?.()
-  window.closeCompanionModal?.()
+  window.closeGuardianModal?.()
 }
 
 /** Edit guardian by index */
 window.guardianEditGuardian = async (index) => {
-  const { getGuardians: gg } = await import('../../services/companion.js')
+  const { getGuardians: gg } = await import('../../services/guardian.js')
   const guardians = gg()
   const g = guardians[index]
   if (!g) return
@@ -1764,14 +1765,14 @@ window.guardianAddGuardian = () => {
 
 /** Remove a guardian by index */
 window.guardianRemoveGuardian = async (index) => {
-  const { removeGuardian } = await import('../../services/companion.js')
+  const { removeGuardian } = await import('../../services/guardian.js')
   removeGuardian(index)
   window._forceRender?.()
 }
 
 /** Load and display battery level into the active view */
 async function updateBatteryDisplay() {
-  const el = document.getElementById('companion-battery-row')
+  const el = document.getElementById('guardian-battery-row')
   if (!el) return
 
   const level = await getBatteryLevel()
@@ -1780,10 +1781,10 @@ async function updateBatteryDisplay() {
   _batteryPct = Math.round(level * 100)
 }
 
-// Init companion battery display after render
-export function initCompanionAfterRender(isVisible) {
+// Init guardian battery display after render
+export function initGuardianAfterRender(isVisible) {
   if (isVisible) {
-    const el = document.getElementById('companion-battery-row')
+    const el = document.getElementById('guardian-battery-row')
     if (el && !_batteryDisplayDone) {
       _batteryDisplayDone = true
       updateBatteryDisplay()
@@ -1800,4 +1801,4 @@ export function initCompanionAfterRender(isVisible) {
   }
 }
 
-export default { renderCompanionModal }
+export default { renderGuardianModal }

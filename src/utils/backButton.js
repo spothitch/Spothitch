@@ -56,7 +56,7 @@ const MODAL_KEYS = [
   'showTutorial',
   'showAgeVerification',
   'showIdentityVerification',
-  'showCompanionModal',
+  'showGuardianModal',
   'showGuidesOverlay',
   'showOfflinePanel',
   'showDailyReward',

@@ -158,7 +158,7 @@ const MAIN_JS_HANDLERS = [
   'openReport', 'closeReport',
   'closeFriendProfile', 'closeReportModal',
   // Legal & Moderation (session 2026-02-19)
-  'acceptSOSDisclaimer', 'acceptCompanionConsent',
+  'acceptSOSDisclaimer', 'acceptGuardianConsent',
   'openBlockedUsers', 'closeBlockedUsers',
   // CheckinModal
   'openCheckinModal', 'closeCheckinModal', 'submitCheckin',
@@ -268,13 +268,13 @@ const MAIN_JS_HANDLERS = [
   'openOfflinePanel', 'closeOfflinePanel',
   // Push notifications
   'togglePushNotifications',
-  // Companion Mode
-  'showCompanionModal', 'closeCompanionModal',
-  'startCompanion', 'stopCompanion',
-  'companionBtnDown', 'companionBtnUp', 'companionBtnCancel',
-  'companionCheckIn', 'companionSendAlert',
-  'companionAddTrustedContact', 'companionRemoveTrustedContact',
-  'companionClearHistory',
+  // Guardian Mode
+  'showGuardianModal', 'closeGuardianModal',
+  'startGuardian', 'stopGuardian',
+  'guardianBtnDown', 'guardianBtnUp', 'guardianBtnCancel',
+  'guardianCheckIn', 'guardianSendAlert',
+  'guardianAddTrustedContact', 'guardianRemoveTrustedContact',
+  'guardianClearHistory',
   // Guardian v2: multi-guardian + quick actions
   'guardianAddGuardian', 'guardianRemoveGuardian', 'guardianEditGuardian',
   'guardianUpdatePlate', 'guardianSavePlate', 'guardianAddTripPhoto', 'guardianSaveTripPhoto',
@@ -371,7 +371,7 @@ const MAIN_JS_HANDLERS = [
   // Social Demo (defined in Profile.js)
   'showSocialDemo', 'closeSocialDemo', 'startSocialDemo', 'switchSocialDemoTab',
   // Companion Demo (defined in Profile.js)
-  'showCompanionDemo', 'closeCompanionDemo', 'startCompanionDemo', 'switchCompanionDemoTab',
+  'showGuardianDemo', 'closeGuardianDemo', 'startGuardianDemo', 'switchGuardianDemoTab',
   // Hostels Demo (defined in Profile.js)
   'showHostelsDemo', 'closeHostelsDemo', 'startHostelsDemo', 'switchHostelsDemoTab',
   // Spot Demo (defined in ProfileDemos.js)
@@ -430,7 +430,7 @@ const MAIN_JS_HANDLERS = [
   'planTrip', 'clearTrip', 'openGuides', 'openChallengesHub',
   'loginWithEmail', 'claimDailyReward',
   'triggerSOS', 'shareSOS',
-  'openCompanion', 'closeCompanion',
+  'openGuardian', 'closeCompanion',
   'submitNewSpot',
   // Missing handlers (session 2026-02-25)
   'requireProfile', 'closeBadgePopup', 'sendAmbassadorMessage',
@@ -590,7 +590,7 @@ const mockState = {
   showTitles: false,
   showIdentityVerification: false,
   showAgeVerification: false,
-  showCompanionModal: false,
+  showGuardianModal: false,
   showCompanionSearch: false,
   eventFilter: 'all',
   checkinSpot: null,
@@ -667,7 +667,7 @@ import { renderTitlesModal } from '../../src/components/modals/TitlesModal.js'
 import { renderFriendProfileModal } from '../../src/components/modals/FriendProfile.js'
 import { renderAdminPanel } from '../../src/components/modals/AdminPanel.js'
 import { renderMyDataModal } from '../../src/components/modals/MyData.js'
-import { renderCompanionModal } from '../../src/components/modals/Companion.js'
+import { renderGuardianModal } from '../../src/components/modals/Guardian.js'
 
 // Services with render
 import { renderNearbyFriendsList } from '../../src/services/nearbyFriends.js'
@@ -757,8 +757,8 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
     checkinSpot: mockState.spots[0],
   })
   testHandlers('DonationModal', renderDonationModal)
-  testHandlers('Companion modal', renderCompanionModal, {
-    showCompanionModal: true,
+  testHandlers('Guardian modal', renderGuardianModal, {
+    showGuardianModal: true,
   })
 
   // --- Modals (no param, use global state) ---

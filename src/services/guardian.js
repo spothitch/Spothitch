@@ -1,5 +1,5 @@
 /**
- * Companion Mode Service
+ * Guardian Mode Service
  * Real-time safety feature for hitchhikers.
  * The user sets a trusted contact ("guardian"), starts a trip,
  * and the app periodically asks them to "check in".
@@ -61,11 +61,11 @@ async function syncSOSTimerToFirestore(action, data = {}) {
       await deleteDoc(timerRef)
     }
   } catch (err) {
-    console.warn('[Companion] Failed to sync SOS timer to Firestore:', err.message)
+    console.warn('[Guardian] Failed to sync SOS timer to Firestore:', err.message)
   }
 }
 
-const STORAGE_KEY = 'spothitch_companion'
+const STORAGE_KEY = 'spothitch_guardian'
 const HISTORY_KEY = 'spothitch_trip_history'
 const CHECK_INTERVAL_MS = 10_000 // check every 10 seconds
 const MAX_POSITIONS = 50
@@ -90,7 +90,7 @@ let batteryAlertSent = false
 let _batteryRef = null
 
 /**
- * Default companion state
+ * Default guardian state
  */
 function getDefaultState() {
   return {
@@ -114,10 +114,18 @@ function getDefaultState() {
 }
 
 /**
- * Load companion state from localStorage
+ * Load guardian state from localStorage
  */
 function loadState() {
   try {
+    // Migrate from old key name (companion → guardian)
+    const oldKey = 'spothitch_companion'
+    const oldRaw = localStorage.getItem(oldKey)
+    if (oldRaw && !localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, oldRaw)
+      localStorage.removeItem(oldKey)
+    }
+
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
@@ -142,7 +150,7 @@ function loadState() {
 }
 
 /**
- * Save companion state to localStorage
+ * Save guardian state to localStorage
  */
 function saveState(state) {
   try {
@@ -154,17 +162,17 @@ function saveState(state) {
 }
 
 /**
- * Get the current companion state
+ * Get the current guardian state
  */
-export function getCompanionState() {
+export function getGuardianState() {
   return loadState()
 }
 
 /**
- * Check if companion mode is currently active
+ * Check if guardian mode is currently active
  * Auto-stops stale trips (>8h total or >2h silence) so the banner disappears
  */
-export function isCompanionActive() {
+export function isGuardianActive() {
   const state = loadState()
   if (!state.active) return false
 
@@ -176,7 +184,7 @@ export function isCompanionActive() {
   const silenceAge = state.lastCheckIn ? now - state.lastCheckIn : tripAge
 
   if (tripAge > maxTrip || silenceAge > maxSilence) {
-    stopCompanionMode()
+    stopGuardianMode()
     return false
   }
 
@@ -275,11 +283,11 @@ async function startBatteryMonitor() {
       if (level <= BATTERY_ALERT_THRESHOLD && !batteryAlertSent) {
         batteryAlertSent = true
         const pct = Math.round(level * 100)
-        const title = t('companionBatteryAlertTitle') || 'Battery low!'
-        const body = (t('companionBatteryAlertBody') || 'Battery at {pct}%. Alert sent to guardian.').replace('{pct}', pct)
+        const title = t('guardianBatteryAlertTitle') || 'Battery low!'
+        const body = (t('guardianBatteryAlertBody') || 'Battery at {pct}%. Alert sent to guardian.').replace('{pct}', pct)
         sendLocalNotification(title, body, {
-          type: 'companion_battery',
-          tag: 'companion-battery',
+          type: 'guardian_battery',
+          tag: 'guardian-battery',
         })
 
         // Auto-send alert to all contacts
@@ -395,11 +403,11 @@ function getAlertMessage(state) {
     : ''
 
   const guardianName = state.guardian.name ? state.guardian.name + ', ' : ''
-  const alertIntro = t('companionAlertIntro') || "I haven't checked in on SpotHitch."
-  const alertHelp = t('companionAlertHelp') || 'I may need help.'
-  const alertTrip = t('companionAlertTrip') || 'Trip duration'
-  const alertPosition = t('companionAlertPosition') || 'My last known position'
-  const alertFooter = t('companionAlertFooter') || 'Sent automatically by SpotHitch Companion Mode.'
+  const alertIntro = t('guardianAlertIntro') || "I haven't checked in on SpotHitch."
+  const alertHelp = t('guardianAlertHelp') || 'I may need help.'
+  const alertTrip = t('guardianAlertTrip') || 'Trip duration'
+  const alertPosition = t('guardianAlertPosition') || 'My last known position'
+  const alertFooter = t('guardianAlertFooter') || 'Sent automatically by SpotHitch Guardian Mode.'
 
   let msg = `\u{1F198} SpotHitch Safety Alert\n\n`
   msg += `${guardianName}${alertIntro}\n`
@@ -426,11 +434,11 @@ function getAlertMessage(state) {
  * Generate departure notification message
  */
 function getDepartureMessage(state) {
-  const depMsg = t('companionDepartureMsg') || 'I am starting my hitchhiking trip. I will check in regularly. · SpotHitch Companion'
+  const depMsg = t('guardianDepartureMsg') || 'I am starting my hitchhiking trip. I will check in regularly. · SpotHitch Guardian'
   const guardianName = state.guardian.name ? state.guardian.name + ', ' : ''
   let msg = `\u{1F6E3}\uFE0F SpotHitch · ${guardianName}${depMsg}`
   if (state.destination) {
-    const destLabel = t('companionDestination') || 'Destination'
+    const destLabel = t('guardianDestination') || 'Destination'
     msg += `\n${destLabel}: ${state.destination}`
   }
   if (state.licensePlate) {
@@ -447,14 +455,14 @@ function getDepartureMessage(state) {
  * Generate safe arrival message
  */
 function getArrivalMessage(state) {
-  const arrMsg = t('companionArrivalMsg') || 'I have arrived safely. My trip is now complete. · SpotHitch Companion'
+  const arrMsg = t('guardianArrivalMsg') || 'I have arrived safely. My trip is now complete. · SpotHitch Guardian'
   const guardianName = state.guardian.name ? state.guardian.name + ', ' : ''
   const tripDuration = state.tripStart
     ? formatDurationMs(Date.now() - state.tripStart)
     : ''
   let msg = `\u2705 SpotHitch — ${guardianName}${arrMsg}`
   if (tripDuration) {
-    const durLabel = t('companionAlertTrip') || 'Trip duration'
+    const durLabel = t('guardianAlertTrip') || 'Trip duration'
     msg += `\n${durLabel}: ${tripDuration}`
   }
   if (state.licensePlate) {
@@ -468,7 +476,7 @@ function getArrivalMessage(state) {
  * Generate low battery alert message
  */
 function buildBatteryAlertMessage(state, pct) {
-  const battMsg = (t('companionBatteryMsg') || "My phone battery is at {pct}%. I may lose contact soon. · SpotHitch Companion").replace('{pct}', pct)
+  const battMsg = (t('guardianBatteryMsg') || "My phone battery is at {pct}%. I may lose contact soon. · SpotHitch Guardian").replace('{pct}', pct)
   const guardianName = state.guardian.name ? state.guardian.name + ', ' : ''
   const lastPos = state.positions.length > 0
     ? state.positions[state.positions.length - 1]
@@ -479,7 +487,7 @@ function buildBatteryAlertMessage(state, pct) {
     msg += `\n\u{1F697} ${plateLabel}: ${state.licensePlate}`
   }
   if (lastPos) {
-    const posLabel = t('companionAlertPosition') || 'My last known position'
+    const posLabel = t('guardianAlertPosition') || 'My last known position'
     msg += `\n${posLabel}:\nhttps://www.google.com/maps?q=${lastPos.lat},${lastPos.lng}`
   }
   return msg
@@ -489,10 +497,10 @@ function buildBatteryAlertMessage(state, pct) {
 
 /**
  * Send push notification alerts to all contacts.
- * Companion mode uses ONLY app push notifications — no SMS.
+ * Guardian mode uses ONLY app push notifications — no SMS.
  * The guardian must have the SpotHitch app or open the web link.
  * @param {string} message - Alert message
- * @param {object} state - Companion state
+ * @param {object} state - Guardian state
  * @returns {number} - number of notifications sent
  */
 function sendAlertToAll(message, state) {
@@ -507,17 +515,17 @@ function sendAlertToAll(message, state) {
     : ''
 
   // Send push notification (works even abroad, no SMS cost)
-  const title = t('companionAlertPushTitle') || 'SpotHitch Safety Alert'
+  const title = t('guardianAlertPushTitle') || 'SpotHitch Safety Alert'
   sendLocalNotification(title, message, {
-    type: 'companion_alert',
-    tag: 'companion-alert',
+    type: 'guardian_alert',
+    tag: 'guardian-alert',
     requireInteraction: true,
-    url: mapLink || '/?companion=true',
+    url: mapLink || '/?guardian=true',
   })
 
   // Also fire a custom event so the app can react (e.g. show position on map)
   try {
-    window.dispatchEvent(new CustomEvent('spothitch:companion-alert', {
+    window.dispatchEvent(new CustomEvent('spothitch:guardian-alert', {
       detail: { message, contacts, position: lastPos },
     }))
   } catch {
@@ -530,12 +538,12 @@ function sendAlertToAll(message, state) {
 // ---- Public API ----
 
 /**
- * Start companion mode with guardian(s) and check-in interval
+ * Start guardian mode with guardian(s) and check-in interval
  * @param {{ name: string, phone: string }} guardian
  * @param {number} interval - check-in interval in minutes
  * @param {object} options - { trustedContacts, destination, notifyOnDeparture, notifyOnArrival }
  */
-export function startCompanionMode(guardian, interval = 30, options = {}) {
+export function startGuardianMode(guardian, interval = 30, options = {}) {
   const now = Date.now()
 
   // Build guardians array from current state + new guardian
@@ -632,10 +640,10 @@ export function startCompanionMode(guardian, interval = 30, options = {}) {
 }
 
 /**
- * Stop companion mode and save trip to history
+ * Stop guardian mode and save trip to history
  * @param {{ sendArrivalNotification?: boolean }} options
  */
-export function stopCompanionMode(options = {}) {
+export function stopGuardianMode(options = {}) {
   const state = loadState()
 
   // Add arrival event to trip timeline before clearing
@@ -779,7 +787,7 @@ export function getShareLink() {
 
 /**
  * Send push notification alert to ALL contacts (guardian + trusted contacts).
- * Companion mode is app-only — no SMS.
+ * Guardian mode is app-only — no SMS.
  * Marks alert as sent. Returns number of notifications sent.
  */
 export function sendAlert() {
@@ -831,12 +839,12 @@ export function startTimer() {
       !reminderNotified
     ) {
       reminderNotified = true
-      const title = t('companionReminderTitle') || 'Check-in reminder'
-      const body = (t('companionReminderBody') || 'You have {min} minutes to check in!').replace('{min}', Math.ceil(secondsRemaining / 60))
+      const title = t('guardianReminderTitle') || 'Check-in reminder'
+      const body = (t('guardianReminderBody') || 'You have {min} minutes to check in!').replace('{min}', Math.ceil(secondsRemaining / 60))
       sendLocalNotification(title, body, {
-        type: 'companion_reminder',
-        tag: 'companion-reminder',
-        url: '/?companion=true',
+        type: 'guardian_reminder',
+        tag: 'guardian-reminder',
+        url: '/?guardian=true',
       })
 
       // Gentle vibration for reminder
@@ -867,13 +875,13 @@ export function startTimer() {
         } catch {
           // vibration not supported
         }
-        const title = t('companionOverdueTitle') || 'Check-in overdue!'
-        const body = t('companionOverdueBody') || 'Your check-in timer has expired. Are you safe?'
+        const title = t('guardianOverdueTitle') || 'Check-in overdue!'
+        const body = t('guardianOverdueBody') || 'Your check-in timer has expired. Are you safe?'
         sendLocalNotification(title, body, {
-          type: 'companion_overdue',
-          tag: 'companion-checkin',
+          type: 'guardian_overdue',
+          tag: 'guardian-checkin',
           requireInteraction: true,
-          url: '/?companion=true',
+          url: '/?guardian=true',
         })
       }
 
@@ -897,9 +905,9 @@ export function stopTimer() {
 }
 
 /**
- * Restore companion mode on app start (if was active)
+ * Restore guardian mode on app start (if was active)
  */
-export function restoreCompanionMode() {
+export function restoreGuardianMode() {
   const state = loadState()
   if (state.active) {
     // Auto-stop stale trips: 8h total OR 2h since last check-in
@@ -911,7 +919,7 @@ export function restoreCompanionMode() {
 
     if (tripAge > maxTrip || silenceAge > maxSilence) {
       // Trip is stale — auto-stop silently
-      stopCompanionMode()
+      stopGuardianMode()
       return false
     }
 
@@ -1069,11 +1077,11 @@ function formatDurationMs(ms) {
 }
 
 export default {
-  startCompanionMode,
-  stopCompanionMode,
+  startGuardianMode,
+  stopGuardianMode,
   checkIn,
-  getCompanionState,
-  isCompanionActive,
+  getGuardianState,
+  isGuardianActive,
   getTimeUntilNextCheckIn,
   isCheckInOverdue,
   sendAlert,
@@ -1082,7 +1090,7 @@ export default {
   onOverdue,
   startTimer,
   stopTimer,
-  restoreCompanionMode,
+  restoreGuardianMode,
   loadTripHistory,
   clearTripHistory,
   getBatteryLevel,

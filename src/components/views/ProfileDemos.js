@@ -343,17 +343,17 @@ window.startSocialDemo = () => {
 }
 
 // ==================== 4. MODE COMPAGNON SÉCURITÉ ====================
-window.showCompanionDemo = () => {
- const ov = _createDemo('companion-demo-overlay')
+window.showGuardianDemo = () => {
+ const ov = _createDemo('guardian-demo-overlay')
  ov.innerHTML = `
  <div class="${_c.wrap}">
  ${_previewBanner}
  ${_previewBanner}
  <button onclick="closeCompanionDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
- <div id="companion-demo-intro" class="${_c.intro} ${_cIntro}">
+ <div id="guardian-demo-intro" class="${_c.intro} ${_cIntro}">
  <div class="text-5xl mb-3"></div>
- <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('companionDemoIntroTitle') || 'Mode Compagnon Sécurité')}</h2>
- <p class="text-[0.82rem] text-slate-400 leading-normal m-0 mb-4">${escapeHTML(t('companionDemoIntroDesc') || 'Rassure tes proches pendant ton trajet en stop avec le suivi en direct et les check-ins automatiques.')}</p>
+ <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('guardianDemoIntroTitle') || 'Mode Compagnon Sécurité')}</h2>
+ <p class="text-[0.82rem] text-slate-400 leading-normal m-0 mb-4">${escapeHTML(t('guardianDemoIntroDesc') || 'Rassure tes proches pendant ton trajet en stop avec le suivi en direct et les check-ins automatiques.')}</p>
  <div class="mx-auto mb-5 max-w-[340px]">
  <div class="${_c.bullet}"><span class="${_c.bicon}"></span><span class="${_c.btxt}">Tes proches (gardiens) voient ta position en direct sur la carte SpotHitch</span></div>
  <div class="${_c.bullet}"><span class="${_c.bicon}"></span><span class="${_c.btxt}">Check-in régulier (30min, 1h ou 2h) : un bouton pour confirmer que tout va bien</span></div>
@@ -361,16 +361,16 @@ window.showCompanionDemo = () => {
  <div class="${_c.bullet}"><span class="${_c.bicon}">🆘</span><span class="${_c.btxt}">Bouton SOS : alerte immédiate à tous tes gardiens + appel urgences + enregistrement audio</span></div>
  <div class="${_c.bullet}"><span class="${_c.bicon}"></span><span class="${_c.btxt}">Version améliorée du compagnon de route actuel avec position live et connexion directe au SOS</span></div></div>
  <button onclick="startCompanionDemo()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button></div>
- <div id="companion-demo-main" class="hidden"></div></div>
+ <div id="guardian-demo-main" class="hidden"></div></div>
  `
  document.body.appendChild(ov)
 }
 
-window.closeCompanionDemo = () => { document.getElementById('companion-demo-overlay')?.remove() }
+window.closeGuardianDemo = () => { document.getElementById('guardian-demo-overlay')?.remove() }
 
 window.startCompanionDemo = () => {
- const intro = document.getElementById('companion-demo-intro')
- const main = document.getElementById('companion-demo-main')
+ const intro = document.getElementById('guardian-demo-intro')
+ const main = document.getElementById('guardian-demo-main')
  if (!intro || !main) return
  intro.style.display = 'none'
  main.style.display = 'block'

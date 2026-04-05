@@ -31,7 +31,7 @@ window.closeLanding = () => {
 }
 
 // Toggle a hidden checkbox (visual is handled by renderToggle's onclick)
-// Used by Landing cookies and Companion notification toggles
+// Used by Landing cookies and Guardian notification toggles
 window.toggleFormToggle = (checkboxId) => {
   const cb = document.getElementById(checkboxId)
   if (cb) cb.checked = !cb.checked

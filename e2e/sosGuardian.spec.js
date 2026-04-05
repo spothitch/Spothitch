@@ -1,5 +1,5 @@
 /**
- * SOS & Companion Deep E2E Tests
+ * SOS & Guardian Deep E2E Tests
  *
  * Tests SOS trigger, contacts, fake call, silent alarm, recording,
  * and Companion start, check-in, contacts, alerts.
@@ -94,7 +94,7 @@ test.describe('Companion Deep Flows', () => {
   })
 
   test('Companion modal opens', async ({ page }) => {
-    await page.evaluate(() => window.openCompanionModal?.() || window.showCompanionModal?.())
+    await page.evaluate(() => window.openGuardianModal?.() || window.showGuardianModal?.())
     await page.waitForTimeout(1500)
     const companion = page.locator('[class*="companion"], [id*="companion"]')
     const count = await companion.count()
@@ -103,28 +103,28 @@ test.describe('Companion Deep Flows', () => {
 
   test('Companion start handler exists', async ({ page }) => {
     const result = await page.evaluate(() =>
-      typeof window.startCompanion === 'function'
+      typeof window.startGuardian === 'function'
     )
     expect(result || true).toBeTruthy()
   })
 
   test('Companion check-in handler exists', async ({ page }) => {
     const result = await page.evaluate(() =>
-      typeof window.companionCheckIn === 'function'
+      typeof window.guardianCheckIn === 'function'
     )
     expect(result || true).toBeTruthy()
   })
 
   test('Companion alert handler exists', async ({ page }) => {
     const result = await page.evaluate(() =>
-      typeof window.companionSendAlert === 'function'
+      typeof window.guardianSendAlert === 'function'
     )
     expect(result || true).toBeTruthy()
   })
 
   test('Companion stop handler exists', async ({ page }) => {
     const result = await page.evaluate(() =>
-      typeof window.stopCompanion === 'function'
+      typeof window.stopGuardian === 'function'
     )
     expect(result || true).toBeTruthy()
   })
@@ -145,7 +145,7 @@ test.describe('Companion Deep Flows', () => {
   })
 
   test('Companion form has guardian name and phone fields', async ({ page }) => {
-    await page.evaluate(() => window.openCompanionModal?.() || window.showCompanionModal?.())
+    await page.evaluate(() => window.openGuardianModal?.() || window.showGuardianModal?.())
     await page.waitForTimeout(1500)
     const nameField = page.locator('input[placeholder*="Nom"], input[placeholder*="Name"], input[id*="guardian-name"], input[id*="companion-name"]')
     const phoneField = page.locator('input[type="tel"], input[placeholder*="Tél"], input[placeholder*="Phone"]')

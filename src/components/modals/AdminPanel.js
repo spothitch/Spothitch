@@ -49,7 +49,7 @@ const FEATURES = {
  ],
  securite: [
  { id: 'sos', emoji: '🆘', nameKey: 'fbFeatSos' },
- { id: 'companion-safety', iconName: 'shield-check', nameKey: 'fbFeatCompanionSafety' },
+ { id: 'guardian-safety', iconName: 'shield-check', nameKey: 'fbFeatGuardianSafety' },
  { id: 'guardian-mode', iconName: 'eye', nameKey: 'fbFeatGuardianMode', status: 'coming' },
  ],
 }

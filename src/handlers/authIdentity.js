@@ -125,7 +125,7 @@ window.requireAuth = (actionName) => {
     validateSpot: t('authRequiredAddSpot'),
     saveFavorite: t('authRequiredFavorite'),
     sos: t('authRequiredSOS'),
-    companion: t('authRequiredCompanion'),
+    guardian: t('authRequiredGuardian'),
     social: t('authRequiredSocial'),
     tripPlanner: t('authRequiredSocial'),
     checkin: t('authRequiredAddSpot'),

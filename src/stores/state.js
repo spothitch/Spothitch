@@ -83,7 +83,7 @@ const initialState = {
   showMyRewards: false,
   showSideMenu: false,
   showIdentityVerification: false,
-  showCompanionModal: false,
+  showGuardianModal: false,
   showGuidesOverlay: false,
   showOfflinePanel: false,
   guideSection: 'start',

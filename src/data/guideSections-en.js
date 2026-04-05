@@ -51,7 +51,7 @@ export const guideSectionsData = {
         { k: 'Fire brigade', v: '18' },
         { k: 'European number', v: '112' },
       ]},
-      { type: 'info', text: '📍 Activate SpotHitch Companion mode to share your location in real time.' },
+      { type: 'info', text: '📍 Activate SpotHitch Guardian mode to share your location in real time.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
       { type: 'text', text: 'France is generally safe for women hitchhiking alone, especially in the south and rural areas. Women get picked up faster than men. Experienced female travellers confirm few incidents.' },
@@ -159,7 +159,7 @@ export const guideSectionsData = {
         { k: 'Emergency / Fire brigade', v: '112' },
         { k: 'Police', v: '110' },
       ]},
-      { type: 'info', text: '📍 Activate SpotHitch Companion mode to share your location in real time.' },
+      { type: 'info', text: '📍 Activate SpotHitch Guardian mode to share your location in real time.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
       { type: 'text', text: 'Germany is considered one of the safest countries in Europe for women hitchhiking alone. Several experienced female travellers confirm this. Women are generally picked up faster than men.' },

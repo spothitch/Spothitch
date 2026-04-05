@@ -4,10 +4,10 @@
 
 import { t } from '../i18n/index.js'
 import { icon } from '../utils/icons.js'
-import { isCompanionActive, getTimeUntilNextCheckIn } from '../services/companion.js'
+import { isGuardianActive, getTimeUntilNextCheckIn } from '../services/guardian.js'
 
 export function renderHeader(state) {
-  const companionActive = isCompanionActive()
+  const guardianActive = isGuardianActive()
 
   return `
     <header class="fixed top-0 left-0 right-0 z-40 px-5 py-4 bg-dark-primary/60 backdrop-blur-xl border-b border-white/5" role="banner">
@@ -32,8 +32,8 @@ export function renderHeader(state) {
             ${(state.adminReportsData || []).filter(r => r.status === 'pending').length > 0 ? `<span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">${(state.adminReportsData || []).filter(r => r.status === 'pending').length}</span>` : ''}
           </button>
           ` : ''}
-          <!-- Companion Button -->
-          ${companionActive ? (() => {
+          <!-- Guardian Button -->
+          ${guardianActive ? (() => {
             const secs = getTimeUntilNextCheckIn()
             const overdue = secs < 0
             const absSecs = Math.abs(secs)
@@ -42,14 +42,14 @@ export function renderHeader(state) {
             const timeStr = `${overdue ? '-' : ''}${String(mins).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
             return `
             <button
-              id="companion-header-btn"
-              onpointerdown="companionBtnDown()"
-              onpointerup="companionBtnUp()"
-              onpointerleave="companionBtnCancel()"
+              id="guardian-header-btn"
+              onpointerdown="guardianBtnDown()"
+              onpointerup="guardianBtnUp()"
+              onpointerleave="guardianBtnCancel()"
               oncontextmenu="return false"
               class="flex items-center gap-1.5 px-2.5 py-2 rounded-full ${overdue ? 'bg-danger-500 shadow-danger-500/30 animate-pulse-subtle' : 'bg-emerald-500 shadow-emerald-500/30'} text-white font-bold text-xs shadow-lg hover:scale-105 transition-colors select-none touch-none"
-              aria-label="${t('companionActiveBtnHint') || 'Appuyer : check-in · Maintenir 2s : arrêter'}"
-              title="${t('companionActiveBtnHint') || 'Appuyer : check-in · Maintenir 2s : arrêter'}"
+              aria-label="${t('guardianActiveBtnHint') || 'Appuyer : check-in · Maintenir 2s : arrêter'}"
+              title="${t('guardianActiveBtnHint') || 'Appuyer : check-in · Maintenir 2s : arrêter'}"
             >
               ${icon('shield', 'w-4 h-4')}
               <span class="tabular-nums">${timeStr}</span>
@@ -57,10 +57,10 @@ export function renderHeader(state) {
             `
           })() : `
           <button
-            onclick="showCompanionModal()"
+            onclick="showGuardianModal()"
             class="w-11 h-11 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 hover:scale-105 transition-colors flex items-center justify-center"
-            aria-label="${t('companionMode') || 'Mode Compagnon'}"
-            title="${t('companionMode') || 'Mode Compagnon'}"
+            aria-label="${t('guardianMode') || 'Mode Compagnon'}"
+            title="${t('guardianMode') || 'Mode Compagnon'}"
           >
             ${icon('shield', 'w-5 h-5')}
           </button>

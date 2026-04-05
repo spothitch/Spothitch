@@ -7,11 +7,11 @@ import { t } from '../../i18n/index.js'
 import { getGuideByCode } from '../../data/guides.js'
 import { icon } from '../../utils/icons.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
-import { isCompanionActive, getTimeUntilNextCheckIn } from '../../services/companion.js'
+import { isGuardianActive, getTimeUntilNextCheckIn } from '../../services/guardian.js'
 
 export function renderHome(state) {
   const searchLabel = state.homeSearchLabel || ''
-  const companionActive = isCompanionActive()
+  const guardianActive = isGuardianActive()
 
   // Country guide indicator
   const currentCountry = state.searchCountry || null
@@ -27,22 +27,22 @@ export function renderHome(state) {
       </div>
 
       <!-- Companion Mode floating bar -->
-      ${companionActive ? (() => {
+      ${guardianActive ? (() => {
         const secs = getTimeUntilNextCheckIn()
         const overdue = secs < 0
         const absSecs = Math.abs(secs)
         const mins = Math.floor(absSecs / 60)
         const sec = absSecs % 60
         return `
-        <div class="absolute top-4 left-4 right-4 z-40" role="button" tabindex="0" onclick="showCompanionModal()">
+        <div class="absolute top-4 left-4 right-4 z-40" role="button" tabindex="0" onclick="showGuardianModal()">
           <div class="flex items-center justify-between px-4 py-2.5 rounded-xl ${overdue ? 'bg-red-500/90 border-red-400/30' : 'bg-emerald-500/90 border-emerald-400/30'} backdrop-blur-xl border shadow-lg cursor-pointer">
             <div class="flex items-center gap-2">
               ${icon('shield', 'w-4 h-4 text-white/80')}
-              <span class="text-sm font-medium text-white">${t('companionMode') || 'Compagnon'}</span>
+              <span class="text-sm font-medium text-white">${t('guardianMode') || 'Compagnon'}</span>
             </div>
             <div class="flex items-center gap-3">
               <span class="text-sm font-bold text-white">${overdue ? '-' : ''}${String(mins).padStart(2, '0')}:${String(sec).padStart(2, '0')}</span>
-              <button onclick="event.stopPropagation();companionCheckIn()" class="px-3 py-1.5 rounded-xl bg-white/20 text-white text-xs font-semibold hover:bg-white/30 transition-colors active:scale-95" aria-label="${t('imSafe') || 'Je vais bien'}">
+              <button onclick="event.stopPropagation();guardianCheckIn()" class="px-3 py-1.5 rounded-xl bg-white/20 text-white text-xs font-semibold hover:bg-white/30 transition-colors active:scale-95" aria-label="${t('imSafe') || 'Je vais bien'}">
                 ${icon('check', 'w-3 h-3')} ${t('imSafe') || 'OK'}
               </button>
             </div>
@@ -52,7 +52,7 @@ export function renderHome(state) {
       })() : ''}
 
       <!-- Floating search bar (translucent, top) -->
-      <div class="absolute ${companionActive ? 'top-[4.5rem]' : 'top-4'} left-4 right-4 z-30">
+      <div class="absolute ${guardianActive ? 'top-[4.5rem]' : 'top-4'} left-4 right-4 z-30">
         <div class="flex gap-3">
           ${renderSearchInput({
             id: 'home-destination',

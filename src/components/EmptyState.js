@@ -40,7 +40,7 @@ const emptyStates = {
  buttonAction: "openCreateEvent()",
  buttonIcon: 'plus',
  },
- companion: {
+ guardian: {
  iconName: 'handshake',
  messageKey: 'emptyCompanion',
  descKey: 'emptyCompanionDesc',

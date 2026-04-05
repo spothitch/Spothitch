@@ -51,7 +51,7 @@ export const guideSectionsData = {
         { k: 'Pompiers', v: '18' },
         { k: 'Numéro européen', v: '112' },
       ]},
-      { type: 'info', text: '📍 Active le mode Compagnon SpotHitch pour partager ta position en temps réel.' },
+      { type: 'info', text: '📍 Active le mode Gardien SpotHitch pour partager ta position en temps réel.' },
     ]},
     women: { filterTypes: ['q', 'c', 'a'], blocks: [
       { type: 'text', text: 'La France est généralement sûre pour les femmes qui font du stop seules, surtout dans le sud et les zones rurales. Les femmes sont prises en stop plus vite que les hommes. Des voyageuses expérimentées confirment peu d\'incidents.' },
@@ -167,7 +167,7 @@ export const guideSectionsData = {
           { k: 'Urgences / Pompiers', v: '112' },
           { k: 'Police', v: '110' },
         ]},
-        { type: 'info', text: '📍 Active le mode Compagnon SpotHitch pour partager ta position en temps réel.' },
+        { type: 'info', text: '📍 Active le mode Gardien SpotHitch pour partager ta position en temps réel.' },
       ],
     },
     women: {

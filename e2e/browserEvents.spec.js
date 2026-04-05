@@ -125,13 +125,13 @@ test.describe('Form Validation', () => {
   })
 
   test('companion form validates empty fields', async ({ page }) => {
-    await page.evaluate(() => window.openCompanionModal?.() || window.showCompanionModal?.())
+    await page.evaluate(() => window.openGuardianModal?.() || window.showGuardianModal?.())
     await page.waitForTimeout(1500)
 
     // Try to start companion without filling fields
     const result = await page.evaluate(() => {
-      if (window.startCompanion) {
-        try { window.startCompanion(); return 'called' } catch { return 'error' }
+      if (window.startGuardian) {
+        try { window.startGuardian(); return 'called' } catch { return 'error' }
       }
       return 'no-handler'
     })

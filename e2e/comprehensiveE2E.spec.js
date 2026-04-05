@@ -365,29 +365,29 @@ test.describe('Modal Content — SOS', () => {
   })
 })
 
-test.describe('Modal Content — Companion', () => {
+test.describe('Modal Content — Guardian', () => {
   test('should have guardian setup form', async ({ page }) => {
     await skipOnboarding(page)
     // Accept companion consent first (consent screen shows before setup)
     await page.evaluate(() => {
-      sessionStorage.setItem('spothitch_companion_consent', '1')
+      sessionStorage.setItem('spothitch_guardian_consent', '1')
     })
-    await page.evaluate(() => window.setState?.({ showCompanionModal: true }))
+    await page.evaluate(() => window.setState?.({ showGuardianModal: true }))
     await page.waitForTimeout(2000)
     const html = await page.evaluate(() => document.body.innerText)
     if (html.length < 50) return // Guard: modal may not render in headless
-    // After consent, the setup view shows guardian form fields or companion mode text
-    expect(html).toMatch(/gardien|guardian|compagnon|companion|téléphone|phone|check-in|Companion|consent|location|Guardian|Configurer|Configure/i)
+    // After consent, the setup view shows guardian form fields or guardian mode text
+    expect(html).toMatch(/gardien|guardian|compagnon|companion|téléphone|phone|check-in|Guardian|consent|location|Guardian|Configurer|Configure/i)
   })
 
   test('should have check-in interval selector', async ({ page }) => {
     await skipOnboarding(page)
     // Accept companion consent first (consent screen shows before setup)
     await page.evaluate(() => {
-      sessionStorage.setItem('spothitch_companion_consent', '1')
+      sessionStorage.setItem('spothitch_guardian_consent', '1')
       localStorage.setItem('spothitch_guardian_intro_done', 'true')
     })
-    await page.evaluate(() => window.setState?.({ showCompanionModal: true, guardianScreen: 'main' }))
+    await page.evaluate(() => window.setState?.({ showGuardianModal: true, guardianScreen: 'main' }))
     await page.waitForTimeout(1500)
     const html = await page.evaluate(() => document.body.innerText)
     // Check for interval selector or related companion/guardian content
@@ -650,7 +650,7 @@ test.describe('Console Errors — Zero Tolerance', () => {
     const modals = [
       'showSOS', 'showAuth', 'showBadges', 'showShop',
       'showQuiz', 'showChallenges', 'showLeaderboard',
-      'showCompanionModal', 'showDonation', 'showTitles',
+      'showGuardianModal', 'showDonation', 'showTitles',
       'showAddSpot'
     ]
     for (const modal of modals) {

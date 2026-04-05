@@ -45,8 +45,8 @@ describe('EmptyState Component', () => {
       expect(result).toContain('openCreateEvent()')
     })
 
-    it('should render companion empty state without CTA button', () => {
-      const result = renderEmptyState('companion')
+    it('should render guardian empty state without CTA button', () => {
+      const result = renderEmptyState('guardian')
       expect(result).toContain('lucide')
       expect(result).not.toContain('btn-primary')
     })
@@ -75,7 +75,7 @@ describe('EmptyState Component', () => {
       expect(renderEmptyState('friends')).toContain('lucide')
       expect(renderEmptyState('feed')).toContain('lucide')
       expect(renderEmptyState('events')).toContain('lucide')
-      expect(renderEmptyState('companion')).toContain('lucide')
+      expect(renderEmptyState('guardian')).toContain('lucide')
       expect(renderEmptyState('trips')).toContain('lucide')
       expect(renderEmptyState('pastTrips')).toContain('lucide')
       expect(renderEmptyState('friendTrips')).toContain('lucide')
@@ -95,7 +95,7 @@ describe('EmptyState Component', () => {
       expect(types).toContain('friends')
       expect(types).toContain('feed')
       expect(types).toContain('events')
-      expect(types).toContain('companion')
+      expect(types).toContain('guardian')
       expect(types).toContain('trips')
       expect(types).toContain('pastTrips')
       expect(types).toContain('friendTrips')

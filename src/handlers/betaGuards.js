@@ -67,7 +67,7 @@
   // openSOS, closeSOS, shareSOSLocation etc. are defined by SOS.js — don't override
 
   // — COMPAGNON / GARDIEN — LIVE (no longer beta, fully implemented)
-  // showCompanionModal, closeCompanionModal etc. are defined by Companion.js — don't override
+  // showGuardianModal, closeGuardianModal etc. are defined by Guardian.js — don't override
 
   // — CHAT PAR ZONE (beta) — intercept changeTab('chat')
   const _origChangeTabBeta = window.changeTab

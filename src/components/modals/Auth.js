@@ -594,7 +594,7 @@ async function _handleGoogleResult(result) {
         if (authPendingAction === 'addSpot') setTimeout(() => window.openAddSpot?.(), 300)
         else if (authPendingAction === 'submitSpot') setTimeout(() => window.showSpotSummary?.(), 300)
         else if (authPendingAction === 'sos') setTimeout(() => window.openSOS?.(), 300)
-        else if (authPendingAction === 'companion') setTimeout(() => window.showCompanionModal?.(), 300)
+        else if (authPendingAction === 'guardian') setTimeout(() => window.showGuardianModal?.(), 300)
         else if (authPendingAction === 'social') setTimeout(() => setState({ activeTab: 'social' }), 300)
         else if (authPendingAction === 'tripPlanner') setTimeout(() => window.openTripPlanner?.(), 300)
       }
@@ -938,7 +938,7 @@ function executePendingAction(actionName) {
       validateSpot: () => window.openTestSpot?.(),
       saveFavorite: () => {}, // handled by the calling code
       sos: () => window.openSOS?.(),
-      companion: () => window.showCompanionModal?.(),
+      guardian: () => window.showGuardianModal?.(),
       social: () => {
         import('../../stores/state.js').then(({ setState }) => {
           setState({ activeTab: 'social' })
@@ -977,7 +977,7 @@ function getAuthErrorMessage(error) {
  * Progressive Auth Gate
  * If user is logged in, execute action immediately.
  * If not, show auth modal with a contextual reason, then execute after auth.
- * @param {string} actionName - e.g. 'addSpot', 'sos', 'companion'
+ * @param {string} actionName - e.g. 'addSpot', 'sos', 'guardian'
  * @param {Function} [callback] - optional immediate callback if logged in
  */
 export function requireAuth(actionName, callback) {
@@ -995,7 +995,7 @@ export function requireAuth(actionName, callback) {
       validateSpot: t('authRequiredAddSpot'),
       saveFavorite: t('authRequiredFavorite'),
       sos: t('authRequiredSOS'),
-      companion: t('authRequiredCompanion'),
+      guardian: t('authRequiredGuardian'),
       social: t('authRequiredSocial'),
       tripPlanner: t('authRequiredSocial'),
       checkin: t('authRequiredAddSpot'),

@@ -228,8 +228,8 @@ export const STORAGE_KEYS = [
   { key: 'spothitch_sos_fake_name', category: DataCategory.SETTINGS, description: 'SOS fake call display name' },
   { key: 'spothitch_sos_fake_delay', category: DataCategory.SETTINGS, description: 'SOS fake call delay in seconds' },
 
-  // === COMPANION v2 ===
-  { key: 'spothitch_companion', category: DataCategory.SECURITY, description: 'Companion mode settings and trusted contacts', sensitive: true },
+  // === GUARDIAN v2 ===
+  { key: 'spothitch_guardian', category: DataCategory.SECURITY, description: 'Guardian mode settings and trusted contacts', sensitive: true },
   { key: 'spothitch_sos_rec_duration', category: DataCategory.PREFERENCES, description: 'SOS recording max duration preference' },
 
   // === JOURNAL ===

@@ -285,7 +285,7 @@ export function renderCookiePolicy() {
             <td class="py-2">${t('cookiePersistent')}</td>
           </tr>
           <tr class="border-b border-white/10">
-            <td class="py-2"><code>spothitch_companion</code></td>
+            <td class="py-2"><code>spothitch_guardian</code></td>
             <td class="py-2">${t('cookieCompanionDesc')}</td>
             <td class="py-2">${t('cookiePersistent')}</td>
           </tr>

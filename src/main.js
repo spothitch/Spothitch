@@ -88,9 +88,9 @@ import {
 } from './utils/lazyLoad.js';
 import { ADMIN_EMAILS } from './utils/constants.js'
 import {
- restoreCompanionMode,
- onOverdue as onCompanionOverdue,
-} from './services/companion.js'
+ restoreGuardianMode,
+ onOverdue as onGuardianOverdue,
+} from './services/guardian.js'
 import {
  showLoading,
  hideLoading,
@@ -386,7 +386,7 @@ async function init() {
  sessionStorage.removeItem('spothitch_auth_pending_action')
  if (pendingAction === 'addSpot') setTimeout(() => window.openAddSpot?.(), 300)
  else if (pendingAction === 'sos') setTimeout(() => window.openSOS?.(), 300)
- else if (pendingAction === 'companion') setTimeout(() => window.showCompanionModal?.(), 300)
+ else if (pendingAction === 'guardian') setTimeout(() => window.showGuardianModal?.(), 300)
  else if (pendingAction === 'social') setTimeout(() => setState({ activeTab: 'social' }), 300)
  else if (pendingAction === 'tripPlanner') setTimeout(() => window.openTripPlanner?.(), 300)
  }
@@ -454,7 +454,7 @@ async function init() {
  sessionStorage.removeItem('spothitch_auth_pending_action')
  if (pendingAction === 'addSpot') setTimeout(() => window.openAddSpot?.(), 300)
  else if (pendingAction === 'sos') setTimeout(() => window.openSOS?.(), 300)
- else if (pendingAction === 'companion') setTimeout(() => window.showCompanionModal?.(), 300)
+ else if (pendingAction === 'guardian') setTimeout(() => window.showGuardianModal?.(), 300)
  else if (pendingAction === 'social') setTimeout(() => setState({ activeTab: 'social' }), 300)
  else if (pendingAction === 'tripPlanner') setTimeout(() => window.openTripPlanner?.(), 300)
  }
@@ -540,37 +540,38 @@ async function init() {
  console.warn('Auto offline sync skipped:', e.message);
  }
 
- // Initialize push notifications (if previously enabled)
+ // Initialize push notifications (if previously enabled) and sync state
  try {
- const { initPushNotifications } = await import('./services/pushNotifications.js')
+ const { initPushNotifications, isPushEnabled } = await import('./services/pushNotifications.js')
  initPushNotifications()
+ setState({ pushEnabled: isPushEnabled() })
  } catch (e) {
  console.warn('Push notifications skipped:', e.message)
  }
 
- // Restore companion mode if it was active (auto-stops stale trips)
+ // Restore guardian mode if it was active (auto-stops stale trips)
  try {
- const wasActive = restoreCompanionMode()
+ const wasActive = restoreGuardianMode()
  if (wasActive) {
- onCompanionOverdue(() => {
+ onGuardianOverdue(() => {
  // Only auto-open modal if user hasn't manually closed it
  const s = getState()
- if (!s._companionDismissed) {
- setState({ showCompanionModal: true })
+ if (!s._guardianDismissed) {
+ setState({ showGuardianModal: true })
  }
  })
  }
  } catch (e) {
- console.warn('Companion mode restore skipped:', e.message)
+ console.warn('Guardian mode restore skipped:', e.message)
  }
 
  // Listen for service worker messages (push notification actions)
  if ('serviceWorker' in navigator) {
  navigator.serviceWorker.addEventListener('message', (event) => {
- if (event.data?.type === 'COMPANION_CHECKIN') {
- window.companionCheckIn?.()
- } else if (event.data?.type === 'COMPANION_ALERT') {
- window.companionSendAlert?.()
+ if (event.data?.type === 'GUARDIAN_CHECKIN') {
+ window.guardianCheckIn?.()
+ } else if (event.data?.type === 'GUARDIAN_ALERT') {
+ window.guardianSendAlert?.()
  }
  })
  }
@@ -748,7 +749,7 @@ const MODAL_ONLY_KEYS = new Set([
  'spotDraftsBannerVisible',
  // Core modals
  'showSOS', 'sosSession',
- 'showCompanionModal',
+ 'showGuardianModal',
  'showFilters', 'showStats', 'showBadges',
  'showChallenges', 'showTeamChallenges', 'showCreateTeam',
  'showShop', 'showMyRewards', 'showQuiz',
@@ -1038,7 +1039,7 @@ function setupKeyboardShortcuts() {
  showSideMenu: false,
  showLeaderboard: false,
  showDonation: false,
- showCompanionModal: false,
+ showGuardianModal: false,
  showFeedbackPanel: false,
  feedbackDetailFeature: null,
  selectedSpot: null,
@@ -1490,8 +1491,8 @@ window.validateImage = async (...args) => {
 // Landing, feedback, contact handlers (extracted to handlers/landing.js)
 import { initDraggableFeedbackBtn } from './handlers/landing.js'
 
-// Companion Mode handlers (extracted to handlers/companion.js)
-import './handlers/companion.js'
+// Guardian Mode handlers (extracted to handlers/guardian.js)
+import './handlers/guardian.js'
 
 // City Panel handlers (extracted to handlers/cityPanel.js)
 import './handlers/cityPanel.js'
@@ -1642,9 +1643,9 @@ if (!window.openTripPhotoUpload) window.openTripPhotoUpload = () => setState({ a
 
 // openLeaderboard/closeLeaderboard registered by Leaderboard.js (static import above)
 
-// Companion shortcuts
-window.openCompanion = () => window.showCompanionModal?.()
-window.closeCompanion = () => setState({ showCompanionModal: false })
+// Guardian shortcuts
+window.openGuardian = () => window.showGuardianModal?.()
+window.closeGuardian = () => setState({ showGuardianModal: false })
 
 // AddSpot shortcut
 window.submitNewSpot = () => window.openAddSpot?.()

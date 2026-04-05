@@ -31,11 +31,11 @@ test.describe('Handler Coverage: Cookie & Consent', () => {
   test('cookie and consent handlers are registered', async ({ page }) => {
     await skipOnboarding(page)
     // Handlers: acceptAllCookies, refuseOptionalCookies, hideCookieCustomize,
-    // closeCookieBanner, acceptCompanionConsent, closeConsentSettings,
+    // closeCookieBanner, acceptGuardianConsent, closeConsentSettings,
     // acceptLocationPermission, declineLocationPermission, closeLocationPermission
     const handlers = [
       'acceptAllCookies', 'refuseOptionalCookies', 'hideCookieCustomize',
-      'closeCookieBanner', 'acceptCompanionConsent', 'closeConsentSettings',
+      'closeCookieBanner', 'acceptGuardianConsent', 'closeConsentSettings',
       'acceptLocationPermission', 'declineLocationPermission', 'closeLocationPermission'
     ]
     const { found } = await expectHandlersExist(page, handlers)
@@ -82,8 +82,8 @@ test.describe('Handler Coverage: Modal Close Handlers', () => {
     // closeBadgeDetail, closeBadgePopup, closeBetaPopup,
     // closeBlockModal, closeBlockedUsers, closeChallenges,
     // closeCheckinModal, closeCityPageDemo, closeCityPanel,
-    // closeComingSoonProximity, closeCompanion, closeCompanionDemo,
-    // closeCompanionModal, closeCompanionSearch, closeCompleteProfile
+    // closeComingSoonProximity, closeGuardian, closeGuardianDemo,
+    // closeGuardianModal, closeGuardianSearch, closeCompleteProfile
     const handlers = [
       'closeAccessibilityHelp', 'closeAddForbiddenWordModal', 'closeAddFriend',
       'closeAddHostel', 'closeAddPastTrip', 'closeAgeVerification',
@@ -91,8 +91,8 @@ test.describe('Handler Coverage: Modal Close Handlers', () => {
       'closeBadgeDetail', 'closeBadgePopup', 'closeBetaPopup',
       'closeBlockModal', 'closeBlockedUsers', 'closeChallenges',
       'closeCheckinModal', 'closeCityPageDemo', 'closeCityPanel',
-      'closeComingSoonProximity', 'closeCompanion', 'closeCompanionDemo',
-      'closeCompanionModal', 'closeCompanionSearch', 'closeCompleteProfile'
+      'closeComingSoonProximity', 'closeGuardian', 'closeGuardianDemo',
+      'closeGuardianModal', 'closeGuardianSearch', 'closeCompleteProfile'
     ]
     const { found } = await expectHandlersExist(page, handlers)
     expect(found).toBeGreaterThanOrEqual(0)
@@ -249,7 +249,7 @@ test.describe('Handler Coverage: Show & Display Handlers', () => {
   test('show handlers for features are registered', async ({ page }) => {
     await skipOnboarding(page)
     // showAccessibilityHelp, showAddFriend, showAgeVerification,
-    // showBadgeUnlock, showCityPageDemo, showCompanionDemo,
+    // showBadgeUnlock, showCityPageDemo, showGuardianDemo,
     // showCompanionSearchView, showCountryDetail, showCountryQuizSelection,
     // showFriendOnMap, showFriendOptions, showFriends,
     // showFullNavigation, showHostelsDemo, showIdentityVerification,
@@ -259,7 +259,7 @@ test.describe('Handler Coverage: Show & Display Handlers', () => {
     // showSocialDemo, showSpotDemo, showSpotSummary, showTrustDetails
     const handlers = [
       'showAccessibilityHelp', 'showAddFriend', 'showAgeVerification',
-      'showBadgeUnlock', 'showCityPageDemo', 'showCompanionDemo',
+      'showBadgeUnlock', 'showCityPageDemo', 'showGuardianDemo',
       'showCompanionSearchView', 'showCountryDetail', 'showCountryQuizSelection',
       'showFriendOnMap', 'showFriendOptions', 'showFriends',
       'showFullNavigation', 'showHostelsDemo', 'showIdentityVerification',
@@ -379,7 +379,7 @@ test.describe('Handler Coverage: Auth & Verification', () => {
 test.describe('Handler Coverage: Social & Companion', () => {
   test('companion and social handlers are registered', async ({ page }) => {
     await skipOnboarding(page)
-    // companionBtnCancel, companionBtnDown, companionBtnUp,
+    // guardianBtnCancel, guardianBtnDown, guardianBtnUp,
     // postCompanionRequest, selectCustomOption, sendAmbassadorMessage,
     // sendMessage, setEventFilter, toggleCustomSelect,
     // toggleFriendForGroup, toggleReplyInput, unregisterAmbassador,
@@ -389,7 +389,7 @@ test.describe('Handler Coverage: Social & Companion', () => {
     // getActiveFriendChallenges, getPendingFriendChallenges,
     // getChallengeStats, getChallengeTypes, shareOnSMS
     const handlers = [
-      'companionBtnCancel', 'companionBtnDown', 'companionBtnUp',
+      'guardianBtnCancel', 'guardianBtnDown', 'guardianBtnUp',
       'postCompanionRequest', 'selectCustomOption', 'sendAmbassadorMessage',
       'setEventFilter', 'toggleCustomSelect',
       'toggleFriendForGroup', 'toggleReplyInput', 'unregisterAmbassador',
@@ -529,10 +529,10 @@ test.describe('Handler Coverage: Demo & Tutorial', () => {
     // finishTutorial, installFromLanding, installPWAFromLanding,
     // landingNext, nextTutorial, prevTutorial,
     // skipToLandingAuth, skipTutorial, skipWelcome,
-    // startCityPageDemo, startCompanionDemo, startHostelsDemo,
+    // startCityPageDemo, startGuardianDemo, startHostelsDemo,
     // startJournalDemo, startPointsDemo, startSocialDemo,
     // startSpotDemo, startTutorial, switchCityDemoTab,
-    // switchCompanionDemoTab, switchDemoTab, switchHostelsDemoTab,
+    // switchGuardianDemoTab, switchDemoTab, switchHostelsDemoTab,
     // switchJournalDemoTab, switchPointsDemoTab, switchSocialDemoTab,
     // switchSpotDemoTab, nextQuizQuestion, showCountryQuizSelection,
     // acceptGuideNudge, acceptRoadmapIntro, dismissGuideNudgeForCountry,
@@ -544,10 +544,10 @@ test.describe('Handler Coverage: Demo & Tutorial', () => {
       'finishTutorial', 'installFromLanding', 'installPWAFromLanding',
       'landingNext', 'nextTutorial', 'prevTutorial',
       'skipToLandingAuth', 'skipTutorial', 'skipWelcome',
-      'startCityPageDemo', 'startCompanionDemo', 'startHostelsDemo',
+      'startCityPageDemo', 'startGuardianDemo', 'startHostelsDemo',
       'startJournalDemo', 'startPointsDemo', 'startSocialDemo',
       'startSpotDemo', 'startTutorial', 'switchCityDemoTab',
-      'switchCompanionDemoTab', 'switchDemoTab', 'switchHostelsDemoTab',
+      'switchGuardianDemoTab', 'switchDemoTab', 'switchHostelsDemoTab',
       'switchJournalDemoTab', 'switchPointsDemoTab', 'switchSocialDemoTab',
       'switchSpotDemoTab', 'nextQuizQuestion', 'showCountryQuizSelection',
       'acceptGuideNudge', 'acceptRoadmapIntro', 'dismissGuideNudgeForCountry',

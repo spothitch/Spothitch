@@ -72,7 +72,7 @@ const _lazyLoaders = {
   renderFriendProfileModal: () => import('./modals/FriendProfile.js'),
   renderContactFormModal: () => import('./modals/ContactForm.js'),
   renderDeleteAccountModal: () => import('./modals/DeleteAccount.js'),
-  renderCompanionModal: () => import('./modals/Companion.js'),
+  renderGuardianModal: () => import('./modals/Guardian.js'),
   renderTripHistory: () => import('../services/tripHistory.js'),
   renderFAQ: () => import('./views/FAQ.js'),
   renderLegalPage: () => import('./views/Legal.js'),
@@ -397,7 +397,7 @@ export function renderModals(state) {
     ${state.showFriendProfile ? lazyRender('renderFriendProfileModal', state) : ''}
     ${state.showContactForm ? lazyRender('renderContactFormModal') : ''}
     ${state.showDeleteAccount ? lazyRender('renderDeleteAccountModal', state) : ''}
-    ${state.showCompanionModal ? lazyRender('renderCompanionModal', state) : ''}
+    ${state.showGuardianModal ? lazyRender('renderGuardianModal', state) : ''}
     ${state.showFeedbackPanel ? lazyRender('renderFeedbackPanel', state) : ''}
     ${state.showGuideNudge && state.pendingGuideCountry ? lazyRender('renderGuideNudge', state) : ''}
     ${state.showFeatureIntro ? lazyRender('renderFeatureIntro', state) : ''}
@@ -660,9 +660,9 @@ function ensureMapControls(state) {
     map.appendChild(ctrl)
   }
 
-  // Update position (companion bar pushes controls down)
-  const companionOn = !!document.querySelector('[onclick="showCompanionModal()"]')
-  ctrl.style.top = companionOn ? '8rem' : '5rem'
+  // Update position (guardian bar pushes controls down)
+  const guardianOn = !!document.querySelector('[onclick="showGuardianModal()"]')
+  ctrl.style.top = guardianOn ? '8rem' : '5rem'
 
   // Update gas station button active state
   const gasBtn = document.getElementById('gas-toggle-btn')
@@ -737,9 +737,9 @@ export function afterRender(state) {
   if (state.nearbySpotChoiceData) {
     import('./modals/AddSpot.js').then(mod => mod.initNearbyComparisonMap?.())
   }
-  // Companion: only import if modal is open or companion mode is active
-  if (state.showCompanionModal || state.companionActive) {
-    import('./modals/Companion.js').then(mod => mod.initCompanionAfterRender?.(!!state.showCompanionModal))
+  // Guardian: only import if modal is open or guardian mode is active
+  if (state.showGuardianModal || state.guardianActive) {
+    import('./modals/Guardian.js').then(mod => mod.initGuardianAfterRender?.(!!state.showGuardianModal))
   }
 
   // Focus trap: clean up previous trap
