@@ -9,6 +9,20 @@ import { addPoints, addSeasonPoints } from './gamification.js';
 import { t } from '../i18n/index.js';
 import { icon } from '../utils/icons.js'
 
+// ─── Firestore sync ─────────────────────────────────────────────────────────
+
+async function syncTeamToFirestore(team) {
+  try {
+    const fb = await import('./firebase.js')
+    const db = fb.getDb()
+    if (!db) return
+    const { id, ...data } = team
+    await fb.setDoc(fb.doc(db, 'teamChallenges', id), data, { merge: true })
+  } catch (e) {
+    console.warn('[TeamChallenges] Firestore sync failed:', e.message)
+  }
+}
+
 // Team challenge types
 export const TEAM_CHALLENGE_TYPES = {
  COLLECTIVE_DISTANCE: {
@@ -146,6 +160,7 @@ export function createTeam(teamData) {
  myTeamId: team.id,
  });
 
+ syncTeamToFirestore(team)
  showToast((t('teamCreated') || 'Équipe "{name}" créée !').replace('{name}', team.name), 'success');
  return team;
 }
@@ -195,6 +210,7 @@ export function joinTeam(teamId) {
  myTeamId: team.id,
  });
 
+ syncTeamToFirestore(team)
  showToast((t('teamJoined') || 'Tu as rejoint l\'équipe "{name}" !').replace('{name}', team.name), 'success');
  return true;
 }
@@ -242,6 +258,7 @@ export function leaveTeam() {
  myTeamId: null,
  });
 
+ if (team.members.length > 0) syncTeamToFirestore(team)
  showToast(t('teamLeft') || 'Tu as quitté l\'équipe', 'info');
  return true;
 }

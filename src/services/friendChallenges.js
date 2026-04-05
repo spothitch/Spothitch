@@ -9,6 +9,21 @@ import { showToast } from './notifications.js';
 import { addPoints } from './gamification.js';
 import { t } from '../i18n/index.js';
 
+// ─── Firestore sync ─────────────────────────────────────────────────────────
+
+async function syncChallengeToFirestore(challenge) {
+  try {
+    const fb = await import('./firebase.js')
+    const db = fb.getDb()
+    if (!db) return
+    const { id, ...data } = challenge
+    await fb.setDoc(fb.doc(db, 'friendChallenges', id), data, { merge: true })
+  } catch (e) {
+    console.warn('[FriendChallenges] Firestore sync failed:', e.message)
+  }
+}
+
+
 /**
  * Challenge types available
  */
@@ -99,6 +114,9 @@ export function createChallenge(friendId, challengeTypeId, target, durationDays 
     friendChallenges: [...challenges, challenge],
   });
 
+  // Sync to Firestore
+  syncChallengeToFirestore(challenge)
+
   showToast((t('friendChallengeSent') || 'Defi envoye a {name} !').replace('{name}', challenge.friendName), 'success');
   return challenge;
 }
@@ -130,6 +148,7 @@ export function acceptChallenge(challengeId) {
   };
 
   setState({ friendChallenges: [...challenges] });
+  syncChallengeToFirestore(challenges[index])
   showToast(t('friendChallengeAccepted') || 'Defi accepte ! Que le meilleur gagne !', 'success');
   return true;
 }
@@ -151,6 +170,7 @@ export function declineChallenge(challengeId) {
   };
 
   setState({ friendChallenges: [...challenges] });
+  syncChallengeToFirestore(challenges[index])
   showToast(t('friendChallengeDeclined') || 'Defi decline', 'info');
   return true;
 }
@@ -178,6 +198,7 @@ export function cancelChallenge(challengeId) {
   };
 
   setState({ friendChallenges: [...challenges] });
+  syncChallengeToFirestore(challenges[index])
   showToast(t('friendChallengeCancelled') || 'Defi annule', 'info');
   return true;
 }
