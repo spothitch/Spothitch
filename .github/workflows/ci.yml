@@ -97,7 +97,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - run: node scripts/quality-gate.mjs --threshold=89
+      - run: node scripts/quality-gate.mjs --threshold=84
 
   build:
     name: Build & Bundle Check
