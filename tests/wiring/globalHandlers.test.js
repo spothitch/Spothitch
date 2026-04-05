@@ -454,6 +454,7 @@ const MAIN_JS_HANDLERS = [
   'loadAdminReports', 'adminConfirmReport', 'adminDismissReport', 'adminRelocateSpot',
   'setAdminReportFilter', 'setAdminReportStatusFilter', 'adminViewSpot',
   'loadAdminGuideTips', 'adminApproveGuideTipAction', 'adminRejectGuideTipAction',
+  'loadAdminIdVerifications', 'adminApproveIdVerification', 'adminRejectIdVerification',
   // Beta Banner (session 2026-02-28)
   'closeBetaPopup',
   // Feature Slides (session 2026-03-03)

@@ -842,6 +842,49 @@ renderReportsTab = function(state) {
  return `${kpi}${filters}<div class="card p-3 mb-4"><div class="flex items-center justify-between mb-2"><h4 class="text-sm font-bold text-slate-200">${filtered.length} signalements</h4><button onclick="loadAdminReports()" class="text-xs text-amber-400 hover:underline">${icon('refresh-cw', 'w-3 h-3')} Rafraîchir</button></div><div class="max-h-[50vh] overflow-y-auto">${list}</div></div>`
 }
 
+// ==================== ID VERIFICATION TAB ====================
+
+function renderIdVerifyTab(state) {
+ const verifications = state.adminIdVerifications || []
+ const pending = verifications.filter(v => v.status === 'pending')
+
+ if (verifications.length === 0) {
+  return `<div class="card p-4 text-center">
+   <p class="text-slate-400 mb-3">${t('adminIdVerifyEmpty') || 'Aucune verification en attente'}</p>
+   <button onclick="loadAdminIdVerifications()" class="btn btn-sm bg-amber-500 text-black">
+    ${icon('refresh-cw', 'w-4 h-4 inline')} ${t('load') || 'Charger'}
+   </button>
+  </div>`
+ }
+
+ const list = pending.map(v => `
+  <div class="card p-3 mb-2">
+   <div class="flex items-center justify-between mb-2">
+    <div class="flex items-center gap-2">
+     ${icon('scan-eye', 'w-4 h-4 text-blue-400')}
+     <span class="text-sm font-medium">${v.userName || v.userId}</span>
+    </div>
+    <span class="text-xs text-slate-500">${v.createdAt ? new Date(v.createdAt.seconds ? v.createdAt.seconds * 1000 : v.createdAt).toLocaleDateString() : ''}</span>
+   </div>
+   <p class="text-xs text-slate-400 mb-2">${t('adminIdVerifyMethod') || 'Methode'}: ${v.method || 'photo'}</p>
+   <div class="flex gap-2">
+    <button onclick="adminApproveIdVerification('${v.id}')" class="flex-1 btn btn-sm bg-emerald-600 text-white text-xs">
+     ${icon('check', 'w-3 h-3 inline')} ${t('approve') || 'Approuver'}
+    </button>
+    <button onclick="adminRejectIdVerification('${v.id}')" class="flex-1 btn btn-sm bg-red-600 text-white text-xs">
+     ${icon('x', 'w-3 h-3 inline')} ${t('reject') || 'Rejeter'}
+    </button>
+   </div>
+  </div>
+ `).join('')
+
+ return `<div class="mb-3 flex items-center justify-between">
+  <h4 class="text-sm font-bold text-slate-200">${pending.length} ${t('adminIdVerifyPending') || 'en attente'}</h4>
+  <button onclick="loadAdminIdVerifications()" class="text-xs text-amber-400">${icon('refresh-cw', 'w-3 h-3 inline')} ${t('refresh') || 'Actualiser'}</button>
+ </div>
+ <div class="max-h-[50vh] overflow-y-auto">${list || `<p class="text-slate-500 text-sm text-center">${t('adminIdVerifyAllDone') || 'Tout est traite !'}</p>`}</div>`
+}
+
 // ==================== MAIN RENDER ====================
 
 export function renderAdminPanel(state) {
@@ -851,6 +894,7 @@ export function renderAdminPanel(state) {
  { key: 'feedback', label: t('adminTabFeedback') || 'Feedbacks', iconName: 'bar-chart-3' },
  { key: 'reports', label: t('adminTabReports') || 'Signalements', iconName: 'flag' },
  { key: 'guideTips', label: t('adminTabGuideTips') || 'Guides', iconName: 'pen-line' },
+ { key: 'idVerify', label: t('adminTabIdVerify') || 'ID', iconName: 'scan-eye' },
  { key: 'sentry', label: t('adminTabSentry') || 'Erreurs', iconName: 'bug' },
  { key: 'tools', label: t('adminTabTools') || 'Outils', iconName: 'wrench' },
  ]
@@ -867,6 +911,7 @@ export function renderAdminPanel(state) {
  if (activeTab === 'feedback') tabContent = renderFeedbackTab(state)
  else if (activeTab === 'reports') tabContent = renderReportsTab(state)
  else if (activeTab === 'guideTips') tabContent = renderGuideTipsTab(state)
+ else if (activeTab === 'idVerify') tabContent = renderIdVerifyTab(state)
  else if (activeTab === 'sentry') tabContent = renderSentryTab(state)
  else tabContent = renderToolsTab(state)
 
@@ -1207,6 +1252,61 @@ window.adminRelocateSpot = async (reportId, targetId, lat, lng) => {
  } catch (err) {
  console.error('Error relocating spot:', err)
  window.showToast?.(t('loadingError') || 'Error', 'error')
+ }
+}
+
+// ==================== ID VERIFICATION ADMIN HANDLERS ====================
+
+window.loadAdminIdVerifications = async () => {
+ try {
+  window.showToast?.(t('loading') || 'Chargement...', 'info')
+  const { getFirestore, collection, getDocs, query, where, orderBy } = await import('firebase/firestore')
+  const { getApp } = await import('firebase/app')
+  const db = getFirestore(getApp())
+  const q = query(collection(db, 'id_verifications'), where('status', '==', 'pending'), orderBy('createdAt', 'desc'))
+  const snap = await getDocs(q)
+  const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+  setState({ adminIdVerifications: docs })
+  window.showToast?.(`${docs.length} ${t('adminIdVerifyPending') || 'verifications en attente'}`, 'success')
+ } catch (err) {
+  console.error('Error loading ID verifications:', err)
+  window.showToast?.(t('loadingError') || 'Erreur de chargement', 'error')
+ }
+}
+
+window.adminApproveIdVerification = async (verificationId) => {
+ try {
+  const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
+  const { getApp } = await import('firebase/app')
+  const db = getFirestore(getApp())
+  await updateDoc(doc(db, 'id_verifications', verificationId), {
+   status: 'approved',
+   reviewedAt: serverTimestamp(),
+  })
+  const current = getState().adminIdVerifications || []
+  setState({ adminIdVerifications: current.filter(v => v.id !== verificationId) })
+  window.showToast?.(t('adminIdVerifyApproved') || 'Verification approuvee', 'success')
+ } catch (err) {
+  console.error('Error approving verification:', err)
+  window.showToast?.(t('error') || 'Erreur', 'error')
+ }
+}
+
+window.adminRejectIdVerification = async (verificationId) => {
+ try {
+  const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
+  const { getApp } = await import('firebase/app')
+  const db = getFirestore(getApp())
+  await updateDoc(doc(db, 'id_verifications', verificationId), {
+   status: 'rejected',
+   reviewedAt: serverTimestamp(),
+  })
+  const current = getState().adminIdVerifications || []
+  setState({ adminIdVerifications: current.filter(v => v.id !== verificationId) })
+  window.showToast?.(t('adminIdVerifyRejected') || 'Verification rejetee', 'info')
+ } catch (err) {
+  console.error('Error rejecting verification:', err)
+  window.showToast?.(t('error') || 'Erreur', 'error')
  }
 }
 
