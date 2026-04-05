@@ -10,6 +10,7 @@ import { t } from '../i18n/index.js'
 
 const STORAGE_KEY = 'spothitch_push_config'
 const TOKEN_KEY = 'spothitch_fcm_token'
+const NUDGE_KEY = 'spothitch_push_nudge_dismissed'
 
 /**
  * Get push notification config
@@ -204,6 +205,82 @@ export function initPushNotifications() {
   }
 }
 
+/**
+ * Show a smart nudge banner to enable push notifications.
+ * Called after meaningful actions (Guardian start, first DM).
+ * Won't show if push is already enabled, was dismissed, or was denied.
+ * @param {'guardian' | 'message'} context - Why we're nudging
+ */
+export function nudgePushNotifications(context = 'guardian') {
+  // Don't nudge if already enabled, already asked, or dismissed
+  if (isPushEnabled()) return
+  if (hasBeenAsked()) return
+  try {
+    if (localStorage.getItem(NUDGE_KEY)) return
+  } catch { /* ignore */ }
+
+  // Don't nudge if browser doesn't support notifications
+  if (!('Notification' in window) || !('PushManager' in window)) return
+
+  const tFn = window.t || ((k) => k)
+
+  const messages = {
+    guardian: {
+      text: tFn('pushNudgeGuardian') || 'Active les notifications push pour recevoir les alertes Guardian même quand l\'app est fermée.',
+      icon: 'shield',
+    },
+    message: {
+      text: tFn('pushNudgeMessage') || 'Active les notifications push pour ne pas manquer les messages de tes amis.',
+      icon: 'message-circle',
+    },
+  }
+  const msg = messages[context] || messages.guardian
+
+  // Create a non-intrusive banner at the top
+  const existing = document.getElementById('push-nudge-banner')
+  if (existing) existing.remove()
+
+  const banner = document.createElement('div')
+  banner.id = 'push-nudge-banner'
+  banner.style.cssText = `
+    position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+    z-index: 9998; max-width: 340px; width: 90%;
+    background: rgba(15,27,45,.95); backdrop-filter: blur(14px);
+    border: 1px solid rgba(240,168,48,.3); border-radius: 16px;
+    padding: 14px 16px; animation: toastSlideDown .3s ease-out;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  `
+  banner.innerHTML = `
+    <div style="font-size:13px;color:#e2e8f0;line-height:1.4;margin-bottom:10px">${msg.text}</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="window._acceptPushNudge()" style="
+        flex:1;padding:8px 12px;border-radius:10px;border:none;
+        background:#F0A830;color:#0F1B2D;font-weight:700;font-size:12px;cursor:pointer;
+      ">${tFn('enablePushNotifications') || 'Activer'}</button>
+      <button onclick="window._dismissPushNudge()" style="
+        padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.15);
+        background:transparent;color:#94a3b8;font-size:12px;cursor:pointer;
+      ">${tFn('notNow') || 'Plus tard'}</button>
+    </div>
+  `
+  document.body.appendChild(banner)
+
+  // Auto-dismiss after 15 seconds
+  const autoTimer = setTimeout(() => banner.remove(), 15000)
+
+  window._acceptPushNudge = async () => {
+    clearTimeout(autoTimer)
+    banner.remove()
+    window.togglePushNotifications?.()
+  }
+
+  window._dismissPushNudge = () => {
+    clearTimeout(autoTimer)
+    banner.remove()
+    try { localStorage.setItem(NUDGE_KEY, Date.now().toString()) } catch { /* ignore */ }
+  }
+}
+
 export default {
   isPushEnabled,
   hasBeenAsked,
@@ -214,4 +291,5 @@ export default {
   showProximityNotification,
   renderPushSettings,
   initPushNotifications,
+  nudgePushNotifications,
 }

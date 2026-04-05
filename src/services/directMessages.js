@@ -545,6 +545,13 @@ window.sendDM = async (recipientId) => {
       const chatEl = document.getElementById('dm-messages')
       if (chatEl) chatEl.scrollTop = chatEl.scrollHeight
     }, 50)
+    // Nudge push notifications after first message sent
+    setTimeout(async () => {
+      try {
+        const { nudgePushNotifications } = await import('./pushNotifications.js')
+        nudgePushNotifications('message')
+      } catch { /* optional */ }
+    }, 3000)
   }
 }
 

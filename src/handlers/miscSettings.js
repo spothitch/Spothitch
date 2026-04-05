@@ -48,14 +48,22 @@ window.clearFormDraft = async (formId) => {
 
 window.togglePushNotifications = async () => {
   const t = window.t
+  const { setState } = await import('../stores/state.js')
   const { scheduleRender } = window._appInternals
   const { isPushEnabled, enablePushNotifications, disablePushNotifications } = await import('../services/pushNotifications.js')
   if (isPushEnabled()) {
     disablePushNotifications()
+    setState({ pushEnabled: false })
     window.showToast(t('pushDisabled') || 'Notifications push désactivées', 'info')
   } else {
     const result = await enablePushNotifications()
     if (result.success) {
+      // Save token to Firestore for Cloud Functions to use
+      const { saveFCMToken } = await import('../services/firebase.js')
+      const { getFCMToken } = await import('../services/pushNotifications.js')
+      const token = getFCMToken()
+      if (token) await saveFCMToken(token)
+      setState({ pushEnabled: true })
       window.showToast(t('pushEnabled') || 'Notifications push activées', 'success')
     } else {
       window.showToast(t('pushDenied') || 'Notifications refusées par le navigateur', 'warning')

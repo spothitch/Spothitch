@@ -4,7 +4,7 @@
  * Enhanced with social, gamification, and proximity notifications
  */
 
-import { requestNotificationPermission, onForegroundMessage, saveFCMToken } from './firebase.js';
+import { onForegroundMessage } from './firebase.js';
 import { icon } from '../utils/icons.js'
 import { escapeHTML } from '../utils/sanitize.js';
 import { getErrorMessage } from '../utils/errorMessages.js';
@@ -72,16 +72,10 @@ export async function initNotifications() {
  document.body.appendChild(toastContainer);
  }
 
- // Request push notification permission
- if ('Notification' in window) {
- const token = await requestNotificationPermission();
- if (token) {
- // Save token to server for sending notifications
- await saveNotificationToken(token);
- }
- }
-
- // Listen for foreground messages
+ // Push permission is NOT requested here — user must opt-in explicitly
+ // via the toggle in Profile settings or the smart prompt after Guardian/DM.
+ // Only set up foreground listener if permission was already granted.
+ if ('Notification' in window && Notification.permission === 'granted') {
  onForegroundMessage((payload) => {
  // Community SOS alert → show special banner
  if (payload.data?.type === 'community_sos_alert') {
@@ -90,16 +84,9 @@ export async function initNotifications() {
  }
  showToast(payload.notification?.body || 'Nouvelle notification', 'info');
  });
-}
-
-/**
- * Save notification token to Firestore
- */
-async function saveNotificationToken(token) {
- if (token) {
- await saveFCMToken(token)
  }
 }
+
 
 /**
  * Show toast notification
@@ -263,12 +250,12 @@ export function sendLocalNotification(title, body, data = {}) {
  icon: '/icon-192.png',
  badge: '/icon-96.png',
  data,
- vibrate: data.type === 'companion_overdue'
+ vibrate: data.type === 'guardian_overdue'
  ? [500, 200, 500, 200, 500, 200, 500]
  : [100, 50, 100],
  tag: data.tag || 'spothitch-notification',
  requireInteraction: data.requireInteraction || false,
- actions: data.type === 'companion_overdue'
+ actions: data.type === 'guardian_overdue'
  ? [
  { action: 'checkin', title: t('imSafe') || "I'm safe" },
  { action: 'alert', title: t('sendAlert') || 'Send alert' },

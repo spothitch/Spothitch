@@ -1182,7 +1182,14 @@ function renderNotificationsCard(state) {
  <span class="text-sm block">${t('proximityAlerts') || 'Alertes de proximité'}</span>
  <span class="text-xs text-slate-400">${t('proximityAlertsDesc') || 'Notifié près d\'un spot'}</span></div></div>
  <span class="text-[10px] text-amber-400 font-medium whitespace-nowrap">${t('comingSoon') || 'Bientôt'}</span></button>
- ${''}<!-- Notifications push: disabled for alpha, enable in beta --></div>
+ <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+ <div class="flex items-center gap-3">
+ ${icon('smartphone', 'w-5 h-5 text-blue-400')}
+ <div class="text-left">
+ <span class="text-sm block">${t('pushNotificationsTitle') || 'Notifications push'}</span>
+ <span class="text-xs text-slate-400">${t('pushDescription') || 'Alertes même quand l\'app est fermée'}</span></div></div>
+ ${renderToggle(state.pushEnabled === true, "togglePushNotifications()", t('pushNotificationsTitle') || 'Notifications push')}
+ </div></div>
  `
 }
 
