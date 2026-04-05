@@ -1,6 +1,8 @@
 /**
- * Community Tips Service
- * User-submitted tips with votes, stored in localStorage
+ * Community Tips Service (legacy)
+ * Used by Travel.js for rendering tips. Data is stored in localStorage.
+ * The authoritative Firestore-backed service is communityGuideService.js.
+ * submitCommunityTip now also writes to Firestore via communityGuideService.
  */
 
 import { Storage } from '../utils/storage.js'
@@ -121,6 +123,11 @@ window.submitCommunityTip = (countryCode) => {
   addTip(countryCode, text)
   input.value = ''
   window.showToast?.(t('communityTipsAdded') || 'Conseil ajoute !', 'success')
+
+  // Also submit to Firestore via the real service
+  import('./communityGuideService.js').then(({ submitGuideTip }) => {
+    submitGuideTip({ countryCode, text, category: 'general' }).catch(() => {})
+  }).catch(() => {})
 
   // Re-render the guide detail
   window.setState?.({ selectedCountryGuide: countryCode })
