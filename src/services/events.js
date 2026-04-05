@@ -12,6 +12,66 @@ import { t } from '../i18n/index.js'
 const EVENTS_KEY = 'spothitch_events'
 const COMMENTS_KEY = 'spothitch_event_comments'
 
+// ─── Firestore sync helpers ─────────────────────────────────────────────────
+
+async function getFirebaseModules() {
+  try {
+    const fb = await import('./firebase.js')
+    const db = fb.getDb()
+    if (!db) return null
+    return fb
+  } catch {
+    return null
+  }
+}
+
+async function syncEventToFirestore(event) {
+  const fb = await getFirebaseModules()
+  if (!fb) return
+  try {
+    const db = fb.getDb()
+    const { id, ...data } = event
+    await fb.setDoc(fb.doc(db, 'events', id), { ...data, creatorId: data.creatorId }, { merge: true })
+  } catch (e) {
+    console.warn('[Events] Firestore sync failed:', e.message)
+  }
+}
+
+async function deleteEventFromFirestore(eventId) {
+  const fb = await getFirebaseModules()
+  if (!fb) return
+  try {
+    const db = fb.getDb()
+    await fb.deleteDoc(fb.doc(db, 'events', eventId))
+  } catch (e) {
+    console.warn('[Events] Firestore delete failed:', e.message)
+  }
+}
+
+async function syncCommentToFirestore(eventId, comment) {
+  const fb = await getFirebaseModules()
+  if (!fb) return
+  try {
+    const db = fb.getDb()
+    const { id, ...data } = comment
+    await fb.setDoc(fb.doc(db, 'events', eventId, 'comments', id), data, { merge: true })
+  } catch (e) {
+    console.warn('[Events] Firestore comment sync failed:', e.message)
+  }
+}
+
+async function loadEventsFromFirestore() {
+  const fb = await getFirebaseModules()
+  if (!fb) return null
+  try {
+    const db = fb.getDb()
+    const snap = await fb.getDocs(fb.query(fb.collection(db, 'events'), fb.orderBy('date', 'asc')))
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+  } catch {
+    return null
+  }
+}
+
 // Event types
 export const EVENT_TYPES = {
   meetup: { id: 'meetup', iconName: 'handshake', color: 'text-primary-400', bg: 'bg-primary-500/20' },
@@ -140,6 +200,9 @@ export function createEvent(eventData) {
   events.push(event)
   saveEventsStorage(events)
 
+  // Sync to Firestore
+  syncEventToFirestore(event)
+
   return { success: true, event }
 }
 
@@ -218,6 +281,7 @@ export function joinEvent(eventId) {
 
   events[eventIndex] = event
   saveEventsStorage(events)
+  syncEventToFirestore(event)
 
   return { success: true }
 }
@@ -251,6 +315,7 @@ export function leaveEvent(eventId) {
 
   events[eventIndex] = event
   saveEventsStorage(events)
+  syncEventToFirestore(event)
 
   return { success: true }
 }
@@ -281,6 +346,9 @@ export function deleteEvent(eventId) {
   const comments = getCommentsStorage()
   delete comments[eventId]
   saveCommentsStorage(comments)
+
+  // Sync deletion to Firestore
+  deleteEventFromFirestore(eventId)
 
   return { success: true }
 }
@@ -319,6 +387,9 @@ export function postEventComment(eventId, text, replyToId = null) {
 
   comments[eventId].push(comment)
   saveCommentsStorage(comments)
+
+  // Sync comment to Firestore
+  syncCommentToFirestore(eventId, comment)
 
   return { success: true, comment }
 }
@@ -573,6 +644,34 @@ window.deleteEventCommentAction = (eventId, commentId) => {
   }
 }
 
+/**
+ * Hydrate local events from Firestore (call on app startup / login)
+ */
+export async function hydrateEventsFromFirestore() {
+  const remoteEvents = await loadEventsFromFirestore()
+  if (!remoteEvents || remoteEvents.length === 0) return
+
+  const localEvents = getEventsStorage()
+  const localIds = new Set(localEvents.map(e => e.id))
+
+  // Merge: add remote events not in local
+  let merged = [...localEvents]
+  for (const re of remoteEvents) {
+    if (!localIds.has(re.id)) {
+      merged.push(re)
+    }
+  }
+
+  // Also update local events with fresher remote data
+  merged = merged.map(le => {
+    const remote = remoteEvents.find(r => r.id === le.id)
+    if (remote && remote.updatedAt > (le.updatedAt || '')) return remote
+    return le
+  })
+
+  saveEventsStorage(merged)
+}
+
 export default {
   EVENT_TYPES,
   createEvent,
@@ -588,4 +687,5 @@ export default {
   deleteEventComment,
   shareEvent,
   getMyEvents,
+  hydrateEventsFromFirestore,
 }
