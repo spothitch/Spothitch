@@ -1387,6 +1387,8 @@ export default {
  emailInUse: 'Cet email est déjà utilise',
  invalidEmail: 'Email invalide',
  weakPassword: 'Mot de passe trop faible',
+ passwordRules: 'Minimum 6 caracteres, 1 majuscule et 1 chiffre',
+ passwordRequirementsError: 'Le mot de passe doit contenir au moins 6 caracteres, 1 majuscule et 1 chiffre.',
  stopSharing: 'Arreter le partage',
  locationShared: 'Position partagee',
  myPosition: 'Ma position',

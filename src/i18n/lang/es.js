@@ -1391,6 +1391,8 @@ export default {
  emailInUse: 'Este correo ya esta en uso',
  invalidEmail: 'Correo inválido',
  weakPassword: 'Contrasena demasiado debil',
+ passwordRules: 'Minimo 6 caracteres, 1 mayuscula y 1 numero',
+ passwordRequirementsError: 'La contrasena debe tener al menos 6 caracteres, 1 mayuscula y 1 numero.',
  stopSharing: 'Dejar de compartir',
  locationShared: 'Ubicación compartida',
  myPosition: 'Mi posicion',

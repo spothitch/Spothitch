@@ -141,7 +141,7 @@ export function renderAuth(state) {
                 aria-required="true"
                 aria-describedby="password-hint"
               />
-              <span id="password-hint" class="sr-only">${t('weakPassword')}</span>
+              ${isSignUp ? `<p id="password-hint" class="text-[10px] text-slate-500 mt-1.5 leading-relaxed">${t('passwordRules') || 'Min. 6 caracteres, 1 majuscule, 1 chiffre'}</p>` : `<span id="password-hint" class="sr-only">${t('weakPassword')}</span>`}
             </div>
 
             <!-- Confirm Password (Register only) -->
@@ -966,6 +966,7 @@ function getAuthErrorMessage(error) {
     'auth/network-request-failed': t('errorNetwork') || 'Pas de connexion. Vérifie ton réseau.',
     'auth/internal-error': t('errorNetwork') || 'Erreur réseau. Réessaie.',
     'auth/operation-not-allowed': 'Méthode de connexion désactivée. Contacte le support.',
+    'auth/password-does-not-meet-requirements': t('passwordRequirementsError') || 'Le mot de passe doit contenir au moins 6 caracteres, 1 majuscule et 1 chiffre.',
     'auth/missing-password': 'Mot de passe requis.',
     'auth/missing-email': 'Email requis.',
     'username/taken': t('usernameTaken') || 'Ce pseudo est déjà pris.',

@@ -1387,6 +1387,8 @@ export default {
  emailInUse: 'This email is already in use',
  invalidEmail: 'Invalid email',
  weakPassword: 'Password too weak',
+ passwordRules: 'Minimum 6 characters, 1 uppercase letter and 1 number',
+ passwordRequirementsError: 'Password must contain at least 6 characters, 1 uppercase letter and 1 number.',
  stopSharing: 'Stop sharing',
  locationShared: 'Location shared',
  myPosition: 'My position',

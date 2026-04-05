@@ -1391,6 +1391,8 @@ export default {
  emailInUse: 'Diese E-Mail wird bereits verwendet',
  invalidEmail: 'Ungültige E-Mail',
  weakPassword: 'Passwort zu schwach',
+ passwordRules: 'Mindestens 6 Zeichen, 1 Grossbuchstabe und 1 Zahl',
+ passwordRequirementsError: 'Das Passwort muss mindestens 6 Zeichen, 1 Grossbuchstaben und 1 Zahl enthalten.',
  stopSharing: 'Teilen beenden',
  locationShared: 'Standort geteilt',
  myPosition: 'Meine Position',

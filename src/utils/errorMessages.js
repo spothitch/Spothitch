@@ -164,6 +164,12 @@ const ERROR_MESSAGES = {
  icon: '',
  type: 'warning',
  },
+ 'auth/password-does-not-meet-requirements': {
+ message: 'passwordRequirementsError',
+ icon: '',
+ type: 'warning',
+ useI18n: true,
+ },
  'auth/operation-not-allowed': {
  message: 'Cette operation n\'est pas disponible pour le moment.',
  icon: '',
