@@ -10,6 +10,87 @@
 
 const STORAGE_KEY = 'spothitch_journal_trips'
 
+// ─── Firestore sync ─────────────────────────────────────────────────────────
+
+let _syncTimer = null
+
+function debouncedSyncToFirestore(tripId) {
+  clearTimeout(_syncTimer)
+  _syncTimer = setTimeout(() => syncTripToFirestore(tripId), 1500)
+}
+
+async function syncTripToFirestore(tripId) {
+  try {
+    const fb = await import('./firebase.js')
+    const db = fb.getDb()
+    if (!db) return
+    const auth = fb.getAuth()
+    const uid = auth?.currentUser?.uid
+    if (!uid) return
+
+    const trip = getTrip(tripId)
+    if (!trip) return
+
+    // Write to users/{uid}/journal/{tripId} (no photos to avoid Firestore size limits)
+    const { dayPhotos: _photos, ...tripWithoutPhotos } = trip // eslint-disable-line no-unused-vars
+    await fb.setDoc(fb.doc(db, 'users', uid, 'journal', tripId), tripWithoutPhotos, { merge: true })
+  } catch (e) {
+    console.warn('[TripJournal] Firestore sync failed:', e.message)
+  }
+}
+
+async function deleteTripFromFirestore(tripId) {
+  try {
+    const fb = await import('./firebase.js')
+    const db = fb.getDb()
+    if (!db) return
+    const auth = fb.getAuth()
+    const uid = auth?.currentUser?.uid
+    if (!uid) return
+    await fb.deleteDoc(fb.doc(db, 'users', uid, 'journal', tripId))
+  } catch (e) {
+    console.warn('[TripJournal] Firestore delete failed:', e.message)
+  }
+}
+
+/**
+ * Hydrate local journal from Firestore (call on login)
+ */
+export async function hydrateJournalFromFirestore() {
+  try {
+    const fb = await import('./firebase.js')
+    const db = fb.getDb()
+    if (!db) return
+    const auth = fb.getAuth()
+    const uid = auth?.currentUser?.uid
+    if (!uid) return
+
+    const snap = await fb.getDocs(fb.collection(db, 'users', uid, 'journal'))
+    if (snap.empty) return
+
+    const remoteTrips = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const localTrips = getTrips()
+    const localIds = new Set(localTrips.map(t => t.id))
+
+    const merged = [...localTrips]
+    for (const rt of remoteTrips) {
+      if (!localIds.has(rt.id)) {
+        merged.push(rt)
+      } else {
+        // Update if remote is newer
+        const localIdx = merged.findIndex(t => t.id === rt.id)
+        if (localIdx >= 0 && rt.updatedAt > (merged[localIdx].updatedAt || '')) {
+          const dayPhotos = merged[localIdx].dayPhotos || {}
+          merged[localIdx] = { ...rt, dayPhotos }
+        }
+      }
+    }
+    saveTrips(merged)
+  } catch (e) {
+    console.warn('[TripJournal] Firestore hydrate failed:', e.message)
+  }
+}
+
 // ==================== TRIPS ====================
 
 export function getTrips() {
@@ -55,6 +136,7 @@ export function createTrip(data = {}) {
 
   trips.unshift(trip)
   saveTrips(trips)
+  debouncedSyncToFirestore(trip.id)
   return trip
 }
 
@@ -64,6 +146,7 @@ export function updateTrip(tripId, updates) {
   if (idx === -1) return null
   trips[idx] = { ...trips[idx], ...updates, updatedAt: new Date().toISOString() }
   saveTrips(trips)
+  debouncedSyncToFirestore(tripId)
   return trips[idx]
 }
 
@@ -77,6 +160,7 @@ export function endTrip(tripId) {
 export function deleteTrip(tripId) {
   const trips = getTrips().filter(t => t.id !== tripId)
   saveTrips(trips)
+  deleteTripFromFirestore(tripId)
 }
 
 // ==================== LEGS ====================
@@ -120,6 +204,7 @@ export function addLeg(tripId, legData) {
   _updateTripTitle(trip)
   trip.updatedAt = new Date().toISOString()
   saveTrips(trips)
+  debouncedSyncToFirestore(tripId)
   return leg
 }
 
@@ -133,6 +218,7 @@ export function deleteLeg(tripId, legId) {
   _updateTripTitle(trip)
   trip.updatedAt = new Date().toISOString()
   saveTrips(trips)
+  debouncedSyncToFirestore(tripId)
 }
 
 // ==================== DAY NOTES ====================
@@ -145,6 +231,7 @@ export function setDayNote(tripId, date, note) {
   trip.dayNotes[date] = note
   trip.updatedAt = new Date().toISOString()
   saveTrips(trips)
+  debouncedSyncToFirestore(tripId)
 }
 
 // ==================== DAY EXPENSES ====================
@@ -167,6 +254,7 @@ export function setDayExpenses(tripId, date, expenses) {
   trip.dayExpenses[date] = clean
   trip.updatedAt = new Date().toISOString()
   saveTrips(trips)
+  debouncedSyncToFirestore(tripId)
 }
 
 export { EXPENSE_CATEGORIES }
@@ -181,6 +269,7 @@ export function setDayPhoto(tripId, date, photoDataUrl) {
   trip.dayPhotos[date] = photoDataUrl
   trip.updatedAt = new Date().toISOString()
   saveTrips(trips)
+  // Photos stay in localStorage only (too large for Firestore)
 }
 
 // ==================== STATS ====================
