@@ -280,7 +280,8 @@ const MAIN_JS_HANDLERS = [
   'guardianUpdatePlate', 'guardianSavePlate', 'guardianAddTripPhoto', 'guardianSaveTripPhoto',
   'guardianUpdateDestination', 'guardianSaveDestination',
   'guardianSendMessage', 'guardianQuickCheckin',
-  'guardianShowArrival', 'guardianAddToJournal',
+  'guardianShowArrival', 'guardianAddToJournal', 'guardianCloseSheet',
+  'switchCompanionDemoTab',
   // Gas Stations (navigation)
   'toggleGasStations',
   // Map legend
