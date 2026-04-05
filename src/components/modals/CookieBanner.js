@@ -18,13 +18,25 @@ const DEFAULT_PREFERENCES = {
   personalization: false,
 };
 
+// 13 months in milliseconds (CNIL requirement for consent renewal)
+const CONSENT_MAX_AGE_MS = 13 * 30 * 24 * 60 * 60 * 1000;
+
 /**
  * Check if user has already given consent
- * @returns {boolean} True if user has responded to cookie banner
+ * Also checks if consent is older than 13 months (CNIL requirement)
+ * @returns {boolean} True if user has responded to cookie banner and it's still valid
  */
 export function hasConsent() {
   const consent = Storage.get(COOKIE_CONSENT_KEY);
-  return consent !== null && consent.timestamp !== undefined;
+  if (consent === null || consent.timestamp === undefined) return false;
+
+  // Check if consent is older than 13 months — if so, clear it and re-show banner
+  if (Date.now() - consent.timestamp > CONSENT_MAX_AGE_MS) {
+    Storage.set(COOKIE_CONSENT_KEY, null);
+    return false;
+  }
+
+  return true;
 }
 
 /**

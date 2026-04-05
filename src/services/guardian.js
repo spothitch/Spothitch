@@ -675,6 +675,10 @@ export function stopGuardianMode(options = {}) {
   stopTimer()
   stopBatteryMonitor()
 
+  // GDPR: Delete position data from Firestore when session ends
+  // The sosTimers document contains lastPosition — deleting it removes all position data
+  syncSOSTimerToFirestore('stop')
+
   // Clear trip photo and events
   clearTripPhoto()
   clearTripEvents()

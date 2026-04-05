@@ -513,6 +513,36 @@ export async function approvePhotoVerification() {
 }
 
 /**
+ * GDPR: Delete verification photos from Firebase Storage
+ * Called after identity verification is approved.
+ * Photos are no longer needed once the verification status is confirmed.
+ */
+async function deleteVerificationPhotos() {
+ try {
+  const user = getCurrentUser()
+  if (!user) return
+
+  const { getStorage } = await import('firebase/storage')
+  const { ref, listAll, deleteObject } = await import('firebase/storage')
+  const { getApp } = await import('firebase/app')
+  const storage = getStorage(getApp())
+
+  // List all files in the user's verification folder
+  const folderRef = ref(storage, `verification/${user.uid}`)
+  const result = await listAll(folderRef)
+
+  // Delete each file
+  const deletePromises = result.items.map(itemRef => deleteObject(itemRef))
+  await Promise.allSettled(deletePromises)
+
+  console.log(`[GDPR] Deleted ${result.items.length} verification photos for user ${user.uid}`)
+ } catch (error) {
+  // Non-blocking: log but don't fail the verification approval
+  console.warn('[GDPR] Could not delete verification photos:', error.message)
+ }
+}
+
+/**
  * Upload identity document for verification
  * @param {string} documentData - Base64 document data
  * @param {string} documentType - Type: 'passport' or 'id_card'
@@ -589,6 +619,9 @@ export async function approveIdentityVerification() {
  pendingIdentityVerification: null,
  identityVerifiedAt: Date.now(),
  });
+
+ // GDPR: Delete uploaded verification photos from Firebase Storage
+ deleteVerificationPhotos()
 
  showToast(t('identityVerifiedMax') || ' Identite verifiee ! Tu as le niveau maximum de confiance.', 'success');
 
@@ -890,12 +923,19 @@ export async function approveSelfieIdVerification() {
  status: 'approved',
  approvedAt: new Date().toISOString(),
  trustLevel: 4,
+ // GDPR: remove photo references after verification
+ hasPhotos: false,
+ photosDeletedAt: new Date().toISOString(),
  });
  }
  }
  } catch (error) {
  console.warn('Could not update ID verification in Firestore:', error);
  }
+
+ // GDPR: Delete uploaded verification photos from Firebase Storage
+ // Photos are deleted within 7 days per privacy policy; we delete immediately on approval
+ deleteVerificationPhotos()
 
  showToast(t('identityVerifiedBadge') || ' Identite verifiee ! Tu as maintenant le badge vert.', 'success');
 

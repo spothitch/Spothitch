@@ -16,6 +16,7 @@ export function renderLegalPage(page = 'cgu') {
     cookies: renderCookiePolicy(),
     legal: renderLegalNotice(),
     guidelines: renderCommunityGuidelines(),
+    accessibility: renderAccessibilityPage(),
   };
 
   const titles = {
@@ -24,6 +25,7 @@ export function renderLegalPage(page = 'cgu') {
     cookies: t('legalCookies'),
     legal: t('legalNotice'),
     guidelines: t('communityGuidelines') || 'Community Guidelines',
+    accessibility: t('legalAccessibility') || 'Accessibility',
   };
 
   return `
@@ -62,6 +64,10 @@ export function renderLegalPage(page = 'cgu') {
                 class="flex-1 py-3 text-sm font-medium whitespace-nowrap px-2 ${page === 'guidelines' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-slate-400'}">
           ${t('legalTabGuidelines') || 'Rules'}
         </button>
+        <button onclick="showLegalPage('accessibility')"
+                class="flex-1 py-3 text-sm font-medium whitespace-nowrap px-2 ${page === 'accessibility' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-slate-400'}">
+          ${t('legalTabAccessibility') || 'A11y'}
+        </button>
       </div>
 
       <!-- Content -->
@@ -73,13 +79,13 @@ export function renderLegalPage(page = 'cgu') {
 }
 
 /**
- * Render CGU (Terms of Service)
+ * Render CGU (Terms of Service) — DSA-compliant, 16 articles
  */
 export function renderCGU() {
   return `
     <div class="legal-content">
       <h2>${t('legalCguTitle')}</h2>
-      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateMar2026')}</p>
+      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateApr2026')}</p>
 
       <h3>${t('legalCgu1Title')}</h3>
       <p>${t('legalCgu1Text')}</p>
@@ -88,14 +94,7 @@ export function renderCGU() {
       <p>${t('legalCgu2Text')}</p>
 
       <h3>${t('legalCgu3Title')}</h3>
-      <p>${t('legalCgu3Intro')}</p>
-      <ul>
-        <li>${t('legalCgu3Item1')}</li>
-        <li>${t('legalCgu3Item2')}</li>
-        <li>${t('legalCgu3Item3')}</li>
-        <li>${t('legalCgu3Item4')}</li>
-        <li>${t('legalCgu3Item5')}</li>
-      </ul>
+      <p>${t('legalCgu3Text')}</p>
 
       <h3>${t('legalCgu4Title')}</h3>
       <p>${t('legalCgu4Text')}</p>
@@ -123,72 +122,150 @@ export function renderCGU() {
 
       <h3>${t('legalCgu10Title')}</h3>
       <p>${t('legalCgu10Text')}</p>
+
+      <h3>${t('legalCgu11Title')}</h3>
+      <p>${t('legalCgu11Text')}</p>
+
+      <h3>${t('legalCgu12Title')}</h3>
+      <p>${t('legalCgu12Text')}</p>
+
+      <h3>${t('legalCgu13Title')}</h3>
+      <p>${t('legalCgu13Text')}</p>
+
+      <h3>${t('legalCgu14Title')}</h3>
+      <p>${t('legalCgu14Text')}</p>
+
+      <h3>${t('legalCgu15Title')}</h3>
+      <p>${t('legalCgu15Text')}</p>
+
+      <h3>${t('legalCgu16Title')}</h3>
+      <p>${t('legalCgu16Text')}</p>
     </div>
   `;
 }
 
 /**
- * Render Privacy Policy
+ * Render Privacy Policy — GDPR Article 13 compliant with data table
  */
 export function renderPrivacyPolicy() {
   return `
     <div class="legal-content">
       <h2>${t('legalPrivacyTitle')}</h2>
-      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateMar2026')}</p>
+      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateApr2026')}</p>
 
-      <h3>${t('legalPrivacy1Title')}</h3>
-      <p>${t('legalPrivacy1Intro')}</p>
+      <h3>${t('legalPrivacyControllerTitle')}</h3>
+      <p>${t('legalPrivacyControllerText')}</p>
+
+      <h3>${t('legalPrivacyDataTableTitle')}</h3>
+      <p>${t('legalPrivacyDataTableIntro')}</p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm mt-2 mb-4 min-w-[500px]">
+          <thead>
+            <tr class="border-b border-white/10">
+              <th class="text-left py-2 pr-2">${t('legalPrivacyColData')}</th>
+              <th class="text-left py-2 pr-2">${t('legalPrivacyColPurpose')}</th>
+              <th class="text-left py-2 pr-2">${t('legalPrivacyColBasis')}</th>
+              <th class="text-left py-2">${t('legalPrivacyColRetention')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowAccount')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowAccountPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowAccountBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowAccountRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowGeolocation')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowGeolocationPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowGeolocationBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowGeolocationRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowGuardian')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowGuardianPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowGuardianBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowGuardianRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowSos')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowSosPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowSosBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowSosRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowMessages')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowMessagesPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowMessagesBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowMessagesRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowSpots')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowSpotsPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowSpotsBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowSpotsRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowPhotos')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowPhotosPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowPhotosBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowPhotosRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowIdPhotos')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowIdPhotosPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowIdPhotosBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowIdPhotosRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowPushTokens')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowPushTokensPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowPushTokensBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowPushTokensRetention')}</td>
+            </tr>
+            <tr class="border-b border-white/10">
+              <td class="py-2 pr-2">${t('legalPrivacyRowTechnical')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowTechnicalPurpose')}</td>
+              <td class="py-2 pr-2">${t('legalPrivacyRowTechnicalBasis')}</td>
+              <td class="py-2">${t('legalPrivacyRowTechnicalRetention')}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>${t('legalPrivacyTransfersTitle')}</h3>
+      <p>${t('legalPrivacyTransfersIntro')}</p>
       <ul>
-        <li><strong>${t('legalPrivacy1AccountLabel')}</strong> ${t('legalPrivacy1AccountDesc')}</li>
-        <li><strong>${t('legalPrivacy1ContribLabel')}</strong> ${t('legalPrivacy1ContribDesc')}</li>
-        <li><strong>${t('legalPrivacy1LocationLabel')}</strong> ${t('legalPrivacy1LocationDesc')}</li>
-        <li><strong>${t('legalPrivacy1TechLabel')}</strong> ${t('legalPrivacy1TechDesc')}</li>
+        <li>${t('legalPrivacyTransferFirebase')}</li>
+        <li>${t('legalPrivacyTransferCloudflare')}</li>
+        <li>${t('legalPrivacyTransferSentry')}</li>
+        <li>${t('legalPrivacyTransferAuthorities')}</li>
       </ul>
 
-      <h3>${t('legalPrivacy2Title')}</h3>
-      <p>${t('legalPrivacy2Intro')}</p>
+      <h3>${t('legalPrivacyRightsTitle')}</h3>
+      <p>${t('legalPrivacyRightsIntro')}</p>
       <ul>
-        <li>${t('legalPrivacy2Item1')}</li>
-        <li>${t('legalPrivacy2Item2')}</li>
-        <li>${t('legalPrivacy2Item3')}</li>
-        <li>${t('legalPrivacy2Item4')}</li>
+        <li>${t('legalPrivacyRightAccess')}</li>
+        <li>${t('legalPrivacyRightRectify')}</li>
+        <li>${t('legalPrivacyRightErase')}</li>
+        <li>${t('legalPrivacyRightRestrict')}</li>
+        <li>${t('legalPrivacyRightPortability')}</li>
+        <li>${t('legalPrivacyRightObject')}</li>
+        <li>${t('legalPrivacyRightComplaint')}</li>
       </ul>
 
-      <h3>${t('legalPrivacy3Title')}</h3>
-      <p>${t('legalPrivacy3Text')}</p>
+      <h3>${t('legalPrivacyAutomatedTitle')}</h3>
+      <p>${t('legalPrivacyAutomatedText')}</p>
 
-      <h3>${t('legalPrivacy4Title')}</h3>
-      <p>${t('legalPrivacy4Intro')}</p>
-      <ul>
-        <li>${t('legalPrivacy4Item1')}</li>
-        <li>${t('legalPrivacy4Item2')}</li>
-        <li>${t('legalPrivacy4Item3')}</li>
-        <li>${t('legalPrivacy4Item4')}</li>
-        <li>${t('legalPrivacy4Item5')}</li>
-        <li>${t('legalPrivacy4Item6')}</li>
-      </ul>
+      <h3>${t('legalPrivacyDpoTitle')}</h3>
+      <p>${t('legalPrivacyDpoText')}</p>
 
-      <h3>${t('legalPrivacy5Title')}</h3>
-      <p>${t('legalPrivacy5Intro')}</p>
-      <ul>
-        <li>${t('legalPrivacy5Item1')}</li>
-        <li>${t('legalPrivacy5Item2')}</li>
-        <li>${t('legalPrivacy5Item3')}</li>
-        <li>${t('legalPrivacy5Item4')}</li>
-        <li>${t('legalPrivacy5Item5')}</li>
-      </ul>
+      <h3>${t('legalPrivacySecurityTitle')}</h3>
+      <p>${t('legalPrivacySecurityText')}</p>
 
-      <h3>${t('legalPrivacy6Title')}</h3>
-      <p>${t('legalPrivacy6Text')}</p>
-
-      <h3>${t('legalPrivacy7Title')}</h3>
-      <p>${t('legalPrivacy7Text')}</p>
-
-      <h3>${t('legalPrivacy8Title')}</h3>
-      <p>${t('legalPrivacy8Text')}</p>
-
-      <h3>${t('legalPrivacy9Title')}</h3>
-      <p>${t('legalPrivacy9Text')}</p>
+      <h3>${t('legalPrivacyCookiesTitle')}</h3>
+      <p>${t('legalPrivacyCookiesText')}</p>
 
       <h3>${t('legalPrivacyCcpaTitle') || 'California Privacy Rights (CCPA/CPRA)'}</h3>
       <p>${t('legalPrivacyCcpaIntro') || 'If you are a California resident, you have the following rights under the California Consumer Privacy Act (CCPA) and the California Privacy Rights Act (CPRA):'}</p>
@@ -483,6 +560,48 @@ export function renderCommunityGuidelines() {
   `
 }
 
+/**
+ * Render Accessibility Page
+ */
+export function renderAccessibilityPage() {
+  return `
+    <div class="legal-content">
+      <h2>${t('accessibilityTitle')}</h2>
+      <p class="text-slate-400 text-sm">${t('legalLastUpdated')} ${t('legalDateApr2026')}</p>
+
+      <h3>${t('accessibilityStatus')}</h3>
+      <p>${t('accessibilityStatusText')}</p>
+
+      <h3>${t('accessibilityMeasures')}</h3>
+      <p>${t('accessibilityMeasuresIntro')}</p>
+      <ul>
+        <li>${t('accessibilityMeasure1')}</li>
+        <li>${t('accessibilityMeasure2')}</li>
+        <li>${t('accessibilityMeasure3')}</li>
+        <li>${t('accessibilityMeasure4')}</li>
+        <li>${t('accessibilityMeasure5')}</li>
+        <li>${t('accessibilityMeasure6')}</li>
+      </ul>
+
+      <h3>${t('accessibilityKnownIssues')}</h3>
+      <p>${t('accessibilityKnownIssuesText')}</p>
+
+      <h3>${t('accessibilityCommitment')}</h3>
+      <p>${t('accessibilityCommitmentText')}</p>
+
+      <h3>${t('accessibilityContact')}</h3>
+      <p>
+        ${t('accessibilityContactText')}
+        <a href="mailto:contact@spothitch.com" class="text-amber-400">contact@spothitch.com</a>
+      </p>
+
+      <p class="text-slate-400 text-sm mt-4">
+        ${t('accessibilityAssessmentDate')} ${t('legalDateApr2026')}
+      </p>
+    </div>
+  `
+}
+
 export default {
   renderLegalPage,
   renderCGU,
@@ -490,4 +609,5 @@ export default {
   renderCookiePolicy,
   renderLegalNotice,
   renderCommunityGuidelines,
+  renderAccessibilityPage,
 };

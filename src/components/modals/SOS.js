@@ -169,6 +169,13 @@ function renderSOSMain(state) {
           <!-- ═══ TAB 0: ALERTES ═══ -->
           <div class="sos-panel p-5 space-y-3" data-sos-panel="0">
 
+            <!-- SOS Disclaimer Banner -->
+            <div class="bg-red-900/30 border border-red-500/30 rounded-xl p-3 mb-4 text-sm">
+              <p class="text-red-300 font-medium mb-1">${t('sosDisclaimerBannerTitle')}</p>
+              <p class="text-red-400/80 text-xs">${t('sosDisclaimerBannerText')}</p>
+              <a href="tel:112" class="inline-flex items-center gap-1 mt-2 text-red-300 font-bold text-sm underline">${icon('phone', 'w-4 h-4')} ${t('sosCall112')}</a>
+            </div>
+
             <!-- 2x2 grid -->
             <div class="grid grid-cols-2 gap-2.5">
               ${_alertTile('phone-incoming', 'amber', t('sosFakeCall') || 'Faux appel', `${fakeCallDelay}s · ${escapeHTML(fakeCallName)}`, 'sosOpenFakeCall()')}
