@@ -181,6 +181,41 @@ async function processAction(action) {
       console.log('[OfflineSync] ADD_VALIDATION synced')
       break
     }
+    case 'SEND_DM': {
+      console.log('[OfflineSync] Syncing SEND_DM')
+      const dm = await import('./directMessages.js')
+      await dm.sendDirectMessage(action.conversationId, action.data.text)
+      console.log('[OfflineSync] SEND_DM synced')
+      break
+    }
+    case 'CREATE_EVENT': {
+      console.log('[OfflineSync] Syncing CREATE_EVENT')
+      const events = await import('./events.js')
+      events.createEvent(action.data)
+      console.log('[OfflineSync] CREATE_EVENT synced')
+      break
+    }
+    case 'SEND_FRIEND_REQUEST': {
+      console.log('[OfflineSync] Syncing SEND_FRIEND_REQUEST')
+      const friends = await import('./friends.js')
+      await friends.sendFriendRequest(action.data.targetUid)
+      console.log('[OfflineSync] SEND_FRIEND_REQUEST synced')
+      break
+    }
+    case 'SUBMIT_REPORT': {
+      console.log('[OfflineSync] Syncing SUBMIT_REPORT')
+      const mod = await import('./moderation.js')
+      await mod.submitReport(action.data)
+      console.log('[OfflineSync] SUBMIT_REPORT synced')
+      break
+    }
+    case 'BLOCK_USER': {
+      console.log('[OfflineSync] Syncing BLOCK_USER')
+      const blocking = await import('./userBlocking.js')
+      blocking.blockUser(action.data.userId, action.data.reason)
+      console.log('[OfflineSync] BLOCK_USER synced')
+      break
+    }
     default:
       console.warn('Unknown action type:', action.type);
   }
