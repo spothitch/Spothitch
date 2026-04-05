@@ -112,6 +112,25 @@ export function blockUser(userId, reason = null) {
   blockedUsers.push(blockedUser);
   saveBlockedUsersToStorage(blockedUsers);
 
+  // Sync to Firestore subcollection for cross-device persistence
+  if (currentUserId) {
+    import('./firebase.js').then(async ({ getDb, doc, setDoc, serverTimestamp, deleteDoc }) => {
+      try {
+        const db = getDb()
+        if (!db) return
+        await setDoc(doc(db, 'users', currentUserId, 'blockedUsers', userId), {
+          reason: reason || null,
+          blockedAt: serverTimestamp(),
+        })
+        // Also remove friendship in Firestore
+        await deleteDoc(doc(db, 'users', currentUserId, 'friends', userId)).catch(() => {})
+        await deleteDoc(doc(db, 'users', userId, 'friends', currentUserId)).catch(() => {})
+      } catch (e) {
+        console.warn('[Blocking] Firestore sync failed:', e.message)
+      }
+    }).catch(() => {})
+  }
+
   // Remove from friends if present
   const friends = state.friends || [];
   const updatedFriends = friends.filter(f => f.id !== userId);
@@ -153,6 +172,21 @@ export function unblockUser(userId) {
   // Remove from blocked list
   blockedUsers.splice(blockedIndex, 1);
   saveBlockedUsersToStorage(blockedUsers);
+
+  // Remove from Firestore subcollection
+  const state = getState()
+  const currentUserId = state.user?.uid
+  if (currentUserId) {
+    import('./firebase.js').then(async ({ getDb, doc, deleteDoc }) => {
+      try {
+        const db = getDb()
+        if (!db) return
+        await deleteDoc(doc(db, 'users', currentUserId, 'blockedUsers', userId))
+      } catch (e) {
+        console.warn('[Blocking] Firestore unblock sync failed:', e.message)
+      }
+    }).catch(() => {})
+  }
 
   showToast(t('userUnblocked') || 'Utilisateur debloque', 'success');
 

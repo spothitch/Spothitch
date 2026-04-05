@@ -105,16 +105,32 @@ function updateSharedLocation(location) {
 
   if (!userId || !state.shareLocationWithFriends) return;
 
-  // In production, this would update Firebase
-  setState({
-    mySharedLocation: {
-      ...location,
-      userId,
-      username: state.username,
-      avatar: state.avatar,
-      lastUpdate: Date.now(),
-    },
-  });
+  const sharedData = {
+    ...location,
+    userId,
+    username: state.username,
+    avatar: state.avatar,
+    lastUpdate: Date.now(),
+  }
+
+  setState({ mySharedLocation: sharedData });
+
+  // Write to Firestore userLocations for cross-device and friend visibility
+  import('./firebase.js').then(async ({ getDb, doc, setDoc, serverTimestamp }) => {
+    try {
+      const db = getDb()
+      if (!db) return
+      await setDoc(doc(db, 'userLocations', userId), {
+        lat: location.lat,
+        lng: location.lng,
+        accuracy: location.accuracy || null,
+        username: state.username || '',
+        updatedAt: serverTimestamp(),
+      })
+    } catch (e) {
+      console.warn('[NearbyFriends] Firestore location sync failed:', e.message)
+    }
+  }).catch(() => {})
 }
 
 /**
