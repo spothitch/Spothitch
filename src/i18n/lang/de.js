@@ -201,7 +201,7 @@ export default {
  swap: 'Tauschen',
  findSpotsOnRoute: 'Spots auf der Route finden',
  noSpotsFound: 'Keine Spots auf dieser Route gefunden',
- travel_show_stations: '\u26FD Tankstellen & Raststatten',
+ travel_show_stations: 'Tankstellen & Raststatten',
  travel_loading_stations: 'Lade Tankstellen...',
  travel_fuel_station: 'Tankstelle',
  travel_rest_area: 'Raststatte',

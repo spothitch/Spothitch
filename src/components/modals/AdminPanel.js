@@ -849,10 +849,10 @@ export function renderAdminPanel(state) {
 
  const tabs = [
  { key: 'feedback', label: t('adminTabFeedback') || 'Feedbacks', iconName: 'bar-chart-3' },
- { key: 'reports', label: t('adminTabReports') || 'Signalements', emoji: '' },
+ { key: 'reports', label: t('adminTabReports') || 'Signalements', iconName: 'flag' },
  { key: 'guideTips', label: t('adminTabGuideTips') || 'Guides', iconName: 'pen-line' },
- { key: 'sentry', label: t('adminTabSentry') || 'Erreurs', emoji: '' },
- { key: 'tools', label: t('adminTabTools') || 'Outils', emoji: '' },
+ { key: 'sentry', label: t('adminTabSentry') || 'Erreurs', iconName: 'bug' },
+ { key: 'tools', label: t('adminTabTools') || 'Outils', iconName: 'wrench' },
  ]
 
  const tabBtns = tabs.map(tab =>
@@ -860,7 +860,7 @@ export function renderAdminPanel(state) {
  activeTab === tab.key
  ? 'bg-amber-500 text-black'
  : 'text-slate-400 hover:text-white hover:bg-slate-700'
- }">${tab.emoji} ${tab.label}</button>`
+ }">${tab.iconName ? icon(tab.iconName, 'w-4 h-4 inline') : ''} ${tab.label}</button>`
  ).join('')
 
  let tabContent

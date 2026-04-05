@@ -199,7 +199,7 @@ function renderTripResults(results) {
 
       <!-- Amenities toggle -->
       <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
-        <span class="text-sm font-medium">${t('travel_show_stations') || '\u26FD Stations & aires de repos'}</span>
+        <span class="text-sm font-medium flex items-center gap-1.5">${icon('fuel', 'w-4 h-4')} ${t('travel_show_stations') || 'Stations & aires de repos'}</span>
         ${renderToggle(showAmenities, "toggleRouteAmenities()", t('travel_show_stations') || 'Stations & aires de repos')}
       </div>
 
@@ -308,7 +308,7 @@ function renderTripResults(results) {
 }
 
 function renderAmenityItem(poi) {
-  const poiIcon = poi.type === 'fuel' ? '\u26FD' : '\uD83C\uDD7F\uFE0F'
+  const poiIcon = poi.type === 'fuel' ? icon('fuel', 'w-4 h-4 inline') : icon('square-parking', 'w-4 h-4 inline')
   const typeLabel = poi.type === 'fuel'
     ? (t('travel_fuel_station') || 'Station-service')
     : (t('travel_rest_area') || 'Aire de repos')

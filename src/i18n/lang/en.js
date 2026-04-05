@@ -201,7 +201,7 @@ export default {
  swap: 'Swap',
  findSpotsOnRoute: 'Find spots along route',
  noSpotsFound: 'No spots found on this route',
- travel_show_stations: '\u26FD Gas stations & rest areas',
+ travel_show_stations: 'Gas stations & rest areas',
  travel_loading_stations: 'Loading stations...',
  travel_fuel_station: 'Gas station',
  travel_rest_area: 'Rest area',

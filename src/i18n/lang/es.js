@@ -780,7 +780,7 @@ export default {
  swap: 'Invertir',
  findSpotsOnRoute: 'Encontrar spots en la ruta',
  noSpotsFound: 'No se encontraron spots en esta ruta',
- travel_show_stations: '\u26FD Gasolineras y areas de descanso',
+ travel_show_stations: 'Gasolineras y areas de descanso',
  travel_loading_stations: 'Cargando estaciones...',
  travel_fuel_station: 'Gasolinera',
  travel_rest_area: 'Area de descanso',

@@ -201,7 +201,7 @@ export default {
  swap: 'Inverser',
  findSpotsOnRoute: 'Trouver les spots sur le trajet',
  noSpotsFound: 'Aucun spot trouvé sur ce trajet',
- travel_show_stations: '\u26FD Stations & aires de repos',
+ travel_show_stations: 'Stations & aires de repos',
  travel_loading_stations: 'Chargement des stations...',
  travel_fuel_station: 'Station-service',
  travel_rest_area: 'Aire de repos',
