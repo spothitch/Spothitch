@@ -72,6 +72,17 @@ export function registerAsAmbassador(data) {
 
   Storage.set(STORAGE_KEY, ambassadors)
 
+  // Sync to Firestore
+  import('./firebase.js').then(async (fb) => {
+    try {
+      const db = fb.getDb()
+      if (!db || !state.user?.uid) return
+      await fb.setDoc(fb.doc(db, 'ambassadors', state.user.uid), ambassador, { merge: true })
+    } catch (e) {
+      console.warn('[Ambassadors] Firestore sync failed:', e.message)
+    }
+  }).catch(() => {})
+
   // Update user state
   setState({
     user: {
@@ -93,6 +104,17 @@ export function unregisterAmbassador() {
   const filtered = ambassadors.filter(a => a.userId !== state.user.uid)
 
   Storage.set(STORAGE_KEY, filtered)
+
+  // Remove from Firestore
+  import('./firebase.js').then(async (fb) => {
+    try {
+      const db = fb.getDb()
+      if (!db || !state.user?.uid) return
+      await fb.deleteDoc(fb.doc(db, 'ambassadors', state.user.uid))
+    } catch (e) {
+      console.warn('[Ambassadors] Firestore delete failed:', e.message)
+    }
+  }).catch(() => {})
 
   setState({
     user: {

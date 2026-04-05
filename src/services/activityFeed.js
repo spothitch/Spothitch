@@ -74,6 +74,24 @@ export function addActivity(activity) {
 
   Storage.set(STORAGE_KEY, activities)
 
+  // Sync to Firestore for cross-user visibility
+  const state = getState()
+  const userId = state.user?.uid
+  if (userId && newActivity.userId === userId) {
+    import('./firebase.js').then(async (fb) => {
+      try {
+        const db = fb.getDb()
+        if (!db) return
+        await fb.setDoc(fb.doc(db, 'activityFeed', newActivity.id), {
+          ...newActivity,
+          userId,
+        })
+      } catch (e) {
+        console.warn('[ActivityFeed] Firestore sync failed:', e.message)
+      }
+    }).catch(() => {})
+  }
+
   return newActivity
 }
 
