@@ -235,43 +235,128 @@ function announceToSR(message) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// IndexedDB wrapper for spot cache (no 5 MB localStorage limit)
+// DB: 'spothitch-cache', object store: 'spots'
+// Falls back to localStorage silently on IndexedDB failure.
+// ---------------------------------------------------------------------------
+
+const IDB_NAME = 'spothitch-cache'
+const IDB_VERSION = 1
+const IDB_STORE = 'spots'
+
 /**
- * Cache spots data for offline use
+ * Open (or create) the IndexedDB database.
+ * @returns {Promise<IDBDatabase>}
+ */
+function openCacheDB() {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === 'undefined') {
+      reject(new Error('IndexedDB not available'))
+      return
+    }
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION)
+    req.onupgradeneeded = () => {
+      const db = req.result
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE)
+      }
+    }
+    req.onsuccess = () => resolve(req.result)
+    req.onerror = () => reject(req.error)
+  })
+}
+
+/**
+ * Put a value into the cache store.
+ * @param {string} key
+ * @param {any} value
+ * @returns {Promise<void>}
+ */
+function idbSet(key, value) {
+  return openCacheDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite')
+    tx.objectStore(IDB_STORE).put(value, key)
+    tx.oncomplete = () => { db.close(); resolve() }
+    tx.onerror = () => { db.close(); reject(tx.error) }
+  }))
+}
+
+/**
+ * Get a value from the cache store.
+ * @param {string} key
+ * @returns {Promise<any>}
+ */
+function idbGet(key) {
+  return openCacheDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readonly')
+    const req = tx.objectStore(IDB_STORE).get(key)
+    req.onsuccess = () => { db.close(); resolve(req.result) }
+    req.onerror = () => { db.close(); reject(req.error) }
+  }))
+}
+
+/**
+ * Cache spots data for offline use (IndexedDB, localStorage fallback).
  * @param {Array} spots - Spots to cache
  */
 export function cacheSpots(spots) {
-  Storage.set('cachedSpots', {
-    data: spots,
-    timestamp: Date.now(),
-  });
+  const payload = { data: spots, timestamp: Date.now() }
+  idbSet('cachedSpots', payload).catch(() => {
+    // Fallback to localStorage silently
+    Storage.set('cachedSpots', payload)
+  })
 }
 
 /**
- * Get cached spots
- * @returns {Array|null}
+ * Get cached spots (IndexedDB, localStorage fallback).
+ * @returns {Promise<Array|null>}
  */
-export function getCachedSpots() {
-  const cached = Storage.get('cachedSpots');
-  if (cached && cached.data) {
-    // Check if cache is less than 24 hours old
-    const maxAge = 24 * 60 * 60 * 1000;
-    if (Date.now() - cached.timestamp < maxAge) {
-      return cached.data;
+export async function getCachedSpots() {
+  const maxAge = 24 * 60 * 60 * 1000
+  try {
+    const cached = await idbGet('cachedSpots')
+    if (cached && cached.data && Date.now() - cached.timestamp < maxAge) {
+      return cached.data
+    }
+  } catch {
+    // IndexedDB failed, try localStorage fallback
+    const cached = Storage.get('cachedSpots')
+    if (cached && cached.data && Date.now() - cached.timestamp < maxAge) {
+      return cached.data
     }
   }
-  return null;
+  return null
 }
 
 /**
- * Check if data is cached and fresh
+ * Check if data is cached and fresh.
+ * For the 'cachedSpots' key this checks IndexedDB first, then localStorage.
+ * For other keys it checks localStorage (unchanged behaviour).
  * @param {string} key - Cache key
  * @param {number} maxAge - Max age in ms
- * @returns {boolean}
+ * @returns {Promise<boolean>|boolean}
  */
 export function isCacheFresh(key, maxAge = 3600000) {
-  const cached = Storage.get(key);
-  if (!cached || !cached.timestamp) return false;
-  return Date.now() - cached.timestamp < maxAge;
+  if (key === 'cachedSpots') {
+    return idbGet('cachedSpots')
+      .then(cached => {
+        if (cached && cached.timestamp) return Date.now() - cached.timestamp < maxAge
+        // Fallback to localStorage
+        const ls = Storage.get(key)
+        if (ls && ls.timestamp) return Date.now() - ls.timestamp < maxAge
+        return false
+      })
+      .catch(() => {
+        const ls = Storage.get(key)
+        if (ls && ls.timestamp) return Date.now() - ls.timestamp < maxAge
+        return false
+      })
+  }
+  // Non-spots keys: synchronous localStorage check (backwards compatible)
+  const cached = Storage.get(key)
+  if (!cached || !cached.timestamp) return false
+  return Date.now() - cached.timestamp < maxAge
 }
 
 /**
