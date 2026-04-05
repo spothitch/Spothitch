@@ -162,9 +162,25 @@ export function getCompanionState() {
 
 /**
  * Check if companion mode is currently active
+ * Auto-stops stale trips (>8h total or >2h silence) so the banner disappears
  */
 export function isCompanionActive() {
-  return loadState().active
+  const state = loadState()
+  if (!state.active) return false
+
+  // Auto-stop stale trips even if the app was never restarted
+  const now = Date.now()
+  const maxTrip = 8 * 60 * 60 * 1000 // 8 hours
+  const maxSilence = 2 * 60 * 60 * 1000 // 2 hours without check-in
+  const tripAge = state.tripStart ? now - state.tripStart : 0
+  const silenceAge = state.lastCheckIn ? now - state.lastCheckIn : tripAge
+
+  if (tripAge > maxTrip || silenceAge > maxSilence) {
+    stopCompanionMode()
+    return false
+  }
+
+  return true
 }
 
 // ---- Trusted contacts circle (#30) ----
