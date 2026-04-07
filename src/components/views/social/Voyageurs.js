@@ -183,7 +183,21 @@ function renderRadarExpanded(state) {
 function renderRadarActiveContent(state, settings, nearbyTravelers, selectedRadius, selectedVisibility) {
   const radiusOptions = [10, 25, 50, 100]
 
+  // Check if Guardian is active (imported at module level would be circular, check localStorage)
+  let guardianWarning = ''
+  try {
+    const gData = JSON.parse(localStorage.getItem('spothitch_guardian') || '{}')
+    if (gData.active) {
+      guardianWarning = `
+      <div style="display:flex;align-items:flex-start;gap:8px;color:#f87171;font-size:0.78rem;line-height:1.4;margin-bottom:10px;padding:10px 14px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.15);border-radius:10px">
+        ${icon('shield-alert', 'w-4 h-4 shrink-0')}
+        <span>${t('radarGuardianWarning') || 'Le mode Gardien est actif. Le radar te rend visible par tous les voyageurs proches.'}</span>
+      </div>`
+    }
+  } catch { /* ignore */ }
+
   return `
+    ${guardianWarning}
     <!-- Radar ON note -->
     <div style="display:flex;align-items:flex-start;gap:8px;color:#94a3b8;font-size:0.78rem;line-height:1.4;margin-bottom:14px;padding:10px 14px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);border-radius:10px">
       ${icon('eye', 'w-3.5 h-3.5 shrink-0')} <span>${t('radarVisibilityNote') || 'En activant le radar, tu es visible par les autres voyageurs et tu peux les voir.'}</span>
@@ -414,16 +428,15 @@ function renderBuddyDetail(state) {
 
         <!-- Profile header -->
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-          <div style="width:56px;height:56px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;flex-shrink:0;color:#94a3b8;border:2px solid rgba(245,158,11,0.25)">${initial}</div>
+          ${buddy.photoURL
+            ? `<img src="${escapeHTML(buddy.photoURL)}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(245,158,11,0.25)" alt="${escapeHTML(buddy.userName || '')}" onerror="this.style.display='none'">`
+            : `<div style="width:56px;height:56px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;flex-shrink:0;color:#94a3b8;border:2px solid rgba(245,158,11,0.25)">${initial}</div>`}
           <div>
-            <div style="font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:2px">
+            <div style="font-size:1.15rem;font-weight:700;margin-bottom:2px">
               ${escapeHTML(buddy.userName || t('traveler'))}
-              ${buddy.verified ? `<span style="display:inline-flex;align-items:center;gap:2px;background:rgba(34,197,94,0.12);color:#22c55e;font-size:0.62rem;font-weight:600;padding:2px 6px;border-radius:6px">${icon('check', 'w-2.5 h-2.5')} ${t('verified') || 'Verifie'}</span>` : ''}
             </div>
-            <div style="display:flex;align-items:center;gap:10px;color:#94a3b8;font-size:0.8rem">
-              ${buddy.spotCount ? `<span>${buddy.spotCount} spots</span><span>·</span>` : ''}
-              ${buddy.memberSince ? `<span>${t('memberSince') || 'Membre depuis'} ${buddy.memberSince}</span><span>·</span>` : ''}
-              ${buddy.trustScore ? `<span style="color:#f59e0b;font-weight:600;display:flex;align-items:center;gap:3px">${icon('star', 'w-3 h-3')} ${buddy.trustScore}</span>` : ''}
+            <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.8rem;flex-wrap:wrap">
+              ${Array.isArray(buddy.languages) && buddy.languages.length > 0 ? `<span>${escapeHTML(buddy.languages.slice(0, 3).join(', '))}</span>` : ''}
             </div>
           </div>
         </div>
@@ -501,6 +514,10 @@ function renderBuddyDetail(state) {
       <!-- Fixed bottom CTA -->
       <div class="fixed bottom-0 left-0 right-0 z-20" style="padding:16px 16px 36px;background:linear-gradient(to top,#0f1520 80%,transparent)">
         ${isOwn ? `
+          <button onclick="closeBuddyAnnouncement('${escapeJSString(buddy.id)}')" style="width:100%;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px">
+            ${icon('check-circle', 'w-4.5 h-4.5')}
+            ${t('closeBuddyLabel') || 'Compagnon trouve'}
+          </button>
           <button onclick="deleteBuddyAnnouncement('${escapeJSString(buddy.id)}')" style="width:100%;background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:16px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px">
             ${icon('trash', 'w-4.5 h-4.5')}
             ${t('deleteAnnouncement') || 'Supprimer mon annonce'}
@@ -741,6 +758,14 @@ window.toggleProximityRadar = async () => {
       window.showToast?.(t('errorOccurred') || 'Erreur', 'error')
     }
   } else {
+    // Warn if Guardian mode is active
+    try {
+      const { isGuardianActive } = await import('../../../services/guardian.js')
+      if (isGuardianActive()) {
+        window.showToast?.(t('radarGuardianWarning') || 'Attention : le mode Gardien est actif. Le radar te rend visible par tous les voyageurs.', 'warning')
+      }
+    } catch { /* guardian not loaded */ }
+
     // Activate
     const { isRadarInCooldown: checkCooldown, getRemainingCooldownMinutes: getMins } = await import('../../../services/proximityRadar.js')
     if (checkCooldown()) {

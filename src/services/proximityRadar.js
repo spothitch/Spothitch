@@ -219,6 +219,18 @@ async function _processRadarSnapshot(snapshot, currentUid) {
     })
 
     travelers.sort((a, b) => a.distance - b.distance)
+
+    // Detect new travelers (notify user)
+    const prevIds = new Set((state.nearbyTravelers || []).map(t => t.userId))
+    const newTravelers = travelers.filter(t => !prevIds.has(t.userId))
+    if (newTravelers.length > 0 && prevIds.size > 0) {
+      // Only notify if it's not the first load
+      const { t: translate } = await import('../i18n/index.js')
+      const names = newTravelers.map(t => t.userName).join(', ')
+      const { showToast } = await import('./notifications.js')
+      showToast(`${names} ${newTravelers.length === 1 ? (translate('isNearby') || 'est proche de toi') : (translate('areNearby') || 'sont proches de toi')}`, 'info')
+    }
+
     setState({ nearbyTravelers: travelers })
   } catch (err) {
     console.warn('[ProximityRadar] Snapshot processing error:', err.message)
