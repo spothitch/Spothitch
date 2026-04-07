@@ -1134,7 +1134,9 @@ window.toggleAccessibility = (setting) => {
  const s = getState()
  const newVal = !s[setting]
  setState({ [setting]: newVal })
- try { localStorage.setItem('spothitch_' + setting, newVal ? '1' : '0') } catch { /* no-op */ }
+ // Map camelCase state keys to snake_case localStorage keys (matching storageRegistry)
+ const keyMap = { bigText: 'spothitch_big_text', reducedMotion: 'spothitch_reduced_motion', highContrast: 'spothitch_high_contrast' }
+ try { localStorage.setItem(keyMap[setting] || ('spothitch_' + setting), newVal ? '1' : '0') } catch { /* no-op */ }
  // Apply CSS classes
  if (setting === 'bigText') document.body.classList.toggle('big-text', newVal)
  if (setting === 'reducedMotion') document.body.classList.toggle('reduce-motion', newVal)

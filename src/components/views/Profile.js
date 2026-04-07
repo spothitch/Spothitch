@@ -353,7 +353,7 @@ function renderProfileHeader(state) {
  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-primary-600 p-[3px]">
  <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center overflow-hidden">
  ${(state.profilePhotos?.[0] || state.userProfile?.photoURL || state.user?.photoURL)
- ? `<img src="${escapeHTML(state.profilePhotos?.[0] || state.userProfile?.photoURL || state.user?.photoURL)}" class="w-full h-full object-cover" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${icon('camera', 'w-6 h-6 text-slate-500').replace(/'/g, "\\'")}';">`
+ ? `<img src="${escapeHTML(state.profilePhotos?.[0] || state.userProfile?.photoURL || state.user?.photoURL)}" class="w-full h-full object-cover" alt="" onerror="this.style.display='none';this.parentElement.textContent=''">`
  : icon('camera', 'w-6 h-6 text-slate-500')}
  </div></div>
  ${!(state.profilePhotos?.[0] || state.userProfile?.photoURL || state.user?.photoURL) ? `<div class="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">${icon('plus', 'w-3 h-3 text-white')}</div>` : ''}

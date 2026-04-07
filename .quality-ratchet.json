@@ -1,6 +1,6 @@
 {
-  "totalScore": 84,
-  "updatedAt": "2026-04-05T07:01:58.812Z",
+  "totalScore": 83,
+  "updatedAt": "2026-04-07T11:24:11.652Z",
   "checks": {
     "Handlers Wiring": {
       "score": 60,
@@ -10,7 +10,7 @@
     "i18n Keys": {
       "score": 85,
       "errors": 0,
-      "warnings": 2
+      "warnings": 10
     },
     "Dead Exports": {
       "score": 100,
@@ -28,8 +28,8 @@
       "warnings": 11
     },
     "Error Patterns": {
-      "score": 40,
-      "errors": 44,
+      "score": 35,
+      "errors": 49,
       "warnings": 0
     },
     "Duplicate Handlers": {
