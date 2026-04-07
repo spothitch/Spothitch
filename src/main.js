@@ -1474,6 +1474,9 @@ window.toggleNearbyFriends = async (...args) => {
 window.openNearbyFriends = () => setState({ showNearbyFriends: true })
 window.closeNearbyFriends = () => setState({ showNearbyFriends: false })
 
+// Resume radar listener if it was enabled (page reload)
+import('./services/proximityRadar.js').then(m => m.resumeRadarIfEnabled?.()).catch(() => {})
+
 // Proximity alerts handlers — lazy-loaded
 window.toggleProximityAlerts = async (...args) => {
  const { toggleProximityAlerts } = await import('./services/proximityAlerts.js')

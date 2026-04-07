@@ -76,7 +76,9 @@ function renderCombined(state) {
           <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 0 12px;margin-bottom:4px" class="scrollbar-hide">
             ${nearbyTravelers.map(trav => `
               <div onclick="contactNearbyTraveler('${escapeJSString(trav.userId)}')" role="button" tabindex="0" style="display:flex;align-items:center;gap:8px;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 12px;flex-shrink:0;cursor:pointer;min-height:48px;transition:border-color 0.2s">
-                <div style="width:32px;height:32px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>
+                ${trav.photoURL
+                  ? `<img src="${escapeHTML(trav.photoURL)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="" onerror="this.style.display='none'">`
+                  : `<div style="width:32px;height:32px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>`}
                 <div>
                   <div style="font-weight:600;font-size:0.8rem;white-space:nowrap">${escapeHTML(trav.userName || t('traveler'))}</div>
                   <div style="color:#94a3b8;font-size:0.72rem;white-space:nowrap">${trav.displayDistance === null ? `< 5 km` : `~${trav.displayDistance} km`}</div>
@@ -242,8 +244,10 @@ function renderRadarActiveContent(state, settings, nearbyTravelers, selectedRadi
       </div>
 
       ${nearbyTravelers.length > 0 ? nearbyTravelers.map(trav => `
-        <div style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px">
-          <div style="width:44px;height:44px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>
+        <div style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px" role="listitem">
+          ${trav.photoURL
+            ? `<img src="${escapeHTML(trav.photoURL)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="${escapeHTML(trav.userName || '')}" onerror="this.style.display='none'">`
+            : `<div style="width:44px;height:44px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>`}
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
               <span style="font-weight:600;font-size:0.9rem">${escapeHTML(trav.userName || t('traveler'))}</span>
@@ -669,17 +673,21 @@ function renderBuddyCreate(state) {
 function renderBuddyCard(buddy, showCountry = false) {
   const initial = (buddy.userName || '?')[0].toUpperCase()
   const modeLabels = { autostop: 'Auto-stop', mixte: 'Mixte', autre: 'Autre' }
+  const langStr = Array.isArray(buddy.languages) && buddy.languages.length > 0
+    ? buddy.languages.slice(0, 3).join(', ')
+    : ''
 
   return `
-    <div onclick="showBuddyDetail('${escapeJSString(buddy.id)}')" role="button" tabindex="0" style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
+    <div onclick="showBuddyDetail('${escapeJSString(buddy.id)}')" role="button" tabindex="0" aria-label="${escapeHTML(buddy.departure || '')} ${escapeHTML(buddy.destination || '')}" style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <div style="width:38px;height:38px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8">${initial}</div>
+        ${buddy.photoURL
+          ? `<img src="${escapeHTML(buddy.photoURL)}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="" onerror="this.outerHTML='<div style=\\'width:38px;height:38px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8\\'>${initial}</div>'">`
+          : `<div style="width:38px;height:38px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8">${initial}</div>`}
         <div>
           <div style="font-weight:600;font-size:0.88rem">
             ${escapeHTML(buddy.userName || t('traveler'))}
-            ${buddy.verified ? `<span style="display:inline-flex;align-items:center;gap:2px;background:rgba(34,197,94,0.12);color:#22c55e;font-size:0.62rem;font-weight:600;padding:2px 6px;border-radius:6px;margin-left:4px">${icon('check', 'w-2.5 h-2.5')} ${t('verified') || 'Verifie'}</span>` : ''}
           </div>
-          <div style="color:#94a3b8;font-size:0.74rem">${showCountry && buddy.country ? buddy.countryFlag + ' ' + (buddy.countryName || buddy.country) + ' · ' : ''}${buddy.spotCount ? buddy.spotCount + ' spots' : ''}</div>
+          <div style="color:#94a3b8;font-size:0.74rem">${langStr ? escapeHTML(langStr) : ''}${showCountry && buddy.country ? (langStr ? ' · ' : '') + escapeHTML(buddy.country) : ''}</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;margin-bottom:4px">
@@ -791,6 +799,7 @@ window.contactNearbyTraveler = (uid) => {
       return
     }
   } catch { /* ignore */ }
+  window.showToast?.(t('openingConversation') || 'Ouverture de la conversation...', 'info')
   window.setState?.({ socialSubTab: 'messagerie', activeDMConversation: uid })
 }
 
@@ -915,12 +924,27 @@ window.deleteBuddyAnnouncement = async (id) => {
   }
 }
 
+window.closeBuddyAnnouncement = async (id) => {
+  const { closeTravelBuddy } = await import('../../../services/travelBuddies.js')
+  const result = await closeTravelBuddy(id)
+  if (result.success) {
+    window.setState?.({ voyageursView: 'combined', selectedBuddyDetail: null })
+    window.showToast?.(t('buddyFound') || 'Compagnon trouve ! Annonce fermee.', 'success')
+    try {
+      const { getTravelBuddies } = await import('../../../services/travelBuddies.js')
+      const buddies = await getTravelBuddies()
+      window.setState?.({ travelBuddies: buddies })
+    } catch { /* keep existing */ }
+  } else {
+    window.showToast?.(t('errorOccurred') || 'Erreur', 'error')
+  }
+}
+
 window.setBuddyCountryFilter = (code) => {
   window.setState?.({ buddyCountryFilter: code })
 }
 
 window.contactBuddyAuthor = (uid) => {
-  // Check blocked users before opening DM
   try {
     const blocked = JSON.parse(localStorage.getItem('spothitch_blocked_users') || '[]')
     const ids = blocked.map(b => typeof b === 'string' ? b : b.id || b.uid).filter(Boolean)
@@ -929,6 +953,7 @@ window.contactBuddyAuthor = (uid) => {
       return
     }
   } catch { /* ignore */ }
+  window.showToast?.(t('openingConversation') || 'Ouverture de la conversation...', 'info')
   window.setState?.({ socialSubTab: 'messagerie', activeDMConversation: uid, voyageursView: 'combined' })
 }
 

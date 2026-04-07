@@ -3,6 +3,7 @@
  * Lets travelers see nearby travelers and be visible to them.
  * Position is approximate (~1km) for privacy.
  * 15-minute cooldown on toggle off to prevent abuse.
+ * Real-time updates via onSnapshot listener.
  */
 
 import { haversineKm } from '../utils/geo.js'
@@ -11,6 +12,11 @@ const RADAR_KEY = 'spothitch_proximity_radar'
 const COOLDOWN_MS = 15 * 60 * 1000 // 15 minutes
 const POSITION_PRECISION = 2 // decimal places (~1.1km)
 const MIN_DISPLAY_DISTANCE = 5 // never show less than 5km
+const POSITION_UPDATE_THROTTLE_MS = 60 * 1000 // Max 1 position update per minute
+
+let _radarListener = null // onSnapshot unsubscribe
+let _positionInterval = null
+let _lastPositionUpdate = 0
 
 const DEFAULTS = {
   enabled: false,
@@ -51,7 +57,6 @@ export function getRemainingCooldownMinutes() {
 // ─── Radar activation / deactivation ─────────────────────────────────────────
 
 export async function activateRadar() {
-  // Check cooldown first
   if (isRadarInCooldown()) {
     const mins = getRemainingCooldownMinutes()
     return { success: false, error: 'cooldown', remainingMinutes: mins }
@@ -66,30 +71,38 @@ export async function activateRadar() {
     const pos = await _getCurrentPosition()
     if (!pos) return { success: false, error: 'gps' }
 
-    // Round to ~1km (2 decimal places) for privacy
     const approxLat = _roundPosition(pos.lat)
     const approxLng = _roundPosition(pos.lng)
 
     const { getState } = await import('../stores/state.js')
     const state = getState()
     const settings = getRadarSettings()
+    const displayName = state.firstName
+      ? `${state.firstName} ${(state.lastName || '').charAt(0)}.`
+      : (user.displayName || state.username || '')
 
     await setDoc(doc(db, 'radarUsers', user.uid), {
       userId: user.uid,
-      userName: user.displayName || state.username || '',
+      userName: displayName,
+      photoURL: state.profilePhotos?.[0] || state.userProfile?.photoURL || user.photoURL || null,
+      gender: state.gender || null,
       lat: approxLat,
       lng: approxLng,
       radius: settings.radius,
       visibility: settings.visibility,
-      message: settings.message,
+      message: (settings.message || '').substring(0, 200),
       updatedAt: serverTimestamp(),
     })
 
     saveRadarSettings({ enabled: true })
+
+    // Start real-time listener + periodic position updates
+    _startRadarListener()
+    _startPositionUpdates()
+
     return { success: true }
   } catch (err) {
     console.warn('[ProximityRadar] Activation failed:', err.message)
-    // Don't set enabled=true if Firestore failed (user would think they're visible but they're not)
     saveRadarSettings({ enabled: false })
     return { success: false, error: 'firestore' }
   }
@@ -104,7 +117,10 @@ export async function deactivateRadar() {
 
     await deleteDoc(doc(db, 'radarUsers', user.uid))
 
-    // Set cooldown
+    // Stop listener + position updates
+    _stopRadarListener()
+    _stopPositionUpdates()
+
     saveRadarSettings({
       enabled: false,
       cooldownUntil: Date.now() + COOLDOWN_MS,
@@ -116,11 +132,123 @@ export async function deactivateRadar() {
   }
 }
 
-// ─── Position update (called periodically while radar is on) ─────────────────
+// ─── Real-time listener ──────────────────────────────────────────────────────
+
+async function _startRadarListener() {
+  _stopRadarListener()
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { collection, onSnapshot } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return
+
+    _radarListener = onSnapshot(collection(db, 'radarUsers'), (snapshot) => {
+      _processRadarSnapshot(snapshot, user.uid)
+    }, (err) => {
+      console.warn('[ProximityRadar] Listener error:', err.message)
+    })
+  } catch { /* offline */ }
+}
+
+function _stopRadarListener() {
+  if (_radarListener) {
+    _radarListener()
+    _radarListener = null
+  }
+}
+
+async function _processRadarSnapshot(snapshot, currentUid) {
+  try {
+    const { getState, setState } = await import('../stores/state.js')
+    const state = getState()
+    const settings = getRadarSettings()
+
+    let userPos = state.userLocation || state.lastKnownPosition
+    if (!userPos) {
+      const pos = await _getCurrentPosition()
+      if (!pos) return
+      userPos = pos
+    }
+    if (!userPos.lat || !userPos.lng) return
+
+    const friends = state.friends || []
+    const friendIds = new Set(friends.map(f => f.id))
+
+    let blockedIds = new Set()
+    try {
+      const blocked = JSON.parse(localStorage.getItem('spothitch_blocked_users') || '[]')
+      blockedIds = new Set(blocked.map(b => typeof b === 'string' ? b : b.id || b.uid).filter(Boolean))
+    } catch { /* ignore */ }
+
+    const now = Date.now()
+    const MAX_AGE_MS = 2 * 60 * 60 * 1000
+    const userGender = state.gender || null
+    const travelers = []
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data()
+      if (data.userId === currentUid) return
+      if (blockedIds.has(data.userId)) return
+      if (!data.lat || !data.lng) return
+
+      const updatedMs = data.updatedAt?.toMillis?.() || data.updatedAt?.seconds * 1000 || 0
+      if (updatedMs && now - updatedMs > MAX_AGE_MS) return
+
+      // Visibility filtering
+      const vis = data.visibility || ['tous']
+      if (!vis.includes('tous')) {
+        if (vis.includes('amis') && !friendIds.has(data.userId)) return
+        if (vis.includes('femmes') && userGender !== 'female') return
+        if (vis.includes('verifies') && !state.verificationLevel) return
+      }
+
+      const dist = haversineKm(userPos.lat, userPos.lng, data.lat, data.lng)
+      if (dist > settings.radius) return
+
+      travelers.push({
+        userId: data.userId,
+        userName: data.userName,
+        photoURL: data.photoURL || null,
+        gender: data.gender || null,
+        distance: dist,
+        displayDistance: formatRadarDistance(dist),
+        message: data.message || '',
+        visibility: vis,
+        updatedAt: data.updatedAt,
+      })
+    })
+
+    travelers.sort((a, b) => a.distance - b.distance)
+    setState({ nearbyTravelers: travelers })
+  } catch (err) {
+    console.warn('[ProximityRadar] Snapshot processing error:', err.message)
+  }
+}
+
+// ─── Periodic position updates (throttled) ───────────────────────────────────
+
+function _startPositionUpdates() {
+  _stopPositionUpdates()
+  _positionInterval = setInterval(() => {
+    updateRadarPosition()
+  }, POSITION_UPDATE_THROTTLE_MS)
+}
+
+function _stopPositionUpdates() {
+  if (_positionInterval) {
+    clearInterval(_positionInterval)
+    _positionInterval = null
+  }
+}
 
 export async function updateRadarPosition() {
   const settings = getRadarSettings()
   if (!settings.enabled) return
+
+  // Throttle: max 1 update per minute
+  const now = Date.now()
+  if (now - _lastPositionUpdate < POSITION_UPDATE_THROTTLE_MS) return
+  _lastPositionUpdate = now
 
   try {
     const { db, getCurrentUser } = await import('./firebase.js')
@@ -144,7 +272,17 @@ export async function updateRadarPosition() {
   }
 }
 
-// ─── Query nearby travelers ──────────────────────────────────────────────────
+// ─── Resume listener on page load (if radar was enabled) ─────────────────────
+
+export function resumeRadarIfEnabled() {
+  const settings = getRadarSettings()
+  if (settings.enabled) {
+    _startRadarListener()
+    _startPositionUpdates()
+  }
+}
+
+// ─── Query nearby travelers (fallback for non-listener contexts) ─────────────
 
 export async function getNearbyTravelers() {
   try {
@@ -157,7 +295,6 @@ export async function getNearbyTravelers() {
     const state = getState()
     const settings = getRadarSettings()
 
-    // Get user position (state, or fresh GPS)
     let userPos = state.userLocation || state.lastKnownPosition
     if (!userPos) {
       const pos = await _getCurrentPosition()
@@ -169,13 +306,12 @@ export async function getNearbyTravelers() {
     const snapshot = await getDocs(collection(db, 'radarUsers'))
     const travelers = []
     const now = Date.now()
-    const MAX_AGE_MS = 2 * 60 * 60 * 1000 // 2h: ignore stale entries
+    const MAX_AGE_MS = 2 * 60 * 60 * 1000
 
-    // Friends list for visibility filtering
     const friends = state.friends || []
     const friendIds = new Set(friends.map(f => f.id))
+    const userGender = state.gender || null
 
-    // Blocked users list
     let blockedIds = new Set()
     try {
       const blocked = JSON.parse(localStorage.getItem('spothitch_blocked_users') || '[]')
@@ -184,34 +320,28 @@ export async function getNearbyTravelers() {
 
     snapshot.forEach((docSnap) => {
       const data = docSnap.data()
-      // Skip self
       if (data.userId === user.uid) return
-
-      // Skip blocked users
       if (blockedIds.has(data.userId)) return
-
-      // Skip entries without valid coordinates
       if (!data.lat || !data.lng) return
 
-      // Skip stale entries (>2h old)
       const updatedMs = data.updatedAt?.toMillis?.() || data.updatedAt?.seconds * 1000 || 0
       if (updatedMs && now - updatedMs > MAX_AGE_MS) return
 
-      // Visibility filtering: respect the traveler's visibility settings
       const vis = data.visibility || ['tous']
       if (!vis.includes('tous')) {
         if (vis.includes('amis') && !friendIds.has(data.userId)) return
+        if (vis.includes('femmes') && userGender !== 'female') return
+        if (vis.includes('verifies') && !state.verificationLevel) return
       }
 
-      // Calculate distance
       const dist = haversineKm(userPos.lat, userPos.lng, data.lat, data.lng)
-
-      // Only include travelers within our radius
       if (dist > settings.radius) return
 
       travelers.push({
         userId: data.userId,
         userName: data.userName,
+        photoURL: data.photoURL || null,
+        gender: data.gender || null,
         distance: dist,
         displayDistance: formatRadarDistance(dist),
         message: data.message || '',
@@ -220,7 +350,6 @@ export async function getNearbyTravelers() {
       })
     })
 
-    // Sort by distance (closest first)
     travelers.sort((a, b) => a.distance - b.distance)
     return travelers
   } catch (err) {
