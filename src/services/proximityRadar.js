@@ -154,16 +154,39 @@ export async function getNearbyTravelers() {
     const { getState } = await import('../stores/state.js')
     const state = getState()
     const settings = getRadarSettings()
-    const userPos = state.userLocation
-    if (!userPos) return []
+    // Use stored radar position or last known location
+    const userPos = state.userLocation || state.lastKnownPosition
+    if (!userPos) {
+      // Try to get current position
+      const pos = await _getCurrentPosition()
+      if (!pos) return []
+      Object.assign(userPos || {}, pos)
+    }
 
     const snapshot = await getDocs(collection(db, 'radarUsers'))
     const travelers = []
+    const now = Date.now()
+    const MAX_AGE_MS = 2 * 60 * 60 * 1000 // 2 hours: ignore stale entries
+
+    // Check if user has friends list for visibility filtering
+    const friends = state.friends || []
+    const friendIds = new Set(friends.map(f => f.id))
 
     snapshot.forEach((docSnap) => {
       const data = docSnap.data()
       // Skip self
       if (data.userId === user.uid) return
+
+      // Skip stale entries (>2h old = probably forgot to turn off)
+      const updatedMs = data.updatedAt?.toMillis?.() || data.updatedAt?.seconds * 1000 || 0
+      if (updatedMs && now - updatedMs > MAX_AGE_MS) return
+
+      // Visibility filtering: respect the traveler's visibility settings
+      const vis = data.visibility || ['tous']
+      if (!vis.includes('tous')) {
+        // If they chose 'amis' only, check if we're friends
+        if (vis.includes('amis') && !friendIds.has(data.userId)) return
+      }
 
       // Calculate distance
       const dist = haversineKm(userPos.lat, userPos.lng, data.lat, data.lng)
@@ -177,7 +200,7 @@ export async function getNearbyTravelers() {
         distance: dist,
         displayDistance: formatRadarDistance(dist),
         message: data.message || '',
-        visibility: data.visibility || ['tous'],
+        visibility: vis,
         updatedAt: data.updatedAt,
       })
     })

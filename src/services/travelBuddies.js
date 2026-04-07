@@ -18,9 +18,15 @@ export async function getTravelBuddies(filters = {}) {
     const snapshot = await getDocs(q)
     const buddies = []
 
+    const today = new Date().toISOString().split('T')[0]
+
     snapshot.forEach((docSnap) => {
       const data = docSnap.data()
       const buddy = { id: docSnap.id, ...data }
+
+      // Skip expired announcements (dateTo or dateFrom is in the past)
+      const expiryDate = buddy.dateTo || buddy.dateFrom
+      if (expiryDate && expiryDate < today) return
 
       // Apply client-side filters
       if (filters.country && filters.country !== 'all') {
@@ -47,6 +53,23 @@ export async function createTravelBuddy(data) {
       return { success: false, error: 'missing_fields' }
     }
 
+    // Validate field lengths (prevent spam)
+    if (data.departure.length > 100 || data.destination.length > 100) {
+      return { success: false, error: 'too_long' }
+    }
+    if (data.message && data.message.length > 500) {
+      return { success: false, error: 'message_too_long' }
+    }
+
+    // Validate dates
+    const today = new Date().toISOString().split('T')[0]
+    if (data.dateFrom < today) {
+      return { success: false, error: 'date_past' }
+    }
+    if (data.dateTo && data.dateTo < data.dateFrom) {
+      return { success: false, error: 'date_invalid' }
+    }
+
     const { db, getCurrentUser } = await import('./firebase.js')
     const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
     const user = getCurrentUser()
@@ -54,17 +77,22 @@ export async function createTravelBuddy(data) {
 
     const { getState } = await import('../stores/state.js')
     const state = getState()
+    const displayName = state.firstName
+      ? `${state.firstName} ${(state.lastName || '').charAt(0)}.`
+      : (user.displayName || state.username || '')
 
     const docRef = await addDoc(collection(db, 'travelBuddies'), {
       userId: user.uid,
-      userName: user.displayName || state.username || '',
-      departure: data.departure,
-      destination: data.destination,
+      userName: displayName,
+      departure: data.departure.substring(0, 100),
+      destination: data.destination.substring(0, 100),
       country: data.country || '',
       dateFrom: data.dateFrom,
       dateTo: data.dateTo || '',
-      message: data.message || '',
+      message: (data.message || '').substring(0, 500),
       visibility: data.visibility || ['tous'],
+      mode: data.mode || 'autostop',
+      flexDates: data.flexDates || false,
       createdAt: serverTimestamp(),
     })
 

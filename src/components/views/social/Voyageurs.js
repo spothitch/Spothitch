@@ -844,6 +844,21 @@ window.submitBuddyAnnouncement = async () => {
     window.showToast?.(t('fillDates') || 'Indique au moins une date de depart', 'warning')
     return
   }
+  // Validate dates
+  const today = new Date().toISOString().split('T')[0]
+  if (dateFrom < today) {
+    window.showToast?.(t('dateMustBeFuture') || 'La date doit etre dans le futur', 'warning')
+    return
+  }
+  if (dateTo && dateTo < dateFrom) {
+    window.showToast?.(t('dateEndBeforeStart') || 'La date de fin doit etre apres le depart', 'warning')
+    return
+  }
+  // Validate field lengths
+  if (departure.length > 100 || destination.length > 100) {
+    window.showToast?.(t('fieldTooLong') || 'Champ trop long (100 max)', 'warning')
+    return
+  }
 
   const { createTravelBuddy } = await import('../../../services/travelBuddies.js')
   const result = await createTravelBuddy({
