@@ -10,8 +10,13 @@ const initialState = {
   // User
   user: null,
   username: '',
+  firstName: '',
+  lastName: '',
+  birthYear: null,
+  gender: '',
   bio: '',
   avatar: 'thumbs-up',
+  profilePhotos: [],
   isLoggedIn: false,
   currentUser: null,
   userProfile: null,
@@ -427,6 +432,11 @@ function loadPersistedState() {
     if (state.showWelcome) {
       state.showWelcome = false;
     }
+    // Load profile photos from separate storage (too large for main state)
+    try {
+      const photos = JSON.parse(localStorage.getItem('spothitch_profile_photos') || '[]')
+      if (Array.isArray(photos)) state.profilePhotos = photos
+    } catch { /* ignore */ }
   } else {
     // Brand new user — tutorial will be shown after landing page dismissal
   }
@@ -436,6 +446,10 @@ function loadPersistedState() {
 function persistState() {
   const stateToPersist = {
     username: state.username,
+    firstName: state.firstName,
+    lastName: state.lastName,
+    birthYear: state.birthYear,
+    gender: state.gender,
     bio: state.bio,
     avatar: state.avatar,
     theme: state.theme,

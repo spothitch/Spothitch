@@ -95,6 +95,24 @@ export function renderFriendProfileModal(state) {
             </div>
           </div>
 
+          <!-- Bio -->
+          ${friend.bio ? `
+          <div class="card p-3">
+            <p class="text-sm text-slate-300 leading-relaxed">${escapeHTML(friend.bio)}</p>
+          </div>
+          ` : ''}
+
+          <!-- Languages -->
+          ${friend.languages?.length > 0 ? `
+          <div class="flex flex-wrap gap-1.5">
+            ${friend.languages.map(l => `
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-white/5 text-slate-300">
+                ${l.flag || ''} ${escapeHTML(l.name || '')}
+              </span>
+            `).join('')}
+          </div>
+          ` : ''}
+
           <!-- Social Links (from Firestore) -->
           ${renderFriendSocialLinks(state.friendProfileSocialLinks)}
 

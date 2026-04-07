@@ -39,7 +39,7 @@ export function renderDeleteAccountModal(state) {
             ${icon('triangle-alert', 'w-8 h-8 text-red-500')}
           </div>
           <h2 id="delete-account-title" class="text-2xl font-bold text-red-400">${t('deleteMyAccount') || 'Supprimer mon compte'}</h2>
-          <p class="text-slate-400 text-sm mt-2">${t('thisActionIrreversible') || 'Cette action est irréversible'}</p>
+          <p class="text-slate-400 text-sm mt-2">${t('deleteGracePeriod')}</p>
         </div>
 
         <!-- Warning content -->
@@ -173,33 +173,35 @@ window.confirmDeleteAccount = async (event) => {
   }
 
   try {
-    const { deleteUserAccount } = await import('../../services/firebase.js');
     const { showToast } = await import('../../services/notifications.js');
-    const { setState, actions } = await import('../../stores/state.js');
+    const { setState } = await import('../../stores/state.js');
 
-    const result = await deleteUserAccount(password);
+    // Schedule deletion in 30 days (grace period) instead of instant delete
+    const { getCurrentUser, updateUserProfile } = await import('../../services/firebase.js');
+    const user = getCurrentUser();
+    if (!user) throw new Error('No user');
+
+    // Re-authenticate first to verify password
+    const { EmailAuthProvider, reauthenticateWithCredential } = await import('firebase/auth');
+    const credential = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, credential);
+
+    // Schedule deletion (30 days from now)
+    const deleteDate = new Date();
+    deleteDate.setDate(deleteDate.getDate() + 30);
+    await updateUserProfile(user.uid, {
+      deletionScheduledAt: deleteDate.toISOString(),
+      deletionRequested: true,
+    });
+
+    setState({ showDeleteAccount: false });
+    showToast((t('deleteGracePeriod') || 'Ton compte sera supprimé dans 30 jours.'), 'info');
+
+    // Show result
+    const result = { success: true };
 
     if (result.success) {
-      // Clear ALL local data (RGPD compliant - uses centralized registry)
-      const { clearAllUserData } = await import('../../services/storageRegistry.js');
-      clearAllUserData();
-
-      // Reset state
-      actions.setUser(null);
-      setState({
-        showDeleteAccount: false,
-        isLoggedIn: false,
-        user: null,
-        points: 0,
-        level: 1,
-        badges: [],
-        spotsCreated: 0,
-        checkins: 0,
-        reviewsGiven: 0,
-        activeTab: 'map',
-      });
-
-      showToast(t('accountDeletedGoodbye') || 'Compte supprimé avec succès. Au revoir !', 'success');
+      // Don't clear data yet — user has 30 days to cancel
     } else {
       // Show error
       if (errorDiv) {

@@ -1116,10 +1116,29 @@ window.openFullMap = () => {
 window.toggleTheme = () => {
  const s = getState()
  const newTheme = s.theme === 'dark' ? 'light' : 'dark'
- setState({ theme: newTheme })
+ setState({ theme: newTheme, themeMode: newTheme })
  document.body.classList.toggle('light-theme', newTheme === 'light')
  // Persist immediately (don't wait for microtask debounce) so reload preserves theme
  try { localStorage.setItem('spothitch_theme_override', newTheme) } catch { /* no-op */ }
+}
+window.setThemeMode = (mode) => {
+ let effectiveTheme = mode
+ if (mode === 'auto') {
+  effectiveTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+ }
+ setState({ theme: effectiveTheme, themeMode: mode })
+ document.body.classList.toggle('light-theme', effectiveTheme === 'light')
+ try { localStorage.setItem('spothitch_theme_override', mode === 'auto' ? 'auto' : effectiveTheme) } catch { /* no-op */ }
+}
+window.toggleAccessibility = (setting) => {
+ const s = getState()
+ const newVal = !s[setting]
+ setState({ [setting]: newVal })
+ try { localStorage.setItem('spothitch_' + setting, newVal ? '1' : '0') } catch { /* no-op */ }
+ // Apply CSS classes
+ if (setting === 'bigText') document.body.classList.toggle('big-text', newVal)
+ if (setting === 'reducedMotion') document.body.classList.toggle('reduce-motion', newVal)
+ if (setting === 'highContrast') document.body.classList.toggle('high-contrast', newVal)
 }
 window.setViewMode = (mode) => {
  if (mode === 'map') {

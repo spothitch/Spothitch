@@ -204,7 +204,6 @@ function renderProfilTab(state) {
 
  const bio = state.bio || ''
  const langs = (() => { try { return JSON.parse(localStorage.getItem('spothitch_languages') || '[]') } catch { return [] } })()
- const photos = (() => { try { return JSON.parse(localStorage.getItem('spothitch_gallery') || '[]') } catch { return [] } })()
  const tripCount = state.pastTrips?.length || 0
  const reviewCount = state.myReviews?.length || 0
 
@@ -218,6 +217,7 @@ function renderProfilTab(state) {
 
  return `
  ${renderProfileHeader(state)}
+ ${renderProfileCompletion(state)}
  ${renderClickableStats(state)}
 
  <!-- Bio -->
@@ -248,21 +248,35 @@ function renderProfilTab(state) {
  }
  </div>
 
- <!-- Photos -->
- ${photos.length > 0 ? `
+ <!-- Profile Photos -->
  <div class="card p-4">
- <div class="flex items-center gap-2 mb-2">
+ <div class="flex items-center justify-between mb-2">
+ <div class="flex items-center gap-2">
  ${svgPhotos}
- <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('photoGallery') || 'Photos'}</span>
- <span class="text-xs text-slate-500">(${photos.length})</span></div>
- <div class="flex gap-2 overflow-x-auto pb-1">
- ${photos.slice(0, 5).map(url => `
- <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
- <img src="${escapeHTML(url)}" class="w-full h-full object-cover" alt="" loading="lazy" /></div>
+ <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('profilePhotos') || 'Mes photos'}</span>
+ <span class="text-xs text-slate-500">(${(state.profilePhotos || []).length}/6)</span></div>
+ ${(state.profilePhotos || []).length < 6 ? `
+ <button onclick="addProfilePhoto()" class="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1">
+ ${icon('plus', 'w-3 h-3')} ${t('addPhoto')}
+ </button>` : ''}
+ </div>
+ <div class="grid grid-cols-3 gap-2">
+ ${(state.profilePhotos || []).map((url, i) => `
+ <div class="relative aspect-square rounded-lg overflow-hidden bg-white/5 group">
+ <img src="${escapeHTML(url)}" class="w-full h-full object-cover" alt="" loading="lazy" />
+ ${i === 0 ? `<div class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/90 text-white">${t('setMainPhoto')}</div>` : `<button onclick="setMainProfilePhoto(${i})" class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">${icon('star', 'w-2.5 h-2.5 inline')}</button>`}
+ <button onclick="removeProfilePhoto(${i})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="${t('removePhoto')}">
+ ${icon('x', 'w-3 h-3 text-white')}
+ </button>
+ </div>
  `).join('')}
- ${photos.length > 5 ? `<div class="w-16 h-16 rounded-lg flex-shrink-0 bg-white/5 flex items-center justify-center text-xs text-slate-400">+${photos.length - 5}</div>` : ''}
- </div></div>
- ` : ''}
+ ${(state.profilePhotos || []).length < 6 ? `
+ <button onclick="addProfilePhoto()" class="aspect-square rounded-lg border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-1 hover:border-primary-500/50 hover:bg-white/5 transition-colors">
+ ${icon('camera', 'w-5 h-5 text-slate-500')}
+ <span class="text-[9px] text-slate-500">${t('addPhoto')}</span>
+ </button>` : ''}
+ </div>
+ </div>
 
  <!-- Reviews -->
  ${reviewCount > 0 ? `
@@ -293,6 +307,38 @@ function renderProfilTab(state) {
 // renderMyReviewsCard, renderPublicTripsCard, renderBadgesGrid, renderSocialLinksCard)
 // were removed — profile info now displayed directly in renderProfilTab, editing only via modal
 
+function renderProfileCompletion(state) {
+ const checks = [
+  { done: !!(state.firstName || state.user?.displayName), label: t('firstName'), action: null },
+  { done: !!(state.userProfile?.photoURL || state.user?.photoURL), label: t('profileAddPhoto'), action: 'openProfileCustomization()' },
+  { done: !!(state.bio), label: t('profileAddBio'), action: 'editBio()' },
+  { done: (() => { try { return JSON.parse(localStorage.getItem('spothitch_languages') || '[]').length > 0 } catch { return false } })(), label: t('profileAddLanguages'), action: 'editLanguages()' },
+ ]
+ const done = checks.filter(c => c.done).length
+ const total = checks.length
+ const percent = Math.round((done / total) * 100)
+ if (percent >= 100) return ''
+ const missing = checks.filter(c => !c.done)
+ return `
+ <div class="card p-3 mb-3 border border-amber-500/20">
+  <div class="flex items-center gap-2 mb-2">
+   <span class="text-xs font-semibold text-amber-400">${(t('profileCompletion') || 'Profil complété à {percent}%').replace('{percent}', percent)}</span>
+  </div>
+  <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
+   <div class="h-full bg-gradient-to-r from-amber-400 to-emerald-400 rounded-full transition-all" style="width: ${percent}%"></div>
+  </div>
+  <div class="space-y-1">
+   ${missing.map(m => `
+    <button onclick="${m.action || ''}" class="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors w-full text-left${m.action ? '' : ' cursor-default'}">
+     ${icon('circle', 'w-3 h-3 text-slate-600')}
+     <span>${m.label}</span>
+    </button>
+   `).join('')}
+  </div>
+ </div>
+ `
+}
+
 function renderProfileHeader(state) {
  const { isIdVerified } = getUserTrustScore()
  const verifiedBadge = renderVerifiedCheckmark(isIdVerified)
@@ -302,21 +348,24 @@ function renderProfileHeader(state) {
 
  return `
  <div class="flex items-start gap-4 pt-2 pb-4 border-b border-white/10">
- <!-- Avatar -->
- <div class="relative flex-shrink-0 cursor-pointer" onclick="openProfileCustomization()" role="button" tabindex="0">
+ <!-- Profile photo -->
+ <div class="relative flex-shrink-0 cursor-pointer" onclick="openPhotoManager()" role="button" tabindex="0">
  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-primary-600 p-[3px]">
- <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-3xl overflow-hidden">
- ${(state.userProfile?.photoURL || state.user?.photoURL)
- ? `<img src="${escapeHTML(state.userProfile?.photoURL || state.user?.photoURL)}" class="w-full h-full object-cover" alt="" onerror="this.style.display='none';this.parentElement.textContent='thumbs-up'">`
- : (state.avatar ? state.avatar : icon('thumbs-up', 'w-5 h-5 text-amber-400'))}
- </div></div></div>
+ <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center overflow-hidden">
+ ${(state.profilePhotos?.[0] || state.userProfile?.photoURL || state.user?.photoURL)
+ ? `<img src="${escapeHTML(state.profilePhotos?.[0] || state.userProfile?.photoURL || state.user?.photoURL)}" class="w-full h-full object-cover" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='${icon('camera', 'w-6 h-6 text-slate-500').replace(/'/g, "\\'")}';">`
+ : icon('camera', 'w-6 h-6 text-slate-500')}
+ </div></div>
+ ${!(state.profilePhotos?.[0] || state.userProfile?.photoURL || state.user?.photoURL) ? `<div class="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">${icon('plus', 'w-3 h-3 text-white')}</div>` : ''}
+ </div>
  <!-- Name -->
  <div class="flex-1 min-w-0">
  <div class="flex items-center gap-1 flex-wrap">
- <h2 class="text-base font-bold">@${escapeHTML(state.username || t('traveler') || 'Voyageur')}</h2>
+ <h2 class="text-base font-bold">${escapeHTML(state.firstName && state.lastName ? `${state.firstName} ${state.lastName.charAt(0)}.` : (state.username ? '@' + state.username : (state.user?.displayName || t('traveler') || 'Voyageur')))}</h2>
  ${verifiedBadge}
  </div>
- ${memberSince ? `<p class="text-[10px] text-slate-500 mt-1">${t('memberSince') || 'Membre depuis'} ${memberSince}</p>` : ''}
+ ${state.username ? `<p class="text-[10px] text-slate-400">@${escapeHTML(state.username)}</p>` : ''}
+ ${memberSince ? `<p class="text-[10px] text-slate-500 mt-0.5">${t('memberSince') || 'Membre depuis'} ${memberSince}</p>` : ''}
  <p class="text-[10px] text-slate-500 truncate">${state.user?.email || t('notConnected') || 'Non connecté'}</p></div>
  <!-- Quick actions -->
  <div class="flex flex-col gap-1.5 flex-shrink-0">
@@ -967,6 +1016,7 @@ function renderSettingsSection(sectionId, state) {
  case 'notifications': return renderNotificationsCard(state)
  case 'offline': return renderOfflineManagerCard(state)
  case 'account': return `
+ ${renderAccountManagementCard(state)}
  ${renderVerificationCard(state)}
  ${renderPrivacyCard(state)}
  `
@@ -1001,6 +1051,11 @@ function renderHelpLegalSection() {
  <button onclick="showLegalPage('guidelines')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
  ${icon('scroll-text', 'w-4 h-4 text-amber-400')}
  <span class="text-sm text-slate-300">${t('communityGuidelines') || 'Community guidelines'}</span>
+ ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
+ </button>
+ <button onclick="openAppealForm()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+ ${icon('scale', 'w-4 h-4 text-amber-400')}
+ <span class="text-sm text-slate-300">${t('appealModeration')}</span>
  ${icon('chevron-right', 'w-4 h-4 text-slate-500 ml-auto')}
  </button>
  <button onclick="shareApp()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left">
@@ -1107,31 +1162,50 @@ function renderOfflineManagerCard(_state) {
 }
 
 function renderSettingsMiniHeader(state) {
+ const displayName = state.firstName && state.lastName
+  ? `${state.firstName} ${state.lastName.charAt(0)}.`
+  : (state.user?.displayName || state.username || t('traveler') || 'Voyageur')
  return `
  <div class="flex items-center gap-3 mb-1">
  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 p-[2px]">
- <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center text-xl">
- ${state.avatar || 'thumbs-up'}
+ <div class="w-full h-full rounded-full bg-dark-primary flex items-center justify-center overflow-hidden">
+ ${(state.userProfile?.photoURL || state.user?.photoURL)
+  ? `<img src="${escapeHTML(state.userProfile?.photoURL || state.user?.photoURL)}" class="w-full h-full object-cover" alt="" />`
+  : icon('thumbs-up', 'w-5 h-5 text-amber-400')}
  </div></div>
  <div>
- <div class="font-medium text-sm">${escapeHTML(state.username || t('traveler') || 'Voyageur')}</div>
- <div class="text-xs text-slate-400">@${escapeHTML(state.username || 'user')}</div></div></div>
+ <div class="font-medium text-sm">${escapeHTML(displayName)}</div>
+ ${state.username ? `<div class="text-xs text-slate-400">@${escapeHTML(state.username)}</div>` : `<div class="text-xs text-slate-500">${state.user?.email || ''}</div>`}</div></div>
  `
 }
 
 function renderAppearanceCard(state) {
+ const themeMode = state.themeMode || (state.theme === 'dark' ? 'dark' : 'light')
  return `
  <div class="card p-4 space-y-3">
  <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
  ${icon('palette', 'w-4 h-4')}
  ${t('settingsAppearance') || 'Apparence'}
  </h3>
- <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
- <div class="flex items-center gap-3">
- ${icon('moon', 'w-5 h-5 text-purple-400')}
- <span class="text-sm">${t('darkMode') || 'Thème sombre'}</span></div>
- ${renderToggle(state.theme === 'dark', "toggleTheme()", t('toggleDarkMode') || 'Activer le thème sombre')}
- </div>
+ <!-- Theme mode: Light / Dark / Auto -->
+ <div class="p-3 rounded-xl bg-white/5">
+ <div class="flex items-center gap-3 mb-2">
+ ${icon('sun-moon', 'w-5 h-5 text-purple-400')}
+ <span class="text-sm">${t('themeMode') || 'Thème'}</span></div>
+ <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="${t('themeMode') || 'Theme'}">
+ ${[
+  { id: 'light', icon: 'sun', label: t('lightMode') || 'Clair' },
+  { id: 'dark', icon: 'moon', label: t('darkMode') || 'Sombre' },
+  { id: 'auto', icon: 'monitor', label: t('autoMode') || 'Auto' },
+ ].map(m => `
+ <button onclick="setThemeMode('${m.id}')"
+  class="flex flex-col items-center gap-1 p-2 rounded-xl transition-colors ${themeMode === m.id ? 'bg-primary-500/20 border-2 border-primary-500' : 'bg-white/5 border-2 border-transparent hover:bg-white/10'}"
+  role="radio" aria-checked="${themeMode === m.id}" type="button">
+  ${icon(m.icon, 'w-5 h-5 ' + (themeMode === m.id ? 'text-primary-400' : 'text-slate-400'))}
+  <span class="text-xs font-medium ${themeMode === m.id ? 'text-primary-400' : 'text-slate-400'}">${m.label}</span></button>
+ `).join('')}
+ </div></div>
+ <!-- Language -->
  <div class="p-3 rounded-xl bg-white/5">
  <div class="flex items-center gap-3 mb-2">
  ${icon('globe', 'w-5 h-5 text-emerald-400')}
@@ -1154,7 +1228,25 @@ function renderAppearanceCard(state) {
  <span class="text-xl">${lang.flag}</span>
  <span class="text-xs font-medium ${state.lang === lang.code ? 'text-primary-400' : 'text-slate-400'}">${lang.name}</span></button>
  `).join('')}
- </div></div></div>
+ </div></div>
+ <!-- Accessibility -->
+ <div class="p-3 rounded-xl bg-white/5 space-y-2">
+ <div class="flex items-center gap-3 mb-1">
+ ${icon('accessibility', 'w-5 h-5 text-blue-400')}
+ <span class="text-sm">${t('accessibilitySettings') || 'Accessibilité'}</span></div>
+ <div class="flex items-center justify-between">
+ <span class="text-xs text-slate-400">${t('bigText') || 'Gros texte'}</span>
+ ${renderToggle(!!state.bigText, "toggleAccessibility('bigText')", t('bigText'))}
+ </div>
+ <div class="flex items-center justify-between">
+ <span class="text-xs text-slate-400">${t('reducedMotion') || 'Réduire les animations'}</span>
+ ${renderToggle(!!state.reducedMotion, "toggleAccessibility('reducedMotion')", t('reducedMotion'))}
+ </div>
+ <div class="flex items-center justify-between">
+ <span class="text-xs text-slate-400">${t('highContrast') || 'Contraste élevé'}</span>
+ ${renderToggle(!!state.highContrast, "toggleAccessibility('highContrast')", t('highContrast'))}
+ </div>
+ </div></div>
  `
 }
 
@@ -1190,6 +1282,55 @@ function renderNotificationsCard(state) {
  <span class="text-xs text-slate-400">${t('pushDescription') || 'Alertes même quand l\'app est fermée'}</span></div></div>
  ${renderToggle(state.pushEnabled === true, "togglePushNotifications()", t('pushNotificationsTitle') || 'Notifications push')}
  </div></div>
+ `
+}
+
+function renderAccountManagementCard(state) {
+ if (!state.isLoggedIn) return ''
+ const isGoogleUser = state.user?.providerData?.[0]?.providerId === 'google.com'
+ return `
+ <div class="card p-4 space-y-2 mb-3">
+ <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-1">
+ ${icon('user-cog', 'w-4 h-4')}
+ ${t('editProfile') || 'Modifier le profil'}
+ </h3>
+ <button onclick="openEditName()" class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+  <div class="flex items-center gap-3">
+   ${icon('user', 'w-4 h-4 text-blue-400')}
+   <div><span class="text-sm block">${t('editName')}</span>
+   <span class="text-xs text-slate-500">${escapeHTML(state.firstName ? `${state.firstName} ${state.lastName || ''}` : (state.user?.displayName || ''))}</span></div></div>
+  ${icon('chevron-right', 'w-4 h-4 text-slate-500')}
+ </button>
+ ${!isGoogleUser ? `
+ <button onclick="openChangePassword()" class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+  <div class="flex items-center gap-3">
+   ${icon('key', 'w-4 h-4 text-amber-400')}
+   <span class="text-sm">${t('changePassword')}</span></div>
+  ${icon('chevron-right', 'w-4 h-4 text-slate-500')}
+ </button>
+ <button onclick="openChangeEmail()" class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+  <div class="flex items-center gap-3">
+   ${icon('mail', 'w-4 h-4 text-emerald-400')}
+   <div><span class="text-sm block">${t('changeEmail')}</span>
+   <span class="text-xs text-slate-500">${escapeHTML(state.user?.email || '')}</span></div></div>
+  ${icon('chevron-right', 'w-4 h-4 text-slate-500')}
+ </button>
+ ` : ''}
+ <button onclick="openEditPersonalInfo()" class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+  <div class="flex items-center gap-3">
+   ${icon('calendar', 'w-4 h-4 text-purple-400')}
+   <div><span class="text-sm block">${t('editBirthYear')} / ${t('editGender')}</span>
+   <span class="text-xs text-slate-500">${state.birthYear || '?'} ${state.gender ? '· ' + t('gender' + state.gender.charAt(0).toUpperCase() + state.gender.slice(1)) : ''}</span></div></div>
+  ${icon('chevron-right', 'w-4 h-4 text-slate-500')}
+ </button>
+ <button onclick="openExportData()" class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+  <div class="flex items-center gap-3">
+   ${icon('download', 'w-4 h-4 text-blue-400')}
+   <div><span class="text-sm block">${t('exportMyData')}</span>
+   <span class="text-xs text-slate-500">${t('dataExportDesc')}</span></div></div>
+  ${icon('chevron-right', 'w-4 h-4 text-slate-500')}
+ </button>
+ </div>
  `
 }
 
@@ -1323,6 +1464,292 @@ window.editAvatar = () => {
  window.setState?.({ showWelcome: true })
 }
 
+// --- Account management handlers ---
+window.openEditName = async () => {
+ const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+ const { getState, setState } = await import('../../stores/state.js')
+ const state = getState()
+ const currentFirst = state.firstName || state.user?.displayName?.split(' ')[0] || ''
+ const currentLast = state.lastName || ''
+ const newFirst = await showInputOverlay({
+  title: t('firstName'),
+  value: currentFirst,
+  placeholder: t('firstNamePlaceholder'),
+  maxLength: 30,
+ })
+ if (newFirst === null) return
+ const newLast = await showInputOverlay({
+  title: t('lastName'),
+  value: currentLast,
+  placeholder: t('lastNamePlaceholder'),
+  maxLength: 30,
+ })
+ if (newLast === null) return
+ const first = newFirst.trim()
+ const last = newLast.trim()
+ if (first.length < 2 || last.length < 2) {
+  window.showToast?.(t('firstNameRequired'), 'error')
+  return
+ }
+ setState({ firstName: first, lastName: last })
+ syncProfileToFirestore({ firstName: first, lastName: last, displayName: `${first} ${last.charAt(0)}.` })
+ window.showToast?.(t('nameUpdated'), 'success')
+ window._forceRender?.()
+}
+
+window.openChangePassword = async () => {
+ const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+ const currentPwd = await showInputOverlay({
+  title: t('currentPassword'),
+  placeholder: '...',
+  type: 'password',
+ })
+ if (!currentPwd) return
+ const newPwd = await showInputOverlay({
+  title: t('newPassword'),
+  placeholder: t('passwordRules'),
+  type: 'password',
+ })
+ if (!newPwd) return
+ if (!/[A-Z]/.test(newPwd) || !/\d/.test(newPwd) || newPwd.length < 6) {
+  window.showToast?.(t('passwordRequirementsError'), 'error')
+  return
+ }
+ const confirmPwd = await showInputOverlay({
+  title: t('confirmNewPassword'),
+  placeholder: '...',
+  type: 'password',
+ })
+ if (newPwd !== confirmPwd) {
+  window.showToast?.(t('passwordMismatch'), 'error')
+  return
+ }
+ try {
+  const fb = await import('../../services/firebase.js')
+  const user = fb.getCurrentUser()
+  if (!user) return
+  // Re-authenticate then update
+  const { EmailAuthProvider, reauthenticateWithCredential, updatePassword } = await import('firebase/auth')
+  const cred = EmailAuthProvider.credential(user.email, currentPwd)
+  await reauthenticateWithCredential(user, cred)
+  await updatePassword(user, newPwd)
+  window.showToast?.(t('passwordChanged'), 'success')
+ } catch (err) {
+  window.showToast?.(err.code === 'auth/wrong-password' ? t('passwordCurrentWrong') : (t('authError') || 'Error'), 'error')
+ }
+}
+
+window.openChangeEmail = async () => {
+ const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+ const newEmail = await showInputOverlay({
+  title: t('newEmail'),
+  placeholder: 'email@example.com',
+  type: 'email',
+ })
+ if (!newEmail) return
+ try {
+  const fb = await import('../../services/firebase.js')
+  const user = fb.getCurrentUser()
+  if (!user) return
+  const { verifyBeforeUpdateEmail } = await import('firebase/auth')
+  await verifyBeforeUpdateEmail(user, newEmail)
+  window.showToast?.(t('emailChanged'), 'success')
+ } catch (err) {
+  window.showToast?.(err.message || t('authError'), 'error')
+ }
+}
+
+window.openEditPersonalInfo = async () => {
+ const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+ const { getState, setState } = await import('../../stores/state.js')
+ const state = getState()
+ const newYear = await showInputOverlay({
+  title: t('editBirthYear'),
+  value: state.birthYear ? String(state.birthYear) : '',
+  placeholder: t('birthYearPlaceholder'),
+  inputmode: 'numeric',
+ })
+ if (newYear === null) return
+ const year = parseInt(newYear, 10)
+ const currentYear = new Date().getFullYear()
+ if (!year || year < 1920 || year > currentYear - 16) {
+  window.showToast?.(t('birthYearInvalid'), 'error')
+  return
+ }
+ setState({ birthYear: year })
+ syncProfileToFirestore({ birthYear: year })
+ window.showToast?.(t('birthYearUpdated'), 'success')
+ window._forceRender?.()
+}
+
+window.openAppealForm = async () => {
+ const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+ // Select category
+ const categories = [
+  t('appealCatSpotRemoved'),
+  t('appealCatAccountWarning'),
+  t('appealCatAccountSuspended'),
+  t('appealCatOther'),
+ ]
+ const catChoice = await showInputOverlay({
+  title: t('appealCategory'),
+  value: '',
+  placeholder: t('appealCategory'),
+  options: categories,
+ })
+ if (!catChoice) return
+ // Get description
+ const description = await showInputOverlay({
+  title: t('appealDescription'),
+  placeholder: t('appealDescription'),
+  multiline: true,
+  maxLength: 1000,
+ })
+ if (!description) return
+ // Submit to Firestore
+ try {
+  const fb = await import('../../services/firebase.js')
+  fb.initializeFirebase()
+  const user = fb.getCurrentUser()
+  if (!user) {
+   window.showToast?.(t('loginRequired') || 'Connexion requise', 'warning')
+   return
+  }
+  const { doc, setDoc, serverTimestamp, collection } = await import('firebase/firestore')
+  const db = fb.getDb()
+  if (db) {
+   const appealRef = doc(collection(db, 'appeals'))
+   await setDoc(appealRef, {
+    userId: user.uid,
+    userEmail: user.email,
+    category: catChoice,
+    description: description.trim(),
+    status: 'pending',
+    createdAt: serverTimestamp(),
+   })
+  }
+  window.showToast?.(t('appealSubmitted'), 'success')
+ } catch (err) {
+  console.error('Appeal error:', err)
+  window.showToast?.(t('authError') || 'Error', 'error')
+ }
+}
+
+window.openExportData = async () => {
+ const { getState } = await import('../../stores/state.js')
+ const state = getState()
+ const data = {
+  profile: {
+   firstName: state.firstName,
+   lastName: state.lastName,
+   email: state.user?.email,
+   username: state.username,
+   birthYear: state.birthYear,
+   gender: state.gender,
+   bio: localStorage.getItem('spothitch_bio') || '',
+  },
+  languages: JSON.parse(localStorage.getItem('spothitch_languages') || '[]'),
+  favorites: JSON.parse(localStorage.getItem('spothitch_favorites') || '[]'),
+  trips: JSON.parse(localStorage.getItem('spothitch_trip_history') || '[]'),
+  checkins: JSON.parse(localStorage.getItem('spothitch_checkin_history') || '[]'),
+  exportDate: new Date().toISOString(),
+ }
+ const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+ const url = URL.createObjectURL(blob)
+ const a = document.createElement('a')
+ a.href = url
+ a.download = `spothitch-data-${new Date().toISOString().split('T')[0]}.json`
+ a.click()
+ URL.revokeObjectURL(url)
+ window.showToast?.(t('dataExportReady'), 'success')
+}
+
+// --- Photo management handlers ---
+window.openPhotoManager = () => {
+ window.addProfilePhoto()
+}
+
+window.addProfilePhoto = () => {
+ const input = document.createElement('input')
+ input.type = 'file'
+ input.accept = 'image/*'
+ input.capture = 'environment'
+ input.onchange = async (e) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+  try {
+   const dataUrl = await compressProfilePhoto(file)
+   const { getState, setState } = await import('../../stores/state.js')
+   const photos = [...(getState().profilePhotos || [])]
+   if (photos.length >= 6) {
+    window.showToast?.((t('photoLimit') || 'Maximum {max} photos').replace('{max}', '6'), 'warning')
+    return
+   }
+   photos.push(dataUrl)
+   setState({ profilePhotos: photos })
+   localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
+   // Set first photo as profile photo
+   if (photos.length === 1) {
+    syncProfileToFirestore({ photoURL: dataUrl })
+   }
+   syncProfileToFirestore({ profilePhotos: photos })
+   window.showToast?.(t('photoAdded'), 'success')
+   window._forceRender?.()
+  } catch (err) {
+   window.showToast?.(err.message || 'Error', 'error')
+  }
+ }
+ input.click()
+}
+
+window.removeProfilePhoto = async (index) => {
+ const { getState, setState } = await import('../../stores/state.js')
+ const photos = [...(getState().profilePhotos || [])]
+ photos.splice(index, 1)
+ setState({ profilePhotos: photos })
+ localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
+ syncProfileToFirestore({ profilePhotos: photos, photoURL: photos[0] || null })
+ window.showToast?.(t('photoRemoved'), 'success')
+ window._forceRender?.()
+}
+
+window.setMainProfilePhoto = async (index) => {
+ const { getState, setState } = await import('../../stores/state.js')
+ const photos = [...(getState().profilePhotos || [])]
+ const [photo] = photos.splice(index, 1)
+ photos.unshift(photo)
+ setState({ profilePhotos: photos })
+ localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
+ syncProfileToFirestore({ profilePhotos: photos, photoURL: photos[0] })
+ window.showToast?.(t('mainPhotoSet'), 'success')
+ window._forceRender?.()
+}
+
+async function compressProfilePhoto(file) {
+ return new Promise((resolve, reject) => {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+   const img = new Image()
+   img.onload = () => {
+    const canvas = document.createElement('canvas')
+    const maxSize = 400
+    let w = img.width, h = img.height
+    if (w > h) { if (w > maxSize) { h = h * maxSize / w; w = maxSize } }
+    else { if (h > maxSize) { w = w * maxSize / h; h = maxSize } }
+    canvas.width = w
+    canvas.height = h
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(img, 0, 0, w, h)
+    resolve(canvas.toDataURL('image/jpeg', 0.7))
+   }
+   img.onerror = () => reject(new Error('Invalid image'))
+   img.src = e.target.result
+  }
+  reader.onerror = () => reject(new Error('Read error'))
+  reader.readAsDataURL(file)
+ })
+}
+
 window.openBlockedUsers = () => {
  window.setState?.({ showBlockedUsers: true })
 }
@@ -1336,15 +1763,20 @@ window.editBio = async () => {
  const { showInputOverlay } = await import('../../utils/inputOverlay.js')
  const current = localStorage.getItem('spothitch_bio') || ''
  const newBio = await showInputOverlay({
- title: t('bioPrompt') || 'A propos de toi',
+ title: t('editBioTitle') || 'Ta bio',
+ subtitle: t('editBioDesc') || 'Présente-toi aux autres voyageurs',
  value: current,
  placeholder: t('bioPlaceholder') || 'Parle de toi en quelques mots...',
  multiline: true,
  maxLength: 200,
+ showCharCount: true,
  })
  if (newBio === null) return
  const trimmed = newBio.trim().slice(0, 200)
  localStorage.setItem('spothitch_bio', trimmed)
+ const { setState } = await import('../../stores/state.js')
+ setState({ bio: trimmed })
+ syncProfileToFirestore({ bio: trimmed })
  window.showToast?.(t('bioSaved') || 'Bio enregistrée !', 'success')
  window._forceRender?.()
 }
@@ -1352,6 +1784,8 @@ window.editBio = async () => {
 window.saveBio = async (text) => {
  const trimmed = (text || '').trim().slice(0, 200)
  localStorage.setItem('spothitch_bio', trimmed)
+ const { setState } = await import('../../stores/state.js')
+ setState({ bio: trimmed })
  syncProfileToFirestore({ bio: trimmed })
  window.showToast?.(t('bioSaved') || 'Bio enregistrée !', 'success')
  window._forceRender?.()
@@ -1391,7 +1825,13 @@ window.selectLanguageLevel = (level) => {
  if (!name) return
  const raw = JSON.parse(localStorage.getItem('spothitch_languages') || '[]')
  const langs = normalizeLangs(raw)
- langs.push({ name, flag: LANG_FLAG_MAP[name] || '', level })
+ // Check for duplicate: update level if language already exists
+ const existing = langs.findIndex(l => l.name === name)
+ if (existing >= 0) {
+  langs[existing].level = level
+ } else {
+  langs.push({ name, flag: LANG_FLAG_MAP[name] || '', level })
+ }
  const final = langs.slice(0, 10)
  localStorage.setItem('spothitch_languages', JSON.stringify(final))
  syncProfileToFirestore({ languages: final })

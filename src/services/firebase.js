@@ -131,6 +131,7 @@ let storage;
 let messaging;
 
 export function getFirebaseAuth() { return auth }
+export function getDb() { return db }
 
 export function initializeFirebase() {
   try {
@@ -447,6 +448,8 @@ export async function createOrUpdateUserProfile(user) {
       // If pending registration data (from social login post-auth), merge it
       if (window._pendingRegistrationData) {
         const reg = window._pendingRegistrationData
+        if (reg.firstName && !snapshot.data().firstName) updates.firstName = reg.firstName
+        if (reg.lastName && !snapshot.data().lastName) updates.lastName = reg.lastName
         if (reg.birthYear && !snapshot.data().birthYear) updates.birthYear = reg.birthYear
         if (reg.gender && !snapshot.data().gender) updates.gender = reg.gender
         if (reg.username && !snapshot.data().username) updates.username = reg.username
@@ -458,14 +461,24 @@ export async function createOrUpdateUserProfile(user) {
     } else {
       // New user — create profile
       const reg = window._pendingRegistrationData || {}
+      // Get user's app language for welcome email
+      let userLang = 'en'
+      try {
+        const s = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+        userLang = s.lang || navigator.language?.substring(0, 2) || 'en'
+      } catch { /* ignore */ }
+
       const profile = {
         uid: user.uid,
         email: user.email || null,
-        displayName: user.displayName || 'Autostoppeur',
+        firstName: reg.firstName || (user.displayName ? user.displayName.split(' ')[0] : null),
+        lastName: reg.lastName || (user.displayName && user.displayName.split(' ').length > 1 ? user.displayName.split(' ').slice(1).join(' ') : null),
+        displayName: reg.firstName ? `${reg.firstName} ${(reg.lastName || '').charAt(0)}.` : (user.displayName || 'Autostoppeur'),
         photoURL: user.photoURL || null,
         username: reg.username || null,
         birthYear: reg.birthYear || null,
         gender: reg.gender || null,
+        lang: userLang,
         verifiedPhone: null,
         verifiedIdentity: false,
         createdAt: serverTimestamp(),
@@ -1493,6 +1506,20 @@ export async function hydrateLocalProfileFromFirestore(userId) {
     if (!result.success || !result.profile) return
 
     const p = result.profile
+
+    // First name + last name
+    if (p.firstName || p.lastName) {
+      try {
+        const { setState } = await import('../stores/state.js')
+        setState({
+          ...(p.firstName ? { firstName: p.firstName } : {}),
+          ...(p.lastName ? { lastName: p.lastName } : {}),
+          ...(p.username ? { username: p.username } : {}),
+          ...(p.birthYear ? { birthYear: p.birthYear } : {}),
+          ...(p.gender ? { gender: p.gender } : {}),
+        })
+      } catch { /* state not available */ }
+    }
 
     // Bio
     if (p.bio) {

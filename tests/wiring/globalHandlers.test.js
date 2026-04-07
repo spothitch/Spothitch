@@ -355,7 +355,10 @@ const MAIN_JS_HANDLERS = [
   'sortMySpots', 'openMySpots', 'openMyValidations', 'openMyCountries', 'closeProfileDetail',
   'openAddPastTrip', 'closeAddPastTrip', 'submitPastTrip',
   'removeLanguage', 'cycleLanguageLevel',
-  'saveSocialLink', 'addProfilePhoto', 'removeProfilePhoto',
+  'saveSocialLink', 'addProfilePhoto', 'removeProfilePhoto', 'setMainProfilePhoto',
+  'openPhotoManager', 'openEditName', 'openChangePassword', 'openChangeEmail',
+  'openEditPersonalInfo', 'openExportData', 'openAppealForm',
+  'setThemeMode', 'toggleAccessibility',
   'closeLanguagePicker', 'langPickerFilter', 'selectLanguageFromPicker',
   'selectLanguageLevel', 'closeLanguageLevelPicker',
   // Roadmap handlers (defined in Profile.js)

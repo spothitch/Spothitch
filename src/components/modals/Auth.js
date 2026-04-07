@@ -84,32 +84,41 @@ export function renderAuth(state) {
         <!-- Form -->
         <div class="px-6 pb-4" role="tabpanel" id="auth-form-panel">
           <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4" aria-label="${t('loginForm') || 'Login form'}">
-            <!-- @Pseudo (Register only) -->
+            <!-- First Name + Last Name (Register only) -->
             ${isSignUp ? `
-              <div>
-                <label for="auth-pseudo" class="text-sm text-slate-400 block mb-1.5">${t('usernameLabel')} <span class="text-red-400">*</span></label>
-                <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">@</span>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="auth-firstname" class="text-sm text-slate-400 block mb-1.5">${t('firstName')} <span class="text-red-400">*</span></label>
                   <input
                     type="text"
-                    id="auth-pseudo"
-                    name="pseudo"
-                    class="input-modern pl-8"
-                    placeholder="${t('usernamePlaceholder')}"
-                    maxlength="20"
-                    minlength="3"
+                    id="auth-firstname"
+                    name="firstname"
+                    class="input-modern"
+                    placeholder="${t('firstNamePlaceholder')}"
+                    maxlength="30"
+                    minlength="2"
                     required
-                    autocomplete="username"
+                    autocomplete="given-name"
                     aria-required="true"
-                    aria-describedby="pseudo-status"
-                    oninput="checkUsernameField(this.value)"
                   />
                 </div>
-                <div id="pseudo-status" class="text-xs mt-1 h-4" aria-live="polite"></div>
+                <div>
+                  <label for="auth-lastname" class="text-sm text-slate-400 block mb-1.5">${t('lastName')} <span class="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    id="auth-lastname"
+                    name="lastname"
+                    class="input-modern"
+                    placeholder="${t('lastNamePlaceholder')}"
+                    maxlength="30"
+                    minlength="2"
+                    required
+                    autocomplete="family-name"
+                    aria-required="true"
+                  />
+                </div>
               </div>
             ` : ''}
-
-            <!-- Display Name removed: was confusing users (two fields both asking for "pseudo") -->
 
             <!-- Email -->
             <div>
@@ -190,6 +199,30 @@ export function renderAuth(state) {
                   <option value="male">${t('genderMale')}</option>
                   <option value="non-binary">${t('genderNonBinary')}</option>
                 </select>
+              </div>
+            ` : ''}
+
+            <!-- @Pseudo — optional (Register only) -->
+            ${isSignUp ? `
+              <div>
+                <label for="auth-pseudo" class="text-sm text-slate-400 block mb-1.5">${t('usernameLabel')}</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">@</span>
+                  <input
+                    type="text"
+                    id="auth-pseudo"
+                    name="pseudo"
+                    class="input-modern pl-8"
+                    placeholder="${t('usernamePlaceholder')}"
+                    maxlength="20"
+                    minlength="3"
+                    autocomplete="username"
+                    aria-describedby="pseudo-status"
+                    oninput="checkUsernameField(this.value)"
+                  />
+                </div>
+                <div id="pseudo-status" class="text-xs mt-1 h-4" aria-live="polite"></div>
+                <p class="text-[10px] text-slate-500 mt-0.5">${t('usernameOptionalHint')}</p>
               </div>
             ` : ''}
 
@@ -275,9 +308,43 @@ export function renderCompleteProfile(_state) {
         </div>
 
         <form id="complete-profile-form" onsubmit="submitCompleteProfile(event)" class="px-6 pb-6 space-y-4">
-          <!-- @Pseudo -->
+          <!-- First Name + Last Name -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="cp-firstname" class="text-sm text-slate-400 block mb-1.5">${t('firstName')} <span class="text-red-400">*</span></label>
+              <input
+                type="text"
+                id="cp-firstname"
+                name="firstname"
+                class="input-modern"
+                placeholder="${t('firstNamePlaceholder')}"
+                maxlength="30"
+                minlength="2"
+                required
+                autocomplete="given-name"
+                aria-required="true"
+              />
+            </div>
+            <div>
+              <label for="cp-lastname" class="text-sm text-slate-400 block mb-1.5">${t('lastName')} <span class="text-red-400">*</span></label>
+              <input
+                type="text"
+                id="cp-lastname"
+                name="lastname"
+                class="input-modern"
+                placeholder="${t('lastNamePlaceholder')}"
+                maxlength="30"
+                minlength="2"
+                required
+                autocomplete="family-name"
+                aria-required="true"
+              />
+            </div>
+          </div>
+
+          <!-- @Pseudo — optional -->
           <div>
-            <label for="cp-pseudo" class="text-sm text-slate-400 block mb-1.5">${t('usernameLabel')} <span class="text-red-400">*</span></label>
+            <label for="cp-pseudo" class="text-sm text-slate-400 block mb-1.5">${t('usernameLabel')}</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">@</span>
               <input
@@ -288,15 +355,13 @@ export function renderCompleteProfile(_state) {
                 placeholder="${t('usernamePlaceholder')}"
                 maxlength="20"
                 minlength="3"
-                required
                 autocomplete="username"
-                aria-required="true"
                 aria-describedby="cp-pseudo-status"
                 oninput="checkUsernameField(this.value)"
               />
             </div>
             <div id="cp-pseudo-status" class="text-xs mt-1 h-4" aria-live="polite"></div>
-            <p class="text-xs text-slate-500 mt-1">${t('usernameHint')}</p>
+            <p class="text-[10px] text-slate-500 mt-0.5">${t('usernameOptionalHint')}</p>
           </div>
 
           <!-- Birth Year -->
@@ -385,19 +450,39 @@ window.handleAuth = async (event) => {
 
     if (authMode === 'register') {
       const confirmPassword = document.getElementById('auth-password-confirm')?.value
-      const displayName = t('defaultDisplayName') || 'Hitchhiker'
-      const pseudo = document.getElementById('auth-pseudo')?.value?.toLowerCase().trim()
+      const firstNameVal = document.getElementById('auth-firstname')?.value?.trim()
+      const lastNameVal = document.getElementById('auth-lastname')?.value?.trim()
+      const pseudo = document.getElementById('auth-pseudo')?.value?.toLowerCase().trim() || null
       const birthYearStr = document.getElementById('auth-birthyear')?.value
       const gender = document.getElementById('auth-gender')?.value || ''
+      const displayName = firstNameVal ? `${firstNameVal} ${(lastNameVal || '').charAt(0)}.` : (t('defaultDisplayName') || 'Hitchhiker')
 
-      // Validate @pseudo
-      if (!pseudo) {
-        if (errorDiv) { errorDiv.textContent = t('usernameRequired'); errorDiv.classList.remove('hidden') }
+      // Validate first name + last name
+      if (!firstNameVal || firstNameVal.length < 2) {
+        if (errorDiv) { errorDiv.textContent = t('firstNameRequired'); errorDiv.classList.remove('hidden') }
         return
       }
-      const pseudoValidation = fb.validateUsername(pseudo)
-      if (!pseudoValidation.valid) {
-        if (errorDiv) { errorDiv.textContent = t(pseudoValidation.errorKey); errorDiv.classList.remove('hidden') }
+      if (!lastNameVal || lastNameVal.length < 2) {
+        if (errorDiv) { errorDiv.textContent = t('lastNameRequired'); errorDiv.classList.remove('hidden') }
+        return
+      }
+
+      // Validate @pseudo only if provided (optional)
+      if (pseudo) {
+        const pseudoValidation = fb.validateUsername(pseudo)
+        if (!pseudoValidation.valid) {
+          if (errorDiv) { errorDiv.textContent = t(pseudoValidation.errorKey); errorDiv.classList.remove('hidden') }
+          return
+        }
+      }
+
+      // Enforce password rules: min 6 chars, 1 uppercase, 1 digit
+      if (!/[A-Z]/.test(password)) {
+        if (errorDiv) { errorDiv.textContent = t('passwordRequirementsError'); errorDiv.classList.remove('hidden') }
+        return
+      }
+      if (!/\d/.test(password)) {
+        if (errorDiv) { errorDiv.textContent = t('passwordRequirementsError'); errorDiv.classList.remove('hidden') }
         return
       }
 
@@ -427,24 +512,28 @@ window.handleAuth = async (event) => {
         return
       }
 
-      // Check username availability before creating account
-      // checkUsernameAvailability now returns {available, error} — never throws
-      if (submitBtn) submitBtn.innerHTML = `${iconFn('loader-circle', 'w-5 h-5 animate-spin')} ${t('checkingUsername') || 'Vérification...'}`
-      const { available: usernameAvailable } = await fb.checkUsernameAvailability(pseudo)
-      if (!usernameAvailable) {
-        if (errorDiv) { errorDiv.textContent = t('usernameTaken') || '@' + pseudo + ' est déjà utilisé'; errorDiv.classList.remove('hidden') }
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = t('createAccount') || 'Créer mon compte' }
-        return
+      // Check username availability before creating account (only if pseudo provided)
+      if (pseudo) {
+        if (submitBtn) submitBtn.innerHTML = `${iconFn('loader-circle', 'w-5 h-5 animate-spin')} ${t('checkingUsername') || 'Vérification...'}`
+        const { available: usernameAvailable } = await fb.checkUsernameAvailability(pseudo)
+        if (!usernameAvailable) {
+          if (errorDiv) { errorDiv.textContent = t('usernameTaken') || '@' + pseudo + ' est déjà utilisé'; errorDiv.classList.remove('hidden') }
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = t('createAccount') || 'Créer mon compte' }
+          return
+        }
       }
 
       // Store registration data temporarily for profile creation
-      window._pendingRegistrationData = { username: pseudo, birthYear, gender: gender || null }
+      window._pendingRegistrationData = {
+        username: pseudo, firstName: firstNameVal,
+        lastName: lastNameVal, birthYear, gender: gender || null,
+      }
 
       if (submitBtn) submitBtn.innerHTML = `${iconFn('loader-circle', 'w-5 h-5 animate-spin')} ${t('creatingAccount') || 'Création du compte...'}`
       result = await fb.signUp(email, password, displayName)
 
-      // Reserve username after account creation (real atomic check here)
-      if (result.success && result.user) {
+      // Reserve username after account creation (only if pseudo provided)
+      if (result.success && result.user && pseudo) {
         const reserved = await fb.reserveUsername(pseudo, result.user.uid)
         if (!reserved.success && reserved.error === 'taken') {
           // Rare race condition: someone else claimed between check and creation
@@ -719,27 +808,41 @@ window.checkUsernameField = (value) => {
 window.submitCompleteProfile = async (event) => {
   event.preventDefault()
 
+  const firstNameInput = document.getElementById('cp-firstname')
+  const lastNameInput = document.getElementById('cp-lastname')
   const pseudoInput = document.getElementById('cp-pseudo')
   const birthYearInput = document.getElementById('cp-birthyear')
   const genderInput = document.getElementById('cp-gender')
   const errorDiv = document.getElementById('cp-error-msg')
   const submitBtn = document.getElementById('cp-submit-btn')
 
-  const pseudo = pseudoInput?.value?.toLowerCase().trim()
+  const firstNameVal = firstNameInput?.value?.trim()
+  const lastNameVal = lastNameInput?.value?.trim()
+  const pseudo = pseudoInput?.value?.toLowerCase().trim() || null
   const birthYearStr = birthYearInput?.value
   const gender = genderInput?.value || ''
 
-  if (!pseudo) return
+  // Validate first name + last name
+  if (!firstNameVal || firstNameVal.length < 2) {
+    if (errorDiv) { errorDiv.textContent = t('firstNameRequired'); errorDiv.classList.remove('hidden') }
+    return
+  }
+  if (!lastNameVal || lastNameVal.length < 2) {
+    if (errorDiv) { errorDiv.textContent = t('lastNameRequired'); errorDiv.classList.remove('hidden') }
+    return
+  }
 
   // Hide previous errors
   if (errorDiv) { errorDiv.classList.add('hidden'); errorDiv.textContent = '' }
 
-  // Validate username
+  // Validate username only if provided
   const fb = await import('../../services/firebase.js')
-  const validation = fb.validateUsername(pseudo)
-  if (!validation.valid) {
-    if (errorDiv) { errorDiv.textContent = t(validation.errorKey); errorDiv.classList.remove('hidden') }
-    return
+  if (pseudo) {
+    const validation = fb.validateUsername(pseudo)
+    if (!validation.valid) {
+      if (errorDiv) { errorDiv.textContent = t(validation.errorKey); errorDiv.classList.remove('hidden') }
+      return
+    }
   }
 
   // Validate birth year
@@ -764,28 +867,37 @@ window.submitCompleteProfile = async (event) => {
   try {
     fb.initializeFirebase()
 
-    // Check availability (returns {available, error})
-    const { available } = await fb.checkUsernameAvailability(pseudo)
-    if (!available) {
-      if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = `<span id="cp-submit-text">${t('letsGo')}</span>` }
-      return
+    // Check username availability only if provided
+    if (pseudo) {
+      const { available } = await fb.checkUsernameAvailability(pseudo)
+      if (!available) {
+        if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = `<span id="cp-submit-text">${t('letsGo')}</span>` }
+        return
+      }
     }
 
     // Get current user
     const user = fb.getCurrentUser()
     if (!user) return
 
-    // Reserve username
-    const reserveResult = await fb.reserveUsername(pseudo, user.uid)
-    if (!reserveResult.success) {
-      if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
-      return
+    // Reserve username if provided
+    if (pseudo) {
+      const reserveResult = await fb.reserveUsername(pseudo, user.uid)
+      if (!reserveResult.success) {
+        if (errorDiv) { errorDiv.textContent = t('usernameTaken'); errorDiv.classList.remove('hidden') }
+        return
+      }
     }
 
-    // Update profile with birthYear + gender
+    const displayName = `${firstNameVal} ${lastNameVal.charAt(0)}.`
+
+    // Update profile with name + birthYear + gender
     await fb.updateUserProfile(user.uid, {
-      username: pseudo,
+      firstName: firstNameVal,
+      lastName: lastNameVal,
+      displayName,
+      ...(pseudo ? { username: pseudo } : {}),
       birthYear,
       gender: gender || null,
     })
@@ -794,7 +906,9 @@ window.submitCompleteProfile = async (event) => {
     const { setState } = await import('../../stores/state.js')
     setState({
       showCompleteProfile: false,
-      username: pseudo,
+      firstName: firstNameVal,
+      lastName: lastNameVal,
+      ...(pseudo ? { username: pseudo } : {}),
     })
 
     const { showSuccess } = await import('../../services/notifications.js')
