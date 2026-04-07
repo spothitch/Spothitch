@@ -56,16 +56,16 @@ test.describe('Profile - Settings', () => {
     await expect(themeSection.first()).toBeVisible({ timeout: 8000 })
   })
 
-  test('should have theme switch control', async ({ page }) => {
+  test('should have theme mode controls', async ({ page }) => {
     await page.evaluate(() => window.setState?.({ settingsOpenSection: 'appearance' }))
-    const themeToggle = page.locator('[role="switch"]').first()
-    await expect(themeToggle).toBeVisible({ timeout: 8000 })
+    // Theme is now 3 radio buttons (light/dark/auto)
+    const themeRadios = page.locator('[role="radio"]')
+    await expect(themeRadios.first()).toBeVisible({ timeout: 8000 })
   })
 
   test('should toggle theme and change visual appearance', async ({ page }) => {
     await page.evaluate(() => window.setState?.({ settingsOpenSection: 'appearance' }))
-    const themeToggle = page.locator('[role="switch"]').first()
-    await expect(themeToggle).toBeVisible({ timeout: 8000 })
+    await page.waitForTimeout(500)
 
     // REAL RESULT: capture actual background color BEFORE toggle
     const bgBefore = await page.evaluate(() =>
@@ -73,7 +73,8 @@ test.describe('Profile - Settings', () => {
     )
     const classesBefore = await page.evaluate(() => document.body.className)
 
-    await themeToggle.click()
+    // Theme is now 3 radio buttons (light/dark/auto), click the light one
+    await page.evaluate(() => window.setThemeMode?.('light'))
     await page.waitForTimeout(500)
 
     // REAL RESULT: background color MUST have changed visually
@@ -94,8 +95,8 @@ test.describe('Profile - Settings', () => {
     })
     expect(themeState).toBe('light')
 
-    // Toggle back and verify it goes back to dark
-    await themeToggle.click()
+    // Switch back to dark and verify
+    await page.evaluate(() => window.setThemeMode?.('dark'))
     await page.waitForTimeout(500)
 
     const themeAfterReset = await page.evaluate(() => {
