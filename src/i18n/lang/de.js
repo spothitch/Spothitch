@@ -5550,6 +5550,8 @@ export default {
  closeBuddyLabel: 'Begleiter gefunden',
  openingConversation: 'Konversation wird geöffnet...',
  radarGuardianWarning: 'Der Wächtermodus ist aktiv. Das Radar macht dich für alle Reisenden in der Nähe sichtbar.',
+ buddyChat: 'Diskussion',
+ noBuddyMessages: 'Noch keine Nachrichten. Sei der Erste!',
  isNearby: 'ist in deiner Nähe',
  areNearby: 'sind in deiner Nähe',
  flexible: 'flexibel',

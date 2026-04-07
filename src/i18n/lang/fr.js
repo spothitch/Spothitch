@@ -5557,6 +5557,8 @@ export default {
  closeBuddyLabel: 'Compagnon trouvé',
  openingConversation: 'Ouverture de la conversation...',
  radarGuardianWarning: 'Le mode Gardien est actif. Le radar te rend visible par tous les voyageurs proches.',
+ buddyChat: 'Discussion',
+ noBuddyMessages: 'Aucun message. Sois le premier !',
  isNearby: 'est proche de toi',
  areNearby: 'sont proches de toi',
  flexible: 'flexible',

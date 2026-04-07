@@ -168,6 +168,78 @@ export async function deleteTravelBuddy(buddyId) {
   }
 }
 
+// ─── Threaded chat per announcement ──────────────────────────────────────────
+
+export async function sendBuddyMessage(buddyId, text) {
+  try {
+    if (!text || text.trim().length === 0) return { success: false, error: 'empty' }
+    if (text.length > 1000) return { success: false, error: 'too_long' }
+
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return { success: false, error: 'auth' }
+
+    const { getState } = await import('../stores/state.js')
+    const state = getState()
+    const displayName = state.firstName
+      ? `${state.firstName} ${(state.lastName || '').charAt(0)}.`
+      : (user.displayName || state.username || '')
+
+    await addDoc(collection(db, 'travelBuddies', buddyId, 'messages'), {
+      senderId: user.uid,
+      senderName: displayName,
+      senderPhoto: state.profilePhotos?.[0] || state.userProfile?.photoURL || user.photoURL || null,
+      text: text.trim().substring(0, 1000),
+      createdAt: serverTimestamp(),
+    })
+
+    return { success: true }
+  } catch (err) {
+    console.warn('[TravelBuddies] Send message failed:', err.message)
+    return { success: false, error: 'firestore' }
+  }
+}
+
+export async function getBuddyMessages(buddyId) {
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { collection, getDocs, query, orderBy } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return []
+
+    const q = query(
+      collection(db, 'travelBuddies', buddyId, 'messages'),
+      orderBy('createdAt', 'asc')
+    )
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+  } catch (err) {
+    console.warn('[TravelBuddies] Get messages failed:', err.message)
+    return []
+  }
+}
+
+export function subscribeToBuddyMessages(buddyId, callback) {
+  let unsub = null
+  import('./firebase.js').then(async (fb) => {
+    const { collection, onSnapshot, query, orderBy } = await import('firebase/firestore')
+    const db = fb.db
+    if (!db) return
+
+    const q = query(
+      collection(db, 'travelBuddies', buddyId, 'messages'),
+      orderBy('createdAt', 'asc')
+    )
+    unsub = onSnapshot(q, (snapshot) => {
+      const messages = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+      callback(messages)
+    })
+  }).catch(() => {})
+
+  return () => { if (unsub) unsub() }
+}
+
 export async function getTravelBuddyById(buddyId) {
   try {
     const { db, getCurrentUser } = await import('./firebase.js')

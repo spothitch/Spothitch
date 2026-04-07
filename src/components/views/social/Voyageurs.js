@@ -509,6 +509,34 @@ function renderBuddyDetail(state) {
           </div>
         </div>
 
+        <!-- Chat thread -->
+        <div style="margin-top:20px">
+          <div style="font-size:0.92rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+            ${icon('message-square', 'w-4 h-4')}
+            ${t('buddyChat') || 'Discussion'}
+          </div>
+          <div id="buddy-chat-messages" style="max-height:240px;overflow-y:auto;margin-bottom:10px">
+            ${(state.buddyChatMessages || []).map(msg => `
+              <div style="display:flex;gap:8px;margin-bottom:10px;align-items:flex-start">
+                ${msg.senderPhoto
+                  ? `<img src="${escapeHTML(msg.senderPhoto)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="">`
+                  : `<div style="width:28px;height:28px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((msg.senderName || '?')[0])}</div>`}
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:0.75rem;font-weight:600;color:#e2e8f0;margin-bottom:2px">${escapeHTML(msg.senderName || t('traveler'))}</div>
+                  <div style="font-size:0.82rem;color:#94a3b8;line-height:1.4">${escapeHTML(msg.text || '')}</div>
+                </div>
+              </div>
+            `).join('')}
+            ${(state.buddyChatMessages || []).length === 0 ? `<div style="color:#475569;font-size:0.82rem;text-align:center;padding:12px 0">${t('noBuddyMessages') || 'Aucun message. Sois le premier !'}</div>` : ''}
+          </div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="buddy-chat-input" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:0.85rem;font-family:inherit" placeholder="${t('writeMessage') || 'Ecris un message...'}" maxlength="1000" onkeydown="if(event.key==='Enter')sendBuddyChatMessage('${escapeJSString(buddy.id)}')" />
+            <button onclick="sendBuddyChatMessage('${escapeJSString(buddy.id)}')" style="width:44px;height:44px;border-radius:10px;background:#f59e0b;color:#0f1520;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" aria-label="${t('send') || 'Envoyer'}">
+              ${icon('send', 'w-4 h-4')}
+            </button>
+          </div>
+        </div>
+
       </div>
 
       <!-- Fixed bottom CTA -->
@@ -842,12 +870,26 @@ window.showBuddyList = async () => {
 }
 
 window.showBuddyDetail = async (buddyId) => {
-  window.setState?.({ voyageursView: 'buddyDetail' })
+  window.setState?.({ voyageursView: 'buddyDetail', buddyChatMessages: [] })
   try {
-    const { getTravelBuddyById } = await import('../../../services/travelBuddies.js')
+    const { getTravelBuddyById, getBuddyMessages } = await import('../../../services/travelBuddies.js')
     const buddy = await getTravelBuddyById(buddyId)
     if (buddy) {
       window.setState?.({ selectedBuddyDetail: buddy })
+      // Load chat messages
+      const messages = await getBuddyMessages(buddyId)
+      window.setState?.({ buddyChatMessages: messages })
+      // Start real-time listener for chat
+      const { subscribeToBuddyMessages } = await import('../../../services/travelBuddies.js')
+      if (window._buddyChatUnsub) window._buddyChatUnsub()
+      window._buddyChatUnsub = subscribeToBuddyMessages(buddyId, (msgs) => {
+        window.setState?.({ buddyChatMessages: msgs })
+        // Auto-scroll chat
+        setTimeout(() => {
+          const el = document.getElementById('buddy-chat-messages')
+          if (el) el.scrollTop = el.scrollHeight
+        }, 100)
+      })
     }
   } catch {
     window.showToast?.(t('errorOccurred') || 'Erreur', 'error')
@@ -965,6 +1007,26 @@ window.closeBuddyAnnouncement = async (id) => {
   }
 }
 
+window.sendBuddyChatMessage = async (buddyId) => {
+  const input = document.getElementById('buddy-chat-input')
+  const text = input?.value?.trim()
+  if (!text) return
+
+  const { getState } = await import('../../../stores/state.js')
+  if (!getState().isLoggedIn) {
+    window.requireAuth?.('social')
+    return
+  }
+
+  const { sendBuddyMessage } = await import('../../../services/travelBuddies.js')
+  const result = await sendBuddyMessage(buddyId, text)
+  if (result.success) {
+    if (input) input.value = ''
+  } else {
+    window.showToast?.(t('errorOccurred') || 'Erreur', 'error')
+  }
+}
+
 window.setBuddyCountryFilter = (code) => {
   window.setState?.({ buddyCountryFilter: code })
 }
@@ -1003,7 +1065,9 @@ window.setBuddyVisibility = async (v) => {
 }
 
 window.backFromVoyageurs = () => {
-  window.setState?.({ voyageursView: 'combined', selectedBuddyDetail: null })
+  // Cleanup chat listener
+  if (window._buddyChatUnsub) { window._buddyChatUnsub(); window._buddyChatUnsub = null }
+  window.setState?.({ voyageursView: 'combined', selectedBuddyDetail: null, buddyChatMessages: [] })
 }
 
 // Share buddy announcement (stub)
