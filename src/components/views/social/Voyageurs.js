@@ -33,24 +33,24 @@ function renderCombined(state) {
   const inCooldown = isRadarInCooldown()
 
   return `
-    <div class="flex-1 overflow-y-auto" style="padding-bottom:100px">
-      <div style="padding:16px">
+    <div class="flex-1 overflow-y-auto pb-[100px]">
+      <div class="p-4">
 
         <!-- Radar compact card -->
-        <div onclick="showRadarExpanded()" role="button" tabindex="0" style="background:#161b28;border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:16px;margin-bottom:8px;cursor:pointer;transition:border-color 0.2s">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <span style="color:#f59e0b">${icon('radar', 'w-5 h-5')}</span>
-              <span style="font-weight:700;font-size:0.95rem">${t('proximityRadar') || 'Radar de proximite'}</span>
+        <div onclick="showRadarExpanded()" role="button" tabindex="0" class="bg-[#161b28] border border-[rgba(245,158,11,0.15)] rounded-xl p-4 mb-2 cursor-pointer transition-colors">
+          <div class="flex items-center justify-between mb-2.5">
+            <div class="flex items-center gap-2.5">
+              <span class="text-amber-500">${icon('radar', 'w-5 h-5')}</span>
+              <span class="font-bold text-[0.95rem]">${t('proximityRadar') || 'Radar de proximite'}</span>
             </div>
-            <div onclick="event.stopPropagation();toggleProximityRadar()" tabindex="0" style="width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${radarOn ? '#f59e0b' : '#334155'};${radarOn ? 'box-shadow:0 0 12px rgba(245,158,11,0.25)' : ''}" role="switch" aria-checked="${radarOn}" aria-label="${t('proximityRadar')}">
-              <div style="width:20px;height:20px;border-radius:50%;background:white;position:absolute;top:3px;transition:transform 0.3s;transform:translateX(${radarOn ? '25px' : '3px'})"></div>
+            <div onclick="event.stopPropagation();toggleProximityRadar()" tabindex="0" class="w-12 h-[26px] rounded-[13px] relative cursor-pointer shrink-0 transition-all" style="background:${radarOn ? '#f59e0b' : '#334155'};${radarOn ? 'box-shadow:0 0 12px rgba(245,158,11,0.25)' : ''}" role="switch" aria-checked="${radarOn}" aria-label="${t('proximityRadar')}">
+              <div class="w-5 h-5 rounded-full bg-white absolute top-[3px] transition-transform" style="transform:translateX(${radarOn ? '25px' : '3px'})"></div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <span style="color:#94a3b8;font-size:0.82rem">${radarOn ? `${t('active') || 'Actif'} · ${t('radius') || 'Rayon'} ${settings.radius} km` : t('radarInactive') || 'Inactif'}</span>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-slate-400 text-sm">${radarOn ? `${t('active') || 'Actif'} · ${t('radius') || 'Rayon'} ${settings.radius} km` : t('radarInactive') || 'Inactif'}</span>
             ${radarOn && nearbyTravelers.length > 0 ? `
-              <span style="display:flex;align-items:center;gap:6px;background:rgba(245,158,11,0.1);color:#f59e0b;font-size:0.78rem;font-weight:600;padding:4px 12px;border-radius:10px;flex-shrink:0">
+              <span class="flex items-center gap-1.5 bg-[rgba(245,158,11,0.1)] text-amber-500 text-xs font-semibold px-3 py-1 rounded-[10px] shrink-0">
                 ${icon('users', 'w-3.5 h-3.5')}
                 ${nearbyTravelers.length} ${t('travelers') || 'voyageurs'}
               </span>
@@ -58,13 +58,13 @@ function renderCombined(state) {
           </div>
 
           <!-- Visibility note -->
-          <div style="display:flex;align-items:flex-start;gap:8px;color:#94a3b8;font-size:0.78rem;line-height:1.4;margin-top:10px;padding:10px 14px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);border-radius:10px">
+          <div class="flex items-start gap-2 text-slate-400 text-xs leading-relaxed mt-2.5 px-3.5 py-2.5 bg-[rgba(245,158,11,0.06)] border border-[rgba(245,158,11,0.12)] rounded-[10px]">
             ${icon('eye', 'w-3.5 h-3.5 shrink-0')}
             <span>${t('radarVisibilityNote') || 'En activant le radar, tu es visible par les autres voyageurs et tu peux les voir.'}</span>
           </div>
 
           ${inCooldown ? `
-            <div style="display:flex;align-items:center;gap:6px;color:#f87171;font-size:0.78rem;font-weight:600;margin-top:8px;padding:8px 12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.15);border-radius:8px">
+            <div class="flex items-center gap-1.5 text-red-400 text-xs font-semibold mt-2 px-3 py-2 bg-[rgba(248,113,113,0.08)] border border-[rgba(248,113,113,0.15)] rounded-lg">
               ${icon('clock', 'w-3.5 h-3.5')}
               <span>${t('radarCooldown') || 'Tu pourras reactiver le radar dans'} ${cooldownMins} min</span>
             </div>
@@ -73,15 +73,15 @@ function renderCombined(state) {
 
         <!-- Nearby travelers strip (only when radar ON) -->
         ${radarOn && nearbyTravelers.length > 0 ? `
-          <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 0 12px;margin-bottom:4px" class="scrollbar-hide">
+          <div class="flex gap-2 overflow-x-auto pt-2 pb-3 mb-1 scrollbar-hide">
             ${nearbyTravelers.map(trav => `
-              <div onclick="contactNearbyTraveler('${escapeJSString(trav.userId)}')" role="button" tabindex="0" style="display:flex;align-items:center;gap:8px;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 12px;flex-shrink:0;cursor:pointer;min-height:48px;transition:border-color 0.2s">
+              <div onclick="contactNearbyTraveler('${escapeJSString(trav.userId)}')" role="button" tabindex="0" class="flex items-center gap-2 bg-[#161b28] border border-white/10 rounded-xl px-3 py-2 shrink-0 cursor-pointer min-h-[48px] transition-colors">
                 ${trav.photoURL
-                  ? `<img src="${escapeHTML(trav.photoURL)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="" onerror="this.style.display='none'">`
-                  : `<div style="width:32px;height:32px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>`}
+                  ? `<img src="${escapeHTML(trav.photoURL)}" class="w-8 h-8 rounded-full object-cover shrink-0" alt="" onerror="this.style.display='none'">`
+                  : `<div class="w-8 h-8 rounded-full bg-[#1e2a3a] flex items-center justify-center text-[0.8rem] font-bold shrink-0 text-slate-400">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>`}
                 <div>
-                  <div style="font-weight:600;font-size:0.8rem;white-space:nowrap">${escapeHTML(trav.userName || t('traveler'))}</div>
-                  <div style="color:#94a3b8;font-size:0.72rem;white-space:nowrap">${trav.displayDistance === null ? `< 5 km` : `~${trav.displayDistance} km`}</div>
+                  <div class="font-semibold text-[0.8rem] whitespace-nowrap">${escapeHTML(trav.userName || t('traveler'))}</div>
+                  <div class="text-slate-400 text-[0.72rem] whitespace-nowrap">${trav.displayDistance === null ? `< 5 km` : `~${trav.displayDistance} km`}</div>
                 </div>
               </div>
             `).join('')}
@@ -89,43 +89,43 @@ function renderCombined(state) {
         ` : ''}
 
         ${radarOn && nearbyTravelers.length === 0 ? `
-          <div style="text-align:center;padding:16px;color:#94a3b8;font-size:0.85rem">
+          <div class="text-center p-4 text-slate-400 text-sm">
             ${t('noNearbyTravelers') || 'Aucun voyageur dans ton rayon pour le moment.'}
           </div>
         ` : ''}
 
         ${!radarOn ? `
-          <div style="text-align:center;padding:20px 16px;color:#94a3b8;font-size:0.85rem;line-height:1.5">
+          <div class="text-center px-4 py-5 text-slate-400 text-sm leading-relaxed">
             ${icon('radar', 'w-10 h-10 text-slate-600')}
-            <div style="font-weight:600;color:#e2e8f0;margin-top:12px;margin-bottom:6px">${t('radarDisabled') || 'Radar desactive'}</div>
+            <div class="font-semibold text-slate-200 mt-3 mb-1.5">${t('radarDisabled') || 'Radar desactive'}</div>
             ${t('radarActivatePrompt') || 'Active le radar pour voir les voyageurs autour de toi. Tu seras aussi visible par eux.'}
           </div>
         ` : ''}
 
         <!-- Divider -->
-        <div style="height:1px;background:rgba(255,255,255,0.06);margin:16px 0"></div>
+        <div class="h-px bg-white/[0.06] my-4"></div>
 
         <!-- Travel buddies section -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div style="font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px">
+        <div class="flex items-center justify-between mb-3.5">
+          <div class="text-lg font-bold flex items-center gap-2">
             ${icon('route', 'w-5 h-5')}
             ${t('travelBuddies') || 'Compagnons de voyage'}
           </div>
-          <button onclick="showBuddyList()" style="color:#f59e0b;font-size:0.82rem;font-weight:600;cursor:pointer;padding:8px;min-height:44px;display:flex;align-items:center;background:none;border:none;font-family:inherit">${t('viewAll') || 'Voir tout'}</button>
+          <button onclick="showBuddyList()" class="text-amber-500 text-sm font-semibold cursor-pointer p-2 min-h-[44px] flex items-center bg-transparent border-0">${t('viewAll') || 'Voir tout'}</button>
         </div>
 
         <!-- Recent buddy cards (max 2) -->
         ${buddies.slice(0, 2).map(buddy => renderBuddyCard(buddy)).join('')}
 
         ${buddies.length === 0 ? `
-          <div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:0.85rem">
+          <div class="text-center px-4 py-6 text-slate-400 text-sm">
             ${icon('route', 'w-8 h-8 text-slate-600')}
-            <div style="margin-top:8px">${t('noBuddiesYet') || 'Aucune annonce de voyage pour le moment.'}</div>
+            <div class="mt-2">${t('noBuddiesYet') || 'Aucune annonce de voyage pour le moment.'}</div>
           </div>
         ` : ''}
 
         <!-- Publish button -->
-        <button onclick="showBuddyCreate()" style="width:100%;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px dashed rgba(245,158,11,0.3);border-radius:12px;padding:14px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;margin-top:4px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:6px">
+        <button onclick="showBuddyCreate()" class="w-full bg-[rgba(245,158,11,0.1)] text-amber-500 border border-dashed border-[rgba(245,158,11,0.3)] rounded-xl p-3.5 text-sm font-semibold cursor-pointer text-center mt-1 min-h-[48px] flex items-center justify-center gap-1.5">
           ${icon('plus', 'w-4.5 h-4.5')}
           ${t('publishTravelAnnouncement') || 'Publier une annonce de voyage'}
         </button>
@@ -147,29 +147,29 @@ function renderRadarExpanded(state) {
   const selectedVisibility = settings.visibility || ['tous']
 
   return `
-    <div class="flex-1 overflow-y-auto" style="padding-bottom:100px">
+    <div class="flex-1 overflow-y-auto pb-[100px]">
       <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <button onclick="backFromVoyageurs()" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#e2e8f0" aria-label="${t('back')}">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-white/[0.06]">
+        <button onclick="backFromVoyageurs()" class="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center cursor-pointer border-0 text-slate-200" aria-label="${t('back')}">
           ${icon('arrow-left', 'w-5 h-5')}
         </button>
-        <h2 style="font-size:1.25rem;font-weight:700;display:flex;align-items:center;gap:8px">
-          <span style="color:#f59e0b">${icon('radar', 'w-5.5 h-5.5')}</span>
+        <h2 class="text-xl font-bold flex items-center gap-2">
+          <span class="text-amber-500">${icon('radar', 'w-5.5 h-5.5')}</span>
           ${t('radar') || 'Radar'}
         </h2>
-        <div style="width:44px"></div>
+        <div class="w-11"></div>
       </div>
 
-      <div style="padding:16px">
+      <div class="p-4">
 
         <!-- Toggle ON/OFF -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:#161b28;border-radius:12px;margin-bottom:16px;border:1px solid ${radarOn ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.1)'}">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="color:${radarOn ? '#f59e0b' : '#94a3b8'};transition:color 0.3s">${icon('radar', 'w-5.5 h-5.5')}</span>
-            <span style="font-weight:700;font-size:1rem">${radarOn ? (t('radarActive') || 'Radar actif') : (t('radarInactiveLabel') || 'Radar inactif')}</span>
+        <div class="flex items-center justify-between px-[18px] py-4 bg-[#161b28] rounded-xl mb-4" style="border:1px solid ${radarOn ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.1)'}">
+          <div class="flex items-center gap-2.5">
+            <span class="transition-colors" style="color:${radarOn ? '#f59e0b' : '#94a3b8'}">${icon('radar', 'w-5.5 h-5.5')}</span>
+            <span class="font-bold text-base">${radarOn ? (t('radarActive') || 'Radar actif') : (t('radarInactiveLabel') || 'Radar inactif')}</span>
           </div>
-          <div onclick="toggleProximityRadar()" tabindex="0" style="width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${radarOn ? '#f59e0b' : '#334155'};${radarOn ? 'box-shadow:0 0 12px rgba(245,158,11,0.25)' : ''}" role="switch" aria-checked="${radarOn}" aria-label="${t('toggleRadar') || 'Toggle radar'}">
-            <div style="width:20px;height:20px;border-radius:50%;background:white;position:absolute;top:3px;transition:transform 0.3s;transform:translateX(${radarOn ? '25px' : '3px'})"></div>
+          <div onclick="toggleProximityRadar()" tabindex="0" class="w-12 h-[26px] rounded-[13px] relative cursor-pointer shrink-0 transition-all" style="background:${radarOn ? '#f59e0b' : '#334155'};${radarOn ? 'box-shadow:0 0 12px rgba(245,158,11,0.25)' : ''}" role="switch" aria-checked="${radarOn}" aria-label="${t('toggleRadar') || 'Toggle radar'}">
+            <div class="w-5 h-5 rounded-full bg-white absolute top-[3px] transition-transform" style="transform:translateX(${radarOn ? '25px' : '3px'})"></div>
           </div>
         </div>
 
@@ -189,7 +189,7 @@ function renderRadarActiveContent(state, settings, nearbyTravelers, selectedRadi
     const gData = JSON.parse(localStorage.getItem('spothitch_guardian') || '{}')
     if (gData.active) {
       guardianWarning = `
-      <div style="display:flex;align-items:flex-start;gap:8px;color:#f87171;font-size:0.78rem;line-height:1.4;margin-bottom:10px;padding:10px 14px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.15);border-radius:10px">
+      <div class="flex items-start gap-2 text-red-400 text-xs leading-relaxed mb-2.5 px-3.5 py-2.5 bg-[rgba(248,113,113,0.08)] border border-[rgba(248,113,113,0.15)] rounded-[10px]">
         ${icon('shield-alert', 'w-4 h-4 shrink-0')}
         <span>${t('radarGuardianWarning') || 'Le mode Gardien est actif. Le radar te rend visible par tous les voyageurs proches.'}</span>
       </div>`
@@ -199,46 +199,46 @@ function renderRadarActiveContent(state, settings, nearbyTravelers, selectedRadi
   return `
     ${guardianWarning}
     <!-- Radar ON note -->
-    <div style="display:flex;align-items:flex-start;gap:8px;color:#94a3b8;font-size:0.78rem;line-height:1.4;margin-bottom:14px;padding:10px 14px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);border-radius:10px">
+    <div class="flex items-start gap-2 text-slate-400 text-xs leading-relaxed mb-3.5 px-3.5 py-2.5 bg-[rgba(245,158,11,0.06)] border border-[rgba(245,158,11,0.12)] rounded-[10px]">
       ${icon('eye', 'w-3.5 h-3.5 shrink-0')} <span>${t('radarVisibilityNote') || 'En activant le radar, tu es visible par les autres voyageurs et tu peux les voir.'}</span>
     </div>
 
     <!-- Message field -->
-    <div style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;margin-bottom:14px">
-      <div style="color:#94a3b8;font-size:0.78rem;margin-bottom:8px;font-weight:600;display:flex;align-items:center;gap:6px">
+    <div class="bg-[#161b28] border border-white/10 rounded-xl px-4 py-3.5 mb-3.5">
+      <div class="text-slate-400 text-xs mb-2 font-semibold flex items-center gap-1.5">
         ${icon('message-circle', 'w-3.5 h-3.5')}
         ${t('radarVisibleMessage') || 'Ton message visible'}
       </div>
-      <input type="text" id="radar-message" value="${escapeHTML(settings.message || '')}" onchange="setRadarMessage(this.value)" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:0.88rem;font-family:inherit" placeholder="${t('radarMessagePlaceholder') || 'Ex: Dispo pour un cafe...'}" />
+      <input type="text" id="radar-message" value="${escapeHTML(settings.message || '')}" onchange="setRadarMessage(this.value)" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-[10px] px-3.5 py-2.5 text-slate-200 text-sm" placeholder="${t('radarMessagePlaceholder') || 'Ex: Dispo pour un cafe...'}" />
     </div>
 
     <!-- Radius pills -->
-    <div style="margin-bottom:14px">
-      <div style="color:#94a3b8;font-size:0.78rem;margin-bottom:8px;font-weight:600;display:flex;align-items:center;gap:6px">
+    <div class="mb-3.5">
+      <div class="text-slate-400 text-xs mb-2 font-semibold flex items-center gap-1.5">
         ${icon('radar', 'w-3.5 h-3.5')}
         ${t('detectionRadius') || 'Rayon de detection'}
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <div class="flex gap-1.5 flex-wrap">
         ${radiusOptions.map(r => `
-          <button onclick="setRadarRadius(${r})" style="padding:8px 16px;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;min-height:44px;display:flex;align-items:center;transition:all 0.2s;border:1px solid ${selectedRadius === r ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${selectedRadius === r ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)'};color:${selectedRadius === r ? '#f59e0b' : '#94a3b8'};font-family:inherit">${r} km</button>
+          <button onclick="setRadarRadius(${r})" class="px-4 py-2 rounded-[20px] text-sm font-semibold cursor-pointer min-h-[44px] flex items-center transition-all" style="border:1px solid ${selectedRadius === r ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${selectedRadius === r ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)'};color:${selectedRadius === r ? '#f59e0b' : '#94a3b8'}">${r} km</button>
         `).join('')}
       </div>
     </div>
 
     <!-- Visibility pills -->
-    <div style="margin-bottom:14px">
-      <div style="color:#94a3b8;font-size:0.78rem;margin-bottom:8px;font-weight:600;display:flex;align-items:center;gap:6px">
+    <div class="mb-3.5">
+      <div class="text-slate-400 text-xs mb-2 font-semibold flex items-center gap-1.5">
         ${icon('eye', 'w-3.5 h-3.5')}
         ${t('visibleBy') || 'Visible par'}
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <div class="flex gap-1.5 flex-wrap">
         ${renderVisibilityPill('tous', t('visibilityAll') || 'Tous', selectedVisibility, 'setRadarVisibility')}
         ${renderVisibilityPill('femmes', t('visibilityWomen') || 'Femmes', selectedVisibility, 'setRadarVisibility')}
         ${renderVisibilityPill('verifies', t('visibilityVerified') || 'Verifies', selectedVisibility, 'setRadarVisibility')}
       </div>
-      <div style="color:#94a3b8;font-size:0.72rem;line-height:1.4;margin-top:8px;padding:0 2px">${t('visibilityWomenHint') || "L'option Femmes est reservee aux utilisatrices ayant indique Femme dans leur profil."}</div>
+      <div class="text-slate-400 text-[0.72rem] leading-relaxed mt-2 px-0.5">${t('visibilityWomenHint') || "L'option Femmes est reservee aux utilisatrices ayant indique Femme dans leur profil."}</div>
       ${selectedVisibility.includes('femmes') ? `
-        <div style="color:#a78bfa;font-size:0.72rem;line-height:1.4;margin-top:6px;padding:8px 12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.15);border-radius:8px;display:flex;align-items:flex-start;gap:6px">
+        <div class="text-violet-400 text-[0.72rem] leading-relaxed mt-1.5 px-3 py-2 bg-[rgba(167,139,250,0.08)] border border-[rgba(167,139,250,0.15)] rounded-lg flex items-start gap-1.5">
           ${icon('shield', 'w-3.5 h-3.5 shrink-0')}
           <span>${t('visibilityWomenReassure') || 'Seules les femmes verifiees verront ton profil et ta position.'}</span>
         </div>
@@ -247,44 +247,44 @@ function renderRadarActiveContent(state, settings, nearbyTravelers, selectedRadi
 
     <!-- Nearby travelers list -->
     <div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px">
+      <div class="flex items-center justify-between mb-3.5">
+        <div class="text-lg font-bold flex items-center gap-2">
           ${icon('users', 'w-5 h-5')}
           ${t('nearbyTravelers') || 'Voyageurs autour de toi'}
         </div>
         ${nearbyTravelers.length > 0 ? `
-          <span style="background:rgba(245,158,11,0.12);color:#f59e0b;font-size:0.75rem;font-weight:600;padding:4px 10px;border-radius:10px">${nearbyTravelers.length}</span>
+          <span class="bg-[rgba(245,158,11,0.12)] text-amber-500 text-[0.75rem] font-semibold px-2.5 py-1 rounded-[10px]">${nearbyTravelers.length}</span>
         ` : ''}
       </div>
 
       ${nearbyTravelers.length > 0 ? nearbyTravelers.map(trav => `
-        <div style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px" role="listitem">
+        <div class="bg-[#161b28] border border-white/10 rounded-xl p-3.5 mb-2.5 flex items-start gap-3" role="listitem">
           ${trav.photoURL
-            ? `<img src="${escapeHTML(trav.photoURL)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="${escapeHTML(trav.userName || '')}" onerror="this.style.display='none'">`
-            : `<div style="width:44px;height:44px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>`}
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-              <span style="font-weight:600;font-size:0.9rem">${escapeHTML(trav.userName || t('traveler'))}</span>
+            ? `<img src="${escapeHTML(trav.photoURL)}" class="w-11 h-11 rounded-full object-cover shrink-0" alt="${escapeHTML(trav.userName || '')}" onerror="this.style.display='none'">`
+            : `<div class="w-11 h-11 rounded-full bg-[#1e2a3a] flex items-center justify-center text-sm font-bold shrink-0 text-slate-400">${escapeHTML((trav.userName || '?')[0].toUpperCase())}</div>`}
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-[3px]">
+              <span class="font-semibold text-sm">${escapeHTML(trav.userName || t('traveler'))}</span>
             </div>
-            <div style="color:#94a3b8;font-size:0.78rem;display:flex;align-items:center;gap:4px">
+            <div class="text-slate-400 text-xs flex items-center gap-1">
               ${icon('map-pin', 'w-3 h-3')}
               ${trav.displayDistance === null ? `< 5 km` : `~${trav.displayDistance} km`}
             </div>
-            ${trav.message ? `<div style="color:#94a3b8;font-size:0.82rem;line-height:1.4;margin-top:6px;margin-bottom:10px">${escapeHTML(trav.message)}</div>` : '<div style="margin-bottom:10px"></div>'}
-            <button onclick="contactNearbyTraveler('${escapeJSString(trav.userId)}')" style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 16px;font-size:0.82rem;font-weight:600;cursor:pointer;width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:background 0.2s">
+            ${trav.message ? `<div class="text-slate-400 text-sm leading-relaxed mt-1.5 mb-2.5">${escapeHTML(trav.message)}</div>` : '<div class="mb-2.5"></div>'}
+            <button onclick="contactNearbyTraveler('${escapeJSString(trav.userId)}')" class="bg-[rgba(245,158,11,0.12)] text-amber-500 border border-[rgba(245,158,11,0.2)] rounded-[10px] px-4 py-2.5 text-sm font-semibold cursor-pointer w-full min-h-[44px] flex items-center justify-center gap-1.5 transition-colors">
               ${icon('message-circle', 'w-3.5 h-3.5')}
               ${t('contact') || 'Contacter'}
             </button>
           </div>
         </div>
       `).join('') : `
-        <div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:0.85rem">
+        <div class="text-center px-4 py-6 text-slate-400 text-sm">
           ${t('noNearbyTravelers') || 'Aucun voyageur dans ton rayon pour le moment.'}
         </div>
       `}
 
       ${nearbyTravelers.length > 0 ? `
-        <div style="text-align:center;color:#94a3b8;font-size:0.82rem;padding:12px 0">${nearbyTravelers.length} ${t('travelersInRadius') || 'voyageurs dans un rayon de'} ${settings.radius} km</div>
+        <div class="text-center text-slate-400 text-sm py-3">${nearbyTravelers.length} ${t('travelersInRadius') || 'voyageurs dans un rayon de'} ${settings.radius} km</div>
       ` : ''}
     </div>
   `
@@ -292,51 +292,51 @@ function renderRadarActiveContent(state, settings, nearbyTravelers, selectedRadi
 
 function renderRadarInactiveContent(inCooldown, cooldownMins) {
   return `
-    <div style="display:flex;flex-direction:column;align-items:center;padding-top:16px">
+    <div class="flex flex-col items-center pt-4">
 
       ${inCooldown ? `
-        <div style="display:flex;align-items:center;gap:6px;color:#f87171;font-size:0.78rem;font-weight:600;margin-bottom:16px;padding:8px 12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.15);border-radius:8px;width:100%">
+        <div class="flex items-center gap-1.5 text-red-400 text-xs font-semibold mb-4 px-3 py-2 bg-[rgba(248,113,113,0.08)] border border-[rgba(248,113,113,0.15)] rounded-lg w-full">
           ${icon('clock', 'w-3.5 h-3.5')}
           <span>${t('radarCooldown') || 'Tu pourras reactiver le radar dans'} ${cooldownMins} min</span>
         </div>
       ` : ''}
 
-      <div style="margin-bottom:24px;opacity:0.5;color:#94a3b8">
+      <div class="mb-6 opacity-50 text-slate-400">
         ${icon('radar', 'w-20 h-20')}
       </div>
 
-      <div style="font-size:1.15rem;font-weight:700;margin-bottom:12px;text-align:center">${t('radarDiscoverTitle') || 'Decouvre les voyageurs autour de toi'}</div>
-      <div style="color:#94a3b8;font-size:0.9rem;line-height:1.6;text-align:center;max-width:300px;margin-bottom:32px">${t('radarDiscoverDesc') || 'Active le radar pour voir les voyageurs autour de toi. Tu seras aussi visible par eux. Ideal pour se retrouver, partager un cafe ou faire route ensemble.'}</div>
+      <div class="text-lg font-bold mb-3 text-center">${t('radarDiscoverTitle') || 'Decouvre les voyageurs autour de toi'}</div>
+      <div class="text-slate-400 text-sm leading-relaxed text-center max-w-[300px] mb-8">${t('radarDiscoverDesc') || 'Active le radar pour voir les voyageurs autour de toi. Tu seras aussi visible par eux. Ideal pour se retrouver, partager un cafe ou faire route ensemble.'}</div>
 
       <!-- Features list -->
-      <div style="width:100%;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:18px;margin-bottom:24px">
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
-          <span style="flex-shrink:0;margin-top:2px;color:#f59e0b">${icon('eye', 'w-5 h-5')}</span>
-          <div style="font-size:0.85rem;line-height:1.5">
-            <strong style="display:block;margin-bottom:2px">${t('radarFeatureVisible') || 'Sois visible'}</strong>
-            <span style="color:#94a3b8">${t('radarFeatureVisibleDesc') || 'Les autres voyageurs verront que tu es dans leur zone.'}</span>
+      <div class="w-full bg-[#161b28] border border-white/10 rounded-xl p-[18px] mb-6">
+        <div class="flex items-start gap-3 py-2.5 border-b border-white/[0.04]">
+          <span class="shrink-0 mt-0.5 text-amber-500">${icon('eye', 'w-5 h-5')}</span>
+          <div class="text-sm leading-relaxed">
+            <strong class="block mb-0.5">${t('radarFeatureVisible') || 'Sois visible'}</strong>
+            <span class="text-slate-400">${t('radarFeatureVisibleDesc') || 'Les autres voyageurs verront que tu es dans leur zone.'}</span>
           </div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
-          <span style="flex-shrink:0;margin-top:2px;color:#f59e0b">${icon('message-circle', 'w-5 h-5')}</span>
-          <div style="font-size:0.85rem;line-height:1.5">
-            <strong style="display:block;margin-bottom:2px">${t('radarFeatureMessage') || 'Partage un message'}</strong>
-            <span style="color:#94a3b8">${t('radarFeatureMessageDesc') || "Dis ce que tu fais : « Dispo pour un cafe » ou « Je cherche un lift »."}</span>
+        <div class="flex items-start gap-3 py-2.5 border-b border-white/[0.04]">
+          <span class="shrink-0 mt-0.5 text-amber-500">${icon('message-circle', 'w-5 h-5')}</span>
+          <div class="text-sm leading-relaxed">
+            <strong class="block mb-0.5">${t('radarFeatureMessage') || 'Partage un message'}</strong>
+            <span class="text-slate-400">${t('radarFeatureMessageDesc') || "Dis ce que tu fais : « Dispo pour un cafe » ou « Je cherche un lift »."}</span>
           </div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0">
-          <span style="flex-shrink:0;margin-top:2px;color:#f59e0b">${icon('radar', 'w-5 h-5')}</span>
-          <div style="font-size:0.85rem;line-height:1.5">
-            <strong style="display:block;margin-bottom:2px">${t('radarFeatureRadius') || 'Choisis ton rayon'}</strong>
-            <span style="color:#94a3b8">${t('radarFeatureRadiusDesc') || '10 km, 25 km, 50 km ou 100 km. A toi de regler.'}</span>
+        <div class="flex items-start gap-3 py-2.5">
+          <span class="shrink-0 mt-0.5 text-amber-500">${icon('radar', 'w-5 h-5')}</span>
+          <div class="text-sm leading-relaxed">
+            <strong class="block mb-0.5">${t('radarFeatureRadius') || 'Choisis ton rayon'}</strong>
+            <span class="text-slate-400">${t('radarFeatureRadiusDesc') || '10 km, 25 km, 50 km ou 100 km. A toi de regler.'}</span>
           </div>
         </div>
       </div>
 
       <!-- Privacy note -->
-      <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:14px 16px;width:100%">
-        <span style="flex-shrink:0;color:#60a5fa">${icon('shield', 'w-5 h-5')}</span>
-        <div style="color:#94a3b8;font-size:0.82rem;line-height:1.5">${t('radarPrivacyNote') || "Ta position exacte n'est jamais partagee. Les autres voient uniquement que tu es dans leur zone. Tu peux desactiver le radar a tout moment."}</div>
+      <div class="flex items-start gap-2.5 bg-[rgba(59,130,246,0.08)] border border-[rgba(59,130,246,0.15)] rounded-xl px-4 py-3.5 w-full">
+        <span class="shrink-0 text-blue-400">${icon('shield', 'w-5 h-5')}</span>
+        <div class="text-slate-400 text-sm leading-relaxed">${t('radarPrivacyNote') || "Ta position exacte n'est jamais partagee. Les autres voient uniquement que tu es dans leur zone. Tu peux desactiver le radar a tout moment."}</div>
       </div>
     </div>
   `
@@ -360,42 +360,42 @@ function renderBuddyList(state) {
   const filtered = filter === 'all' ? buddies : buddies.filter(b => b.country === filter)
 
   return `
-    <div class="flex-1 overflow-y-auto" style="padding-bottom:100px">
+    <div class="flex-1 overflow-y-auto pb-[100px]">
       <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <button onclick="backFromVoyageurs()" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#e2e8f0" aria-label="${t('back')}">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-white/[0.06]">
+        <button onclick="backFromVoyageurs()" class="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center cursor-pointer border-0 text-slate-200" aria-label="${t('back')}">
           ${icon('arrow-left', 'w-5 h-5')}
         </button>
-        <h2 style="font-size:1.25rem;font-weight:700;display:flex;align-items:center;gap:8px">
+        <h2 class="text-xl font-bold flex items-center gap-2">
           ${icon('route', 'w-5.5 h-5.5')}
           ${t('companions') || 'Compagnons'}
         </h2>
-        <div style="width:44px"></div>
+        <div class="w-11"></div>
       </div>
 
-      <div style="padding:16px">
+      <div class="p-4">
         <!-- Country filter pills -->
-        <div style="display:flex;gap:6px;overflow-x:auto;padding:8px 0 14px;scrollbar-width:none" class="scrollbar-hide">
+        <div class="flex gap-1.5 overflow-x-auto pt-2 pb-3.5 scrollbar-hide" style="scrollbar-width:none">
           ${countries.map(c => `
-            <button onclick="setBuddyCountryFilter('${c.code}')" style="padding:8px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;min-height:40px;display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;transition:all 0.2s;border:1px solid ${filter === c.code ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${filter === c.code ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)'};color:${filter === c.code ? '#f59e0b' : '#94a3b8'};font-family:inherit">${c.flag ? c.flag + ' ' : ''}${c.label}</button>
+            <button onclick="setBuddyCountryFilter('${c.code}')" class="px-3.5 py-2 rounded-[20px] text-[0.8rem] font-semibold cursor-pointer min-h-[40px] flex items-center gap-1.5 shrink-0 whitespace-nowrap transition-all" style="border:1px solid ${filter === c.code ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${filter === c.code ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)'};color:${filter === c.code ? '#f59e0b' : '#94a3b8'}">${c.flag ? c.flag + ' ' : ''}${c.label}</button>
           `).join('')}
         </div>
 
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div style="font-size:0.92rem;font-weight:700">${filtered.length} ${t('announcements') || 'annonces'}</div>
+        <div class="flex items-center justify-between mb-3.5">
+          <div class="text-sm font-bold">${filtered.length} ${t('announcements') || 'annonces'}</div>
         </div>
 
         <!-- Buddy cards -->
         ${filtered.length > 0 ? filtered.map(buddy => renderBuddyCard(buddy, true)).join('') : `
-          <div style="text-align:center;padding:40px 16px;color:#94a3b8;font-size:0.85rem">
+          <div class="text-center px-4 py-10 text-slate-400 text-sm">
             ${icon('route', 'w-10 h-10 text-slate-600')}
-            <div style="margin-top:12px">${t('noBuddiesForFilter') || 'Aucune annonce pour ce filtre.'}</div>
+            <div class="mt-3">${t('noBuddiesForFilter') || 'Aucune annonce pour ce filtre.'}</div>
           </div>
         `}
       </div>
 
       <!-- FAB + button -->
-      <button onclick="showBuddyCreate()" class="fixed bottom-24 right-5 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-30 transition-transform active:scale-90" style="background:#f59e0b;color:#0f1520;box-shadow:0 4px 20px rgba(245,158,11,0.35);border:none;cursor:pointer" aria-label="${t('createAnnouncement') || 'Creer une annonce'}">
+      <button onclick="showBuddyCreate()" class="fixed bottom-24 right-5 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-30 transition-transform active:scale-90 bg-amber-500 text-[#0f1520] border-0 cursor-pointer" style="box-shadow:0 4px 20px rgba(245,158,11,0.35)" aria-label="${t('createAnnouncement') || 'Creer une annonce'}">
         ${icon('plus', 'w-6 h-6')}
       </button>
     </div>
@@ -412,97 +412,97 @@ function renderBuddyDetail(state) {
   const isOwn = buddy.userId === (state.user?.uid || 'local-user')
 
   return `
-    <div class="flex-1 overflow-y-auto" style="padding-bottom:140px">
+    <div class="flex-1 overflow-y-auto pb-[140px]">
       <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <button onclick="backFromVoyageurs()" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#e2e8f0" aria-label="${t('back')}">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-white/[0.06]">
+        <button onclick="backFromVoyageurs()" class="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center cursor-pointer border-0 text-slate-200" aria-label="${t('back')}">
           ${icon('arrow-left', 'w-5 h-5')}
         </button>
-        <h2 style="font-size:1.25rem;font-weight:700">${t('announcement') || 'Annonce'}</h2>
-        <button onclick="shareBuddyAnnouncement('${escapeJSString(buddy.id)}')" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#e2e8f0" aria-label="${t('share') || 'Partager'}">
+        <h2 class="text-xl font-bold">${t('announcement') || 'Annonce'}</h2>
+        <button onclick="shareBuddyAnnouncement('${escapeJSString(buddy.id)}')" class="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center cursor-pointer border-0 text-slate-200" aria-label="${t('share') || 'Partager'}">
           ${icon('send', 'w-4.5 h-4.5')}
         </button>
       </div>
 
-      <div style="padding:16px">
+      <div class="p-4">
 
         <!-- Profile header -->
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+        <div class="flex items-center gap-3.5 mb-5">
           ${buddy.photoURL
-            ? `<img src="${escapeHTML(buddy.photoURL)}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(245,158,11,0.25)" alt="${escapeHTML(buddy.userName || '')}" onerror="this.style.display='none'">`
-            : `<div style="width:56px;height:56px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;flex-shrink:0;color:#94a3b8;border:2px solid rgba(245,158,11,0.25)">${initial}</div>`}
+            ? `<img src="${escapeHTML(buddy.photoURL)}" class="w-14 h-14 rounded-full object-cover shrink-0 border-2 border-[rgba(245,158,11,0.25)]" alt="${escapeHTML(buddy.userName || '')}" onerror="this.style.display='none'">`
+            : `<div class="w-14 h-14 rounded-full bg-[#1e2a3a] flex items-center justify-center text-2xl font-bold shrink-0 text-slate-400 border-2 border-[rgba(245,158,11,0.25)]">${initial}</div>`}
           <div>
-            <div style="font-size:1.15rem;font-weight:700;margin-bottom:2px">
+            <div class="text-lg font-bold mb-0.5">
               ${escapeHTML(buddy.userName || t('traveler'))}
             </div>
-            <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.8rem;flex-wrap:wrap">
+            <div class="flex items-center gap-1.5 text-slate-400 text-[0.8rem] flex-wrap">
               ${Array.isArray(buddy.languages) && buddy.languages.length > 0 ? `<span>${escapeHTML(buddy.languages.slice(0, 3).join(', '))}</span>` : ''}
             </div>
           </div>
         </div>
 
         <!-- Route card -->
-        <div style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;margin-bottom:16px">
+        <div class="bg-[#161b28] border border-white/10 rounded-xl overflow-hidden mb-4">
           <!-- Route map visualization -->
-          <div style="height:100px;background:linear-gradient(135deg,#1a2744 0%,#0f1520 100%);position:relative;display:flex;align-items:center;justify-content:center">
-            <div style="width:80%;height:3px;background:linear-gradient(90deg,#f59e0b 0%,#f59e0b 40%,rgba(245,158,11,0.3) 60%,#f59e0b 100%);border-radius:2px;position:relative">
-              <div style="width:14px;height:14px;border-radius:50%;background:#f59e0b;position:absolute;top:-5.5px;left:-7px;border:2px solid #0f1520"></div>
-              <div style="width:8px;height:8px;border-radius:50%;background:rgba(245,158,11,0.5);position:absolute;top:-2.5px;left:50%;transform:translateX(-50%)"></div>
-              <div style="width:14px;height:14px;border-radius:50%;background:#f59e0b;position:absolute;top:-5.5px;right:-7px;border:2px solid #0f1520"></div>
+          <div class="h-[100px] relative flex items-center justify-center" style="background:linear-gradient(135deg,#1a2744 0%,#0f1520 100%)">
+            <div class="w-4/5 h-[3px] rounded-sm relative" style="background:linear-gradient(90deg,#f59e0b 0%,#f59e0b 40%,rgba(245,158,11,0.3) 60%,#f59e0b 100%)">
+              <div class="w-3.5 h-3.5 rounded-full bg-amber-500 absolute border-2 border-[#0f1520]" style="top:-5.5px;left:-7px"></div>
+              <div class="w-2 h-2 rounded-full bg-amber-500/50 absolute left-1/2 -translate-x-1/2" style="top:-2.5px"></div>
+              <div class="w-3.5 h-3.5 rounded-full bg-amber-500 absolute border-2 border-[#0f1520]" style="top:-5.5px;right:-7px"></div>
             </div>
-            <div style="position:absolute;bottom:8px;left:16px;color:#94a3b8;font-size:0.7rem">${escapeHTML(buddy.departure || '')}</div>
-            <div style="position:absolute;bottom:8px;right:16px;color:#94a3b8;font-size:0.7rem">${escapeHTML(buddy.destination || '')}</div>
+            <div class="absolute bottom-2 left-4 text-slate-400 text-[0.7rem]">${escapeHTML(buddy.departure || '')}</div>
+            <div class="absolute bottom-2 right-4 text-slate-400 text-[0.7rem]">${escapeHTML(buddy.destination || '')}</div>
           </div>
-          <div style="padding:14px 16px">
-            <div style="font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              ${escapeHTML(buddy.departure || '')} <span style="color:#f59e0b">&rarr;</span> ${escapeHTML(buddy.destination || '')}
+          <div class="px-4 py-3.5">
+            <div class="text-lg font-bold flex items-center gap-2 mb-2">
+              ${escapeHTML(buddy.departure || '')} <span class="text-amber-500">&rarr;</span> ${escapeHTML(buddy.destination || '')}
             </div>
-            <div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:0.85rem;margin-bottom:6px">
+            <div class="flex items-center gap-2 text-slate-400 text-sm mb-1.5">
               ${icon('calendar', 'w-4 h-4')}
               ${buddy.dateFrom || ''} ${buddy.dateTo ? '&rarr; ' + buddy.dateTo : ''}
-              ${buddy.flexDates ? `<span style="color:#f59e0b;font-size:0.72rem">(${t('flexible') || 'flexible'})</span>` : ''}
+              ${buddy.flexDates ? `<span class="text-amber-500 text-[0.72rem]">(${t('flexible') || 'flexible'})</span>` : ''}
             </div>
             ${buddy.duration ? `
-              <div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:0.85rem;margin-bottom:6px">
+              <div class="flex items-center gap-2 text-slate-400 text-sm mb-1.5">
                 ${icon('clock', 'w-4 h-4')}
                 ${escapeHTML(buddy.duration)}
               </div>
             ` : ''}
-            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-size:0.72rem;font-weight:600;background:rgba(245,158,11,0.12);color:#f59e0b">${escapeHTML(buddy.mode || 'Auto-stop')}</span>
+            <span class="inline-flex items-center gap-1 px-2.5 py-[3px] rounded-lg text-[0.72rem] font-semibold bg-[rgba(245,158,11,0.12)] text-amber-500">${escapeHTML(buddy.mode || 'Auto-stop')}</span>
           </div>
         </div>
 
         <!-- Description -->
         ${buddy.message ? `
-          <div style="margin-bottom:20px">
-            <div style="font-size:0.92rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+          <div class="mb-5">
+            <div class="text-sm font-bold mb-2.5 flex items-center gap-2">
               ${icon('message-circle', 'w-4 h-4')}
               ${t('description') || 'Description'}
             </div>
-            <div style="color:#94a3b8;font-size:0.88rem;line-height:1.6">${escapeHTML(buddy.message)}</div>
+            <div class="text-slate-400 text-sm leading-relaxed">${escapeHTML(buddy.message)}</div>
           </div>
-          <div style="height:1px;background:rgba(255,255,255,0.06);margin:20px 0"></div>
+          <div class="h-px bg-white/[0.06] my-5"></div>
         ` : ''}
 
         <!-- Preferences -->
         ${buddy.preferences ? `
-          <div style="margin-bottom:20px">
-            <div style="font-size:0.92rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+          <div class="mb-5">
+            <div class="text-sm font-bold mb-2.5 flex items-center gap-2">
               ${icon('users', 'w-4 h-4')}
               ${t('whatImLookingFor') || 'Ce que je cherche'}
             </div>
-            <div style="color:#94a3b8;font-size:0.88rem;line-height:1.6">${escapeHTML(buddy.preferences)}</div>
+            <div class="text-slate-400 text-sm leading-relaxed">${escapeHTML(buddy.preferences)}</div>
           </div>
-          <div style="height:1px;background:rgba(255,255,255,0.06);margin:20px 0"></div>
+          <div class="h-px bg-white/[0.06] my-5"></div>
         ` : ''}
 
         <!-- Visibility -->
-        <div style="margin-bottom:20px">
-          <div style="font-size:0.92rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <div class="mb-5">
+          <div class="text-sm font-bold mb-2.5 flex items-center gap-2">
             ${icon('eye', 'w-4 h-4')}
             ${t('visibility') || 'Visibilite'}
           </div>
-          <div style="color:#94a3b8;font-size:0.88rem;line-height:1.6">
+          <div class="text-slate-400 text-sm leading-relaxed">
             ${(buddy.visibility || ['tous']).includes('tous')
     ? (t('visibleByAll') || 'Cette annonce est visible par tous les membres.')
     : (t('visibleByRestricted') || 'Visibilite restreinte.')}
@@ -510,28 +510,28 @@ function renderBuddyDetail(state) {
         </div>
 
         <!-- Chat thread -->
-        <div style="margin-top:20px">
-          <div style="font-size:0.92rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <div class="mt-5">
+          <div class="text-sm font-bold mb-2.5 flex items-center gap-2">
             ${icon('message-square', 'w-4 h-4')}
             ${t('buddyChat') || 'Discussion'}
           </div>
-          <div id="buddy-chat-messages" style="max-height:240px;overflow-y:auto;margin-bottom:10px">
+          <div id="buddy-chat-messages" class="max-h-[240px] overflow-y-auto mb-2.5">
             ${(state.buddyChatMessages || []).map(msg => `
-              <div style="display:flex;gap:8px;margin-bottom:10px;align-items:flex-start">
+              <div class="flex gap-2 mb-2.5 items-start">
                 ${msg.senderPhoto
-                  ? `<img src="${escapeHTML(msg.senderPhoto)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="">`
-                  : `<div style="width:28px;height:28px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;color:#94a3b8">${escapeHTML((msg.senderName || '?')[0])}</div>`}
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:0.75rem;font-weight:600;color:#e2e8f0;margin-bottom:2px">${escapeHTML(msg.senderName || t('traveler'))}</div>
-                  <div style="font-size:0.82rem;color:#94a3b8;line-height:1.4">${escapeHTML(msg.text || '')}</div>
+                  ? `<img src="${escapeHTML(msg.senderPhoto)}" class="w-7 h-7 rounded-full object-cover shrink-0" alt="">`
+                  : `<div class="w-7 h-7 rounded-full bg-[#1e2a3a] flex items-center justify-center text-[0.7rem] font-bold shrink-0 text-slate-400">${escapeHTML((msg.senderName || '?')[0])}</div>`}
+                <div class="flex-1 min-w-0">
+                  <div class="text-[0.75rem] font-semibold text-slate-200 mb-0.5">${escapeHTML(msg.senderName || t('traveler'))}</div>
+                  <div class="text-sm text-slate-400 leading-relaxed">${escapeHTML(msg.text || '')}</div>
                 </div>
               </div>
             `).join('')}
-            ${(state.buddyChatMessages || []).length === 0 ? `<div style="color:#475569;font-size:0.82rem;text-align:center;padding:12px 0">${t('noBuddyMessages') || 'Aucun message. Sois le premier !'}</div>` : ''}
+            ${(state.buddyChatMessages || []).length === 0 ? `<div class="text-slate-600 text-sm text-center py-3">${t('noBuddyMessages') || 'Aucun message. Sois le premier !'}</div>` : ''}
           </div>
-          <div style="display:flex;gap:8px">
-            <input type="text" id="buddy-chat-input" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:0.85rem;font-family:inherit" placeholder="${t('writeMessage') || 'Ecris un message...'}" maxlength="1000" onkeydown="if(event.key==='Enter')sendBuddyChatMessage('${escapeJSString(buddy.id)}')" />
-            <button onclick="sendBuddyChatMessage('${escapeJSString(buddy.id)}')" style="width:44px;height:44px;border-radius:10px;background:#f59e0b;color:#0f1520;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" aria-label="${t('send') || 'Envoyer'}">
+          <div class="flex gap-2">
+            <input type="text" id="buddy-chat-input" class="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-[10px] px-3.5 py-2.5 text-slate-200 text-sm" placeholder="${t('writeMessage') || 'Ecris un message...'}" maxlength="1000" onkeydown="if(event.key==='Enter')sendBuddyChatMessage('${escapeJSString(buddy.id)}')" />
+            <button onclick="sendBuddyChatMessage('${escapeJSString(buddy.id)}')" class="w-11 h-11 rounded-[10px] bg-amber-500 text-[#0f1520] border-0 flex items-center justify-center cursor-pointer shrink-0" aria-label="${t('send') || 'Envoyer'}">
               ${icon('send', 'w-4 h-4')}
             </button>
           </div>
@@ -540,22 +540,22 @@ function renderBuddyDetail(state) {
       </div>
 
       <!-- Fixed bottom CTA -->
-      <div class="fixed bottom-0 left-0 right-0 z-20" style="padding:16px 16px 36px;background:linear-gradient(to top,#0f1520 80%,transparent)">
+      <div class="fixed bottom-0 left-0 right-0 z-20 px-4 pt-4 pb-9" style="background:linear-gradient(to top,#0f1520 80%,transparent)">
         ${isOwn ? `
-          <button onclick="closeBuddyAnnouncement('${escapeJSString(buddy.id)}')" style="width:100%;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px">
+          <button onclick="closeBuddyAnnouncement('${escapeJSString(buddy.id)}')" class="w-full bg-[rgba(34,197,94,0.15)] text-emerald-500 border border-[rgba(34,197,94,0.2)] rounded-xl p-4 text-base font-bold cursor-pointer mb-2 min-h-[48px] flex items-center justify-center gap-2">
             ${icon('check-circle', 'w-4.5 h-4.5')}
             ${t('closeBuddyLabel') || 'Compagnon trouve'}
           </button>
-          <button onclick="deleteBuddyAnnouncement('${escapeJSString(buddy.id)}')" style="width:100%;background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:16px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px">
+          <button onclick="deleteBuddyAnnouncement('${escapeJSString(buddy.id)}')" class="w-full bg-[rgba(248,113,113,0.15)] text-red-400 border border-[rgba(248,113,113,0.2)] rounded-xl p-4 text-base font-bold cursor-pointer mb-2 min-h-[48px] flex items-center justify-center gap-2">
             ${icon('trash', 'w-4.5 h-4.5')}
             ${t('deleteAnnouncement') || 'Supprimer mon annonce'}
           </button>
         ` : `
-          <button onclick="contactBuddyAuthor('${escapeJSString(buddy.userId)}')" style="width:100%;background:#f59e0b;color:#0f1520;border:none;border-radius:12px;padding:16px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s">
+          <button onclick="contactBuddyAuthor('${escapeJSString(buddy.userId)}')" class="w-full bg-amber-500 text-[#0f1520] border-0 rounded-xl p-4 text-base font-bold cursor-pointer mb-2 min-h-[48px] flex items-center justify-center gap-2 transition-opacity">
             ${icon('send', 'w-4.5 h-4.5')}
             ${t('contactAuthor') || 'Contacter'} ${escapeHTML(buddy.userName || '')}
           </button>
-          <button onclick="openReport('buddy', '${escapeJSString(buddy.id)}')" style="display:flex;align-items:center;justify-content:center;gap:4px;margin:0 auto;background:none;border:none;color:#475569;font-size:0.78rem;cursor:pointer;font-family:inherit;padding:8px;min-height:44px">
+          <button onclick="openReport('buddy', '${escapeJSString(buddy.id)}')" class="flex items-center justify-center gap-1 mx-auto bg-transparent border-0 text-slate-600 text-xs cursor-pointer p-2 min-h-[44px]">
             ${icon('flag', 'w-3 h-3')}
             ${t('reportAnnouncement') || 'Signaler cette annonce'}
           </button>
@@ -575,121 +575,121 @@ function renderBuddyCreate(state) {
   const today = new Date().toISOString().split('T')[0]
 
   return `
-    <div class="flex-1 overflow-y-auto" style="padding-bottom:100px">
+    <div class="flex-1 overflow-y-auto pb-[100px]">
       <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <button onclick="backFromVoyageurs()" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#e2e8f0" aria-label="${t('back')}">
+      <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-white/[0.06]">
+        <button onclick="backFromVoyageurs()" class="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center cursor-pointer border-0 text-slate-200" aria-label="${t('back')}">
           ${icon('arrow-left', 'w-5 h-5')}
         </button>
-        <h2 style="font-size:1.25rem;font-weight:700">${t('createAnnouncement') || 'Creer une annonce'}</h2>
-        <div style="width:44px"></div>
+        <h2 class="text-xl font-bold">${t('createAnnouncement') || 'Creer une annonce'}</h2>
+        <div class="w-11"></div>
       </div>
 
-      <div style="padding:16px">
+      <div class="p-4">
 
         <!-- Departure -->
-        <div style="margin-bottom:18px">
-          <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:8px">
+        <div class="mb-[18px]">
+          <div class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-2">
             ${icon('map-pin', 'w-4 h-4')}
-            ${t('departure') || 'Depart'} <span style="color:#ef4444;font-size:0.75rem">*</span>
+            ${t('departure') || 'Depart'} <span class="text-red-500 text-[0.75rem]">*</span>
           </div>
-          <input type="text" id="buddy-departure" style="width:100%;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;color:#e2e8f0;font-size:0.9rem;font-family:inherit;min-height:48px" placeholder="${t('departurePlaceholder') || 'Ville de depart...'}" />
+          <input type="text" id="buddy-departure" class="w-full bg-[#161b28] border border-white/10 rounded-xl px-4 py-3.5 text-slate-200 text-sm min-h-[48px]" placeholder="${t('departurePlaceholder') || 'Ville de depart...'}" />
         </div>
 
         <!-- Destination -->
-        <div style="margin-bottom:18px">
-          <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:8px">
+        <div class="mb-[18px]">
+          <div class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-2">
             ${icon('map-pin', 'w-4 h-4')}
-            ${t('destination') || 'Destination'} <span style="color:#ef4444;font-size:0.75rem">*</span>
+            ${t('destination') || 'Destination'} <span class="text-red-500 text-[0.75rem]">*</span>
           </div>
-          <input type="text" id="buddy-destination" style="width:100%;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;color:#e2e8f0;font-size:0.9rem;font-family:inherit;min-height:48px" placeholder="${t('destinationPlaceholder') || "Ville d'arrivee..."}" />
+          <input type="text" id="buddy-destination" class="w-full bg-[#161b28] border border-white/10 rounded-xl px-4 py-3.5 text-slate-200 text-sm min-h-[48px]" placeholder="${t('destinationPlaceholder') || "Ville d'arrivee..."}" />
         </div>
 
         <!-- Dates row -->
-        <div style="display:flex;gap:10px;margin-bottom:4px">
-          <div style="flex:1">
-            <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:8px">
+        <div class="flex gap-2.5 mb-1">
+          <div class="flex-1">
+            <div class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-2">
               ${icon('calendar', 'w-3.5 h-3.5')}
-              ${t('from') || 'Du'} <span style="color:#ef4444;font-size:0.75rem">*</span>
+              ${t('from') || 'Du'} <span class="text-red-500 text-[0.75rem]">*</span>
             </div>
-            ${flexDates ? `<div style="color:#94a3b8;font-size:0.75rem;font-weight:600;margin-bottom:4px">${t('around') || 'Autour du'}</div>` : ''}
-            <input type="date" id="buddy-date-from" min="${today}" style="width:100%;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;color:#e2e8f0;font-size:0.9rem;font-family:inherit;min-height:48px" />
+            ${flexDates ? `<div class="text-slate-400 text-[0.75rem] font-semibold mb-1">${t('around') || 'Autour du'}</div>` : ''}
+            <input type="date" id="buddy-date-from" min="${today}" class="w-full bg-[#161b28] border border-white/10 rounded-xl px-4 py-3.5 text-slate-200 text-sm min-h-[48px]" />
           </div>
-          <div style="flex:1">
-            <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:8px">
+          <div class="flex-1">
+            <div class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-2">
               ${icon('calendar', 'w-3.5 h-3.5')}
-              ${t('to') || 'Au'} <span style="color:#ef4444;font-size:0.75rem">*</span>
+              ${t('to') || 'Au'} <span class="text-red-500 text-[0.75rem]">*</span>
             </div>
-            ${flexDates ? `<div style="color:#94a3b8;font-size:0.75rem;font-weight:600;margin-bottom:4px">${t('around') || 'Autour du'}</div>` : ''}
-            <input type="date" id="buddy-date-to" min="${today}" style="width:100%;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;color:#e2e8f0;font-size:0.9rem;font-family:inherit;min-height:48px" />
+            ${flexDates ? `<div class="text-slate-400 text-[0.75rem] font-semibold mb-1">${t('around') || 'Autour du'}</div>` : ''}
+            <input type="date" id="buddy-date-to" min="${today}" class="w-full bg-[#161b28] border border-white/10 rounded-xl px-4 py-3.5 text-slate-200 text-sm min-h-[48px]" />
           </div>
         </div>
 
         <!-- Flexible dates toggle -->
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-top:4px;margin-bottom:18px">
-          <div onclick="toggleBuddyFlexDates()" tabindex="0" style="width:40px;height:22px;border-radius:11px;position:relative;cursor:pointer;flex-shrink:0;transition:all 0.3s;background:${flexDates ? '#f59e0b' : '#334155'}" role="switch" aria-checked="${flexDates}">
-            <div style="width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:3px;transition:transform 0.3s;transform:translateX(${flexDates ? '21px' : '3px'})"></div>
+        <div class="flex items-center gap-2.5 py-2.5 mt-1 mb-[18px]">
+          <div onclick="toggleBuddyFlexDates()" tabindex="0" class="w-10 h-[22px] rounded-[11px] relative cursor-pointer shrink-0 transition-all" style="background:${flexDates ? '#f59e0b' : '#334155'}" role="switch" aria-checked="${flexDates}">
+            <div class="w-4 h-4 rounded-full bg-white absolute top-[3px] transition-transform" style="transform:translateX(${flexDates ? '21px' : '3px'})"></div>
           </div>
           <div>
-            <div style="font-size:0.82rem;color:#e2e8f0;font-weight:600">${t('flexibleDates') || 'Dates flexibles'}</div>
-            ${flexDates ? `<div style="color:#94a3b8;font-size:0.75rem;margin-top:4px;line-height:1.3">${t('flexibleDatesHint') || 'Les dates sont approximatives'}</div>` : ''}
+            <div class="text-sm text-slate-200 font-semibold">${t('flexibleDates') || 'Dates flexibles'}</div>
+            ${flexDates ? `<div class="text-slate-400 text-[0.75rem] mt-1 leading-tight">${t('flexibleDatesHint') || 'Les dates sont approximatives'}</div>` : ''}
           </div>
         </div>
 
         <!-- Travel mode pills -->
-        <div style="margin-bottom:18px">
-          <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:8px">
+        <div class="mb-[18px]">
+          <div class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-2">
             ${icon('route', 'w-4 h-4')}
             ${t('travelMode') || 'Mode de voyage'}
           </div>
-          <div style="display:flex;gap:6px">
+          <div class="flex gap-1.5">
             ${['autostop', 'mixte', 'autre'].map(mode => {
     const labels = { autostop: 'Auto-stop', mixte: 'Mixte', autre: t('other') || 'Autre' }
     const isSelected = selectedMode === mode
     return `
-                <button onclick="setBuddyTravelMode('${mode}')" style="flex:1;padding:12px 8px;border-radius:12px;font-size:0.82rem;font-weight:600;cursor:pointer;text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;border:1px solid ${isSelected ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${isSelected ? 'rgba(245,158,11,0.12)' : '#161b28'};color:${isSelected ? '#f59e0b' : '#94a3b8'};font-family:inherit">${labels[mode] || mode}</button>
+                <button onclick="setBuddyTravelMode('${mode}')" class="flex-1 px-2 py-3 rounded-xl text-sm font-semibold cursor-pointer text-center min-h-[48px] flex items-center justify-center transition-all" style="border:1px solid ${isSelected ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${isSelected ? 'rgba(245,158,11,0.12)' : '#161b28'};color:${isSelected ? '#f59e0b' : '#94a3b8'}">${labels[mode] || mode}</button>
               `
   }).join('')}
           </div>
         </div>
 
-        <div style="height:1px;background:rgba(255,255,255,0.06);margin:20px 0"></div>
+        <div class="h-px bg-white/[0.06] my-5"></div>
 
         <!-- Description -->
-        <div style="margin-bottom:18px">
-          <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:8px">
+        <div class="mb-[18px]">
+          <div class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-2">
             ${icon('message-circle', 'w-4 h-4')}
             ${t('description') || 'Description'}
           </div>
-          <textarea id="buddy-description" style="width:100%;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;color:#e2e8f0;font-size:0.9rem;font-family:inherit;min-height:80px;line-height:1.5;resize:vertical" placeholder="${t('buddyDescPlaceholder') || 'Presente toi et decris ton voyage...'}"></textarea>
-          <div style="color:#475569;font-size:0.75rem;margin-top:6px;line-height:1.4">${t('buddyDescHelper') || 'Parle de toi, de ton itineraire, de tes passions. Ca aide les autres a te connaitre.'}</div>
+          <textarea id="buddy-description" class="w-full bg-[#161b28] border border-white/10 rounded-xl px-4 py-3.5 text-slate-200 text-sm min-h-[80px] leading-relaxed resize-y" placeholder="${t('buddyDescPlaceholder') || 'Presente toi et decris ton voyage...'}"></textarea>
+          <div class="text-slate-600 text-[0.75rem] mt-1.5 leading-relaxed">${t('buddyDescHelper') || 'Parle de toi, de ton itineraire, de tes passions. Ca aide les autres a te connaitre.'}</div>
         </div>
 
         <!-- Preferences -->
-        <div style="margin-bottom:18px">
-          <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:8px">
+        <div class="mb-[18px]">
+          <div class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-2">
             ${icon('users', 'w-4 h-4')}
             ${t('whatImLookingFor') || 'Ce que je cherche'}
           </div>
-          <textarea id="buddy-preferences" style="width:100%;background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;color:#e2e8f0;font-size:0.9rem;font-family:inherit;min-height:80px;line-height:1.5;resize:vertical" placeholder="${t('buddyPrefsPlaceholder') || 'Type de compagnon, preferences...'}"></textarea>
+          <textarea id="buddy-preferences" class="w-full bg-[#161b28] border border-white/10 rounded-xl px-4 py-3.5 text-slate-200 text-sm min-h-[80px] leading-relaxed resize-y" placeholder="${t('buddyPrefsPlaceholder') || 'Type de compagnon, preferences...'}"></textarea>
         </div>
 
-        <div style="height:1px;background:rgba(255,255,255,0.06);margin:20px 0"></div>
+        <div class="h-px bg-white/[0.06] my-5"></div>
 
         <!-- Visibility pills -->
-        <div style="margin-bottom:18px">
-          <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:8px">
+        <div class="mb-[18px]">
+          <div class="flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-2">
             ${icon('eye', 'w-4 h-4')}
             ${t('visibleBy') || 'Visible par'}
           </div>
-          <div style="display:flex;gap:6px">
+          <div class="flex gap-1.5">
             ${renderVisibilityPill('tous', t('visibilityAll') || 'Tous', selectedVisibility, 'setBuddyVisibility')}
             ${renderVisibilityPill('femmes', t('visibilityWomen') || 'Femmes', selectedVisibility, 'setBuddyVisibility')}
             ${renderVisibilityPill('verifies', t('visibilityVerified') || 'Verifies', selectedVisibility, 'setBuddyVisibility')}
           </div>
-          <div style="color:#94a3b8;font-size:0.72rem;line-height:1.4;margin-top:8px;padding:0 2px">${t('visibilityWomenHint') || "L'option Femmes est reservee aux utilisatrices ayant indique Femme dans leur profil."}</div>
+          <div class="text-slate-400 text-[0.72rem] leading-relaxed mt-2 px-0.5">${t('visibilityWomenHint') || "L'option Femmes est reservee aux utilisatrices ayant indique Femme dans leur profil."}</div>
           ${selectedVisibility.includes('femmes') ? `
-            <div style="color:#a78bfa;font-size:0.72rem;line-height:1.4;margin-top:6px;padding:8px 12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.15);border-radius:8px;display:flex;align-items:flex-start;gap:6px">
+            <div class="text-violet-400 text-[0.72rem] leading-relaxed mt-1.5 px-3 py-2 bg-[rgba(167,139,250,0.08)] border border-[rgba(167,139,250,0.15)] rounded-lg flex items-start gap-1.5">
               ${icon('shield', 'w-3.5 h-3.5 shrink-0')}
               <span>${t('visibilityWomenReassure') || 'Seules les femmes verifiees verront ton profil et ta position.'}</span>
             </div>
@@ -697,15 +697,15 @@ function renderBuddyCreate(state) {
         </div>
 
         <!-- Submit button -->
-        <button onclick="submitBuddyAnnouncement()" style="width:100%;background:#f59e0b;color:#0f1520;border:none;border-radius:12px;padding:16px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s">
+        <button onclick="submitBuddyAnnouncement()" class="w-full bg-amber-500 text-[#0f1520] border-0 rounded-xl p-4 text-base font-bold cursor-pointer mt-2 min-h-[48px] flex items-center justify-center gap-2 transition-opacity">
           ${icon('send', 'w-4.5 h-4.5')}
           ${t('publishAnnouncement') || "Publier l'annonce"}
         </button>
 
         <!-- Privacy info -->
-        <div style="display:flex;align-items:flex-start;gap:8px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.12);border-radius:12px;padding:12px 14px;margin-top:16px">
-          <span style="flex-shrink:0;color:#60a5fa">${icon('shield', 'w-4.5 h-4.5')}</span>
-          <div style="color:#94a3b8;font-size:0.78rem;line-height:1.5">${t('buddyPrivacyNote') || 'Ton annonce sera visible par les membres selon le filtre choisi. Tu peux la modifier ou la supprimer a tout moment.'}</div>
+        <div class="flex items-start gap-2 bg-[rgba(59,130,246,0.06)] border border-[rgba(59,130,246,0.12)] rounded-xl px-3.5 py-3 mt-4">
+          <span class="shrink-0 text-blue-400">${icon('shield', 'w-4.5 h-4.5')}</span>
+          <div class="text-slate-400 text-xs leading-relaxed">${t('buddyPrivacyNote') || 'Ton annonce sera visible par les membres selon le filtre choisi. Tu peux la modifier ou la supprimer a tout moment.'}</div>
         </div>
 
       </div>
@@ -723,29 +723,29 @@ function renderBuddyCard(buddy, showCountry = false) {
     : ''
 
   return `
-    <div onclick="showBuddyDetail('${escapeJSString(buddy.id)}')" role="button" tabindex="0" aria-label="${escapeHTML(buddy.departure || '')} ${escapeHTML(buddy.destination || '')}" style="background:#161b28;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+    <div onclick="showBuddyDetail('${escapeJSString(buddy.id)}')" role="button" tabindex="0" aria-label="${escapeHTML(buddy.departure || '')} ${escapeHTML(buddy.destination || '')}" class="bg-[#161b28] border border-white/10 rounded-xl p-3.5 mb-2.5 cursor-pointer transition-colors">
+      <div class="flex items-center gap-2.5 mb-2">
         ${buddy.photoURL
-          ? `<img src="${escapeHTML(buddy.photoURL)}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="" onerror="this.outerHTML='<div style=\\'width:38px;height:38px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8\\'>${initial}</div>'">`
-          : `<div style="width:38px;height:38px;border-radius:50%;background:#1e2a3a;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:#94a3b8">${initial}</div>`}
+          ? `<img src="${escapeHTML(buddy.photoURL)}" class="w-[38px] h-[38px] rounded-full object-cover shrink-0" alt="" onerror="this.outerHTML='<div class=\\'w-[38px] h-[38px] rounded-full bg-[#1e2a3a] flex items-center justify-center text-sm font-bold shrink-0 text-slate-400\\'>${initial}</div>'">`
+          : `<div class="w-[38px] h-[38px] rounded-full bg-[#1e2a3a] flex items-center justify-center text-sm font-bold shrink-0 text-slate-400">${initial}</div>`}
         <div>
-          <div style="font-weight:600;font-size:0.88rem">
+          <div class="font-semibold text-sm">
             ${escapeHTML(buddy.userName || t('traveler'))}
           </div>
-          <div style="color:#94a3b8;font-size:0.74rem">${langStr ? escapeHTML(langStr) : ''}${showCountry && buddy.country ? (langStr ? ' · ' : '') + escapeHTML(buddy.country) : ''}</div>
+          <div class="text-slate-400 text-[0.74rem]">${langStr ? escapeHTML(langStr) : ''}${showCountry && buddy.country ? (langStr ? ' · ' : '') + escapeHTML(buddy.country) : ''}</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:0.88rem;font-weight:600;margin-bottom:4px">
-        ${escapeHTML(buddy.departure || '')} <span style="color:#f59e0b">&rarr;</span> ${escapeHTML(buddy.destination || '')}
+      <div class="flex items-center gap-1.5 text-sm font-semibold mb-1">
+        ${escapeHTML(buddy.departure || '')} <span class="text-amber-500">&rarr;</span> ${escapeHTML(buddy.destination || '')}
       </div>
-      <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.76rem;margin-bottom:6px">
+      <div class="flex items-center gap-1.5 text-slate-400 text-[0.76rem] mb-1.5">
         ${icon('calendar', 'w-3 h-3')}
         ${buddy.dateFrom || ''} ${buddy.dateTo ? '&rarr; ' + buddy.dateTo : ''}
       </div>
-      ${buddy.message ? `<div style="color:#94a3b8;font-size:0.82rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escapeHTML(buddy.message)}</div>` : ''}
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
-        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-size:0.72rem;font-weight:600;background:rgba(245,158,11,0.12);color:#f59e0b">${modeLabels[buddy.mode] || buddy.mode || 'Auto-stop'}</span>
-        <button onclick="event.stopPropagation();showBuddyDetail('${escapeJSString(buddy.id)}')" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:6px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;min-height:36px;display:flex;align-items:center;gap:4px">
+      ${buddy.message ? `<div class="text-slate-400 text-sm leading-relaxed line-clamp-2">${escapeHTML(buddy.message)}</div>` : ''}
+      <div class="flex items-center justify-between mt-2.5">
+        <span class="inline-flex items-center gap-1 px-2.5 py-[3px] rounded-lg text-[0.72rem] font-semibold bg-[rgba(245,158,11,0.12)] text-amber-500">${modeLabels[buddy.mode] || buddy.mode || 'Auto-stop'}</span>
+        <button onclick="event.stopPropagation();showBuddyDetail('${escapeJSString(buddy.id)}')" class="bg-[rgba(245,158,11,0.1)] text-amber-500 border border-[rgba(245,158,11,0.15)] rounded-lg px-3.5 py-1.5 text-xs font-semibold cursor-pointer min-h-[36px] flex items-center gap-1">
           ${icon('eye', 'w-3 h-3')}
           ${t('view') || 'Voir'}
         </button>
@@ -756,7 +756,7 @@ function renderBuddyCard(buddy, showCountry = false) {
 
 function renderVisibilityPill(value, label, selectedArray, handlerName) {
   const isSelected = selectedArray.includes(value)
-  return `<button onclick="${handlerName}('${value}')" style="flex:1;padding:10px 8px;border-radius:12px;font-size:0.8rem;font-weight:600;cursor:pointer;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;border:1px solid ${isSelected ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${isSelected ? 'rgba(245,158,11,0.12)' : '#161b28'};color:${isSelected ? '#f59e0b' : '#94a3b8'};font-family:inherit">${label}</button>`
+  return `<button onclick="${handlerName}('${value}')" class="flex-1 px-2 py-2.5 rounded-xl text-[0.8rem] font-semibold cursor-pointer text-center min-h-[44px] flex items-center justify-center transition-all" style="border:1px solid ${isSelected ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${isSelected ? 'rgba(245,158,11,0.12)' : '#161b28'};color:${isSelected ? '#f59e0b' : '#94a3b8'}">${label}</button>`
 }
 
 // ==================== WINDOW HANDLERS ====================

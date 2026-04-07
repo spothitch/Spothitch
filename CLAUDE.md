@@ -38,6 +38,15 @@
 > - **Si un concept manque** dans le mapping → l'ajouter dans `appIcons.js` AVANT de l'utiliser
 > - Cette règle existe pour un style premium cohérent sur toute l'app
 
+> **RÈGLE #25 — ZÉRO STYLE INLINE, TAILWIND UNIQUEMENT** (ABSOLUMENT OBLIGATOIRE) :
+> - **JAMAIS de `style="..."` inline** dans le code HTML/template. Toujours utiliser des classes Tailwind.
+> - **Exemples interdits** : `style="background:#161b28;padding:16px;border-radius:12px"`
+> - **Exemples corrects** : `class="bg-dark-secondary p-4 rounded-xl"`
+> - **Si une classe Tailwind n'existe pas** pour un besoin spécifique → utiliser `style` uniquement pour les valeurs dynamiques calculées (ex: `style="width:${percent}%"`)
+> - **Les valeurs dynamiques** (pourcentages, positions calculées) sont la SEULE exception autorisée pour `style=""`
+> - **Avant de push** → vérifier qu'aucun nouveau `style="` n'a été ajouté avec des propriétés qui existent en Tailwind
+> - Cette règle existe parce que Voyageurs.js a été écrit avec 229 styles inline au lieu de Tailwind, créant un code incohérent et difficile à maintenir
+
 > **RÈGLE #1 — BRANCHES ET DEPLOY** :
 >
 > **Structure des branches (OBLIGATOIRE) :**
