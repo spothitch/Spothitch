@@ -782,6 +782,15 @@ window.showRadarExpanded = () => {
 }
 
 window.contactNearbyTraveler = (uid) => {
+  // Check blocked users before opening DM
+  try {
+    const blocked = JSON.parse(localStorage.getItem('spothitch_blocked_users') || '[]')
+    const ids = blocked.map(b => typeof b === 'string' ? b : b.id || b.uid).filter(Boolean)
+    if (ids.includes(uid)) {
+      window.showToast?.(t('userBlocked') || 'Utilisateur bloque', 'warning')
+      return
+    }
+  } catch { /* ignore */ }
   window.setState?.({ socialSubTab: 'messagerie', activeDMConversation: uid })
 }
 
@@ -911,6 +920,15 @@ window.setBuddyCountryFilter = (code) => {
 }
 
 window.contactBuddyAuthor = (uid) => {
+  // Check blocked users before opening DM
+  try {
+    const blocked = JSON.parse(localStorage.getItem('spothitch_blocked_users') || '[]')
+    const ids = blocked.map(b => typeof b === 'string' ? b : b.id || b.uid).filter(Boolean)
+    if (ids.includes(uid)) {
+      window.showToast?.(t('userBlocked') || 'Utilisateur bloque', 'warning')
+      return
+    }
+  } catch { /* ignore */ }
   window.setState?.({ socialSubTab: 'messagerie', activeDMConversation: uid, voyageursView: 'combined' })
 }
 

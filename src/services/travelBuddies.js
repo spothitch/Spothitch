@@ -90,6 +90,7 @@ export async function createTravelBuddy(data) {
       dateFrom: data.dateFrom,
       dateTo: data.dateTo || '',
       message: (data.message || '').substring(0, 500),
+      preferences: (data.preferences || '').substring(0, 500),
       visibility: data.visibility || ['tous'],
       mode: data.mode || 'autostop',
       flexDates: data.flexDates || false,
