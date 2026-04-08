@@ -11,6 +11,23 @@ const { onSchedule } = require('firebase-functions/v2/scheduler')
 const { getFirestore } = require('firebase-admin/firestore')
 const { getMessaging } = require('firebase-admin/messaging')
 
+/** Send FCM push with retry (max 3 attempts, exponential backoff) */
+async function sendWithRetry(messaging, message, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      await messaging.send(message)
+      return { success: true }
+    } catch (err) {
+      if (err.code === 'messaging/invalid-registration-token' || err.code === 'messaging/registration-token-not-registered') {
+        return { success: false, stale: true }
+      }
+      if (attempt === maxRetries - 1) return { success: false, stale: false }
+      await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt)))
+    }
+  }
+  return { success: false, stale: false }
+}
+
 const GRACE_MINUTES = 5 // extra time before alerting
 
 exports.checkSOSTimers = onSchedule(
@@ -123,30 +140,22 @@ async function sendPushToUser(db, messaging, userId, notification, data) {
 
   await Promise.all(
     tokens.map(async (token) => {
-      try {
-        await messaging.send({
-          token,
-          notification,
-          data,
-          webpush: {
-            fcmOptions: { link: 'https://spothitch.com' },
-            notification: {
-              icon: 'https://spothitch.com/icon-192.png',
-              badge: 'https://spothitch.com/icon-72.png',
-              tag: `sos-${data.voyagerId || 'alert'}`,
-              requireInteraction: true,
-              vibrate: [200, 100, 200, 100, 200],
-            },
+      const result = await sendWithRetry(messaging, {
+        token,
+        notification,
+        data,
+        webpush: {
+          fcmOptions: { link: 'https://spothitch.com' },
+          notification: {
+            icon: 'https://spothitch.com/icon-192.png',
+            badge: 'https://spothitch.com/icon-72.png',
+            tag: `sos-${data.voyagerId || 'alert'}`,
+            requireInteraction: true,
+            vibrate: [200, 100, 200, 100, 200],
           },
-        })
-      } catch (err) {
-        if (
-          err.code === 'messaging/invalid-registration-token' ||
-          err.code === 'messaging/registration-token-not-registered'
-        ) {
-          staleTokens.push(token)
-        }
-      }
+        },
+      })
+      if (result.stale) staleTokens.push(token)
     })
   )
 

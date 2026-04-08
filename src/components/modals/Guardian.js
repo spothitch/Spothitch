@@ -751,22 +751,59 @@ function tagHTML(color, iconName, text) {
 // ─── SCREEN 4: GUARDIAN VIEW ───
 
 function renderGuardianScreen(guardianState) {
-  const guardianName = guardianState.guardian?.name || 'Voyageur'
-  const destination = guardianState.destination || ''
-  const tripMs = guardianState.tripStart ? Date.now() - guardianState.tripStart : 0
+  // Use real-time data from guardianWatch (Firestore) if available
+  const watchedTimers = getState().watchedGuardianTimers || []
+  const watchedTimer = watchedTimers[0] || null // First active timer
+
+  // Prefer Firestore data over local state
+  const guardianName = watchedTimer?.userName || guardianState.guardian?.name || 'Voyageur'
+  const destination = watchedTimer?.destination || guardianState.destination || ''
+  const lastCheckIn = watchedTimer?.lastCheckIn || guardianState.lastCheckIn || 0
+  const tripStart = watchedTimer?.tripStart || guardianState.tripStart || 0
+  const lastPos = watchedTimer?.lastPosition || null
+  const isOverdue = lastCheckIn && watchedTimer?.checkInIntervalMinutes
+    ? Date.now() > lastCheckIn + watchedTimer.checkInIntervalMinutes * 60_000
+    : false
+
+  const tripMs = tripStart ? Date.now() - tripStart : 0
   const tripMinutes = Math.floor(tripMs / 60_000)
   const tripHours = Math.floor(tripMinutes / 60)
   const tripMins = tripMinutes % 60
-  const initial = (guardianName)[0].toUpperCase()
+  const initial = (guardianName)[0]?.toUpperCase() || '?'
+
+  // Map: show static map image or link if position available
+  const mapContent = lastPos?.lat && lastPos?.lng
+    ? `<a href="https://www.google.com/maps?q=${lastPos.lat},${lastPos.lng}" target="_blank" rel="noopener"
+        class="block w-full h-[180px] rounded-xl mb-3 relative overflow-hidden bg-dark-secondary/50 border border-white/5">
+        <img src="https://maps.googleapis.com/maps/api/staticmap?center=${lastPos.lat},${lastPos.lng}&zoom=14&size=400x180&markers=color:red%7C${lastPos.lat},${lastPos.lng}&key="
+          alt="Position" class="w-full h-full object-cover opacity-60" onerror="this.style.display='none'">
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="bg-red-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
+            ${icon('map-pin', 'w-3.5 h-3.5')} ${t('seeOnMap') || 'See on map'}
+          </div>
+        </div>
+        <div class="absolute bottom-2 left-2 text-[10px] text-white/70 bg-black/50 px-2 py-0.5 rounded">
+          ${lastPos.lat.toFixed(5)}, ${lastPos.lng.toFixed(5)}
+        </div>
+      </a>`
+    : `<div class="w-full h-[120px] rounded-xl mb-3 flex items-center justify-center bg-dark-secondary/30 border border-white/5">
+        <span class="text-slate-500 text-[11px]">
+          ${icon('map-pin', 'w-3 h-3 inline')} ${t('waitingForPosition') || 'Waiting for position...'}
+        </span>
+      </div>`
+
+  const statusColor = isOverdue ? 'text-red-400' : 'text-emerald-400'
+  const statusDot = isOverdue ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'
+  const statusText = isOverdue ? (t('overdueAlert') || 'Overdue!') : (t('onTrip') || 'En route')
 
   return `
     <!-- Header -->
     <div class="px-5 py-3 flex items-center gap-2 border-b border-white/5">
-      <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(245,158,11,.08)">
+      <div class="w-7 h-7 rounded-full flex items-center justify-center bg-amber-500/10">
         ${icon('eye', 'w-3.5 h-3.5 text-amber-500')}
       </div>
       <h2 id="guardian-modal-title" class="text-[15px] font-extrabold text-white flex-1">
-        ${t('trackingOf') || 'Suivi de'} ${escapeHTML(guardianName)}
+        ${t('trackingOf') || 'Tracking'} ${escapeHTML(guardianName)}
       </h2>
       <button onclick="guardianGoToScreen('main')" class="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center" aria-label="${t('close') || 'Close'}">
         ${icon('x', 'w-3.5 h-3.5 text-slate-400')}
@@ -774,59 +811,64 @@ function renderGuardianScreen(guardianState) {
     </div>
 
     <div class="flex-1 overflow-y-auto p-4">
-      <!-- Map placeholder -->
-      <div class="w-full h-[180px] rounded-xl mb-3 flex items-center justify-center relative overflow-hidden"
-        style="background:linear-gradient(135deg,#1a2332,#0f1520)">
-        <div class="absolute inset-0" style="background:radial-gradient(circle at 60% 40%,rgba(34,197,94,.12) 0%,transparent 50%)"></div>
-        <span class="text-slate-600 text-[11px] z-10">
-          ${icon('map-pin', 'w-3 h-3 inline')} ${t('realtimeMap') || 'Carte temps reel'} ${destination ? '. ' + escapeHTML(destination) : ''}
-        </span>
-      </div>
+      <!-- Live map / position -->
+      ${mapContent}
 
       <!-- Traveler card -->
-      <div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+      <div class="rounded-xl p-3 mb-2 bg-white/[0.03] border border-white/[0.06]">
         <div class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-[#0f1117]"
-            style="background:linear-gradient(135deg,#f59e0b,#d97706)">${escapeHTML(initial)}</div>
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-dark-primary bg-gradient-to-br from-amber-500 to-amber-600">${escapeHTML(initial)}</div>
           <div class="text-[13px] font-bold text-white flex-1">${escapeHTML(guardianName)}</div>
-          <div class="text-[9px] flex items-center gap-1 text-emerald-400">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${t('onTrip') || 'En route'}
+          <div class="text-[9px] flex items-center gap-1 ${statusColor}">
+            <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span> ${statusText}
           </div>
         </div>
         <div class="grid grid-cols-3 gap-1 mt-2">
-          <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
-            <div class="text-xs font-bold text-emerald-400">${icon('check', 'w-3 h-3 inline')} ${guardianState.lastCheckIn ? formatTimeAgo(guardianState.lastCheckIn) : '...'}</div>
+          <div class="text-center py-1.5 rounded bg-white/[0.02]">
+            <div class="text-xs font-bold ${isOverdue ? 'text-red-400' : 'text-emerald-400'}">${icon('check', 'w-3 h-3 inline')} ${lastCheckIn ? formatTimeAgo(lastCheckIn) : '...'}</div>
             <div class="text-[8px] text-slate-500">Check-in</div>
           </div>
-          <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
-            <div class="text-xs font-bold text-white">${icon('zap', 'w-3 h-3 inline')} ${_batteryPct !== null ? `${_batteryPct}%` : '...'}</div>
-            <div class="text-[8px] text-slate-500">${t('batteryLevel') || 'Batterie'}</div>
+          <div class="text-center py-1.5 rounded bg-white/[0.02]">
+            <div class="text-xs font-bold text-white">${icon('clock', 'w-3 h-3 inline')} ${tripHours > 0 ? `${tripHours}h${String(tripMins).padStart(2, '0')}` : `${tripMins}min`}</div>
+            <div class="text-[8px] text-slate-500">${t('duration') || 'Duration'}</div>
           </div>
-          <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
-            <div class="text-xs font-bold text-amber-400">~${tripHours > 0 ? `${tripHours}h${String(tripMins).padStart(2, '0')}` : `${tripMins}min`}</div>
-            <div class="text-[8px] text-slate-500">${t('arrival') || 'Arrivee'}</div>
+          <div class="text-center py-1.5 rounded bg-white/[0.02]">
+            <div class="text-xs font-bold text-amber-400">${destination ? escapeHTML(destination.slice(0, 15)) : '...'}</div>
+            <div class="text-[8px] text-slate-500">${t('guardianDestination') || 'Dest.'}</div>
           </div>
         </div>
       </div>
 
-      <!-- Timeline -->
-      <div class="mt-2">
-        <div class="text-[11px] font-semibold text-slate-300 mb-1.5">${icon('clock', 'w-3 h-3 inline')} ${t('timeline') || 'Historique'}</div>
-        ${renderTimelineEvents(guardianState)}
-      </div>
+      ${isOverdue ? `
+        <div class="rounded-xl p-3 mb-2 bg-red-600/10 border border-red-500/20">
+          <div class="text-red-400 text-[12px] font-bold flex items-center gap-1.5">
+            ${icon('alert-triangle', 'w-4 h-4')}
+            ${t('guardianOverdueWarning') || 'This traveler has missed their check-in!'}
+          </div>
+          <div class="mt-2 flex gap-2">
+            ${lastPos?.lat ? `<a href="https://www.google.com/maps?q=${lastPos.lat},${lastPos.lng}" target="_blank" class="flex-1 py-2 rounded-xl bg-red-600 text-white text-[11px] font-bold text-center no-underline">${t('seePosition') || 'See position'}</a>` : ''}
+            <a href="tel:112" class="flex-1 py-2 rounded-xl bg-white/10 text-red-400 text-[11px] font-bold text-center no-underline">112</a>
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Action buttons -->
       <div class="flex gap-1.5 mt-3">
-        <button onclick="guardianCallTraveler()" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1" style="background:rgba(59,130,246,.08);color:#60a5fa;border:none">
-          ${icon('phone', 'w-3 h-3')} ${t('call') || 'Appeler'}
-        </button>
-        <button onclick="guardianMessageTraveler()" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1" style="background:rgba(34,197,94,.08);color:#22c55e;border:none">
-          ${icon('message-circle', 'w-3 h-3')} ${t('message') || 'Message'}
-        </button>
-        <button onclick="guardianShowMap()" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1" style="background:rgba(245,158,11,.08);color:#f59e0b;border:none">
-          ${icon('map', 'w-3 h-3')} ${t('map') || 'Carte'}
-        </button>
+        ${lastPos?.lat ? `
+          <a href="https://www.google.com/maps?q=${lastPos.lat},${lastPos.lng}" target="_blank" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 bg-amber-500/10 text-amber-400 no-underline">
+            ${icon('map', 'w-3 h-3')} ${t('map') || 'Map'}
+          </a>
+        ` : ''}
+        <a href="tel:112" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 bg-red-500/10 text-red-400 no-underline">
+          ${icon('phone', 'w-3 h-3')} 112
+        </a>
       </div>
+
+      ${!watchedTimer ? `
+        <div class="text-center py-4 text-slate-500 text-xs">
+          ${icon('wifi-off', 'w-4 h-4 inline mr-1')} ${t('noActiveSession') || 'No active session found. The traveler may not have started Guardian mode yet.'}
+        </div>
+      ` : ''}
     </div>
   `
 }
@@ -1187,7 +1229,7 @@ function renderBottomSheet(guardianState) {
 
 // ─── HELPERS ───
 
-function renderTimelineEvents(guardianState) {
+function renderTimelineEvents(guardianState) { // eslint-disable-line no-unused-vars
   const positions = guardianState.positions || []
   const events = []
 

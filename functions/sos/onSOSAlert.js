@@ -11,6 +11,36 @@ const { onDocumentCreated } = require('firebase-functions/v2/firestore')
 const { getFirestore } = require('firebase-admin/firestore')
 const { getMessaging } = require('firebase-admin/messaging')
 
+/**
+ * Send FCM push with retry (max 3 attempts, exponential backoff).
+ * For SOS alerts, reliability is critical — a single failure could mean
+ * a guardian never receives the alert.
+ */
+async function sendWithRetry(messaging, message, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      await messaging.send(message)
+      return { success: true }
+    } catch (err) {
+      // Stale tokens — don't retry, just report
+      if (
+        err.code === 'messaging/invalid-registration-token' ||
+        err.code === 'messaging/registration-token-not-registered'
+      ) {
+        return { success: false, stale: true }
+      }
+      // Last attempt — give up
+      if (attempt === maxRetries - 1) {
+        console.error(`[SOS] Push failed after ${maxRetries} attempts:`, err.message)
+        return { success: false, stale: false }
+      }
+      // Wait before retry: 500ms, 1500ms, 3500ms
+      await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt)))
+    }
+  }
+  return { success: false, stale: false }
+}
+
 exports.onSOSAlert = onDocumentCreated(
   'sosAlerts/{alertId}',
   async (event) => {
@@ -62,37 +92,29 @@ exports.onSOSAlert = onDocumentCreated(
 
       await Promise.all(
         tokens.map(async (token) => {
-          try {
-            await messaging.send({
-              token,
-              notification: { title, body },
-              data: {
-                type: 'sos_alert',
-                alertType: type || 'unknown',
-                voyagerId: userId || '',
-                voyagerName: userName || '',
-                lat: String(position?.lat || ''),
-                lng: String(position?.lng || ''),
+          const result = await sendWithRetry(messaging, {
+            token,
+            notification: { title, body },
+            data: {
+              type: 'sos_alert',
+              alertType: type || 'unknown',
+              voyagerId: userId || '',
+              voyagerName: userName || '',
+              lat: String(position?.lat || ''),
+              lng: String(position?.lng || ''),
+            },
+            webpush: {
+              fcmOptions: { link: 'https://spothitch.com' },
+              notification: {
+                icon: 'https://spothitch.com/icon-192.png',
+                badge: 'https://spothitch.com/icon-72.png',
+                tag: `sos-emergency-${userId}`,
+                requireInteraction: true,
+                vibrate: [300, 100, 300, 100, 300, 100, 300],
               },
-              webpush: {
-                fcmOptions: { link: 'https://spothitch.com' },
-                notification: {
-                  icon: 'https://spothitch.com/icon-192.png',
-                  badge: 'https://spothitch.com/icon-72.png',
-                  tag: `sos-emergency-${userId}`,
-                  requireInteraction: true,
-                  vibrate: [300, 100, 300, 100, 300, 100, 300],
-                },
-              },
-            })
-          } catch (err) {
-            if (
-              err.code === 'messaging/invalid-registration-token' ||
-              err.code === 'messaging/registration-token-not-registered'
-            ) {
-              staleTokens.push(token)
-            }
-          }
+            },
+          })
+          if (result.stale) staleTokens.push(token)
         })
       )
 

@@ -372,7 +372,10 @@ async function init() {
  favsModule.syncLocalFavoritesToFirestore(user.uid)
  // Start watching for friends in Guardian mode
  import('./services/guardianWatch.js').then(gw => {
- gw.startGuardianWatch(() => scheduleRender(() => window._appInternals.render()))
+ gw.startGuardianWatch((timers) => {
+ setState({ watchedGuardianTimers: timers })
+ scheduleRender(() => window._appInternals.render())
+ })
  }).catch(() => {})
  } catch { /* non-bloquant */ }
  // If we're returning from a Google redirect, close the auth modal
