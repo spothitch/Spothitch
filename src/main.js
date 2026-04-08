@@ -364,6 +364,7 @@ async function init() {
  import('./services/favorites.js'),
  ])
  friendsModule.subscribeFriendsList(user.uid)
+ friendsModule.updatePresence() // Set lastSeen timestamp for friends to see
  dmModule.subscribeToAllConversations(user.uid)
  gcModule.subscribeToAllGroupConversations(user.uid)
  favsModule.subscribeFavorites(user.uid)

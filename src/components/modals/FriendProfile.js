@@ -22,8 +22,8 @@ export function renderFriendProfileModal(state) {
   const isIdVerified = verLevel >= 4
   const tier = getTierForScore(trustScore)
 
-  // Mutual friends (friends who are also friends with this friend)
-  const mutualCount = friend.mutualFriends?.length || 0
+  // Mutual friends count — computed lazily in showFriendProfile, stored in state
+  const mutualCount = state.mutualFriendsCount || 0
 
   // Last active
   const lastActive = friend.lastActive || friend.addedAt

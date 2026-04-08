@@ -70,10 +70,11 @@ service cloud.firestore {
       allow delete: if false;
 
       // Friends subcollection
-      // Read/delete: only the owner
+      // Read: owner + any authenticated user (for mutual friends count)
+      // Delete: owner OR the friend themselves
       // Create: owner OR the friend themselves (needed for acceptFriendRequest batch)
       match /friends/{friendId} {
-        allow read: if request.auth != null && request.auth.uid == userId;
+        allow read: if request.auth != null;
         allow delete: if request.auth != null
           && (request.auth.uid == userId || request.auth.uid == friendId);
         allow create: if request.auth != null

@@ -1087,6 +1087,12 @@ window.showFriendProfile = async (friendId) => {
       }
     }
   } catch { /* offline or not found */ }
+  // Compute mutual friends count (lazy — only when viewing profile)
+  try {
+    const { getMutualFriendsCount } = await import('../../services/friends.js')
+    const mutualCount = await getMutualFriendsCount(friendId)
+    window.setState?.({ mutualFriendsCount: mutualCount })
+  } catch { window.setState?.({ mutualFriendsCount: 0 }) }
   // Load reviews async
   try {
     const { loadProfileReviews } = await import('../../services/userReviews.js')

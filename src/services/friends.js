@@ -25,7 +25,7 @@ import {
 } from 'firebase/firestore'
 import { getApps, getApp } from 'firebase/app'
 import { getCurrentUser } from './firebase.js'
-import { setState } from '../stores/state.js'
+import { getState, setState } from '../stores/state.js'
 import { t } from '../i18n/index.js'
 
 // ==================== HELPERS ====================
@@ -58,6 +58,17 @@ export function subscribeFriendsList(uid) {
     friendsRef,
     (snap) => {
       const friends = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      // Enrich with DM unread counts from conversations cache
+      try {
+        const state = getState()
+        const dmConversations = state.dmConversations || []
+        for (const friend of friends) {
+          const conv = dmConversations.find(c => c.recipientId === friend.id)
+          if (conv) {
+            friend.unreadCount = conv.unreadCount || 0
+          }
+        }
+      } catch { /* non-blocking enrichment */ }
       setState({ friends })
     },
     (err) => {
@@ -165,7 +176,6 @@ export async function searchUsers(searchQuery) {
     }
 
     // Filter out users already in friends list
-    const { getState } = await import('../stores/state.js')
     const state = getState()
     const friendIds = new Set((state.friends || []).map(f => f.id))
     results = results.filter(u => !friendIds.has(u.id))
@@ -196,9 +206,7 @@ export async function sendFriendRequest(targetUserId) {
   if (targetUserId === user.uid) return { success: false, error: 'cannot_add_self' }
 
   // Guard: max 500 friends
-  const { getState } = await import('../stores/state.js')
-  const state = getState()
-  if ((state.friends || []).length >= 500) return { success: false, error: 'too_many_friends' }
+  if ((getState().friends || []).length >= 500) return { success: false, error: 'too_many_friends' }
 
   try {
     // Check if target has blocked the sender
@@ -246,7 +254,6 @@ export async function acceptFriendRequest(requestId) {
 
   try {
     // Guard: max 500 friends to prevent listener overload
-    const { getState } = await import('../stores/state.js')
     const state = getState()
     if ((state.friends || []).length >= 500) return { success: false, error: 'too_many_friends' }
 
@@ -343,8 +350,37 @@ export async function removeFriend(friendId) {
   }
 }
 
+/**
+ * Compute the number of mutual friends between current user and another user.
+ * Reads the other user's friends list and intersects with ours (from state).
+ * @param {string} otherUserId
+ * @returns {Promise<number>}
+ */
+export async function getMutualFriendsCount(otherUserId) {
+  const db = getDb()
+  const user = getCurrentUser()
+  if (!db || !user) return 0
+
+  try {
+    const myFriends = new Set((getState().friends || []).map(f => f.id))
+    if (myFriends.size === 0) return 0
+
+    // Read other user's friends list
+    const otherFriendsRef = collection(db, 'users', otherUserId, 'friends')
+    const snap = await getDocs(otherFriendsRef)
+    let count = 0
+    for (const d of snap.docs) {
+      if (myFriends.has(d.id) && d.id !== user.uid) count++
+    }
+    return count
+  } catch {
+    return 0
+  }
+}
+
 export default {
   updatePresence,
+  getMutualFriendsCount,
   subscribeFriendsList,
   unsubscribeFriendsList,
   searchUsers,
