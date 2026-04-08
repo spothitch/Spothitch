@@ -53,6 +53,11 @@ window.togglePushNotifications = async () => {
   const { isPushEnabled, enablePushNotifications, disablePushNotifications } = await import('../services/pushNotifications.js')
   if (isPushEnabled()) {
     disablePushNotifications()
+    // Delete tokens from Firestore so Cloud Functions stop sending
+    try {
+      const { deleteFCMTokens } = await import('../services/firebase.js')
+      await deleteFCMTokens()
+    } catch { /* non-blocking */ }
     setState({ pushEnabled: false })
     window.showToast(t('pushDisabled') || 'Notifications push désactivées', 'info')
   } else {
@@ -62,9 +67,19 @@ window.togglePushNotifications = async () => {
       const { saveFCMToken } = await import('../services/firebase.js')
       const { getFCMToken } = await import('../services/pushNotifications.js')
       const token = getFCMToken()
-      if (token) await saveFCMToken(token)
+      let tokenSaved = false
+      if (token) {
+        try {
+          tokenSaved = await saveFCMToken(token)
+        } catch { /* handled below */ }
+      }
+      if (!tokenSaved) {
+        // Token not saved — Cloud Functions won't be able to reach this device
+        window.showToast(t('pushTokenError') || 'Notifications activées localement mais le serveur est injoignable. Réessayez plus tard.', 'warning')
+      } else {
+        window.showToast(t('pushEnabled') || 'Notifications push activées', 'success')
+      }
       setState({ pushEnabled: true })
-      window.showToast(t('pushEnabled') || 'Notifications push activées', 'success')
     } else {
       window.showToast(t('pushDenied') || 'Notifications refusées par le navigateur', 'warning')
     }

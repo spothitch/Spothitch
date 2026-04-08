@@ -135,8 +135,8 @@ exports.onCommunitySOSAlert = onDocumentCreated(
               webpush: {
                 fcmOptions: { link: 'https://spothitch.com' },
                 notification: {
-                  icon: 'https://spothitch.com/icons/icon-192x192.png',
-                  badge: 'https://spothitch.com/icons/badge-72x72.png',
+                  icon: 'https://spothitch.com/icon-192.png',
+                  badge: 'https://spothitch.com/icon-72.png',
                   tag: `community-sos-${userId}`,
                   requireInteraction: true,
                   vibrate: [300, 100, 300, 100, 300],
@@ -157,11 +157,15 @@ exports.onCommunitySOSAlert = onDocumentCreated(
 
       // Clean stale tokens
       if (staleTokens.length > 0) {
-        const batch = db.batch()
-        for (const d of tokensSnap.docs) {
-          if (staleTokens.includes(d.data().token)) batch.delete(d.ref)
+        try {
+          const batch = db.batch()
+          for (const d of tokensSnap.docs) {
+            if (staleTokens.includes(d.data().token)) batch.delete(d.ref)
+          }
+          await batch.commit()
+        } catch (e) {
+          console.warn('[SOS] Failed to clean stale tokens:', e.message)
         }
-        await batch.commit()
       }
     }
 

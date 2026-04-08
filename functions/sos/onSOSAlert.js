@@ -99,11 +99,15 @@ exports.onSOSAlert = onDocumentCreated(
 
       // Clean stale tokens
       if (staleTokens.length > 0) {
-        const batch = db.batch()
-        for (const doc of tokensSnap.docs) {
-          if (staleTokens.includes(doc.data().token)) batch.delete(doc.ref)
+        try {
+          const batch = db.batch()
+          for (const doc of tokensSnap.docs) {
+            if (staleTokens.includes(doc.data().token)) batch.delete(doc.ref)
+          }
+          await batch.commit()
+        } catch (e) {
+          console.warn('[SOS] Failed to clean stale tokens:', e.message)
         }
-        await batch.commit()
       }
     }
 

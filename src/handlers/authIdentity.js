@@ -106,6 +106,13 @@ if (!window.handleLogout) {
       dmModule.unsubscribeFromAllConversations()
       gcModule.unsubscribeFromAllGroupConversations()
     } catch { /* non-bloquant */ }
+    // Cleanup push notifications: delete tokens from Firestore + stop listener
+    try {
+      const { deleteFCMTokens } = await import('../services/firebase.js')
+      const { stopForegroundListener } = await import('../services/pushNotifications.js')
+      stopForegroundListener()
+      await deleteFCMTokens()
+    } catch { /* non-bloquant */ }
     const fb = await getFirebase()
     await fb.logOut()
     actions.setUser(null)

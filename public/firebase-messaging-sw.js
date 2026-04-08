@@ -17,6 +17,18 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging()
 
+// Mini i18n for action buttons (SW has no access to the app's i18n system)
+const SW_LABELS = {
+  fr: { checkin: 'Je vais bien', alert: 'Envoyer une alerte' },
+  en: { checkin: "I'm safe", alert: 'Send alert' },
+  es: { checkin: 'Estoy bien', alert: 'Enviar alerta' },
+  de: { checkin: 'Mir geht es gut', alert: 'Alarm senden' },
+}
+function getLabels() {
+  const lang = (self.navigator?.language || 'en').slice(0, 2)
+  return SW_LABELS[lang] || SW_LABELS.en
+}
+
 messaging.onBackgroundMessage((payload) => {
   const notification = payload.notification || {}
   const data = payload.data || {}
@@ -28,17 +40,18 @@ messaging.onBackgroundMessage((payload) => {
     badge: '/icon-96.png',
     tag: data.tag || 'spothitch-notification',
     data: { url: data.url || '/', ...data },
-    vibrate: data.type === 'companion_overdue'
+    vibrate: data.type === 'guardian_overdue'
       ? [500, 200, 500, 200, 500, 200, 500]
       : [100, 50, 100],
-    requireInteraction: data.type === 'companion_overdue',
+    requireInteraction: data.type === 'guardian_overdue',
   }
 
-  // Add action buttons for companion overdue alerts
-  if (data.type === 'companion_overdue') {
+  // Add translated action buttons for guardian overdue alerts
+  if (data.type === 'guardian_overdue') {
+    const labels = getLabels()
     options.actions = [
-      { action: 'checkin', title: "I'm safe" },
-      { action: 'alert', title: 'Send alert' },
+      { action: 'checkin', title: labels.checkin },
+      { action: 'alert', title: labels.alert },
     ]
   }
 
@@ -52,7 +65,7 @@ self.addEventListener('notificationclick', (event) => {
   const data = event.notification.data || {}
   const action = event.action
 
-  // Handle companion mode actions
+  // Handle guardian mode actions
   if (action === 'checkin') {
     // Open app with check-in action
     event.waitUntil(
@@ -60,9 +73,9 @@ self.addEventListener('notificationclick', (event) => {
         const appClient = clients.find((c) => c.url.includes(self.location.origin))
         if (appClient) {
           appClient.focus()
-          appClient.postMessage({ type: 'COMPANION_CHECKIN' })
+          appClient.postMessage({ type: 'GUARDIAN_CHECKIN' })
         } else {
-          self.clients.openWindow('/?companion=checkin')
+          self.clients.openWindow('/?guardian=checkin')
         }
       })
     )
@@ -75,9 +88,9 @@ self.addEventListener('notificationclick', (event) => {
         const appClient = clients.find((c) => c.url.includes(self.location.origin))
         if (appClient) {
           appClient.focus()
-          appClient.postMessage({ type: 'COMPANION_ALERT' })
+          appClient.postMessage({ type: 'GUARDIAN_ALERT' })
         } else {
-          self.clients.openWindow('/?companion=alert')
+          self.clients.openWindow('/?guardian=alert')
         }
       })
     )

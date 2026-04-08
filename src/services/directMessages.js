@@ -100,6 +100,7 @@ export function subscribeToAllConversations(uid) {
     q,
     (snap) => {
       const state = getState()
+      const prevUnreadTotal = conversationsCache.reduce((sum, c) => sum + (c.unreadCount || 0), 0)
       conversationsCache = snap.docs.map((d) => {
         const data = d.data()
         const otherId = data.participants?.find((p) => p !== uid) || ''
@@ -119,6 +120,26 @@ export function subscribeToAllConversations(uid) {
           online: friend?.online || false,
         }
       })
+      // Local notification fallback: if push is not enabled and new unread arrived,
+      // show a local notification via notifyNewMessage (avoids duplicates with push)
+      const newUnreadTotal = conversationsCache.reduce((sum, c) => sum + (c.unreadCount || 0), 0)
+      if (newUnreadTotal > prevUnreadTotal) {
+        import('./pushNotifications.js').then(({ isPushEnabled }) => {
+          if (!isPushEnabled()) {
+            const newest = conversationsCache.find((c) => c.unreadCount > 0 && c.lastMessageSenderId !== uid)
+            if (newest) {
+              import('./notifications.js').then(({ notifyNewMessage }) => {
+                notifyNewMessage({
+                  senderId: newest.recipientId,
+                  senderName: newest.recipientName,
+                  senderAvatar: newest.recipientAvatar,
+                  text: newest.lastMessage,
+                })
+              })
+            }
+          }
+        })
+      }
       setState({ dmLastUpdated: Date.now() })
     },
     (err) => {

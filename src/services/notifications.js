@@ -4,9 +4,8 @@
  * Enhanced with social, gamification, and proximity notifications
  */
 
-import { onForegroundMessage } from './firebase.js';
 import { icon } from '../utils/icons.js'
-import { escapeHTML } from '../utils/sanitize.js';
+import { escapeHTML, escapeJSString } from '../utils/sanitize.js';
 import { getErrorMessage } from '../utils/errorMessages.js';
 import { getState, setState } from '../stores/state.js';
 import { t } from '../i18n/index.js';
@@ -55,36 +54,15 @@ export async function initNotifications() {
  if (!toastContainer) {
  toastContainer = document.createElement('div');
  toastContainer.id = 'toast-container';
- toastContainer.style.cssText = `
- position: fixed;
- top: 12px;
- left: 50%;
- transform: translateX(-50%);
- z-index: 9999;
- display: flex;
- flex-direction: column;
- align-items: center;
- gap: 6px;
- pointer-events: none;
- max-width: 340px;
- width: 90%;
- `;
+ toastContainer.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-[9999] flex flex-col items-center gap-1.5 pointer-events-none max-w-[340px] w-[90%]';
  document.body.appendChild(toastContainer);
  }
 
  // Push permission is NOT requested here — user must opt-in explicitly
  // via the toggle in Profile settings or the smart prompt after Guardian/DM.
- // Only set up foreground listener if permission was already granted.
- if ('Notification' in window && Notification.permission === 'granted') {
- onForegroundMessage((payload) => {
- // Community SOS alert → show special banner
- if (payload.data?.type === 'community_sos_alert') {
- _showCommunitySOSBanner(payload.data)
- return
- }
- showToast(payload.notification?.body || 'Nouvelle notification', 'info');
- });
- }
+ // The foreground listener is managed exclusively by pushNotifications.js
+ // to avoid duplicate registrations (see startForegroundListener).
+ // Community SOS alerts are handled via the shared listener there.
 }
 
 
@@ -98,20 +76,7 @@ export function showToast(message, type = 'info', duration = 4000) {
  if (!toastContainer) {
  toastContainer = document.createElement('div')
  toastContainer.id = 'toast-container'
- toastContainer.style.cssText = `
- position: fixed;
- top: 12px;
- left: 50%;
- transform: translateX(-50%);
- z-index: 9999;
- display: flex;
- flex-direction: column;
- align-items: center;
- gap: 6px;
- pointer-events: none;
- max-width: 340px;
- width: 90%;
- `
+ toastContainer.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-[9999] flex flex-col items-center gap-1.5 pointer-events-none max-w-[340px] w-[90%]'
  document.body.appendChild(toastContainer)
  }
 
@@ -142,14 +107,8 @@ export function showToast(message, type = 'info', duration = 4000) {
  `
 
  toast.innerHTML = `
- <span style="
- background:${cfg.iconBg};
- border-radius:50%;
- width:18px; height:18px;
- display:flex; align-items:center; justify-content:center;
- font-size:10px; font-weight:700; color:#fff; flex-shrink:0;
- ">${cfg.icon}</span>
- <span style="font-size:12px; font-weight:500; color:${cfg.text}; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(message)}</span>
+ <span class="rounded-full w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white shrink-0" style="background:${cfg.iconBg}">${cfg.icon}</span>
+ <span class="text-xs font-medium overflow-hidden text-ellipsis" style="color:${cfg.text}">${escapeHTML(message)}</span>
  `
 
  toastContainer.appendChild(toast)
@@ -306,11 +265,17 @@ export function scheduleNotification(title, body, triggerTime, data = {}) {
  return null;
  }
 
+ const randomBytes = new Uint8Array(6)
+ crypto.getRandomValues(randomBytes)
+ const randomStr = Array.from(randomBytes, b => b.toString(36)).join('').slice(0, 8)
+ const id = data.id || `notif_${Date.now()}_${randomStr}`
  const timeoutId = setTimeout(() => {
+ scheduledNotifications.delete(id);
  sendLocalNotification(title, body, data);
  }, delay);
 
- return timeoutId;
+ scheduledNotifications.set(id, timeoutId);
+ return id;
 }
 
 // ==================== SPOT NOTIFICATIONS ====================
@@ -413,18 +378,19 @@ export function notifySpotActivity(type, data) {
  const isSubscribed = settings.spots.some(s => s.id === data.spotId);
  if (!isSubscribed) return;
 
+ const traveler = data.userName || (t('notifATraveler') || 'Un voyageur')
  const messages = {
  checkin: {
- title: 'Nouveau check-in !',
- body: `${data.userName || 'Un voyageur'} a validé ton spot "${data.spotName}"`,
+ title: t('notifSpotCheckinTitle') || 'Nouveau check-in !',
+ body: (t('notifSpotCheckinBody') || '{user} a validé ton spot "{spot}"').replace('{user}', traveler).replace('{spot}', data.spotName),
  },
  rating: {
- title: '⭐ Nouvelle évaluation !',
- body: `${data.userName || 'Un voyageur'} a noté ton spot "${data.spotName}" : ${data.rating}/5`,
+ title: (t('notifSpotRatingTitle') || 'Nouvelle évaluation !').replace('{rating}', data.rating || ''),
+ body: (t('notifSpotRatingBody') || '{user} a noté ton spot "{spot}" : {rating}/5').replace('{user}', traveler).replace('{spot}', data.spotName).replace('{rating}', data.rating || ''),
  },
  comment: {
- title: 'Nouveau commentaire !',
- body: `${data.userName || 'Un voyageur'} a commenté ton spot "${data.spotName}"`,
+ title: t('notifSpotCommentTitle') || 'Nouveau commentaire !',
+ body: (t('notifSpotCommentBody') || '{user} a commenté ton spot "{spot}"').replace('{user}', traveler).replace('{spot}', data.spotName),
  },
  };
 
@@ -551,7 +517,7 @@ export function notifyNewFriend(friend) {
 
  const title = t('notifNewFriendTitle') || 'Nouvel ami !';
  const body = (t('notifNewFriendBody') || '{name} a accepte ta demande d\'ami').replace('{name}', friend.name || (t('notifATraveler') || 'Un voyageur'));
- const icon = friend.avatar || '';
+ const friendAvatar = friend.avatar || '';
 
  sendLocalNotification(title, body, {
  type: 'new_friend',
@@ -559,8 +525,8 @@ export function notifyNewFriend(friend) {
  url: '/?tab=social',
  });
 
- // Show in-app toast with emoji
- showToast(`${icon || ''} ${body}`, 'success', 5000);
+ // Show in-app toast
+ showToast(`${friendAvatar} ${body}`.trim(), 'success', 5000);
 
  // Announce for screen readers
  announce((t('notifNewFriendAnnounce') || 'Nouvel ami: {name}').replace('{name}', friend.name || (t('notifATraveler') || 'Un voyageur')));
@@ -575,7 +541,7 @@ export function notifyNewMessage(message) {
 
  const senderName = message.senderName || (t('notifATraveler') || 'Un voyageur');
  const title = (t('notifNewMessageTitle') || 'Message de {name}').replace('{name}', senderName);
- const body = message.preview || message.text?.substring(0, 50) + '...' || (t('notifNewMessageBody') || 'Nouveau message');
+ const body = message.preview || (message.text ? message.text.substring(0, 50) + '...' : null) || (t('notifNewMessageBody') || 'Nouveau message');
 
  sendLocalNotification(title, body, {
  type: 'new_message',
@@ -831,6 +797,8 @@ export default {
  * Show a persistent red banner when a community SOS alert arrives.
  * The banner shows the distance and has buttons to view on map or call emergency.
  */
+// Exposed globally for the foreground listener in pushNotifications.js
+window._showCommunitySOSBanner = _showCommunitySOSBanner
 function _showCommunitySOSBanner(data) {
  const { voyagerName, lat, lng, distance, alertType } = data
  const existing = document.getElementById('community-sos-banner')
@@ -845,36 +813,20 @@ function _showCommunitySOSBanner(data) {
  banner.id = 'community-sos-banner'
  banner.setAttribute('role', 'alert')
  banner.setAttribute('aria-live', 'assertive')
- banner.style.cssText = `
- position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
- background: linear-gradient(135deg, #dc2626, #991b1b);
- color: white; padding: 16px; text-align: center;
- box-shadow: 0 4px 20px rgba(220,38,38,.5);
- animation: slideDown .3s ease-out;
- `
+ banner.className = 'fixed top-0 left-0 right-0 z-[10000] bg-gradient-to-br from-red-600 to-red-800 text-white p-4 text-center shadow-[0_4px_20px_rgba(220,38,38,.5)] animate-[slideDown_.3s_ease-out]'
  banner.innerHTML = `
  <style>@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}</style>
- <div style="max-width:400px;margin:0 auto">
- <div style="font-weight:800;font-size:15px;margin-bottom:4px">
- ${alertType === 'silent' ? 'volume-x' : 'siren'} SOS ${distText}
+ <div class="max-w-[400px] mx-auto">
+ <div class="font-extrabold text-[15px] mb-1">
+ ${icon(alertType === 'silent' ? 'volume-x' : 'siren', 'w-4 h-4 inline mr-1')} SOS ${distText}
  </div>
- <div style="font-size:13px;opacity:.9;margin-bottom:12px">
+ <div class="text-[13px] opacity-90 mb-3">
  ${name} ${t('needsHelpNearYou') || 'a besoin d\'aide près de vous'}
  </div>
- <div style="display:flex;gap:8px;justify-content:center">
- <button onclick="showCommunitySOSOnMap(${lat},${lng},'${escapeHTML(voyagerName || '')}')" style="
- flex:1;padding:10px;border-radius:12px;border:none;
- background:white;color:#dc2626;font-weight:700;font-size:13px;cursor:pointer;
- ">${t('seeOnMap') || 'Voir sur la carte'}</button>
- <a href="tel:112" style="
- padding:10px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
- background:transparent;color:white;font-weight:700;font-size:13px;
- text-decoration:none;display:flex;align-items:center;gap:4px;
- ">${icon('phone', 'w-4 h-4 inline mr-1')} 112</a>
- <button onclick="document.getElementById('community-sos-banner')?.remove()" style="
- padding:10px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
- background:transparent;color:white;font-size:13px;cursor:pointer;
- " aria-label="${t('close') || 'Fermer'}">✕</button></div></div>
+ <div class="flex gap-2 justify-center">
+ <button onclick="showCommunitySOSOnMap(${Number(lat)||0},${Number(lng)||0},'${escapeJSString(voyagerName || '')}')" class="flex-1 p-2.5 rounded-xl border-none bg-white text-red-600 font-bold text-[13px] cursor-pointer">${t('seeOnMap') || 'Voir sur la carte'}</button>
+ <a href="tel:112" class="py-2.5 px-4 rounded-xl border-2 border-white/30 bg-transparent text-white font-bold text-[13px] no-underline flex items-center gap-1">${icon('phone', 'w-4 h-4 inline mr-1')} 112</a>
+ <button onclick="document.getElementById('community-sos-banner')?.remove()" class="p-2.5 rounded-xl border-2 border-white/30 bg-transparent text-white text-[13px] cursor-pointer" aria-label="${t('close') || 'Fermer'}">✕</button></div></div>
  `
  document.body.appendChild(banner)
 
@@ -905,13 +857,11 @@ window.showCommunitySOSOnMap = (lat, lng, name) => {
 function _addSOSMarker(map, lat, lng, name) {
  // Create pulsing dot element
  const el = document.createElement('div')
- el.style.cssText = `
- width: 24px; height: 24px; border-radius: 50%;
- background: #dc2626; border: 3px solid white;
- box-shadow: 0 0 0 0 rgba(220,38,38,.7);
- animation: sosPulse 1.5s ease-out infinite;
- `
+ el.className = 'w-6 h-6 rounded-full bg-red-600 border-[3px] border-white animate-[sosPulse_1.5s_ease-out_infinite]'
+ // Inject keyframes if not already present
+ if (!document.getElementById('sos-pulse-style')) {
  const style = document.createElement('style')
+ style.id = 'sos-pulse-style'
  style.textContent = `
  @keyframes sosPulse {
  0% { box-shadow: 0 0 0 0 rgba(220,38,38,.7); }
@@ -920,16 +870,17 @@ function _addSOSMarker(map, lat, lng, name) {
  }
  `
  document.head.appendChild(style)
+ }
 
  // Use maplibregl Marker
  try {
  const maplibregl = window.maplibregl || window.mapboxgl
  if (maplibregl) {
  const popup = new maplibregl.Popup({ offset: 25, closeOnClick: false })
- .setHTML(`<div style="padding:8px;text-align:center;font-size:13px;">
- <strong style="color:#dc2626">SOS</strong><br/>
+ .setHTML(`<div class="p-2 text-center text-[13px]">
+ <strong class="text-red-600">SOS</strong><br/>
  ${name ? escapeHTML(name) : 'Voyageur en détresse'}<br/>
- <a href="tel:112" style="color:#dc2626;font-weight:700">Appeler 112</a></div>`)
+ <a href="tel:112" class="text-red-600 font-bold">Appeler 112</a></div>`)
 
  const marker = new maplibregl.Marker({ element: el })
  .setLngLat([lng, lat])
@@ -942,7 +893,6 @@ function _addSOSMarker(map, lat, lng, name) {
  setTimeout(() => {
  marker.remove()
  popup.remove()
- style.remove()
  }, 5 * 60 * 1000)
  }
  } catch (err) {

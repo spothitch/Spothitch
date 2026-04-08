@@ -12,6 +12,9 @@ const STORAGE_KEY = 'spothitch_push_config'
 const TOKEN_KEY = 'spothitch_fcm_token'
 const NUDGE_KEY = 'spothitch_push_nudge_dismissed'
 
+// Track foreground listener unsubscribe to prevent memory leaks
+let _foregroundUnsubscribe = null
+
 /**
  * Get push notification config
  */
@@ -86,6 +89,7 @@ export async function enablePushNotifications() {
  * Disable push notifications
  */
 export function disablePushNotifications() {
+  stopForegroundListener()
   saveConfig({
     enabled: false,
     asked: true,
@@ -103,13 +107,24 @@ export function getFCMToken() {
 }
 
 /**
- * Start listening for foreground push messages
+ * Start listening for foreground push messages.
+ * Guards against multiple registrations (memory leak prevention).
  */
 export function startForegroundListener() {
   if (!isPushEnabled()) return
 
-  onForegroundMessage((payload) => {
-    const { title, body, data } = payload.notification || {}
+  // Unsubscribe previous listener to prevent duplicates
+  stopForegroundListener()
+
+  _foregroundUnsubscribe = onForegroundMessage((payload) => {
+    const data = payload.data || {}
+    const { title, body } = payload.notification || {}
+
+    // Community SOS alert → show special banner (was in notifications.js)
+    if (data.type === 'community_sos_alert' && typeof window._showCommunitySOSBanner === 'function') {
+      window._showCommunitySOSBanner(data)
+      return
+    }
 
     // Show in-app notification
     if (typeof window.showToast === 'function') {
@@ -117,10 +132,20 @@ export function startForegroundListener() {
     }
 
     // Handle specific notification types
-    if (data?.type === 'proximity_alert') {
+    if (data.type === 'proximity_alert') {
       handleProximityPush(data)
     }
   })
+}
+
+/**
+ * Stop the foreground listener (on disable/logout)
+ */
+export function stopForegroundListener() {
+  if (_foregroundUnsubscribe) {
+    _foregroundUnsubscribe()
+    _foregroundUnsubscribe = null
+  }
 }
 
 /**
@@ -129,10 +154,12 @@ export function startForegroundListener() {
  */
 function handleProximityPush(data) {
   const { distance, username, spotId } = data || {}
+  // Sanitize username — Notification API escapes body natively but be safe
+  const safeName = (username || '').replace(/[<>"'&]/g, '') || 'Un autostoppeur'
 
   if ('Notification' in window && Notification.permission === 'granted') {
     const notification = new Notification('SpotHitch', {
-      body: `${username || 'Un autostoppeur'} est à ${distance || '~2'}km de toi`,
+      body: `${safeName} est à ${distance || '~2'}km de toi`,
       icon: '/icon-192.png',
       badge: '/icon-72.png',
       tag: 'proximity-alert',
@@ -159,10 +186,11 @@ function handleProximityPush(data) {
 export function showProximityNotification({ username, distance, spotId }) {
   if (!isPushEnabled()) return
 
-  // In-app toast
+  // In-app toast — sanitize username
+  const safeName = (username || '').replace(/[<>"'&]/g, '') || 'Un autostoppeur'
   if (typeof window.showToast === 'function') {
     window.showToast(
-      `${username || 'Un autostoppeur'} est à ${distance.toFixed(1)}km de toi`,
+      `${safeName} est à ${distance.toFixed(1)}km de toi`,
       'info'
     )
   }
@@ -197,11 +225,29 @@ export function renderPushSettings() {
 }
 
 /**
- * Initialize push notifications on app start (if already enabled)
+ * Initialize push notifications on app start (if already enabled).
+ * Also refreshes the FCM token if it's older than 7 days.
  */
-export function initPushNotifications() {
-  if (isPushEnabled()) {
-    startForegroundListener()
+export async function initPushNotifications() {
+  if (!isPushEnabled()) return
+
+  startForegroundListener()
+
+  // Refresh token if older than 7 days
+  const config = getConfig()
+  const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000
+  const lastRefresh = config.enabledAt || 0
+  if (Date.now() - lastRefresh > SEVEN_DAYS) {
+    try {
+      const token = await requestNotificationPermission()
+      if (token) {
+        localStorage.setItem(TOKEN_KEY, token)
+        saveConfig({ ...config, enabledAt: Date.now() })
+        // Save refreshed token to Firestore
+        const { saveFCMToken } = await import('./firebase.js')
+        await saveFCMToken(token)
+      }
+    } catch { /* non-blocking — token refresh is best-effort */ }
   }
 }
 
@@ -242,25 +288,12 @@ export function nudgePushNotifications(context = 'guardian') {
 
   const banner = document.createElement('div')
   banner.id = 'push-nudge-banner'
-  banner.style.cssText = `
-    position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
-    z-index: 9998; max-width: 340px; width: 90%;
-    background: rgba(15,27,45,.95); backdrop-filter: blur(14px);
-    border: 1px solid rgba(240,168,48,.3); border-radius: 16px;
-    padding: 14px 16px; animation: toastSlideDown .3s ease-out;
-    box-shadow: 0 8px 32px rgba(0,0,0,.4);
-  `
+  banner.className = 'fixed top-[60px] left-1/2 -translate-x-1/2 z-[9998] max-w-[340px] w-[90%] bg-dark-primary/95 backdrop-blur-lg border border-brand/30 rounded-2xl p-3.5 shadow-2xl animate-[toastSlideDown_.3s_ease-out]'
   banner.innerHTML = `
-    <div style="font-size:13px;color:#e2e8f0;line-height:1.4;margin-bottom:10px">${msg.text}</div>
-    <div style="display:flex;gap:8px">
-      <button onclick="window._acceptPushNudge()" style="
-        flex:1;padding:8px 12px;border-radius:10px;border:none;
-        background:#F0A830;color:#0F1B2D;font-weight:700;font-size:12px;cursor:pointer;
-      ">${tFn('enablePushNotifications') || 'Activer'}</button>
-      <button onclick="window._dismissPushNudge()" style="
-        padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.15);
-        background:transparent;color:#94a3b8;font-size:12px;cursor:pointer;
-      ">${tFn('notNow') || 'Plus tard'}</button>
+    <div class="text-[13px] text-slate-200 leading-snug mb-2.5">${msg.text}</div>
+    <div class="flex gap-2">
+      <button onclick="window._acceptPushNudge()" class="flex-1 py-2 px-3 rounded-[10px] border-none bg-brand text-dark-primary font-bold text-xs cursor-pointer">${tFn('enablePushNotifications') || 'Activer'}</button>
+      <button onclick="window._dismissPushNudge()" class="py-2 px-3 rounded-[10px] border border-white/15 bg-transparent text-slate-400 text-xs cursor-pointer">${tFn('notNow') || 'Plus tard'}</button>
     </div>
   `
   document.body.appendChild(banner)
@@ -288,6 +321,7 @@ export default {
   disablePushNotifications,
   getFCMToken,
   startForegroundListener,
+  stopForegroundListener,
   showProximityNotification,
   renderPushSettings,
   initPushNotifications,

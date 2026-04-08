@@ -71,8 +71,8 @@ exports.onGroupMessage = onDocumentCreated(
               webpush: {
                 fcmOptions: { link: 'https://spothitch.com' },
                 notification: {
-                  icon: 'https://spothitch.com/icons/icon-192x192.png',
-                  badge: 'https://spothitch.com/icons/badge-72x72.png',
+                  icon: 'https://spothitch.com/icon-192.png',
+                  badge: 'https://spothitch.com/icon-72.png',
                   tag: `group-${groupId}`,
                   renotify: true,
                 },
@@ -92,11 +92,15 @@ exports.onGroupMessage = onDocumentCreated(
 
       // Clean stale tokens
       if (staleTokens.length > 0) {
-        const batch = db.batch()
-        for (const doc of tokensSnap.docs) {
-          if (staleTokens.includes(doc.data().token)) batch.delete(doc.ref)
+        try {
+          const batch = db.batch()
+          for (const doc of tokensSnap.docs) {
+            if (staleTokens.includes(doc.data().token)) batch.delete(doc.ref)
+          }
+          await batch.commit()
+        } catch (e) {
+          console.warn('[Notif] Failed to clean stale tokens:', e.message)
         }
-        await batch.commit()
       }
     }
 

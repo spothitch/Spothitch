@@ -220,6 +220,13 @@ export async function acceptFriendRequest(requestId) {
     batch.delete(requestRef)
 
     await batch.commit()
+
+    // Local notification (non-push fallback)
+    try {
+      const { notifyNewFriend } = await import('./notifications.js')
+      notifyNewFriend({ id: requestId, name: reqData.name || '' })
+    } catch { /* non-blocking */ }
+
     return { success: true }
   } catch (error) {
     console.error('[Friends] Accept request error:', error)

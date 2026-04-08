@@ -61,8 +61,8 @@ exports.onNewDirectMessage = onDocumentCreated(
             webpush: {
               fcmOptions: { link: 'https://spothitch.com' },
               notification: {
-                icon: 'https://spothitch.com/icons/icon-192x192.png',
-                badge: 'https://spothitch.com/icons/badge-72x72.png',
+                icon: 'https://spothitch.com/icon-192.png',
+                badge: 'https://spothitch.com/icon-72.png',
                 tag: `dm-${event.params.convId}`,
                 renotify: true,
               },
@@ -85,14 +85,18 @@ exports.onNewDirectMessage = onDocumentCreated(
 
     // Clean up stale tokens
     if (staleTokens.length > 0) {
-      const batch = db.batch()
-      for (const doc of tokensSnap.docs) {
-        if (staleTokens.includes(doc.data().token)) {
-          batch.delete(doc.ref)
+      try {
+        const batch = db.batch()
+        for (const doc of tokensSnap.docs) {
+          if (staleTokens.includes(doc.data().token)) {
+            batch.delete(doc.ref)
+          }
         }
+        await batch.commit()
+        console.log(`[Notif] Cleaned ${staleTokens.length} stale FCM tokens for ${recipientId}`)
+      } catch (e) {
+        console.warn(`[Notif] Failed to clean stale tokens for ${recipientId}:`, e.message)
       }
-      await batch.commit()
-      console.log(`[Notif] Cleaned ${staleTokens.length} stale FCM tokens for ${recipientId}`)
     }
 
     return null
