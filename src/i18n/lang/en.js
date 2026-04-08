@@ -80,6 +80,7 @@ export default {
  checkinCommentPlaceholder: 'E.g.: Great spot, car stopped in 5 min!',
  reward: 'Reward',
  photoAdded: 'Photo added',
+ photoCompressing: 'Optimizing photo...',
  photoTooLarge: 'Photo too large, try a smaller image',
  storageFull: 'Storage full, remove a photo first',
  languageRemoved: 'Language removed',

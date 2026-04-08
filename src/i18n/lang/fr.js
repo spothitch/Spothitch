@@ -80,6 +80,7 @@ export default {
  checkinCommentPlaceholder: 'Ex: Super spot, voiture arrêtée en 5 min!',
  reward: 'Récompense',
  photoAdded: 'Photo ajoutée',
+ photoCompressing: 'Optimisation de la photo...',
  photoTooLarge: 'Photo trop lourde, essaie une image plus petite',
  storageFull: 'Stockage plein, supprime une photo d\'abord',
  languageRemoved: 'Langue supprimée',

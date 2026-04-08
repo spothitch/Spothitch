@@ -278,14 +278,33 @@ function renderProfilTab(state) {
  </div>
  </div>
 
+ <!-- Social Links -->
+ <div class="card p-4">
+ <div class="flex items-center justify-between mb-2">
+ <div class="flex items-center gap-2">
+ ${icon('link', 'w-4 h-4 text-blue-400')}
+ <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('socialLinks') || 'Réseaux sociaux'}</span></div>
+ <button onclick="editSocialLinks()" class="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1">
+ ${icon('pencil', 'w-3 h-3')} ${t('edit') || 'Modifier'}</button>
+ </div>
+ ${(() => {
+  try {
+   const links = JSON.parse(localStorage.getItem('spothitch_social_links') || '{}')
+   const entries = Object.entries(links).filter(([, v]) => v)
+   if (entries.length === 0) return `<p class="text-sm text-slate-600 italic">${t('noSocial') || 'Ajoute tes réseaux...'}</p>`
+   return `<div class="flex flex-wrap gap-2">${entries.map(([k, v]) => `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-white/5 text-slate-300">${icon('at-sign', 'w-3 h-3')} ${escapeHTML(k)}: ${escapeHTML(v)}</span>`).join('')}</div>`
+  } catch { return '' }
+ })()}
+ </div>
+
  <!-- Reviews -->
- ${reviewCount > 0 ? `
  <div class="card p-4">
  <div class="flex items-center gap-2">
  ${svgReviews}
  <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">${t('myReviews') || 'Avis'}</span>
- <span class="text-xs text-slate-500">(${reviewCount})</span></div></div>
- ` : ''}
+ <span class="text-xs text-slate-500">(${state.myReviewsCount || reviewCount || 0})</span></div>
+ ${(state.myReviewsCount || reviewCount) === 0 ? `<p class="text-sm text-slate-600 italic mt-1">${t('noReviewsYet') || 'Tes avis apparaitront ici.'}</p>` : ''}
+ </div>
 
  <!-- Trips -->
  ${tripCount > 0 ? `
@@ -371,7 +390,7 @@ function renderProfileHeader(state) {
  <!-- Quick actions -->
  <div class="flex flex-col gap-1.5 flex-shrink-0">
  <button
- onclick="openProfileCustomization()"
+ onclick="setProfileSubTab('reglages'); toggleSettingsSection('account')"
  class="px-3 py-1.5 rounded-lg bg-primary-500/15 text-primary-400 text-xs font-semibold hover:bg-primary-500/25 transition-colors"
  >
  ${icon('pencil', 'w-3 h-3 mr-1')}${t('edit') || 'Modifier'}
@@ -1305,6 +1324,14 @@ function renderAccountManagementCard(state) {
    <span class="text-xs text-slate-500">${escapeHTML(state.firstName ? `${state.firstName} ${state.lastName || ''}` : (state.user?.displayName || ''))}</span></div></div>
   ${icon('chevron-right', 'w-4 h-4 text-slate-500')}
  </button>
+ ${state.username ? `
+ <button onclick="openChangeUsername()" class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+  <div class="flex items-center gap-3">
+   ${icon('at-sign', 'w-4 h-4 text-slate-400')}
+   <div><span class="text-sm block">${t('changeUsername')}</span>
+   <span class="text-xs text-slate-500">@${escapeHTML(state.username)}</span></div></div>
+  ${icon('chevron-right', 'w-4 h-4 text-slate-500')}
+ </button>` : ''}
  ${!isGoogleUser ? `
  <button onclick="openChangePassword()" class="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
   <div class="flex items-center gap-3">
@@ -1453,6 +1480,95 @@ if (!window.shareMyProfile) {
   }
  }
 }
+
+// --- Change username handler ---
+window.openChangeUsername = async () => {
+ const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+ const { getState, setState } = await import('../../stores/state.js')
+ const state = getState()
+
+ // Check cooldown (60 days)
+ const lastChange = state.lastUsernameChange || 0
+ const cooldownDays = 60
+ const elapsed = (Date.now() - lastChange) / (1000 * 60 * 60 * 24)
+ if (lastChange && elapsed < cooldownDays) {
+  const remaining = Math.ceil(cooldownDays - elapsed)
+  window.showToast?.((t('usernameCooldown') || 'Tu pourras changer ton pseudo dans {days} jours').replace('{days}', remaining), 'warning')
+  return
+ }
+
+ const newPseudo = await showInputOverlay({
+  title: t('changeUsername'),
+  value: state.username || '',
+  placeholder: t('usernamePlaceholder'),
+  maxLength: 20,
+ })
+ if (!newPseudo || newPseudo.trim() === state.username) return
+ const pseudo = newPseudo.toLowerCase().trim()
+
+ try {
+  const fb = await import('../../services/firebase.js')
+  const validation = fb.validateUsername(pseudo)
+  if (!validation.valid) {
+   window.showToast?.(t(validation.errorKey), 'error')
+   return
+  }
+  const { available } = await fb.checkUsernameAvailability(pseudo)
+  if (!available) {
+   window.showToast?.(t('usernameTaken'), 'error')
+   return
+  }
+  const user = fb.getCurrentUser()
+  if (!user) return
+  await fb.reserveUsername(pseudo, user.uid)
+  setState({ username: pseudo, lastUsernameChange: Date.now() })
+  syncProfileToFirestore({ username: pseudo })
+  window.showToast?.(t('profileSaved'), 'success')
+  window._forceRender?.()
+ } catch (err) {
+  window.showToast?.(t('usernameError') || 'Erreur', 'error')
+ }
+}
+
+// --- Social links edit handler ---
+window.editSocialLinks = async () => {
+ const { showInputOverlay } = await import('../../utils/inputOverlay.js')
+ const current = JSON.parse(localStorage.getItem('spothitch_social_links') || '{}')
+ const networks = ['Instagram', 'TikTok', 'Snapchat', 'Twitter/X']
+ for (const net of networks) {
+  const val = await showInputOverlay({
+   title: net,
+   value: current[net] || '',
+   placeholder: `@${t('yourUsername') || 'ton pseudo'} ${net}`,
+   maxLength: 50,
+  })
+  if (val === null) break // cancelled
+  if (val.trim()) current[net] = val.trim()
+  else delete current[net]
+ }
+ localStorage.setItem('spothitch_social_links', JSON.stringify(current))
+ syncProfileToFirestore({ socialLinks: current })
+ window.showToast?.(t('profileSaved'), 'success')
+ window._forceRender?.()
+}
+
+// --- Load reviews count from Firestore ---
+window._loadMyReviewsCount = async () => {
+ try {
+  const fb = await import('../../services/firebase.js')
+  const user = fb.getCurrentUser()
+  if (!user) return
+  const { collection, getDocs, query, where } = await import('firebase/firestore')
+  const db = fb.getDb()
+  if (!db) return
+  const q = query(collection(db, 'reviews'), where('authorId', '==', user.uid))
+  const snap = await getDocs(q)
+  const { setState } = await import('../../stores/state.js')
+  setState({ myReviewsCount: snap.size })
+ } catch { /* offline */ }
+}
+// Auto-load on profile tab
+setTimeout(() => window._loadMyReviewsCount?.(), 2000)
 
 window.toggleNotifications = () => {
  const state = window.getState?.() || {}
@@ -1714,6 +1830,7 @@ window.addProfilePhoto = () => {
   const file = e.target.files?.[0]
   if (!file) return
   try {
+   window.showToast?.(t('photoCompressing') || 'Optimisation...', 'info')
    const dataUrl = await compressProfilePhoto(file)
    const { getState, setState } = await import('../../stores/state.js')
    const photos = [...(getState().profilePhotos || [])]
@@ -1809,7 +1926,7 @@ window.editBio = async () => {
  localStorage.setItem('spothitch_bio', trimmed)
  const { setState } = await import('../../stores/state.js')
  setState({ bio: trimmed })
- syncProfileToFirestore({ bio: trimmed })
+ await syncProfileToFirestore({ bio: trimmed })
  window.showToast?.(t('bioSaved') || 'Bio enregistrée !', 'success')
  window._forceRender?.()
 }
@@ -1819,7 +1936,7 @@ window.saveBio = async (text) => {
  localStorage.setItem('spothitch_bio', trimmed)
  const { setState } = await import('../../stores/state.js')
  setState({ bio: trimmed })
- syncProfileToFirestore({ bio: trimmed })
+ await syncProfileToFirestore({ bio: trimmed })
  window.showToast?.(t('bioSaved') || 'Bio enregistrée !', 'success')
  window._forceRender?.()
 }

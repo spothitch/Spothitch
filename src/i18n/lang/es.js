@@ -662,6 +662,7 @@ export default {
  checkinCommentPlaceholder: 'Ej: Gran spot, coche paró en 5 min!',
  reward: 'Recompensa',
  photoAdded: 'Foto añadida',
+ photoCompressing: 'Optimizando foto...',
  photoTooLarge: 'Foto demasiado grande, intenta con una imagen más pequeña',
  storageFull: 'Almacenamiento lleno, elimina una foto primero',
  languageRemoved: 'Idioma eliminado',

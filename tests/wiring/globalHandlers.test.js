@@ -359,6 +359,7 @@ const MAIN_JS_HANDLERS = [
   'saveSocialLink', 'addProfilePhoto', 'removeProfilePhoto', 'setMainProfilePhoto',
   'openPhotoManager', 'openEditName', 'openChangePassword', 'openChangeEmail',
   'openEditPersonalInfo', 'openExportData', 'openAppealForm',
+  'openChangeUsername', 'editSocialLinks',
   'setThemeMode', 'toggleAccessibility',
   'closeLanguagePicker', 'langPickerFilter', 'selectLanguageFromPicker',
   'selectLanguageLevel', 'closeLanguageLevelPicker',
