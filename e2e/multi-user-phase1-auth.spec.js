@@ -376,7 +376,9 @@ test.describe('1.5 Profile editing', () => {
 
   test('removeProfilePhoto removes by index', async () => {
     await session.page.evaluate(() => {
-      localStorage.setItem('spothitch_profile_photos', JSON.stringify(['photo1', 'photo2', 'photo3']))
+      const photos = ['photo1', 'photo2', 'photo3']
+      localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
+      window.setState?.({ profilePhotos: photos })
     })
 
     await session.page.evaluate(() => window.removeProfilePhoto?.(1))

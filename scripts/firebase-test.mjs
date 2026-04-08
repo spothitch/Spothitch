@@ -193,25 +193,27 @@ async function socialTests() {
 
   const friendReqId = `ci-friendreq-${Date.now()}`
 
+  // friendRequests rules: requestId == auth.uid (sender) + fromUserId == auth.uid
   await test('Alice can write to her own friendRequests', async () => {
-    await setDoc(doc(db, 'users', aliceUid, 'friendRequests', friendReqId), {
-      from: bobUid,
+    // Alice sends request to Bob: stored at /users/bob/friendRequests/alice
+    await setDoc(doc(db, 'users', bobUid, 'friendRequests', aliceUid), {
+      fromUserId: aliceUid,
       status: 'pending',
       createdAt: serverTimestamp(),
     })
-    const snap = await getDoc(doc(db, 'users', aliceUid, 'friendRequests', friendReqId))
+    const snap = await getDoc(doc(db, 'users', bobUid, 'friendRequests', aliceUid))
     assert(snap.exists(), 'Friend request was not created')
   })
 
   await test('Alice can read her own friend request', async () => {
-    const snap = await getDoc(doc(db, 'users', aliceUid, 'friendRequests', friendReqId))
-    assert(snap.data().from === bobUid, 'Wrong sender')
+    const snap = await getDoc(doc(db, 'users', bobUid, 'friendRequests', aliceUid))
+    assert(snap.data().fromUserId === aliceUid, 'Wrong sender')
     assert(snap.data().status === 'pending', 'Wrong status')
   })
 
   await test('Alice can delete her own friend request', async () => {
-    await deleteDoc(doc(db, 'users', aliceUid, 'friendRequests', friendReqId))
-    const snap = await getDoc(doc(db, 'users', aliceUid, 'friendRequests', friendReqId))
+    await deleteDoc(doc(db, 'users', bobUid, 'friendRequests', aliceUid))
+    const snap = await getDoc(doc(db, 'users', bobUid, 'friendRequests', aliceUid))
     assert(!snap.exists(), 'Friend request was not deleted')
   })
 
