@@ -409,7 +409,7 @@ function _renderLeg(leg, isLast) {
           ${leg.rideDuration ? `<span style="display:flex;align-items:center;gap:3px">${icon('car', 'w-3 h-3')} ${_fmtDuration(leg.rideDuration)}</span>` : ''}
         </div>
         ${leg.note ? `<div style="font-size:11px;color:#94a3b8;margin-top:6px;font-style:italic;line-height:1.4;padding-left:8px;border-left:2px solid rgba(255,255,255,.06)">"${escapeHTML(leg.note)}"</div>` : ''}
-        ${leg.spotId ? `<div style="display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 8px;background:${leg.spotCreated ? 'rgba(245,158,11,.06)' : 'rgba(34,197,94,.06)'};border:1px solid ${leg.spotCreated ? 'rgba(245,158,11,.12)' : 'rgba(34,197,94,.12)'};border-radius:6px;font-size:10px;color:${leg.spotCreated ? '#f59e0b' : '#22c55e'};cursor:pointer">${icon(leg.spotCreated ? 'plus' : 'map-pin', 'w-3 h-3')} ${leg.spotCreated ? (t('spotCreated') || 'Spot créé') + ' : ' : ''}${escapeHTML(leg.spotName || '')}</div>` : ''}
+        ${leg.spotId ? `<div onclick="openSpotDetail('${escapeHTML(leg.spotId)}')" role="button" tabindex="0" style="display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 8px;background:${leg.spotCreated ? 'rgba(245,158,11,.06)' : 'rgba(34,197,94,.06)'};border:1px solid ${leg.spotCreated ? 'rgba(245,158,11,.12)' : 'rgba(34,197,94,.12)'};border-radius:6px;font-size:10px;color:${leg.spotCreated ? '#f59e0b' : '#22c55e'};cursor:pointer">${icon(leg.spotCreated ? 'plus' : 'map-pin', 'w-3 h-3')} ${leg.spotCreated ? (t('spotCreated') || 'Spot créé') + ' : ' : ''}${escapeHTML(leg.spotName || '')} ${icon('external-link', 'w-2.5 h-2.5')}</div>` : ''}
       </div>
     </div>
   `
@@ -472,7 +472,10 @@ function renderAddLeg(state, tripId) {
 
       <!-- Departure -->
       <label style="font-size:12px;color:#94a3b8;display:block;margin-bottom:6px;font-weight:500">${icon('map-pin', 'w-3.5 h-3.5')} ${t('departure') || 'Départ'}</label>
-      <input id="journal-departure" type="text" placeholder="${t('searchCity') || 'Rechercher une ville...'}" class="j-input" style="width:100%;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px;margin-bottom:14px">
+      <div style="display:flex;gap:6px;margin-bottom:14px">
+        <input id="journal-departure" type="text" placeholder="${t('searchCity') || 'Rechercher une ville...'}" class="j-input" style="flex:1;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px">
+        <button onclick="journalUseMyPosition('departure')" style="padding:10px 12px;border-radius:10px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:#3b82f6;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;white-space:nowrap" aria-label="${t('useMyPosition') || 'Ma position'}">${icon('navigation', 'w-3.5 h-3.5')} GPS</button>
+      </div>
 
       <!-- Arrival -->
       <label style="font-size:12px;color:#94a3b8;display:block;margin-bottom:6px;font-weight:500">${icon('flag', 'w-3.5 h-3.5')} ${t('arrival') || 'Arrivée'}</label>
@@ -729,9 +732,12 @@ function renderTripStats(state, tripId) {
         </div>
       ` : ''}
 
-      <!-- Share button -->
+      <!-- Share + Export buttons -->
       <button onclick="journalShareTrip('${trip.id}')" style="width:100%;padding:14px;border-radius:12px;background:#f59e0b;color:#0f1520;font-size:15px;font-weight:700;border:none;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px">
         ${icon('share', 'w-5 h-5')} ${t('shareTrip') || 'Partager mon voyage'}
+      </button>
+      <button onclick="journalExportTrip('${trip.id}')" style="width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,.06);color:#94a3b8;font-size:13px;font-weight:600;border:none;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px">
+        ${icon('download', 'w-4 h-4')} ${t('exportTrip') || 'Exporter (JSON)'}
       </button>
       <button onclick="journalBack()" style="width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,.06);color:#94a3b8;font-size:13px;font-weight:600;border:none;cursor:pointer">
         ${t('backToTrips') || 'Retour à mes voyages'}

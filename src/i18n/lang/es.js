@@ -4110,6 +4110,8 @@ export default {
  confirmEndTrip: 'Terminar este viaje? Esta acción es irreversible.',
  tripEnded: 'Viaje terminado!',
  confirmDeletePhoto: 'Eliminar esta foto?',
+ exportTrip: 'Exportar (JSON)',
+ gpsSearching: 'Buscando GPS...',
  tripDone: 'Realizado',
  tripStatusSaved: 'Guardado',
  tripActive: 'En curso',

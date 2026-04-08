@@ -275,7 +275,19 @@ export function setDayPhoto(tripId, date, photoDataUrl) {
   const trip = trips.find(t => t.id === tripId)
   if (!trip) return
   if (!trip.dayPhotos) trip.dayPhotos = {}
-  trip.dayPhotos[date] = photoDataUrl
+  if (photoDataUrl) {
+    trip.dayPhotos[date] = photoDataUrl
+    // Auto-set cover photo to first photo added
+    if (!trip.coverPhoto) trip.coverPhoto = photoDataUrl
+  } else {
+    // Delete photo
+    delete trip.dayPhotos[date]
+    // If deleted photo was cover, pick next available
+    if (trip.coverPhoto === photoDataUrl || !trip.coverPhoto) {
+      const remaining = Object.values(trip.dayPhotos).filter(Boolean)
+      trip.coverPhoto = remaining[0] || null
+    }
+  }
   trip.updatedAt = new Date().toISOString()
   saveTrips(trips)
   // Photos stay in localStorage only (too large for Firestore)

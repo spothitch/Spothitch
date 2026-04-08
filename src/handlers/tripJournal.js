@@ -341,6 +341,58 @@ window.journalShareTrip = async (tripId) => {
 window.journalCopyLink = async (tripId) => {
   try {
     await navigator.clipboard.writeText(`https://spothitch.com/trip/${tripId.slice(5, 13)}`)
-    window.showToast?.('Lien copié !', 'success')
+    window.showToast?.(window.t?.('shareCopied') || 'Lien copié !', 'success')
   } catch { /* clipboard API not available */ }
+}
+
+window.journalUseMyPosition = async (field) => {
+  if (!navigator.geolocation) {
+    window.showToast?.(window.t?.('gpsRequired') || 'GPS non disponible', 'warning')
+    return
+  }
+  window.showToast?.(window.t?.('gpsSearching') || 'Recherche GPS...', 'info')
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      try {
+        // Reverse geocode with Photon
+        const res = await fetch(`https://photon.komoot.io/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&lang=fr`)
+        const data = await res.json()
+        const place = data?.features?.[0]?.properties
+        const name = place?.city || place?.name || place?.county || `${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`
+        const input = document.getElementById(`journal-${field}`)
+        if (input) {
+          input.value = name
+          // Store coords for distance calculation
+          if (field === 'departure') {
+            window._journalDepartureLat = pos.coords.latitude
+            window._journalDepartureLng = pos.coords.longitude
+          } else {
+            window._journalArrivalLat = pos.coords.latitude
+            window._journalArrivalLng = pos.coords.longitude
+          }
+        }
+        window.showToast?.(name, 'success')
+      } catch {
+        const input = document.getElementById(`journal-${field}`)
+        if (input) input.value = `${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`
+      }
+    },
+    () => window.showToast?.(window.t?.('gpsRequired') || 'Active la géolocalisation', 'warning'),
+    { enableHighAccuracy: true, timeout: 10000 }
+  )
+}
+
+window.journalExportTrip = (tripId) => {
+  const trip = getTrip(tripId)
+  if (!trip) return
+  // Remove base64 photos from export (too large)
+  const exportData = { ...trip, dayPhotos: undefined, coverPhoto: undefined }
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `spothitch-trip-${(trip.title || 'voyage').replace(/[^a-zA-Z0-9]/g, '_')}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+  window.showToast?.(window.t?.('dataExportReady') || 'Export prêt !', 'success')
 }
