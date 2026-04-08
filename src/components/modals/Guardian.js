@@ -1636,12 +1636,29 @@ window.guardianAddTripPhoto = () => {
 
 /** Save trip photo from sheet */
 window.guardianSaveTripPhoto = async () => {
-  // In a real implementation, this would open the camera
-  // For now, just add a photo event
-  const { setTripPhoto } = await import('../../services/guardian.js')
-  setTripPhoto('placeholder')
-  _guardianSheet = null
-  window._forceRender?.()
+  // Open file picker with camera preference
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*'
+  input.capture = 'environment' // Prefer rear camera
+  input.onchange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      // Resize to max 800px and convert to base64
+      const { compressImage } = await import('../../utils/image.js')
+      const base64 = await compressImage(file, 800, 0.7)
+      const { setTripPhoto, addTripEvent } = await import('../../services/guardian.js')
+      setTripPhoto(base64)
+      addTripEvent('photo', { thumbnail: base64.slice(0, 100) + '...' })
+      window.showToast?.(window.t?.('photoSaved') || 'Photo saved', 'success')
+    } catch (err) {
+      window.showToast?.(window.t?.('photoError') || 'Photo error', 'error')
+    }
+    _guardianSheet = null
+    window._forceRender?.()
+  }
+  input.click()
 }
 
 /** Open destination sheet */
@@ -1676,11 +1693,8 @@ window.guardianSendMessage = async () => {
   const input = document.getElementById('guardian-message-input')
   const text = input?.value?.trim() || ''
   if (!text) return
-  const { addTripEvent, getGuardianState: gcs } = await import('../../services/guardian.js')
-  const state = gcs()
-  if (!state.active) return
-  const username = getState().username || t('me') || 'Moi'
-  addTripEvent('message', { sender: username, senderColor: '#f59e0b', text })
+  const { sendGuardianMessage } = await import('../../services/guardian.js')
+  await sendGuardianMessage(text)
   if (input) input.value = ''
   window._forceRender?.()
   requestAnimationFrame(() => {

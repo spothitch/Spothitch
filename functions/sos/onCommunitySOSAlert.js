@@ -108,13 +108,30 @@ exports.onCommunitySOSAlert = onDocumentCreated(
       const tokens = tokensSnap.docs.map(d => d.data().token).filter(Boolean)
       const staleTokens = []
 
-      const title = type === 'silent'
-        ? 'SOS silencieux proche'
-        : `SOS ${receiver.distance < 1 ? 'tout près' : `à ${receiver.distance}km`}`
+      // i18n based on receiver's language preference
+      let lang = 'en'
+      try {
+        const userSnap = await db.doc(`users/${receiver.userId}`).get()
+        lang = userSnap.data()?.lang || 'en'
+      } catch { /* fallback EN */ }
 
-      const body = userName
-        ? `${userName} a besoin d'aide. Appuyez pour voir sa position.`
-        : 'Un voyageur a besoin d\'aide près de vous.'
+      const distText = receiver.distance < 1 ? { en: 'very close', fr: 'tout près', es: 'muy cerca', de: 'ganz nah' }[lang] || 'very close'
+        : `${receiver.distance}km`
+
+      const titles = {
+        en: type === 'silent' ? 'Silent SOS nearby' : `SOS ${distText}`,
+        fr: type === 'silent' ? 'SOS silencieux proche' : `SOS ${distText}`,
+        es: type === 'silent' ? 'SOS silencioso cercano' : `SOS ${distText}`,
+        de: type === 'silent' ? 'Leises SOS in der Nähe' : `SOS ${distText}`,
+      }
+      const bodies = {
+        en: userName ? `${userName} needs help. Tap to see position.` : 'A traveler needs help near you.',
+        fr: userName ? `${userName} a besoin d'aide. Appuyez pour voir sa position.` : 'Un voyageur a besoin d\'aide près de vous.',
+        es: userName ? `${userName} necesita ayuda. Toca para ver su posicion.` : 'Un viajero necesita ayuda cerca de ti.',
+        de: userName ? `${userName} braucht Hilfe. Tippen Sie, um die Position zu sehen.` : 'Ein Reisender braucht Hilfe in Ihrer Nähe.',
+      }
+      const title = titles[lang] || titles.en
+      const body = bodies[lang] || bodies.en
 
       await Promise.all(
         tokens.map(async (token) => {

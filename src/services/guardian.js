@@ -64,11 +64,21 @@ async function syncSOSTimerToFirestore(action, data = {}) {
         alertSent: true, // Prevent Cloud Function from sending duplicate alert
         active: true,
       }, { merge: true })
+    } else if (action === 'message') {
+      // Add message to Firestore for guardian to see
+      const { collection, addDoc } = await import('firebase/firestore')
+      await addDoc(collection(db, 'sosTimers', user.uid, 'messages'), {
+        sender: data.sender || user.displayName || 'Voyageur',
+        text: data.text || '',
+        createdAt: serverTimestamp(),
+      })
     } else if (action === 'stop') {
       await deleteDoc(timerRef)
     }
+    return true // sync succeeded
   } catch (err) {
     console.warn('[Guardian] Failed to sync SOS timer to Firestore:', err.message)
+    return false // sync failed
   }
 }
 
@@ -97,11 +107,21 @@ async function resolveGuardianIds(guardians) {
   }
 }
 
+// Rate limit: max 1 SOS alert per 5 minutes
+let _lastSOSAlertTime = 0
+
 /**
  * Create a sosAlerts document in Firestore to trigger the onSOSAlert Cloud Function.
  * This sends REAL push notifications to guardians on their phones.
+ * Rate-limited to 1 per 5 minutes to prevent spam.
  */
 async function createSOSAlertDocument(state) {
+  const now = Date.now()
+  if (now - _lastSOSAlertTime < 5 * 60 * 1000) {
+    console.warn('[Guardian] SOS alert rate-limited (max 1 per 5 minutes)')
+    return
+  }
+  _lastSOSAlertTime = now
   try {
     const { db, getCurrentUser } = await import('./firebase.js')
     const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
@@ -307,16 +327,31 @@ export function loadTripHistory() {
  * @param {object} trip
  */
 function saveTripToHistory(trip) {
+  // Save to localStorage (offline-first)
   try {
     const history = loadTripHistory()
     history.unshift(trip) // newest first
-    // Keep only last N trips
     const trimmed = history.slice(0, MAX_HISTORY_TRIPS)
     // lgtm[js/clear-text-storage-of-sensitive-data]
     localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed))
   } catch {
     // ignore
   }
+  // Also sync to Firestore for cross-device access
+  syncTripHistoryToFirestore(trip)
+}
+
+async function syncTripHistoryToFirestore(trip) {
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return
+    await addDoc(collection(db, 'users', user.uid, 'tripHistory'), {
+      ...trip,
+      syncedAt: serverTimestamp(),
+    })
+  } catch { /* non-blocking */ }
 }
 
 /**
@@ -806,7 +841,14 @@ export function checkIn() {
 
   // Sync to Firestore for server-side monitoring
   const lastPos = state.positions?.[state.positions.length - 1] || null
-  syncSOSTimerToFirestore('checkin', { position: lastPos })
+  syncSOSTimerToFirestore('checkin', { position: lastPos }).then(ok => {
+    if (!ok) {
+      showToastFn(t('guardianSyncFailed') || 'Check-in local OK, but server sync failed. Your guardian may not see this.', 'warning')
+    }
+  })
+
+  // Auto-arrival detection: if destination coords set and within 500m, suggest arrival
+  checkAutoArrival(state)
 
   return state
 }
@@ -1024,6 +1066,103 @@ export function restoreGuardianMode() {
     return true
   }
   return false
+}
+
+// ---- Auto-arrival detection (#6) ----
+
+let _arrivalNotified = false
+
+/**
+ * Check if user is within 500m of destination.
+ * If so, show a toast suggesting to stop Guardian mode.
+ */
+function checkAutoArrival(state) {
+  if (!state.destination || !state.active || _arrivalNotified) return
+  const lastPos = state.positions?.[state.positions.length - 1]
+  if (!lastPos) return
+
+  // Check if destinationCoords are available (set when user picks a destination on map)
+  const destCoords = state.destinationCoords
+  if (!destCoords?.lat || !destCoords?.lng) return
+
+  const distance = haversineKm(lastPos.lat, lastPos.lng, destCoords.lat, destCoords.lng)
+  if (distance < 0.5) { // Within 500m
+    _arrivalNotified = true
+    const msg = t('guardianNearDestination') || 'You seem to have arrived! Stop Guardian mode?'
+    showToastFn(msg, 'info')
+  }
+}
+
+// ---- Send guardian message to Firestore (#2) ----
+
+/**
+ * Send a message from the traveler to Firestore so guardians can read it.
+ * @param {string} text
+ */
+export async function sendGuardianMessage(text) {
+  if (!text?.trim()) return false
+  const trimmed = text.trim().slice(0, 500) // max 500 chars
+  const state = loadState()
+  if (!state.active) return false
+
+  // Save locally to timeline
+  const username = (() => {
+    try { return window.getState?.()?.username || t('me') || 'Me' } catch { return 'Me' }
+  })()
+  addTripEvent('message', { sender: username, senderColor: '#f59e0b', text: trimmed })
+
+  // Sync to Firestore
+  syncSOSTimerToFirestore('message', { sender: username, text: trimmed })
+  return true
+}
+
+// ---- Guardian from friends list (#9-10) ----
+
+/**
+ * Add a guardian from the friends list (uses UID for push resolution).
+ * @param {{ id: string, name: string }} friend
+ * @returns {boolean}
+ */
+export function addGuardianFromFriend(friend) {
+  if (!friend?.id || !friend?.name?.trim()) return false
+  const state = loadState()
+  if (state.guardians.length >= MAX_GUARDIANS) return false
+  // Dedup by name
+  const nameLower = friend.name.toLowerCase().trim()
+  if (state.guardians.some(g => (g.name || '').toLowerCase().trim() === nameLower)) return false
+  const nameHash = nameLower.split('').reduce((h, c) => ((h << 5) - h) + c.charCodeAt(0), 0)
+  const color = GUARDIAN_COLORS[Math.abs(nameHash) % GUARDIAN_COLORS.length] || '#64748b'
+  state.guardians.push({ name: friend.name, phone: '', color, friendId: friend.id })
+  if (state.guardians.length === 1) {
+    state.guardian = { name: friend.name, phone: '' }
+  }
+  saveState(state)
+  return true
+}
+
+// ---- Input validation (#14) ----
+
+/**
+ * Validate guardian mode inputs before starting.
+ * @returns {{ valid: boolean, error?: string }}
+ */
+export function validateGuardianInputs(state) {
+  if (!state.guardians?.length || !state.guardians[0]?.name?.trim()) {
+    return { valid: false, error: 'guardian_name_required' }
+  }
+  for (const g of state.guardians) {
+    if (g.name && g.name.length > 100) return { valid: false, error: 'guardian_name_too_long' }
+  }
+  if (state.destination && state.destination.length > 200) {
+    return { valid: false, error: 'destination_too_long' }
+  }
+  if (state.customMessage && state.customMessage.length > 500) {
+    return { valid: false, error: 'message_too_long' }
+  }
+  if (state.licensePlate && state.licensePlate.length > 20) {
+    return { valid: false, error: 'plate_too_long' }
+  }
+  return { valid: true }
 }
 
 // ---- Multi-guardian management (v2) ----

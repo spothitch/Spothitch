@@ -1,11 +1,12 @@
 /**
  * SOS Real-time Location Tracking Service
- * Share your location in real-time with emergency contacts
+ * Share your location in real-time with emergency contacts via Firestore.
+ * Creates a sosAlerts document → triggers Cloud Function push to guardians.
  */
 
-import { getState, setState } from '../stores/state.js';
-import { showToast } from './notifications.js';
-import { t } from '../i18n/index.js';
+import { getState, setState } from '../stores/state.js'
+import { showToast } from './notifications.js'
+import { t } from '../i18n/index.js'
 import { icon } from '../utils/icons.js'
 
 // Tracking configuration
@@ -14,47 +15,50 @@ const TRACKING_CONFIG = {
   accuracyThreshold: 100, // meters
   maxAge: 30000, // 30 seconds
   timeout: 15000, // 15 seconds
-};
+}
 
 // Store references
-let watchId = null;
-let trackingSessionId = null;
-let lastPosition = null;
-let trackingListeners = [];
+let watchId = null
+let trackingSessionId = null
+let lastPosition = null
+let trackingListeners = []
 
 /**
  * Start real-time SOS tracking
  * @param {Object} options - Tracking options
- * @returns {string} Session ID
+ * @returns {Promise<string|null>} Session ID
  */
 export async function startSOSTracking(options = {}) {
   if (!navigator.geolocation) {
-    showToast(t('gpsNotAvailable') || 'GPS non disponible', 'error');
-    return null;
+    showToast(t('gpsNotAvailable') || 'GPS non disponible', 'error')
+    return null
   }
 
   // Generate unique session ID
-  trackingSessionId = generateSessionId();
+  const randomBytes = crypto.getRandomValues(new Uint32Array(2))
+  trackingSessionId = `sos_${Date.now()}_${randomBytes[0].toString(36)}${randomBytes[1].toString(36)}`.slice(0, 30)
+
+  const state = getState()
 
   // Create tracking session
   const session = {
     id: trackingSessionId,
     startTime: new Date().toISOString(),
-    userId: getState().user?.uid || 'anonymous',
-    userName: getState().username || (t('user') || 'Utilisateur'),
-    userAvatar: getState().avatar || 'thumbs-up',
+    userId: state.user?.uid || 'anonymous',
+    userName: state.username || (t('user') || 'Utilisateur'),
+    userAvatar: state.avatar || 'thumbs-up',
     status: 'active',
-    reason: options.reason || (t('sosActivated') || 'SOS activé'),
+    reason: options.reason || (t('sosActivated') || 'SOS activated'),
     positions: [],
-    contacts: options.contacts || getState().emergencyContacts || [],
-  };
+    contacts: options.contacts || state.emergencyContacts || [],
+  }
 
   // Save session to state
   setState({
     sosActive: true,
     sosSession: session,
     sosTrackingId: trackingSessionId,
-  });
+  })
 
   // Start watching position
   watchId = navigator.geolocation.watchPosition(
@@ -65,54 +69,133 @@ export async function startSOSTracking(options = {}) {
       maximumAge: TRACKING_CONFIG.maxAge,
       timeout: TRACKING_CONFIG.timeout,
     }
-  );
+  )
 
-  // Notify emergency contacts
-  notifyContacts(session);
+  // Create Firestore SOS alert document → triggers Cloud Function push
+  await createSOSTrackingDocument(session)
 
-  showToast(t('sosLocationSharingActive') || '🆘 Partage de position activé', 'warning');
+  // Also offer native share
+  notifyContacts(session)
 
-  return trackingSessionId;
+  showToast(t('sosLocationSharingActive') || 'SOS: position sharing active', 'warning')
+
+  return trackingSessionId
 }
 
 /**
  * Stop SOS tracking
  */
-export function stopSOSTracking() {
+export async function stopSOSTracking() {
   if (watchId) {
-    navigator.geolocation.clearWatch(watchId);
-    watchId = null;
+    navigator.geolocation.clearWatch(watchId)
+    watchId = null
   }
 
-  const state = getState();
-  const session = state.sosSession;
-
-  if (session) {
-    // Update session status
-    session.status = 'ended';
-    session.endTime = new Date().toISOString();
-
-    // Notify contacts that user is safe
-    notifyContactsSafe(session);
-  }
+  // Delete Firestore tracking document
+  await deleteSOSTrackingDocument()
 
   setState({
     sosActive: false,
     sosSession: null,
     sosTrackingId: null,
-  });
+  })
 
-  trackingSessionId = null;
-  lastPosition = null;
+  trackingSessionId = null
+  lastPosition = null
 
-  showToast(t('sosSharingStopped') || 'Position partagée arrêtée - Vous êtes en sécurité', 'success');
+  showToast(t('sosSharingStopped') || 'SOS stopped. You are safe.', 'success')
+}
+
+/**
+ * Create SOS tracking document in Firestore for real-time sharing
+ */
+async function createSOSTrackingDocument(session) {
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { doc, setDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return
+
+    // Write to sosTracking/{userId} (readable by guardians)
+    const trackingRef = doc(db, 'sosTracking', user.uid)
+    await setDoc(trackingRef, {
+      userId: user.uid,
+      userName: session.userName,
+      sessionId: session.id,
+      status: 'active',
+      reason: session.reason,
+      positions: [],
+      lastPosition: null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+
+    // Also create sosAlerts document to trigger Cloud Function push to guardians
+    const { collection, addDoc } = await import('firebase/firestore')
+    const friends = getState().friends || []
+    const guardianIds = friends.map(f => f.id).filter(Boolean)
+
+    if (guardianIds.length > 0) {
+      await addDoc(collection(db, 'sosAlerts'), {
+        userId: user.uid,
+        userName: session.userName,
+        guardianIds,
+        position: null, // Will be updated with first GPS fix
+        type: 'emergency',
+        createdAt: serverTimestamp(),
+      })
+    }
+  } catch (err) {
+    console.error('[SOS] Failed to create Firestore tracking document:', err.message)
+  }
+}
+
+/**
+ * Update position in Firestore (called on each GPS update)
+ */
+async function updateSOSPositionFirestore(positionData) {
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return
+
+    const trackingRef = doc(db, 'sosTracking', user.uid)
+    await updateDoc(trackingRef, {
+      lastPosition: {
+        lat: positionData.lat,
+        lng: positionData.lng,
+        accuracy: positionData.accuracy || null,
+        timestamp: positionData.timestamp,
+      },
+      updatedAt: serverTimestamp(),
+    })
+  } catch {
+    // Non-blocking — position still stored locally
+  }
+}
+
+/**
+ * Delete SOS tracking document on stop
+ */
+async function deleteSOSTrackingDocument() {
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { doc, deleteDoc } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return
+
+    await deleteDoc(doc(db, 'sosTracking', user.uid))
+  } catch {
+    // Non-blocking
+  }
 }
 
 /**
  * Handle position update
  */
 function handlePositionUpdate(position, session) {
-  const { latitude, longitude, accuracy, altitude, speed, heading } = position.coords;
+  const { latitude, longitude, accuracy, altitude, speed, heading } = position.coords
 
   const positionData = {
     lat: latitude,
@@ -122,189 +205,137 @@ function handlePositionUpdate(position, session) {
     speed,
     heading,
     timestamp: new Date().toISOString(),
-  };
+  }
 
-  lastPosition = positionData;
+  lastPosition = positionData
 
   // Add to session history
   if (session) {
-    session.positions.push(positionData);
+    session.positions.push(positionData)
 
     // Keep only last 100 positions
     if (session.positions.length > 100) {
-      session.positions = session.positions.slice(-100);
+      session.positions = session.positions.slice(-100)
     }
 
-    setState({ sosSession: { ...session } });
+    setState({ sosSession: { ...session } })
   }
 
   // Notify listeners
   trackingListeners.forEach(listener => {
     try {
-      listener(positionData);
+      listener(positionData)
     } catch (e) {
-      console.error('Tracking listener error:', e);
+      console.error('Tracking listener error:', e)
     }
-  });
+  })
 
-  // Update shared location (in real app, this would update Firebase/server)
-  updateSharedLocation(positionData, session);
+  // Sync to Firestore for real-time sharing with guardians
+  updateSOSPositionFirestore(positionData)
 }
 
 /**
  * Handle position error
  */
 function handlePositionError(error) {
-  console.error('Position error:', error);
+  console.error('Position error:', error)
 
   switch (error.code) {
     case error.PERMISSION_DENIED:
-      showToast(t('gpsAccessDenied') || 'Accès GPS refusé', 'error');
-      stopSOSTracking();
-      break;
+      showToast(t('gpsAccessDenied') || 'GPS access denied', 'error')
+      stopSOSTracking()
+      break
     case error.POSITION_UNAVAILABLE:
-      showToast(t('positionUnavailable') || 'Position indisponible', 'warning');
-      break;
+      showToast(t('positionUnavailable') || 'Position unavailable', 'warning')
+      break
     case error.TIMEOUT:
-      showToast(t('gpsTimeout') || 'Délai GPS dépassé', 'warning');
-      break;
+      showToast(t('gpsTimeout') || 'GPS timeout', 'warning')
+      break
   }
 }
 
 /**
- * Update shared location (mock - would use Firebase in production)
- */
-function updateSharedLocation(position, session) {
-  // In production, this would update a Firebase document
-  // that contacts can watch in real-time
-
-  // Store in localStorage for demo purposes
-  const sharedData = {
-    sessionId: session?.id,
-    position,
-    user: {
-      name: session?.userName,
-      avatar: session?.userAvatar,
-    },
-    updatedAt: new Date().toISOString(),
-  };
-
-  // Clean up old SOS sessions (keep only current)
-  try {
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('sos_share_') && key !== `sos_share_${session?.id}`) {
-        localStorage.removeItem(key)
-      }
-    })
-  } catch { /* ignore */ }
-
-  localStorage.setItem(`sos_share_${session?.id}`, JSON.stringify(sharedData)); // lgtm[js/clear-text-storage-of-sensitive-data] — SOS safety data, local device only, declared in RGPD registry
-}
-
-/**
- * Notify emergency contacts
+ * Notify emergency contacts via native share API
  */
 function notifyContacts(session) {
-  const contacts = session.contacts || [];
+  const contacts = session.contacts || []
 
   if (contacts.length === 0) {
-    showToast(t('noEmergencyContacts') || 'Aucun contact d\'urgence configuré', 'warning');
-    return;
+    showToast(t('noEmergencyContacts') || 'No emergency contacts configured', 'warning')
+    return
   }
 
   // Generate share URL
-  const shareUrl = generateShareUrl(session.id);
+  const baseUrl = window.location.origin + window.location.pathname
+  const shareUrl = `${baseUrl}?sos=${session.id}`
 
   // Offer to share via native share API
   if (navigator.share) {
     navigator.share({
-      title: t('sosShareTitle') || 'SOS SpotHitch - Position en temps réel',
-      text: t('sosShareText') || `${session.userName} a activé le mode SOS. Suivez sa position en temps réel :`,
+      title: t('sosShareTitle') || 'SOS SpotHitch',
+      text: (t('sosShareText') || '{name} needs help. Track position:').replace('{name}', session.userName),
       url: shareUrl,
-    }).catch(console.error);
+    }).catch(() => {})
   }
-}
-
-/**
- * Notify contacts that user is safe
- */
-function notifyContactsSafe(_session) {
-  /* no-op */
-}
-
-/**
- * Generate share URL for tracking session
- */
-function generateShareUrl(sessionId) {
-  const baseUrl = window.location.origin + window.location.pathname;
-  return `${baseUrl}?sos=${sessionId}`;
-}
-
-/**
- * Generate unique session ID
- */
-function generateSessionId() {
-  const randomBytes = crypto.getRandomValues(new Uint32Array(2))
-  return `sos_${Date.now()}_${randomBytes[0].toString(36)}${randomBytes[1].toString(36)}`.slice(0, 30)
 }
 
 /**
  * Get current tracking position
  */
 export function getCurrentPosition() {
-  return lastPosition;
+  return lastPosition
 }
 
 /**
  * Add tracking listener
  */
 export function addTrackingListener(listener) {
-  trackingListeners.push(listener);
+  trackingListeners.push(listener)
   return () => {
-    trackingListeners = trackingListeners.filter(l => l !== listener);
-  };
+    trackingListeners = trackingListeners.filter(l => l !== listener)
+  }
 }
 
 /**
  * Check if tracking is active
  */
 export function isTrackingActive() {
-  return watchId !== null;
+  return watchId !== null
 }
 
 /**
  * Get tracking session info
  */
 export function getTrackingSession() {
-  return getState().sosSession;
+  return getState().sosSession
 }
 
 /**
  * Render SOS tracking status widget
  */
 export function renderSOSTrackingWidget(state) {
-  if (!state.sosActive || !state.sosSession) return '';
+  if (!state.sosActive || !state.sosSession) return ''
 
-  const session = state.sosSession;
-  const lastPos = session.positions[session.positions.length - 1];
+  const session = state.sosSession
+  const lastPos = session.positions[session.positions.length - 1]
   const duration = session.startTime
     ? Math.floor((Date.now() - new Date(session.startTime).getTime()) / 1000)
-    : 0;
+    : 0
 
   return `
-    <div class="sos-tracking-widget fixed top-20 left-4 right-4 z-50 bg-danger-500 rounded-xl p-4 shadow-2xl animate-pulse-slow">
+    <div class="fixed top-20 left-4 right-4 z-50 bg-red-600 rounded-xl p-4 shadow-2xl animate-pulse">
       <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-2xl">
-          🆘
+        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+          ${icon('siren', 'w-6 h-6 text-white')}
         </div>
         <div class="flex-1">
-          <div class="font-bold text-white">${t('sosActive') || 'SOS Actif'}</div>
+          <div class="font-bold text-white">${t('sosActive') || 'SOS Active'}</div>
           <div class="text-white/80 text-sm">
-            ${t('positionShared') || 'Position partagée'} • ${formatDuration(duration)}
+            ${t('positionShared') || 'Position shared'} · ${formatDuration(duration)}
           </div>
           ${lastPos ? `
             <div class="text-white/60 text-xs mt-1">
-              ${icon('map-pin', 'w-5 h-5 mr-1')}
+              ${icon('map-pin', 'w-3 h-3 inline mr-1')}
               ${lastPos.lat.toFixed(5)}, ${lastPos.lng.toFixed(5)}
               ${lastPos.accuracy ? `(±${Math.round(lastPos.accuracy)}m)` : ''}
             </div>
@@ -312,64 +343,64 @@ export function renderSOSTrackingWidget(state) {
         </div>
         <button
           onclick="stopSOSTracking()"
-          class="px-4 py-2 rounded-xl bg-white text-danger-500 font-bold text-sm hover:bg-white/90 transition-colors"
+          class="px-4 py-2 rounded-xl bg-white text-red-600 font-bold text-sm"
         >
-          ${t('iAmSafe') || 'Je suis en sécurité'}
+          ${t('iAmSafe') || 'I am safe'}
         </button>
       </div>
 
-      <!-- Share buttons -->
       <div class="flex gap-2 mt-3">
         <button
           onclick="shareSOSLink()"
-          class="flex-1 py-2 rounded-xl bg-white/20 text-white text-sm font-medium hover:bg-white/30 transition-colors"
+          class="flex-1 py-2 rounded-xl bg-white/20 text-white text-sm font-medium"
         >
-          ${icon('share-2', 'w-5 h-5 mr-2')}
-          ${t('shareLink') || 'Partager le lien'}
+          ${icon('share-2', 'w-4 h-4 inline mr-1')}
+          ${t('shareLink') || 'Share link'}
         </button>
         <button
           onclick="callEmergency()"
-          class="flex-1 py-2 rounded-xl bg-white text-danger-500 text-sm font-bold hover:bg-white/90 transition-colors"
+          class="flex-1 py-2 rounded-xl bg-white text-red-600 text-sm font-bold"
         >
-          ${icon('phone', 'w-5 h-5 mr-2')}
-          ${t('callEmergency') || 'Appeler 112'}
+          ${icon('phone', 'w-4 h-4 inline mr-1')}
+          112
         </button>
       </div>
     </div>
-  `;
+  `
 }
 
 /**
  * Format duration in human readable format
  */
 function formatDuration(seconds) {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}min`;
-  return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}min`;
+  if (seconds < 60) return `${seconds}s`
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}min`
+  return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}min`
 }
 
 // Global handlers
-window.startSOSTracking = startSOSTracking;
-window.stopSOSTracking = stopSOSTracking;
+window.startSOSTracking = startSOSTracking
+window.stopSOSTracking = stopSOSTracking
 window.shareSOSLink = () => {
-  const session = getState().sosSession;
+  const session = getState().sosSession
   if (session) {
-    const url = generateShareUrl(session.id);
+    const baseUrl = window.location.origin + window.location.pathname
+    const url = `${baseUrl}?sos=${session.id}`
     if (navigator.share) {
       navigator.share({
-        title: t('sosShareTitle') || 'Position SOS en temps réel',
-        text: t('sosShareFollowText') || 'Suivez ma position en temps réel :',
+        title: t('sosShareTitle') || 'SOS SpotHitch',
+        text: t('sosShareFollowText') || 'Track my position in real-time:',
         url,
-      });
+      })
     } else {
-      navigator.clipboard?.writeText(url).catch(() => {});
-      showToast(t('linkCopied') || 'Lien copié !', 'success');
+      navigator.clipboard?.writeText(url).catch(() => {})
+      showToast(t('linkCopied') || 'Link copied!', 'success')
     }
   }
-};
+}
 window.callEmergency = () => {
-  window.location.href = 'tel:112';
-};
+  window.location.href = 'tel:112'
+}
 
 export default {
   startSOSTracking,
@@ -379,4 +410,4 @@ export default {
   isTrackingActive,
   getTrackingSession,
   renderSOSTrackingWidget,
-};
+}
