@@ -467,7 +467,7 @@ function renderPhotoHero(spot) {
  class="w-full h-full object-cover"
  loading="lazy"
  onclick="event.stopPropagation();openPhotoFullscreen(0)"
- onerror="this.style.display='none';this.parentElement.innerHTML='<svg width=\\'32\\' height=\\'32\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#475569\\' stroke-width=\\'1.5\\'><path d=\\'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z\\'/><circle cx=\\'12\\' cy=\\'10\\' r=\\'3\\'/></svg>'"
+ onerror="this.style.display='none';this.parentElement.textContent=''"
  />`
  }
 
@@ -493,19 +493,26 @@ async function loadMapillaryForHero(lat, lng, spotId) {
 
  try {
  const { fetchMapillaryPhotos } = await import('../../services/mapillary.js')
- const photos = await fetchMapillaryPhotos(lat, lng, 100, 3)
+ // Timeout 5s — don't hang forever if Mapillary is unreachable
+ const photos = await Promise.race([
+  fetchMapillaryPhotos(lat, lng, 100, 3),
+  new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+ ])
 
- if (photos.length > 0 && document.getElementById('spot-hero-placeholder')) {
+ // Validate Mapillary URLs (HTTPS from known domains only)
+ const mapillaryRe = /^https:\/\/(scontent|lookaside|.*mapillary)/
+ const validPhotos = photos.filter(p => p.url && mapillaryRe.test(p.url))
+ if (validPhotos.length > 0 && document.getElementById('spot-hero-placeholder')) {
  const heroContainer = placeholder.parentElement
  if (!heroContainer) return
 
  // Store Mapillary photos for gallery
- window._mapillaryPhotos = photos.map(p => p.url)
+ window._mapillaryPhotos = validPhotos.map(p => p.url)
 
  // Show first Mapillary photo as hero
  heroContainer.innerHTML = `
  <img
- src="${escapeHTML(photos[0].url)}"
+ src="${escapeHTML(validPhotos[0].url)}"
  alt="${t('streetViewPhoto') || 'Photo de rue'}: ${escapeHTML(String(spotId))}"
  class="w-full h-full object-cover"
  loading="lazy"

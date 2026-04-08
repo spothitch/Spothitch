@@ -22,7 +22,7 @@ import { renderCityPanel } from './views/CityPanel.js';
 import { renderCookieBanner } from './modals/CookieBanner.js';
 // BetaBanner removed — carousel v4 slide 5 covers alpha messaging
 import { icon } from '../utils/icons.js'
-import { escapeHTML } from '../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../utils/sanitize.js'
 import { trapFocus } from '../utils/a11y.js'
 import { registerMarkerImages, getMarkerType } from '../utils/mapMarkers.js'
 import { applyTripFilter } from '../utils/tripFilters.js'
@@ -1062,7 +1062,7 @@ function initHomeMap(state) {
           : (t('createSpotHere') || 'Créer un spot ici')
         const popup = new maplibregl.Popup({ offset: 10, closeButton: false, className: 'create-spot-popup' })
           .setLngLat([lngLat.lng, lngLat.lat])
-          .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'${spotType || ''}')" class="flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 text-slate-900 border-none rounded-full text-sm font-semibold cursor-pointer whitespace-nowrap">${icon('map-pin', 'w-4 h-4 inline')}${label}</button>`)
+          .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'${escapeJSString(spotType || '')}')" class="flex items-center gap-1.5 px-3.5 py-2 bg-amber-500 text-slate-900 border-none rounded-full text-sm font-semibold cursor-pointer whitespace-nowrap">${icon('map-pin', 'w-4 h-4 inline')}${escapeHTML(label)}</button>`)
           .addTo(mapInst)
         // Auto-close after 4s
         setTimeout(() => { try { popup.remove() } catch { /* already removed */ } }, 4000)

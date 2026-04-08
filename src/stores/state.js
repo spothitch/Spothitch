@@ -478,6 +478,10 @@ function persistState() {
     privateMessages: state.privateMessages || {},
     friends: state.friends || [],
     proximityAlerts: state.proximityAlerts,
+    filterCountry: state.filterCountry,
+    filterMinRating: state.filterMinRating,
+    filterMaxWait: state.filterMaxWait,
+    filterVerifiedOnly: state.filterVerifiedOnly,
   };
   Storage.set('state', stateToPersist);
 
