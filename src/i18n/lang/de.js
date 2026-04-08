@@ -3535,6 +3535,8 @@ export default {
  guardianAutoStopTitle: 'Wächter-Modus gestoppt',
  guardianAutoStopMaxTrip: 'Reise ueber 8 Stunden. Wächter-Modus automatisch gestoppt.',
  guardianAutoStopNoCheckin: 'Kein Check-in seit 2 Stunden. Wächter-Modus automatisch gestoppt.',
+ guardianNoFriendMatch: 'Deine Wächter sind nicht in deiner SpotHitch-Freundesliste. Fuege sie als Freunde hinzu, um Push-Benachrichtigungen zu erhalten.',
+ guardianNoGPS: 'GPS nicht verfuegbar. Deine Position wird nicht mit deinem Wächter geteilt.',
  guardianCheckedIn: 'Check-in erfolgreich! Du bist sicher.',
  guardianActivate: 'Wächter aktivieren',
  guardianRequired: 'Bitte fülle den Namen und die Telefonnummer deines Begleiters aus.',

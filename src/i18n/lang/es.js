@@ -3536,6 +3536,8 @@ export default {
  guardianAutoStopTitle: 'Modo Guardian detenido',
  guardianAutoStopMaxTrip: 'Viaje de mas de 8h. Modo Guardian detenido automaticamente.',
  guardianAutoStopNoCheckin: 'Sin check-in desde hace 2h. Modo Guardian detenido automaticamente.',
+ guardianNoFriendMatch: 'Tus guardianes no estan en tu lista de amigos SpotHitch. Agregalos como amigos para recibir alertas push.',
+ guardianNoGPS: 'GPS no disponible. La posicion no sera compartida con tu guardian.',
  guardianCheckedIn: '¡Check-in registrado! Estás a salvo.',
  guardianActivate: 'Activar guardián',
  guardianRequired: 'Rellena el nombre y el número de tu guardián.',

@@ -18,7 +18,7 @@
  * - Travel timeline history (#31)
  */
 
-import { sendLocalNotification } from './notifications.js'
+import { sendLocalNotification, showToast as showToastFn } from './notifications.js'
 import { t } from '../i18n/index.js'
 import { haversineKm } from '../utils/geo.js'
 
@@ -56,6 +56,12 @@ async function syncSOSTimerToFirestore(action, data = {}) {
         lastCheckIn: serverTimestamp(),
         lastPosition: data.position || null,
         alertSent: false, // Reset so Cloud Function can re-alert on next overdue
+        active: true,
+      }, { merge: true })
+    } else if (action === 'alert') {
+      await setDoc(timerRef, {
+        lastPosition: data.position || null,
+        alertSent: true, // Prevent Cloud Function from sending duplicate alert
         active: true,
       }, { merge: true })
     } else if (action === 'stop') {
@@ -661,7 +667,11 @@ export function startGuardianMode(guardian, interval = 30, options = {}) {
         }
         saveState(current)
       },
-      () => { /* ignore error */ },
+      () => {
+        // GPS denied or unavailable — warn user
+        const gpsMsg = t('guardianNoGPS') || 'GPS indisponible. La position ne sera pas partagée avec ton gardien.'
+        showToastFn(gpsMsg, 'warning')
+      },
       { enableHighAccuracy: true, timeout: 10000 }
     )
   }
@@ -677,6 +687,11 @@ export function startGuardianMode(guardian, interval = 30, options = {}) {
   // Sync to Firestore for server-side monitoring (Brique 5)
   // Resolve guardian UIDs from friends list (name matching)
   resolveGuardianIds(state.guardians).then(guardianIds => {
+    if (guardianIds.length === 0) {
+      // Warn user: guardians not found as SpotHitch friends → push won't work
+      const warnMsg = t('guardianNoFriendMatch') || 'Tes gardiens ne sont pas dans ta liste d\'amis SpotHitch. Ajoute-les en ami pour recevoir les alertes push.'
+      showToastFn(warnMsg, 'warning')
+    }
     syncSOSTimerToFirestore('start', {
       guardianName: guardian.name,
       guardianIds,
@@ -873,8 +888,8 @@ export function sendAlert() {
   // Create Firestore sosAlerts document → triggers Cloud Function → REAL push to guardians
   createSOSAlertDocument(state)
 
-  // Also sync alertSent to Firestore
-  syncSOSTimerToFirestore('checkin', {
+  // Sync alertSent=true to Firestore so Cloud Function doesn't re-send
+  syncSOSTimerToFirestore('alert', {
     position: state.positions?.[state.positions.length - 1] || null,
   })
 
