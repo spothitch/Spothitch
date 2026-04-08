@@ -340,7 +340,7 @@ function renderProfileCompletion(state) {
 }
 
 function renderProfileHeader(state) {
- const { isIdVerified } = getUserTrustScore()
+ const { score: trustScore, isIdVerified } = getUserTrustScore()
  const verifiedBadge = renderVerifiedCheckmark(isIdVerified)
  const memberSince = state.user?.metadata?.creationTime
  ? new Date(state.user.metadata.creationTime).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
@@ -366,6 +366,7 @@ function renderProfileHeader(state) {
  </div>
  ${state.username ? `<p class="text-[10px] text-slate-400">@${escapeHTML(state.username)}</p>` : ''}
  ${memberSince ? `<p class="text-[10px] text-slate-500 mt-0.5">${t('memberSince') || 'Membre depuis'} ${memberSince}</p>` : ''}
+ ${state.isLoggedIn && trustScore !== undefined ? `<div class="flex items-center gap-1 mt-0.5"><span class="text-[10px] text-slate-500">${t('trustScore') || 'Confiance'}</span><span class="text-[10px] font-semibold text-amber-400">${trustScore}/10</span></div>` : ''}
  <p class="text-[10px] text-slate-500 truncate">${state.user?.email || t('notConnected') || 'Non connecté'}</p></div>
  <!-- Quick actions -->
  <div class="flex flex-col gap-1.5 flex-shrink-0">
@@ -388,7 +389,9 @@ function renderClickableStats(state) {
  // Count spots & countries from actual Firebase data (not stale localStorage counters)
  const allSpots = state.spots || []
  const userId = state.currentUser?.uid
- const mySpots = userId ? allSpots.filter(s => s.creatorId === userId || s.userId === userId) : []
+ const mySpots = userId
+  ? allSpots.filter(s => s.creatorId === userId || s.userId === userId || s.createdBy === userId)
+  : []
  const spotsCreated = mySpots.length || state.spotsCreated || 0
  const myCountries = new Set(mySpots.map(s => s.country || s.countryCode).filter(Boolean))
  const countries = myCountries.size || (state.visitedCountries || state.countriesVisited || []).length || 0
@@ -886,7 +889,7 @@ function renderCommentsSection(featureId) {
  if (!comments) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">' + escapeHTML(t('loading') || 'Loading...') + '</div></div>'
  if (comments.length === 0) return '<div class="mt-2 px-1"><div class="text-[11px] text-slate-500">' + escapeHTML(t('roadmapNoComments') || 'Aucun avis pour le moment. Sois le premier !') + '</div></div>'
 
- const VOTE_EMOJI = { essential: '', useful: 'thumbs-up', notUrgent: '' }
+ const VOTE_ICON = { essential: icon('flame', 'w-3 h-3 text-red-400'), useful: icon('thumbs-up', 'w-3 h-3 text-amber-400'), notUrgent: icon('clock', 'w-3 h-3 text-slate-400') }
  return '<div class="mt-2 space-y-1.5">'
  + comments.map(c =>
  '<div class="flex items-start gap-2 px-1 py-1.5 border-t border-white/[0.04]">'
@@ -894,7 +897,7 @@ function renderCommentsSection(featureId) {
  + '<div class="flex-1 min-w-0">'
  + '<div class="flex items-center gap-1.5">'
  + '<span class="text-[11px] font-semibold text-slate-300">' + escapeHTML(c.userName) + '</span>'
- + '<span class="text-[10px]">' + (VOTE_EMOJI[c.vote] || '') + '</span>'
+ + '<span class="text-[10px]">' + (VOTE_ICON[c.vote] || '') + '</span>'
  + '</div>'
  + '<p class="text-[11px] text-slate-400 leading-relaxed mt-0.5">' + escapeHTML(c.comment) + '</p>'
  + '</div></div>'
@@ -917,7 +920,8 @@ function renderRoadmapTab(_state) {
  const featureCards = sorted.map((f, i) => {
  const ft = totals[f.id] || { essential: 0, useful: 0, notUrgent: 0 }
  const rank = i + 1
- const rankLabel = rank <= 3 ? ['','',''][rank - 1] : '<span class="text-xs text-slate-500 font-bold">#' + rank + '</span>'
+ const rankIcons = [icon('trophy', 'w-5 h-5 text-amber-400'), icon('medal', 'w-5 h-5 text-slate-300'), icon('medal', 'w-5 h-5 text-amber-700')]
+ const rankLabel = rank <= 3 ? rankIcons[rank - 1] : '<span class="text-xs text-slate-500 font-bold">#' + rank + '</span>'
  return '<div class="card p-3">'
  + '<div class="flex items-start gap-3">'
  + '<div class="text-lg shrink-0 w-7 text-center">' + rankLabel + '</div>'
@@ -1574,6 +1578,8 @@ window.openEditPersonalInfo = async () => {
  const { showInputOverlay } = await import('../../utils/inputOverlay.js')
  const { getState, setState } = await import('../../stores/state.js')
  const state = getState()
+
+ // Edit birth year
  const newYear = await showInputOverlay({
   title: t('editBirthYear'),
   value: state.birthYear ? String(state.birthYear) : '',
@@ -1587,8 +1593,27 @@ window.openEditPersonalInfo = async () => {
   window.showToast?.(t('birthYearInvalid'), 'error')
   return
  }
- setState({ birthYear: year })
- syncProfileToFirestore({ birthYear: year })
+
+ // Edit gender
+ const genderOptions = [
+  t('genderPreferNotToSay') || 'Prefer not to say',
+  t('genderFemale') || 'Female',
+  t('genderMale') || 'Male',
+  t('genderNonBinary') || 'Non-binary',
+ ]
+ const genderValues = ['', 'female', 'male', 'non-binary']
+ const currentGenderIdx = genderValues.indexOf(state.gender || '')
+ const newGender = await showInputOverlay({
+  title: t('editGender'),
+  value: genderOptions[currentGenderIdx >= 0 ? currentGenderIdx : 0],
+  placeholder: t('editGender'),
+  options: genderOptions,
+ })
+ const genderIdx = newGender ? genderOptions.indexOf(newGender) : -1
+ const gender = genderIdx >= 0 ? genderValues[genderIdx] : (state.gender || '')
+
+ setState({ birthYear: year, gender })
+ syncProfileToFirestore({ birthYear: year, gender })
  window.showToast?.(t('birthYearUpdated'), 'success')
  window._forceRender?.()
 }
