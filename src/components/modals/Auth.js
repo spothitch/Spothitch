@@ -166,6 +166,7 @@ export function renderAuth(state) {
                   minlength="6"
                   autocomplete="new-password"
                   required
+                  aria-required="true"
                 />
               </div>
             ` : ''}
