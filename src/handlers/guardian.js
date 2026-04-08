@@ -108,9 +108,10 @@ window.startGuardian = () => {
 }
 window.stopGuardian = () => {
   const t = window.t
+  const msg = t('guardianStopConfirm') || 'Arrêter le mode Guardian ? Ton gardien ne sera plus alerté.'
+  if (!confirm(msg)) return
   stopGuardianMode()
-  window.showToast(t('guardianStopped') || 'Mode compagnon désactivé.', 'info')
-  // Close modal and reset screen
+  window.showToast(t('guardianStopped') || 'Mode Guardian désactivé.', 'info')
   window.guardianGoToScreen?.(null)
   window.setState({ showGuardianModal: false })
 }

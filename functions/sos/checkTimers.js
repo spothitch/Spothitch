@@ -61,20 +61,36 @@ exports.checkSOSTimers = onSchedule(
         continue
       }
 
-      // Build notification body with license plate and custom message if available
-      let body = `Pas de check-in depuis ${timer.checkInIntervalMinutes + GRACE_MINUTES} min.`
+      // Build notification body (EN default, FR fallback based on timer data)
+      const mins = timer.checkInIntervalMinutes + GRACE_MINUTES
+      let body = `No check-in for ${mins} min.`
+      let title = `${timer.userName || 'A traveler'} hasn't checked in`
+      // Try to detect language from user profile
+      try {
+        const userSnap = await db.doc(`users/${timer.userId}`).get()
+        const lang = userSnap.data()?.lang || 'en'
+        if (lang === 'fr') {
+          body = `Pas de check-in depuis ${mins} min.`
+          title = `${timer.userName || 'Un voyageur'} n'a pas donné de nouvelles`
+        } else if (lang === 'es') {
+          body = `Sin check-in desde hace ${mins} min.`
+          title = `${timer.userName || 'Un viajero'} no ha dado noticias`
+        } else if (lang === 'de') {
+          body = `Kein Check-in seit ${mins} Min.`
+          title = `${timer.userName || 'Ein Reisender'} hat sich nicht gemeldet`
+        }
+      } catch { /* fallback to EN */ }
       if (timer.licensePlate) {
-        body += ` Plaque: ${timer.licensePlate}.`
+        body += ` ${timer.licensePlate}.`
       }
       if (timer.customMessage) {
         body += ` ${timer.customMessage}`
       }
-      body += ' Dernière position connue disponible.'
 
       // Send push to each guardian
       for (const guardianId of guardianIds) {
         await sendPushToUser(db, messaging, guardianId, {
-          title: `${timer.userName || 'Un voyageur'} n'a pas donné de nouvelles`,
+          title,
           body,
         }, {
           type: 'sos_timer_expired',

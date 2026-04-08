@@ -55,6 +55,7 @@ async function syncSOSTimerToFirestore(action, data = {}) {
       await setDoc(timerRef, {
         lastCheckIn: serverTimestamp(),
         lastPosition: data.position || null,
+        alertSent: false, // Reset so Cloud Function can re-alert on next overdue
         active: true,
       }, { merge: true })
     } else if (action === 'stop') {
@@ -65,9 +66,70 @@ async function syncSOSTimerToFirestore(action, data = {}) {
   }
 }
 
+/**
+ * Resolve guardian names to Firebase UIDs by matching against friends list.
+ * If a guardian's name matches a friend, use the friend's UID.
+ * @param {Array<{name: string, phone?: string}>} guardians
+ * @returns {Promise<string[]>} array of Firebase UIDs
+ */
+async function resolveGuardianIds(guardians) {
+  try {
+    const { getState } = await import('../stores/state.js')
+    const friends = getState().friends || []
+    const ids = []
+    for (const g of guardians) {
+      const nameLower = (g.name || '').toLowerCase().trim()
+      if (!nameLower) continue
+      const match = friends.find(f =>
+        (f.name || '').toLowerCase().trim() === nameLower
+      )
+      if (match?.id) ids.push(match.id)
+    }
+    return ids
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Create a sosAlerts document in Firestore to trigger the onSOSAlert Cloud Function.
+ * This sends REAL push notifications to guardians on their phones.
+ */
+async function createSOSAlertDocument(state) {
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return
+
+    const lastPos = state.positions?.length > 0
+      ? state.positions[state.positions.length - 1]
+      : null
+
+    const guardianIds = await resolveGuardianIds(state.guardians || [])
+    if (guardianIds.length === 0) {
+      console.warn('[Guardian] No guardian UIDs resolved — push alert will not be sent')
+      return
+    }
+
+    await addDoc(collection(db, 'sosAlerts'), {
+      userId: user.uid,
+      userName: user.displayName || state.guardian?.name || 'Voyageur',
+      guardianIds,
+      position: lastPos ? { lat: lastPos.lat, lng: lastPos.lng } : null,
+      type: 'emergency',
+      licensePlate: state.licensePlate || '',
+      customMessage: state.customMessage || '',
+      createdAt: serverTimestamp(),
+    })
+  } catch (err) {
+    console.error('[Guardian] Failed to create SOS alert:', err.message)
+  }
+}
+
 const STORAGE_KEY = 'spothitch_guardian'
 const HISTORY_KEY = 'spothitch_trip_history'
-const CHECK_INTERVAL_MS = 10_000 // check every 10 seconds
+const CHECK_INTERVAL_MS = 30_000 // check every 30 seconds (was 10s — saves battery)
 const MAX_POSITIONS = 50
 const MAX_HISTORY_TRIPS = 20
 const BATTERY_ALERT_THRESHOLD = 0.15 // 15%
@@ -376,8 +438,9 @@ export function getETAInfo(state, destinationCoords = null) {
 
   if (lastPos && destinationCoords) {
     distanceKm = haversineKm(lastPos.lat, lastPos.lng, destinationCoords.lat, destinationCoords.lng)
-    if (speedKmh && speedKmh > 0) {
+    if (speedKmh && speedKmh > 0.5) { // Ignore near-zero speed (stationary)
       etaMinutes = Math.round((distanceKm / speedKmh) * 60)
+      if (!Number.isFinite(etaMinutes)) etaMinutes = null
     }
   }
 
@@ -409,15 +472,15 @@ function getAlertMessage(state) {
   const alertPosition = t('guardianAlertPosition') || 'My last known position'
   const alertFooter = t('guardianAlertFooter') || 'Sent automatically by SpotHitch Guardian Mode.'
 
-  let msg = `\u{1F198} SpotHitch Safety Alert\n\n`
+  let msg = `SpotHitch Safety Alert\n\n`
   msg += `${guardianName}${alertIntro}\n`
   msg += `${alertHelp}\n\n`
   if (state.licensePlate) {
     const plateLabel = t('licensePlateLabel') || 'License plate'
-    msg += `\u{1F697} ${plateLabel}: ${state.licensePlate}\n`
+    msg += `${plateLabel}: ${state.licensePlate}\n`
   }
   if (state.customMessage) {
-    msg += `\u{1F4AC} ${state.customMessage}\n`
+    msg += `${state.customMessage}\n`
   }
   if (tripDuration) {
     msg += `${alertTrip}: ${tripDuration}\n`
@@ -436,17 +499,17 @@ function getAlertMessage(state) {
 function getDepartureMessage(state) {
   const depMsg = t('guardianDepartureMsg') || 'I am starting my hitchhiking trip. I will check in regularly. · SpotHitch Guardian'
   const guardianName = state.guardian.name ? state.guardian.name + ', ' : ''
-  let msg = `\u{1F6E3}\uFE0F SpotHitch · ${guardianName}${depMsg}`
+  let msg = `SpotHitch · ${guardianName}${depMsg}`
   if (state.destination) {
     const destLabel = t('guardianDestination') || 'Destination'
     msg += `\n${destLabel}: ${state.destination}`
   }
   if (state.licensePlate) {
     const plateLabel = t('licensePlateLabel') || 'License plate'
-    msg += `\n\u{1F697} ${plateLabel}: ${state.licensePlate}`
+    msg += `\n${plateLabel}: ${state.licensePlate}`
   }
   if (state.customMessage) {
-    msg += `\n\u{1F4AC} ${state.customMessage}`
+    msg += `\n${state.customMessage}`
   }
   return msg
 }
@@ -460,14 +523,14 @@ function getArrivalMessage(state) {
   const tripDuration = state.tripStart
     ? formatDurationMs(Date.now() - state.tripStart)
     : ''
-  let msg = `\u2705 SpotHitch — ${guardianName}${arrMsg}`
+  let msg = `SpotHitch · ${guardianName}${arrMsg}`
   if (tripDuration) {
     const durLabel = t('guardianAlertTrip') || 'Trip duration'
     msg += `\n${durLabel}: ${tripDuration}`
   }
   if (state.licensePlate) {
     const plateLabel = t('licensePlateLabel') || 'License plate'
-    msg += `\n\u{1F697} ${plateLabel}: ${state.licensePlate}`
+    msg += `\n${plateLabel}: ${state.licensePlate}`
   }
   return msg
 }
@@ -484,7 +547,7 @@ function buildBatteryAlertMessage(state, pct) {
   let msg = `SpotHitch — ${guardianName}${battMsg}`
   if (state.licensePlate) {
     const plateLabel = t('licensePlateLabel') || 'License plate'
-    msg += `\n\u{1F697} ${plateLabel}: ${state.licensePlate}`
+    msg += `\n${plateLabel}: ${state.licensePlate}`
   }
   if (lastPos) {
     const posLabel = t('guardianAlertPosition') || 'My last known position'
@@ -612,18 +675,17 @@ export function startGuardianMode(guardian, interval = 30, options = {}) {
   startBatteryMonitor()
 
   // Sync to Firestore for server-side monitoring (Brique 5)
-  // Collect guardian user IDs from friends list for push notifications
-  const guardianIds = (options.trustedContacts || [])
-    .map(c => c.userId || c.uid)
-    .filter(Boolean)
-  syncSOSTimerToFirestore('start', {
-    guardianName: guardian.name,
-    guardianIds,
-    guardians: state.guardians.map(g => ({ name: g.name, color: g.color })),
-    interval,
-    destination: options.destination,
-    licensePlate: options.licensePlate || '',
-    customMessage: options.customMessage || '',
+  // Resolve guardian UIDs from friends list (name matching)
+  resolveGuardianIds(state.guardians).then(guardianIds => {
+    syncSOSTimerToFirestore('start', {
+      guardianName: guardian.name,
+      guardianIds,
+      guardians: state.guardians.map(g => ({ name: g.name, color: g.color })),
+      interval,
+      destination: options.destination,
+      licensePlate: options.licensePlate || '',
+      customMessage: options.customMessage || '',
+    })
   })
 
   // Departure notification (#26)
@@ -805,7 +867,17 @@ export function sendAlert() {
   state.alertSent = true
   saveState(state)
 
+  // Send local notification (this device)
   const count = sendAlertToAll(message, state)
+
+  // Create Firestore sosAlerts document → triggers Cloud Function → REAL push to guardians
+  createSOSAlertDocument(state)
+
+  // Also sync alertSent to Firestore
+  syncSOSTimerToFirestore('checkin', {
+    position: state.positions?.[state.positions.length - 1] || null,
+  })
+
   return count > 0 ? count : null
 }
 
@@ -922,8 +994,13 @@ export function restoreGuardianMode() {
     const silenceAge = state.lastCheckIn ? now - state.lastCheckIn : tripAge
 
     if (tripAge > maxTrip || silenceAge > maxSilence) {
-      // Trip is stale — auto-stop silently
+      // Trip is stale — auto-stop with notification
       stopGuardianMode()
+      const title = t('guardianAutoStopTitle') || 'Guardian mode stopped'
+      const body = tripAge > maxTrip
+        ? (t('guardianAutoStopMaxTrip') || 'Trip exceeded 8 hours. Guardian mode auto-stopped.')
+        : (t('guardianAutoStopNoCheckin') || 'No check-in for 2 hours. Guardian mode auto-stopped.')
+      sendLocalNotification(title, body, { type: 'guardian_auto_stop', tag: 'guardian-auto-stop' })
       return false
     }
 
@@ -952,7 +1029,13 @@ export function getGuardians() {
 export function addGuardian(guardian) {
   const state = loadState()
   if (state.guardians.length >= MAX_GUARDIANS) return false
-  const color = GUARDIAN_COLORS[state.guardians.length] || '#64748b'
+  // Prevent duplicate (same name)
+  const nameLower = (guardian.name || '').toLowerCase().trim()
+  if (!nameLower) return false
+  if (state.guardians.some(g => (g.name || '').toLowerCase().trim() === nameLower)) return false
+  // Color based on name hash (stable across add/remove)
+  const nameHash = nameLower.split('').reduce((h, c) => ((h << 5) - h) + c.charCodeAt(0), 0)
+  const color = GUARDIAN_COLORS[Math.abs(nameHash) % GUARDIAN_COLORS.length] || '#64748b'
   state.guardians.push({ name: guardian.name, phone: guardian.phone || '', color })
   // Keep backward compat: mirror first guardian to state.guardian
   if (state.guardians.length === 1) {

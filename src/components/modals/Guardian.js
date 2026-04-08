@@ -1779,6 +1779,7 @@ async function updateBatteryDisplay() {
   if (level === null) return
 
   _batteryPct = Math.round(level * 100)
+  window._forceRender?.() // Re-render to show updated battery value
 }
 
 // Init guardian battery display after render

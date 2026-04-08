@@ -27,22 +27,21 @@ exports.onSOSAlert = onDocumentCreated(
     const db = getFirestore()
     const messaging = getMessaging()
 
-    // Build notification based on type
+    // Build notification with basic i18n (EN default)
+    const name = userName || 'A traveler'
     let title, body
     if (type === 'emergency') {
-      title = `SOS de ${userName || 'Un voyageur'} !`
-      body = 'Alerte d\'urgence. Position partagée en direct.'
+      title = `SOS from ${name}!`
+      body = 'Emergency alert. Position shared in real-time.'
     } else if (type === 'silent') {
-      title = `Alerte silencieuse de ${userName || 'Un voyageur'}`
-      body = 'Position partagée. Vérifiez que tout va bien.'
+      title = `Silent alert from ${name}`
+      body = 'Position shared. Check if they are OK.'
     } else {
-      title = `${userName || 'Un voyageur'} a besoin d'aide`
-      body = 'Alerte déclenchée avec position.'
+      title = `${name} needs help`
+      body = 'Alert triggered with position.'
     }
-
-    // Append license plate and custom message if available
     if (licensePlate) {
-      body += ` Plaque: ${licensePlate}.`
+      body += ` ${licensePlate}.`
     }
     if (customMessage) {
       body += ` ${customMessage}`
