@@ -96,6 +96,12 @@ function _dayCount(start, end) {
  */
 export function renderJournal(state) {
   _injectCSS()
+
+  // Public trip view (read-only, no auth required)
+  if (state.publicTripView) {
+    return renderPublicTrip(state.publicTripView)
+  }
+
   const view = state.journalView || 'list'
   const tripId = state.journalTripId
 
@@ -662,10 +668,17 @@ function renderTripStats(state, tripId) {
 
       <!-- Stat cards -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
-        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-size:28px;font-weight:800;color:#22c55e">${stats.hitchKm}</div><div style="font-size:11px;color:#64748b;margin-top:4px">km en autostop</div></div>
-        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-size:28px;font-weight:800;color:#8b5cf6">${stats.paidKm}</div><div style="font-size:11px;color:#64748b;margin-top:4px">km en transport</div></div>
-        <div style="background:rgba(245,158,11,.08);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-size:28px;font-weight:800;color:#f59e0b">${stats.rides}</div><div style="font-size:11px;color:#64748b;margin-top:4px">rides obtenus</div></div>
-        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-size:28px;font-weight:800;color:#3b82f6">${stats.totalWaitMin}</div><div style="font-size:11px;color:#64748b;margin-top:4px">min d'attente</div></div>
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-size:28px;font-weight:800;color:#22c55e">${stats.hitchKm}</div><div style="font-size:11px;color:#64748b;margin-top:4px">${t('kmHitchhike') || 'km en autostop'}</div></div>
+        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-size:28px;font-weight:800;color:#8b5cf6">${stats.paidKm}</div><div style="font-size:11px;color:#64748b;margin-top:4px">${t('kmTransport') || 'km en transport'}</div></div>
+        <div style="background:rgba(245,158,11,.08);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-size:28px;font-weight:800;color:#f59e0b">${stats.rides}</div><div style="font-size:11px;color:#64748b;margin-top:4px">${t('ridesObtained') || 'rides obtenus'}</div></div>
+        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-size:28px;font-weight:800;color:#3b82f6">${stats.totalWaitMin}</div><div style="font-size:11px;color:#64748b;margin-top:4px">${t('minWaiting') || "min d'attente"}</div></div>
+      </div>
+
+      <!-- Advanced stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+        <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:#e2e8f0">${stats.avgWaitMin}</div><div style="font-size:9px;color:#64748b">${t('avgWaitMin') || 'min moy. attente'}</div></div>
+        <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:#e2e8f0">${stats.budgetPerDay}</div><div style="font-size:9px;color:#64748b">${t('budgetPerDay') || '\u20AC/jour'}</div></div>
+        <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:#e2e8f0">${stats.avgSpeed || '?'}</div><div style="font-size:9px;color:#64748b">${t('avgSpeedKmh') || 'km/h moy.'}</div></div>
       </div>
 
       <!-- Ratio bar -->
@@ -742,6 +755,66 @@ function renderTripStats(state, tripId) {
       <button onclick="journalBack()" style="width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,.06);color:#94a3b8;font-size:13px;font-weight:600;border:none;cursor:pointer">
         ${t('backToTrips') || 'Retour à mes voyages'}
       </button>
+    </div>
+  `
+}
+
+// ==================== PUBLIC TRIP (read-only) ====================
+
+function renderPublicTrip(trip) {
+  const stats = getTripStats(trip)
+  const days = _dayCount(trip.startDate, trip.endDate)
+  const legsByDay = getLegsByDay(trip)
+
+  return `
+    <div style="margin:-16px;padding:16px;max-width:600px;margin:0 auto">
+      <!-- Header -->
+      <div style="text-align:center;padding:20px 0 16px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:20px">
+        <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t('publicTrip') || 'Voyage public'}</div>
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px">${escapeHTML(trip.title || (t('untitledTrip') || 'Voyage'))}</h1>
+        <p style="color:#94a3b8;font-size:13px">${t('by') || 'par'} ${escapeHTML(trip.userName || t('traveler'))}</p>
+        <p style="color:#64748b;font-size:12px;margin-top:4px">${_fmtDate(trip.startDate)} \u2192 ${trip.endDate ? _fmtDate(trip.endDate) : (t('today') || "aujourd'hui")} \u00B7 ${days} ${t('days') || 'jours'}</p>
+      </div>
+
+      <!-- Stats -->
+      ${stats ? `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px">
+        <div style="background:rgba(34,197,94,.08);border-radius:12px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#22c55e">${stats.totalKm}</div><div style="font-size:9px;color:#64748b">km</div></div>
+        <div style="background:rgba(245,158,11,.08);border-radius:12px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#f59e0b">${stats.rides}</div><div style="font-size:9px;color:#64748b">rides</div></div>
+        <div style="background:rgba(59,130,246,.08);border-radius:12px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#3b82f6">${stats.totalWaitMin}</div><div style="font-size:9px;color:#64748b">min</div></div>
+        <div style="background:rgba(139,92,246,.08);border-radius:12px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#8b5cf6">${stats.countries}</div><div style="font-size:9px;color:#64748b">${t('countries') || 'pays'}</div></div>
+      </div>
+      ` : ''}
+
+      <!-- Timeline -->
+      ${legsByDay.map(day => `
+        <div style="margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:8px">${t('day') || 'Jour'} ${day.dayNumber} \u00B7 ${_fmtDate(day.date)}</div>
+          ${day.legs.map(leg => {
+            const tp = TRANSPORTS[leg.transport] || TRANSPORTS.other
+            return `
+              <div style="display:flex;gap:10px;margin-bottom:8px;padding:8px 12px;background:rgba(255,255,255,.04);border-radius:10px">
+                <div style="width:28px;height:28px;border-radius:50%;background:${tp.bg};display:flex;align-items:center;justify-content:center;color:${tp.color};flex-shrink:0">${icon(tp.icon, 'w-4 h-4')}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:600">${escapeHTML(leg.departure?.name || '?')} \u2192 ${escapeHTML(leg.arrival?.name || '?')}</div>
+                  <div style="font-size:11px;color:#94a3b8;display:flex;gap:8px;margin-top:2px">
+                    ${leg.distanceKm ? `<span>${leg.distanceKm} km</span>` : ''}
+                    ${leg.waitMinutes ? `<span>${leg.waitMinutes} min ${t('wait') || 'attente'}</span>` : ''}
+                  </div>
+                  ${leg.note ? `<div style="font-size:11px;color:#94a3b8;font-style:italic;margin-top:4px">"${escapeHTML(leg.note)}"</div>` : ''}
+                </div>
+              </div>
+            `
+          }).join('')}
+          ${trip.dayNotes?.[day.date] ? `<div style="font-size:12px;color:#94a3b8;padding:8px 12px;background:rgba(59,130,246,.04);border-radius:8px;line-height:1.5">${escapeHTML(trip.dayNotes[day.date])}</div>` : ''}
+        </div>
+      `).join('')}
+
+      <!-- Footer -->
+      <div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,.06);margin-top:16px">
+        <p style="font-size:12px;color:#64748b;margin-bottom:8px">${t('sharedViaSpotHitch') || 'Partagé via SpotHitch'}</p>
+        <a href="/" style="color:#f59e0b;font-size:13px;font-weight:600;text-decoration:none">${t('discoverSpotHitch') || 'Découvrir SpotHitch'} \u2192</a>
+      </div>
     </div>
   `
 }

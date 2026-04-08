@@ -16,12 +16,34 @@ const ROUTES = {
   travel: { tab: 'voyage' },
   planner: { tab: 'voyage', subTab: 'planner' },
   guides: { tab: 'voyage', subTab: 'guides' },
+  journal: { tab: 'voyage', subTab: 'journal' },
   challenges: { tab: 'voyage' },
   social: { tab: 'social' },
   chat: { tab: 'social', subTab: 'general' },
   friends: { tab: 'social', subTab: 'friends' },
   profile: { tab: 'profile' },
 };
+
+// Handle /trip/xxx deep links (public trip viewer)
+export function checkPublicTripRoute() {
+  const path = window.location.pathname
+  const match = path.match(/\/trip\/([a-zA-Z0-9_-]+)/)
+  if (match) {
+    const shortId = match[1]
+    // Load public trip asynchronously
+    import('../services/tripJournal.js').then(async (mod) => {
+      const trip = await mod.loadPublicTrip(shortId)
+      if (trip) {
+        setState({
+          activeTab: 'voyage',
+          voyageSubTab: 'journal',
+          publicTripView: trip,
+          showLanding: false,
+        })
+      }
+    }).catch(() => {})
+  }
+}
 
 // Debug log for share flow — stored in localStorage so user can check on device
 function shareLog(step, detail) {

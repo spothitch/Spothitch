@@ -168,10 +168,30 @@ window.journalEndTrip = (tripId) => {
   window.showToast?.(window.t?.('tripEnded') || 'Voyage terminé !', 'success')
 }
 
-window.journalTogglePublic = (tripId) => {
+window.journalTogglePublic = async (tripId) => {
   const trip = getTrip(tripId)
   if (!trip) return
-  updateTrip(tripId, { isPublic: !trip.isPublic })
+  const newPublic = !trip.isPublic
+  updateTrip(tripId, { isPublic: newPublic })
+  // Publish/unpublish in Firestore
+  if (newPublic) {
+    const { publishTripPublicly } = await import('../services/tripJournal.js')
+    const result = await publishTripPublicly(tripId)
+    if (result.success) {
+      window.showToast?.(window.t?.('tripPublished') || 'Voyage publié !', 'success')
+    }
+  } else {
+    // Remove public copy
+    try {
+      const fb = await import('../services/firebase.js')
+      const db = fb.getDb()
+      if (db) {
+        const { doc, deleteDoc } = await import('firebase/firestore')
+        await deleteDoc(doc(db, 'publicTrips', tripId.slice(5, 13)))
+      }
+    } catch { /* ignore */ }
+    window.showToast?.(window.t?.('tripUnpublished') || 'Voyage dépublié', 'info')
+  }
   window._forceRender?.()
 }
 

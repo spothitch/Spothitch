@@ -66,7 +66,7 @@ import { cleanupDrafts } from './utils/formPersistence.js';
 import { initWasm } from './utils/wasmGeo.js';
 import { escapeHTML, escapeJSString } from './utils/sanitize.js';
 import { runAllCleanup } from './utils/cleanup.js';
-import { initDeepLinkListener, captureShareParams } from './utils/deeplink.js';
+import { initDeepLinkListener, captureShareParams, checkPublicTripRoute } from './utils/deeplink.js';
 import { initBackButton, goBack } from './utils/backButton.js';
 import { setupGlobalErrorHandlers as setupErrorHandlers } from './utils/errorBoundary.js';
 import { resetFilters as resetFiltersUtil } from './components/modals/Filters.js';
@@ -489,6 +489,7 @@ async function init() {
  // Handle deep links from URL params
  try {
  initDeepLinkListener();
+ checkPublicTripRoute();
  } catch (e) {
  console.warn('Deep link init skipped:', e.message);
  }

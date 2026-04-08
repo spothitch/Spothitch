@@ -293,6 +293,66 @@ export function setDayPhoto(tripId, date, photoDataUrl) {
   // Photos stay in localStorage only (too large for Firestore)
 }
 
+// ==================== PUBLIC TRIP (read-only from Firestore) ====================
+
+export async function loadPublicTrip(shortId) {
+  try {
+    const fb = await import('./firebase.js')
+    const db = fb.getDb()
+    if (!db) return null
+    const { collection, getDocs, query, where } = await import('firebase/firestore')
+
+    // Search all users' journal subcollections for a trip with matching short ID
+    // Short ID = trip.id.slice(5, 13)
+    // Since we can't query subcollections directly, we use a top-level index
+    // First try the publicTrips collection (indexed)
+    const q = query(collection(db, 'publicTrips'), where('shortId', '==', shortId))
+    const snap = await getDocs(q)
+    if (snap.empty) return null
+
+    const data = snap.docs[0].data()
+    return { id: snap.docs[0].id, ...data }
+  } catch (err) {
+    console.warn('[TripJournal] Load public trip failed:', err.message)
+    return null
+  }
+}
+
+export async function publishTripPublicly(tripId) {
+  try {
+    const trip = getTrip(tripId)
+    if (!trip || !trip.isPublic) return { success: false }
+
+    const fb = await import('./firebase.js')
+    const db = fb.getDb()
+    const user = fb.getCurrentUser()
+    if (!db || !user) return { success: false }
+    const { doc, setDoc } = await import('firebase/firestore')
+
+    const shortId = tripId.slice(5, 13)
+    // Store a public copy (without photos, for size)
+    const publicData = {
+      shortId,
+      userId: user.uid,
+      userName: user.displayName || '',
+      title: trip.title || '',
+      startDate: trip.startDate,
+      endDate: trip.endDate,
+      legs: trip.legs || [],
+      dayNotes: trip.dayNotes || {},
+      dayExpenses: trip.dayExpenses || {},
+      status: trip.status,
+      isPublic: true,
+      publishedAt: new Date().toISOString(),
+    }
+    await setDoc(doc(db, 'publicTrips', shortId), publicData)
+    return { success: true, shortId }
+  } catch (err) {
+    console.warn('[TripJournal] Publish trip failed:', err.message)
+    return { success: false }
+  }
+}
+
 // ==================== STATS ====================
 
 export function getTripStats(trip) {
@@ -363,14 +423,22 @@ export function getTripStats(trip) {
     return String.fromCodePoint(a, b)
   }).filter(Boolean)
 
+  // Advanced stats
+  const avgWaitMin = rides > 0 ? Math.round(totalWaitMin / rides) : 0
+  const budgetPerKm = totalKm > 0 ? Math.round((totalExpenses / totalKm) * 100) / 100 : 0
+  const budgetPerDay = days > 0 ? Math.round(totalExpenses / days) : 0
+  const totalRideDuration = hitchLegs.reduce((s, l) => s + (l.rideDuration || 0), 0)
+  const avgSpeed = totalRideDuration > 0 ? Math.round(hitchKm / (totalRideDuration / 60)) : 0
+
   return {
     totalKm, hitchKm, paidKm, walkKm,
-    totalWaitMin, rides, days,
+    totalWaitMin, avgWaitMin, rides, days,
     countries: countries.size,
     countryFlags,
     countryCodes: [...countries],
     spotsUsed, spotsCreated,
     totalExpenses, expByCategory,
+    budgetPerKm, budgetPerDay, avgSpeed,
     estimatedSavings, transportRatio,
     transportBreakdown,
   }
