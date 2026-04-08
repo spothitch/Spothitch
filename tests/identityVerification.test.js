@@ -287,15 +287,22 @@ describe('Identity Verification Service', () => {
     })
 
     it('should accept different phone formats', async () => {
-      const formats = [
+      // Only E.164 format with + prefix is valid (regex: ^\+[0-9]{10,15}$)
+      const validFormats = [
         '+33612345678',
-        '0612345678',
-        '+1 234 567 8900',
+        '+1 234 567 8900', // spaces are stripped before validation
+        '+49 170 1234567',
       ]
-      for (const phone of formats) {
+      for (const phone of validFormats) {
         const result = await sendPhoneVerification(phone)
         expect(result.success).toBe(true)
       }
+    })
+
+    it('should reject local format without country code', async () => {
+      const result = await sendPhoneVerification('0612345678')
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('invalid-phone')
     })
   })
 

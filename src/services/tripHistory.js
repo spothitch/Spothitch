@@ -153,7 +153,7 @@ export function clearTripHistory() {
  */
 function formatTime(timestamp) {
   const date = new Date(timestamp)
-  return date.toLocaleTimeString('fr-FR', {
+  return date.toLocaleTimeString((() => { try { const s = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}'); return s.lang || 'fr' } catch { return 'fr' } })(), {
     hour: '2-digit',
     minute: '2-digit',
   })
@@ -201,7 +201,7 @@ export function renderTripHistory(limit = 50) {
   // Group by date
   const groupedByDate = {}
   history.forEach(event => {
-    const date = new Date(event.timestamp).toLocaleDateString('fr-FR', {
+    const date = new Date(event.timestamp).toLocaleDateString((() => { try { const s = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}'); return s.lang || 'fr' } catch { return 'fr' } })(), {
       weekday: 'long',
       day: 'numeric',
       month: 'long',

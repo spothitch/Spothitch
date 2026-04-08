@@ -19,6 +19,15 @@ function debouncedSyncToFirestore(tripId) {
   _syncTimer = setTimeout(() => syncTripToFirestore(tripId), 1500)
 }
 
+/** Force flush pending sync (call before navigation away) */
+export function flushPendingSync(tripId) {
+  if (_syncTimer) {
+    clearTimeout(_syncTimer)
+    _syncTimer = null
+    syncTripToFirestore(tripId)
+  }
+}
+
 async function syncTripToFirestore(tripId) {
   try {
     const fb = await import('./firebase.js')

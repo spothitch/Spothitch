@@ -225,7 +225,7 @@ const MAIN_JS_HANDLERS = [
   'journalBack', 'journalNewTrip', 'journalOpenTrip', 'journalAddLeg',
   'journalShowStats', 'journalEditExpenses', 'journalEditDayNote',
   'journalCreateTrip', 'journalSaveLeg', 'journalEndTrip', 'journalTogglePublic',
-  'journalSaveExpenses', 'journalSaveDayNote', 'journalAddDayPhoto',
+  'journalSaveExpenses', 'journalSaveDayNote', 'journalAddDayPhoto', 'journalDeleteDayPhoto',
   'journalPickSpot', 'journalCloseSpotOverlay', 'journalSelectSpotFromMap', 'journalClearSpot',
   'journalToggleExpenses', 'journalSelectTransport', 'journalShareTrip', 'journalCopyLink',
   // Welcome (defined in Welcome.js)

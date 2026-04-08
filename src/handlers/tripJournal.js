@@ -6,13 +6,15 @@
 import {
   createTrip, addLeg, endTrip, updateTrip,
   setDayNote, setDayExpenses, setDayPhoto, getTrip,
-  EXPENSE_CATEGORIES,
+  flushPendingSync, EXPENSE_CATEGORIES,
 } from '../services/tripJournal.js'
 
 // ==================== NAVIGATION ====================
 
 window.journalBack = () => {
   const state = window.getState?.() || {}
+  // Flush pending Firestore sync before navigating away
+  if (state.journalTripId) flushPendingSync(state.journalTripId)
   if (state.journalView === 'add-leg' || state.journalView === 'expenses' || state.journalView === 'day-note') {
     window.setState?.({ journalView: 'detail' })
   } else if (state.journalView === 'detail' || state.journalView === 'new-trip' || state.journalView === 'stats') {
@@ -158,13 +160,12 @@ async function _calculateDistance(tripId, legId, from, to) {
 }
 
 window.journalEndTrip = (tripId) => {
+  if (!confirm(window.t?.('confirmEndTrip') || 'Terminer ce voyage ? Cette action est irréversible.')) return
   const trip = getTrip(tripId)
   if (!trip) return
-  // Check all days have notes
-  // (soft check — just warn, don't block)
   endTrip(tripId)
   window.setState?.({ journalView: 'stats', journalTripId: tripId })
-  window.showToast?.('Voyage terminé !', 'success')
+  window.showToast?.(window.t?.('tripEnded') || 'Voyage terminé !', 'success')
 }
 
 window.journalTogglePublic = (tripId) => {
@@ -213,6 +214,13 @@ window.journalAddDayPhoto = (tripId, date) => {
     reader.readAsDataURL(file)
   }
   input.click()
+}
+
+window.journalDeleteDayPhoto = (tripId, date) => {
+  if (!confirm(window.t?.('confirmDeletePhoto') || 'Supprimer cette photo ?')) return
+  setDayPhoto(tripId, date, null)
+  window._forceRender?.()
+  window.showToast?.(window.t?.('photoRemoved') || 'Photo supprimée', 'success')
 }
 
 // ==================== SPOT PICKER ====================

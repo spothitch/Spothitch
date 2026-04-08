@@ -14,25 +14,26 @@ import {
 } from '../../services/tripJournal.js'
 
 // Transport config: icon name, label, color
+// Transport labels use i18n — called as functions to get current language
 const TRANSPORTS = {
-  hitchhike: { icon: 'thumbs-up', label: 'Autostop', color: '#22c55e', bg: 'rgba(34,197,94,.1)', line: 'rgba(34,197,94,.2)' },
-  walk:      { icon: 'footprints', label: 'Marche',   color: '#3b82f6', bg: 'rgba(59,130,246,.1)', line: 'rgba(59,130,246,.2)' },
-  bus:       { icon: 'bus',        label: 'Bus',       color: '#8b5cf6', bg: 'rgba(139,92,246,.1)', line: 'rgba(139,92,246,.2)' },
-  train:     { icon: 'train',      label: 'Train',     color: '#f59e0b', bg: 'rgba(245,158,11,.1)', line: 'rgba(245,158,11,.2)' },
-  plane:     { icon: 'plane',      label: 'Avion',     color: '#ec4899', bg: 'rgba(236,72,153,.1)', line: 'rgba(236,72,153,.2)' },
-  boat:      { icon: 'ship',       label: 'Bateau',    color: '#06b6d4', bg: 'rgba(6,182,212,.1)', line: 'rgba(6,182,212,.2)' },
-  bike:      { icon: 'bike',       label: 'Vélo',      color: '#14b8a6', bg: 'rgba(20,184,166,.1)', line: 'rgba(20,184,166,.2)' },
-  car:       { icon: 'car',        label: 'Voiture',   color: '#f97316', bg: 'rgba(249,115,22,.1)', line: 'rgba(249,115,22,.2)' },
-  other:     { icon: 'package',    label: 'Autre',     color: '#64748b', bg: 'rgba(100,116,139,.1)', line: 'rgba(100,116,139,.15)' },
+  hitchhike: { icon: 'thumbs-up', label: () => t('transportHitchhike') || 'Autostop', color: '#22c55e', bg: 'rgba(34,197,94,.1)', line: 'rgba(34,197,94,.2)' },
+  walk:      { icon: 'footprints', label: () => t('transportWalk') || 'Walk',        color: '#3b82f6', bg: 'rgba(59,130,246,.1)', line: 'rgba(59,130,246,.2)' },
+  bus:       { icon: 'bus',        label: () => t('transportBus') || 'Bus',           color: '#8b5cf6', bg: 'rgba(139,92,246,.1)', line: 'rgba(139,92,246,.2)' },
+  train:     { icon: 'train',      label: () => t('transportTrain') || 'Train',       color: '#f59e0b', bg: 'rgba(245,158,11,.1)', line: 'rgba(245,158,11,.2)' },
+  plane:     { icon: 'plane',      label: () => t('transportPlane') || 'Plane',       color: '#ec4899', bg: 'rgba(236,72,153,.1)', line: 'rgba(236,72,153,.2)' },
+  boat:      { icon: 'ship',       label: () => t('transportBoat') || 'Boat',         color: '#06b6d4', bg: 'rgba(6,182,212,.1)', line: 'rgba(6,182,212,.2)' },
+  bike:      { icon: 'bike',       label: () => t('transportBike') || 'Bike',         color: '#14b8a6', bg: 'rgba(20,184,166,.1)', line: 'rgba(20,184,166,.2)' },
+  car:       { icon: 'car',        label: () => t('transportCar') || 'Car',           color: '#f97316', bg: 'rgba(249,115,22,.1)', line: 'rgba(249,115,22,.2)' },
+  other:     { icon: 'package',    label: () => t('transportOther') || 'Other',       color: '#64748b', bg: 'rgba(100,116,139,.1)', line: 'rgba(100,116,139,.15)' },
 }
 
 const EXPENSE_ICONS = {
-  transport: { icon: 'route', color: '#8b5cf6', bg: 'rgba(139,92,246,.1)', label: 'Transport', hint: 'Bus, train, taxi, péage...' },
-  lodging:   { icon: 'bed', color: '#3b82f6', bg: 'rgba(59,130,246,.1)', label: 'Logement', hint: 'Hôtel, hostel, camping...' },
-  food:      { icon: 'coffee', color: '#f59e0b', bg: 'rgba(245,158,11,.1)', label: 'Nourriture', hint: 'Restos, courses, snacks...' },
-  leisure:   { icon: 'sparkles', color: '#ec4899', bg: 'rgba(236,72,153,.1)', label: 'Loisirs', hint: 'Visites, activités, sorties...' },
-  logistics: { icon: 'package', color: '#06b6d4', bg: 'rgba(6,182,212,.1)', label: 'Logistique', hint: 'SIM, lessive, pharmacie...' },
-  other:     { icon: 'coins', color: '#64748b', bg: 'rgba(100,116,139,.1)', label: 'Autres', hint: 'Souvenirs, dons, imprévus...' },
+  transport: { icon: 'route', color: '#8b5cf6', bg: 'rgba(139,92,246,.1)', label: () => t('expenseTransport') || 'Transport', hint: () => t('expenseTransportHint') || 'Bus, train, taxi...' },
+  lodging:   { icon: 'bed', color: '#3b82f6', bg: 'rgba(59,130,246,.1)', label: () => t('expenseLodging') || 'Lodging', hint: () => t('expenseLodgingHint') || 'Hotel, hostel, camping...' },
+  food:      { icon: 'coffee', color: '#f59e0b', bg: 'rgba(245,158,11,.1)', label: () => t('expenseFood') || 'Food', hint: () => t('expenseFoodHint') || 'Restaurants, groceries...' },
+  leisure:   { icon: 'sparkles', color: '#ec4899', bg: 'rgba(236,72,153,.1)', label: () => t('expenseLeisure') || 'Leisure', hint: () => t('expenseLeisureHint') || 'Activities, visits...' },
+  logistics: { icon: 'package', color: '#06b6d4', bg: 'rgba(6,182,212,.1)', label: () => t('expenseLogistics') || 'Logistics', hint: () => t('expenseLogisticsHint') || 'SIM, laundry, pharmacy...' },
+  other:     { icon: 'coins', color: '#64748b', bg: 'rgba(100,116,139,.1)', label: () => t('expenseOther') || 'Other', hint: () => t('expenseOtherHint') || 'Souvenirs, tips...' },
 }
 
 // Inject CSS for pseudo-classes (hover, focus, transitions, accordion)
@@ -346,7 +347,7 @@ function _renderDay(trip, day) {
 
       <!-- Day photo -->
       ${photo
-        ? `<div style="margin:-4px 0 10px 36px;width:calc(100% - 36px);height:160px;border-radius:12px;overflow:hidden"><img src="${escapeHTML(photo)}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`
+        ? `<div style="margin:-4px 0 10px 36px;width:calc(100% - 36px);height:160px;border-radius:12px;overflow:hidden;position:relative"><img src="${escapeHTML(photo)}" style="width:100%;height:100%;object-fit:cover" alt=""><button onclick="journalDeleteDayPhoto('${trip.id}','${date}')" style="position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center" aria-label="${t('removePhoto') || 'Supprimer'}">${icon('x', 'w-4 h-4')}</button></div>`
         : `<div onclick="journalAddDayPhoto('${trip.id}','${date}')" class="j-photo-add" style="margin:-4px 0 10px 36px;width:calc(100% - 36px);height:48px;border:2px dashed rgba(255,255,255,.08);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;color:#475569;font-size:12px;cursor:pointer" role="button" tabindex="0">${icon('camera', 'w-4 h-4')} ${t('addDayPhoto') || 'Ajouter la photo du jour'}</div>`
       }
 
@@ -371,9 +372,9 @@ function _renderDay(trip, day) {
       <div class="j-exp-body" style="padding:6px 12px 10px">
         ${dayTotal > 0
           ? EXPENSE_CATEGORIES.map(cat => {
-              const cfg = EXPENSE_ICONS[cat]
+              const cfg = EXPENSE_ICONS[cat] || EXPENSE_ICONS.other
               const val = expenses[cat] || 0
-              return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px"><span style="color:#64748b;width:16px;text-align:center">${icon(cfg.icon, 'w-3.5 h-3.5')}</span><span style="color:#94a3b8;flex:1">${cfg.label}</span><span style="color:#e2e8f0;font-weight:600">${val} €</span></div>`
+              return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px"><span style="color:#64748b;width:16px;text-align:center">${icon(cfg.icon, 'w-3.5 h-3.5')}</span><span style="color:#94a3b8;flex:1">${cfg.label()}</span><span style="color:#e2e8f0;font-weight:600">${val} €</span></div>`
             }).join('')
           : `<div style="font-size:11px;color:#475569;text-align:center;padding:8px 0">${t('noExpenses') || 'Aucune dépense enregistrée'}</div>`
         }
@@ -394,7 +395,7 @@ function _renderLeg(leg, isLast) {
       <div style="flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;margin-bottom:6px">
         <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;color:${tp.color}">
           ${icon(tp.icon, 'w-3.5 h-3.5')}
-          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">${tp.label}</span>
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">${tp.label()}</span>
         </div>
         <div style="font-size:13px;font-weight:600">
           ${escapeHTML(leg.departure?.name || '?')}
@@ -433,10 +434,10 @@ function renderAddLeg(state, tripId) {
       <label style="font-size:12px;color:#94a3b8;display:block;margin-bottom:10px;font-weight:500">${t('transportMode') || 'Mode de transport'}</label>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
         ${Object.entries(TRANSPORTS).map(([key, tp]) => `
-          <button onclick="journalSelectTransport('${key}')" class="j-tp-opt"
+          <button onclick="journalSelectTransport('${key}')" class="j-tp-opt" aria-label="${tp.label()}" role="radio" aria-checked="${selectedTransport === key}"
             style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:10px;background:${selectedTransport === key ? tp.bg : 'rgba(255,255,255,.04)'};border:2px solid ${selectedTransport === key ? tp.color : 'transparent'};cursor:pointer">
             <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:${selectedTransport === key ? tp.color : '#94a3b8'}">${icon(tp.icon, 'w-5 h-5')}</div>
-            <span style="font-size:10px;font-weight:600;color:${selectedTransport === key ? tp.color : '#94a3b8'}">${tp.label}</span>
+            <span style="font-size:10px;font-weight:600;color:${selectedTransport === key ? tp.color : '#94a3b8'}">${tp.label()}</span>
           </button>
         `).join('')}
       </div>
@@ -562,15 +563,15 @@ function renderEditExpenses(state, tripId) {
       </div>
 
       ${EXPENSE_CATEGORIES.map((cat, i) => {
-        const cfg = EXPENSE_ICONS[cat]
+        const cfg = EXPENSE_ICONS[cat] || EXPENSE_ICONS.other
         const val = existing[cat] || ''
         const isLast = i === EXPENSE_CATEGORIES.length - 1
         return `
           <div style="display:flex;align-items:center;gap:10px;padding:10px 0;${isLast ? '' : 'border-bottom:1px solid rgba(255,255,255,.04)'}">
             <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${cfg.bg};color:${cfg.color};flex-shrink:0">${icon(cfg.icon, 'w-4 h-4')}</div>
             <div style="flex:1">
-              <div style="font-size:13px;font-weight:600">${cfg.label}</div>
-              <div style="font-size:10px;color:#475569">${cfg.hint}</div>
+              <div style="font-size:13px;font-weight:600">${cfg.label()}</div>
+              <div style="font-size:10px;color:#475569">${cfg.hint()}</div>
             </div>
             <input id="exp-${cat}" type="number" placeholder="0" value="${val}" class="j-input" style="width:80px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px;text-align:right;font-weight:600">
             <span style="font-size:13px;color:#64748b;font-weight:600">€</span>
@@ -642,7 +643,7 @@ function renderTripStats(state, tripId) {
     .map(([tp, km]) => {
       const cfg = TRANSPORTS[tp] || TRANSPORTS.other
       const pct = stats.totalKm > 0 ? Math.round((km / stats.totalKm) * 100) : 0
-      return { tp, pct, color: cfg.color, label: cfg.label, icon: cfg.icon }
+      return { tp, pct, color: cfg.color, label: cfg.label(), icon: cfg.icon }
     })
 
   return `
@@ -680,7 +681,7 @@ function renderTripStats(state, tripId) {
       <!-- Country + spots -->
       <div style="display:flex;gap:8px;margin-bottom:16px">
         <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px;text-align:center">
-          <div style="font-size:18px">${flags || '\u{1F30D}'}</div>
+          <div style="font-size:18px">${flags || icon('globe', 'w-5 h-5 text-slate-400')}</div>
           <div style="font-size:10px;color:#64748b;margin-top:3px">${stats.countries} ${t('countries') || 'pays'}</div>
         </div>
         <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px;text-align:center">
@@ -702,9 +703,9 @@ function renderTripStats(state, tripId) {
           </select>
         </div>
         ${EXPENSE_CATEGORIES.map(cat => {
-          const cfg = EXPENSE_ICONS[cat]
+          const cfg = EXPENSE_ICONS[cat] || EXPENSE_ICONS.other
           const val = stats.expByCategory[cat] || 0
-          return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px"><span style="color:${cfg.color}">${icon(cfg.icon, 'w-3.5 h-3.5')}</span><span style="color:#94a3b8;flex:1">${cfg.label}</span><span style="color:#e2e8f0;font-weight:600">${val} €</span></div>`
+          return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px"><span style="color:${cfg.color}">${icon(cfg.icon, 'w-3.5 h-3.5')}</span><span style="color:#94a3b8;flex:1">${cfg.label()}</span><span style="color:#e2e8f0;font-weight:600">${val} €</span></div>`
         }).join('')}
       </div>
 

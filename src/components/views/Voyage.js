@@ -788,17 +788,21 @@ window.closeTripDetail = () => {
 }
 
 window.deleteJournalTrip = (tripIndex) => {
+ if (!confirm(window.t?.('confirmDeleteTrip') || 'Supprimer ce voyage ? Cette action est irréversible.')) return
  try {
  const savedTrips = getSavedTrips()
  const trip = savedTrips[tripIndex]
  savedTrips.splice(tripIndex, 1)
  safeSetItem(SAVED_TRIPS_KEY, JSON.stringify(savedTrips))
  window.setState?.({ tripDetailIndex: null })
- window.showToast?.('Voyage supprimé', 'success')
+ window.showToast?.(window.t?.('tripDeleted') || 'Voyage supprimé', 'success')
  // Sync delete to Firebase if user is logged in
  const user = window.getState?.()?.currentUser
  if (user?.uid && trip?.id) {
- import('../../services/firebase.js').then(fb => fb.deleteTrip(user.uid, trip.id)).catch(() => {})
+ import('../../services/firebase.js').then(async (fb) => {
+  try { await fb.deleteTrip(user.uid, trip.id) }
+  catch (err) { console.warn('Firestore trip delete failed:', err.message) }
+ })
  }
  } catch (e) {
  console.error('deleteJournalTrip error:', e)
