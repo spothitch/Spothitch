@@ -1725,6 +1725,7 @@ export default {
  resetEmailSent: 'Zurücksetzungs-E-Mail gesendet!',
  sendError: 'Fehler beim Senden',
  logoutSuccess: 'Abmeldung erfolgreich',
+ sessionEndedOtherTab: 'Von einem anderen Tab abgemeldet',
  loadingError: 'Ladefehler',
  loadingThumbUp: 'Daumen hoch...',
  loadingSearchCar: 'Suche ein Auto...',

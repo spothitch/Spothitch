@@ -334,8 +334,9 @@ async function init() {
  const current = getState()
  if (current.currentUser?.uid === user.uid) {
  // User already set by the sign-in handler — just ensure isLoggedIn is synced
- if (!current.isLoggedIn) {
+ if (!current.isLoggedIn || current.authLoading) {
  actions.setUser(user)
+ setState({ authLoading: false })
  }
  return
  }
@@ -391,6 +392,7 @@ async function init() {
  else if (pendingAction === 'social') setTimeout(() => setState({ activeTab: 'social' }), 300)
  else if (pendingAction === 'tripPlanner') setTimeout(() => window.openTripPlanner?.(), 300)
  }
+ updates.authLoading = false
  setState(updates)
  // Hydrate profile from Firestore (bio, languages, etc.)
  fb.hydrateLocalProfileFromFirestore(user.uid).catch(() => {})
@@ -421,7 +423,7 @@ async function init() {
  }).catch(() => {})
  } else {
  actions.setUser(null)
- setState({ currentUser: null, userProfile: null, isAdmin: false })
+ setState({ currentUser: null, userProfile: null, isAdmin: false, authLoading: false })
  }
  try {
  import('./services/sentry.js').then(m => m.setUser(user))

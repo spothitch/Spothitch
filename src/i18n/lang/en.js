@@ -1721,6 +1721,7 @@ export default {
  resetEmailSent: 'Reset email sent!',
  sendError: 'Send error',
  logoutSuccess: 'Logout successful',
+ sessionEndedOtherTab: 'Logged out from another tab',
  loadingError: 'Loading error',
  loadingThumbUp: 'Thumb up...',
  loadingSearchCar: 'Looking for a car...',

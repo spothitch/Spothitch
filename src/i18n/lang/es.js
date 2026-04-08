@@ -1725,6 +1725,7 @@ export default {
  resetEmailSent: '¡Email de restablecimiento enviado!',
  sendError: 'Error al enviar',
  logoutSuccess: 'Desconexión exitosa',
+ sessionEndedOtherTab: 'Desconectado desde otra pestaña',
  loadingError: 'Error de carga',
  loadingThumbUp: 'Pulgar arriba...',
  loadingSearchCar: 'Buscando un coche...',

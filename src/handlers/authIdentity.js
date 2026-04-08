@@ -116,14 +116,35 @@ if (!window.handleLogout) {
     const fb = await getFirebase()
     await fb.logOut()
     actions.setUser(null)
-    window.setState({ currentUser: null, userProfile: null, isAdmin: false, isLoggedIn: false })
+    window.setState({ currentUser: null, userProfile: null, isAdmin: false, isLoggedIn: false, authLoading: false })
     window.showToast?.(window.t('logoutSuccess') || 'Déconnexion réussie', 'success')
+    // Notify other tabs
+    try { new BroadcastChannel('spothitch_auth').postMessage({ type: 'logout' }) } catch { /* no BroadcastChannel */ }
   }
 }
+
+// Listen for logout from other tabs
+try {
+  const _authChannel = new BroadcastChannel('spothitch_auth')
+  _authChannel.onmessage = (event) => {
+    if (event.data?.type === 'logout') {
+      window.getState?.()?.isLoggedIn && window.setState?.({
+        currentUser: null, userProfile: null, isAdmin: false, isLoggedIn: false, authLoading: false,
+      })
+      window.showToast?.(window.t?.('sessionEndedOtherTab') || 'Déconnecté depuis un autre onglet', 'info')
+      window._forceRender?.()
+    }
+  }
+} catch { /* BroadcastChannel not supported */ }
 // Progressive Auth Gate — exposed globally
 window.requireAuth = (actionName) => {
   const t = window.t
-  const { isLoggedIn } = window.getState()
+  const { isLoggedIn, authLoading } = window.getState()
+  // If auth is still loading (Firebase hasn't responded yet), wait instead of showing gate
+  if (authLoading) {
+    window.showToast?.(t('loading') || 'Loading...', 'info')
+    return false
+  }
   if (isLoggedIn) return true
 
   const reasonMap = {
@@ -142,11 +163,14 @@ window.requireAuth = (actionName) => {
     authPendingAction: actionName,
     showAuthReason: reasonMap[actionName] || t('loginRequired'),
   })
+  // Persist pending action in sessionStorage (survives page reload during auth)
+  try { sessionStorage.setItem('spothitch_auth_pending_action', actionName) } catch { /* no-op */ }
   // Auto-clear pending action after 5 minutes (prevents stale state)
   setTimeout(() => {
     const current = window.getState?.()?.authPendingAction
     if (current === actionName) {
       window.setState?.({ authPendingAction: null })
+      try { sessionStorage.removeItem('spothitch_auth_pending_action') } catch { /* no-op */ }
     }
   }, 5 * 60 * 1000)
   return false

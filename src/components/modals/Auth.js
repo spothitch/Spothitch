@@ -288,6 +288,11 @@ export function renderAuth(state) {
  * Asks for @pseudo + birthYear + gender
  */
 export function renderCompleteProfile(_state) {
+  // Pre-fill from Google displayName if available
+  const googleName = _state?.currentUser?.displayName || _state?.user?.displayName || ''
+  const parts = googleName.split(' ')
+  const prefillFirst = parts[0] || ''
+  const prefillLast = parts.length > 1 ? parts.slice(1).join(' ') : ''
   return `
     <div
       class="fixed inset-0 z-[110] flex items-center justify-center p-4"
@@ -319,6 +324,7 @@ export function renderCompleteProfile(_state) {
                 name="firstname"
                 class="input-modern"
                 placeholder="${t('firstNamePlaceholder')}"
+                value="${prefillFirst}"
                 maxlength="30"
                 minlength="2"
                 required
@@ -334,6 +340,7 @@ export function renderCompleteProfile(_state) {
                 name="lastname"
                 class="input-modern"
                 placeholder="${t('lastNamePlaceholder')}"
+                value="${prefillLast}"
                 maxlength="30"
                 minlength="2"
                 required
@@ -640,7 +647,10 @@ export function initAuthAfterRender() {
       _handleGoogleResult(result)
     })
     _gisOverlayReady = true
-  }).catch(() => {})
+  }).catch(() => {
+    // GIS script failed to load — Google button falls through to handleGoogleSignIn (popup)
+    console.warn('[Auth] GIS overlay setup failed — using popup fallback')
+  })
 }
 
 /**

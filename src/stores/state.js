@@ -8,6 +8,7 @@ import { Storage } from '../utils/storage.js';
 // Initial state
 const initialState = {
   // User
+  authLoading: true, // true until Firebase Auth resolves (prevents flash of "not connected")
   user: null,
   username: '',
   firstName: '',

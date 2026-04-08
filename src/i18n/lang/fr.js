@@ -1721,6 +1721,7 @@ export default {
  resetEmailSent: 'Email de réinitialisation envoyé !',
  sendError: 'Erreur lors de l\'envoi',
  logoutSuccess: 'Déconnexion réussie',
+ sessionEndedOtherTab: 'Déconnecté depuis un autre onglet',
  loadingError: 'Erreur de chargement',
  loadingThumbUp: 'Pouce en l\'air...',
  loadingSearchCar: 'On cherche une voiture...',
