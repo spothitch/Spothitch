@@ -186,9 +186,23 @@ window.openAddSpot = () => {
   }
 }
 window.openAddSpotPreview = () => window.setState({ showAddSpot: true, addSpotPreview: true });
+
+// Start auto-save draft when AddSpot opens
+setTimeout(() => {
+  import('../components/modals/AddSpot.js').then(m => m.startAutoSaveDraft?.()).catch(() => {})
+}, 1000)
+
 window.closeAddSpot = () => {
-  // Cleanup AddSpot event listeners to prevent memory leaks
-  import('../components/modals/AddSpot.js').then(m => m.cleanupAddSpotListeners?.()).catch(() => {})
+  // If user has data entered, ask for confirmation
+  const step = window.getState?.()?.addSpotStep || 1
+  if (step > 1 && window.spotFormData?.lat) {
+    if (!confirm(window.t?.('confirmDiscardSpot') || 'Quitter ? Les données saisies seront perdues.')) return
+  }
+  // Cleanup AddSpot event listeners + auto-save draft
+  import('../components/modals/AddSpot.js').then(m => {
+    m.cleanupAddSpotListeners?.()
+    m.stopAutoSaveDraft?.()
+  }).catch(() => {})
   window.setState({
     showAddSpot: false, addSpotPreview: false, addSpotStep: 1, addSpotType: null,
     addSpotValidateId: null,

@@ -3565,6 +3565,8 @@ export default {
  locationDesc: 'Location description',
  positionRequired: 'Position required',
  departureCityRequired: 'Departure city required',
+ countryNotDetected: 'Country not detected. The spot will still be created.',
+ confirmDiscardSpot: 'Leave? Entered data will be lost.',
  detecting: 'Detecting...',
  noStationFound: 'No station found',
  positionTooFar: 'Position too far from city',

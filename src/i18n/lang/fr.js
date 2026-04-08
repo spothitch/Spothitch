@@ -3563,6 +3563,8 @@ export default {
  locationDesc: 'Description du lieu',
  positionRequired: 'Position obligatoire',
  departureCityRequired: 'Ville de départ obligatoire',
+ countryNotDetected: 'Pays non détecté. Le spot sera quand même créé.',
+ confirmDiscardSpot: 'Quitter ? Les données saisies seront perdues.',
  detecting: 'Détection...',
  noStationFound: 'Aucune station trouvée',
  positionTooFar: 'Position trop éloignée de la ville',

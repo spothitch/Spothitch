@@ -11,7 +11,7 @@
 
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 
 // Wait time slider steps (minutes)
 const WAIT_STEPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 45, 60, 90, 120, 180]
@@ -38,7 +38,7 @@ function renderBarRating(criterion, label) {
  ${[1, 2, 3, 4, 5].map(val => `
  <button
  type="button"
- onclick="setSpotRating('${criterion}', ${val})"
+ onclick="setSpotRating('${escapeJSString(criterion)}', ${val})"
  class="spot-star-btn"
  data-criterion="${criterion}"
  data-star="${val}"
@@ -972,6 +972,11 @@ function swapStepContent(newStep, state) {
 
 // Step navigation
 window.addSpotNextStep = async () => {
+ // Rate limit: prevent rapid clicks
+ if (window.addSpotNextStep._busy) return
+ window.addSpotNextStep._busy = true
+ setTimeout(() => { window.addSpotNextStep._busy = false }, 1000)
+
  const { getState, setState } = await import('../../stores/state.js')
  const { showError } = await import('../../services/notifications.js')
  const state = getState()
@@ -1425,19 +1430,19 @@ window.spotMapPickLocation = () => {}
 async function verifyGasStationNearby(lat, lng) {
  try {
  const radius = 300
- const query = `[out:json][timeout:10];(node["amenity"="fuel"](around:${radius},${lat},${lng}););out center 1;`
- const resp = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`)
- if (!resp.ok) return { verified: true } // fail open on API error
+ const query = `[out:json][timeout:5];(node["amenity"="fuel"](around:${radius},${lat},${lng}););out center 1;`
+ const resp = await Promise.race([
+  fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`),
+  new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+ ])
+ if (!resp.ok) return { verified: false, error: 'api' }
  const ct = resp.headers.get('content-type') || ''
- if (!ct.includes('json')) return { verified: true } // server overloaded, fail open
+ if (!ct.includes('json')) return { verified: false, error: 'overloaded' }
  const data = await resp.json()
  const found = data.elements && data.elements.length > 0
- return {
- verified: found,
- stationName: '',
- }
+ return { verified: found }
  } catch {
- return { verified: true } // fail open on network error
+ return { verified: false, error: 'network' }
  }
 }
 
@@ -1550,6 +1555,30 @@ window.saveDraftAndClose = async () => {
 
 // Keep backward compat
 window.saveSpotAsDraft = window.saveDraftAndClose
+
+// Auto-save draft every 30s while AddSpot is open
+let _autoSaveDraftTimer = null
+export function startAutoSaveDraft() {
+ stopAutoSaveDraft()
+ _autoSaveDraftTimer = setInterval(async () => {
+  const { getState } = await import('../../stores/state.js')
+  if (!getState().showAddSpot) { stopAutoSaveDraft(); return }
+  if (!window.spotFormData?.lat) return // Nothing to save
+  try {
+   const { saveSpotDraft } = await import('../../services/spotDrafts.js')
+   const state = getState()
+   saveSpotDraft({
+    ...window.spotFormData,
+    spotType: state.addSpotType,
+    addSpotStep: state.addSpotStep,
+    _autoSaved: true,
+   })
+  } catch { /* ignore */ }
+ }, 30000)
+}
+export function stopAutoSaveDraft() {
+ if (_autoSaveDraftTimer) { clearInterval(_autoSaveDraftTimer); _autoSaveDraftTimer = null }
+}
 
 window.openSpotDraft = async (draftId) => {
  const { getSpotDrafts } = await import('../../services/spotDrafts.js')
@@ -2248,6 +2277,10 @@ window.handleAddSpot = async (event) => {
  window.spotFormData.countryName = loc.country
  }
  } catch { /* continue without country */ }
+ }
+ if (!window.spotFormData.country) {
+  const { showToast } = await import('../../services/notifications.js')
+  showToast(t('countryNotDetected') || 'Pays non détecté. Le spot sera quand même créé.', 'warning')
  }
 
  // Calculate cityNumber: count existing spots in the same city + 1

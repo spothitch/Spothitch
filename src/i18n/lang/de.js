@@ -3561,6 +3561,8 @@ export default {
  locationDesc: 'Ortsbeschreibung',
  positionRequired: 'Position erforderlich',
  departureCityRequired: 'Abfahrtsstadt erforderlich',
+ countryNotDetected: 'Land nicht erkannt. Der Spot wird trotzdem erstellt.',
+ confirmDiscardSpot: 'Verlassen? Eingegebene Daten gehen verloren.',
  detecting: 'Erkennung...',
  noStationFound: 'Keine Tankstelle gefunden',
  positionTooFar: 'Position zu weit von der Stadt entfernt',
