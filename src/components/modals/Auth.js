@@ -477,11 +477,7 @@ window.handleAuth = async (event) => {
       }
 
       // Enforce password rules: min 6 chars, 1 uppercase, 1 digit
-      if (!/[A-Z]/.test(password)) {
-        if (errorDiv) { errorDiv.textContent = t('passwordRequirementsError'); errorDiv.classList.remove('hidden') }
-        return
-      }
-      if (!/\d/.test(password)) {
+      if (password.length < 6 || !/[A-Z]/.test(password) || !/\d/.test(password)) {
         if (errorDiv) { errorDiv.textContent = t('passwordRequirementsError'); errorDiv.classList.remove('hidden') }
         return
       }
@@ -497,9 +493,9 @@ window.handleAuth = async (event) => {
       // Validate birth year
       const birthYear = parseInt(birthYearStr, 10)
       const currentYear = new Date().getFullYear()
-      if (!birthYear || birthYear < 1920 || birthYear > currentYear) {
+      if (!birthYear || birthYear < 1920 || birthYear > currentYear - 16) {
         if (errorDiv) {
-          errorDiv.textContent = t('birthYearInvalid')
+          errorDiv.textContent = currentYear - birthYear < 16 ? t('birthYearTooYoung') : t('birthYearInvalid')
           errorDiv.classList.remove('hidden')
         }
         return
@@ -536,8 +532,10 @@ window.handleAuth = async (event) => {
       if (result.success && result.user && pseudo) {
         const reserved = await fb.reserveUsername(pseudo, result.user.uid)
         if (!reserved.success && reserved.error === 'taken') {
-          // Rare race condition: someone else claimed between check and creation
-          result = { success: false, error: { code: 'username/taken' } }
+          // Race condition: pseudo claimed between check and creation
+          // Don't block the account — just continue without the pseudo
+          window._pendingRegistrationData.username = null
+          if (errorDiv) { errorDiv.textContent = (t('usernameTaken') || 'Pseudo pris') + '. ' + (t('continueWithoutPseudo') || 'Compte créé sans pseudo.'); errorDiv.classList.remove('hidden') }
         }
       }
     } else {

@@ -1475,7 +1475,14 @@ export async function getUserProfile(userId) {
  * @param {string} userId - User ID
  * @param {Object} updates - Profile updates
  */
-const PROFILE_ALLOWED_FIELDS = ['username', 'displayName', 'bio', 'avatar', 'photoURL', 'languages', 'socialLinks', 'photos', 'country', 'title', 'equippedBadge', 'equippedFrame', 'equippedTitle', 'points', 'seasonPoints', 'level', 'badges', 'league', 'isVIP', 'theme', 'lang', 'lastSeen']
+const PROFILE_ALLOWED_FIELDS = [
+  'username', 'displayName', 'firstName', 'lastName', 'birthYear', 'gender',
+  'bio', 'avatar', 'photoURL', 'profilePhotos', 'languages', 'socialLinks', 'photos',
+  'country', 'title', 'equippedBadge', 'equippedFrame', 'equippedTitle',
+  'points', 'seasonPoints', 'level', 'badges', 'league', 'isVIP',
+  'theme', 'lang', 'lastSeen',
+  'deletionScheduledAt', 'deletionRequested',
+]
 
 export async function updateUserProfile(userId, updates) {
   try {

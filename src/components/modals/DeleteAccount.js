@@ -39,7 +39,9 @@ export function renderDeleteAccountModal(state) {
             ${icon('triangle-alert', 'w-8 h-8 text-red-500')}
           </div>
           <h2 id="delete-account-title" class="text-2xl font-bold text-red-400">${t('deleteMyAccount') || 'Supprimer mon compte'}</h2>
-          <p class="text-slate-400 text-sm mt-2">${t('deleteGracePeriod')}</p>
+          <p class="text-slate-400 text-sm mt-2">${state.user?.providerData?.[0]?.providerId === 'google.com'
+            ? (t('deleteImmediate') || 'La suppression sera immediate et irreversible.')
+            : t('deleteGracePeriod')}</p>
         </div>
 
         <!-- Warning content -->
@@ -184,7 +186,17 @@ window.confirmDeleteAccount = async (event) => {
     // Re-authenticate first to verify password
     const { EmailAuthProvider, reauthenticateWithCredential } = await import('firebase/auth');
     const credential = EmailAuthProvider.credential(user.email, password);
-    await reauthenticateWithCredential(user, credential);
+    try {
+      await reauthenticateWithCredential(user, credential);
+    } catch (authErr) {
+      if (errorDiv) {
+        errorDiv.textContent = authErr.code === 'auth/wrong-password' || authErr.code === 'auth/invalid-credential'
+          ? (t('wrongPassword') || 'Mot de passe incorrect')
+          : (t('errorOccurred') || 'Une erreur est survenue');
+        errorDiv.classList.remove('hidden');
+      }
+      return;
+    }
 
     // Schedule deletion (30 days from now)
     const deleteDate = new Date();
