@@ -565,12 +565,19 @@ window.handleAuth = async (event) => {
 
       // Execute pending action if any
       const { authPendingAction } = getState()
+      // Persist firstName/lastName from registration data
+      const regData = window._pendingRegistrationData || {}
       setState({
         showAuth: false,
         authPendingAction: null,
         showAuthReason: null,
         currentUser: user,
         isAdmin: ADMIN_EMAILS.includes(user.email?.toLowerCase()),
+        ...(regData.firstName ? { firstName: regData.firstName } : {}),
+        ...(regData.lastName ? { lastName: regData.lastName } : {}),
+        ...(regData.username ? { username: regData.username } : {}),
+        ...(regData.birthYear ? { birthYear: regData.birthYear } : {}),
+        ...(regData.gender ? { gender: regData.gender } : {}),
         userProfile: {
           uid: user.uid,
           email: user.email,

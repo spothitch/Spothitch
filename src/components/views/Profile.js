@@ -309,8 +309,8 @@ function renderProfilTab(state) {
 
 function renderProfileCompletion(state) {
  const checks = [
-  { done: !!(state.firstName || state.user?.displayName), label: t('firstName'), action: null },
-  { done: !!(state.userProfile?.photoURL || state.user?.photoURL), label: t('profileAddPhoto'), action: 'openProfileCustomization()' },
+  { done: !!(state.firstName || state.user?.displayName), label: t('firstName'), action: 'openEditName()' },
+  { done: !!(state.profilePhotos?.[0] || state.userProfile?.photoURL || state.user?.photoURL), label: t('profileAddPhoto'), action: 'addProfilePhoto()' },
   { done: !!(state.bio), label: t('profileAddBio'), action: 'editBio()' },
   { done: (() => { try { return JSON.parse(localStorage.getItem('spothitch_languages') || '[]').length > 0 } catch { return false } })(), label: t('profileAddLanguages'), action: 'editLanguages()' },
  ]
@@ -1439,6 +1439,17 @@ window.toggleSettingsSection = (sectionId) => {
 
 // toggleTheme — canonical in main.js (Profile.js is lazy-loaded)
 
+// shareMyProfile — stub if Social.js not yet loaded
+if (!window.shareMyProfile) {
+ window.shareMyProfile = () => {
+  if (navigator.share) {
+   navigator.share({ title: 'SpotHitch', url: window.location.href }).catch(() => {})
+  } else {
+   window.showToast?.(t('shareCopied') || 'Lien copié !', 'success')
+  }
+ }
+}
+
 window.toggleNotifications = () => {
  const state = window.getState?.() || {}
  window.setState?.({ notifications: state.notifications === false ? true : false })
@@ -1688,11 +1699,8 @@ window.addProfilePhoto = () => {
    photos.push(dataUrl)
    setState({ profilePhotos: photos })
    localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
-   // Set first photo as profile photo
-   if (photos.length === 1) {
-    syncProfileToFirestore({ photoURL: dataUrl })
-   }
-   syncProfileToFirestore({ profilePhotos: photos })
+   // Always sync first photo as main profile photo
+   syncProfileToFirestore({ profilePhotos: photos, photoURL: photos[0] })
    window.showToast?.(t('photoAdded'), 'success')
    window._forceRender?.()
   } catch (err) {
@@ -1825,12 +1833,18 @@ window.selectLanguageLevel = (level) => {
  if (!name) return
  const raw = JSON.parse(localStorage.getItem('spothitch_languages') || '[]')
  const langs = normalizeLangs(raw)
- // Check for duplicate: update level if language already exists
- const existing = langs.findIndex(l => l.name === name)
+ // Check for duplicate: same name OR same flag (English/Anglais = same language)
+ const flag = LANG_FLAG_MAP[name] || ''
+ const existing = langs.findIndex(l => l.name === name || (flag && l.flag === flag))
  if (existing >= 0) {
   langs[existing].level = level
+  langs[existing].name = name // Update to current locale name
+  if (flag) langs[existing].flag = flag
  } else {
-  langs.push({ name, flag: LANG_FLAG_MAP[name] || '', level })
+  langs.push({ name, flag, level })
+ }
+ if (langs.length > 10) {
+  window.showToast?.((t('photoLimit') || 'Maximum {max}').replace('{max}', '10'), 'warning')
  }
  const final = langs.slice(0, 10)
  localStorage.setItem('spothitch_languages', JSON.stringify(final))
@@ -1881,52 +1895,7 @@ window.saveSocialLink = async (network, value) => {
  syncProfileToFirestore({ socialLinks: social })
 }
 
-// D2: Photo gallery handlers
-window.addProfilePhoto = async (input) => {
- const file = input?.files?.[0]
- if (!file) return
- const photos = JSON.parse(localStorage.getItem('spothitch_profile_photos') || '[]')
- if (photos.length >= 6) {
- window.showToast?.('Maximum 6 photos', 'warning')
- return
- }
- // Compress aggressively to avoid hitting localStorage 5MB limit
- // Max 200px (thumbnail), JPEG 0.5 quality = ~10-20KB per photo
- const img = new Image()
- img.onload = () => {
- const canvas = document.createElement('canvas')
- const maxSize = 200
- const scale = Math.min(maxSize / img.width, maxSize / img.height, 1)
- canvas.width = img.width * scale
- canvas.height = img.height * scale
- const ctx = canvas.getContext('2d')
- ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
- const dataUrl = canvas.toDataURL('image/jpeg', 0.5)
- // Safety check: reject if single photo > 100KB
- if (dataUrl.length > 100000) {
- window.showToast?.(t('photoTooLarge') || 'Photo too large, try a smaller image', 'warning')
- return
- }
- photos.push(dataUrl)
- try {
- localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
- } catch (e) {
- photos.pop()
- window.showToast?.(t('storageFull') || 'Storage full, remove a photo first', 'warning')
- return
- }
- window.showToast?.(t('photoAdded') || 'Photo added', 'success')
- window._forceRender?.()
- }
- img.src = URL.createObjectURL(file)
-}
-
-window.removeProfilePhoto = (idx) => {
- const photos = JSON.parse(localStorage.getItem('spothitch_profile_photos') || '[]')
- photos.splice(idx, 1)
- localStorage.setItem('spothitch_profile_photos', JSON.stringify(photos))
- window._forceRender?.()
-}
+// D2: Photo gallery — removed duplicate (canonical in addProfilePhoto/removeProfilePhoto above)
 
 // --- References handlers (#58) --- feature not yet implemented
 window.openReferences = () => {
