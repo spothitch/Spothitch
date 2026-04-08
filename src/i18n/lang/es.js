@@ -308,6 +308,8 @@ export default {
  friendRequestCancelled: 'Solicitud cancelada',
  notFriends: 'Esta persona no esta en tus amigos',
  friendRemoved: 'Amigo eliminado',
+ userUnavailable: 'Usuario no disponible',
+ messageSendError: 'Mensaje no enviado',
  friendsDataCleared: 'Datos de amigos borrados',
  noFriends: 'Aun sin amigos',
  noFriendsDesc: 'Empieza a agregar compañeros de viaje!',

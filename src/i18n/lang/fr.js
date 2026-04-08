@@ -829,6 +829,8 @@ export default {
  friendRequestCancelled: 'Demande annulee',
  notFriends: 'Cette personne n\'est pas dans vos amis',
  friendRemoved: 'Ami supprimé',
+ userUnavailable: 'Utilisateur indisponible',
+ messageSendError: 'Message non envoyé',
  friendsDataCleared: 'Données d\'amis effacees',
  noFriends: 'Pas encore d\'amis',
  noFriendsDesc: 'Commence àajouter des compagnons de route !',

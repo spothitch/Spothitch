@@ -656,6 +656,8 @@ export default {
  friendRequestCancelled: 'Anfrage abgebrochen',
  notFriends: 'Diese Person ist nicht in deinen Freunden',
  friendRemoved: 'Freund entfernt',
+ userUnavailable: 'Benutzer nicht verfuegbar',
+ messageSendError: 'Nachricht nicht gesendet',
  friendsDataCleared: 'Freundesdaten gelöscht',
  noFriends: 'Noch keine Freunde',
  noFriendsDesc: 'Fange an, Reisebegleiter hinzuzufugen!',

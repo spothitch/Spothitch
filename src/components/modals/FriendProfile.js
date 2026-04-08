@@ -162,7 +162,7 @@ export function renderFriendProfileModal(state) {
             `}
             <div class="flex gap-2">
               <button
-                onclick="shareProfile('${friend.id}', '${escapeHTML(friend.name)}')"
+                onclick="shareProfile('${friend.id}', '${escapeHTML(friend.name)}', '${escapeHTML(friend.avatar || 'thumbs-up')}')"
                 class="flex-1 py-2 rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 transition-colors text-sm flex items-center justify-center gap-1"
               >
                 ${icon('share', 'w-4 h-4')}

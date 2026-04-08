@@ -155,7 +155,7 @@ function renderDMChat(state, recipientId) {
         <span class="text-2xl">${recipientAvatar}</span>
         ${isOnline ? `<span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-dark-secondary bg-emerald-500"></span>` : ''}
       </div>
-      <div class="flex-1 min-w-0 cursor-pointer" role="button" tabindex="0" onclick="showFriendProfile('${recipientId}')">
+      <div class="flex-1 min-w-0 cursor-pointer" role="button" tabindex="0" onclick="showFriendProfile('${recipientId}')" aria-label="${escapeHTML(recipientName)}">
         <div class="font-medium text-sm">${escapeHTML(recipientName)}</div>
         <div class="text-xs text-slate-400">${isOnline ? t('online') : t('offline')}</div>
       </div>

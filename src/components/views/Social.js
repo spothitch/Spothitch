@@ -882,7 +882,7 @@ window.sendPrivateMessage = async (friendId) => {
   const input = document.getElementById('private-chat-input')
   if (!input?.value.trim()) return
 
-  const { getState, setState } = await import('../../stores/state.js')
+  const { getState } = await import('../../stores/state.js')
   const state = getState()
   if (!state.isLoggedIn && !state.user) {
     window.setState?.({ showAuth: true, authPendingAction: 'social', showAuthReason: window.t?.('loginToChat') || 'Connect to send messages' })
@@ -891,25 +891,17 @@ window.sendPrivateMessage = async (friendId) => {
 
   const text = input.value.trim()
   input.value = ''
-  const privateMessages = state.privateMessages || {}
-  const friendMsgs = privateMessages[friendId] || []
 
-  const newMsg = {
-    id: Date.now().toString(),
-    text,
-    userName: state.username || t('me'),
-    userAvatar: state.avatar || 'thumbs-up',
-    userId: state.user?.uid || 'local-user',
-    createdAt: new Date().toISOString(),
-  }
-
-  const updatedFriendMsgs = [...friendMsgs, newMsg]
-  const updatedPrivateMessages = { ...privateMessages, [friendId]: updatedFriendMsgs }
-  setState({ privateMessages: updatedPrivateMessages })
-
+  // Use the real Firestore DM system (not localStorage)
   try {
-    localStorage.setItem('spothitch_private_messages', JSON.stringify(updatedPrivateMessages))
-  } catch { /* quota exceeded */ }
+    const { sendDirectMessage } = await import('../../services/directMessages.js')
+    const result = await sendDirectMessage(friendId, text)
+    if (!result?.success) {
+      window.showToast?.(t('messageSendError') || 'Message non envoyé', 'error')
+    }
+  } catch {
+    window.showToast?.(t('messageSendError') || 'Message non envoyé', 'error')
+  }
 
   setTimeout(() => {
     const chatEl = document.getElementById('private-messages')
@@ -1023,6 +1015,10 @@ window.sendFriendRequest = async (targetUserId) => {
       window.showToast?.(t('alreadyFriend') || 'Déjà ami', 'warning')
     } else if (result.error === 'request_already_sent') {
       window.showToast?.(t('requestAlreadySent') || 'Demande déjà envoyée', 'warning')
+    } else if (result.error === 'user_unavailable') {
+      window.showToast?.(t('userUnavailable') || 'Utilisateur indisponible', 'warning')
+    } else if (result.error === 'too_many_friends') {
+      window.showToast?.(t('tooManyFriends') || 'Limite de 500 amis atteinte', 'warning')
     } else {
       window.showToast?.(t('friendRequestError') || 'Impossible d\'envoyer la demande.', 'error')
     }
@@ -1048,12 +1044,19 @@ window.removeFriend = async (friendId) => {
 }
 
 window.showFriendProfile = async (friendId) => {
+  // Clear previous data FIRST to prevent stale flash
   window.setState?.({
-    showFriendProfile: true,
-    selectedFriendProfileId: friendId,
+    showFriendProfile: false,
+    selectedFriendProfileId: null,
     friendProfileSocialLinks: null,
     profileReviews: null,
     guestProfile: null,
+  })
+  // Then show with new ID
+  await new Promise(r => setTimeout(r, 0)) // yield to clear render
+  window.setState?.({
+    showFriendProfile: true,
+    selectedFriendProfileId: friendId,
   })
   try {
     const { getUserProfile } = await import('../../services/firebase.js')

@@ -14,6 +14,7 @@ import {
   getDocs,
   getDoc,
   setDoc,
+  updateDoc,
   deleteDoc,
   onSnapshot,
   query,
@@ -90,6 +91,20 @@ export function unsubscribeFriendsList() {
   setState({ friends: [], friendRequests: [], friendSearchResults: null })
 }
 
+/**
+ * Update lastSeen timestamp for current user (call on app start)
+ * This allows friends to see "last active X minutes ago"
+ */
+export async function updatePresence() {
+  const db = getDb()
+  const user = getCurrentUser()
+  if (!db || !user) return
+  try {
+    const userRef = doc(db, 'users', user.uid)
+    await updateDoc(userRef, { lastSeen: serverTimestamp() })
+  } catch { /* non-blocking */ }
+}
+
 // ==================== SEARCH ====================
 
 /**
@@ -120,22 +135,49 @@ export async function searchUsers(searchQuery) {
       .filter((u) => u.id !== user?.uid) // exclude self
 
     if (results.length === 0) {
-      // Fallback: displayName search (case-sensitive prefix)
+      // Fallback: displayName search — try exact case first, then capitalized
+      const searchTerm = searchQuery.trim()
       const nameQ = query(
         usersRef,
-        where('displayName', '>=', searchQuery.trim()),
-        where('displayName', '<=', searchQuery.trim() + '\uf8ff'),
+        where('displayName', '>=', searchTerm),
+        where('displayName', '<=', searchTerm + '\uf8ff'),
         limit(10)
       )
       const nameSnap = await getDocs(nameQ)
       results = nameSnap.docs
         .map((d) => ({ id: d.id, ...d.data() }))
         .filter((u) => u.id !== user?.uid)
+
+      // If still no results and query is lowercase, try capitalized
+      if (results.length === 0 && searchTerm === searchTerm.toLowerCase()) {
+        const capitalized = searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1)
+        const capQ = query(
+          usersRef,
+          where('displayName', '>=', capitalized),
+          where('displayName', '<=', capitalized + '\uf8ff'),
+          limit(10)
+        )
+        const capSnap = await getDocs(capQ)
+        results = capSnap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((u) => u.id !== user?.uid)
+      }
     }
+
+    // Filter out users already in friends list
+    const { getState } = await import('../stores/state.js')
+    const state = getState()
+    const friendIds = new Set((state.friends || []).map(f => f.id))
+    results = results.filter(u => !friendIds.has(u.id))
 
     return results
   } catch (error) {
-    console.error('[Friends] Search error:', error)
+    // Distinguish error types
+    if (error?.code === 'failed-precondition') {
+      console.error('[Friends] Missing Firestore index for search:', error.message)
+    } else {
+      console.error('[Friends] Search error:', error)
+    }
     return []
   }
 }
@@ -153,7 +195,19 @@ export async function sendFriendRequest(targetUserId) {
   if (!db || !user) return { success: false, error: 'not_authenticated' }
   if (targetUserId === user.uid) return { success: false, error: 'cannot_add_self' }
 
+  // Guard: max 500 friends
+  const { getState } = await import('../stores/state.js')
+  const state = getState()
+  if ((state.friends || []).length >= 500) return { success: false, error: 'too_many_friends' }
+
   try {
+    // Check if target has blocked the sender
+    const blockedDoc = doc(db, 'users', targetUserId, 'blockedUsers', user.uid)
+    try {
+      const blockedSnap = await getDoc(blockedDoc)
+      if (blockedSnap.exists()) return { success: false, error: 'user_unavailable' }
+    } catch { /* blockedUsers may not be readable — skip check silently */ }
+
     // Check if already friends
     const friendDoc = doc(db, 'users', user.uid, 'friends', targetUserId)
     const friendSnap = await getDoc(friendDoc)
@@ -191,6 +245,11 @@ export async function acceptFriendRequest(requestId) {
   if (!db || !user) return { success: false, error: 'not_authenticated' }
 
   try {
+    // Guard: max 500 friends to prevent listener overload
+    const { getState } = await import('../stores/state.js')
+    const state = getState()
+    if ((state.friends || []).length >= 500) return { success: false, error: 'too_many_friends' }
+
     const requestRef = doc(db, 'users', user.uid, 'friendRequests', requestId)
     const reqSnap = await getDoc(requestRef)
     if (!reqSnap.exists()) return { success: false, error: 'request_not_found' }
@@ -265,21 +324,27 @@ export async function removeFriend(friendId) {
   if (!db || !user) return { success: false, error: 'not_authenticated' }
 
   try {
+    // Delete from both sides in a batch
     const batch = writeBatch(db)
     batch.delete(doc(db, 'users', user.uid, 'friends', friendId))
     batch.delete(doc(db, 'users', friendId, 'friends', user.uid))
     await batch.commit()
     return { success: true }
   } catch (error) {
-    console.error('[Friends] Remove friend error:', error)
-    return { success: false, error: error.message }
+    // If batch fails (e.g. permissions), try at least removing from our side
+    try {
+      await deleteDoc(doc(db, 'users', user.uid, 'friends', friendId))
+      console.warn('[Friends] Removed from our side only — other side may remain:', error.message)
+      return { success: true }
+    } catch (fallbackError) {
+      console.error('[Friends] Remove friend error:', fallbackError)
+      return { success: false, error: fallbackError.message }
+    }
   }
 }
 
-// Expose searchUsers globally for tests and external callers
-window.searchUsersGlobal = async (query) => searchUsers(query)
-
 export default {
+  updatePresence,
   subscribeFriendsList,
   unsubscribeFriendsList,
   searchUsers,

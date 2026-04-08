@@ -829,6 +829,8 @@ export default {
  friendRequestCancelled: 'Request cancelled',
  notFriends: 'This person is not in your friends',
  friendRemoved: 'Friend removed',
+ userUnavailable: 'User unavailable',
+ messageSendError: 'Message not sent',
  friendsDataCleared: 'Friends data cleared',
  noFriends: 'No friends yet',
  noFriendsDesc: 'Start adding travel companions!',
