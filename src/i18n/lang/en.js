@@ -831,6 +831,7 @@ export default {
  friendRemoved: 'Friend removed',
  userUnavailable: 'User unavailable',
  messageSendError: 'Message not sent',
+ tooManyFriends: '500 friends limit reached',
  friendsDataCleared: 'Friends data cleared',
  noFriends: 'No friends yet',
  noFriendsDesc: 'Start adding travel companions!',

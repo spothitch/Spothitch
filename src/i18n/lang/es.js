@@ -310,6 +310,7 @@ export default {
  friendRemoved: 'Amigo eliminado',
  userUnavailable: 'Usuario no disponible',
  messageSendError: 'Mensaje no enviado',
+ tooManyFriends: 'Limite de 500 amigos alcanzado',
  friendsDataCleared: 'Datos de amigos borrados',
  noFriends: 'Aun sin amigos',
  noFriendsDesc: 'Empieza a agregar compañeros de viaje!',

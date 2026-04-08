@@ -658,6 +658,7 @@ export default {
  friendRemoved: 'Freund entfernt',
  userUnavailable: 'Benutzer nicht verfuegbar',
  messageSendError: 'Nachricht nicht gesendet',
+ tooManyFriends: 'Limit von 500 Freunden erreicht',
  friendsDataCleared: 'Freundesdaten gelöscht',
  noFriends: 'Noch keine Freunde',
  noFriendsDesc: 'Fange an, Reisebegleiter hinzuzufugen!',

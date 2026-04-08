@@ -56,12 +56,12 @@ export function subscribeFriendsList(uid) {
   const friendsRef = collection(db, 'users', uid, 'friends')
   _unsubFriends = onSnapshot(
     friendsRef,
-    (snap) => {
+    async (snap) => {
       const friends = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       // Enrich with DM unread counts from conversations cache
       try {
-        const state = getState()
-        const dmConversations = state.dmConversations || []
+        const { getConversationsList } = await import('./directMessages.js')
+        const dmConversations = getConversationsList() || []
         for (const friend of friends) {
           const conv = dmConversations.find(c => c.recipientId === friend.id)
           if (conv) {
@@ -99,6 +99,7 @@ export function unsubscribeFriendsList() {
   _unsubRequests?.()
   _unsubFriends = null
   _unsubRequests = null
+  stopPresence()
   setState({ friends: [], friendRequests: [], friendSearchResults: null })
 }
 
@@ -106,6 +107,8 @@ export function unsubscribeFriendsList() {
  * Update lastSeen timestamp for current user (call on app start)
  * This allows friends to see "last active X minutes ago"
  */
+let _presenceInterval = null
+
 export async function updatePresence() {
   const db = getDb()
   const user = getCurrentUser()
@@ -114,6 +117,23 @@ export async function updatePresence() {
     const userRef = doc(db, 'users', user.uid)
     await updateDoc(userRef, { lastSeen: serverTimestamp() })
   } catch { /* non-blocking */ }
+
+  // Refresh every 5 minutes while app is open
+  if (!_presenceInterval) {
+    _presenceInterval = setInterval(() => {
+      const u = getCurrentUser()
+      if (!u) { clearInterval(_presenceInterval); _presenceInterval = null; return }
+      const d = getDb()
+      if (d) updateDoc(doc(d, 'users', u.uid), { lastSeen: serverTimestamp() }).catch(() => {})
+    }, 5 * 60 * 1000)
+  }
+}
+
+export function stopPresence() {
+  if (_presenceInterval) {
+    clearInterval(_presenceInterval)
+    _presenceInterval = null
+  }
 }
 
 // ==================== SEARCH ====================
@@ -380,6 +400,7 @@ export async function getMutualFriendsCount(otherUserId) {
 
 export default {
   updatePresence,
+  stopPresence,
   getMutualFriendsCount,
   subscribeFriendsList,
   unsubscribeFriendsList,
