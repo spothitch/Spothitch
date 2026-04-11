@@ -3542,6 +3542,9 @@ export default {
  guardianRequired: 'Bitte fülle den Namen und die Telefonnummer deines Begleiters aus.',
  guardianNameRequired: 'Bitte fülle den Namen deines Begleiters aus.',
  guardianAlertOpening: 'Push-Alarm an Begleiter wird gesendet...',
+ chatMessages: 'Nachrichten',
+ photoSaved: 'Foto gespeichert',
+ guardianOverdueWarning: 'Dieser Reisende hat seinen Check-in verpasst!',
 
  // AddSpot form (3-step wizard)
  step1of3: 'Schritt 1/3',

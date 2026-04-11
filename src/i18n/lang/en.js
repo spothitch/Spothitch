@@ -3546,6 +3546,9 @@ export default {
  guardianRequired: 'Please fill in your guardian\'s name and phone number.',
  guardianNameRequired: 'Please fill in your guardian\'s name.',
  guardianAlertOpening: 'Sending push alert to guardian...',
+ chatMessages: 'Messages',
+ photoSaved: 'Photo saved',
+ guardianOverdueWarning: 'This traveler has missed their check-in!',
 
  // AddSpot form (3-step wizard)
  step1of3: 'Step 1/3',

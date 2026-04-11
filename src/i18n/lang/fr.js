@@ -3546,6 +3546,9 @@ export default {
  guardianRequired: 'Remplis le nom et le numéro de ton gardien.',
  guardianNameRequired: 'Remplis le nom de ton gardien.',
  guardianAlertOpening: 'Envoi de l\'alerte push au gardien...',
+ chatMessages: 'Messages',
+ photoSaved: 'Photo enregistrée',
+ guardianOverdueWarning: 'Ce voyageur a manqué son check-in !',
 
  // AddSpot form (3-step wizard)
  step1of3: 'Étape 1/3',

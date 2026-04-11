@@ -1107,13 +1107,160 @@ export async function sendGuardianMessage(text) {
 
   // Save locally to timeline
   const username = (() => {
-    try { return window.getState?.()?.username || t('me') || 'Me' } catch { return 'Me' }
+    try {
+      const s = window.getState?.() || {}
+      return s.firstName ? `${s.firstName} ${(s.lastName || '')[0] || ''}.`.trim() : s.username || t('me') || 'Me'
+    } catch { return 'Me' }
   })()
   addTripEvent('message', { sender: username, senderColor: '#f59e0b', text: trimmed })
 
-  // Sync to Firestore
-  syncSOSTimerToFirestore('message', { sender: username, text: trimmed })
+  // Sync to Firestore with senderId for rules validation
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (user && db) {
+      await addDoc(collection(db, 'sosTimers', user.uid, 'messages'), {
+        senderId: user.uid,
+        senderName: username,
+        text: trimmed,
+        type: 'text',
+        createdAt: serverTimestamp(),
+      })
+    }
+  } catch (err) {
+    console.warn('[Guardian] Failed to sync message:', err.message)
+  }
   return true
+}
+
+// ---- Real-time chat listener ----
+
+let _chatUnsubscribe = null
+let _chatCallback = null
+
+/**
+ * Subscribe to real-time guardian chat messages from Firestore.
+ * Works for both traveler (own sosTimer) and guardian (watched timers).
+ * @param {string} travelerId — UID of the traveler (for guardian, this is the watched user)
+ * @param {Function} onMessage — callback with array of messages [{senderId, senderName, text, type, createdAt}]
+ */
+export async function subscribeToGuardianChat(travelerId, onMessage) {
+  unsubscribeGuardianChat()
+  _chatCallback = onMessage
+
+  try {
+    const { db } = await import('./firebase.js')
+    const { collection, query, orderBy, onSnapshot, limit } = await import('firebase/firestore')
+    if (!db || !travelerId) return
+
+    const q = query(
+      collection(db, 'sosTimers', travelerId, 'messages'),
+      orderBy('createdAt', 'asc'),
+      limit(100),
+    )
+
+    _chatUnsubscribe = onSnapshot(q, (snapshot) => {
+      const messages = snapshot.docs.map(doc => {
+        const d = doc.data()
+        return {
+          id: doc.id,
+          senderId: d.senderId || '',
+          senderName: d.senderName || d.sender || '',
+          text: d.text || '',
+          type: d.type || 'text',
+          photoUrl: d.photoUrl || null,
+          createdAt: d.createdAt?.toMillis?.() || Date.now(),
+        }
+      })
+      if (_chatCallback) _chatCallback(messages)
+    })
+  } catch (err) {
+    console.warn('[Guardian] Chat subscribe failed:', err.message)
+  }
+}
+
+/**
+ * Unsubscribe from guardian chat
+ */
+export function unsubscribeGuardianChat() {
+  if (_chatUnsubscribe) {
+    _chatUnsubscribe()
+    _chatUnsubscribe = null
+  }
+  _chatCallback = null
+}
+
+/**
+ * Send a message as a guardian (reply to traveler).
+ * Guardian writes to sosTimers/{travelerId}/messages.
+ * @param {string} travelerId
+ * @param {string} text
+ */
+export async function sendGuardianReply(travelerId, text) {
+  if (!text?.trim() || !travelerId) return false
+  const trimmed = text.trim().slice(0, 500)
+
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db) return false
+
+    const senderName = (() => {
+      try {
+        const s = window.getState?.() || {}
+        return s.firstName ? `${s.firstName} ${(s.lastName || '')[0] || ''}.`.trim() : s.username || 'Guardian'
+      } catch { return 'Guardian' }
+    })()
+
+    await addDoc(collection(db, 'sosTimers', travelerId, 'messages'), {
+      senderId: user.uid,
+      senderName,
+      text: trimmed,
+      type: 'text',
+      createdAt: serverTimestamp(),
+    })
+    return true
+  } catch (err) {
+    console.warn('[Guardian] Reply failed:', err.message)
+    return false
+  }
+}
+
+// ---- Trip photo Firestore sync ----
+
+/**
+ * Upload trip photo to Firestore as a message with type 'photo'.
+ * The photo is stored as base64 in the message (max ~200KB compressed).
+ * @param {string} travelerId
+ * @param {string} base64DataUrl
+ */
+export async function syncTripPhotoToFirestore(base64DataUrl) {
+  try {
+    const { db, getCurrentUser } = await import('./firebase.js')
+    const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+    const user = getCurrentUser()
+    if (!user || !db || !base64DataUrl) return
+
+    const senderName = (() => {
+      try {
+        const s = window.getState?.() || {}
+        return s.firstName ? `${s.firstName} ${(s.lastName || '')[0] || ''}.`.trim() : s.username || 'Traveler'
+      } catch { return 'Traveler' }
+    })()
+
+    await addDoc(collection(db, 'sosTimers', user.uid, 'messages'), {
+      senderId: user.uid,
+      senderName,
+      text: '',
+      type: 'photo',
+      photoUrl: base64DataUrl,
+      createdAt: serverTimestamp(),
+    })
+  } catch (err) {
+    console.warn('[Guardian] Photo sync failed:', err.message)
+  }
 }
 
 // ---- Guardian from friends list (#9-10) ----
@@ -1349,4 +1496,9 @@ export default {
   setTripPhoto,
   getTripPhoto,
   clearTripPhoto,
+  // v2 real-time chat
+  subscribeToGuardianChat,
+  unsubscribeGuardianChat,
+  sendGuardianReply,
+  syncTripPhotoToFirestore,
 }

@@ -24,7 +24,10 @@ import {
   getBatteryLevel,
   getTripEvents,
   getTripPhoto,
+  subscribeToGuardianChat,
+  unsubscribeGuardianChat,
 } from '../../services/guardian.js'
+import { getChatMessages } from '../../services/guardianWatch.js'
 
 // Track which screen is active
 let _currentScreen = null // null = auto-detect, 'intro', 'main', 'active', 'guardian', 'alert', 'overdue', 'arrival'
@@ -665,13 +668,18 @@ function renderTimelineV2(events, _guardians) {
           isNew ? (t('newVehicle') || 'Nouveau vehicule') : (t('plateRegistered') || 'Plaque enregistree'),
           plate ? tagHTML('#06b6d4', 'car', escapeHTML(plate)) : '')
       }
-      case 'photo':
+      case 'photo': {
+        const tripPhoto = getTripPhoto()
+        const photoContent = tripPhoto
+          ? `<img src="${tripPhoto}" alt="${t('driverPhoto') || 'Photo conducteur'}" class="w-full h-[120px] rounded-[10px] mt-1.5 object-cover" />`
+          : `<div class="w-full h-[90px] rounded-[10px] flex items-center justify-center mt-1.5 text-[11px] gap-1.5" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);color:#475569">
+              ${icon('camera', 'w-[18px] h-[18px]')} ${t('driverPhoto') || 'Photo avec le conducteur'}
+            </div>`
         return timelineEvent(ts, 'purple', 'camera',
           t('photo') || 'Photo',
           t('photoShared') || 'Photo partagee',
-          `<div class="w-full h-[90px] rounded-[10px] flex items-center justify-center mt-1.5 text-[11px] gap-1.5" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);color:#475569">
-            ${icon('camera', 'w-[18px] h-[18px]')} ${t('driverPhoto') || 'Photo avec le conducteur'}
-          </div>`)
+          photoContent)
+      }
       case 'destination': {
         const newDest = d.destination || ''
         return timelineEvent(ts, 'amber', 'map-pin',
@@ -869,6 +877,73 @@ function renderGuardianScreen(guardianState) {
           ${icon('wifi-off', 'w-4 h-4 inline mr-1')} ${t('noActiveSession') || 'No active session found. The traveler may not have started Guardian mode yet.'}
         </div>
       ` : ''}
+
+      <!-- Real-time chat messages from Firestore -->
+      ${watchedTimer ? renderGuardianChatMessages(watchedTimer.id) : ''}
+    </div>
+
+    <!-- Compose bar for guardian to reply -->
+    ${watchedTimer ? `
+      <div class="shrink-0" style="padding:8px 12px 12px;background:rgba(15,21,32,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06)">
+        <div class="flex gap-2 items-center">
+          <input type="text" id="guardian-reply-input" class="flex-1 px-3.5 py-2.5 rounded-xl text-[13px] text-white placeholder-slate-600 focus:outline-none"
+            style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)"
+            placeholder="${t('writeMessage') || 'Write a message...'}" />
+          <button onclick="guardianSendReply()" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#f59e0b">
+            ${icon('send', 'w-3.5 h-3.5 text-white')}
+          </button>
+        </div>
+      </div>
+    ` : ''}
+  `
+}
+
+/** Render chat messages for the guardian view */
+function renderGuardianChatMessages(travelerId) {
+  const messages = getChatMessages(travelerId)
+  if (messages.length === 0) return ''
+
+  const lang = getState().lang || 'fr'
+  const myUid = getState().user?.uid || ''
+
+  return `
+    <div class="mt-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+        ${icon('message-circle', 'w-3 h-3 inline')} ${t('chatMessages') || 'Messages'} (${messages.length})
+      </div>
+      <div class="space-y-1.5 max-h-[200px] overflow-y-auto" id="guardian-chat-scroll">
+        ${messages.map(msg => {
+          const ts = new Date(msg.createdAt).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' })
+          const isMe = msg.senderId === myUid
+          const senderColor = isMe ? '#f59e0b' : '#22c55e'
+          const initial = (msg.senderName || '?')[0].toUpperCase()
+
+          if (msg.type === 'photo' && msg.photoUrl) {
+            return `
+              <div class="flex gap-2 ${isMe ? 'flex-row-reverse' : ''}">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                  style="background:${senderColor}">${escapeHTML(initial)}</div>
+                <div class="max-w-[75%] rounded-xl overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+                  <img src="${msg.photoUrl}" alt="Photo" class="w-full h-[100px] object-cover" />
+                  <div class="px-2 py-1 text-[9px] text-slate-500">${ts}</div>
+                </div>
+              </div>
+            `
+          }
+
+          return `
+            <div class="flex gap-2 ${isMe ? 'flex-row-reverse' : ''}">
+              <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                style="background:${senderColor}">${escapeHTML(initial)}</div>
+              <div class="max-w-[75%] rounded-xl px-3 py-2" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)${isMe ? ';border-right:3px solid ' + senderColor : ';border-left:3px solid ' + senderColor}">
+                <div class="text-[10px] font-bold" style="color:${senderColor}">${escapeHTML(msg.senderName || '?')}</div>
+                <div class="text-[12px] text-slate-200 mt-0.5">${escapeHTML(msg.text)}</div>
+                <div class="text-[9px] text-slate-600 mt-0.5">${ts}</div>
+              </div>
+            </div>
+          `
+        }).join('')}
+      </div>
     </div>
   `
 }
@@ -1676,25 +1751,31 @@ window.guardianAddTripPhoto = () => {
   window._forceRender?.()
 }
 
-/** Save trip photo from sheet */
+/** Save trip photo from sheet — opens native camera, compresses, syncs to Firestore */
 window.guardianSaveTripPhoto = async () => {
-  // Open file picker with camera preference
   const input = document.createElement('input')
   input.type = 'file'
   input.accept = 'image/*'
-  input.capture = 'environment' // Prefer rear camera
+  input.capture = 'environment' // Open rear camera directly on mobile
   input.onchange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     try {
-      // Resize to max 800px and convert to base64
+      // Resize to max 800px, quality 0.6 (keep under 200KB for Firestore)
       const { compressImage } = await import('../../utils/image.js')
-      const base64 = await compressImage(file, 800, 0.7)
-      const { setTripPhoto, addTripEvent } = await import('../../services/guardian.js')
+      const base64 = await compressImage(file, 800, 0.6)
+      const { setTripPhoto, addTripEvent, syncTripPhotoToFirestore } = await import('../../services/guardian.js')
+
+      // Save locally
       setTripPhoto(base64)
-      addTripEvent('photo', { thumbnail: base64.slice(0, 100) + '...' })
+      addTripEvent('photo', { hasPhoto: true })
+
+      // Sync to Firestore so guardian sees the photo in real-time
+      syncTripPhotoToFirestore(base64)
+
       window.showToast?.(window.t?.('photoSaved') || 'Photo saved', 'success')
     } catch (err) {
+      console.warn('[Guardian] Photo error:', err.message)
       window.showToast?.(window.t?.('photoError') || 'Photo error', 'error')
     }
     _guardianSheet = null
@@ -1838,7 +1919,33 @@ async function updateBatteryDisplay() {
   window._forceRender?.() // Re-render to show updated battery value
 }
 
-// Init guardian battery display after render
+/** Guardian sends a reply message to the traveler */
+window.guardianSendReply = async () => {
+  const input = document.getElementById('guardian-reply-input')
+  const text = input?.value?.trim() || ''
+  if (!text) return
+
+  const watchedTimers = getState().watchedGuardianTimers || []
+  const travelerId = watchedTimers[0]?.id
+  if (!travelerId) return
+
+  const { sendGuardianReply } = await import('../../services/guardian.js')
+  const ok = await sendGuardianReply(travelerId, text)
+  if (ok) {
+    if (input) input.value = ''
+    window._forceRender?.()
+    requestAnimationFrame(() => {
+      const el = document.getElementById('guardian-chat-scroll')
+      if (el) el.scrollTop = el.scrollHeight
+    })
+  } else {
+    window.showToast?.(t('messageSendFailed') || 'Message failed to send', 'error')
+  }
+}
+
+let _chatSubscribed = false
+
+// Init guardian battery display + chat subscription after render
 export function initGuardianAfterRender(isVisible) {
   if (isVisible) {
     const el = document.getElementById('guardian-battery-row')
@@ -1850,11 +1957,31 @@ export function initGuardianAfterRender(isVisible) {
     requestAnimationFrame(() => {
       const tl = document.getElementById('guardian-timeline')
       if (tl) tl.scrollTop = tl.scrollHeight
+      const chatScroll = document.getElementById('guardian-chat-scroll')
+      if (chatScroll) chatScroll.scrollTop = chatScroll.scrollHeight
     })
+
+    // Subscribe to real-time chat for traveler's own messages
+    if (!_chatSubscribed) {
+      _chatSubscribed = true
+      import('../../services/firebase.js').then(({ getCurrentUser }) => {
+        const user = getCurrentUser()
+        if (user) {
+          subscribeToGuardianChat(user.uid, (_msgs) => {
+            // Firestore messages updated → re-render timeline
+            window._forceRender?.()
+          })
+        }
+      }).catch(() => { /* not logged in */ })
+    }
   } else {
     _batteryDisplayDone = false
     _currentScreen = null
     _guardianSheet = null
+    if (_chatSubscribed) {
+      _chatSubscribed = false
+      unsubscribeGuardianChat()
+    }
   }
 }
 

@@ -281,7 +281,7 @@ const MAIN_JS_HANDLERS = [
   'guardianAddGuardian', 'guardianRemoveGuardian', 'guardianEditGuardian',
   'guardianUpdatePlate', 'guardianSavePlate', 'guardianAddTripPhoto', 'guardianSaveTripPhoto',
   'guardianUpdateDestination', 'guardianSaveDestination',
-  'guardianSendMessage', 'guardianQuickCheckin',
+  'guardianSendMessage', 'guardianQuickCheckin', 'guardianSendReply',
   'guardianShowArrival', 'guardianAddToJournal', 'guardianCloseSheet',
   'switchCompanionDemoTab',
   // Gas Stations (navigation)

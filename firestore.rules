@@ -319,21 +319,21 @@ service cloud.firestore {
     }
 
     // SOS Timers — guardian mode server-side monitoring
-    // Read: owner only (Cloud Functions use admin SDK)
+    // Read: owner OR guardian listed in guardianIds
     match /sosTimers/{userId} {
       allow read: if request.auth != null
-        && request.auth.uid == userId;
+        && (request.auth.uid == userId
+            || request.auth.uid in resource.data.guardianIds);
       allow create, update: if request.auth != null
         && request.auth.uid == userId;
       allow delete: if request.auth != null
         && request.auth.uid == userId;
 
-      // Messages subcollection — owner writes, any auth user reads
-      // (guardians need to read traveler's messages)
+      // Messages subcollection — traveler and guardians can read and write
       match /messages/{msgId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null
-          && request.auth.uid == userId;
+          && request.resource.data.senderId == request.auth.uid;
       }
     }
 

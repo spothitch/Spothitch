@@ -3,6 +3,7 @@
  * Listens for friends who are in Guardian mode.
  * When a friend has an active sosTimer with your UID in guardianIds,
  * you can see their position and status.
+ * Also handles real-time chat between guardian and traveler.
  */
 
 import { getState } from '../stores/state.js'
@@ -10,10 +11,14 @@ import { getState } from '../stores/state.js'
 let _unsubscribe = null
 let _activeTimers = []
 let _onUpdateCallback = null
+const _chatUnsubscribes = new Map() // travelerId → unsubscribe
+const _chatMessages = new Map() // travelerId → messages[]
+let _onChatCallback = null
 
 /**
  * Start watching for friends in Guardian mode.
  * Listens to sosTimers where guardianIds contains current user's UID.
+ * Also auto-subscribes to chat messages for each active timer.
  * @param {Function} onUpdate - callback when timers change
  */
 export async function startGuardianWatch(onUpdate) {
@@ -44,11 +49,84 @@ export async function startGuardianWatch(onUpdate) {
         tripStart: doc.data().tripStart?.toMillis?.() || 0,
       }))
 
+      // Auto-subscribe to chat for new timers
+      const activeIds = new Set(_activeTimers.map(t => t.id))
+      for (const timer of _activeTimers) {
+        if (!_chatUnsubscribes.has(timer.id)) {
+          _subscribeToTimerChat(timer.id)
+        }
+      }
+      // Cleanup chat subs for removed timers
+      for (const [id, unsub] of _chatUnsubscribes) {
+        if (!activeIds.has(id)) {
+          unsub()
+          _chatUnsubscribes.delete(id)
+          _chatMessages.delete(id)
+        }
+      }
+
       if (_onUpdateCallback) _onUpdateCallback(_activeTimers)
     })
   } catch (err) {
     console.warn('[GuardianWatch] Failed to start:', err.message)
   }
+}
+
+/**
+ * Subscribe to chat messages for a specific timer (traveler).
+ * @param {string} travelerId
+ */
+async function _subscribeToTimerChat(travelerId) {
+  try {
+    const { collection, query, orderBy, onSnapshot, limit } = await import('firebase/firestore')
+    const { db } = await import('./firebase.js')
+    if (!db) return
+
+    const q = query(
+      collection(db, 'sosTimers', travelerId, 'messages'),
+      orderBy('createdAt', 'asc'),
+      limit(100),
+    )
+
+    const unsub = onSnapshot(q, (snapshot) => {
+      const messages = snapshot.docs.map(doc => {
+        const d = doc.data()
+        return {
+          id: doc.id,
+          senderId: d.senderId || '',
+          senderName: d.senderName || d.sender || '',
+          text: d.text || '',
+          type: d.type || 'text',
+          photoUrl: d.photoUrl || null,
+          createdAt: d.createdAt?.toMillis?.() || Date.now(),
+        }
+      })
+      _chatMessages.set(travelerId, messages)
+      if (_onChatCallback) _onChatCallback(travelerId, messages)
+      if (_onUpdateCallback) _onUpdateCallback(_activeTimers)
+    })
+
+    _chatUnsubscribes.set(travelerId, unsub)
+  } catch (err) {
+    console.warn('[GuardianWatch] Chat subscribe failed for', travelerId, err.message)
+  }
+}
+
+/**
+ * Set a callback for chat message updates.
+ * @param {Function} callback - (travelerId, messages[]) => void
+ */
+export function onChatUpdate(callback) {
+  _onChatCallback = callback
+}
+
+/**
+ * Get chat messages for a specific traveler.
+ * @param {string} travelerId
+ * @returns {Array}
+ */
+export function getChatMessages(travelerId) {
+  return _chatMessages.get(travelerId) || []
 }
 
 /**
