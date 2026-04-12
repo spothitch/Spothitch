@@ -282,7 +282,7 @@ const MAIN_JS_HANDLERS = [
   'guardianUpdateDestination', 'guardianSaveDestination',
   'guardianSendMessage', 'guardianQuickCheckin', 'guardianSendReply',
   'guardianShowArrival', 'guardianAddToJournal', 'guardianCloseSheet',
-  'switchCompanionDemoTab',
+  // switchCompanionDemoTab renamed to switchGuardianDemoTab (guardian naming)
   // Gas Stations (navigation)
   'toggleGasStations',
   // Map legend
@@ -366,7 +366,7 @@ const MAIN_JS_HANDLERS = [
   // Social Demo (defined in Profile.js)
   'showSocialDemo', 'closeSocialDemo', 'startSocialDemo', 'switchSocialDemoTab',
   // Companion Demo (defined in Profile.js)
-  'showGuardianDemo', 'closeGuardianDemo', 'startGuardianDemo', 'switchGuardianDemoTab',
+  'showGuardianDemo', 'closeGuardianDemo', 'startGuardianDemo', 'startGuardianDemoContent', 'switchGuardianDemoTab',
   // Hostels Demo (defined in Profile.js)
   'showHostelsDemo', 'closeHostelsDemo', 'startHostelsDemo', 'switchHostelsDemoTab',
   // Spot Demo (defined in ProfileDemos.js)
@@ -425,7 +425,7 @@ const MAIN_JS_HANDLERS = [
   'planTrip', 'clearTrip', 'openGuides', 'openChallengesHub',
   'loginWithEmail', 'claimDailyReward',
   'triggerSOS', 'shareSOS',
-  'openGuardian', 'closeCompanion',
+  'openGuardian', 'closeGuardian',
   'submitNewSpot',
   // Missing handlers (session 2026-02-25)
   'requireProfile', 'closeBadgePopup', 'sendAmbassadorMessage',

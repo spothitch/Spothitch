@@ -22,7 +22,7 @@ window.switchDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchPointsDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchJournalDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchSocialDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
-window.switchCompanionDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
+window.switchGuardianDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchHostelsDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 window.switchSpotDemoTab = (btn, tabName) => _switchDemoTab(btn, tabName)
 
@@ -349,7 +349,7 @@ window.showGuardianDemo = () => {
  <div class="${_c.wrap}">
  ${_previewBanner}
  ${_previewBanner}
- <button onclick="closeCompanionDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+ <button onclick="closeGuardianDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
  <div id="guardian-demo-intro" class="${_c.intro} ${_cIntro}">
  <div class="text-5xl mb-3"></div>
  <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('guardianDemoIntroTitle') || 'Mode Compagnon Sécurité')}</h2>
@@ -360,7 +360,7 @@ window.showGuardianDemo = () => {
  <div class="${_c.bullet}"><span class="${_c.bicon}"></span><span class="${_c.btxt}">Si tu manques un check-in, alerte automatique à tes gardiens avec ta dernière position</span></div>
  <div class="${_c.bullet}"><span class="${_c.bicon}">🆘</span><span class="${_c.btxt}">Bouton SOS : alerte immédiate à tous tes gardiens + appel urgences + enregistrement audio</span></div>
  <div class="${_c.bullet}"><span class="${_c.bicon}"></span><span class="${_c.btxt}">Version améliorée du compagnon de route actuel avec position live et connexion directe au SOS</span></div></div>
- <button onclick="startCompanionDemo()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button></div>
+ <button onclick="startGuardianDemoContent()" class="${_c.btn}" style="${_btnStyle}">${escapeHTML(t('cityDemoIntroBtn') || 'Découvrir la démo')}</button></div>
  <div id="guardian-demo-main" class="hidden"></div></div>
  `
  document.body.appendChild(ov)
@@ -368,7 +368,7 @@ window.showGuardianDemo = () => {
 
 window.closeGuardianDemo = () => { document.getElementById('guardian-demo-overlay')?.remove() }
 
-window.startCompanionDemo = () => {
+window.startGuardianDemoContent = () => {
  const intro = document.getElementById('guardian-demo-intro')
  const main = document.getElementById('guardian-demo-main')
  if (!intro || !main) return
