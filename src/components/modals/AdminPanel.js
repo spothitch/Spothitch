@@ -866,10 +866,10 @@ function renderIdVerifyTab(state) {
    </div>
    <p class="text-xs text-slate-400 mb-2">${t('adminIdVerifyMethod') || 'Methode'}: ${v.method || 'photo'}</p>
    <div class="flex gap-2">
-    <button onclick="adminApproveIdVerification('${v.id}')" class="flex-1 btn btn-sm bg-emerald-600 text-white text-xs">
+    <button onclick="adminApproveIdVerification('${escapeJSString(v.id)}')" class="flex-1 btn btn-sm bg-emerald-600 text-white text-xs">
      ${icon('check', 'w-3 h-3 inline')} ${t('approve') || 'Approuver'}
     </button>
-    <button onclick="adminRejectIdVerification('${v.id}')" class="flex-1 btn btn-sm bg-red-600 text-white text-xs">
+    <button onclick="adminRejectIdVerification('${escapeJSString(v.id)}')" class="flex-1 btn btn-sm bg-red-600 text-white text-xs">
      ${icon('x', 'w-3 h-3 inline')} ${t('reject') || 'Rejeter'}
     </button>
    </div>

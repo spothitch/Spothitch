@@ -6,7 +6,7 @@
 
 import { t } from '../../../i18n/index.js'
 import { icon } from '../../../utils/icons.js'
-import { escapeHTML } from '../../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../../utils/sanitize.js'
 import { getAvailableCountries } from '../../../services/countryChat.js'
 
 // Cache for member counts (populated async)
@@ -68,7 +68,7 @@ export function renderCountryChats(_state) {
           const badge = count ? `<span class="absolute -top-1 -right-1 text-[10px] bg-amber-500 text-dark-primary rounded-full w-4 h-4 flex items-center justify-center font-bold">${count}</span>` : ''
           return `
           <button
-            onclick="joinCountryChatAction('${c.code}')"
+            onclick="joinCountryChatAction('${escapeJSString(c.code)}')"
             class="relative shrink-0 flex flex-col items-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800/60 border border-white/[0.06] transition-colors"
           >
             ${badge}

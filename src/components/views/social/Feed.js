@@ -7,7 +7,7 @@ import { t } from '../../../i18n/index.js'
 import { icon } from '../../../utils/icons.js'
 import { renderEmptyState } from '../../EmptyState.js'
 // renderToggle removed — proximity radar is now "coming soon"
-import { escapeHTML } from '../../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../../utils/sanitize.js'
 import { formatRelativeTime, formatEventDate } from '../../../utils/formatters.js'
 import { getActivityFeed } from '../../../services/activityFeed.js'
 import { getUpcomingEvents, EVENT_TYPES } from '../../../services/events.js'
@@ -123,7 +123,7 @@ function renderEventFeedCard(event, state) {
 
   return `
     <button
-      onclick="openEventDetail('${event.id}')"
+      onclick="openEventDetail('${escapeJSString(event.id)}')"
       class="card p-4 w-full text-left hover:border-primary-500/50 transition-colors"
     >
       <div class="flex items-center gap-1 mb-2 text-xs text-slate-400">

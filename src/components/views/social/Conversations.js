@@ -6,7 +6,7 @@
 import { t } from '../../../i18n/index.js'
 import { icon } from '../../../utils/icons.js'
 import { renderEmptyState } from '../../EmptyState.js'
-import { escapeHTML } from '../../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../../utils/sanitize.js'
 import { formatTime, formatRelativeTime } from '../../../utils/formatters.js'
 import { renderSkeletonChatList } from '../../ui/Skeleton.js'
 import { getConversationsList, getConversationMessages } from '../../../services/directMessages.js'
@@ -86,7 +86,7 @@ function renderConversationList(state) {
       ${allConversations.length > 0 ? `
         ${allConversations.map(conv => `
           <button
-            onclick="${conv.type === 'fbgroup' ? `openGroupConversation('${conv.id}')` : `openConversation('${conv.id}')`}"
+            onclick="${conv.type === 'fbgroup' ? `openGroupConversation('${escapeJSString(conv.id)}')` : `openConversation('${escapeJSString(conv.id)}')`}"
             class="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5"
           >
             <div class="relative shrink-0">
@@ -155,14 +155,14 @@ function renderDMChat(state, recipientId) {
         <span class="text-2xl">${recipientAvatar}</span>
         ${isOnline ? `<span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-dark-secondary bg-emerald-500"></span>` : ''}
       </div>
-      <div class="flex-1 min-w-0 cursor-pointer" role="button" tabindex="0" onclick="showFriendProfile('${recipientId}')" aria-label="${escapeHTML(recipientName)}">
+      <div class="flex-1 min-w-0 cursor-pointer" role="button" tabindex="0" onclick="showFriendProfile('${escapeJSString(recipientId)}')" aria-label="${escapeHTML(recipientName)}">
         <div class="font-medium text-sm">${escapeHTML(recipientName)}</div>
         <div class="text-xs text-slate-400">${isOnline ? t('online') : t('offline')}</div>
       </div>
-      <button onclick="shareDMSpot('${recipientId}')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white" aria-label="${t('shareSpot')}" title="${t('shareSpot')}">
+      <button onclick="shareDMSpot('${escapeJSString(recipientId)}')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white" aria-label="${t('shareSpot')}" title="${t('shareSpot')}">
         ${icon('map-pin', 'w-4 h-4')}
       </button>
-      <button onclick="shareDMPosition('${recipientId}')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white" aria-label="${t('sharePosition')}" title="${t('sharePosition')}">
+      <button onclick="shareDMPosition('${escapeJSString(recipientId)}')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white" aria-label="${t('sharePosition')}" title="${t('sharePosition')}">
         ${icon('locate', 'w-4 h-4')}
       </button>
     </div>
@@ -268,7 +268,7 @@ function renderFirebaseGroupChat(state, groupId) {
         <div class="font-medium text-sm truncate">${escapeHTML(group.name)}</div>
         <div class="text-xs text-slate-400">${memberCount} ${t('members')}</div>
       </div>
-      <button onclick="leaveGroupConversation('${groupId}')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-danger-400 transition-colors" aria-label="${t('leaveGroup')}" title="${t('leaveGroup')}">
+      <button onclick="leaveGroupConversation('${escapeJSString(groupId)}')" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-danger-400 transition-colors" aria-label="${t('leaveGroup')}" title="${t('leaveGroup')}">
         ${icon('log-out', 'w-4 h-4')}
       </button>
     </div>
@@ -385,7 +385,7 @@ function renderCreateGroupConversationForm(state) {
     const isSelected = selected.includes(friend.id)
     return `
                   <button
-                    onclick="toggleFriendForGroup('${friend.id}')"
+                    onclick="toggleFriendForGroup('${escapeJSString(friend.id)}')"
                     class="w-full flex items-center gap-3 p-2.5 rounded-xl transition-colors ${isSelected ? 'bg-emerald-500/15 border border-emerald-500/30' : 'hover:bg-white/5'}"
                   >
                     <div class="relative shrink-0">

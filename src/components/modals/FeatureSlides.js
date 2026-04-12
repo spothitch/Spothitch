@@ -5,7 +5,7 @@
  */
 
 import { t } from '../../i18n/index.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 
 // ==================== SLIDES DATA ====================
 
@@ -310,7 +310,7 @@ function renderSlideContent(slide, featureId) {
  <span class="text-sm text-slate-200">${escapeHTML(item.text)}</span></div>
  `).join('')}
  </div>
- <button onclick="openFeedbackOnFeature('${featureId}')"
+ <button onclick="openFeedbackOnFeature('${escapeJSString(featureId)}')"
  class="w-full py-4 rounded-2xl font-extrabold text-base cursor-pointer bg-gradient-to-br from-amber-500 to-orange-400 text-dark-primary border-none shadow-[0_4px_20px_rgba(245,158,11,0.4)]">
  ${escapeHTML(t('featureAvisBtn') || ' Donner mon avis sur cette feature')}
  </button></div>

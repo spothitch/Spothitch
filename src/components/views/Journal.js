@@ -6,7 +6,7 @@
 
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { getState } from '../../stores/state.js'
 import {
   getTrips, getTrip, getLegsByDay, getTripStats,
@@ -511,7 +511,7 @@ function renderAddLeg(state, tripId) {
         ${icon('circle-alert', 'w-3 h-3')} ${t('requiredFields') || 'Transport, départ et arrivée sont obligatoires. Le reste est optionnel.'}
       </div>
 
-      <button onclick="journalSaveLeg('${tripId}')" class="w-full py-3.5 rounded-xl bg-emerald-500 text-white text-[15px] font-bold border-none cursor-pointer flex items-center justify-center gap-1.5">
+      <button onclick="journalSaveLeg('${escapeJSString(tripId)}')" class="w-full py-3.5 rounded-xl bg-emerald-500 text-white text-[15px] font-bold border-none cursor-pointer flex items-center justify-center gap-1.5">
         ${icon('plus', 'w-5 h-5')} ${t('addThisLeg') || 'Ajouter cette étape'}
       </button>
     </div>
@@ -614,7 +614,7 @@ function renderEditExpenses(state, tripId) {
         <span class="text-lg font-extrabold text-amber-500">${dayTotal > 0 ? dayTotal + ' €' : '0 €'}</span>
       </div>
 
-      <button onclick="journalSaveExpenses('${tripId}','${date}')" class="w-full mt-5 py-3.5 rounded-xl bg-emerald-500 text-white text-[15px] font-bold border-none cursor-pointer flex items-center justify-center gap-1.5">
+      <button onclick="journalSaveExpenses('${escapeJSString(tripId)}','${escapeJSString(date)}')" class="w-full mt-5 py-3.5 rounded-xl bg-emerald-500 text-white text-[15px] font-bold border-none cursor-pointer flex items-center justify-center gap-1.5">
         ${icon('coins', 'w-5 h-5')} ${t('saveExpenses') || 'Enregistrer les dépenses'}
       </button>
     </div>
@@ -649,7 +649,7 @@ function renderEditDayNote(state, tripId) {
         ${icon('circle-alert', 'w-3 h-3')} ${t('dayNoteRequired') || 'La note du jour est obligatoire pour garder un souvenir de chaque journée'}
       </div>
 
-      <button onclick="journalSaveDayNote('${tripId}','${date}')" class="w-full py-3.5 rounded-xl bg-emerald-500 text-white text-[15px] font-bold border-none cursor-pointer flex items-center justify-center gap-1.5">
+      <button onclick="journalSaveDayNote('${escapeJSString(tripId)}','${escapeJSString(date)}')" class="w-full py-3.5 rounded-xl bg-emerald-500 text-white text-[15px] font-bold border-none cursor-pointer flex items-center justify-center gap-1.5">
         ${icon('pencil', 'w-5 h-5')} ${t('saveNote') || 'Enregistrer la note'}
       </button>
     </div>
@@ -678,7 +678,7 @@ function renderTripStats(state, tripId) {
   return `
     <div class="-m-4 p-4 text-center">
       <div class="pb-4 flex items-center gap-3 border-b border-white/[0.06] mb-5">
-        <button onclick="journalOpenTrip('${tripId}')" class="bg-transparent border-none text-slate-400 cursor-pointer">${icon('arrow-left', 'w-5 h-5')}</button>
+        <button onclick="journalOpenTrip('${escapeJSString(tripId)}')" class="bg-transparent border-none text-slate-400 cursor-pointer">${icon('arrow-left', 'w-5 h-5')}</button>
         <h1 class="text-base font-bold flex-1">${t('tripRecap') || 'Récap du voyage'}</h1>
       </div>
 

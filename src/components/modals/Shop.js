@@ -8,6 +8,7 @@ import { t } from '../../i18n/index.js';
 import { rewardCategories, getRewardsByCategory, getRewardById } from '../../data/rewards.js';
 import { showToast } from '../../services/notifications.js';
 import { icon } from '../../utils/icons.js'
+import { escapeJSString } from '../../utils/sanitize.js'
 
 /**
  * Render shop modal
@@ -140,7 +141,7 @@ function renderPartnerReward(reward, userThumbs, redeemedCodes, lang) {
                 ${t('obtained') || 'Obtenu'}
               </span>
             ` : canBuy ? `
-              <button onclick="redeemReward('${reward.id}')"
+              <button onclick="redeemReward('${escapeJSString(reward.id)}')"
                       class="px-4 py-2.5 rounded-xl bg-primary-500 text-white text-sm font-medium hover:bg-primary-600 transition-colors">
                 ${t('exchange') || 'Échanger'}
               </button>
@@ -223,7 +224,7 @@ export function renderMyRewardsModal() {
                         <div class="flex-1 px-4 py-2 bg-dark-secondary rounded-xl font-mono text-lg text-center text-white border-2 border-dashed border-emerald-500/50">
                           ${reward.code}
                         </div>
-                        <button onclick="copyCode('${reward.code}')"
+                        <button onclick="copyCode('${escapeJSString(reward.code)}')"
                                 class="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600"
                                 aria-label="${t('copyCode') || 'Copy code'}">
                           ${icon('copy', 'w-5 h-5')}

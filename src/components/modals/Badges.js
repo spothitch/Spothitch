@@ -7,6 +7,7 @@ import { getState } from '../../stores/state.js';
 import { icon } from '../../utils/icons.js'
 import { t } from '../../i18n/index.js';
 import { allBadges, getBadgesByCategory, getEarnedBadges, getNextBadges } from '../../data/badges.js';
+import { escapeJSString } from '../../utils/sanitize.js'
 
 /**
  * Render badges modal
@@ -98,7 +99,7 @@ export function renderBadgesModal() {
  <div class="badge-card bg-white/5 rounded-xl p-3 text-center cursor-pointer
  ${isEarned ? 'hover:bg-white/10' : 'opacity-40'}"
  ${isEarned ? 'role="button" tabindex="0"' : ''}
- onclick="${isEarned ? `showBadgeDetail('${badge.id}')` : ''}">
+ onclick="${isEarned ? `showBadgeDetail('${escapeJSString(badge.id)}')` : ''}">
  ${badge.image
  ? `<img src="${badge.image}" alt="${badge.name}" class="w-12 h-12 mx-auto mb-2 ${isEarned ? '' : 'grayscale'}" loading="lazy" />`
  : `<div class="text-3xl mb-2 ${isEarned ? '' : 'grayscale'}">${icon(badge.iconName || 'circle', 'w-8 h-8')}</div>`

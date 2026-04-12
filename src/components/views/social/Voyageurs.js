@@ -756,7 +756,7 @@ function renderBuddyCard(buddy, showCountry = false) {
 
 function renderVisibilityPill(value, label, selectedArray, handlerName) {
   const isSelected = selectedArray.includes(value)
-  return `<button onclick="${handlerName}('${value}')" class="flex-1 px-2 py-2.5 rounded-xl text-[0.8rem] font-semibold cursor-pointer text-center min-h-[44px] flex items-center justify-center transition-all" style="border:1px solid ${isSelected ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${isSelected ? 'rgba(245,158,11,0.12)' : '#161b28'};color:${isSelected ? '#f59e0b' : '#94a3b8'}">${label}</button>`
+  return `<button onclick="${escapeJSString(handlerName)}('${escapeJSString(value)}')" class="flex-1 px-2 py-2.5 rounded-xl text-[0.8rem] font-semibold cursor-pointer text-center min-h-[44px] flex items-center justify-center transition-all" style="border:1px solid ${isSelected ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${isSelected ? 'rgba(245,158,11,0.12)' : '#161b28'};color:${isSelected ? '#f59e0b' : '#94a3b8'}">${escapeHTML(label)}</button>`
 }
 
 // ==================== WINDOW HANDLERS ====================

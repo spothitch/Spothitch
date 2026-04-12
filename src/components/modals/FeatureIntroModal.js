@@ -13,7 +13,7 @@
 import { FEATURES_MAP } from '../../data/featuresData.js'
 import { markFeatureSeen } from '../../services/featureIntro.js'
 import { getUserVote, submitVote } from '../../services/featureVotes.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { icon } from '../../utils/icons.js'
 import { t } from '../../i18n/index.js'
 
@@ -200,7 +200,7 @@ function buildModalHTML(feature) {
               placeholder="${escapeHTML(t('voteCommentPlaceholder') || 'Un avis ? (optionnel)')}"
               class="intro-vote-textarea w-full px-2.5 py-2 rounded-[10px] text-[0.7rem] text-white resize-none bg-white/[0.08] border border-white/15 font-sans mb-2"
               maxlength="300">${escapeHTML(commentValue)}</textarea>
-            <button onclick="submitIntroVote('${id}')"
+            <button onclick="submitIntroVote('${escapeJSString(id)}')"
               id="intro-submit-btn"
               class="w-full py-2.5 rounded-[14px] text-xs font-semibold border-none cursor-pointer text-white bg-gradient-to-br from-amber-500 to-amber-600 transition-opacity duration-150">
               ${escapeHTML(t('voteSend') || 'Envoyer mon vote')}
