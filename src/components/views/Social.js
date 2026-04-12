@@ -9,7 +9,7 @@ import { icon } from '../../utils/icons.js'
 import { renderEmptyState } from '../EmptyState.js'
 import { renderSearchInput } from '../../utils/searchInput.js'
 // renderToggle removed — proximity radar is now "coming soon"
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 import { renderCustomSelect } from '../../utils/customSelect.js'
 import { formatRelativeTime, formatEventDate } from '../../utils/formatters.js'
 import { renderConversations } from './social/Conversations.js'
@@ -266,7 +266,7 @@ function renderMessagerieTab(state, _sidePanel = false) {
         </div>
         ${allConversations.map(conv => `
           <button
-            onclick="${conv.type === 'fbgroup' ? `openGroupConversation('${conv.id}')` : `openConversation('${conv.id}')`}"
+            onclick="${conv.type === 'fbgroup' ? `openGroupConversation('${escapeJSString(conv.id)}')` : `openConversation('${escapeJSString(conv.id)}')`}"
             class="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5"
           >
             <div class="relative shrink-0">
@@ -1034,7 +1034,7 @@ window.sendFriendRequest = async (targetUserId) => {
 window.removeFriend = async (friendId) => {
   const { getState } = await import('../../stores/state.js')
   const state = getState()
-  if (!state.isLoggedIn) return
+  if (!state.isLoggedIn) { window.requireAuth?.('social'); return }
 
   try {
     const { removeFriend } = await import('../../services/friends.js')

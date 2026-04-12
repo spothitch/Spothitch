@@ -7,7 +7,7 @@ import { getVerificationLevelName } from '../../services/identityVerification.js
 import { getTierForScore, renderMiniTrustBadge, renderVerifiedCheckmark } from '../../services/trustScore.js'
 import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
-import { escapeHTML } from '../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
 
 export function renderFriendProfileModal(state) {
   const friendId = state.selectedFriendProfileId
@@ -145,7 +145,7 @@ export function renderFriendProfileModal(state) {
           <div class="space-y-2">
             ${isFriend ? `
             <button
-              onclick="closeFriendProfile(); openFriendChat('${friend.id}')"
+              onclick="closeFriendProfile(); openFriendChat('${escapeJSString(friend.id)}')"
               class="btn-primary w-full"
             >
               ${icon('message-circle', 'w-5 h-5 mr-2')}
@@ -153,7 +153,7 @@ export function renderFriendProfileModal(state) {
             </button>
             ` : `
             <button
-              onclick="sendFriendRequest('${friend.id}')"
+              onclick="sendFriendRequest('${escapeJSString(friend.id)}')"
               class="btn-primary w-full"
             >
               ${icon('user-plus', 'w-5 h-5 mr-2')}
@@ -162,7 +162,7 @@ export function renderFriendProfileModal(state) {
             `}
             <div class="flex gap-2">
               <button
-                onclick="shareProfile('${friend.id}', '${escapeHTML(friend.name)}', '${escapeHTML(friend.avatar || 'thumbs-up')}')"
+                onclick="shareProfile('${escapeJSString(friend.id)}', '${escapeJSString(friend.name)}', '${escapeJSString(friend.avatar || 'thumbs-up')}')"
                 class="flex-1 py-2 rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 transition-colors text-sm flex items-center justify-center gap-1"
               >
                 ${icon('share', 'w-4 h-4')}
@@ -170,7 +170,7 @@ export function renderFriendProfileModal(state) {
               </button>
               ${isFriend ? `
               <button
-                onclick="removeFriend('${friend.id}'); closeFriendProfile()"
+                onclick="removeFriend('${escapeJSString(friend.id)}'); closeFriendProfile()"
                 class="flex-1 py-2 rounded-xl border border-danger-500/30 text-danger-400 hover:bg-danger-500/10 transition-colors text-sm flex items-center justify-center gap-1"
               >
                 ${icon('user-minus', 'w-4 h-4')}
@@ -180,14 +180,14 @@ export function renderFriendProfileModal(state) {
             </div>
             <div class="flex gap-2 pt-1">
               <button
-                onclick="openReport('USER', '${friend.id}')"
+                onclick="openReport('USER', '${escapeJSString(friend.id)}')"
                 class="flex-1 py-2 rounded-xl bg-white/5 text-slate-500 hover:text-danger-400 hover:bg-danger-500/10 transition-colors text-xs flex items-center justify-center gap-1"
               >
                 ${icon('flag', 'w-3 h-3')}
                 ${t('report') || 'Signaler'}
               </button>
               <button
-                onclick="openBlockModal('${friend.id}', '${escapeHTML(friend.name)}')"
+                onclick="openBlockModal('${escapeJSString(friend.id)}', '${escapeJSString(friend.name)}')"
                 class="flex-1 py-2 rounded-xl bg-white/5 text-slate-500 hover:text-danger-400 hover:bg-danger-500/10 transition-colors text-xs flex items-center justify-center gap-1"
               >
                 ${icon('ban', 'w-3 h-3')}
@@ -292,7 +292,7 @@ function renderProfileReviews(state, targetUid) {
         </div>
         ${canReview && !isWriting ? `
         <button
-          onclick="openWriteReview('${targetUid}')"
+          onclick="openWriteReview('${escapeJSString(targetUid)}')"
           class="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1"
           type="button"
         >
@@ -337,7 +337,7 @@ function renderWriteReviewForm(targetUid) {
       <div class="flex gap-2">
         <button
           type="button"
-          onclick="submitProfileReview('${targetUid}', document.getElementById('review-comment-${targetUid}').value)"
+          onclick="submitProfileReview('${escapeJSString(targetUid)}', document.getElementById('review-comment-${escapeJSString(targetUid)}').value)"
           class="flex-1 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-600 transition-colors"
         >${t('submit') || 'Envoyer'}</button>
         <button

@@ -231,6 +231,7 @@ export function unsubscribeFromAllConversations() {
 export async function sendDirectMessage(recipientId, text, options = {}) {
   if (!recipientId) return { success: false, error: 'no_recipient' }
   if (!text?.trim()) return { success: false, error: 'empty_message' }
+  if (text.length > 10000) return { success: false, error: 'message_too_long' }
   if (containsProfanity(text)) return { success: false, error: 'profanity_detected' }
 
   const state = getState()

@@ -6,7 +6,7 @@
 import { t } from '../../../i18n/index.js'
 import { icon } from '../../../utils/icons.js'
 import { renderSearchInput } from '../../../utils/searchInput.js'
-import { escapeHTML } from '../../../utils/sanitize.js'
+import { escapeHTML, escapeJSString } from '../../../utils/sanitize.js'
 import { getTrustBadge } from '../../../services/identityVerification.js'
 import { getAmbassadors, searchAmbassadors } from '../../../services/ambassadors.js'
 
@@ -56,7 +56,7 @@ export function renderFriends(state) {
                       ${user.username ? `<div class="text-xs text-slate-400">@${escapeHTML(user.username)}</div>` : ''}
                     </div>
                   </div>
-                  <button onclick="sendFriendRequest('${escapeHTML(user.id)}')" class="px-3 py-1.5 rounded-xl bg-primary-500/20 text-primary-400 text-xs font-medium hover:bg-primary-500/30 transition-colors">
+                  <button onclick="sendFriendRequest('${escapeJSString(user.id)}')" class="px-3 py-1.5 rounded-xl bg-primary-500/20 text-primary-400 text-xs font-medium hover:bg-primary-500/30 transition-colors">
                     ${icon('user-plus', 'w-3.5 h-3.5 mr-1')}
                     ${t('addFriend') || 'Ajouter'}
                   </button>
@@ -81,10 +81,10 @@ export function renderFriends(state) {
                   <span class="text-sm font-medium">${escapeHTML(req.name || '')}</span>
                 </div>
                 <div class="flex gap-1">
-                  <button onclick="acceptFriendRequest('${req.id}')" class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center" aria-label="${t('accept')}">
+                  <button onclick="acceptFriendRequest('${escapeJSString(req.id)}')" class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center" aria-label="${t('accept')}">
                     ${icon('check', 'w-4 h-4')}
                   </button>
-                  <button onclick="declineFriendRequest('${req.id}')" class="w-7 h-7 rounded-full bg-danger-500/20 text-danger-400 flex items-center justify-center" aria-label="${t('decline')}">
+                  <button onclick="declineFriendRequest('${escapeJSString(req.id)}')" class="w-7 h-7 rounded-full bg-danger-500/20 text-danger-400 flex items-center justify-center" aria-label="${t('decline')}">
                     ${icon('x', 'w-4 h-4')}
                   </button>
                 </div>
@@ -112,10 +112,10 @@ export function renderFriends(state) {
                   </div>
                   <span class="text-xs text-slate-400">${friend.online ? t('online') : t('offline')}</span>
                 </div>
-                <button onclick="openConversation('${friend.id}')" class="w-8 h-8 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center" aria-label="${t('sendMessage')}">
+                <button onclick="openConversation('${escapeJSString(friend.id)}')" class="w-8 h-8 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center" aria-label="${t('sendMessage')}">
                   ${icon('message-circle', 'w-4 h-4')}
                 </button>
-                <button onclick="showFriendProfile('${friend.id}')" class="w-8 h-8 rounded-full bg-white/5 text-slate-400 flex items-center justify-center" aria-label="${t('viewProfile')}">
+                <button onclick="showFriendProfile('${escapeJSString(friend.id)}')" class="w-8 h-8 rounded-full bg-white/5 text-slate-400 flex items-center justify-center" aria-label="${t('viewProfile')}">
                   ${icon('user', 'w-4 h-4')}
                 </button>
               </div>
@@ -190,7 +190,7 @@ function renderAmbassadorList(state) {
                 <div class="text-xs text-slate-400">${escapeHTML(amb.city)}, ${escapeHTML(amb.country)}</div>
               </div>
               <button
-                onclick="contactAmbassador('${amb.userId}')"
+                onclick="contactAmbassador('${escapeJSString(amb.userId)}')"
                 class="shrink-0 px-3 py-1.5 rounded-xl bg-primary-500/20 text-primary-400 text-xs font-medium hover:bg-primary-500/30 transition-colors"
               >
                 ${icon('message-circle', 'w-3.5 h-3.5 mr-1')}

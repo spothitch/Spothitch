@@ -44,6 +44,9 @@ export function registerAsAmbassador(data) {
   if (!city || !country || !bio) {
     throw new Error(t('allFieldsRequired'))
   }
+  if (bio.length > 500 || city.length > 100 || country.length > 100) {
+    throw new Error(t('fieldTooLong') || 'Text too long')
+  }
 
   const ambassadors = initAmbassadors()
 

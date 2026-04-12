@@ -163,6 +163,9 @@ export function createEvent(eventData) {
   if (!eventData.title || !eventData.title.trim()) {
     return { success: false, error: 'missing_title' }
   }
+  if (eventData.title.length > 200) return { success: false, error: 'title_too_long' }
+  if ((eventData.location || '').length > 500) return { success: false, error: 'location_too_long' }
+  if ((eventData.description || '').length > 5000) return { success: false, error: 'description_too_long' }
 
   if (!eventData.type || !EVENT_TYPES[eventData.type]) {
     return { success: false, error: 'invalid_type' }
@@ -367,6 +370,7 @@ export function postEventComment(eventId, text, replyToId = null) {
   if (!text || !text.trim()) {
     return { success: false, error: 'empty_comment' }
   }
+  if (text.length > 5000) return { success: false, error: 'comment_too_long' }
 
   const comments = getCommentsStorage()
   if (!comments[eventId]) {
@@ -421,6 +425,9 @@ export function reactToComment(eventId, commentId, emoji) {
   if (!comment) {
     return { success: false, error: 'comment_not_found' }
   }
+
+  // Validate emoji (prevent arbitrary string injection)
+  if (!emoji || emoji.length > 4) return { success: false, error: 'invalid_emoji' }
 
   if (!comment.reactions) comment.reactions = {}
   if (!comment.reactions[emoji]) comment.reactions[emoji] = []
