@@ -74,8 +74,9 @@ function checkWriteRateLimit(opName, maxPerMinute) {
   const now = Date.now()
   const windowMs = 60_000
   if (!_rateLimitBuckets[opName]) _rateLimitBuckets[opName] = []
-  // Purge entries older than 60s
+  // Purge entries older than 60s + cap bucket size to prevent memory growth
   _rateLimitBuckets[opName] = _rateLimitBuckets[opName].filter((ts) => now - ts < windowMs)
+  if (_rateLimitBuckets[opName].length > 500) _rateLimitBuckets[opName] = _rateLimitBuckets[opName].slice(-maxPerMinute)
   if (_rateLimitBuckets[opName].length >= maxPerMinute) {
     console.warn(`Rate limit exceeded for ${opName}: ${maxPerMinute}/min`)
     return { allowed: false }
@@ -222,28 +223,32 @@ export async function signIn(email, password) {
  * Returns a promise that resolves when the script is ready.
  */
 let _gisLoaded = false
+let _gisLoadPromise = null
 function loadGIS() {
-  return new Promise((resolve, reject) => {
-    if (_gisLoaded && window.google?.accounts?.id) return resolve()
+  if (_gisLoaded && window.google?.accounts?.id) return Promise.resolve()
+  if (_gisLoadPromise) return _gisLoadPromise
+  _gisLoadPromise = new Promise((resolve, reject) => {
     if (document.querySelector('script[src*="accounts.google.com/gsi/client"]')) {
       // Script tag exists, wait for it
       const check = setInterval(() => {
         if (window.google?.accounts?.id) {
           clearInterval(check)
           _gisLoaded = true
+          _gisLoadPromise = null
           resolve()
         }
       }, 100)
-      setTimeout(() => { clearInterval(check); reject(new Error('gis-timeout')) }, 5000)
+      setTimeout(() => { clearInterval(check); _gisLoadPromise = null; reject(new Error('gis-timeout')) }, 5000)
       return
     }
     const script = document.createElement('script')
     script.src = 'https://accounts.google.com/gsi/client'
     script.async = true
-    script.onload = () => { _gisLoaded = true; resolve() }
-    script.onerror = () => reject(new Error('gis-load-failed'))
+    script.onload = () => { _gisLoaded = true; _gisLoadPromise = null; resolve() }
+    script.onerror = () => { _gisLoadPromise = null; reject(new Error('gis-load-failed')) }
     document.head.appendChild(script)
   })
+  return _gisLoadPromise
 }
 
 // Google OAuth Client ID (from Firebase Console → Authentication → Sign-in method → Google)
@@ -1083,7 +1088,7 @@ export async function quickValidateSpot(spotId, options = {}) {
       if (!spotSnap.exists()) {
         await setDoc(spotRef, { createdAt: serverTimestamp(), validationCount: 0 })
       }
-    } catch { /* non-blocking */ }
+    } catch (e) { console.warn('[firebase] non-blocking error:', e?.code || e?.message) }
 
     // Build update — include GPS verification if available
     const update = {
@@ -1106,7 +1111,7 @@ export async function quickValidateSpot(spotId, options = {}) {
           lastValidated: new Date().toISOString(),
           lastValidatedBy: userName,
         }, { merge: true })
-      } catch { /* non-blocking */ }
+      } catch (e) { console.warn('[firebase] non-blocking error:', e?.code || e?.message) }
     }
 
     // Log the validation
@@ -1238,7 +1243,7 @@ export async function addValidation(data) {
           validationCount: 0,
         })
       }
-    } catch { /* non-blocking */ }
+    } catch (e) { console.warn('[firebase] non-blocking error:', e?.code || e?.message) }
 
     // Add validation to subcollection
     const validationsRef = collection(db, 'spots', spotId, 'validations')
@@ -1267,7 +1272,7 @@ export async function addValidation(data) {
           shouldUpdateDate = false
         }
       }
-    } catch { /* non-blocking, update by default */ }
+    } catch (e) { console.warn('[firebase] non-blocking error:', e?.code || e?.message) }
     if (shouldUpdateDate) {
       update.lastTested = expISO
       update.lastTestedBy = userName
@@ -1289,7 +1294,7 @@ export async function addValidation(data) {
           lastTested: expISO,
           lastTestedBy: userName,
         }, { merge: true })
-      } catch { /* non-blocking */ }
+      } catch (e) { console.warn('[firebase] non-blocking error:', e?.code || e?.message) }
     }
 
     return { success: true }
