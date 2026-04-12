@@ -4,6 +4,7 @@
  */
 
 import { t } from '../i18n/index.js'
+import { escapeJSString } from './sanitize.js'
 
 const APP_URL = 'https://spothitch.com'
 
@@ -233,10 +234,10 @@ function showShareModal(data) {
  outline: none;
  " id="share-url-input">
  <button onclick="
- navigator.clipboard?.writeText('${url}').catch(()=>{});
- this.textContent = '${t('copied') || 'Copié !'}';
+ navigator.clipboard?.writeText('${escapeJSString(url)}').catch(()=>{});
+ this.textContent = '${escapeJSString(t('copied') || 'Copié !')}';
  this.style.background = '#10b981';
- setTimeout(() => { this.textContent = '${t('copy') || 'Copier'}'; this.style.background = '#3b82f6'; }, 2000);
+ setTimeout(() => { this.textContent = '${escapeJSString(t('copy') || 'Copier')}'; this.style.background = '#3b82f6'; }, 2000);
  " style="
  padding: 8px 16px;
  background: #3b82f6;

@@ -11,6 +11,14 @@
  * @returns {Promise<string>} Base64 data URL
  */
 export async function compressImage(file, maxWidth = 1200, quality = 0.75) {
+  // Validate file type and size before processing
+  if (!file || !(file instanceof Blob)) throw new Error('Invalid file')
+  const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+  if (file.size > MAX_FILE_SIZE) throw new Error('File too large (max 50MB)')
+  if (file.type && !/^image\/(jpeg|png|webp|gif|bmp|svg\+xml|heic|heif|avif)/.test(file.type)) {
+    throw new Error('Invalid image type: ' + file.type)
+  }
+
   // Use createImageBitmap when available (async, doesn't freeze UI)
   if (typeof createImageBitmap === 'function') {
     try {
