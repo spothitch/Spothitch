@@ -77,6 +77,7 @@ if (!window.handleAppleSignIn) {
 }
 // Auth fallbacks — overridden by Auth.js/Profile.js when loaded
 if (!window.handleForgotPassword) {
+  const _resetAttempts = {}
   window.handleForgotPassword = async () => {
     const { getFirebase } = window._appInternals
     const t = window.t
@@ -85,6 +86,16 @@ if (!window.handleForgotPassword) {
     // Validate email format before sending
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) { window.showToast(t('invalidEmail') || 'Invalid email format', 'warning'); return }
+    // Rate limit: max 3 resets per email per 15 minutes
+    const now = Date.now()
+    const key = email.toLowerCase()
+    if (!_resetAttempts[key]) _resetAttempts[key] = []
+    _resetAttempts[key] = _resetAttempts[key].filter(ts => now - ts < 15 * 60 * 1000)
+    if (_resetAttempts[key].length >= 3) {
+      window.showToast(t('tooManyResetAttempts') || 'Too many attempts. Try again in 15 minutes.', 'warning')
+      return
+    }
+    _resetAttempts[key].push(now)
     const fb = await getFirebase()
     fb.initializeFirebase()
     const result = await fb.resetPassword(email)

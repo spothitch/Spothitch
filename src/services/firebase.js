@@ -1484,7 +1484,7 @@ const PROFILE_ALLOWED_FIELDS = [
   'username', 'displayName', 'firstName', 'lastName', 'birthYear', 'gender',
   'bio', 'avatar', 'photoURL', 'profilePhotos', 'languages', 'socialLinks', 'photos',
   'country', 'title', 'equippedBadge', 'equippedFrame', 'equippedTitle',
-  'points', 'seasonPoints', 'level', 'badges', 'league', 'isVIP',
+  // points, seasonPoints, level, badges, league, isVIP → server-only (prevent client manipulation)
   'theme', 'lang', 'lastSeen',
   'deletionScheduledAt', 'deletionRequested',
 ]

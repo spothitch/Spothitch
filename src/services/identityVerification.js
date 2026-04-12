@@ -471,10 +471,7 @@ export async function uploadVerificationPhoto(photoData) {
  },
  });
 
- // For demo purposes, auto-approve after 2 seconds
- setTimeout(async () => {
- await approvePhotoVerification();
- }, 2000);
+ // Admin review required — no auto-approval
 
  return { success: true, url: result.url, message: 'Photo envoyee pour verification' };
  } catch (error) {
@@ -585,10 +582,7 @@ export async function uploadIdentityDocument(documentData, documentType = 'id_ca
  },
  });
 
- // For demo purposes, auto-approve after 3 seconds
- setTimeout(async () => {
- await approveIdentityVerification();
- }, 3000);
+ // Admin review required — no auto-approval
 
  return {
  success: true,
@@ -873,10 +867,7 @@ export async function uploadSelfieIdVerification(photos) {
  console.warn('Could not save ID verification to Firestore:', error);
  }
 
- // For demo purposes, auto-approve after 5 seconds
- setTimeout(async () => {
- await approveSelfieIdVerification();
- }, 5000);
+ // Admin review required — no auto-approval
 
  return { success: true, message: 'Photos envoyees pour verification. En attente de validation...' };
  } catch (error) {

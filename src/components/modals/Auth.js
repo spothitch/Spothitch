@@ -599,6 +599,7 @@ window.handleAuth = async (event) => {
         executePendingAction(authPendingAction)
       }
     } else {
+      window._pendingRegistrationData = null
       const msg = getAuthErrorMessage(result.error)
       if (errorDiv) {
         errorDiv.textContent = msg
@@ -607,6 +608,7 @@ window.handleAuth = async (event) => {
       showError(msg)
     }
   } catch (error) {
+    window._pendingRegistrationData = null
     console.error('Auth error:', error)
     const { showError } = await import('../../services/notifications.js')
     const detail = getAuthErrorMessage(error?.code || error?.message || error)
