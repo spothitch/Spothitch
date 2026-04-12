@@ -58,8 +58,7 @@ const MAIN_JS_HANDLERS = [
   'selectAvatar', 'completeWelcome', 'skipWelcome', 'closeWelcome',
   // Settings
   'openSettings', 'closeSettings', 'setLanguage',
-  // Tutorial (retired — stubs kept in main.js for backward compat)
-  'startTutorial', 'nextTutorial', 'prevTutorial', 'skipTutorial', 'finishTutorial', 'closeTutorial',
+  // Tutorial removed (retired)
   // Filters / Map layout
   'setFilter', 'handleSearch', 'openFilters', 'closeFilters', 'openActiveTrip',
   'setFilterCountry', 'setFilterMinRating', 'setFilterMaxWait',

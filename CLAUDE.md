@@ -30,12 +30,12 @@
 
 > **RÈGLE #24 — ZÉRO EMOJI, ICÔNES LUCIDE UNIQUEMENT** (ABSOLUMENT OBLIGATOIRE) :
 > - **JAMAIS d'emoji Unicode** dans le code visible par l'utilisateur (boutons, headers, badges, labels, icônes de section)
-> - **Toujours utiliser `appIcon('nom')` ou `icon('nom-lucide')`** depuis `src/utils/appIcons.js` ou `src/utils/icons.js`
-> - **Le mapping centralisé** est dans `src/utils/appIcons.js` — il associe chaque concept (spot, guardian, chat...) à une icône Lucide
+> - **Toujours utiliser `icon('nom-lucide')`** depuis `src/utils/icons.js`
+> - **Le mapping centralisé** est dans `src/utils/icons.js` (ICON_MAP) — il associe chaque nom à une icône Lucide
 > - **Seule exception** : les drapeaux pays (🇫🇷 🇪🇸 🇩🇪) qui n'ont pas d'équivalent Lucide
 > - **JAMAIS l'emoji 🤙** (shaka/hang loose) — ce n'est PAS le geste de l'autostop. Utiliser le logo SpotHitch ou 👍
 > - **Les icônes sont sobres** : couleur héritée du parent (currentColor) par défaut. Couleur sémantique uniquement quand nécessaire (vert=succès, rouge=erreur, doré=marque)
-> - **Si un concept manque** dans le mapping → l'ajouter dans `appIcons.js` AVANT de l'utiliser
+> - **Si un concept manque** dans le mapping → l'ajouter dans `icons.js` (ICON_MAP) AVANT de l'utiliser
 > - Cette règle existe pour un style premium cohérent sur toute l'app
 
 > **RÈGLE #25 — ZÉRO STYLE INLINE, TAILWIND UNIQUEMENT** (ABSOLUMENT OBLIGATOIRE) :

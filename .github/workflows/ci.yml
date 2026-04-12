@@ -162,7 +162,7 @@ jobs:
     name: Argos Visual Regression
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'pull_request' && vars.ARGOS_ENABLED == 'true'
+    if: vars.ARGOS_ENABLED == 'true'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6

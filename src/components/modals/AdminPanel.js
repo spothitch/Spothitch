@@ -576,9 +576,7 @@ function renderToolsTab(state) {
  <button onclick="openAuth(); closeAdminPanel();" class="admin-btn">
  ${icon('log-in', 'w-5 h-5 text-primary-400')} ${t('login') || 'Connexion'}
  </button>
- <button onclick="startTutorial(); closeAdminPanel();" class="admin-btn">
- ${icon('graduation-cap', 'w-5 h-5 text-amber-400')} ${t('tutorial') || 'Tutoriel'}
- </button>
+ <!-- Tutorial retired -->
  <button onclick="openAccessibilityHelp(); closeAdminPanel();" class="admin-btn">
  ${icon('accessibility', 'w-5 h-5 text-amber-400')} ${t('accessibility') || 'Accessibilité'}
  </button>

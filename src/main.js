@@ -1197,15 +1197,6 @@ window.setLanguage = async (lang) => {
  window.location.href = window.location.href.split('#')[0]
 };
 
-// Tutorial handlers — retired (replaced by Alpha Welcome Popup)
-// Stubs kept so onclick references in AdminPanel don't throw
-window.startTutorial = () => { /* retired */ }
-window.nextTutorial = () => { /* retired */ }
-window.prevTutorial = () => { /* retired */ }
-window.skipTutorial = () => { /* retired */ }
-window.closeTutorial = () => { /* retired */ }
-window.finishTutorial = () => { /* retired */ }
-
 // Filter handlers
 window.setFilter = (filter) => actions.setFilter(filter);
 window.handleSearch = (query) => debounce('search', () => actions.setSearchQuery(query), 250);
