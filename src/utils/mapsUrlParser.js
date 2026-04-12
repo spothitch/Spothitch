@@ -325,9 +325,13 @@ export async function resolveShortMapUrl(mapUrl) {
   }
 
   // Strategy 2: Fetch page HTML and extract coords from og:image meta tag
-  // Google Maps embeds center=lat,lng in the static map thumbnail URL
-  // (This only works if CORS is not blocked — usually fails in browser but kept as fallback)
+  // Only follow redirects to trusted map domains (prevent open redirect abuse)
+  const TRUSTED_DOMAINS = ['google.com', 'google.fr', 'goo.gl', 'maps.app.goo.gl', 'waze.com', 'apple.com', 'openstreetmap.org']
   try {
+    const urlDomain = new URL(mapUrl).hostname
+    if (!TRUSTED_DOMAINS.some(d => urlDomain === d || urlDomain.endsWith('.' + d))) {
+      throw new Error('Untrusted domain: ' + urlDomain)
+    }
     const res = await fetch(mapUrl, { redirect: 'follow', signal: AbortSignal.timeout(8000) })
     // Check resolved URL for coordinates
     if (res.url && res.url !== mapUrl) {

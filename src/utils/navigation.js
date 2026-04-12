@@ -27,7 +27,7 @@ export function detectPlatform() {
  * @param {string} name - Optional destination name
  */
 export function openInGoogleMaps(lat, lng, name = '') {
-  if (!lat || !lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
     console.error('Invalid coordinates for Google Maps');
     return false;
   }
@@ -63,8 +63,8 @@ export function openInGoogleMaps(lat, lng, name = '') {
  * @param {number} lng - Destination longitude
  */
 export function openInWaze(lat, lng) {
-  if (!lat || !lng) {
-    console.error('Invalid coordinates for Waze');
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    console.error('Invalid coordinates for navigation');
     return false;
   }
 
