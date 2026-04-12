@@ -72,6 +72,10 @@ window.journalSaveLeg = (tripId) => {
     window.showToast?.('Le départ et l\'arrivée sont obligatoires', 'error')
     return
   }
+  if (departure.length > 200 || arrival.length > 200 || note.length > 2000) {
+    window.showToast?.('Texte trop long', 'error')
+    return
+  }
 
   // Calculate distance via OSRM (async, update after)
   // Get coords from autocomplete or spot

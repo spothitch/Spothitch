@@ -275,7 +275,7 @@ export function renderSpotDetail(state) {
  <div class="text-[10px] text-emerald-500 font-semibold uppercase mb-2">${t('usageCount') || 'Validations'} (${displayReviews.length})</div>
  ${displayReviews.map(r => `
  <div class="flex items-center gap-2 py-1.5 border-b border-white/[0.04]">
- <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] text-white shrink-0" style="background:${r.rideResult === 'yes' ? '#22c55e' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '#ef4444' : '#64748b'}">${(r.userName || '?')[0]}</div>
+ <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] text-white shrink-0" style="background:${r.rideResult === 'yes' ? '#22c55e' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '#ef4444' : '#64748b'}">${escapeHTML(String(r.userName || '?')[0])}</div>
  <div class="flex-1 min-w-0">
  <span class="text-xs font-medium" style="${r.userId ? 'color:#f59e0b;cursor:pointer' : ''}" ${r.userId ? `onclick="showFriendProfile('${escapeJSString(r.userId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(r.userName || 'Anonyme')}</span>
  ${r.rideResult === 'yes' ? '<span class="text-[10px] text-emerald-500 ml-1">✓</span>' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '<span class="text-[10px] text-red-500 ml-1"></span>' : ''}
