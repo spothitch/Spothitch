@@ -1229,8 +1229,9 @@ if (!window.tripSearchSuggestions) {
  if (!names?.length) return ''
  return `<div class="bg-slate-800/95 backdrop-blur rounded-xl border border-white/10 overflow-hidden shadow-xl">
  ${names.slice(0, 5).map(name => {
- const safe = escapeJSString(name)
- return `<button onmousedown="event.preventDefault();(window.tripSelectSuggestion||function(f,n){var i=document.getElementById('trip-'+f);if(i)i.value=n;document.getElementById('trip-from-suggestions')?.classList.add('hidden');document.getElementById('trip-to-suggestions')?.classList.add('hidden')})('${field}','${safe}')" class="w-full px-3 py-2.5 text-left text-white hover:bg-white/10 border-b border-white/5 last:border-0 transition-colors"><div class="font-medium text-sm truncate">${safe}</div></button>`
+ const safeJS = escapeJSString(name)
+ const safeHTML = escapeHTML(name)
+ return `<button onmousedown="event.preventDefault();(window.tripSelectSuggestion||function(f,n){var i=document.getElementById('trip-'+f);if(i)i.value=n;document.getElementById('trip-from-suggestions')?.classList.add('hidden');document.getElementById('trip-to-suggestions')?.classList.add('hidden')})('${field}','${safeJS}')" class="w-full px-3 py-2.5 text-left text-white hover:bg-white/10 border-b border-white/5 last:border-0 transition-colors"><div class="font-medium text-sm truncate">${safeHTML}</div></button>`
  }).join('')}
  </div>`
  }

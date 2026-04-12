@@ -297,7 +297,7 @@ export function detectOpaqueMapUrl(url) {
  * @returns {Promise<{ lat: number, lng: number } | null>}
  */
 export async function resolveShortMapUrl(mapUrl) {
-  const PROXY_URL = 'https://spothitch-resolve-map-url.antoine-v-ville.workers.dev'
+  const PROXY_URL = import.meta.env.VITE_MAP_RESOLVER_URL || 'https://spothitch-resolve-map-url.antoine-v-ville.workers.dev'
 
   // Strategy 1: Cloudflare Worker proxy (works for short URLs AND full Google Maps URLs)
   try {

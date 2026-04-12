@@ -154,7 +154,7 @@ window.homeSelectPlace = async (lat, lng, name) => {
     // Use current zoom if already zoomed in more than 12, otherwise default to 12
     const currentZoom = window.homeMapInstance.getZoom?.() || 5
     const targetZoom = Math.max(12, currentZoom)
-    try { window.homeMapInstance.setView([lat, lng], targetZoom) } catch { /* */ }
+    try { window.homeMapInstance.setView([lat, lng], targetZoom) } catch (e) { console.warn('[Map] setView failed:', e?.message) }
   }
 
   // Actively load spots for the searched area (cancel if newer request started)
@@ -164,7 +164,7 @@ window.homeSelectPlace = async (lat, lng, name) => {
     if (requestId !== _selectPlaceRequestId) return // stale request
     if (window._refreshMapSpots) window._refreshMapSpots()
     if (window._refreshCountryBubbles) window._refreshCountryBubbles()
-  } catch { /* spots will load via moveend fallback */ }
+  } catch (e) { console.warn('[Map] loadSpotsInRadius fallback:', e?.message) }
 }
 
 window.homeClearSearch = () => {
