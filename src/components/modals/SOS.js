@@ -409,10 +409,14 @@ window.shareSOSLocation = async () => {
   // Write SOS alert to Firestore → triggers Cloud Function → push notifs to guardians
   _writeSOSAlertToFirestore(pos || { lat: 0, lng: 0, noPosition: true }, 'alert')
 
-  // Broadcast community alert to nearby opted-in users (only if position available)
+  // Broadcast community alert to nearby opted-in users (rounded to ~500m for privacy)
   if (pos) {
+    const roundedPos = {
+      lat: Math.round(pos.lat * 200) / 200,  // ~500m precision
+      lng: Math.round(pos.lng * 200) / 200,
+    }
     import('../../services/communityAlert.js').then(({ broadcastCommunitySOSAlert }) => {
-      broadcastCommunitySOSAlert(pos, 'emergency')
+      broadcastCommunitySOSAlert(roundedPos, 'emergency')
     }).catch(() => {})
   }
 
@@ -445,10 +449,16 @@ async function _getSOSPosition() {
         resolve({ lat: position.coords.latitude, lng: position.coords.longitude })
       },
       () => {
-        // Fallback to fresh cache only
-        resolve(_freshCache())
+        // Retry with low accuracy (faster, uses network location)
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            resolve({ lat: position.coords.latitude, lng: position.coords.longitude })
+          },
+          () => resolve(_freshCache()),
+          { enableHighAccuracy: false, timeout: 5000 }
+        )
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 8000 }
     )
   })
 }

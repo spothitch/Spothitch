@@ -258,6 +258,17 @@ window.handleAgeVerification = async (event) => {
     if (success) {
       showSuccess(t('ageVerificationSuccess'));
 
+      // Persist age verification to Firestore (server-side record)
+      try {
+        const { getCurrentUser, updateUserProfile } = await import('../../services/firebase.js')
+        const user = getCurrentUser()
+        if (user) {
+          await updateUserProfile(user.uid, {
+            birthYear: new Date(birthDateInput.value).getFullYear(),
+          })
+        }
+      } catch (e) { console.warn('[AgeVerification] Firestore persist failed:', e?.message) }
+
       // Hide modal and update state
       setState({
         showAgeVerification: false,

@@ -95,6 +95,55 @@ exports.dailyCleanup = onSchedule(
       console.error('[Cleanup] SOS cleanup failed:', err.message)
     }
 
+    // 4. Process scheduled account deletions (30-day grace period)
+    try {
+      let deletedAccounts = 0
+      const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000)
+      const pendingSnap = await db
+        .collection('users')
+        .where('deletionScheduledAt', '!=', null)
+        .get()
+
+      for (const userDoc of pendingSnap.docs) {
+        const data = userDoc.data()
+        const scheduledAt = data.deletionScheduledAt?.toMillis?.() || data.deletionScheduledAt
+        if (!scheduledAt || scheduledAt > thirtyDaysAgo.getTime()) continue
+
+        const userId = userDoc.id
+        console.log(`[Cleanup] Deleting account ${userId} (scheduled ${new Date(scheduledAt).toISOString()})`)
+
+        // Delete subcollections
+        const subcollections = ['friends', 'friendRequests', 'favorites', 'trips', 'syncData', 'fcmTokens', 'tripHistory', 'blockedUsers', 'journal', 'guideVotes']
+        for (const sub of subcollections) {
+          const subSnap = await db.collection('users').doc(userId).collection(sub).limit(500).get()
+          if (subSnap.size > 0) {
+            const batch = db.batch()
+            subSnap.docs.forEach(d => batch.delete(d.ref))
+            await batch.commit()
+          }
+        }
+
+        // Delete username reservation
+        if (data.username) {
+          try { await db.collection('usernames').doc(data.username).delete() } catch { /* ok */ }
+        }
+
+        // Delete user document
+        await userDoc.ref.delete()
+
+        // Delete Firebase Auth account
+        try {
+          const { getAuth } = require('firebase-admin/auth')
+          await getAuth().deleteUser(userId)
+        } catch (e) { console.warn(`[Cleanup] Auth delete failed for ${userId}:`, e.message) }
+
+        deletedAccounts++
+      }
+      console.log(`[Cleanup] Deleted ${deletedAccounts} expired accounts`)
+    } catch (err) {
+      console.error('[Cleanup] Account deletion cleanup failed:', err.message)
+    }
+
     console.log(`[Cleanup] Daily cleanup complete. Total deleted: ${totalDeleted}`)
   }
 )

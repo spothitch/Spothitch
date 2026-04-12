@@ -272,11 +272,38 @@ export function isGuardianActive() {
   const silenceAge = state.lastCheckIn ? now - state.lastCheckIn : tripAge
 
   if (tripAge > maxTrip || silenceAge > maxSilence) {
-    stopGuardianMode()
+    // Notify guardians before auto-stopping (write Firestore message)
+    const reason = tripAge > maxTrip ? 'max_duration' : 'silence'
+    try {
+      _notifyGuardiansAutoStop(state, reason)
+    } catch (e) { console.warn('[Guardian] Failed to notify auto-stop:', e?.message) }
+    stopGuardianMode({ sendArrivalNotification: false })
     return false
   }
 
   return true
+}
+
+/**
+ * Notify guardians when trip auto-stops due to timeout or silence.
+ * Writes a sosAlerts doc so the existing Cloud Function sends push notifications.
+ */
+async function _notifyGuardiansAutoStop(state, reason) {
+  try {
+    const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+    const { getCurrentUser } = await import('./firebase.js')
+    const user = getCurrentUser()
+    if (!user) return
+    const db = getFirestore()
+    await addDoc(collection(db, 'sosAlerts'), {
+      userId: user.uid,
+      userName: user.displayName || state.guardian?.name || 'Voyageur',
+      type: 'auto_stop',
+      reason,
+      guardianIds: (state.guardians || []).map(g => g.friendId).filter(Boolean),
+      createdAt: serverTimestamp(),
+    })
+  } catch (e) { console.warn('[Guardian] auto-stop notification error:', e?.message) }
 }
 
 // ---- Trusted contacts circle (#30) ----
