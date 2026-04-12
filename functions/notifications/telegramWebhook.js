@@ -94,18 +94,33 @@ exports.onNewReport = onDocumentCreated(
 
 // ==================== NEW USER + MILESTONES ====================
 exports.onNewUser = onDocumentCreated(
-  'users/{userId}',
+  {
+    document: 'users/{userId}',
+    secrets: ['RESEND_API_KEY'],
+  },
   async (event) => {
     const user = event.data?.data()
     if (!user) return null
 
-    const botToken = TELEGRAM_BOT_TOKEN.value()
-    const chatId = TELEGRAM_CHAT_ID.value()
-    if (!botToken || !chatId) return null
     if (isIgnoredAccount(user.email)) return null
 
     const name = user.username || user.displayName || 'Anonyme'
     const uid = event.params.userId
+
+    // ---- Welcome email (Resend) ----
+    try {
+      const { sendWelcomeEmail } = require('../emails/welcomeEmail')
+      const lang = user.lang || user.language || 'en'
+      await sendWelcomeEmail(user.email, name, lang)
+      console.log(`[Email] Welcome email sent to ${user.email} (${lang})`)
+    } catch (e) {
+      console.error('[Email] Welcome email failed:', e.message)
+    }
+
+    // ---- Telegram notification ----
+    const botToken = TELEGRAM_BOT_TOKEN.value()
+    const chatId = TELEGRAM_CHAT_ID.value()
+    if (!botToken || !chatId) return null
 
     const text = [
       `👤 *Nouvel utilisateur*`,
@@ -258,6 +273,12 @@ exports.telegramCallback = onRequest(
     const data = callback.data || ''
     const messageId = callback.message?.message_id
     const chatId = callback.message?.chat?.id
+
+    // Validate callback data format (action:targetId:reportId)
+    if (!data || data.length > 200 || !/^[a-z_]+:[a-zA-Z0-9_-]+/.test(data)) {
+      res.status(200).send('OK')
+      return
+    }
 
     try {
       const db = getFirestore()

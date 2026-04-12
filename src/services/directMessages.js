@@ -234,6 +234,12 @@ export async function sendDirectMessage(recipientId, text, options = {}) {
   if (text.length > 10000) return { success: false, error: 'message_too_long' }
   if (containsProfanity(text)) return { success: false, error: 'profanity_detected' }
 
+  // Check if recipient has blocked us
+  try {
+    const { isUserBlocked } = await import('./userBlocking.js')
+    if (isUserBlocked(recipientId)) return { success: false, error: 'user_blocked' }
+  } catch { /* blocking check unavailable, proceed */ }
+
   const state = getState()
   const uid = state.user?.uid
 
