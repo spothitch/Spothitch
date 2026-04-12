@@ -58,7 +58,7 @@ const MAIN_JS_HANDLERS = [
   'selectAvatar', 'completeWelcome', 'skipWelcome', 'closeWelcome',
   // Settings
   'openSettings', 'closeSettings', 'setLanguage',
-  // Tutorial
+  // Tutorial (retired — stubs kept in main.js for backward compat)
   'startTutorial', 'nextTutorial', 'prevTutorial', 'skipTutorial', 'finishTutorial', 'closeTutorial',
   // Filters / Map layout
   'setFilter', 'handleSearch', 'openFilters', 'closeFilters', 'openActiveTrip',
@@ -306,15 +306,7 @@ const MAIN_JS_HANDLERS = [
   'openAddWebhook', 'toggleWebhookAction', 'removeWebhookAction',
   // Form persistence (defined in main.js)
   'clearFormDraft',
-  // DeviceManager (defined in DeviceManager.js)
-  'openDeviceManager', 'closeDeviceManager',
-  'confirmRemoveDevice', 'cancelRemoveDevice', 'executeRemoveDevice',
-  'confirmRemoveAllDevices', 'cancelRemoveAllDevices', 'executeRemoveAllDevices',
-  // PhotoGallery (defined in PhotoGallery.js)
-  'getCurrentPhotoIndex', 'goToPhoto', 'nextPhoto', 'prevPhoto',
-  'openPhotoFullscreen', 'closePhotoFullscreen',
-  'nextPhotoFullscreen', 'prevPhotoFullscreen', 'goToPhotoFullscreen',
-  'openPhotoUpload',
+  // DailyReward kept below — DeviceManager + PhotoGallery removed (dead code)
   // DailyReward (defined in DailyReward.js)
   'handleClaimDailyReward', 'closeDailyReward', 'closeDailyRewardResult',
   // Shop extras (defined in Shop.js)
@@ -330,9 +322,7 @@ const MAIN_JS_HANDLERS = [
   'submitIdentityDocument',
   'handleSelfieIdPhotoUpload', 'clearSelfieIdPhoto',
   'goToNextSelfieIdStep', 'goToPreviousSelfieIdStep', 'submitSelfieIdVerification',
-  // EmailVerification (defined in EmailVerification.js)
-  'initEmailVerification', 'checkEmailVerified',
-  'resendVerificationEmail', 'closeEmailVerification',
+  // EmailVerification removed (dead code)
   // LanguageSelector (defined in LanguageSelector.js)
   'selectLanguageOption', 'confirmLanguageSelection',
   // DeleteAccount (defined in DeleteAccount.js)
@@ -340,8 +330,7 @@ const MAIN_JS_HANDLERS = [
   'confirmDeleteAccount', 'confirmDeleteAccountGoogle',
   // DonationCard extras (defined in DonationCard.js)
   'handleDonationClick', 'processDonation', 'updateDonationLink',
-  // Planner (defined in Planner.js)
-  'saveCurrentTrip', 'shareTrip',
+  // Planner removed (dead code, redirect in main.js)
   // CookieBanner (defined in CookieBanner.js)
   'acceptAllCookies', 'refuseOptionalCookies',
   'showCookieCustomize', 'hideCookieCustomize', 'saveCustomCookiePreferences',
@@ -660,7 +649,7 @@ import { renderAuth } from '../../src/components/modals/Auth.js'
 import { renderAddSpot } from '../../src/components/modals/AddSpot.js'
 import { renderSpotDetail } from '../../src/components/modals/SpotDetail.js'
 import { renderWelcome } from '../../src/components/modals/Welcome.js'
-import { renderTutorial } from '../../src/components/modals/Tutorial.js'
+// Tutorial.js removed (retired)
 import { renderFiltersModal } from '../../src/components/modals/Filters.js'
 import { renderStatsModal } from '../../src/components/modals/Stats.js'
 import { renderBadgesModal } from '../../src/components/modals/Badges.js'
@@ -751,7 +740,7 @@ describe('Wiring: onclick handlers map to known window.* functions', () => {
     selectedSpot: mockState.spots[0],
   })
   testHandlers('Welcome modal', renderWelcome, { showWelcome: true })
-  testHandlers('Tutorial modal', renderTutorial, { showTutorial: true, tutorialStep: 0 })
+  // Tutorial removed (retired)
   testHandlers('AgeVerification modal', renderAgeVerification)
   testHandlers('IdentityVerification modal', () => renderIdentityVerification())
   testHandlers('TitlesModal', renderTitlesModal)

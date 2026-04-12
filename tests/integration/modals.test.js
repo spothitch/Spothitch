@@ -15,7 +15,7 @@ import { renderAuth } from '../../src/components/modals/Auth.js'
 import { renderAddSpot } from '../../src/components/modals/AddSpot.js'
 import { renderSpotDetail } from '../../src/components/modals/SpotDetail.js'
 import { renderWelcome } from '../../src/components/modals/Welcome.js'
-import { renderTutorial } from '../../src/components/modals/Tutorial.js'
+// Tutorial.js removed (retired)
 import { renderAgeVerification } from '../../src/components/modals/AgeVerification.js'
 import { renderIdentityVerification } from '../../src/components/modals/IdentityVerification.js'
 import { renderTitlesModal } from '../../src/components/modals/TitlesModal.js'
@@ -547,15 +547,7 @@ describe('Integration: Welcome Modal', () => {
   })
 })
 
-// ===============================================================
-// 14. Tutorial Modal (retired)
-// ===============================================================
-describe('Integration: Tutorial Modal (retired)', () => {
-  it('returns empty string', () => {
-    const html = renderTutorial()
-    expect(html).toBe('')
-  })
-})
+// 14. Tutorial Modal — removed (retired, file deleted)
 
 // ===============================================================
 // 15. TitlesModal
