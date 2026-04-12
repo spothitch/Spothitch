@@ -322,7 +322,8 @@ async function _initJournalSpotMap() {
     })
   } catch (err) {
     console.warn('[JournalSpotMap] Init failed:', err.message)
-    container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f87171;font-size:13px">${err.message}</div>`
+    container.innerHTML = `<div class="flex items-center justify-center h-full text-red-400 text-[13px]"></div>`
+    container.querySelector('div').textContent = err.message
   }
 }
 
