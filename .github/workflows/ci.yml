@@ -77,7 +77,6 @@ jobs:
   error-registry:
     name: Error Registry Audit
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -148,13 +147,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
       - name: Run Lighthouse CI
         run: |
-          npx @lhci/cli autorun --collect.staticDistDir=dist --collect.numberOfRuns=1 --assert.preset=lighthouse:recommended --assert.assertions.categories:performance=off --assert.assertions.categories:accessibility=warn --assert.assertions.categories:best-practices=warn --assert.assertions.categories:seo=warn || echo "Lighthouse warnings (non-blocking for now)"
+          npx @lhci/cli autorun --collect.staticDistDir=dist --collect.numberOfRuns=1 --assert.preset=lighthouse:recommended --assert.assertions.categories:performance=warn --assert.assertions.categories:accessibility=warn --assert.assertions.categories:best-practices=warn --assert.assertions.categories:seo=warn || echo "Lighthouse warnings (non-blocking for now)"
 
   # Aikido Security runs via GitHub App (PR checks), not via CI action
   # See app.aikido.dev for scan results
@@ -173,7 +172,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Download build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
@@ -224,8 +223,7 @@ jobs:
   firebase-integration:
     name: Firebase Integration Tests
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    continue-on-error: true
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -525,7 +523,7 @@ jobs:
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, e2e-core, e2e-features, e2e-comprehensive, e2e-stress]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     # Note: feature/* branches run tests only, no deploy
     steps:

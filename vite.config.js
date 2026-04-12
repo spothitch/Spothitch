@@ -213,7 +213,7 @@ export default defineConfig({
   build: {
     sourcemap: true,
     rollupOptions: {
-      external: ['mixpanel-browser'],
+      external: [],
       output: {
         manualChunks: {
           'vendor-maplibre': ['maplibre-gl'],
@@ -238,7 +238,7 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 500
+    chunkSizeWarningLimit: 350
   },
   
   server: {
