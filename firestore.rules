@@ -330,11 +330,15 @@ service cloud.firestore {
       allow delete: if request.auth != null
         && request.auth.uid == userId;
 
-      // Messages subcollection — traveler and guardians can read and write
+      // Messages subcollection — only traveler and their guardians
       match /messages/{msgId} {
-        allow read: if request.auth != null;
+        allow read: if request.auth != null
+          && (request.auth.uid == userId
+              || request.auth.uid in get(/databases/$(database)/documents/sosTimers/$(userId)).data.guardianIds);
         allow create: if request.auth != null
-          && request.resource.data.senderId == request.auth.uid;
+          && request.resource.data.senderId == request.auth.uid
+          && (request.auth.uid == userId
+              || request.auth.uid in get(/databases/$(database)/documents/sosTimers/$(userId)).data.guardianIds);
       }
     }
 

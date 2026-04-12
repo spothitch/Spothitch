@@ -398,24 +398,26 @@ window.shareSOSLocation = async () => {
   const pos = await _getSOSPosition()
 
   if (!pos) {
-    showError(t('positionError') || 'Impossible de partager la position')
-    return
+    // SOS MUST NEVER fail silently — send alert without position
+    showError(t('positionErrorSendingAnyway') || 'Position GPS indisponible. Alerte envoyée sans localisation.')
   }
 
-  LS.savePos(pos.lat, pos.lng)
+  if (pos) LS.savePos(pos.lat, pos.lng)
   actions.toggleSOS()
-  actions.setUserLocation({ lat: pos.lat, lng: pos.lng })
+  if (pos) actions.setUserLocation({ lat: pos.lat, lng: pos.lng })
 
   // Write SOS alert to Firestore → triggers Cloud Function → push notifs to guardians
-  _writeSOSAlertToFirestore(pos, 'alert')
+  _writeSOSAlertToFirestore(pos || { lat: 0, lng: 0, noPosition: true }, 'alert')
 
-  // Broadcast community alert to nearby opted-in users (position EXACTE)
-  import('../../services/communityAlert.js').then(({ broadcastCommunitySOSAlert }) => {
-    broadcastCommunitySOSAlert(pos, 'emergency')
-  }).catch(() => {})
+  // Broadcast community alert to nearby opted-in users (only if position available)
+  if (pos) {
+    import('../../services/communityAlert.js').then(({ broadcastCommunitySOSAlert }) => {
+      broadcastCommunitySOSAlert(pos, 'emergency')
+    }).catch(() => {})
+  }
 
   // Fire triple alert: push + SMS + call — all in parallel
-  _fireTripleAlert(pos.lat, pos.lng, state.emergencyContacts)
+  _fireTripleAlert(pos?.lat || 0, pos?.lng || 0, state.emergencyContacts)
 }
 
 /**
@@ -423,16 +425,19 @@ window.shareSOSLocation = async () => {
  * @returns {Promise<{lat: number, lng: number}|null>}
  */
 async function _getSOSPosition() {
-  // Offline → use cache
-  if (!navigator.onLine) {
+  const MAX_CACHE_AGE = 30 * 60 * 1000 // 30 minutes max for cached position
+
+  function _freshCache() {
     const cached = LS.cachedPos()
-    return cached ? { lat: cached.lat, lng: cached.lng } : null
+    if (!cached) return null
+    // Reject stale positions (older than 30 minutes)
+    if (cached.ts && Date.now() - cached.ts > MAX_CACHE_AGE) return null
+    return { lat: cached.lat, lng: cached.lng }
   }
 
-  if (!navigator.geolocation) {
-    const cached = LS.cachedPos()
-    return cached ? { lat: cached.lat, lng: cached.lng } : null
-  }
+  // Offline → use fresh cache only
+  if (!navigator.onLine) return _freshCache()
+  if (!navigator.geolocation) return _freshCache()
 
   return new Promise((resolve) => {
     navigator.geolocation.getCurrentPosition(
@@ -440,9 +445,8 @@ async function _getSOSPosition() {
         resolve({ lat: position.coords.latitude, lng: position.coords.longitude })
       },
       () => {
-        // Fallback to cache
-        const cached = LS.cachedPos()
-        resolve(cached ? { lat: cached.lat, lng: cached.lng } : null)
+        // Fallback to fresh cache only
+        resolve(_freshCache())
       },
       { enableHighAccuracy: true, timeout: 10000 }
     )

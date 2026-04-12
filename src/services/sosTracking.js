@@ -34,9 +34,10 @@ export async function startSOSTracking(options = {}) {
     return null
   }
 
-  // Generate unique session ID
-  const randomBytes = crypto.getRandomValues(new Uint32Array(2))
-  trackingSessionId = `sos_${Date.now()}_${randomBytes[0].toString(36)}${randomBytes[1].toString(36)}`.slice(0, 30)
+  // Generate unique session ID with 128-bit entropy
+  const randomBytes = crypto.getRandomValues(new Uint8Array(16))
+  const hex = Array.from(randomBytes, b => b.toString(16).padStart(2, '0')).join('')
+  trackingSessionId = `sos_${hex}`
 
   const state = getState()
 
