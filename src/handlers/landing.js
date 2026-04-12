@@ -104,28 +104,28 @@ function _showInstallInstructions(t) {
   document.getElementById('install-instructions-popup')?.remove()
   const popup = document.createElement('div')
   popup.id = 'install-instructions-popup'
-  popup.style.cssText = 'position:fixed;bottom:120px;left:16px;right:16px;z-index:999;animation:slideUp 0.3s ease'
+  popup.className = 'fixed bottom-[120px] left-4 right-4 z-[999] animate-slide-up'
   popup.innerHTML = `
-    <div style="background:rgba(15,23,42,0.97);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <span style="color:#fbbf24;font-weight:700;font-size:14px">${t('manualInstallTitle') || 'Installation manuelle'}</span>
-        <button onclick="this.closest('#install-instructions-popup').remove()" style="color:#64748b;font-size:20px;background:none;border:none;cursor:pointer" aria-label="${t('close') || 'Close'}">×</button>
+    <div class="bg-dark-primary/[0.97] backdrop-blur border border-white/10 rounded-2xl p-4 shadow-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-amber-400 font-bold text-sm">${t('manualInstallTitle') || 'Installation manuelle'}</span>
+        <button onclick="this.closest('#install-instructions-popup').remove()" class="text-slate-500 text-xl bg-transparent border-none cursor-pointer" aria-label="${t('close') || 'Close'}">×</button>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <div style="width:24px;height:24px;border-radius:50%;background:rgba(245,158,11,0.2);color:#fbbf24;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
-          <p style="font-size:13px;color:#cbd5e1;margin:0">${t('installStep1') || 'Ouvre le <strong style="color:white">menu du navigateur</strong> (⋮ ou ⋯)'}</p>
+      <div class="flex flex-col gap-2.5">
+        <div class="flex items-start gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0">1</div>
+          <p class="text-[13px] text-slate-300 m-0">${t('installStep1') || 'Ouvre le <strong class="text-white">menu du navigateur</strong> (⋮ ou ⋯)'}</p>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <div style="width:24px;height:24px;border-radius:50%;background:rgba(245,158,11,0.2);color:#fbbf24;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
-          <p style="font-size:13px;color:#cbd5e1;margin:0">${t('installStep2') || 'Choisis <strong style="color:white">"Ajouter à l\'écran d\'accueil"</strong>'}</p>
+        <div class="flex items-start gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0">2</div>
+          <p class="text-[13px] text-slate-300 m-0">${t('installStep2') || 'Choisis <strong class="text-white">"Ajouter à l\'écran d\'accueil"</strong>'}</p>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <div style="width:24px;height:24px;border-radius:50%;background:rgba(245,158,11,0.2);color:#fbbf24;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
-          <p style="font-size:13px;color:#cbd5e1;margin:0">${t('installStep3') || 'Confirme en appuyant sur <strong style="color:white">"Installer"</strong>'}</p>
+        <div class="flex items-start gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0">3</div>
+          <p class="text-[13px] text-slate-300 m-0">${t('installStep3') || 'Confirme en appuyant sur <strong class="text-white">"Installer"</strong>'}</p>
         </div>
       </div>
-      <button onclick="this.closest('#install-instructions-popup').remove();closeLanding()" style="width:100%;margin-top:14px;padding:10px;border-radius:10px;background:rgba(100,116,139,0.2);color:#94a3b8;font-size:13px;border:none;cursor:pointer">${t('understood') || "J'ai compris"}</button>
+      <button onclick="this.closest('#install-instructions-popup').remove();closeLanding()" class="w-full mt-3.5 py-2.5 rounded-[10px] bg-slate-500/20 text-slate-400 text-[13px] border-none cursor-pointer">${t('understood') || "J'ai compris"}</button>
     </div>`
   document.body.appendChild(popup)
 }

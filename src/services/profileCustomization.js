@@ -674,6 +674,9 @@ window.uploadProfilePhoto = () => {
   input.onchange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    // Validate file type and size before upload
+    if (file.size > 5 * 1024 * 1024) { window.showToast?.('Max 5MB', 'error'); return }
+    if (!file.type?.startsWith('image/')) { window.showToast?.('Image only', 'error'); return }
     try {
       const { uploadImage, getCurrentUser } = await import('./firebase.js')
       const user = getCurrentUser()

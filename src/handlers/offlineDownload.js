@@ -82,6 +82,17 @@ window.downloadCountryFromBubble = async (code, name) => {
 
 window.downloadCountryOffline = async (code, name) => {
  const t = window.t
+ // Check storage quota before download
+ if (navigator.storage?.estimate) {
+   try {
+     const { quota, usage } = await navigator.storage.estimate()
+     const remaining = quota - usage
+     if (remaining < 5 * 1024 * 1024) { // < 5MB remaining
+       window.showToast?.(t('storageFull') || 'Storage almost full', 'error')
+       return
+     }
+   } catch { /* quota API unavailable */ }
+ }
  // Disable button
  const btn = document.getElementById(`dl-btn-${code}`) || document.getElementById(`offline-download-${code}`)
  if (btn) {

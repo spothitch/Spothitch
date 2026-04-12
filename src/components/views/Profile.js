@@ -32,7 +32,7 @@ async function syncProfileToFirestore(fields) {
  if (user) {
  await updateUserProfile(user.uid, fields)
  }
- } catch { /* offline or not logged in */ }
+ } catch (e) { console.warn('[Profile] sync failed:', e?.message) }
 }
 
 // ==================== LANGUAGE + COUNTRY MAPS ====================

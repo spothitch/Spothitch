@@ -24,7 +24,6 @@ const STORES = {
 }
 
 let dbPromise = null
-let worker = null
 
 /**
  * Open/create the database
@@ -317,9 +316,6 @@ export async function getStorageStats() {
  * Delete the entire database
  */
 export async function deleteDatabase() {
-  if (worker) {
-    worker = null
-  }
   dbPromise = null
   return new Promise((resolve, reject) => {
     const request = indexedDB.deleteDatabase(DB_NAME)

@@ -200,8 +200,7 @@ export function applyUpdate() {
  });
  }
 
- // Reload the page
- window.location.reload();
+ // Rule #23: no automatic reload. New SW activates on next app launch.
 }
 
 /**

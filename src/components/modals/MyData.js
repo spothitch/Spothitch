@@ -448,10 +448,10 @@ export async function requestAccountDeletion() {
       // Clear ALL user data using centralized registry (RGPD compliant)
       const { clearAllUserData } = await import('../../services/storageRegistry.js');
       clearAllUserData();
-      window.showToast?.((t('accountDeleted') || 'Compte supprimé. Vous allez être redirigé...'), 'info');
-      setTimeout(() => {
-        location.reload();
-      }, 2000);
+      window.showToast?.((t('accountDeleted') || 'Compte supprimé.'), 'info');
+      // Reset state instead of reload (Rule #23: no auto-reload)
+      const { setState } = await import('../../stores/state.js')
+      setState({ isLoggedIn: false, user: null, showMyData: false, activeTab: 'map' })
     } else if (input !== null) {
       window.showToast?.((t('deleteCancelled') || 'Suppression annulée. Texte incorrect'), 'warning');
     }
