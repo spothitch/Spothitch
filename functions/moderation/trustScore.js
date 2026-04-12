@@ -30,12 +30,17 @@ async function recalculateTrustScore(userId) {
   const spotsSnap = await db.collection('spots').where('creatorId', '==', userId).get()
   score += Math.min(spotsSnap.size, 25)
 
-  // Reviews written (2pt each, max 20)
-  // We can't easily query subcollections across all spots, so use a counter approach
-  score += Math.min((user.reviewsCount || 0) * 2, 20)
+  // Reviews written (2pt each, max 20) — server-verified count
+  try {
+    const reviewsSnap = await db.collectionGroup('reviews').where('userId', '==', userId).get()
+    score += Math.min(reviewsSnap.size * 2, 20)
+  } catch { score += Math.min((user.reviewsCount || 0) * 2, 20) }
 
-  // Validations done (1pt each, max 15)
-  score += Math.min((user.validationsCount || 0), 15)
+  // Validations done (1pt each, max 15) — server-verified count
+  try {
+    const valsSnap = await db.collectionGroup('validations').where('userId', '==', userId).get()
+    score += Math.min(valsSnap.size, 15)
+  } catch { score += Math.min((user.validationsCount || 0), 15) }
 
   // Account age (1pt per month, max 15)
   const createdAt = user.createdAt?.toMillis?.() || user.createdAt || Date.now()

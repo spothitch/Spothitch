@@ -230,7 +230,7 @@ export const STORAGE_KEYS = [
 
   // === GUARDIAN v2 ===
   { key: 'spothitch_guardian', category: DataCategory.SECURITY, description: 'Guardian mode settings and trusted contacts', sensitive: true },
-  { key: 'spothitch_sos_rec_duration', category: DataCategory.PREFERENCES, description: 'SOS recording max duration preference' },
+  { key: 'spothitch_sos_rec_duration', category: DataCategory.SETTINGS, description: 'SOS recording max duration preference' },
 
   // === JOURNAL ===
   { key: 'spothitch_journal_trips', category: DataCategory.PERSONAL, description: 'Trip diary entries (legs, notes, expenses)', sensitive: true },

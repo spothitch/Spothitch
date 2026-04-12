@@ -51,14 +51,21 @@ exports.checkAutoBan = onDocumentCreated('reports/{reportId}', async (event) => 
     .where('type', '==', 'user')
     .get()
 
-  const reportCount = reportsSnap.size
+  // Filter: only count reports from last 30 days by distinct reporters
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000
+  const recentReports = reportsSnap.docs.filter(d => {
+    const ts = d.data().createdAt?.toMillis?.() || d.data().createdAt || 0
+    return ts > thirtyDaysAgo
+  })
+  const distinctReporters = new Set(recentReports.map(d => d.data().reporterId)).size
+  const reportCount = distinctReporters // count unique reporters, not total reports
 
   if (reportCount >= BAN_THRESHOLD) {
-    // Suspend the user
+    // Suspend the user (not delete — admin can review and appeal)
     await db.doc(`users/${targetId}`).update({
       suspended: true,
       suspendedAt: new Date().toISOString(),
-      suspendedReason: `auto_ban_${reportCount}_reports`,
+      suspendedReason: `auto_ban_${reportCount}_unique_reporters_30d`,
     })
 
     const msg = [

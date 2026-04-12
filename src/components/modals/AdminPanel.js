@@ -173,8 +173,8 @@ function computeAnalytics(feedbackDocs, period) {
 
 function featureName(fid) {
  const f = FEATURE_BY_ID[fid]
- if (!f) return fid
- return `${f.emoji} ${t(f.nameKey) || fid}`
+ if (!f) return escapeHTML(String(fid))
+ return `${f.emoji} ${t(f.nameKey) || escapeHTML(String(fid))}`
 }
 
 function pctBar(count, total, color) {
@@ -293,7 +293,7 @@ function renderFeedbackTab(state) {
  if (!featureRows) return ''
 
  return `<details class="card p-3 mb-2">
- <summary class="font-bold text-sm cursor-pointer text-slate-200">${TAB_NAMES[tabKey] || tabKey}</summary>
+ <summary class="font-bold text-sm cursor-pointer text-slate-200">${TAB_NAMES[tabKey] || escapeHTML(String(tabKey))}</summary>
  <div class="mt-2">${featureRows}</div></details>`
  }).join('')
 
@@ -302,7 +302,7 @@ function renderFeedbackTab(state) {
  ? a.allComments.map(d => {
  const dateStr = d.timestamp ? new Date(d.timestamp).toLocaleDateString() : ''
  const feat = FEATURE_BY_ID[d.featureId]
- const featLabel = feat ? `${feat.emoji} ${t(feat.nameKey) || d.featureId}` : d.featureId
+ const featLabel = feat ? `${feat.emoji} ${t(feat.nameKey) || escapeHTML(String(d.featureId))}` : escapeHTML(String(d.featureId || ''))
  return `<div class="py-2 border-b border-slate-700/50">
  <div class="flex items-center gap-2 mb-1">
  <span class="text-xs font-bold text-amber-400">${escapeHTML(d.userName || 'Anonyme')}</span>

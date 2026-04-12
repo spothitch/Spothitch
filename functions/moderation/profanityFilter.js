@@ -22,8 +22,13 @@ const PROFANITY_LIST = [
 
 function containsProfanity(text) {
   if (!text) return false
-  const lower = text.toLowerCase().replace(/[._\-\s]/g, '')
-  return PROFANITY_LIST.some(w => lower.includes(w))
+  // Normalize: lowercase, remove common bypass chars (. _ - * ! @ # 0-9 as letters)
+  const normalized = text.toLowerCase()
+    .replace(/[._\-\s*!@#$%^&()~`]/g, '')
+    .replace(/0/g, 'o').replace(/1/g, 'i').replace(/3/g, 'e')
+    .replace(/4/g, 'a').replace(/5/g, 's').replace(/7/g, 't')
+    .replace(/8/g, 'b').replace(/\$/g, 's')
+  return PROFANITY_LIST.some(w => normalized.includes(w))
 }
 
 function checkFields(data, fields) {
@@ -43,7 +48,7 @@ async function notifyAdmin(type, field, text, userId) {
     ``,
     `Type : ${type}`,
     `Champ : ${field}`,
-    `Contenu : ${(text || '').slice(0, 100)}`,
+    `Contenu : ${(text || '').slice(0, 100).replace(/[*_`\[\]()~>#+=|{}.!-]/g, '\\$&')}`,
     `User : \`${userId || '?'}\``,
     ``,
     `Document supprimé automatiquement.`,
