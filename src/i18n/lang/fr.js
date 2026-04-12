@@ -5227,7 +5227,7 @@ export default {
  yearsAgoShort: ' an(s)',
 
  // Auto-added by quality-gate --fix
- certified: '[TODO] certified',
+ certified: 'Certifié',
 
  // Auth progressive
  loginToAddSpot: 'Connecte-toi pour ajouter un spot',
@@ -5491,16 +5491,16 @@ export default {
  permissionDenied: 'Permission refusee',
 
  // Auto-added by quality-gate --fix
- editPosition: '[TODO] editPosition',
- spotNotFound: '[TODO] spotNotFound',
- removeContact: '[TODO] removeContact',
- toggleDetails: '[TODO] toggleDetails',
- toggleValidations: '[TODO] toggleValidations',
- openStreetView: '[TODO] openStreetView',
- guideAskPlaceholder: '[TODO] guideAskPlaceholder',
- locationSharingDisabled: '[TODO] locationSharingDisabled',
- locationSharingEnabled: '[TODO] locationSharingEnabled',
- offlineCannotSave: '[TODO] offlineCannotSave',
+ editPosition: 'Modifier la position',
+ spotNotFound: 'Spot introuvable',
+ removeContact: 'Retirer le contact',
+ toggleDetails: 'Afficher les détails',
+ toggleValidations: 'Afficher les validations',
+ openStreetView: 'Ouvrir Street View',
+ guideAskPlaceholder: 'Posez votre question...',
+ locationSharingDisabled: 'Partage de position désactivé',
+ locationSharingEnabled: 'Partage de position activé',
+ offlineCannotSave: 'Impossible de sauvegarder hors ligne',
 
  // Voyageurs tab
  socialVoyageurs: 'Voyageurs',

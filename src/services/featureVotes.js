@@ -155,7 +155,7 @@ export async function getVoteTotals() {
     })
     setCachedTotals(totals)
     return totals
-  } catch {
+  } catch (e) {
     return {}
   }
 }
@@ -188,7 +188,7 @@ export async function getFeatureComments(featureId) {
         timestamp: data.timestamp,
       }
     })
-  } catch {
+  } catch (e) {
     return []
   }
 }

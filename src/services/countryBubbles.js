@@ -324,7 +324,7 @@ function getCountryDisplayNames() {
   try {
     const lang = document.documentElement.lang || 'fr'
     return new Intl.DisplayNames([lang], { type: 'region' })
-  } catch {
+  } catch (e) {
     return { of: (code) => code }
   }
 }

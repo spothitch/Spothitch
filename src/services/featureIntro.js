@@ -10,7 +10,7 @@ export function isFeatureSeen(id) {
   try {
     const seen = JSON.parse(localStorage.getItem(KEY) || '{}')
     return !!seen[id]
-  } catch {
+  } catch (e) {
     return false
   }
 }
@@ -26,7 +26,7 @@ export function markFeatureSeen(id) {
 export function getSeenCount() {
   try {
     return Object.keys(JSON.parse(localStorage.getItem(KEY) || '{}')).length
-  } catch {
+  } catch (e) {
     return 0
   }
 }

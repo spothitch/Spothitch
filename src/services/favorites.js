@@ -30,7 +30,7 @@ let _unsubFavorites = null
 function getLocalFavorites() {
   try {
     return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')
-  } catch {
+  } catch (e) {
     return []
   }
 }

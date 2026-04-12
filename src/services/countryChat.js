@@ -135,7 +135,7 @@ export async function getPopularCountryChats() {
     )
     const snap = await getDocs(q)
     return snap.docs.map(d => ({ id: d.id, ...d.data() }))
-  } catch {
+  } catch (e) {
     return []
   }
 }

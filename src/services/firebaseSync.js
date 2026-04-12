@@ -84,7 +84,7 @@ async function _doSync() {
       featureOpinions,
       syncedAt: new Date().toISOString(),
     }, { merge: true })
-  } catch {
+  } catch (e) {
     // Silent fail — localStorage remains source of truth when offline
   }
 }
@@ -219,7 +219,7 @@ export async function hydrateAllFromFirestore(userId) {
       if (d.sosConfig.fakeDelay && !_getStr('spothitch_sos_fake_delay')) _setStr('spothitch_sos_fake_delay', d.sosConfig.fakeDelay)
       if (d.sosConfig.customMsg && !_getStr('spothitch_sos_custom_msg')) _setStr('spothitch_sos_custom_msg', d.sosConfig.customMsg)
     }
-  } catch {
+  } catch (e) {
     // Silent fail — localStorage remains source of truth
   }
 }

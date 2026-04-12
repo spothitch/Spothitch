@@ -5220,7 +5220,7 @@ export default {
  yearsAgoShort: ' J',
 
  // Auto-added by quality-gate --fix
- certified: '[TODO] certified',
+ certified: 'Zertifiziert',
 
  // Auth progressive
  loginToAddSpot: 'Melde dich an, um einen Spot hinzuzufügen',
@@ -5483,16 +5483,16 @@ export default {
  permissionDenied: 'Berechtigung verweigert',
 
  // Auto-added by quality-gate --fix
- editPosition: '[TODO] editPosition',
- spotNotFound: '[TODO] spotNotFound',
- removeContact: '[TODO] removeContact',
- toggleDetails: '[TODO] toggleDetails',
- toggleValidations: '[TODO] toggleValidations',
- openStreetView: '[TODO] openStreetView',
- guideAskPlaceholder: '[TODO] guideAskPlaceholder',
- locationSharingDisabled: '[TODO] locationSharingDisabled',
- locationSharingEnabled: '[TODO] locationSharingEnabled',
- offlineCannotSave: '[TODO] offlineCannotSave',
+ editPosition: 'Position bearbeiten',
+ spotNotFound: 'Spot nicht gefunden',
+ removeContact: 'Kontakt entfernen',
+ toggleDetails: 'Details anzeigen',
+ toggleValidations: 'Validierungen anzeigen',
+ openStreetView: 'Street View öffnen',
+ guideAskPlaceholder: 'Stelle deine Frage...',
+ locationSharingDisabled: 'Standortfreigabe deaktiviert',
+ locationSharingEnabled: 'Standortfreigabe aktiviert',
+ offlineCannotSave: 'Offline nicht speicherbar',
 
  // Voyageurs tab
  socialVoyageurs: 'Reisende',

@@ -90,7 +90,7 @@ export async function submitGuideTip({
       const updated = getCachedTips().map(t => t.id === localId ? { ...t, id: docId } : t)
       saveCachedTips(updated)
     }
-  } catch {
+  } catch (e) {
     // Offline — local cache already saved
   }
 
@@ -134,7 +134,7 @@ export async function loadUserGuideTips() {
       }
     })
     saveCachedTips(cached)
-  } catch {
+  } catch (e) {
     // Silent — cache is still valid
   }
 }
@@ -157,7 +157,7 @@ export async function deleteUserGuideTip(docId) {
       const { doc, deleteDoc } = await import('firebase/firestore')
       await deleteDoc(doc(db, 'guideTips', docId))
     }
-  } catch {
+  } catch (e) {
     // Offline — local cache already updated
   }
 
@@ -191,7 +191,7 @@ export async function loadPublicGuideTips(countryCode) {
     return snap.docs
       .map(d => ({ ...d.data(), id: d.id }))
       .filter(tip => tip.status === 'approved' || (user && tip.userId === user.uid))
-  } catch {
+  } catch (e) {
     return []
   }
 }
@@ -223,7 +223,7 @@ export async function loadCommunityPendingCounts() {
     _pendingCountsCache = counts
     _pendingCountsLoading = false
     return counts
-  } catch {
+  } catch (e) {
     _pendingCountsLoading = false
     return {}
   }
@@ -265,7 +265,7 @@ export async function approveGuideTip(tipId) {
     const { doc, updateDoc } = await import('firebase/firestore')
     await updateDoc(doc(db, 'guideTips', tipId), { status: 'approved' })
     return { success: true }
-  } catch {
+  } catch (e) {
     return { success: false, error: 'update_failed' }
   }
 }
@@ -282,7 +282,7 @@ export async function rejectGuideTip(tipId) {
     const { doc, updateDoc } = await import('firebase/firestore')
     await updateDoc(doc(db, 'guideTips', tipId), { status: 'rejected' })
     return { success: true }
-  } catch {
+  } catch (e) {
     return { success: false, error: 'update_failed' }
   }
 }
@@ -303,7 +303,7 @@ export async function loadPendingGuideTips() {
     const snap = await getDocs(q)
     if (snap.empty) return []
     return snap.docs.map(d => ({ ...d.data(), id: d.id }))
-  } catch {
+  } catch (e) {
     return []
   }
 }
