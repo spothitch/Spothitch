@@ -54,7 +54,11 @@ export const Storage = {
           return false;
         }
       }
-      console.warn(`Storage.set error for ${key}:`, e);
+      if (e.name === 'SecurityError') {
+        console.warn(`Storage disabled (private browsing mode?)`)
+      } else {
+        console.warn(`Storage.set error for ${key}:`, e)
+      }
       return false;
     }
   },

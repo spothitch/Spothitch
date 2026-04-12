@@ -522,5 +522,5 @@ export async function geocodePlace(place) {
  * Validate coordinates are within valid ranges
  */
 function isValidCoord(lat, lng) {
-  return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
+  return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
 }

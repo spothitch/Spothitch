@@ -238,6 +238,7 @@ function handlePositionUpdate(position, session) {
 /**
  * Handle position error
  */
+let _gpsRetryCount = 0
 function handlePositionError(error) {
   console.error('Position error:', error)
 
@@ -247,10 +248,18 @@ function handlePositionError(error) {
       stopSOSTracking()
       break
     case error.POSITION_UNAVAILABLE:
-      showToast(t('positionUnavailable') || 'Position unavailable', 'warning')
+      // Try again with low accuracy as fallback
+      if (_gpsRetryCount < 2 && watchId) {
+        _gpsRetryCount++
+        showToast(t('positionUnavailable') || 'Position unavailable, retrying...', 'warning')
+      }
       break
     case error.TIMEOUT:
-      showToast(t('gpsTimeout') || 'GPS timeout', 'warning')
+      // Retry with longer timeout
+      if (_gpsRetryCount < 3 && watchId) {
+        _gpsRetryCount++
+        showToast(t('gpsTimeout') || 'GPS timeout, retrying...', 'warning')
+      }
       break
   }
 }

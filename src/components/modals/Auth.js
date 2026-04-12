@@ -434,6 +434,14 @@ window.handleAuth = async (event) => {
 
   if (!email || !password) return
 
+  // Client-side brute force protection
+  if (!window._authFailCount) window._authFailCount = { count: 0, lockedUntil: 0 }
+  if (Date.now() < window._authFailCount.lockedUntil) {
+    const mins = Math.ceil((window._authFailCount.lockedUntil - Date.now()) / 60000)
+    if (errorDiv) { errorDiv.textContent = t('tooManyAttempts')?.replace('{min}', mins) || `Too many attempts. Try again in ${mins} min.`; errorDiv.classList.remove('hidden') }
+    return
+  }
+
   // Hide previous errors
   if (errorDiv) {
     errorDiv.classList.add('hidden')
@@ -552,6 +560,8 @@ window.handleAuth = async (event) => {
 
     if (result.success) {
       const user = result.user
+      // Reset brute force counter on success
+      if (window._authFailCount) window._authFailCount = { count: 0, lockedUntil: 0 }
       // Block page reloads for 15s after auth (SW update, version.json)
       window._authJustCompleted = Date.now()
       // Create/update Firestore profile
@@ -600,6 +610,14 @@ window.handleAuth = async (event) => {
       }
     } else {
       window._pendingRegistrationData = null
+      // Track failed attempts for brute force protection
+      if (window._authFailCount) {
+        window._authFailCount.count++
+        if (window._authFailCount.count >= 5) {
+          window._authFailCount.lockedUntil = Date.now() + 15 * 60 * 1000 // 15 min lock
+          window._authFailCount.count = 0
+        }
+      }
       const msg = getAuthErrorMessage(result.error)
       if (errorDiv) {
         errorDiv.textContent = msg
@@ -817,7 +835,7 @@ window.checkUsernameField = (value) => {
         statusDiv.textContent = ''
         statusDiv.className = 'text-xs mt-1 h-4'
       }
-    }, 500) // 500ms debounce
+    }, 1000) // 1s debounce (rate-limit Firestore reads)
   })
 }
 

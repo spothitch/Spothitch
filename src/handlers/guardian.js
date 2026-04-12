@@ -13,7 +13,10 @@ import {
 
 // Guardian Mode handlers
 window.showGuardianModal = () => window.setState({ showGuardianModal: true, _guardianDismissed: false })
-window.closeGuardianModal = () => window.setState({ showGuardianModal: false, _guardianDismissed: true })
+window.closeGuardianModal = () => {
+  import('../services/guardian.js').then(m => m.unsubscribeGuardianChat()).catch(() => {})
+  window.setState({ showGuardianModal: false, _guardianDismissed: true })
+}
 
 // Header guardian button: short press = check-in, hold 2s = stop
 let _guardianPressTimer = null

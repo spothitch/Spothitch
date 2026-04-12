@@ -27,7 +27,7 @@ import { haversineKm } from '../utils/geo.js'
  * If the phone dies, the server-side Cloud Function detects the expired timer
  * and sends a push notification to the guardian.
  */
-async function syncSOSTimerToFirestore(action, data = {}) {
+async function syncSOSTimerToFirestore(action, data = {}, _attempt = 0) {
   try {
     const { db, getCurrentUser } = await import('./firebase.js')
     const { doc, setDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore')
@@ -77,8 +77,13 @@ async function syncSOSTimerToFirestore(action, data = {}) {
     }
     return true // sync succeeded
   } catch (err) {
-    console.warn('[Guardian] Failed to sync SOS timer to Firestore:', err.message)
-    return false // sync failed
+    console.warn(`[Guardian] Firestore sync failed (attempt ${_attempt + 1}/3):`, err.message)
+    // Retry with exponential backoff (max 3 attempts)
+    if (_attempt < 2) {
+      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, _attempt)))
+      return syncSOSTimerToFirestore(action, data, _attempt + 1)
+    }
+    return false // all retries exhausted
   }
 }
 
@@ -718,10 +723,13 @@ export function startGuardianMode(guardian, interval = 30, options = {}) {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        // Skip low-accuracy positions (>200m) to avoid scattered map
+        if (pos.coords.accuracy > 200) return
         const current = loadState()
         current.positions.push({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
+          accuracy: Math.round(pos.coords.accuracy),
           timestamp: Date.now(),
         })
         if (current.positions.length > MAX_POSITIONS) {
@@ -845,10 +853,12 @@ export function checkIn() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (pos.coords.accuracy > 200) return // skip low-accuracy
         const current = loadState()
         current.positions.push({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
+          accuracy: Math.round(pos.coords.accuracy),
           timestamp: Date.now(),
         })
         if (current.positions.length > MAX_POSITIONS) {

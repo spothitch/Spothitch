@@ -18,13 +18,14 @@ const MAX_AGE = 120;
  * @returns {number} Age in years
  */
 export function calculateAge(birthDate) {
+  // Use UTC to avoid timezone issues (birth date at midnight UTC)
   const today = new Date();
-  const birth = new Date(birthDate);
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
+  const birth = new Date(birthDate + (String(birthDate).includes('T') ? '' : 'T00:00:00Z'));
+  let age = today.getUTCFullYear() - birth.getUTCFullYear();
+  const monthDiff = today.getUTCMonth() - birth.getUTCMonth();
 
   // Adjust age if birthday hasn't occurred yet this year
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+  if (monthDiff < 0 || (monthDiff === 0 && today.getUTCDate() < birth.getUTCDate())) {
     age--;
   }
 

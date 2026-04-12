@@ -742,6 +742,10 @@ export async function addDestinationToSpot(spotId, destination) {
       addedAt: new Date().toISOString(),
     };
 
+    // Re-check auth right before write (prevent race condition)
+    const freshUser = getCurrentUser()
+    if (!freshUser) return { success: false, error: 'auth_expired' }
+
     const spotRef = doc(db, 'spots', spotId);
     await updateDoc(spotRef, {
       destinations: arrayUnion(entry),
@@ -1082,8 +1086,9 @@ export async function quickValidateSpot(spotId, options = {}) {
     const { increment } = await import('firebase/firestore')
     const userName = user.displayName || user.email?.split('@')[0] || 'Anonyme'
 
-    // Ensure spot document exists
+    // Ensure spot document exists (re-check auth before write)
     try {
+      if (!getCurrentUser()) return { success: false, error: 'auth_expired' }
       const spotSnap = await getDoc(spotRef)
       if (!spotSnap.exists()) {
         await setDoc(spotRef, { createdAt: serverTimestamp(), validationCount: 0 })
