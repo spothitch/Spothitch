@@ -1337,3 +1337,456 @@ test.describe('R. Divers', () => {
     expect(exists).toBe(true)
   })
 })
+
+// ==================== GROUPE S — CHECKIN MODAL DÉTAILLÉ ====================
+
+test.describe('S. Checkin Modal', () => {
+  test('S1: openCheckinModal exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.openCheckinModal === 'function')).toBe(true)
+  })
+  test('S2: closeCheckinModal exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.closeCheckinModal === 'function')).toBe(true)
+  })
+  test('S3: submitCheckin exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.submitCheckin === 'function')).toBe(true)
+  })
+  test('S4: setCheckinRideResult exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setCheckinRideResult === 'function')).toBe(true)
+  })
+  test('S5: triggerCheckinPhoto exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.triggerCheckinPhoto === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE T — ADDSPOT FORM STEPS ====================
+
+test.describe('T. AddSpot Form Steps', () => {
+  test('T1: useGPSForSpot exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.useGPSForSpot === 'function')).toBe(true)
+  })
+  test('T2: toggleSpotMapPicker exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.toggleSpotMapPicker === 'function')).toBe(true)
+  })
+  test('T3: autoDetectStation exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.autoDetectStation === 'function')).toBe(true)
+  })
+  test('T4: autoDetectRoad exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.autoDetectRoad === 'function')).toBe(true)
+  })
+  test('T5: setMethod exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setMethod === 'function')).toBe(true)
+  })
+  test('T6: setGroupSize exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setGroupSize === 'function')).toBe(true)
+  })
+  test('T7: setTimeOfDay exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setTimeOfDay === 'function')).toBe(true)
+  })
+  test('T8: toggleAmenity exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.toggleAmenity === 'function')).toBe(true)
+  })
+  test('T9: setWaitTime exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setWaitTime === 'function')).toBe(true)
+  })
+  test('T10: setRideResult exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setRideResult === 'function')).toBe(true)
+  })
+  test('T11: setExperienceDate exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setExperienceDate === 'function')).toBe(true)
+  })
+  test('T12: addSpotDestination exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.addSpotDestination === 'function')).toBe(true)
+  })
+  test('T13: removeSpotDestination exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.removeSpotDestination === 'function')).toBe(true)
+  })
+  test('T14: removeSpotPhoto exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.removeSpotPhoto === 'function')).toBe(true)
+  })
+  test('T15: showSpotSummary exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showSpotSummary === 'function')).toBe(true)
+  })
+  test('T16: handleAddSpot exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.handleAddSpot === 'function')).toBe(true)
+  })
+  test('T17: setSpotTag exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setSpotTag === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE U — NAVIGATION APPS ====================
+
+test.describe('U. Navigation Apps', () => {
+  test('U1: showNavigationPicker exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showNavigationPicker === 'function')).toBe(true)
+  })
+  test('U2: openInNavigationApp exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.openInNavigationApp === 'function')).toBe(true)
+  })
+  test('U3: selectNavigationApp exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.selectNavigationApp === 'function')).toBe(true)
+  })
+  test('U4: startSpotNavigation exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.startSpotNavigation === 'function')).toBe(true)
+  })
+  test('U5: stopNavigation exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.stopNavigation === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE V — PROFIL ACTIONS ====================
+
+test.describe('V. Profile Actions', () => {
+  // Profile handlers are lazy-loaded — navigate to profile tab first
+  async function setupProfilePage(page) {
+    await setupPage(page)
+    await waitForApp(page)
+    await page.evaluate(() => window.changeTab?.('profile'))
+    await page.waitForTimeout(2000)
+  }
+  test('V1: saveProfileEdits exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.saveProfileEdits === 'function')).toBe(true)
+  })
+  test('V2: selectProfilePhoto exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.selectProfilePhoto === 'function')).toBe(true)
+  })
+  test('V3: setMainProfilePhoto exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.setMainProfilePhoto === 'function')).toBe(true)
+  })
+  test('V4: openChangePassword exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openChangePassword === 'function')).toBe(true)
+  })
+  test('V5: openChangeEmail exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openChangeEmail === 'function')).toBe(true)
+  })
+  test('V6: openChangeUsername exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openChangeUsername === 'function')).toBe(true)
+  })
+  test('V7: openEditName exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openEditName === 'function')).toBe(true)
+  })
+  test('V8: openPhotoManager exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openPhotoManager === 'function')).toBe(true)
+  })
+  test('V9: openExportData exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openExportData === 'function')).toBe(true)
+  })
+  test('V10: openAppealForm exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openAppealForm === 'function')).toBe(true)
+  })
+  test('V11: sortMySpots exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.sortMySpots === 'function')).toBe(true)
+  })
+  test('V12: openMySpots exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openMySpots === 'function')).toBe(true)
+  })
+  test('V13: openMyValidations exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.openMyValidations === 'function')).toBe(true)
+  })
+  test('V14: togglePrivacy exists', async ({ page }) => {
+    await setupProfilePage(page)
+    expect(await page.evaluate(() => typeof window.togglePrivacy === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE W — SOCIAL EVENTS CRUD ====================
+
+test.describe('W. Events CRUD', () => {
+  test('W1: submitCreateEvent exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.submitCreateEvent === 'function')).toBe(true)
+  })
+  test('W2: closeCreateEvent exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.closeCreateEvent === 'function')).toBe(true)
+  })
+  test('W3: leaveEvent exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.leaveEvent === 'function')).toBe(true)
+  })
+  test('W4: deleteEventAction exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.deleteEventAction === 'function')).toBe(true)
+  })
+  test('W5: openEventDetail exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.openEventDetail === 'function')).toBe(true)
+  })
+  test('W6: closeEventDetail exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.closeEventDetail === 'function')).toBe(true)
+  })
+  test('W7: shareEvent exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.shareEvent === 'function')).toBe(true)
+  })
+  test('W8: replyEventComment exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.replyEventComment === 'function')).toBe(true)
+  })
+  test('W9: toggleReplyInput exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.toggleReplyInput === 'function')).toBe(true)
+  })
+  test('W10: deleteEventCommentAction exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.deleteEventCommentAction === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE X — ACCESSIBILITY & PWA ====================
+
+test.describe('X. Accessibility & PWA', () => {
+  test('X1: showAccessibilityHelp exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showAccessibilityHelp === 'function')).toBe(true)
+  })
+  test('X2: closeAccessibilityHelp exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.closeAccessibilityHelp === 'function')).toBe(true)
+  })
+  test('X3: srAnnounce exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.srAnnounce === 'function')).toBe(true)
+  })
+  test('X4: showInstallBanner exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showInstallBanner === 'function')).toBe(true)
+  })
+  test('X5: dismissInstallBanner exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.dismissInstallBanner === 'function')).toBe(true)
+  })
+  test('X6: centerOnUser exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.centerOnUser === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE Y — TRIP PLANNER COMPAT ====================
+
+test.describe('Y. Trip Planner', () => {
+  test('Y1: calculateTrip exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.calculateTrip === 'function')).toBe(true)
+  })
+  test('Y2: clearTripResults exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.clearTripResults === 'function')).toBe(true)
+  })
+  test('Y3: saveTripWithSpots exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.saveTripWithSpots === 'function')).toBe(true)
+  })
+  test('Y4: loadSavedTrip exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.loadSavedTrip === 'function')).toBe(true)
+  })
+  test('Y5: deleteSavedTrip exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.deleteSavedTrip === 'function')).toBe(true)
+  })
+  test('Y6: renameSavedTrip exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.renameSavedTrip === 'function')).toBe(true)
+  })
+  test('Y7: viewTripOnMap exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.viewTripOnMap === 'function')).toBe(true)
+  })
+  test('Y8: closeTripMap exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.closeTripMap === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE Z — IDENTITY VERIFICATION ====================
+
+test.describe('Z. Identity Verification', () => {
+  test('Z1: startVerificationStep exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.startVerificationStep === 'function')).toBe(true)
+  })
+  test('Z2: submitVerificationPhotos exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.submitVerificationPhotos === 'function')).toBe(true)
+  })
+  test('Z3: getTrustLevel exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.getTrustLevel === 'function')).toBe(true)
+  })
+  test('Z4: getTrustBadge exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.getTrustBadge === 'function')).toBe(true)
+  })
+  test('Z5: getUserTrustScore exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.getUserTrustScore === 'function')).toBe(true)
+  })
+  test('Z6: showTrustDetails exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showTrustDetails === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE AA — COOKIE & CONSENT ====================
+
+test.describe('AA. Cookie & Consent', () => {
+  test('AA1: acceptAllCookies exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.acceptAllCookies === 'function')).toBe(true)
+  })
+  test('AA2: refuseOptionalCookies exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.refuseOptionalCookies === 'function')).toBe(true)
+  })
+  test('AA3: showCookieCustomize exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showCookieCustomize === 'function')).toBe(true)
+  })
+  test('AA4: saveCustomCookiePreferences exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.saveCustomCookiePreferences === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE AB — LOADING & ANIMATIONS ====================
+
+test.describe('AB. Loading & Animations', () => {
+  test('AB1: showLoading exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showLoading === 'function')).toBe(true)
+  })
+  test('AB2: hideLoading exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.hideLoading === 'function')).toBe(true)
+  })
+  test('AB3: showSuccessAnimation exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showSuccessAnimation === 'function')).toBe(true)
+  })
+  test('AB4: showErrorAnimation exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showErrorAnimation === 'function')).toBe(true)
+  })
+  test('AB5: launchConfetti exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.launchConfetti === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE AC — COMMUNITY ALERTS ====================
+
+test.describe('AC. Community Alerts', () => {
+  test('AC1: toggleCommunityAlerts exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.toggleCommunityAlerts === 'function')).toBe(true)
+  })
+  test('AC2: setCommunityRadius exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setCommunityRadius === 'function')).toBe(true)
+  })
+  test('AC3: setCommunityGenderFilter exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setCommunityGenderFilter === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE AD — LOCATION PERMISSION ====================
+
+test.describe('AD. Location Permission', () => {
+  test('AD1: acceptLocationPermission exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.acceptLocationPermission === 'function')).toBe(true)
+  })
+  test('AD2: declineLocationPermission exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.declineLocationPermission === 'function')).toBe(true)
+  })
+  test('AD3: closeLocationPermission exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.closeLocationPermission === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE AE — NEARBY FRIENDS ====================
+
+test.describe('AE. Nearby Friends', () => {
+  test('AE1: toggleNearbyFriendsList exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.toggleNearbyFriendsList === 'function')).toBe(true)
+  })
+  test('AE2: setNotificationRadius exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.setNotificationRadius === 'function')).toBe(true)
+  })
+  test('AE3: toggleLocationSharing exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.toggleLocationSharing === 'function')).toBe(true)
+  })
+  test('AE4: showFriendOnMap exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.showFriendOnMap === 'function')).toBe(true)
+  })
+})
+
+// ==================== GROUPE AF — PROXIMITY ALERTS ====================
+
+test.describe('AF. Proximity Alerts', () => {
+  test('AF1: quickValidateSpot exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.quickValidateSpot === 'function')).toBe(true)
+  })
+  test('AF2: quickReportSpot exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.quickReportSpot === 'function')).toBe(true)
+  })
+  test('AF3: dismissProximityAlert exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.dismissProximityAlert === 'function')).toBe(true)
+  })
+  test('AF4: initProximityNotify exists', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    expect(await page.evaluate(() => typeof window.initProximityNotify === 'function')).toBe(true)
+  })
+})
