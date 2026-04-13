@@ -20,6 +20,8 @@ jobs:
       - run: npm run lint
       - name: Check duplicate HTML attributes
         run: node scripts/check-duplicate-attrs.mjs
+      - name: Check dead files
+        run: node scripts/check-dead-files.mjs
 
   test:
     name: Unit Tests
@@ -96,7 +98,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - run: node scripts/quality-gate.mjs --threshold=84
+      - run: node scripts/quality-gate.mjs --threshold=85
 
   build:
     name: Build & Bundle Check
