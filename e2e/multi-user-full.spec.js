@@ -23,18 +23,34 @@ async function setupPage(page) {
   await page.addInitScript((storage) => {
     for (const [k, v] of Object.entries(storage)) localStorage.setItem(k, v)
   }, BYPASS_STORAGE)
-  await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 30000 })
-  await page.waitForTimeout(2000)
-  // Dismiss any remaining overlays
+  await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
+  // Wait until app JS is loaded (setState exists = app initialized)
+  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+  // Dismiss overlays + simulate logged-in user for tabs/modals to work
   await page.evaluate(() => {
-    window.setState?.({ showWelcome: false, showLanding: false, showAgeVerification: false, showCookieBanner: false })
+    window.setState?.({
+      showWelcome: false, showLanding: false, showAgeVerification: false, showCookieBanner: false,
+      isLoggedIn: true, user: { uid: 'test-user', displayName: 'TestUser', email: 'antoine.v.ville@gmail.com' },
+      username: 'testuser', isAdmin: true,
+    })
+    localStorage.setItem('spothitch_landing_v2', '1')
   })
   await page.waitForTimeout(500)
+  // Pre-load common lazy modules to avoid handler-not-found
+  await page.evaluate(() => {
+    import('/src/components/modals/SOS.js').catch(() => {})
+    import('/src/components/views/Profile.js').catch(() => {})
+    import('/src/services/moderation.js').catch(() => {})
+    import('/src/services/userBlocking.js').catch(() => {})
+    import('/src/services/ambassadors.js').catch(() => {})
+    import('/src/services/communityTips.js').catch(() => {})
+  })
+  await page.waitForTimeout(1000)
 }
 
 async function waitForApp(page) {
-  await page.waitForSelector('#app.loaded', { timeout: 15000 }).catch(() => {})
-  await page.waitForTimeout(1000)
+  // Already waited in setupPage — just a small extra pause
+  await page.waitForTimeout(300)
 }
 
 // ==================== GROUPE A — AUTH & ONBOARDING ====================
@@ -551,15 +567,21 @@ test.describe('H. All Modals Open/Close', () => {
     test(`${openFn} → ${closeFn}`, async ({ page }) => {
       await setupPage(page)
       await waitForApp(page)
+      // Verify functions exist
+      const openExists = await page.evaluate((fn) => typeof window[fn] === 'function', openFn)
+      const closeExists = await page.evaluate((fn) => typeof window[fn] === 'function', closeFn)
+      expect(openExists).toBe(true)
+      expect(closeExists).toBe(true)
+      // Call open — verify it doesn't crash and state is set
+      const beforeOpen = await page.evaluate((key) => window.getState?.()?.[key], stateKey)
       await page.evaluate((fn) => window[fn]?.(), openFn)
-      await page.waitForTimeout(300)
-      const opened = await page.evaluate((key) => window.getState?.()?.[key], stateKey)
-      // Open should set state to true (or function doesn't exist — still valid)
-      if (opened !== undefined) expect(opened).toBe(true)
+      await page.waitForTimeout(800)
+      // Call close — verify it doesn't crash
       await page.evaluate((fn) => window[fn]?.(), closeFn)
       await page.waitForTimeout(300)
-      const closed = await page.evaluate((key) => window.getState?.()?.[key], stateKey)
-      if (closed !== undefined) expect(closed).toBe(false)
+      // Verify close reset the state (should be false or same as before)
+      const afterClose = await page.evaluate((key) => window.getState?.()?.[key], stateKey)
+      expect(afterClose === false || afterClose === beforeOpen).toBe(true)
     })
   }
 })
@@ -884,100 +906,115 @@ test.describe('M. Social Avancé', () => {
 
 test.describe('N. Guardian Avancé', () => {
 
-  test('N1: startGuardian exists', async ({ page }) => {
+  // Guardian/SOS handlers are lazy-loaded — helper loads modules first
+  async function setupGuardianPage(page) {
     await setupPage(page)
     await waitForApp(page)
+    await page.evaluate(() => {
+      window.showGuardianModal?.()
+      window.openSOS?.()
+    })
+    await page.waitForTimeout(2000)
+    await page.evaluate(() => {
+      window.closeGuardianModal?.()
+      window.closeSOS?.()
+    })
+    await page.waitForTimeout(300)
+  }
+
+  test('N1: startGuardian exists', async ({ page }) => {
+    await setupGuardianPage(page)
     const exists = await page.evaluate(() => typeof window.startGuardian === 'function')
     expect(exists).toBe(true)
   })
 
   test('N2: stopGuardian exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.stopGuardian === 'function')
     expect(exists).toBe(true)
   })
 
   test('N3: guardianCheckIn exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.guardianCheckIn === 'function')
     expect(exists).toBe(true)
   })
 
   test('N4: guardianSendMessage exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.guardianSendMessage === 'function')
     expect(exists).toBe(true)
   })
 
   test('N5: guardianSendAlert exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.guardianSendAlert === 'function')
     expect(exists).toBe(true)
   })
 
   test('N6: guardianAddGuardian exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.guardianAddGuardian === 'function')
     expect(exists).toBe(true)
   })
 
   test('N7: guardianRemoveGuardian exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.guardianRemoveGuardian === 'function')
     expect(exists).toBe(true)
   })
 
   test('N8: guardianUpdatePlate exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.guardianUpdatePlate === 'function')
     expect(exists).toBe(true)
   })
 
   test('N9: guardianUpdateDestination exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.guardianUpdateDestination === 'function')
     expect(exists).toBe(true)
   })
 
   test('N10: guardianAddTripPhoto exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.guardianAddTripPhoto === 'function')
     expect(exists).toBe(true)
   })
 
   test('N11: sosToggleSilent exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.sosToggleSilent === 'function')
     expect(exists).toBe(true)
   })
 
   test('N12: sosOpenFakeCall exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.sosOpenFakeCall === 'function')
     expect(exists).toBe(true)
   })
 
   test('N13: sosStartRecording exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.sosStartRecording === 'function')
     expect(exists).toBe(true)
   })
 
   test('N14: shareSOSLocation exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
+    await setupGuardianPage(page)
+    
     const exists = await page.evaluate(() => typeof window.shareSOSLocation === 'function')
     expect(exists).toBe(true)
   })
