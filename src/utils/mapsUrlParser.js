@@ -301,9 +301,12 @@ export async function resolveShortMapUrl(mapUrl) {
 
   // Strategy 1: Cloudflare Worker proxy (works for short URLs AND full Google Maps URLs)
   try {
+    const headers = {}
+    const apiKey = import.meta.env.VITE_MAP_RESOLVER_KEY
+    if (apiKey) headers['X-API-Key'] = apiKey
     const res = await fetch(
       `${PROXY_URL}?url=${encodeURIComponent(mapUrl)}`,
-      { signal: AbortSignal.timeout(10000) }
+      { signal: AbortSignal.timeout(10000), headers }
     )
     const data = await res.json()
 

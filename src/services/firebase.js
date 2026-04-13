@@ -200,6 +200,11 @@ export async function signUp(email, password, displayName) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(userCredential.user, { displayName });
+    // Send email verification
+    try {
+      const { sendEmailVerification } = await import('firebase/auth')
+      await sendEmailVerification(userCredential.user)
+    } catch (e) { console.warn('[Auth] Email verification send failed:', e?.message) }
     return { success: true, user: userCredential.user };
   } catch (error) {
     return { success: false, error: error.code };

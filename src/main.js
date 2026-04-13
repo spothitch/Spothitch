@@ -87,6 +87,7 @@ import {
  preloadOnIdle,
 } from './utils/lazyLoad.js';
 import { ADMIN_EMAILS } from './utils/constants.js'
+import './handlers/closeModals.js' // 25 close modal handlers extracted from main.js
 import {
  restoreGuardianMode,
  onOverdue as onGuardianOverdue,
@@ -1227,35 +1228,14 @@ window.resetFilters = () => resetFiltersUtil();
 import './handlers/gamification.js'
 import './handlers/tripJournal.js'
 
-// UI toggles
-window.closeFavoritesOnMap = () => setState({ showFavoritesOnMap: false, filterFavorites: false });
+// UI toggles — close handlers moved to handlers/closeModals.js
 // toggleGasStations is registered by gasStations.js (import at top)
-
-// Missing close handlers for modals/overlays
-window.closeTitlePopup = () => setState({ showTitlePopup: false, newTitle: null })
-window.closeSeasonRewards = () => setState({ showSeasonRewards: false })
-window.closeAnniversaryModal = () => setState({ showAnniversaryModal: false })
-window.closeAmbassadorSuccess = () => setState({ showAmbassadorSuccess: false })
-window.closeAmbassadorProfile = () => setState({ showAmbassadorProfile: false })
-window.closeContactAmbassador = () => setState({ showContactAmbassador: false })
 window.sendAmbassadorMessage = () => {
  const msg = document.getElementById('ambassador-message')?.value?.trim()
  if (!msg) return
  window.showToast?.(t('ambassadorMessageSent') || 'Message envoyé !', 'success')
  setState({ showContactAmbassador: false, selectedAmbassador: null })
 }
-window.closeReviewForm = () => setState({ showReviewForm: false, reviewSpotId: null })
-window.closeReplyModal = () => setState({ showReplyModal: false, replyToReviewId: null })
-window.closeAddForbiddenWordModal = () => setState({ showAddForbiddenWordModal: false })
-window.closeRouteAmenities = () => setState({ showRouteAmenities: false, routeAmenities: [] })
-window.closePostTravelPlan = () => setState({ showPostTravelPlan: false })
-window.closePhotoUpload = () => setState({ showPhotoUpload: false, photoUploadSpotId: null })
-window.closeAdminModeration = () => setState({ showAdminModeration: false })
-window.closeTravelPlanDetail = () => setState({ showTravelPlanDetail: false, selectedTravelPlan: null })
-window.closeLanguageSelector = () => setState({ showLanguageSelector: false })
-window.closeCookieBanner = () => setState({ showCookieBanner: false })
-window.closeReportModal = () => window.closeReport?.()
-window.closeDangerReportModal = () => setState({ showDangerReport: false })
 
 // Trip handlers are now defined in Travel.js (calculateTrip, saveTrip, etc.)
 // Only keep backward-compatible aliases for old planner step-based mode
@@ -1311,13 +1291,11 @@ window.clearTripSteps = async () => {
 window.openTripPlanner = () => setState({ activeTab: 'voyage', voyageSubTab: 'voyage' })
 window.closeTripPlanner = () => setState({ showTripPlanner: false })
 window.openGuidesOverlay = () => setState({ activeTab: 'voyage', voyageSubTab: 'guides' })
-window.closeGuidesOverlay = () => setState({ showGuidesOverlay: false })
 
 // Guides handlers (guides is a sub-tab of Voyage/challenges — ERR-020)
 window.showGuides = () => setState({ activeTab: 'voyage', voyageSubTab: 'guides', selectedCountryCode: null, showSafety: false });
 window.showCountryDetail = (code) => setState({ selectedCountryCode: code });
 window.showSafetyPage = () => setState({ showSafety: true });
-window.closeSafety = () => setState({ showSafety: false })
 window.reportGuideError = async (countryCode) => {
  const { getGuideByCode } = await import('./data/guides.js');
  const { showInputOverlay } = await import('./utils/inputOverlay.js');
@@ -1395,13 +1373,11 @@ window.copyFriendLink = () => {
 
 // Legal handlers
 window.showLegalPage = (page = 'cgu') => setState({ showLegal: true, legalPage: page });
-window.closeLegal = () => setState({ showLegal: false });
 
 // Side menu handlers (no render function yet — stub with toast)
 window.openSideMenu = () => {
  /* not yet implemented */
 };
-window.closeSideMenu = () => setState({ showSideMenu: false });
 
 // Accessibility handlers
 // showAccessibilityHelp — canonical in screenReader.js
@@ -1470,7 +1446,6 @@ window.toggleNearbyFriends = async (...args) => {
  return toggleNearbyFriends(...args)
 }
 window.openNearbyFriends = () => setState({ showNearbyFriends: true })
-window.closeNearbyFriends = () => setState({ showNearbyFriends: false })
 
 // Resume radar listener if it was enabled (page reload)
 import('./services/proximityRadar.js').then(m => m.resumeRadarIfEnabled?.()).catch(() => {})
@@ -1487,7 +1462,6 @@ window.setProximityRadius = async (...args) => {
 
 // Trip history handlers — lazy-loaded
 window.openTripHistory = () => setState({ showTripHistory: true })
-window.closeTripHistory = () => setState({ showTripHistory: false })
 window.clearTripHistory = async () => {
  if (confirm(t('clearTripHistory') || 'Effacer tout l\'historique de voyage ?')) {
  const { clearTripHistory } = await import('./services/tripHistory.js')
