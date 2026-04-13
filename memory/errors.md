@@ -1690,3 +1690,277 @@ Chaque erreur suit ce format :
 - **Leçon** : Ne JAMAIS laisser des éléments UI interactifs en apparence mais non fonctionnels. Soit les câbler, soit ne pas les afficher.
 - **Fichiers** : src/components/views/Guides.js
 - **Statut** : CORRIGÉ
+
+---
+
+## Audit Total — Session 2026-04-12/13 (~130 corrections)
+
+### ERR-136 — Dead code : 12 fichiers jamais importés
+- **Date** : 2026-04-12
+- **Gravité** : MINEUR
+- **Description** : Tutorial.js, SplashScreen.js, BetaBanner.js, Planner.js, DeviceManager.js, PhotoGallery.js, EmailVerification.js, firebaseAnalytics.js, adaptiveLoading.js, appIcons.js, dataExport.js, spotFilter.worker.js jamais importés par aucun module
+- **Cause racine** : Features incomplètes ou remplacées, fichiers jamais nettoyés
+- **Correction** : Suppression des 12 fichiers + 5 fichiers de tests correspondants (~5100 lignes)
+- **Leçon** : Après chaque remplacement de feature, supprimer immédiatement l'ancien fichier
+- **Fichiers** : 17 fichiers supprimés
+- **Statut** : CORRIGÉ
+
+### ERR-137 — CI : versions download-artifact incohérentes
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE
+- **Description** : Mélange de v4, v7, v8 pour actions/download-artifact dans ci.yml
+- **Correction** : Standardisé tout à v8
+- **Leçon** : Quand on met à jour une action GitHub, vérifier TOUTES les occurrences dans le workflow
+- **Fichiers** : .github/workflows/ci.yml
+- **Statut** : CORRIGÉ
+
+### ERR-138 — CI : deploy-dev sans quality-gate
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE
+- **Description** : Le job deploy-dev ne dépendait pas du quality-gate, contrairement à deploy (main)
+- **Correction** : Ajouté quality-gate dans needs de deploy-dev
+- **Leçon** : Les gates de qualité doivent être identiques entre dev et main
+- **Fichiers** : .github/workflows/ci.yml
+- **Statut** : CORRIGÉ
+
+### ERR-139 — GIS loader : race condition + memory leak
+- **Date** : 2026-04-12
+- **Gravité** : MAJEUR
+- **Description** : Appels multiples à loadGIS() créaient des scripts dupliqués et des intervalles jamais nettoyés
+- **Correction** : Promise singleton (_gisLoadPromise) partagée entre les appels
+- **Leçon** : Tout chargement de script externe doit utiliser un pattern singleton avec promise partagée
+- **Fichiers** : src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-140 — Rate limiter : buckets mémoire non plafonnés
+- **Date** : 2026-04-12
+- **Gravité** : MINEUR
+- **Description** : Sous charge, les buckets de rate limiting grandissent sans limite
+- **Correction** : Cap à 500 entrées par bucket
+- **Leçon** : Toute structure de données en mémoire doit avoir une taille maximale
+- **Fichiers** : src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-141 — XSS : share.js URL non échappée dans onclick
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE
+- **Description** : L'URL de partage était interpolée directement dans un onclick sans escapeJSString
+- **Correction** : Ajout de escapeJSString() pour l'URL et les textes i18n dans l'onclick
+- **Leçon** : TOUTE valeur dans un onclick DOIT passer par escapeJSString(), même si elle semble sûre
+- **Fichiers** : src/utils/share.js
+- **Statut** : CORRIGÉ
+
+### ERR-142 — 12 icônes manquantes dans ICON_MAP
+- **Date** : 2026-04-12
+- **Gravité** : MAJEUR
+- **Description** : home, key, siren, at-sign, github, notebook, orbit, scroll, sign-post, sun-moon, waves, credit-card manquaient dans ICON_MAP. Les appels icon('home') retournaient une chaîne vide
+- **Correction** : Ajouté les 12 icônes + imports Lucide correspondants
+- **Leçon** : Quand on utilise icon('nom'), vérifier que le nom existe dans ICON_MAP AVANT de l'utiliser (Rule #24/ERR-124)
+- **Fichiers** : src/utils/icons.js
+- **Statut** : CORRIGÉ
+
+### ERR-143 — compressImage : pas de validation type/taille
+- **Date** : 2026-04-12
+- **Gravité** : MAJEUR
+- **Description** : N'importe quel fichier (même 500MB) pouvait être passé à compressImage(), causant un freeze
+- **Correction** : Validation type image (jpeg/png/webp/gif/bmp/heic/avif) + taille max 50MB
+- **Leçon** : Toute fonction qui traite un fichier utilisateur DOIT valider type et taille en entrée
+- **Fichiers** : src/utils/image.js
+- **Statut** : CORRIGÉ
+
+### ERR-144 — Firestore rules : reviews create impossible
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE
+- **Description** : La règle create des reviews vérifiait resource.data.creatorId, mais resource est null sur create
+- **Correction** : Vérification via request.resource.data.userId + reviewId == auth.uid
+- **Leçon** : Sur les règles Firestore create, resource est TOUJOURS null. Utiliser request.resource pour les données entrantes
+- **Fichiers** : firestore.rules
+- **Statut** : CORRIGÉ
+
+### ERR-145 — Firestore rules : DM messages lisibles par tous
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE
+- **Description** : Tout utilisateur authentifié pouvait lire les messages de n'importe quelle conversation
+- **Correction** : Restreint la lecture aux participants via get() sur le document parent
+- **Leçon** : Les subcollections Firestore n'héritent PAS des règles du parent. Chaque subcollection a besoin de ses propres règles d'accès
+- **Fichiers** : firestore.rules
+- **Statut** : CORRIGÉ
+
+### ERR-146 — PROFILE_ALLOWED_FIELDS incluait points/level/badges
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE
+- **Description** : Un utilisateur pouvait se donner 999999 points via la console en appelant updateUserProfile
+- **Correction** : Retiré points, seasonPoints, level, badges, league, isVIP de la whitelist
+- **Leçon** : Les champs gamification ne doivent JAMAIS être modifiables côté client. Server-only via Cloud Functions
+- **Fichiers** : src/services/firebase.js
+- **Statut** : CORRIGÉ
+
+### ERR-147 — Identity verification : auto-approbation en 2-5 secondes
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE
+- **Description** : 3 setTimeout auto-approuvaient les vérifications d'identité (photo, document, selfie) sans review admin
+- **Correction** : Supprimé les 3 auto-approbations. Admin review obligatoire
+- **Leçon** : JAMAIS d'auto-approbation pour les vérifications de sécurité. Même en alpha, les stubs doivent attendre un admin
+- **Fichiers** : src/services/identityVerification.js
+- **Statut** : CORRIGÉ
+
+### ERR-148 — SOS : échec silencieux sans position GPS
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE (SÉCURITÉ)
+- **Description** : Si le GPS échouait, l'alerte SOS n'était pas envoyée du tout. L'utilisateur croyait avoir alerté ses gardiens
+- **Correction** : L'alerte est envoyée même sans position (avec position null). Message d'erreur affiché
+- **Leçon** : Un système d'urgence ne doit JAMAIS échouer silencieusement. Mieux vaut une alerte sans position que pas d'alerte du tout
+- **Fichiers** : src/components/modals/SOS.js
+- **Statut** : CORRIGÉ
+
+### ERR-149 — SOS : position cachée potentiellement périmée (jours)
+- **Date** : 2026-04-12
+- **Gravité** : MAJEUR (SÉCURITÉ)
+- **Description** : En mode hors-ligne, SOS utilisait la dernière position cachée sans vérifier son âge. Pouvait être de 3 jours
+- **Correction** : Rejet des positions cachées de plus de 30 minutes
+- **Leçon** : Toute donnée de localisation cachée DOIT avoir un timestamp et être rejetée si trop ancienne
+- **Fichiers** : src/components/modals/SOS.js
+- **Statut** : CORRIGÉ
+
+### ERR-150 — SOS tracking : session ID devinable (64-bit)
+- **Date** : 2026-04-12
+- **Gravité** : MAJEUR
+- **Description** : Le session ID SOS n'avait que 64 bits d'entropie (2 uint32). Un attaquant pouvait deviner les URLs de tracking
+- **Correction** : 128-bit entropy via crypto.getRandomValues(new Uint8Array(16))
+- **Leçon** : Tout ID de sécurité doit avoir au minimum 128 bits d'entropie (crypto.getRandomValues, pas Math.random)
+- **Fichiers** : src/services/sosTracking.js
+- **Statut** : CORRIGÉ
+
+### ERR-151 — Guardian : auto-stop silencieux (pas de notification gardiens)
+- **Date** : 2026-04-12
+- **Gravité** : CRITIQUE (SÉCURITÉ)
+- **Description** : Quand le timer Guardian s'arrêtait automatiquement (8h max ou 2h silence), les gardiens n'étaient pas notifiés
+- **Correction** : Écriture d'un document sosAlerts qui déclenche les notifications push aux gardiens
+- **Leçon** : Tout changement d'état de sécurité DOIT notifier les parties concernées
+- **Fichiers** : src/services/guardian.js
+- **Statut** : CORRIGÉ
+
+### ERR-152 — Community SOS : position exacte partagée (privacy)
+- **Date** : 2026-04-12
+- **Gravité** : MAJEUR
+- **Description** : Les alertes communautaires partageaient les coordonnées GPS exactes avec tous les utilisateurs proches
+- **Correction** : Arrondissement à ~500m (Math.round * 200 / 200)
+- **Leçon** : Les alertes communautaires ne doivent JAMAIS partager la position exacte. Arrondir à 500m minimum
+- **Fichiers** : src/components/modals/SOS.js
+- **Statut** : CORRIGÉ
+
+### ERR-153 — Delete account : grace period non appliquée
+- **Date** : 2026-04-12
+- **Gravité** : MAJEUR
+- **Description** : Le délai de 30 jours était stocké mais aucune Cloud Function ne supprimait réellement les comptes après 30j
+- **Correction** : Ajouté la logique dans dailyCleanup (supprime subcollections, username, Firebase Auth)
+- **Leçon** : Un délai de grâce DOIT avoir le code de suppression automatique associé, pas juste le flag
+- **Fichiers** : functions/scheduled/cleanup.js
+- **Statut** : CORRIGÉ
+
+### ERR-154 — 40+ onclick handlers sans escapeJSString
+- **Date** : 2026-04-12/13
+- **Gravité** : CRITIQUE
+- **Description** : Scan exhaustif de src/ : 40+ onclick avec des IDs Firestore non échappés dans Friends.js, FriendProfile.js, Social.js, Conversations.js, Journal.js, Shop.js, AdminPanel.js, etc.
+- **Correction** : escapeJSString() ajouté dans 20+ fichiers pour tous les IDs dynamiques
+- **Leçon** : TOUTE variable dans un onclick DOIT passer par escapeJSString(). Faire un grep global après chaque ajout de handler
+- **Fichiers** : 20+ fichiers
+- **Statut** : CORRIGÉ
+
+### ERR-155 — 35 catch blocks silencieux dans 8 services
+- **Date** : 2026-04-13
+- **Gravité** : MAJEUR
+- **Description** : communityGuideService, countryBubbles, countryChat, favorites, featureIntro, featureVotes, firebaseSync, gamification avaient des catch {} sans logging
+- **Correction** : Ajouté (e) pour capturer l'erreur dans tous les catch blocks
+- **Leçon** : JAMAIS de catch {} vide. Au minimum catch (e) { console.warn(e?.message) }
+- **Fichiers** : 8 fichiers services
+- **Statut** : CORRIGÉ
+
+### ERR-156 — 40 clés i18n [TODO] non traduites
+- **Date** : 2026-04-13
+- **Gravité** : MINEUR
+- **Description** : certified, editPosition, spotNotFound, toggleDetails, toggleValidations, openStreetView, guideAskPlaceholder, locationSharing*, offlineCannotSave, removeContact avaient [TODO] dans les 4 langues
+- **Correction** : Traduites dans FR, EN, ES, DE
+- **Leçon** : Après chaque quality-gate --fix qui ajoute des clés [TODO], les traduire immédiatement
+- **Fichiers** : src/i18n/lang/fr.js, en.js, es.js, de.js
+- **Statut** : CORRIGÉ
+
+### ERR-157 — Guardian/companion naming mélangé
+- **Date** : 2026-04-13
+- **Gravité** : MINEUR
+- **Description** : startCompanionDemo, switchCompanionDemoTab, closeCompanion utilisés pour des features Guardian
+- **Correction** : Renommé en startGuardianDemoContent, switchGuardianDemoTab, closeGuardian
+- **Leçon** : guardian = sécurité (gardien mode), companion = compagnon de route. Ne JAMAIS mélanger les deux noms
+- **Fichiers** : src/components/views/ProfileDemos.js, tests/wiring/globalHandlers.test.js
+- **Statut** : CORRIGÉ
+
+### ERR-158 — Trust score basé sur compteurs client-side manipulables
+- **Date** : 2026-04-13
+- **Gravité** : MAJEUR
+- **Description** : Le trust score utilisait user.reviewsCount et user.validationsCount qui sont des champs Firestore modifiables par le client
+- **Correction** : Remplacé par des queries collectionGroup côté serveur
+- **Leçon** : Tout score/classement DOIT être calculé côté serveur avec des données vérifiées, pas des compteurs client
+- **Fichiers** : functions/moderation/trustScore.js
+- **Statut** : CORRIGÉ
+
+### ERR-159 — Profanity filter contournable (l33t speak)
+- **Date** : 2026-04-13
+- **Gravité** : MAJEUR
+- **Description** : Le filtre ne normalisait pas les substitutions l33t (0→o, 1→i, 3→e, etc.)
+- **Correction** : Ajouté normalisation de 8 caractères l33t
+- **Leçon** : Un filtre de profanité DOIT normaliser les substitutions courantes avant de comparer
+- **Fichiers** : functions/moderation/profanityFilter.js
+- **Statut** : CORRIGÉ
+
+### ERR-160 — Auto-ban : pas de fenêtre temporelle ni dédup reporters
+- **Date** : 2026-04-13
+- **Gravité** : MAJEUR
+- **Description** : 5 signalements = ban automatique, même si c'est le même utilisateur qui signale 5 fois sur 6 mois
+- **Correction** : Compte les reporters uniques sur 30 jours seulement
+- **Leçon** : Un système de ban automatique DOIT avoir : dédup reporters, fenêtre temporelle, et possibilité d'appel
+- **Fichiers** : functions/moderation/autoBan.js
+- **Statut** : CORRIGÉ
+
+### ERR-161 — AdminPanel XSS dans featureName() et fallbacks
+- **Date** : 2026-04-13
+- **Gravité** : CRITIQUE
+- **Description** : featureName(fid) retournait fid non échappé si le feature n'existait pas dans FEATURE_BY_ID
+- **Correction** : escapeHTML(String(fid)) dans tous les fallbacks
+- **Leçon** : Toute fonction qui affiche un ID en HTML DOIT échapper le fallback, pas seulement le cas nominal
+- **Fichiers** : src/components/modals/AdminPanel.js
+- **Statut** : CORRIGÉ
+
+### ERR-162 — location.reload() automatique (Rule #23)
+- **Date** : 2026-04-13
+- **Gravité** : CRITIQUE
+- **Description** : MyData.js et pwa.js appelaient location.reload() automatiquement
+- **Correction** : MyData.js utilise setState reset. pwa.js retire le reload (SW s'active au prochain lancement)
+- **Leçon** : JAMAIS de location.reload() automatique dans une PWA (Rule #23)
+- **Fichiers** : src/components/modals/MyData.js, src/utils/pwa.js
+- **Statut** : CORRIGÉ
+
+### ERR-163 — Brute force login sans protection client-side
+- **Date** : 2026-04-13
+- **Gravité** : MAJEUR
+- **Description** : Pas de compteur d'échecs côté client. Firebase bloque après ~5 mais sans feedback utilisateur
+- **Correction** : Compteur client : 5 échecs → lock 15 minutes avec message clair
+- **Leçon** : Toujours donner un feedback UX clair quand un compte est temporairement verrouillé
+- **Fichiers** : src/components/modals/Auth.js
+- **Statut** : CORRIGÉ
+
+### ERR-164 — Guardian Firestore sync sans retry
+- **Date** : 2026-04-13
+- **Gravité** : CRITIQUE (SÉCURITÉ)
+- **Description** : syncSOSTimerToFirestore échouait silencieusement si Firestore était indisponible. Le gardien ne recevait pas les check-ins
+- **Correction** : Retry avec backoff exponentiel (3 tentatives, 1s/2s/4s)
+- **Leçon** : Toute opération de sécurité (check-in Guardian, SOS alert) DOIT avoir un mécanisme de retry
+- **Fichiers** : src/services/guardian.js
+- **Statut** : CORRIGÉ
+
+### ERR-165 — storageRegistry typo DataCategory.PREFERENCES
+- **Date** : 2026-04-13
+- **Gravité** : MINEUR
+- **Description** : PREFERENCES n'existe pas dans l'enum DataCategory (c'est SETTINGS)
+- **Correction** : Remplacé par DataCategory.SETTINGS
+- **Fichiers** : src/services/storageRegistry.js
+- **Statut** : CORRIGÉ
