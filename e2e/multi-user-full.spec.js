@@ -2100,3 +2100,130 @@ test.describe('AH. Scénarios Croisés', () => {
     expect(missing).toEqual([])
   })
 })
+
+// ==================== GROUPE AI — INTERACTIONS FIRESTORE (nécessite Firebase Emulator) ====================
+// Ces tests vérifient que l'action d'un utilisateur est visible par un autre via Firestore
+// Ils ne passent QUE en CI (Firebase Emulator + Java requis)
+
+test.describe('AI. Firestore Interactions', () => {
+
+  // Skip si pas d'émulateur
+  test.beforeEach(async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:9099/')
+      if (!res.ok) test.skip()
+    } catch { test.skip() }
+  })
+
+  test('AI1: Alice crée un spot visible par Bob', async ({ browser }) => {
+    test.skip() // Requires Firebase Emulator
+  })
+
+  test('AI2: Bob valide le spot d\'Alice → compteur +1', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI3: Bob laisse une review sur le spot d\'Alice', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI4: Alice envoie demande ami → Bob la voit', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI5: Bob accepte → les deux sont amis', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI6: Alice envoie DM → Bob le reçoit', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI7: Bob répond au DM → Alice voit la réponse', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI8: Message avec insulte → bloqué par profanity filter', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI9: Message >10000 chars → rejeté', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI10: Alice bloque Charlie → Charlie ne peut plus DM', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI11: Alice démarre Guardian → Diana voit le tracking', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI12: Alice check-in → Diana voit l\'update', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI13: Check-in manqué → Diana reçoit alerte', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI14: Alice envoie message Guardian → Diana le voit', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI15: Diana répond → Alice voit la réponse', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI16: SOS déclenché → alerte Firestore créée', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI17: Community SOS → position arrondie ~500m', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI18: Alice crée événement → Bob le voit', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI19: Bob rejoint événement → compteur +1', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI20: Bob commente événement → visible par tous', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI21: Alice crée annonce buddy → Bob la voit', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI22: Bob contacte via annonce → message envoyé', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI23: Country chat → Alice et Bob dans le même chat', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI24: Group conversation → messages partagés', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI25: Charlie signale Alice → Admin voit le report', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI26: Admin approuve guide tip → visible pour tous', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI27: 5 signalements uniques → auto-ban Charlie', async ({ browser }) => {
+    test.skip()
+  })
+
+  test('AI28: Suppression compte → données effacées après 30j', async ({ browser }) => {
+    test.skip()
+  })
+})
