@@ -57,19 +57,19 @@ import { prefersReducedMotion } from './utils/a11y.js';
 import { initPWA, showInstallBanner, dismissInstallBanner, installPWA } from './utils/pwa.js';
 import { initNetworkMonitor, cleanupOldData, requireOnline } from './utils/network.js';
 import { scheduleRender, shouldRerender, clearRenderCache } from './utils/render.js';
-import { debounce } from './utils/performance.js';
+// debounce moved to handlers/filters.js
 import { observeAllLazyImages } from './utils/lazyImages.js';
 import { initWebVitals } from './utils/webVitals.js';
 import { initHoverPrefetch, prefetchNextTab } from './utils/prefetch.js';
 import { trackTabChange } from './utils/analytics.js';
 import { cleanupDrafts } from './utils/formPersistence.js';
 import { initWasm } from './utils/wasmGeo.js';
-import { escapeHTML, escapeJSString } from './utils/sanitize.js';
+// escapeHTML/escapeJSString moved to handler files
 import { runAllCleanup } from './utils/cleanup.js';
 import { initDeepLinkListener, captureShareParams, checkPublicTripRoute } from './utils/deeplink.js';
 import { initBackButton, goBack } from './utils/backButton.js';
 import { setupGlobalErrorHandlers as setupErrorHandlers } from './utils/errorBoundary.js';
-import { resetFilters as resetFiltersUtil } from './components/modals/Filters.js';
+// resetFilters moved to handlers/filters.js
 import './components/modals/Leaderboard.js'; // Register global handlers
 import './components/modals/FeatureSlides.js'; // Feature Slides (openFeatureSlides, closeFeatureSlides, etc.)
 import './components/modals/FeatureIntroModal.js'; // Feature Intro glassmorphism (showFeatureIntro, closeFeatureIntro, etc.)
@@ -87,7 +87,10 @@ import {
  preloadOnIdle,
 } from './utils/lazyLoad.js';
 import { ADMIN_EMAILS } from './utils/constants.js'
-import './handlers/closeModals.js' // 25 close modal handlers extracted from main.js
+import './handlers/closeModals.js'
+import './handlers/filters.js'
+import './handlers/sharing.js'
+import './handlers/tripPlanner.js'
 import {
  restoreGuardianMode,
  onOverdue as onGuardianOverdue,
@@ -1198,31 +1201,7 @@ window.setLanguage = async (lang) => {
  window.location.href = window.location.href.split('#')[0]
 };
 
-// Filter handlers
-window.setFilter = (filter) => actions.setFilter(filter);
-window.handleSearch = (query) => debounce('search', () => actions.setSearchQuery(query), 250);
-window.openFilters = () => setState({ showFilters: true });
-window.closeFilters = () => setState({ showFilters: false });
-window.openActiveTrip = () => {
- setState({ showTripPlanner: true })
-};
-window.setFilterCountry = (country) => setState({ filterCountry: country });
-window.setFilterMinRating = (rating) => setState({ filterMinRating: rating });
-window.setFilterMaxWait = (wait) => setState({ filterMaxWait: wait });
-window.toggleVerifiedFilter = () => {
- const { filterVerifiedOnly } = getState();
- setState({ filterVerifiedOnly: !filterVerifiedOnly });
-};
-window.setSortBy = (sortBy) => setState({ sortBy });
-window.applyFilters = () => {
- // Close overlay + update state
- const overlay = document.getElementById('filters-overlay')
- if (overlay) overlay.remove()
- setState({ showFilters: false })
- // Refresh spots on map with new filter settings (no map destroy)
- if (window._refreshMapSpots) window._refreshMapSpots()
-};
-window.resetFilters = () => resetFiltersUtil();
+// Filter handlers → handlers/filters.js
 
 // Gamification handlers (extracted to handlers/gamification.js)
 import './handlers/gamification.js'
@@ -1237,59 +1216,7 @@ window.sendAmbassadorMessage = () => {
  setState({ showContactAmbassador: false, selectedAmbassador: null })
 }
 
-// Trip handlers are now defined in Travel.js (calculateTrip, saveTrip, etc.)
-// Only keep backward-compatible aliases for old planner step-based mode
-window.searchTripCity = (query) => {
- if (query.length < 3) {
- document.getElementById('city-suggestions')?.classList.add('hidden')
- return
- }
- debounce('tripCity', async () => {
- const { searchTripLocation } = await import('./services/planner.js')
- const results = await searchTripLocation(query)
- const container = document.getElementById('city-suggestions')
- if (container && results.length > 0) {
- container.classList.remove('hidden')
- container.innerHTML = `
- <div class="bg-white/5 rounded-xl shadow-xl border border-white/10 overflow-hidden">
- ${results.map(r => `
- <button onclick="addTripStepFromSearch('${escapeJSString(r.name)}', ${Number(r.lat)}, ${Number(r.lng)}, '${escapeJSString(r.fullName)}')"
- class="w-full px-4 py-3 text-left text-white hover:bg-white/10 border-b border-white/10 last:border-0">
- <div class="font-medium">${escapeHTML(r.name)}</div>
- <div class="text-xs text-slate-400 truncate">${escapeHTML(r.fullName)}</div></button>
- `).join('')}
- </div>
- `
- }
- }, 400)
-}
-window.addTripStepFromSearch = async (name, lat, lng, fullName) => {
- const { addTripStep } = await import('./services/planner.js')
- addTripStep({ name, lat, lng, fullName })
- const stepInput = document.getElementById('step-input')
- if (stepInput) stepInput.value = ''
- document.getElementById('city-suggestions')?.classList.add('hidden')
-}
-window.addFirstSuggestion = () => {
- const firstBtn = document.querySelector('#city-suggestions button')
- if (firstBtn) firstBtn.click()
-}
-window.removeTripStep = async (index) => {
- const { removeTripStep } = await import('./services/planner.js')
- removeTripStep(index)
-}
-window.moveTripStep = async (from, to) => {
- const { reorderTripSteps } = await import('./services/planner.js')
- reorderTripSteps(from, to)
-}
-window.clearTripSteps = async () => {
- const { clearTripSteps } = await import('./services/planner.js')
- clearTripSteps()
-}
-
-// Trip Planner (redirects to Voyage tab now)
-window.openTripPlanner = () => setState({ activeTab: 'voyage', voyageSubTab: 'voyage' })
-window.closeTripPlanner = () => setState({ showTripPlanner: false })
+// Trip planner handlers → handlers/tripPlanner.js
 window.openGuidesOverlay = () => setState({ activeTab: 'voyage', voyageSubTab: 'guides' })
 
 // Guides handlers (guides is a sub-tab of Voyage/challenges — ERR-020)
@@ -1338,30 +1265,7 @@ window.reportGuideError = async (countryCode) => {
 window.showFriends = () => setState({ activeTab: 'social', socialSubTab: 'friends', selectedFriendId: null });
 window.openFriendsChat = (friendId) => setState({ selectedFriendId: friendId });
 
-// Sharing handlers (global) — lazy-loaded
-window.shareSpot = async (...args) => {
- const { shareSpot } = await import('./utils/share.js')
- shareSpot(...args)
-}
-window.shareBadge = async (...args) => {
- const { shareBadge } = await import('./utils/share.js')
- shareBadge(...args)
-}
-window.shareStats = async (...args) => {
- const { shareStats } = await import('./utils/share.js')
- shareStats(...args)
-}
-window.shareApp = async (...args) => {
- const { shareApp } = await import('./utils/share.js')
- shareApp(...args)
-}
-window.openShareCard = async () => {
- const state = getState()
- const spot = state.selectedSpot
- if (!spot) return
- const { showShareModal } = await import('./services/shareCard.js')
- showShareModal(spot)
-}
+// Sharing handlers → handlers/sharing.js
 // showAddFriend — canonical in Social.js
 window.closeAddFriend = () => setState({ showAddFriend: false });
 // acceptFriendRequest — canonical in Social.js
