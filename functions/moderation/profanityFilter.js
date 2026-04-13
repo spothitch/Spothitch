@@ -31,6 +31,44 @@ function containsProfanity(text) {
   return PROFANITY_LIST.some(w => normalized.includes(w))
 }
 
+/**
+ * Perspective API toxicity check (Google ML moderation).
+ * Falls back to local profanity list if API unavailable.
+ * Requires PERSPECTIVE_API_KEY env var.
+ */
+async function checkToxicity(text) {
+  const apiKey = process.env.PERSPECTIVE_API_KEY
+  if (!apiKey || !text) return { toxic: containsProfanity(text), score: 0, source: 'local' }
+
+  try {
+    const res = await fetch(`https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        comment: { text },
+        languages: ['fr', 'en', 'es', 'de'],
+        requestedAttributes: {
+          TOXICITY: {},
+          SEVERE_TOXICITY: {},
+          IDENTITY_ATTACK: {},
+          THREAT: {},
+        },
+      }),
+    })
+    if (!res.ok) return { toxic: containsProfanity(text), score: 0, source: 'local' }
+    const data = await res.json()
+    const toxicity = data.attributeScores?.TOXICITY?.summaryScore?.value || 0
+    const severe = data.attributeScores?.SEVERE_TOXICITY?.summaryScore?.value || 0
+    const threat = data.attributeScores?.THREAT?.summaryScore?.value || 0
+    // Flag if toxicity > 0.7 or severe > 0.5 or threat > 0.5
+    const toxic = toxicity > 0.7 || severe > 0.5 || threat > 0.5
+    return { toxic, score: toxicity, source: 'perspective' }
+  } catch (e) {
+    console.warn('[Perspective] API error, falling back to local:', e.message)
+    return { toxic: containsProfanity(text), score: 0, source: 'local' }
+  }
+}
+
 function checkFields(data, fields) {
   for (const field of fields) {
     if (containsProfanity(data[field])) return field

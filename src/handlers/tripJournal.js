@@ -532,17 +532,50 @@ window.journalUseMyPosition = async (field) => {
   )
 }
 
-window.journalExportTrip = (tripId) => {
+window.journalExportTrip = (tripId, format = 'json') => {
   const trip = getTrip(tripId)
   if (!trip) return
-  // Remove base64 photos from export (too large)
-  const exportData = { ...trip, dayPhotos: undefined, coverPhoto: undefined }
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `spothitch-trip-${(trip.title || 'voyage').replace(/[^a-zA-Z0-9]/g, '_')}.json`
-  a.click()
-  URL.revokeObjectURL(url)
+  const safeName = (trip.title || 'voyage').replace(/[^a-zA-Z0-9]/g, '_')
+
+  if (format === 'gpx') {
+    // GPX export for hiking/GPS apps
+    const legs = trip.legs || []
+    const waypoints = legs.map((leg, i) => {
+      const parts = []
+      if (leg.departureCoords) {
+        parts.push(`  <wpt lat="${leg.departureCoords.lat}" lon="${leg.departureCoords.lng}"><name>${leg.departure || `Etape ${i + 1}`}</name><type>departure</type></wpt>`)
+      }
+      if (leg.arrivalCoords) {
+        parts.push(`  <wpt lat="${leg.arrivalCoords.lat}" lon="${leg.arrivalCoords.lng}"><name>${leg.arrival || `Arrivee ${i + 1}`}</name><type>arrival</type></wpt>`)
+      }
+      return parts.join('\n')
+    }).filter(Boolean).join('\n')
+
+    const gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="SpotHitch" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>${safeName}</name>
+    <time>${trip.startDate || new Date().toISOString()}</time>
+  </metadata>
+${waypoints}
+</gpx>`
+    const blob = new Blob([gpx], { type: 'application/gpx+xml' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `spothitch-trip-${safeName}.gpx`
+    a.click()
+    URL.revokeObjectURL(url)
+  } else {
+    // JSON export
+    const exportData = { ...trip, dayPhotos: undefined, coverPhoto: undefined }
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `spothitch-trip-${safeName}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
   window.showToast?.(window.t?.('dataExportReady') || 'Export prêt !', 'success')
 }
