@@ -8,6 +8,7 @@ export function renderApp(currentPage, pendingCount = 0) {
     { id: 'spots', label: 'Spots', icon: '📍' },
     { id: 'moderation', label: 'Modération', icon: '⚖️', badge: pendingCount },
     { id: 'users', label: 'Utilisateurs', icon: '👤' },
+    { id: 'identity', label: 'Identité', icon: '🪪' },
   ]
 
   const navHtml = navItems

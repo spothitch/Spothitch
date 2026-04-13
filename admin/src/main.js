@@ -17,6 +17,7 @@ import {
 } from './components/Moderation.js'
 import { renderUserList, bindUserListEvents, resetUserListCache } from './components/UserList.js'
 import { renderSpotList, bindSpotListEvents, resetSpotListCache } from './components/SpotList.js'
+import { renderIdVerification, bindIdVerificationEvents, resetIdVerificationCache } from './components/IdVerification.js'
 
 const appEl = document.getElementById('app')
 let currentPage = 'dashboard'
@@ -51,6 +52,7 @@ function navigate(page) {
   resetModerationCache()
   resetUserListCache()
   resetSpotListCache()
+  resetIdVerificationCache()
   renderPage()
 }
 
@@ -106,6 +108,10 @@ function renderPage() {
       case 'users':
         mainContent.innerHTML = renderUserList()
         bindUserListEvents()
+        break
+      case 'identity':
+        mainContent.innerHTML = renderIdVerification()
+        bindIdVerificationEvents()
         break
       default:
         mainContent.innerHTML = renderDashboard()
