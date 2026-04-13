@@ -1790,3 +1790,313 @@ test.describe('AF. Proximity Alerts', () => {
     expect(await page.evaluate(() => typeof window.initProximityNotify === 'function')).toBe(true)
   })
 })
+
+// ==================== GROUPE AG — VRAIS TESTS MULTI-USER (2 navigateurs) ====================
+// Ces tests ouvrent 2 contextes navigateur simultanés pour vérifier les interactions
+
+test.describe('AG. Multi-User Interactions', () => {
+
+  async function setupTwoUsers(browser) {
+    const aliceCtx = await browser.newContext()
+    const bobCtx = await browser.newContext()
+    const alice = await aliceCtx.newPage()
+    const bob = await bobCtx.newPage()
+
+    // Setup both pages
+    for (const page of [alice, bob]) {
+      await page.addInitScript((storage) => {
+        for (const [k, v] of Object.entries(storage)) localStorage.setItem(k, v)
+      }, BYPASS_STORAGE)
+    }
+
+    await alice.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
+    await alice.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+    await alice.evaluate(() => {
+      localStorage.setItem('spothitch_landing_v2', '1')
+      window.setState?.({
+        showWelcome: false, showLanding: false, showAgeVerification: false, showCookieBanner: false,
+        isLoggedIn: true, user: { uid: 'alice-uid', displayName: 'Alice', email: 'alice@test.com' },
+        username: 'alice', isAdmin: true,
+      })
+    })
+    await alice.waitForTimeout(500)
+
+    await bob.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
+    await bob.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+    await bob.evaluate(() => {
+      localStorage.setItem('spothitch_landing_v2', '1')
+      window.setState?.({
+        showWelcome: false, showLanding: false, showAgeVerification: false, showCookieBanner: false,
+        isLoggedIn: true, user: { uid: 'bob-uid', displayName: 'Bob', email: 'bob@test.com' },
+        username: 'bob',
+      })
+    })
+    await bob.waitForTimeout(500)
+
+    return { alice, bob, aliceCtx, bobCtx }
+  }
+
+  async function cleanup({ aliceCtx, bobCtx }) {
+    await aliceCtx.close()
+    await bobCtx.close()
+  }
+
+  test('AG1: Both users load app simultaneously', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    const aliceApp = await alice.evaluate(() => !!document.getElementById('app'))
+    const bobApp = await bob.evaluate(() => !!document.getElementById('app'))
+    expect(aliceApp).toBe(true)
+    expect(bobApp).toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG2: Alice and Bob see different usernames', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    const aliceName = await alice.evaluate(() => window.getState?.()?.username)
+    const bobName = await bob.evaluate(() => window.getState?.()?.username)
+    expect(aliceName).toBe('alice')
+    expect(bobName).toBe('bob')
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG3: Alice navigates to social while Bob stays on map', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    await alice.evaluate(() => window.changeTab?.('social'))
+    await alice.waitForTimeout(500)
+    const aliceTab = await alice.evaluate(() => window.getState?.()?.activeTab)
+    const bobTab = await bob.evaluate(() => window.getState?.()?.activeTab)
+    expect(aliceTab).toBe('social')
+    expect(bobTab).toBe('map')
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG4: Alice opens Guardian while Bob opens SOS', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    await alice.evaluate(() => window.showGuardianModal?.())
+    await bob.evaluate(() => window.openSOS?.())
+    await alice.waitForTimeout(500)
+    const aliceGuardian = await alice.evaluate(() => window.getState?.()?.showGuardianModal)
+    const bobSOS = await bob.evaluate(() => window.getState?.()?.showSOS)
+    expect(aliceGuardian).toBe(true)
+    expect(bobSOS).toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG5: Alice changes language, Bob keeps his', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    await alice.evaluate(() => window.setLanguage?.('en'))
+    await alice.waitForTimeout(300)
+    const aliceLang = await alice.evaluate(() => window.getState?.()?.lang)
+    const bobLang = await bob.evaluate(() => window.getState?.()?.lang)
+    expect(aliceLang).toBe('en')
+    expect(bobLang !== 'en' || bobLang === 'fr').toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG6: Both users can open filters independently', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    await alice.evaluate(() => window.openFilters?.())
+    await alice.waitForTimeout(300)
+    const aliceFilters = await alice.evaluate(() => window.getState?.()?.showFilters)
+    const bobFilters = await bob.evaluate(() => window.getState?.()?.showFilters)
+    expect(aliceFilters).toBe(true)
+    expect(bobFilters).toBeFalsy()
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG7: Alice opens profile, Bob opens voyage', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    await alice.evaluate(() => window.changeTab?.('profile'))
+    await bob.evaluate(() => window.changeTab?.('voyage'))
+    await alice.waitForTimeout(500)
+    const aliceTab = await alice.evaluate(() => window.getState?.()?.activeTab)
+    const bobTab = await bob.evaluate(() => window.getState?.()?.activeTab)
+    expect(aliceTab).toBe('profile')
+    expect(bobTab).toBe('voyage')
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG8: Both users have different state objects', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    await alice.evaluate(() => window.setState?.({ customFlag: 'alice-only' }))
+    const aliceFlag = await alice.evaluate(() => window.getState?.()?.customFlag)
+    const bobFlag = await bob.evaluate(() => window.getState?.()?.customFlag)
+    expect(aliceFlag).toBe('alice-only')
+    expect(bobFlag).toBeUndefined()
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG9: sendFriendRequest function exists for both users', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    const aliceHas = await alice.evaluate(() => typeof window.sendFriendRequest === 'function')
+    const bobHas = await bob.evaluate(() => typeof window.sendFriendRequest === 'function')
+    expect(aliceHas).toBe(true)
+    expect(bobHas).toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG10: sendDM function exists for both users', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    const aliceHas = await alice.evaluate(() => typeof window.sendDM === 'function')
+    const bobHas = await bob.evaluate(() => typeof window.sendDM === 'function')
+    expect(aliceHas).toBe(true)
+    expect(bobHas).toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG11: openAddSpot exists for both users', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    const aliceHas = await alice.evaluate(() => typeof window.openAddSpot === 'function')
+    const bobHas = await bob.evaluate(() => typeof window.openAddSpot === 'function')
+    expect(aliceHas).toBe(true)
+    expect(bobHas).toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG12: toggleFavorite exists for both users', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    const aliceHas = await alice.evaluate(() => typeof window.toggleFavorite === 'function')
+    const bobHas = await bob.evaluate(() => typeof window.toggleFavorite === 'function')
+    expect(aliceHas).toBe(true)
+    expect(bobHas).toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG13: Both users can open SOS independently', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    await alice.evaluate(() => window.openSOS?.())
+    await alice.waitForTimeout(500)
+    const aliceSOS = await alice.evaluate(() => window.getState?.()?.showSOS)
+    const bobSOS = await bob.evaluate(() => window.getState?.()?.showSOS)
+    expect(aliceSOS).toBe(true)
+    expect(bobSOS).toBeFalsy()
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG14: openReport exists for both users', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    const aliceHas = await alice.evaluate(() => typeof window.openReport === 'function')
+    const bobHas = await bob.evaluate(() => typeof window.openReport === 'function')
+    expect(aliceHas).toBe(true)
+    expect(bobHas).toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+
+  test('AG15: Both users can change theme independently', async ({ browser }) => {
+    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
+    await alice.evaluate(() => window.setThemeMode?.('light'))
+    await alice.waitForTimeout(300)
+    const aliceTheme = await alice.evaluate(() => window.getState?.()?.theme)
+    const bobTheme = await bob.evaluate(() => window.getState?.()?.theme)
+    expect(aliceTheme).toBe('light')
+    expect(bobTheme !== 'light').toBe(true)
+    await cleanup({ aliceCtx, bobCtx })
+  })
+})
+
+// ==================== GROUPE AH — SCÉNARIOS CROISÉS COMPLETS ====================
+
+test.describe('AH. Scénarios Croisés', () => {
+
+  test('AH1: Parcours nouvel utilisateur complet', async ({ page }) => {
+    // Start fresh (no bypass)
+    await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
+    await page.waitForTimeout(3000)
+    // App should show landing or map
+    const hasUI = await page.evaluate(() => !!document.getElementById('app'))
+    expect(hasUI).toBe(true)
+    // Simulate completing onboarding
+    await page.evaluate(() => {
+      localStorage.setItem('spothitch_cookie_consent', 'true')
+      localStorage.setItem('spothitch_landing_v2', '1')
+      localStorage.setItem('spothitch_age_verified', 'true')
+      localStorage.setItem('spothitch_welcomed', 'true')
+    })
+    await page.evaluate(() => window.setState?.({
+      showWelcome: false, showLanding: false, showCookieBanner: false, showAgeVerification: false,
+      isLoggedIn: true, user: { uid: 'new-user', displayName: 'Newbie' },
+    }))
+    await page.waitForTimeout(1000)
+    // Navigate all tabs
+    for (const tab of ['voyage', 'social', 'profile', 'map']) {
+      await page.evaluate((t) => window.changeTab?.(t), tab)
+      await page.waitForTimeout(300)
+    }
+    // Verify all critical handlers exist
+    const handlers = ['openAddSpot', 'openSOS', 'showGuardianModal', 'showGuides', 'openAuth']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
+  })
+
+  test('AH2: Two users navigate different tabs simultaneously', async ({ browser }) => {
+    const ctx1 = await browser.newContext()
+    const ctx2 = await browser.newContext()
+    const p1 = await ctx1.newPage()
+    const p2 = await ctx2.newPage()
+
+    for (const p of [p1, p2]) {
+      await p.addInitScript((s) => { for (const [k,v] of Object.entries(s)) localStorage.setItem(k,v) }, BYPASS_STORAGE)
+      await p.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
+      await p.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+      await p.evaluate(() => window.setState?.({ showWelcome: false, showLanding: false, isLoggedIn: true, user: { uid: 'u' } }))
+      await p.waitForTimeout(500)
+    }
+
+    // P1 goes to profile, P2 goes to voyage
+    await p1.evaluate(() => window.changeTab?.('profile'))
+    await p2.evaluate(() => window.changeTab?.('voyage'))
+    await p1.waitForTimeout(500)
+
+    const t1 = await p1.evaluate(() => window.getState?.()?.activeTab)
+    const t2 = await p2.evaluate(() => window.getState?.()?.activeTab)
+    expect(t1).toBe('profile')
+    expect(t2).toBe('voyage')
+
+    await ctx1.close()
+    await ctx2.close()
+  })
+
+  test('AH3: Stress — open/close 10 modals rapidly', async ({ page }) => {
+    await setupPage(page)
+    await waitForApp(page)
+    const modals = ['openFilters', 'closeFilters', 'openSOS', 'closeSOS', 'openAuth', 'closeAuth',
+      'showGuardianModal', 'closeGuardianModal', 'openMyData', 'closeMyData']
+    for (const fn of modals) {
+      await page.evaluate((f) => window[f]?.(), fn)
+      await page.waitForTimeout(100)
+    }
+    // App should not crash
+    const alive = await page.evaluate(() => typeof window.getState === 'function')
+    expect(alive).toBe(true)
+  })
+
+  test('AH4: All share functions exist', async ({ page }) => {
+    await setupPage(page)
+    await waitForApp(page)
+    const shareFns = ['shareSpot', 'shareBadge', 'shareStats', 'shareApp', 'shareMyProfile', 'copyFriendLink']
+    const missing = await page.evaluate((fns) => fns.filter(f => typeof window[f] !== 'function'), shareFns)
+    expect(missing).toEqual([])
+  })
+
+  test('AH5: All close functions exist', async ({ page }) => {
+    await setupPage(page)
+    await waitForApp(page)
+    // Only test close handlers that are eagerly loaded (not lazy)
+    const closeFns = [
+      'closeAuth', 'closeAddSpot', 'closeSOS', 'closeGuardianModal', 'closeSpotDetail',
+      'closeFilters', 'closeSettings', 'closeLegal', 'closeMyData', 'closeDeleteAccount',
+      'closeTitles', 'closeFAQ',
+    ]
+    const missing = await page.evaluate((fns) => fns.filter(f => typeof window[f] !== 'function'), closeFns)
+    expect(missing).toEqual([])
+  })
+
+  test('AH6: All navigation functions exist', async ({ page }) => {
+    await setupPage(page)
+    await waitForApp(page)
+    const navFns = ['changeTab', 'goBack', 'openFullMap', 'setViewMode', 'flyToCity',
+      'openProfile', 'planTrip', 'openGuides', 'showFriends', 'centerOnUser']
+    const missing = await page.evaluate((fns) => fns.filter(f => typeof window[f] !== 'function'), navFns)
+    expect(missing).toEqual([])
+  })
+})
