@@ -7,6 +7,7 @@ import { getState } from '../stores/state.js'
 import { showToast } from './notifications.js'
 import { t } from '../i18n/index.js'
 import { icon } from '../utils/icons.js'
+import { escapeJSString } from '../utils/sanitize.js'
 
 // Affiliate IDs - TODO: Replace with real affiliate IDs when available
 const HOSTELWORLD_AFFILIATE_ID = 'SPOTHITCH_HW_ID'
@@ -286,7 +287,7 @@ export async function renderHostelSection(cityName) {
         </h3>
         <div class="text-center py-6 text-slate-400">
           <p class="mb-3">${t('hostelNoneYet') || 'Aucune auberge recommandée pour l\'instant'}</p>
-          <button onclick="openAddHostel('${cityName}')" class="btn-primary">
+          <button onclick="openAddHostel('${escapeJSString(cityName)}')" class="btn-primary">
             ${icon('plus', 'w-5 h-5 mr-2')}
             ${t('hostelRecommend') || 'Recommander une auberge'}
           </button>
@@ -301,7 +302,7 @@ export async function renderHostelSection(cityName) {
         <h3 class="font-bold text-lg flex items-center gap-2">
           ${icon("home", "w-4 h-4 inline mr-1")} ${t('hostelRecommendations') || 'Auberges recommandées'} à ${cityName}
         </h3>
-        <button onclick="openAddHostel('${cityName}')" class="text-sm text-primary-400 hover:text-primary-300">
+        <button onclick="openAddHostel('${escapeJSString(cityName)}')" class="text-sm text-primary-400 hover:text-primary-300">
           ${icon('plus', 'w-5 h-5 mr-1')}
           ${t('hostelAdd') || 'Ajouter'}
         </button>
@@ -310,7 +311,7 @@ export async function renderHostelSection(cityName) {
       <!-- Category Tabs -->
       <div class="flex gap-2 mb-4" id="hostel-tabs">
         <button
-          onclick="switchHostelCategory('party', '${cityName}')"
+          onclick="switchHostelCategory('party', '${escapeJSString(cityName)}')"
           class="hostel-tab flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-colors bg-primary-500 text-white"
           data-category="party"
         >
@@ -318,7 +319,7 @@ export async function renderHostelSection(cityName) {
           ${recommendations.party.length > 0 ? `<span class="ml-1">(${recommendations.party.length})</span>` : ''}
         </button>
         <button
-          onclick="switchHostelCategory('cozy', '${cityName}')"
+          onclick="switchHostelCategory('cozy', '${escapeJSString(cityName)}')"
           class="hostel-tab flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:text-white hover:bg-white/5"
           data-category="cozy"
         >
@@ -326,7 +327,7 @@ export async function renderHostelSection(cityName) {
           ${recommendations.cozy.length > 0 ? `<span class="ml-1">(${recommendations.cozy.length})</span>` : ''}
         </button>
         <button
-          onclick="switchHostelCategory('budget', '${cityName}')"
+          onclick="switchHostelCategory('budget', '${escapeJSString(cityName)}')"
           class="hostel-tab flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:text-white hover:bg-white/5"
           data-category="budget"
         >
@@ -384,7 +385,7 @@ function renderHostelCard(hostel, cityName) {
           <h4 class="font-semibold">${hostel.hostelName}</h4>
           <div class="flex items-center gap-2 mt-1">
             <button
-              onclick="upvoteHostel('${hostel.city}', '${hostel.hostelName}')"
+              onclick="upvoteHostel('${escapeJSString(hostel.city)}', '${escapeJSString(hostel.hostelName)}')"
               class="flex items-center gap-1 text-sm ${hasUpvoted ? 'text-primary-400' : 'text-slate-400 hover:text-primary-400'} transition-colors"
               ${hasUpvoted ? 'disabled' : ''}
             >
@@ -496,7 +497,7 @@ export function renderAddHostelForm(cityName) {
 
           <!-- Submit Button -->
           <button
-            onclick="submitHostelRec('${cityName}')"
+            onclick="submitHostelRec('${escapeJSString(cityName)}')"
             class="btn-primary w-full"
           >
             ${icon('check', 'w-5 h-5 mr-2')}

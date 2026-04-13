@@ -1,5 +1,6 @@
 import { icon } from '../utils/icons.js'
 import { t } from '../i18n/index.js'
+import { escapeJSString } from '../utils/sanitize.js'
 
 /**
  * Webhooks System
@@ -222,11 +223,11 @@ export function renderWebhookSettings() {
             <div class="text-sm font-medium text-white">${w.name}</div>
             <div class="text-xs text-slate-400">${w.type} - ${w.events.length} ${t('eventsCount') || 'evenements'}</div>
           </div>
-          <button onclick="window.toggleWebhookAction('${w.id}')"
+          <button onclick="window.toggleWebhookAction('${escapeJSString(w.id)}')"
                   class="px-2 py-1 text-xs rounded ${w.enabled ? 'bg-green-500/20 text-green-400' : 'bg-slate-500/20 text-slate-400'}">
             ${w.enabled ? 'Actif' : 'Inactif'}
           </button>
-          <button onclick="window.removeWebhookAction('${w.id}')" class="text-red-400 hover:text-red-300">
+          <button onclick="window.removeWebhookAction('${escapeJSString(w.id)}')" class="text-red-400 hover:text-red-300">
             ${icon('trash', 'w-3 h-3')}
           </button>
         </div>

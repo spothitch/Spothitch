@@ -6,6 +6,7 @@
 
 import { showToast, sendLocalNotification } from './notifications.js'
 import { t } from '../i18n/index.js'
+import { escapeJSString } from '../utils/sanitize.js'
 
 // Storage key for known devices
 const KNOWN_DEVICES_KEY = 'spothitch_known_devices'
@@ -590,7 +591,7 @@ export function renderDeviceList() {
             </div>
             ${!isCurrent ? `
               <button
-                onclick="window.removeKnownDevice('${device.fingerprint}')"
+                onclick="window.removeKnownDevice('${escapeJSString(device.fingerprint)}')"
                 class="text-red-400 hover:text-red-300 p-2"
                 aria-label="${t('removeDeviceAriaLabel') || 'Supprimer cet appareil'}"
               >

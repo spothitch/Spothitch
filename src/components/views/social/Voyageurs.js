@@ -375,7 +375,7 @@ function renderBuddyList(state) {
 
       <div class="p-4">
         <!-- Country filter pills -->
-        <div class="flex gap-1.5 overflow-x-auto pt-2 pb-3.5 scrollbar-hide" style="scrollbar-width:none">
+        <div class="flex gap-1.5 overflow-x-auto pt-2 pb-3.5 scrollbar-hide">
           ${countries.map(c => `
             <button onclick="setBuddyCountryFilter('${c.code}')" class="px-3.5 py-2 rounded-[20px] text-[0.8rem] font-semibold cursor-pointer min-h-[40px] flex items-center gap-1.5 shrink-0 whitespace-nowrap transition-all" style="border:1px solid ${filter === c.code ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'};background:${filter === c.code ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)'};color:${filter === c.code ? '#f59e0b' : '#94a3b8'}">${c.flag ? c.flag + ' ' : ''}${c.label}</button>
           `).join('')}
@@ -395,7 +395,7 @@ function renderBuddyList(state) {
       </div>
 
       <!-- FAB + button -->
-      <button onclick="showBuddyCreate()" class="fixed bottom-24 right-5 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-30 transition-transform active:scale-90 bg-amber-500 text-[#0f1520] border-0 cursor-pointer" style="box-shadow:0 4px 20px rgba(245,158,11,0.35)" aria-label="${t('createAnnouncement') || 'Creer une annonce'}">
+      <button onclick="showBuddyCreate()" class="fixed bottom-24 right-5 w-14 h-14 rounded-full shadow-lg shadow-amber-500/35 flex items-center justify-center z-30 transition-transform active:scale-90 bg-amber-500 text-[#0f1520] border-0 cursor-pointer" aria-label="${t('createAnnouncement') || 'Creer une annonce'}">
         ${icon('plus', 'w-6 h-6')}
       </button>
     </div>

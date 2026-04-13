@@ -7,6 +7,7 @@ import { getState, setState } from '../stores/state.js';
 import { showToast } from './notifications.js';
 import { t } from '../i18n/index.js';
 import { icon } from '../utils/icons.js'
+import { escapeJSString } from '../utils/sanitize.js'
 import { haversineKm as getDistanceKm } from '../utils/geo.js'
 
 // Configuration
@@ -379,14 +380,14 @@ export function renderNearbyFriendsList(state) {
                     </div>
                     <div class="flex gap-2">
                       <button
-                        onclick="openFriendChat('${friend.userId}')"
+                        onclick="openFriendChat('${escapeJSString(friend.userId)}')"
                         class="p-2 rounded-xl bg-primary-500/20 text-primary-400 hover:bg-primary-500/30 transition-colors"
                         aria-label="${t('sendMessage') || 'Envoyer un message'}"
                       >
                         ${icon('message-circle', 'w-5 h-5')}
                       </button>
                       <button
-                        onclick="showFriendOnMap('${friend.userId}')"
+                        onclick="showFriendOnMap('${escapeJSString(friend.userId)}')"
                         class="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
                         aria-label="${t('showOnMap') || 'Voir sur la carte'}"
                       >
