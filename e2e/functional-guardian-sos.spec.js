@@ -59,14 +59,18 @@ test.describe('Guardian', () => {
 
   test('Bouton ajouter gardien visible dans le DOM', async ({ page }) => {
     await openGuardian(page)
-    const found = await page.evaluate(() => !!document.querySelector('[onclick*="guardianAddGuardian"]'))
-    expect(found || await page.evaluate(() => typeof window.guardianAddGuardian === 'function')).toBe(true)
+    const found = await page.evaluate(() =>
+      !!document.querySelector('[onclick*="guardianAddGuardian"]') || typeof window.guardianAddGuardian === 'function'
+    )
+    expect(found).toBe(true)
   })
 
   test('Bouton démarrer visible dans le DOM', async ({ page }) => {
     await openGuardian(page)
-    const found = await page.evaluate(() => !!document.querySelector('[onclick*="startGuardian"]'))
-    expect(found || await page.evaluate(() => typeof window.startGuardian === 'function')).toBe(true)
+    const found = await page.evaluate(() =>
+      !!document.querySelector('[onclick*="startGuardian"]') || typeof window.startGuardian === 'function'
+    )
+    expect(found).toBe(true)
   })
 
   test('guardianGoToScreen main ne crash pas et affiche du contenu', async ({ page }) => {
@@ -197,5 +201,118 @@ test.describe('SOS', () => {
       'toggleCommunityAlerts', 'setCommunityRadius', 'setCommunityGenderFilter',
     ])
     expect(missing).toEqual([])
+  })
+})
+
+// ==================== GUARDIAN — 7 HANDLERS MANQUANTS ====================
+
+test.describe('Guardian handlers manquants', () => {
+
+  test('guardianSwitchTab change le screen et ne crash pas', async ({ page }) => {
+    await openGuardian(page)
+    await page.evaluate(() => window.guardianSwitchTab?.(0))
+    await page.waitForTimeout(300)
+    expect(await page.evaluate(() => document.body.innerText.length)).toBeGreaterThan(50)
+  })
+
+  test('guardianToggleDeparture toggle notifyOnDeparture dans localStorage', async ({ page }) => {
+    await openGuardian(page)
+    // Set initial guardian state
+    await page.evaluate(() => {
+      localStorage.setItem('spothitch_guardian', JSON.stringify({ notifyOnDeparture: false }))
+    })
+    await page.evaluate(() => window.guardianToggleDeparture?.())
+    await page.waitForTimeout(500)
+    const state = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('spothitch_guardian')) } catch { return null }
+    })
+    expect(state?.notifyOnDeparture).toBe(true)
+  })
+
+  test('guardianToggleArrival toggle notifyOnArrival dans localStorage', async ({ page }) => {
+    await openGuardian(page)
+    await page.evaluate(() => {
+      localStorage.setItem('spothitch_guardian', JSON.stringify({ notifyOnArrival: false }))
+    })
+    await page.evaluate(() => window.guardianToggleArrival?.())
+    await page.waitForTimeout(500)
+    const state = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('spothitch_guardian')) } catch { return null }
+    })
+    expect(state?.notifyOnArrival).toBe(true)
+  })
+
+  test('guardianAddTrustedContact ajoute un contact quand phone renseigné', async ({ page }) => {
+    await openGuardian(page)
+    // Initialize guardian state + fake DOM elements
+    await page.evaluate(() => {
+      localStorage.setItem('spothitch_guardian', JSON.stringify({ trustedContacts: [] }))
+      // Create fake input elements that the handler reads
+      const nameEl = document.createElement('input')
+      nameEl.id = 'guardian-tc-name'
+      nameEl.value = 'Maman'
+      document.body.appendChild(nameEl)
+      const phoneEl = document.createElement('input')
+      phoneEl.id = 'guardian-tc-phone'
+      phoneEl.value = '+33612345678'
+      document.body.appendChild(phoneEl)
+    })
+    await page.evaluate(() => window.guardianAddTrustedContact?.())
+    await page.waitForTimeout(500)
+    const state = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('spothitch_guardian')) } catch { return null }
+    })
+    expect(state?.trustedContacts?.length).toBe(1)
+    expect(state?.trustedContacts?.[0]?.name).toBe('Maman')
+    expect(state?.trustedContacts?.[0]?.phone).toBe('+33612345678')
+  })
+
+  test('guardianRemoveTrustedContact supprime un contact par index', async ({ page }) => {
+    await openGuardian(page)
+    await page.evaluate(() => {
+      localStorage.setItem('spothitch_guardian', JSON.stringify({
+        trustedContacts: [
+          { name: 'Contact1', phone: '+33600000001' },
+          { name: 'Contact2', phone: '+33600000002' },
+        ]
+      }))
+    })
+    await page.evaluate(() => window.guardianRemoveTrustedContact?.(0))
+    await page.waitForTimeout(500)
+    const state = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('spothitch_guardian')) } catch { return null }
+    })
+    expect(state?.trustedContacts?.length).toBe(1)
+    expect(state?.trustedContacts?.[0]?.name).toBe('Contact2')
+  })
+
+  test('requireOnline retourne true quand navigator.onLine est true', async ({ page }) => {
+    await setup(page)
+    const result = await page.evaluate(() => window.requireOnline?.())
+    // In Playwright, navigator.onLine is true by default
+    expect(result).toBe(true)
+  })
+
+  test('startGuardianDemoContent affiche le contenu demo', async ({ page }) => {
+    await setup(page)
+    // Open the demo overlay first (startGuardianDemoContent expects specific DOM elements)
+    await page.evaluate(() => {
+      // Create the expected DOM structure
+      const intro = document.createElement('div')
+      intro.id = 'guardian-demo-intro'
+      intro.style.display = 'block'
+      document.body.appendChild(intro)
+      const main = document.createElement('div')
+      main.id = 'guardian-demo-main'
+      main.className = 'hidden'
+      document.body.appendChild(main)
+    })
+    await page.evaluate(() => window.startGuardianDemoContent?.())
+    await page.waitForTimeout(500)
+    const mainVisible = await page.evaluate(() => {
+      const main = document.getElementById('guardian-demo-main')
+      return main && main.style.display !== 'none' && !main.classList.contains('hidden')
+    })
+    expect(mainVisible).toBe(true)
   })
 })
