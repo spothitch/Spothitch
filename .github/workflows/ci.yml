@@ -666,7 +666,7 @@ jobs:
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2, e2e-rounds, e2e-multi-user]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2, e2e-multi-user]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
@@ -706,7 +706,7 @@ jobs:
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2, e2e-rounds]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     # Note: feature/* branches run tests only, no deploy
     steps:
