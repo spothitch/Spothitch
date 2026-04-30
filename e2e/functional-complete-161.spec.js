@@ -14,7 +14,7 @@ const BYPASS = {
 async function setup(page, opts = {}) {
   await page.addInitScript((s) => { for (const [k,v] of Object.entries(s)) localStorage.setItem(k,v) }, BYPASS)
   await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 45000 }).catch(() => {})
   await page.evaluate((o) => {
     localStorage.setItem('spothitch_landing_v2', '1')
     window.setState?.({
@@ -26,7 +26,7 @@ async function setup(page, opts = {}) {
       friends: [{ id: 'f1', name: 'Alice', avatar: 'thumbs-up' }],
     })
   }, opts)
-  await page.waitForTimeout(800)
+  await page.waitForTimeout(2000)
 }
 
 // Helper: call handler and verify no crash + state still works + app DOM intact
@@ -119,7 +119,7 @@ test.describe('G2: Navigation & Settings', () => {
   test('toggleSettingsSection ouvre une section de reglages', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('profile'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     await page.evaluate(() => window.toggleSettingsSection?.('privacy'))
     await page.waitForTimeout(300)
     // Verify the section toggled (state or DOM changed)
@@ -180,7 +180,7 @@ test.describe('G2: Navigation & Settings', () => {
   test('openEditPersonalInfo ouvre le formulaire edition', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('profile'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     await page.evaluate(() => window.openEditPersonalInfo?.())
     await page.waitForTimeout(500)
     const editing = await page.evaluate(() => window.getState?.()?.editingPersonalInfo || window.getState?.()?.showEditPersonalInfo)
@@ -191,7 +191,7 @@ test.describe('G2: Navigation & Settings', () => {
   test('openMyCountries ouvre la liste des pays visites', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('profile'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     await page.evaluate(() => window.openMyCountries?.())
     await page.waitForTimeout(500)
     expect(await page.evaluate(() => typeof window.getState === 'function')).toBe(true)
@@ -205,7 +205,7 @@ test.describe('G2: Navigation & Settings', () => {
   test('removeEditLanguage supprime une langue', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('profile'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     expect(await callAndVerify(page, 'removeEditLanguage', 0)).toBe(true)
   })
 

@@ -13,7 +13,7 @@ const BYPASS = {
 async function setup(page, opts = {}) {
   await page.addInitScript((s) => { for (const [k,v] of Object.entries(s)) localStorage.setItem(k,v) }, BYPASS)
   await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 45000 }).catch(() => {})
   await page.evaluate((o) => {
     localStorage.setItem('spothitch_landing_v2', '1')
     window.setState?.({
@@ -25,7 +25,7 @@ async function setup(page, opts = {}) {
       friends: [{ id: 'f1', name: 'Alice', avatar: 'thumbs-up' }],
     })
   }, opts)
-  await page.waitForTimeout(800)
+  await page.waitForTimeout(2000)
 }
 
 // ==================== G1: CLOSE → verify state reset ====================
@@ -79,7 +79,7 @@ test.describe('Open handlers — verify state is set', () => {
   test('openDeleteAccount sets showDeleteAccount=true', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('profile'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     await page.evaluate(() => window.openDeleteAccount?.())
     await page.waitForTimeout(300)
     expect(await page.evaluate(() => window.getState?.()?.showDeleteAccount)).toBe(true)
@@ -153,7 +153,7 @@ test.describe('Navigation — verify tab changes', () => {
   test('changeTab to profile', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('profile'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     expect(await page.evaluate(() => window.getState?.()?.activeTab)).toBe('profile')
     // Verify DOM has profile content
     const text = await page.evaluate(() => document.getElementById('app')?.innerText || '')
@@ -163,21 +163,21 @@ test.describe('Navigation — verify tab changes', () => {
   test('changeTab to social', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('social'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     expect(await page.evaluate(() => window.getState?.()?.activeTab)).toBe('social')
   })
 
   test('changeTab to voyage', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('voyage'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     expect(await page.evaluate(() => window.getState?.()?.activeTab)).toBe('voyage')
   })
 
   test('setVoyageSubTab switches sub-tab', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('voyage'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     await page.evaluate(() => window.setVoyageSubTab?.('journal'))
     await page.waitForTimeout(500)
     expect(await page.evaluate(() => window.getState?.()?.voyageSubTab)).toBe('journal')
@@ -186,7 +186,7 @@ test.describe('Navigation — verify tab changes', () => {
   test('setProfileSubTab switches sub-tab', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('profile'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     await page.evaluate(() => window.setProfileSubTab?.('reglages'))
     await page.waitForTimeout(500)
     expect(await page.evaluate(() => window.getState?.()?.profileSubTab)).toBe('reglages')
@@ -195,7 +195,7 @@ test.describe('Navigation — verify tab changes', () => {
   test('setSocialTab switches social sub-tab', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('social'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     await page.evaluate(() => window.setSocialTab?.('friends'))
     await page.waitForTimeout(500)
     expect(await page.evaluate(() => window.getState?.()?.socialTab)).toBe('friends')
@@ -218,7 +218,7 @@ test.describe('Open then close — full cycle', () => {
       // Some handlers need profile tab
       if (open === 'openDeleteAccount') {
         await page.evaluate(() => window.changeTab?.('profile'))
-        await page.waitForTimeout(1500)
+        await page.waitForTimeout(2000)
       }
       await page.evaluate((h) => window[h]?.(), open)
       await page.waitForTimeout(500)

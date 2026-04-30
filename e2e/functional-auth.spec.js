@@ -16,7 +16,7 @@ const BYPASS = {
 async function setup(page, opts = {}) {
   await page.addInitScript((s) => { for (const [k,v] of Object.entries(s)) localStorage.setItem(k,v) }, BYPASS)
   await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 45000 }).catch(() => {})
   await page.evaluate((o) => {
     localStorage.setItem('spothitch_landing_v2', '1')
     window.setState?.({
@@ -26,7 +26,7 @@ async function setup(page, opts = {}) {
       username: 'testuser', isAdmin: !!o.admin,
     })
   }, opts)
-  await page.waitForTimeout(800)
+  await page.waitForTimeout(2000)
 }
 
 // ==================== AUTH ====================
@@ -36,7 +36,7 @@ test.describe('Auth — Fonctionnel', () => {
   test('openAuth affiche le modal de connexion avec champs email/password', async ({ page }) => {
     await setup(page, { loggedIn: false })
     await page.evaluate(() => window.openAuth?.())
-    await page.waitForTimeout(800)
+    await page.waitForTimeout(2000)
     const hasEmailField = await page.evaluate(() => !!document.getElementById('auth-email'))
     const hasPasswordField = await page.evaluate(() => !!document.getElementById('auth-password'))
     expect(hasEmailField).toBe(true)

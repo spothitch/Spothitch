@@ -13,7 +13,7 @@ const BYPASS = {
 async function setup(page) {
   await page.addInitScript((s) => { for (const [k,v] of Object.entries(s)) localStorage.setItem(k,v) }, BYPASS)
   await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 45000 }).catch(() => {})
   await page.evaluate(() => {
     window.setState?.({
       showWelcome: false, showLanding: false, showAgeVerification: false, showCookieBanner: false,
@@ -22,7 +22,7 @@ async function setup(page) {
       username: 'testuser',
     })
   })
-  await page.waitForTimeout(800)
+  await page.waitForTimeout(2000)
 }
 
 test.describe('Offline functionality', () => {

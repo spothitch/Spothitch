@@ -435,7 +435,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium e2e/monkeyTest.spec.js e2e/userJourneys.spec.js e2e/map.spec.js e2e/mapDeep.spec.js e2e/userChains.spec.js e2e/performance.spec.js e2e/multi-user-full.spec.js
+      - run: npx playwright test --project=chromium e2e/monkeyTest.spec.js e2e/userJourneys.spec.js e2e/map.spec.js e2e/mapDeep.spec.js e2e/userChains.spec.js e2e/performance.spec.js e2e/multi-user-full.spec.js e2e/multi-user-cross-flows.spec.js
         continue-on-error: true
       - uses: actions/upload-artifact@v7
         if: always()
@@ -555,12 +555,12 @@ jobs:
           name: e2e-functional-2-report
           path: playwright-report/
 
-  e2e-rounds:
-    name: E2E Rounds (regression, security, edge cases)
+  e2e-rounds-1:
+    name: E2E Rounds 1 (regression, handlers, guardian, radar)
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -599,7 +599,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium e2e/regression.spec.js e2e/handlerCoverage.spec.js e2e/guardian-complete.spec.js e2e/radarBuddies.spec.js e2e/sosGuardian.spec.js e2e/visualTests.spec.js e2e/round01-auth.spec.js e2e/round02-profile.spec.js e2e/round03-spots.spec.js e2e/round04-social.spec.js e2e/round05-groups-chat.spec.js e2e/round06-guardian.spec.js e2e/round07-sos.spec.js e2e/round08-events-companion.spec.js e2e/round09-guides-roadmap.spec.js e2e/round10-admin.spec.js e2e/round11-offline-pwa.spec.js e2e/round12-stress-perf.spec.js e2e/round13-granular-auth.spec.js e2e/round14-granular-features.spec.js e2e/round15-xss-comprehensive.spec.js e2e/round16-edge-cases.spec.js e2e/round17-cross-user.spec.js e2e/firebase-auth.spec.js e2e/firebase-data.spec.js e2e/firebase-gamification.spec.js e2e/firebase-realtime.spec.js e2e/firebase-security.spec.js e2e/firebase-social.spec.js e2e/firebase-spots.spec.js
+      - run: npx playwright test --project=chromium e2e/regression.spec.js e2e/handlerCoverage.spec.js e2e/guardian-complete.spec.js e2e/radarBuddies.spec.js e2e/sosGuardian.spec.js e2e/visualTests.spec.js e2e/round01-auth.spec.js e2e/round02-profile.spec.js e2e/round03-spots.spec.js e2e/round04-social.spec.js
         continue-on-error: true
         env:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
@@ -608,7 +608,119 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: e2e-rounds-report
+          name: e2e-rounds-1-report
+          path: playwright-report/
+
+  e2e-rounds-2:
+    name: E2E Rounds 2 (round05-12, stress, edge cases)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Start Firebase Emulators
+        run: |
+          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
+          for i in $(seq 1 30); do
+            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && echo "Auth emulator ready" && break
+            sleep 1
+          done
+          curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Firestore emulator ready" || sleep 5
+      - name: Setup test accounts
+        run: node scripts/firebase-test-setup.mjs
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
+          FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080'
+          VITE_FIREBASE_API_KEY: 'fake-api-key-for-emulator'
+          VITE_FIREBASE_PROJECT_ID: 'spothitch-emulator'
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - run: npx playwright test --project=chromium e2e/round05-groups-chat.spec.js e2e/round06-guardian.spec.js e2e/round07-sos.spec.js e2e/round08-events-companion.spec.js e2e/round09-guides-roadmap.spec.js e2e/round10-admin.spec.js e2e/round11-offline-pwa.spec.js e2e/round12-stress-perf.spec.js e2e/round13-granular-auth.spec.js e2e/round14-granular-features.spec.js e2e/round15-xss-comprehensive.spec.js e2e/round16-edge-cases.spec.js e2e/round17-cross-user.spec.js
+        continue-on-error: true
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
+          FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-rounds-2-report
+          path: playwright-report/
+
+  e2e-rounds-3:
+    name: E2E Rounds 3 (Firebase integration tests)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Start Firebase Emulators
+        run: |
+          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
+          for i in $(seq 1 30); do
+            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && echo "Auth emulator ready" && break
+            sleep 1
+          done
+          curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Firestore emulator ready" || sleep 5
+      - name: Setup test accounts
+        run: node scripts/firebase-test-setup.mjs
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
+          FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080'
+          VITE_FIREBASE_API_KEY: 'fake-api-key-for-emulator'
+          VITE_FIREBASE_PROJECT_ID: 'spothitch-emulator'
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - run: npx playwright test --project=chromium e2e/firebase-auth.spec.js e2e/firebase-data.spec.js e2e/firebase-gamification.spec.js e2e/firebase-realtime.spec.js e2e/firebase-security.spec.js e2e/firebase-social.spec.js e2e/firebase-spots.spec.js
+        continue-on-error: true
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
+          FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-rounds-3-report
           path: playwright-report/
 
   e2e-multi-user:

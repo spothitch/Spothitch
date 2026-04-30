@@ -14,7 +14,7 @@ async function setupWithViewport(page, width, height) {
   await page.setViewportSize({ width, height })
   await page.addInitScript((s) => { for (const [k,v] of Object.entries(s)) localStorage.setItem(k,v) }, BYPASS)
   await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 45000 }).catch(() => {})
   await page.evaluate(() => {
     window.setState?.({
       showWelcome: false, showLanding: false, showAgeVerification: false, showCookieBanner: false,
@@ -23,7 +23,7 @@ async function setupWithViewport(page, width, height) {
       username: 'testuser',
     })
   })
-  await page.waitForTimeout(800)
+  await page.waitForTimeout(2000)
 }
 
 test.describe('Responsive — iPhone 14 (390x844)', () => {
@@ -45,7 +45,7 @@ test.describe('Responsive — iPhone 14 (390x844)', () => {
   test('profile tab renders content', async ({ page }) => {
     await setupWithViewport(page, 390, 844)
     await page.evaluate(() => window.changeTab?.('profile'))
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
     const text = await page.evaluate(() => document.getElementById('app')?.innerText || '')
     expect(text.length).toBeGreaterThan(50)
   })

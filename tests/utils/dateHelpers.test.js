@@ -1,27 +1,65 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 
-describe('DateHelpers Utils', () => {
-  it('imports without error', async () => {
-    const mod = await import('../../src/utils/dateHelpers.js')
-    expect(mod).toBeDefined()
+vi.mock('../../src/i18n/index.js', () => ({ t: vi.fn((k) => k) }))
+vi.mock('../../src/utils/icons.js', () => ({ icon: vi.fn((n) => `<svg>${n}</svg>`) }))
+
+import { getTimeAgo, getFreshnessLevel, getFreshnessBadge } from '../../src/utils/dateHelpers.js'
+
+describe('DateHelpers', () => {
+  describe('getTimeAgo', () => {
+    it('returns a string for recent date', () => {
+      const result = getTimeAgo(new Date().toISOString())
+      expect(typeof result).toBe('string')
+      expect(result.length).toBeGreaterThan(0)
+    })
+
+    it('returns a string for old date', () => {
+      const result = getTimeAgo('2020-01-01')
+      expect(typeof result).toBe('string')
+      expect(result.length).toBeGreaterThan(0)
+    })
+
+    it('returns something for null', () => {
+      const result = getTimeAgo(null)
+      // May return null, empty string, or a default string
+      expect(result !== undefined).toBe(true)
+    })
   })
 
-  it('has formatDate function', async () => {
-    const mod = await import('../../src/utils/dateHelpers.js')
-    // Check for common exports
-    const exportNames = Object.keys(mod)
-    expect(exportNames.length).toBeGreaterThan(0)
+  describe('getFreshnessLevel', () => {
+    it('returns a level string for recent date', () => {
+      const level = getFreshnessLevel(new Date().toISOString())
+      expect(typeof level).toBe('string')
+      expect(level.length).toBeGreaterThan(0)
+    })
+
+    it('returns a different level for old date', () => {
+      const recent = getFreshnessLevel(new Date().toISOString())
+      const old = getFreshnessLevel('2020-01-01')
+      expect(typeof old).toBe('string')
+      // Old date should get a different (worse) level than recent
+      expect(old).not.toBe(recent)
+    })
+
+    it('returns unverified for null', () => {
+      const level = getFreshnessLevel(null)
+      expect(level).toBe('unverified')
+    })
   })
 
-  it('exported functions return strings', async () => {
-    const mod = await import('../../src/utils/dateHelpers.js')
-    // Test first exported function with a date
-    const firstFn = Object.values(mod).find(v => typeof v === 'function')
-    if (firstFn) {
-      try {
-        const result = firstFn(new Date())
-        expect(typeof result === 'string' || typeof result === 'number' || typeof result === 'object').toBe(true)
-      } catch { /* some functions need specific params */ }
-    }
+  describe('getFreshnessBadge', () => {
+    it('returns badge object with icon and colors for active level', () => {
+      const badge = getFreshnessBadge('active')
+      expect(badge).toHaveProperty('icon')
+      expect(badge).toHaveProperty('iconColor')
+      expect(badge).toHaveProperty('bgColor')
+      expect(badge.iconColor).toContain('text-')
+    })
+
+    it('returns badge object for unverified level', () => {
+      const badge = getFreshnessBadge('unverified')
+      expect(badge).toHaveProperty('icon')
+      expect(badge).toHaveProperty('iconColor')
+    })
   })
 })

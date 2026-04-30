@@ -13,7 +13,7 @@ const BYPASS = {
 async function setup(page) {
   await page.addInitScript((s) => { for (const [k,v] of Object.entries(s)) localStorage.setItem(k,v) }, BYPASS)
   await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
+  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 45000 }).catch(() => {})
   await page.evaluate(() => {
     localStorage.setItem('spothitch_landing_v2', '1')
     window.setState?.({
@@ -22,7 +22,7 @@ async function setup(page) {
       username: 'testuser', emergencyContacts: [{ name: 'Contact1', phone: '+33600000000' }],
     })
   })
-  await page.waitForTimeout(800)
+  await page.waitForTimeout(2000)
 }
 
 async function openGuardian(page) {
