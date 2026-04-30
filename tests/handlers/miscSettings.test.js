@@ -11,16 +11,21 @@ vi.mock('../../src/services/firebase.js', () => ({
   getCurrentUser: vi.fn(() => null), db: null,
 }))
 
+window._appInternals = { scheduleRender: vi.fn((fn) => fn?.()), render: vi.fn() }
+
 await import('../../src/handlers/miscSettings.js')
 
 describe('miscSettings handlers', () => {
-  it('clearFormDraft is a function', () => {
-    expect(typeof window.clearFormDraft).toBe('function')
+  it('clearFormDraft calls scheduleRender after clearing', async () => {
+    await window.clearFormDraft?.('addSpot')
+    expect(window._appInternals.scheduleRender).toHaveBeenCalled()
   })
-  it('togglePushNotifications is a function', () => {
+  it('togglePushNotifications is callable', async () => {
+    try { await window.togglePushNotifications?.() } catch {}
     expect(typeof window.togglePushNotifications).toBe('function')
   })
-  it('openAddWebhook is a function', () => {
+  it('openAddWebhook is callable', async () => {
+    try { await window.openAddWebhook?.() } catch {}
     expect(typeof window.openAddWebhook).toBe('function')
   })
 })

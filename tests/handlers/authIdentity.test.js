@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockSetState = vi.fn()
 window.setState = mockSetState
 window.getState = vi.fn(() => ({ user: null }))
+window.t = vi.fn((k) => k)
 
 vi.mock('../../src/stores/state.js', () => ({
   getState: vi.fn(() => ({ user: null })),
@@ -18,19 +19,28 @@ vi.mock('../../src/services/firebase.js', () => ({
 await import('../../src/handlers/authIdentity.js')
 
 describe('authIdentity handlers', () => {
-  it('openAuth is a function', () => {
-    expect(typeof window.openAuth).toBe('function')
+  beforeEach(() => { mockSetState.mockClear() })
+
+  it('openAuth calls setState with showAuth=true', () => {
+    window.openAuth?.()
+    expect(mockSetState).toHaveBeenCalledWith(expect.objectContaining({ showAuth: true }))
   })
-  it('requireAuth is a function', () => {
-    expect(typeof window.requireAuth).toBe('function')
+  it('openAgeVerification calls setState with showAgeVerification=true', () => {
+    window.openAgeVerification?.()
+    expect(mockSetState).toHaveBeenCalledWith(expect.objectContaining({ showAgeVerification: true }))
   })
-  it('openAgeVerification is a function', () => {
-    expect(typeof window.openAgeVerification).toBe('function')
+  it('closeAgeVerification calls setState with showAgeVerification=false', () => {
+    window.closeAgeVerification?.()
+    expect(mockSetState).toHaveBeenCalledWith({ showAgeVerification: false })
   })
-  it('closeAgeVerification is a function', () => {
-    expect(typeof window.closeAgeVerification).toBe('function')
+  it('getTrustLevel returns a numeric level', () => {
+    const level = window.getTrustLevel?.()
+    expect(typeof level).toBe('number')
+    expect(level).toBeGreaterThanOrEqual(0)
   })
-  it('getTrustLevel is a function', () => {
-    expect(typeof window.getTrustLevel).toBe('function')
+  it('requireAuth opens auth modal when not logged in', () => {
+    mockSetState.mockClear()
+    window.requireAuth?.('test')
+    expect(mockSetState).toHaveBeenCalledWith(expect.objectContaining({ showAuth: true }))
   })
 })
