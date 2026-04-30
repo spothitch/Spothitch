@@ -1,6 +1,5 @@
 /**
- * Module-load tests for remaining utils
- * Ensures each module imports cleanly
+ * Module-load + export verification tests for remaining utils
  */
 import { describe, it, expect, vi } from 'vitest'
 
@@ -11,27 +10,44 @@ vi.mock('../../src/stores/state.js', () => ({
 vi.mock('../../src/i18n/index.js', () => ({ t: vi.fn((k) => k) }))
 vi.mock('../../src/utils/icons.js', () => ({ icon: vi.fn((n) => `<svg>${n}</svg>`) }))
 
-const modules = [
-  { name: 'animations', path: '../../src/utils/animations.js' },
-  { name: 'autocomplete', path: '../../src/utils/autocomplete.js' },
-  { name: 'customSelect', path: '../../src/utils/customSelect.js' },
-  { name: 'lazyImages', path: '../../src/utils/lazyImages.js' },
-  { name: 'lazyLoad', path: '../../src/utils/lazyLoad.js' },
-  { name: 'prefetch', path: '../../src/utils/prefetch.js' },
-  { name: 'searchInput', path: '../../src/utils/searchInput.js' },
-  { name: 'webVitals', path: '../../src/utils/webVitals.js' },
-]
+describe('Remaining utils — export verification', () => {
+  it('animations exports at least 1 function', async () => {
+    const mod = await import('../../src/utils/animations.js').catch(() => ({}))
+    expect(Object.keys(mod).length).toBeGreaterThan(0)
+  })
 
-describe('Remaining utils — module load tests', () => {
-  for (const { name, path } of modules) {
-    it(`${name} imports without error`, async () => {
-      let mod
-      try {
-        mod = await import(path)
-      } catch {
-        mod = {}
-      }
-      expect(mod).toBeDefined()
-    })
-  }
+  it('autocomplete exports at least 1 function', async () => {
+    const mod = await import('../../src/utils/autocomplete.js').catch(() => ({}))
+    expect(Object.keys(mod).length).toBeGreaterThan(0)
+  })
+
+  it('customSelect exports at least 1 function', async () => {
+    const mod = await import('../../src/utils/customSelect.js').catch(() => ({}))
+    expect(Object.keys(mod).length).toBeGreaterThan(0)
+  })
+
+  it('lazyImages exports at least 1 function', async () => {
+    const mod = await import('../../src/utils/lazyImages.js').catch(() => ({}))
+    expect(Object.keys(mod).length).toBeGreaterThan(0)
+  })
+
+  it('lazyLoad exports at least 1 function', async () => {
+    const mod = await import('../../src/utils/lazyLoad.js').catch(() => ({}))
+    expect(Object.keys(mod).length).toBeGreaterThan(0)
+  })
+
+  it('prefetch exports at least 1 function', async () => {
+    const mod = await import('../../src/utils/prefetch.js').catch(() => ({}))
+    expect(Object.keys(mod).length).toBeGreaterThan(0)
+  })
+
+  it('searchInput exports at least 1 function', async () => {
+    const mod = await import('../../src/utils/searchInput.js').catch(() => ({}))
+    expect(Object.keys(mod).length).toBeGreaterThan(0)
+  })
+
+  it('webVitals exports at least 1 function', async () => {
+    const mod = await import('../../src/utils/webVitals.js').catch(() => ({}))
+    expect(Object.keys(mod).length).toBeGreaterThan(0)
+  })
 })
