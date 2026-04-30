@@ -423,11 +423,93 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium e2e/monkeyTest.spec.js e2e/userJourneys.spec.js e2e/map.spec.js e2e/mapDeep.spec.js e2e/sosCompanion.spec.js e2e/userChains.spec.js e2e/performance.spec.js
+      - run: npx playwright test --project=chromium e2e/monkeyTest.spec.js e2e/userJourneys.spec.js e2e/map.spec.js e2e/mapDeep.spec.js e2e/userChains.spec.js e2e/performance.spec.js e2e/multi-user-full.spec.js
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-stress-report
+          path: playwright-report/
+
+  e2e-functional:
+    name: E2E Functional (handlers, offline, responsive)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Start Firebase Emulators
+        run: |
+          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
+          sleep 5
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - run: npx playwright test --project=chromium e2e/functional-complete-161.spec.js e2e/functional-upgraded.spec.js e2e/functional-auth.spec.js e2e/functional-profile-admin.spec.js e2e/functional-social.spec.js e2e/functional-spots.spec.js e2e/functional-voyage.spec.js e2e/functional-guardian-sos.spec.js e2e/functional-keyboard.spec.js e2e/functional-browser-events.spec.js e2e/functional-offline.spec.js e2e/functional-responsive.spec.js
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-functional-report
+          path: playwright-report/
+
+  e2e-rounds:
+    name: E2E Rounds (regression, security, edge cases)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Start Firebase Emulators
+        run: |
+          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
+          sleep 5
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - run: npx playwright test --project=chromium e2e/regression.spec.js e2e/handlerCoverage.spec.js e2e/guardian-complete.spec.js e2e/radarBuddies.spec.js e2e/sosGuardian.spec.js e2e/visualTests.spec.js e2e/round01-auth.spec.js e2e/round02-profile.spec.js e2e/round03-spots.spec.js e2e/round04-social.spec.js e2e/round05-groups-chat.spec.js e2e/round06-guardian.spec.js e2e/round07-sos.spec.js e2e/round08-events-companion.spec.js e2e/round09-guides-roadmap.spec.js e2e/round10-admin.spec.js e2e/round11-offline-pwa.spec.js e2e/round12-stress-perf.spec.js e2e/round13-granular-auth.spec.js e2e/round14-granular-features.spec.js e2e/round15-xss-comprehensive.spec.js e2e/round16-edge-cases.spec.js e2e/round17-cross-user.spec.js e2e/firebase-auth.spec.js e2e/firebase-data.spec.js e2e/firebase-gamification.spec.js e2e/firebase-realtime.spec.js e2e/firebase-security.spec.js e2e/firebase-social.spec.js e2e/firebase-spots.spec.js
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
+          FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-rounds-report
           path: playwright-report/
 
   e2e-multi-user:
@@ -439,7 +521,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        phase: [1, 2, 8]
+        phase: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -485,7 +567,7 @@ jobs:
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-multi-user]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional, e2e-rounds, e2e-multi-user]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
@@ -525,7 +607,7 @@ jobs:
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional, e2e-rounds]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     # Note: feature/* branches run tests only, no deploy
     steps:
