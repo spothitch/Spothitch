@@ -430,12 +430,12 @@ jobs:
           name: e2e-stress-report
           path: playwright-report/
 
-  e2e-functional:
-    name: E2E Functional (handlers, offline, responsive)
+  e2e-functional-1:
+    name: E2E Functional 1 (handlers 161 + upgraded)
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -462,11 +462,50 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium e2e/functional-complete-161.spec.js e2e/functional-upgraded.spec.js e2e/functional-auth.spec.js e2e/functional-profile-admin.spec.js e2e/functional-social.spec.js e2e/functional-spots.spec.js e2e/functional-voyage.spec.js e2e/functional-guardian-sos.spec.js e2e/functional-keyboard.spec.js e2e/functional-browser-events.spec.js e2e/functional-offline.spec.js e2e/functional-responsive.spec.js
+      - run: npx playwright test --project=chromium e2e/functional-complete-161.spec.js e2e/functional-upgraded.spec.js e2e/functional-auth.spec.js e2e/functional-guardian-sos.spec.js
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: e2e-functional-report
+          name: e2e-functional-1-report
+          path: playwright-report/
+
+  e2e-functional-2:
+    name: E2E Functional 2 (profile, social, spots, events, responsive)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Start Firebase Emulators
+        run: |
+          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
+          sleep 5
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - run: npx playwright test --project=chromium e2e/functional-profile-admin.spec.js e2e/functional-social.spec.js e2e/functional-spots.spec.js e2e/functional-voyage.spec.js e2e/functional-keyboard.spec.js e2e/functional-browser-events.spec.js e2e/functional-offline.spec.js e2e/functional-responsive.spec.js
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-functional-2-report
           path: playwright-report/
 
   e2e-rounds:
@@ -567,7 +606,7 @@ jobs:
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional, e2e-rounds, e2e-multi-user]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2, e2e-rounds, e2e-multi-user]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
@@ -607,7 +646,7 @@ jobs:
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional, e2e-rounds]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2, e2e-rounds]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     # Note: feature/* branches run tests only, no deploy
     steps:
