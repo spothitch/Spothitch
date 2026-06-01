@@ -804,7 +804,7 @@ jobs:
           MSG=$(git log -1 --pretty=%s | LC_ALL=C tr -cd '[:print:]' | head -c 100)
           echo "msg=${MSG}" >> $GITHUB_OUTPUT
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -847,7 +847,7 @@ jobs:
           MSG=$(git log -1 --pretty=%s | LC_ALL=C tr -cd '[:print:]' | head -c 100)
           echo "msg=${MSG}" >> $GITHUB_OUTPUT
       - name: Deploy preview to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -887,7 +887,7 @@ jobs:
           MSG=$(git log -1 --pretty=%s | LC_ALL=C tr -cd '[:print:]' | head -c 100)
           echo "msg=${MSG}" >> $GITHUB_OUTPUT
       - name: Deploy staging to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
