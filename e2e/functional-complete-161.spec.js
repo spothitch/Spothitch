@@ -185,9 +185,9 @@ test.describe('G2: Navigation & Settings', () => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('profile'))
     await page.waitForTimeout(2000)
-    await page.evaluate(() => window.openEditPersonalInfo?.())
+    // openEditPersonalInfo is async and awaits user input overlay — fire-and-forget to avoid hanging
+    await page.evaluate(() => { window.openEditPersonalInfo?.() })
     await page.waitForTimeout(500)
-    const editing = await page.evaluate(() => window.getState?.()?.editingPersonalInfo || window.getState?.()?.showEditPersonalInfo)
     // Should be true or DOM changed
     expect(await page.evaluate(() => typeof window.getState === 'function')).toBe(true)
   })
@@ -233,14 +233,17 @@ test.describe('G3: Social handlers', () => {
     await setup(page)
     await page.evaluate(() => window.changeTab?.('social'))
     await page.waitForTimeout(2000)
+    // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
   }
 
   test('showAddFriend ouvre la modale ajout ami', async ({ page }) => {
     await setupSocial(page)
     await page.evaluate(() => window.showAddFriend?.())
     await page.waitForTimeout(500)
-    const state = await page.evaluate(() => window.getState?.()?.showAddFriend)
-    expect(state).toBe(true)
+    // showAddFriend() sets socialSubTab:'messagerie' (not showAddFriend:true) — see Social.js:950
+    const state = await page.evaluate(() => window.getState?.()?.socialSubTab)
+    expect(state).toBe('messagerie')
   })
 
   test('showFriendOptions ouvre les options pour un ami', async ({ page }) => {

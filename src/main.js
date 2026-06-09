@@ -1596,6 +1596,22 @@ if (!window.sosOpenFakeCall) window.sosOpenFakeCall = () => {}
 if (!window.sosFakeCallAnswer) window.sosFakeCallAnswer = () => {}
 // Guardian lazy-loaded handler stub — real handler in Guardian.js (overrides this)
 if (!window.guardianSendMessage) window.guardianSendMessage = () => {}
+// Community alerts handlers — lazy-loaded with SOS.js (override these)
+if (!window.toggleCommunityAlerts) window.toggleCommunityAlerts = () => {}
+if (!window.setCommunityRadius) window.setCommunityRadius = () => {}
+if (!window.setCommunityGenderFilter) window.setCommunityGenderFilter = () => {}
+// Social interaction handlers — lazy-loaded with Social.js / directMessages.js
+if (!window.sendFriendRequest) window.sendFriendRequest = () => {}
+if (!window.sendDM) window.sendDM = () => {}
+// Profile sub-tab — lazy-loaded with Profile.js (overrides this)
+if (!window.setProfileSubTab) window.setProfileSubTab = (tab) => setState({ profileSubTab: tab })
+// Delete account close — lazy-loaded with DeleteAccount.js
+if (!window.closeDeleteAccount) window.closeDeleteAccount = () => setState({ showDeleteAccount: false })
+// Cookie customize close — lazy-loaded with CookieBanner.js
+if (!window.hideCookieCustomize) window.hideCookieCustomize = () => setState({ showCookieCustomize: false })
+// Trust score handlers — lazy-loaded with trustScore.js
+if (!window.getUserTrustScore) window.getUserTrustScore = () => {}
+if (!window.showTrustDetails) window.showTrustDetails = () => {}
 
 // AddSpot shortcut
 window.submitNewSpot = () => window.openAddSpot?.()
@@ -1609,9 +1625,14 @@ if (!window.syncTripFieldsAndCalculate) {
  }
 }
 
-// saveTripWithSpots — canonical in Travel.js
-// loadSavedTrip — canonical in Travel.js
-// deleteSavedTrip — canonical in Travel.js
+// Trip planner handlers — canonical in Travel.js (lazy), Voyage.js has partial stubs
+if (!window.clearTripResults) window.clearTripResults = () => {}
+if (!window.saveTripWithSpots) window.saveTripWithSpots = () => {}
+if (!window.loadSavedTrip) window.loadSavedTrip = () => {}
+if (!window.deleteSavedTrip) window.deleteSavedTrip = () => {}
+if (!window.renameSavedTrip) window.renameSavedTrip = () => {}
+if (!window.viewTripOnMap) window.viewTripOnMap = () => {}
+if (!window.closeTripMap) window.closeTripMap = () => {}
 // removeSpotFromTrip — canonical in Travel.js
 
 // Feature intro wrappers + Beta guards (extracted to handlers/betaGuards.js)

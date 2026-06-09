@@ -959,6 +959,8 @@ test.describe('AG. Multi-User Interactions', () => {
       })
     })
     await alice.waitForTimeout(500)
+    // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
+    await alice.evaluate(() => window.setState?.({ isLoggedIn: true }))
 
     await bob.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
     await bob.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
@@ -971,6 +973,8 @@ test.describe('AG. Multi-User Interactions', () => {
       })
     })
     await bob.waitForTimeout(500)
+    // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
+    await bob.evaluate(() => window.setState?.({ isLoggedIn: true }))
 
     return { alice, bob, aliceCtx, bobCtx }
   }
@@ -1023,7 +1027,10 @@ test.describe('AG. Multi-User Interactions', () => {
 
   test('AG5: Alice changes language, Bob keeps his', async ({ browser }) => {
     const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
-    await alice.evaluate(() => window.setLanguage?.('en'))
+    // setLanguage triggers window.location.href reload — fire-and-forget to avoid context-destroyed error
+    alice.evaluate(() => window.setLanguage?.('en')).catch(() => {})
+    await alice.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {})
+    await alice.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 }).catch(() => {})
     await alice.waitForTimeout(300)
     const aliceLang = await alice.evaluate(() => window.getState?.()?.lang)
     const bobLang = await bob.evaluate(() => window.getState?.()?.lang)
@@ -1156,6 +1163,8 @@ test.describe('AH. Scénarios Croisés', () => {
       await p.waitForFunction(() => typeof window.setState === 'function', { timeout: 30000 }).catch(() => {})
       await p.evaluate(() => window.setState?.({ showWelcome: false, showLanding: false, isLoggedIn: true, user: { uid: 'u' } }))
       await p.waitForTimeout(500)
+      // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
+      await p.evaluate(() => window.setState?.({ isLoggedIn: true }))
     }
 
     // P1 goes to profile, P2 goes to voyage

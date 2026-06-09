@@ -151,8 +151,9 @@ test.describe('Navigation — Fonctionnel', () => {
     await setup(page)
     await page.evaluate(() => window.setViewMode?.('map'))
     await page.waitForTimeout(300)
-    const mode = await page.evaluate(() => window.getState?.()?.viewMode)
-    expect(mode).toBe('map')
+    // setViewMode('map') redirects to activeTab:'map' (not viewMode:'map') — see main.js
+    const activeTab = await page.evaluate(() => window.getState?.()?.activeTab)
+    expect(activeTab).toBe('map')
   })
 
   test('setLanguage en change toute l\'UI en anglais', async ({ page }) => {
