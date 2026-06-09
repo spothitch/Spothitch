@@ -5,6 +5,7 @@ vi.mock('../../src/stores/state.js', () => ({
     userLocation: null,
     spots: [],
   })),
+  setState: vi.fn(),
 }))
 
 vi.mock('../../src/services/notifications.js', () => ({
@@ -24,6 +25,7 @@ import {
   getTripHistory,
   clearTripHistory,
   getTripStats,
+  renderTripHistory,
 } from '../../src/services/tripHistory.js'
 
 describe('tripHistory', () => {
@@ -165,6 +167,88 @@ describe('tripHistory', () => {
       expect(stats.firstEvent).toBeDefined()
       expect(stats.lastEvent).toBeDefined()
       expect(stats.lastEvent).toBeGreaterThanOrEqual(stats.firstEvent)
+    })
+  })
+
+  describe('renderTripHistory', () => {
+    it('returns HTML string for empty history', () => {
+      const html = renderTripHistory()
+      expect(typeof html).toBe('string')
+      expect(html).toContain('clipboard')
+    })
+
+    it('empty history contains empty state message', () => {
+      const html = renderTripHistory()
+      expect(html).toContain('tripHistoryEmpty')
+    })
+
+    it('returns HTML with events when history exists', () => {
+      logTripEvent('checkin', { spotId: 1 })
+      logTripEvent('start_trip')
+      const html = renderTripHistory()
+      expect(html).toContain('space-y-6')
+    })
+
+    it('contains event label in rendered output', () => {
+      logTripEvent('checkin', {})
+      const html = renderTripHistory()
+      // getEventLabel is called for each event
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(100)
+    })
+
+    it('renders event with lat/lng location', () => {
+      logTripEvent('checkin', { lat: 48.85, lng: 2.35 })
+      const html = renderTripHistory()
+      expect(html).toContain('48.8500')
+      expect(html).toContain('2.3500')
+    })
+
+    it('renders unknown location for event without coords', () => {
+      logTripEvent('checkin', {})
+      const html = renderTripHistory()
+      // getLocationText returns tripLocationUnknown key for events without spotId or lat/lng
+      expect(html).toContain('tripLocationUnknown')
+    })
+
+    it('renders all supported event types without throwing', () => {
+      const types = ['start_trip', 'checkin', 'ride_start', 'ride_end', 'arrive', 'spot_visited']
+      types.forEach(type => logTripEvent(type, {}))
+      expect(() => renderTripHistory()).not.toThrow()
+    })
+
+    it('respects limit parameter', () => {
+      for (let i = 0; i < 10; i++) {
+        logTripEvent('checkin', {})
+      }
+      // renderTripHistory with limit 2 should only show 2 events
+      const html = renderTripHistory(2)
+      expect(typeof html).toBe('string')
+    })
+
+    it('renders event with details object', () => {
+      logTripEvent('checkin', { details: { note: 'great spot' } })
+      const html = renderTripHistory()
+      expect(typeof html).toBe('string')
+    })
+
+    it('contains time display for each event', () => {
+      logTripEvent('checkin', {})
+      const html = renderTripHistory()
+      // formatTime produces a HH:MM time string
+      expect(html.length).toBeGreaterThan(50)
+    })
+  })
+
+  describe('error paths', () => {
+    it('getHistory returns empty array on corrupt JSON', () => {
+      localStorage.setItem('spothitch_trip_history', 'not-valid-json')
+      expect(getTripHistory()).toEqual([])
+    })
+
+    it('logTripEvent handles error gracefully', () => {
+      // Normal call - should not throw
+      expect(() => logTripEvent('checkin')).not.toThrow()
     })
   })
 })

@@ -13,63 +13,19 @@ test.describe('Profile Edit', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('bio edit handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      edit: typeof window.editBio === 'function',
-      save: typeof window.saveBio === 'function',
-    }))
-    expect(result.edit || result.save || true).toBeTruthy()
-  })
-
-  test('avatar edit handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      edit: typeof window.editAvatar === 'function',
-      select: typeof window.selectAvatar === 'function',
-    }))
-    expect(result.edit || result.select || true).toBeTruthy()
-  })
-
-  test('languages edit handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      edit: typeof window.editLanguages === 'function',
-      add: typeof window.addLanguages === 'function',
-      remove: typeof window.removeLanguage === 'function',
-      cycle: typeof window.cycleLanguageLevel === 'function',
-    }))
-    expect(result.edit || result.add || true).toBeTruthy()
-  })
-
-  test('profile photo handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      add: typeof window.addProfilePhoto === 'function',
-      remove: typeof window.removeProfilePhoto === 'function',
-      go: typeof window.goToPhoto === 'function',
-    }))
-    expect(result.add || result.remove || true).toBeTruthy()
-  })
-
-  test('social links handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.saveSocialLink === 'function'
-      || typeof window.editSocialLinks === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('profile customization handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openProfileCustomization === 'function'
-      || typeof window.openCompleteProfile === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('invite friend / copy link handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.copyFriendLink === 'function'
-      || typeof window.shareMyProfile === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('profile edit handlers batch check', async ({ page }) => {
+    const handlers = [
+      'editBio', 'saveBio',
+      'editAvatar', 'selectAvatar',
+      'editLanguages', 'addLanguages', 'removeLanguage', 'cycleLanguageLevel',
+      'addProfilePhoto', 'removeProfilePhoto', 'goToPhoto',
+      'saveSocialLink', 'editSocialLinks',
+      'openProfileCustomization', 'openCompleteProfile',
+      'copyFriendLink', 'shareMyProfile',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    // Core profile handlers should be available
+    expect(found.length).toBeGreaterThanOrEqual(5)
   })
 })
 
@@ -79,43 +35,16 @@ test.describe('Profile Settings & Account', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('delete account handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openDeleteAccount === 'function'
-      || typeof window.confirmDeleteAccount === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('export data handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.downloadMyData === 'function'
-      || typeof window.exportUserData === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('consent settings handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openConsentSettings === 'function'
-      || typeof window.saveCustomCookiePreferences === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('device manager handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openDeviceManager === 'function'
-      || typeof window.executeRemoveDevice === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('changelog handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openChangelog === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('settings and account handlers batch check', async ({ page }) => {
+    const handlers = [
+      'openDeleteAccount', 'confirmDeleteAccount',
+      'downloadMyData', 'exportUserData',
+      'openConsentSettings', 'saveCustomCookiePreferences',
+      'openDeviceManager', 'executeRemoveDevice',
+      'openChangelog',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(3)
   })
 })
 
@@ -125,14 +54,10 @@ test.describe('Roadmap & Feature Requests', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('roadmap handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      open: typeof window.openRoadmap === 'function',
-      feature: typeof window.openRoadmapFeature === 'function',
-      vote: typeof window.roadmapVote === 'function',
-      opinion: typeof window.submitFeatureOpinion === 'function',
-    }))
-    expect(result.open || result.vote || true).toBeTruthy()
+  test('roadmap handlers batch check', async ({ page }) => {
+    const handlers = ['openRoadmap', 'openRoadmapFeature', 'roadmapVote', 'submitFeatureOpinion']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(1)
   })
 })
 
@@ -141,13 +66,10 @@ test.describe('Identity Verification', () => {
     await skipOnboarding(page)
   })
 
-  test('identity verification handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      open: typeof window.openIdentityVerification === 'function',
-      start: typeof window.startIdentityVerification === 'function',
-      submit: typeof window.submitSelfieIdVerification === 'function',
-    }))
-    expect(result.open || result.start || true).toBeTruthy()
+  test('identity verification handlers batch check', async ({ page }) => {
+    const handlers = ['openIdentityVerification', 'startIdentityVerification', 'submitSelfieIdVerification']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(1)
   })
 })
 
@@ -156,27 +78,13 @@ test.describe('Feedback & Contact', () => {
     await skipOnboarding(page)
   })
 
-  test('feedback handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      open: typeof window.openFeedbackPanel === 'function',
-      submit: typeof window.submitFeedback === 'function',
-      detail: typeof window.openFeedbackDetail === 'function',
-    }))
-    expect(result.open || result.submit || true).toBeTruthy()
-  })
-
-  test('contact form handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openContactForm === 'function'
-      || typeof window.submitContactForm === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('bug report handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openBugReport === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('feedback and contact handlers batch check', async ({ page }) => {
+    const handlers = [
+      'openFeedbackPanel', 'submitFeedback', 'openFeedbackDetail',
+      'openContactForm', 'submitContactForm',
+      'openBugReport',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(2)
   })
 })

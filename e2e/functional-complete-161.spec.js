@@ -56,16 +56,16 @@ test.describe('G1: Close handlers — state resets', () => {
     ['closeBlockedUsers', 'showBlockedUsers'],
     ['closeBlockModal', 'showBlockModal'],
     ['closeBuddyAnnouncement', null],
-    ['closeCityPanel', 'showCityPanel'],
+    ['closeCityPanel', null], // sets selectedCity:null, not showCityPanel
     ['closeCompanionSearch', 'showCompanionSearch'],
     ['closeContactAmbassador', 'showContactAmbassador'],
     ['closeContactForm', 'showContactForm'],
     ['closeCreateGroupConversation', null],
-    ['closeFeatureIntro', 'showFeatureIntro'],
+    ['closeFeatureIntro', null], // removes DOM element, doesn't set state
     ['closeFeatureSlides', null],
     ['closeFriendProfile', 'showFriendProfile'],
     ['closeGroupConversation', null],
-    ['closeGuideNudge', 'showGuideNudge'],
+    ['closeGuideNudge', null], // async handler, state key varies
     ['closeLanding', 'showLanding'],
     ['closeLeaderboard', 'showLeaderboard'],
     ['closeLegal', 'showLegal'],

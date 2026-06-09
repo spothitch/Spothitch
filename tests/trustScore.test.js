@@ -15,8 +15,19 @@ vi.mock('../src/utils/icons.js', () => ({
   icon: vi.fn((name) => `<svg>${name}</svg>`),
 }))
 
-import { calculateTrustScore, getTierForScore, TRUST_TIERS } from '../src/services/trustScore.js'
-import { getState } from '../src/stores/state.js'
+import {
+  calculateTrustScore,
+  getTierForScore,
+  TRUST_TIERS,
+  getUserTrustScore,
+  updateTrustFactors,
+  renderTrustScoreCircle,
+  renderVerifiedCheckmark,
+  renderTrustBadge,
+  renderTrustScoreCard,
+  renderMiniTrustBadge,
+} from '../src/services/trustScore.js'
+import { getState, setState } from '../src/stores/state.js'
 
 describe('Trust Score v2 (/10)', () => {
   beforeEach(() => {
@@ -268,6 +279,228 @@ describe('Trust Score v2 (/10)', () => {
       const d = result.breakdown.activity.details
       expect(d).toHaveProperty('spotsTested')
       expect(d).toHaveProperty('regularity')
+    })
+  })
+
+  describe('getUserTrustScore', () => {
+    it('returns the same result as calculateTrustScore()', () => {
+      const result = getUserTrustScore()
+      expect(result).toHaveProperty('score')
+      expect(result).toHaveProperty('tier')
+      expect(result).toHaveProperty('breakdown')
+    })
+
+    it('score is a number between 0 and 10', () => {
+      const { score } = getUserTrustScore()
+      expect(typeof score).toBe('number')
+      expect(score).toBeGreaterThanOrEqual(0)
+      expect(score).toBeLessThanOrEqual(10)
+    })
+  })
+
+  describe('updateTrustFactors', () => {
+    it('calls setState with merged state', () => {
+      vi.mocked(getState).mockReturnValue({ existing: true })
+      updateTrustFactors({ emailVerified: true })
+      expect(setState).toHaveBeenCalledWith(
+        expect.objectContaining({ existing: true, emailVerified: true })
+      )
+    })
+
+    it('can update multiple factors at once', () => {
+      vi.mocked(getState).mockReturnValue({})
+      updateTrustFactors({ emailVerified: true, phoneVerified: true })
+      expect(setState).toHaveBeenCalledWith(
+        expect.objectContaining({ emailVerified: true, phoneVerified: true })
+      )
+    })
+  })
+
+  describe('renderTrustScoreCircle', () => {
+    it('returns an HTML string', () => {
+      const html = renderTrustScoreCircle(5)
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(20)
+    })
+
+    it('contains score value', () => {
+      const html = renderTrustScoreCircle(7)
+      expect(html).toContain('7')
+    })
+
+    it('contains SVG element', () => {
+      const html = renderTrustScoreCircle(5)
+      expect(html).toContain('svg')
+      expect(html).toContain('circle')
+    })
+
+    it('uses sm size classes', () => {
+      const html = renderTrustScoreCircle(5, 'sm')
+      expect(html).toContain('w-8 h-8')
+    })
+
+    it('uses lg size classes', () => {
+      const html = renderTrustScoreCircle(5, 'lg')
+      expect(html).toContain('w-16 h-16')
+    })
+
+    it('defaults to md size', () => {
+      const html = renderTrustScoreCircle(5)
+      expect(html).toContain('w-12 h-12')
+    })
+
+    it('uses tier color in stroke', () => {
+      const html = renderTrustScoreCircle(0) // nouveau = slate
+      expect(html).toContain('#94a3b8')
+    })
+
+    it('uses amber color for excellent tier (score 9)', () => {
+      const html = renderTrustScoreCircle(9)
+      expect(html).toContain('#fbbf24')
+    })
+
+    it('contains title attribute with score', () => {
+      const html = renderTrustScoreCircle(6)
+      expect(html).toContain('6/10')
+    })
+  })
+
+  describe('renderVerifiedCheckmark', () => {
+    it('returns empty string when not verified', () => {
+      expect(renderVerifiedCheckmark(false)).toBe('')
+    })
+
+    it('returns empty string for undefined', () => {
+      expect(renderVerifiedCheckmark(undefined)).toBe('')
+    })
+
+    it('returns HTML span when verified', () => {
+      const html = renderVerifiedCheckmark(true)
+      expect(html).toContain('span')
+      expect(html).toContain('bg-blue-500')
+    })
+
+    it('contains check icon when verified', () => {
+      const html = renderVerifiedCheckmark(true)
+      expect(html).toContain('check')
+    })
+  })
+
+  describe('renderTrustBadge', () => {
+    it('returns an HTML string', () => {
+      const html = renderTrustBadge(0)
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(20)
+    })
+
+    it('contains tier label for nouveau (score 0)', () => {
+      const html = renderTrustBadge(0)
+      expect(html).toContain('0/10')
+    })
+
+    it('contains tier label for excellent (score 9)', () => {
+      const html = renderTrustBadge(9)
+      expect(html).toContain('9/10')
+    })
+
+    it('uses sm size classes', () => {
+      const html = renderTrustBadge(5, 'sm')
+      expect(html).toContain('text-xs')
+    })
+
+    it('uses lg size classes', () => {
+      const html = renderTrustBadge(5, 'lg')
+      expect(html).toContain('text-base')
+    })
+
+    it('contains span with rounded-full', () => {
+      const html = renderTrustBadge(5)
+      expect(html).toContain('rounded-full')
+    })
+  })
+
+  describe('renderTrustScoreCard', () => {
+    it('returns an HTML string', () => {
+      const html = renderTrustScoreCard()
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(100)
+    })
+
+    it('contains trust-score-card class', () => {
+      const html = renderTrustScoreCard()
+      expect(html).toContain('trust-score-card')
+    })
+
+    it('contains the 3 pillar sections (details elements)', () => {
+      const html = renderTrustScoreCard()
+      // renderPillar wraps each pillar in <details>
+      const detailsCount = (html.match(/<details/g) || []).length
+      expect(detailsCount).toBe(3)
+    })
+
+    it('contains pillar icons (shield, star, activity)', () => {
+      const html = renderTrustScoreCard()
+      expect(html).toContain('shield')
+      expect(html).toContain('star')
+      expect(html).toContain('activity')
+    })
+
+    it('shows improvement tips when score < 8', () => {
+      // Default state returns {} → score = 0 → shows tips
+      const html = renderTrustScoreCard()
+      expect(html).toContain('lightbulb')
+    })
+
+    it('contains the score circle', () => {
+      const html = renderTrustScoreCard()
+      // renderTrustScoreCircle is called inside renderTrustScoreCard
+      expect(html).toContain('svg')
+    })
+
+    it('contains verified checkmark section', () => {
+      const html = renderTrustScoreCard()
+      // renderVerifiedCheckmark(false) → '' but the structure still renders
+      expect(html).toContain('trust-score-card')
+    })
+
+    it('shows "get verified" tip for unverified user', () => {
+      const html = renderTrustScoreCard()
+      expect(html).toContain('arrow-right')
+    })
+  })
+
+  describe('renderMiniTrustBadge', () => {
+    it('returns an HTML string', () => {
+      const html = renderMiniTrustBadge(5)
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(20)
+    })
+
+    it('contains score/10 display', () => {
+      const html = renderMiniTrustBadge(7)
+      expect(html).toContain('7/10')
+    })
+
+    it('does not contain verified check when not verified', () => {
+      // Use score 0 (nouveau/slate tier) so no blue appears without the badge
+      const html = renderMiniTrustBadge(0, false)
+      expect(html).not.toContain('bg-blue-500')
+    })
+
+    it('contains verified check when isIdVerified is true', () => {
+      const html = renderMiniTrustBadge(9, true)
+      expect(html).toContain('bg-blue-500')
+      expect(html).toContain('check')
+    })
+
+    it('contains rounded-full for pill style', () => {
+      const html = renderMiniTrustBadge(5)
+      expect(html).toContain('rounded-full')
+    })
+
+    it('uses tier background color', () => {
+      const html = renderMiniTrustBadge(0) // nouveau = slate
+      expect(html).toContain('bg-slate-500/20')
     })
   })
 })

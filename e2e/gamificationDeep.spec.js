@@ -28,28 +28,10 @@ test.describe.skip('Quiz Game Loop (hidden during alpha)', () => {
     expect(count).toBeGreaterThanOrEqual(0)
   })
 
-  test('quiz start handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.startCountryQuiz === 'function'
-      || typeof window.startQuiz === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('quiz answer handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.answerQuizQuestion === 'function'
-      || typeof window.answerQuiz === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('quiz retry handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.retryQuiz === 'function'
-      || typeof window.restartQuiz === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('quiz handlers batch check', async ({ page }) => {
+    const handlers = ['startCountryQuiz', 'startQuiz', 'answerQuizQuestion', 'answerQuiz', 'retryQuiz', 'restartQuiz']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(1)
   })
 })
 
@@ -66,23 +48,10 @@ test.describe.skip('Shop Interactions (hidden during alpha)', () => {
     expect(count).toBeGreaterThan(0)
   })
 
-  test('shop category switch handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.setShopCategory === 'function'
-      || typeof window.switchShopCategory === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('shop purchase handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      booster: typeof window.activateBooster === 'function',
-      reward: typeof window.redeemReward === 'function',
-      avatar: typeof window.equipAvatar === 'function',
-      frame: typeof window.equipFrame === 'function',
-      title: typeof window.equipTitle === 'function',
-    }))
-    expect(result.booster || result.reward || result.avatar || true).toBeTruthy()
+  test('shop handlers batch check', async ({ page }) => {
+    const handlers = ['setShopCategory', 'switchShopCategory', 'activateBooster', 'redeemReward', 'equipAvatar', 'equipFrame', 'equipTitle']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(1)
   })
 
   test('shop displays pouces balance', async ({ page }) => {
@@ -99,12 +68,11 @@ test.describe('Daily Reward', () => {
     await skipOnboarding(page)
   })
 
-  test('daily reward claim handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.claimDailyReward === 'function'
-      || typeof window.handleClaimDailyReward === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('daily reward claim is callable', async ({ page }) => {
+    await page.evaluate(() => (window.claimDailyReward || window.handleClaimDailyReward)?.())
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 })
 
@@ -113,12 +81,10 @@ test.describe.skip('Leaderboard Interactions (hidden during alpha)', () => {
     await skipOnboarding(page)
   })
 
-  test('leaderboard filter handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      country: typeof window.setLeaderboardCountry === 'function',
-      tab: typeof window.setLeaderboardTab === 'function',
-    }))
-    expect(result.country || result.tab || true).toBeTruthy()
+  test('leaderboard handlers batch check', async ({ page }) => {
+    const handlers = ['setLeaderboardCountry', 'setLeaderboardTab']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(1)
   })
 
   test('leaderboard opens with podium', async ({ page }) => {
@@ -135,25 +101,13 @@ test.describe('Challenges & Teams', () => {
     await skipOnboarding(page)
   })
 
-  test('challenge accept/decline handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      accept: typeof window.acceptFriendChallenge === 'function',
-      decline: typeof window.declineFriendChallenge === 'function',
-      cancel: typeof window.cancelFriendChallenge === 'function',
-      create: typeof window.createFriendChallenge === 'function',
-    }))
-    expect(result.accept || result.decline || true).toBeTruthy()
-  })
-
-  test('team challenge handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      open: typeof window.openTeamChallenges === 'function',
-      create: typeof window.createTeamAction === 'function',
-      join: typeof window.joinTeamAction === 'function',
-      leave: typeof window.leaveTeamAction === 'function',
-      invite: typeof window.inviteToTeam === 'function',
-    }))
-    expect(result.open || result.create || true).toBeTruthy()
+  test('challenge and team handlers batch check', async ({ page }) => {
+    const handlers = [
+      'acceptFriendChallenge', 'declineFriendChallenge', 'cancelFriendChallenge', 'createFriendChallenge',
+      'openTeamChallenges', 'createTeamAction', 'joinTeamAction', 'leaveTeamAction', 'inviteToTeam',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(1)
   })
 })
 
@@ -162,27 +116,13 @@ test.describe('Badges & Titles', () => {
     await skipOnboarding(page)
   })
 
-  test('badge detail handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openBadgePopup === 'function'
-      || typeof window.showBadgeDetail === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('title equip handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.equipTitleAction === 'function'
-      || typeof window.equipTitle === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('confetti handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.launchConfetti === 'function'
-      || typeof window.showLevelUp === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('badges and titles handlers batch check', async ({ page }) => {
+    const handlers = [
+      'openBadgePopup', 'showBadgeDetail',
+      'equipTitleAction', 'equipTitle',
+      'launchConfetti', 'showLevelUp',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(1)
   })
 })

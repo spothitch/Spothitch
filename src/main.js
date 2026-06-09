@@ -75,6 +75,7 @@ import './components/modals/FeatureSlides.js'; // Feature Slides (openFeatureSli
 import './components/modals/FeatureIntroModal.js'; // Feature Intro glassmorphism (showFeatureIntro, closeFeatureIntro, etc.)
 import { registerCheckinHandlers } from './components/modals/CheckinModal.js'; // Checkin modal handlers
 import './services/navigation.js'; // stopNavigation/openExternalNavigation registered by navigation.js itself
+import './utils/navigation.js'; // showNavigationPicker/openInNavigationApp/selectNavigationApp/closeNavigationPicker
 import './services/gasStations.js'; // Gas stations (registers window.toggleGasStations)
 import {
  initScreenReaderSupport,

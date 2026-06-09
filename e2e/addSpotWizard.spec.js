@@ -52,81 +52,21 @@ test.describe('AddSpot Wizard', () => {
     expect(['called', 'error', 'no-handler']).toContain(result)
   })
 
-  test('spot type selection handler exists', async ({ page }) => {
+  test('all addSpot wizard handlers batch check', async ({ page }) => {
     await page.evaluate(() => window.openAddSpot?.())
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2000)
 
-    const result = await page.evaluate(() => {
-      return typeof window.selectSpotType === 'function'
-        || typeof window.onSpotTypeChange === 'function'
-        || typeof window.setSpotType === 'function'
-    })
-    expect(result || true).toBeTruthy()
-  })
-
-  test('star rating handler exists', async ({ page }) => {
-    await page.evaluate(() => window.openAddSpot?.())
-    await page.waitForTimeout(1500)
-
-    const result = await page.evaluate(() => {
-      return typeof window.setSpotRating === 'function'
-        || typeof window.rateSpot === 'function'
-    })
-    expect(result || true).toBeTruthy()
-  })
-
-  test('draft save/restore handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      save: typeof window.saveDraftAndClose === 'function' || typeof window.saveSpotDraft === 'function',
-      open: typeof window.openSpotDraft === 'function' || typeof window.loadSpotDraft === 'function',
-      del: typeof window.deleteSpotDraft === 'function' || typeof window.clearSpotDraft === 'function',
-    }))
-    // At least one draft handler should exist (lazy-loaded)
-    expect(result.save || result.open || result.del || true).toBeTruthy()
-  })
-
-  test('GPS button handler exists', async ({ page }) => {
-    await page.evaluate(() => window.openAddSpot?.())
-    await page.waitForTimeout(1500)
-
-    const result = await page.evaluate(() => {
-      return typeof window.useGPSForSpot === 'function'
-        || typeof window.addSpotUseGPS === 'function'
-    })
-    expect(result || true).toBeTruthy()
-  })
-
-  test('direction autocomplete handler exists', async ({ page }) => {
-    await page.evaluate(() => window.openAddSpot?.())
-    await page.waitForTimeout(1500)
-
-    const result = await page.evaluate(() => {
-      return typeof window.addSpotDestination === 'function'
-        || typeof window.removeSpotDestination === 'function'
-    })
-    expect(result || true).toBeTruthy()
-  })
-
-  test('submit handler exists', async ({ page }) => {
-    await page.evaluate(() => window.openAddSpot?.())
-    await page.waitForTimeout(1500)
-
-    const result = await page.evaluate(() => {
-      return typeof window.handleAddSpot === 'function'
-        || typeof window.submitNewSpot === 'function'
-        || typeof window.submitSpot === 'function'
-    })
-    expect(result || true).toBeTruthy()
-  })
-
-  test('map picker handler exists', async ({ page }) => {
-    await page.evaluate(() => window.openAddSpot?.())
-    await page.waitForTimeout(1500)
-
-    const result = await page.evaluate(() => {
-      return typeof window.spotMapPickLocation === 'function'
-        || typeof window.toggleSpotMapPicker === 'function'
-    })
-    expect(result || true).toBeTruthy()
+    const handlers = [
+      'selectSpotType', 'onSpotTypeChange', 'setSpotType',
+      'setSpotRating', 'rateSpot',
+      'saveDraftAndClose', 'saveSpotDraft', 'openSpotDraft', 'loadSpotDraft', 'deleteSpotDraft', 'clearSpotDraft',
+      'useGPSForSpot', 'addSpotUseGPS',
+      'addSpotDestination', 'removeSpotDestination',
+      'handleAddSpot', 'submitNewSpot', 'submitSpot',
+      'spotMapPickLocation', 'toggleSpotMapPicker',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    // At least several core handlers should be registered after modal opens
+    expect(found.length).toBeGreaterThanOrEqual(3)
   })
 })

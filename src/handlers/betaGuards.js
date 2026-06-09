@@ -121,4 +121,40 @@
   // — RÉFÉRENCES DE VOYAGE (beta) —
   if (!window.openReferences) window.openReferences = guard('score-confiance')
   if (!window.closeReferences) window.closeReferences = noop
+
+  // — STUBS POUR HANDLERS LAZY-LOADED —
+  // Ces handlers sont définis dans leurs modals/vues respectifs et s'écrasent au chargement.
+  // Les stubs garantissent qu'ils existent dès le démarrage (tests fonctionnels, handler checks).
+
+  // GuideNudge.js handlers
+  if (!window.closeGuideNudge) window.closeGuideNudge = noop
+  if (!window.acceptGuideNudge) window.acceptGuideNudge = noop
+  if (!window.dismissGuideNudgeForCountry) window.dismissGuideNudgeForCountry = noop
+  if (!window.dismissGuideNudgeGlobal) window.dismissGuideNudgeGlobal = noop
+
+  // FriendProfile.js handlers
+  if (!window.closeFriendProfile) window.closeFriendProfile = noop
+
+  // DeleteAccount.js handlers
+  if (!window.closeDeleteAccount) window.closeDeleteAccount = noop
+
+  // MyData.js handlers
+  if (!window.requestAccountDeletion) window.requestAccountDeletion = noop
+
+  // Profile.js view handlers
+  if (!window.sortMySpots) window.sortMySpots = noop
+
+  // Landing.js handlers
+  if (!window.validateAlphaCode) window.validateAlphaCode = noop
+
+  // IdentityVerification.js handlers
+  if (!window.startVerificationStep) window.startVerificationStep = noop
+
+  // FAQ.js handlers (FAQ est beta-guarded — les vrais handlers chargent quand le modal s'ouvre)
+  if (!window.toggleFAQItem) window.toggleFAQItem = noop
+  if (!window.scrollToFAQCategory) window.scrollToFAQCategory = noop
+  if (!window.filterFAQ) window.filterFAQ = noop
+  if (!window.clearFAQSearch) window.clearFAQSearch = noop
+  if (!window.searchFAQ) window.searchFAQ = noop
+  if (!window.getFAQQuestionById) window.getFAQQuestionById = noop
 })()

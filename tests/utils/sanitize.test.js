@@ -5,6 +5,8 @@ import {
   escapeHTML,
   escapeJSString,
   sanitizeInput,
+  safeInnerHTML,
+  createSafeHTML,
 } from '../../src/utils/sanitize.js'
 
 describe('sanitize', () => {
@@ -131,6 +133,63 @@ describe('sanitize', () => {
     it('escapes HTML in input', () => {
       const result = sanitizeInput('<script>alert("xss")</script>')
       expect(result).not.toContain('<script>')
+    })
+  })
+
+  describe('safeInnerHTML', () => {
+    it('does not throw when element is null', () => {
+      expect(() => safeInnerHTML(null, '<b>hello</b>')).not.toThrow()
+    })
+
+    it('sets innerHTML on a real element', () => {
+      const el = document.createElement('div')
+      safeInnerHTML(el, '<b>hello</b>')
+      expect(el.innerHTML).toContain('hello')
+    })
+
+    it('sanitizes XSS before setting innerHTML', () => {
+      const el = document.createElement('div')
+      safeInnerHTML(el, '<script>alert(1)</script>')
+      expect(el.innerHTML).not.toContain('script')
+    })
+
+    it('sets empty string for null html', () => {
+      const el = document.createElement('div')
+      safeInnerHTML(el, null)
+      expect(el.innerHTML).toBe('')
+    })
+
+    it('allows safe tags like <b> and <em>', () => {
+      const el = document.createElement('div')
+      safeInnerHTML(el, '<b>bold</b> and <em>italic</em>')
+      expect(el.innerHTML).toContain('<b>')
+      expect(el.innerHTML).toContain('<em>')
+    })
+  })
+
+  describe('createSafeHTML', () => {
+    it('returns a DocumentFragment', () => {
+      const frag = createSafeHTML('<b>hello</b>')
+      expect(frag.nodeType).toBe(11) // Node.DOCUMENT_FRAGMENT_NODE
+    })
+
+    it('fragment contains the safe content', () => {
+      const frag = createSafeHTML('<b>world</b>')
+      const div = document.createElement('div')
+      div.appendChild(frag.cloneNode(true))
+      expect(div.innerHTML).toContain('world')
+    })
+
+    it('strips XSS from the fragment', () => {
+      const frag = createSafeHTML('<script>evil()</script>')
+      const div = document.createElement('div')
+      div.appendChild(frag.cloneNode(true))
+      expect(div.innerHTML).not.toContain('script')
+    })
+
+    it('handles empty string', () => {
+      const frag = createSafeHTML('')
+      expect(frag.nodeType).toBe(11)
     })
   })
 })

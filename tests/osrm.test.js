@@ -5,9 +5,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   getRoute,
+  getRouteDebounced,
   formatDistance,
   formatDuration,
   searchLocation,
+  searchCities,
   reverseGeocode,
   clearCache,
 } from '../src/services/osrm.js'
@@ -223,6 +225,159 @@ describe('OSRM Service', () => {
     it('should clear the route cache', () => {
       // This is a simple test to ensure no error is thrown
       expect(() => clearCache()).not.toThrow()
+    })
+  })
+
+  describe('getRouteDebounced', () => {
+    it('returns a promise', () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          code: 'Ok',
+          routes: [{ distance: 1000, duration: 600, geometry: { coordinates: [] }, legs: [{ steps: [] }] }],
+        }),
+      })
+      const waypoints = [{ lat: 48, lng: 2 }, { lat: 45, lng: 4 }]
+      const result = getRouteDebounced(waypoints, 0)
+      expect(result instanceof Promise).toBe(true)
+    })
+
+    it('resolves with route data', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          code: 'Ok',
+          routes: [{ distance: 2000, duration: 900, geometry: { coordinates: [[2, 48]] }, legs: [{ steps: [] }] }],
+        }),
+      })
+      const waypoints = [{ lat: 48, lng: 2 }, { lat: 45, lng: 4 }]
+      const result = await getRouteDebounced(waypoints, 0)
+      expect(result.distance).toBe(2000)
+      expect(result.duration).toBe(900)
+    })
+
+    it('rejects when fetch fails', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
+      const waypoints = [{ lat: 48, lng: 2 }, { lat: 45, lng: 4 }]
+      await expect(getRouteDebounced(waypoints, 0)).rejects.toThrow('Network error')
+    })
+
+    it('uses cached result when same waypoints requested twice', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          code: 'Ok',
+          routes: [{ distance: 1000, duration: 600, geometry: { coordinates: [] }, legs: [{ steps: [] }] }],
+        }),
+      })
+      const waypoints = [{ lat: 48, lng: 2 }, { lat: 45, lng: 4 }]
+      await getRouteDebounced(waypoints, 0)
+      // Second request with same waypoints should use cache
+      await getRouteDebounced(waypoints, 0)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+    })
+
+    it('re-fetches after cache cleared', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          code: 'Ok',
+          routes: [{ distance: 1000, duration: 600, geometry: { coordinates: [] }, legs: [{ steps: [] }] }],
+        }),
+      })
+      const waypoints = [{ lat: 48.1, lng: 2.1 }, { lat: 45.1, lng: 4.1 }]
+      await getRouteDebounced(waypoints, 0)
+      clearCache()
+      await getRouteDebounced(waypoints, 0)
+      expect(global.fetch).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('searchCities', () => {
+    it('returns empty array for empty query', async () => {
+      expect(await searchCities('')).toEqual([])
+    })
+
+    it('returns empty array for single char query', async () => {
+      expect(await searchCities('a')).toEqual([])
+    })
+
+    it('returns empty array for null query', async () => {
+      expect(await searchCities(null)).toEqual([])
+    })
+
+    it('calls Nominatim API for valid query', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([{
+          display_name: 'Paris, France',
+          lat: '48.8566',
+          lon: '2.3522',
+          type: 'city',
+          importance: '0.9',
+          address: { city: 'Paris', country: 'France', country_code: 'fr' },
+        }]),
+      })
+      const results = await searchCities('Paris')
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('nominatim.openstreetmap.org'),
+        expect.any(Object)
+      )
+      expect(results.length).toBeGreaterThan(0)
+      expect(results[0].name).toBe('Paris')
+      expect(results[0].countryCode).toBe('FR')
+    })
+
+    it('includes country name in fullName', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([{
+          display_name: 'Berlin, Germany',
+          lat: '52.52',
+          lon: '13.405',
+          type: 'city',
+          importance: '0.85',
+          address: { city: 'Berlin', country: 'Germany', country_code: 'de' },
+        }]),
+      })
+      const results = await searchCities('Berlin')
+      expect(results[0].fullName).toContain('Germany')
+    })
+
+    it('returns empty array on fetch error', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
+      const results = await searchCities('Paris')
+      expect(results).toEqual([])
+    })
+
+    it('returns empty array when response not ok', async () => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 429 })
+      const results = await searchCities('Paris')
+      expect(results).toEqual([])
+    })
+
+    it('adds countryCode filter when provided', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([]),
+      })
+      await searchCities('Lyon', { countryCode: 'FR' })
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('countrycodes=fr'),
+        expect.any(Object)
+      )
+    })
+
+    it('deduplicates results with same city name and coords', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([
+          { display_name: 'Paris, France', lat: '48.8566', lon: '2.3522', importance: '0.9', address: { city: 'Paris', country: 'France', country_code: 'fr' } },
+          { display_name: 'Paris, France (duplicate)', lat: '48.8566', lon: '2.3522', importance: '0.8', address: { city: 'Paris', country: 'France', country_code: 'fr' } },
+        ]),
+      })
+      const results = await searchCities('Paris')
+      expect(results.length).toBe(1)
     })
   })
 })

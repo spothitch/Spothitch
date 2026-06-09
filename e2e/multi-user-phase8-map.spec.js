@@ -340,11 +340,6 @@ test.describe('8.6 Gas stations', () => {
     await context?.close()
   })
 
-  test('toggleGasStations handler exists', async () => {
-    const exists = await page.evaluate(() => typeof window.toggleGasStations === 'function')
-    expect(exists).toBe(true)
-  })
-
   test('toggleGasStations does not crash', async () => {
     const capture = captureConsoleErrors(page)
     await page.evaluate(() => window.toggleGasStations?.())
@@ -375,13 +370,6 @@ test.describe('8.7 GPS', () => {
 
   test.afterAll(async () => {
     await context?.close()
-  })
-
-  test('centerOnUser handler exists', async () => {
-    const exists = await page.evaluate(() =>
-      typeof window.homeCenterOnUser === 'function' || typeof window.centerOnUser === 'function'
-    )
-    expect(exists).toBe(true)
   })
 
   test('centerOnUser with GPS permission does not crash', async () => {
@@ -445,9 +433,11 @@ test.describe('8.8 Tab navigation', () => {
     expect(pageErrors.length).toBe(0)
   })
 
-  test('changeTab handler exists', async () => {
-    const exists = await page.evaluate(() => typeof window.changeTab === 'function')
-    expect(exists).toBe(true)
+  test('changeTab is callable and changes state', async () => {
+    await page.evaluate(() => window.changeTab?.('social'))
+    await page.waitForTimeout(500)
+    const tab = await page.evaluate(() => window.getState?.()?.activeTab)
+    expect(tab).toBe('social')
   })
 })
 

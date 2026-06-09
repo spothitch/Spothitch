@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractCoordsFromShare, resolveShortMapUrl, detectOpaqueMapUrl } from '../../src/utils/mapsUrlParser.js'
+import { extractCoordsFromShare, resolveShortMapUrl, detectOpaqueMapUrl, detectShortMapUrl } from '../../src/utils/mapsUrlParser.js'
 
 describe('extractCoordsFromShare', () => {
   it('parses Google Maps ?q=lat,lng', () => {
@@ -227,6 +227,66 @@ describe('extractCoordsFromShare — CID URL returns null (needs resolution)', (
   it('CID URL has no extractable coords', () => {
     const result = extractCoordsFromShare('https://maps.google.com/?cid=11170656748112423237&entry=gps', '')
     expect(result).toBeNull()
+  })
+})
+
+describe('extractCoordsFromShare — Android/iOS native intents', () => {
+  it('parses google.navigation:q=lat,lng (Android turn-by-turn)', () => {
+    const result = extractCoordsFromShare('', 'google.navigation:q=48.8566,2.3522')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses google.streetview:cbll=lat,lng (Android Street View)', () => {
+    const result = extractCoordsFromShare('', 'google.streetview:cbll=48.8566,2.3522')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+
+  it('parses comgooglemaps://?center= (iOS scheme)', () => {
+    const result = extractCoordsFromShare('', 'comgooglemaps://?center=48.8566,2.3522')
+    expect(result).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+})
+
+describe('extractCoordsFromShare — static maps markers parameter', () => {
+  it('parses markers= parameter with color prefix', () => {
+    const result = extractCoordsFromShare('https://maps.googleapis.com/maps/api/staticmap?markers=color:red|48.8584,2.2945', '')
+    expect(result).toEqual({ lat: 48.8584, lng: 2.2945 })
+  })
+})
+
+describe('extractCoordsFromShare — embed URL format', () => {
+  it('parses Google Maps embed !2d/!3d format', () => {
+    const result = extractCoordsFromShare('https://www.google.com/maps/embed?pb=!1m18!2d2.2944813!3d48.8583701', '')
+    expect(result).toEqual({ lat: 48.8583701, lng: 2.2944813 })
+  })
+})
+
+describe('detectShortMapUrl', () => {
+  it('detects maps.app.goo.gl short URL', () => {
+    const result = detectShortMapUrl('https://maps.app.goo.gl/abc123XYZ')
+    expect(result).toBe('https://maps.app.goo.gl/abc123XYZ')
+  })
+
+  it('detects goo.gl/maps short URL', () => {
+    const result = detectShortMapUrl('https://goo.gl/maps/abc123')
+    expect(result).toBe('https://goo.gl/maps/abc123')
+  })
+
+  it('detects g.co/maps short URL', () => {
+    const result = detectShortMapUrl('https://g.co/maps/abc123')
+    expect(result).toBe('https://g.co/maps/abc123')
+  })
+
+  it('returns null for non-short URL', () => {
+    expect(detectShortMapUrl('https://www.google.com/maps/@48.8566,2.3522,15z')).toBeNull()
+  })
+
+  it('returns null for null input', () => {
+    expect(detectShortMapUrl(null)).toBeNull()
+  })
+
+  it('returns null for empty string', () => {
+    expect(detectShortMapUrl('')).toBeNull()
   })
 })
 

@@ -170,11 +170,6 @@ test.describe('R10-02 Admin panel', () => {
   test('openAdminPanel opens admin view', async ({ browser }) => {
     const session = await createUserSession(browser, 'admin')
 
-    const exists = await session.page.evaluate(() =>
-      typeof window.openAdminPanel === 'function'
-    )
-    expect(exists).toBe(true)
-
     await session.page.evaluate(() => window.openAdminPanel?.())
     await session.page.waitForTimeout(2000)
 

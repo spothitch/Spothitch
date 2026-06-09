@@ -6,6 +6,8 @@ import {
   findNearest,
   spotsInRadius,
   getGeoInfo,
+  initWasm,
+  benchmark,
 } from '../../src/utils/wasmGeo.js'
 
 describe('wasmGeo (JS fallback)', () => {
@@ -135,6 +137,51 @@ describe('wasmGeo (JS fallback)', () => {
       const info = getGeoInfo()
       expect(info.backend).toBe('javascript') // WASM not available in test
       expect(info.wasmReady).toBe(false)
+    })
+
+    it('returns wasmAvailable based on WebAssembly presence', () => {
+      const info = getGeoInfo()
+      expect(typeof info.wasmAvailable).toBe('boolean')
+    })
+
+    it('includes watModuleAvailable field', () => {
+      const info = getGeoInfo()
+      expect('watModuleAvailable' in info).toBe(true)
+    })
+  })
+
+  describe('initWasm', () => {
+    it('returns false (WASM not compiled in test env)', async () => {
+      const result = await initWasm()
+      expect(result).toBe(false)
+    })
+
+    it('runs without error', async () => {
+      await expect(initWasm()).resolves.not.toThrow()
+    })
+  })
+
+  describe('benchmark', () => {
+    it('returns an object with timing fields', () => {
+      const result = benchmark(100) // small iterations for speed
+      expect(typeof result).toBe('object')
+      expect(typeof result.jsMs).toBe('number')
+      expect(typeof result.currentMs).toBe('number')
+    })
+
+    it('returns correct iteration count', () => {
+      const result = benchmark(50)
+      expect(result.iterations).toBe(50)
+    })
+
+    it('returns backend field', () => {
+      const result = benchmark(10)
+      expect(['javascript', 'wasm']).toContain(result.backend)
+    })
+
+    it('uses default iterations when not specified', () => {
+      const result = benchmark()
+      expect(result.iterations).toBe(10000)
     })
   })
 })

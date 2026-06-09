@@ -381,12 +381,12 @@ test.describe('R04-04 Duplicate prevention', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 test.describe('R04-05 Share spot in DM', () => {
-  test('shareSpot handler exists', async ({ browser }) => {
+  test('shareSpot is callable without crash', async ({ browser }) => {
     const sessions = await createSessions(browser, ['alice'])
-    const exists = await sessions.alice.page.evaluate(() =>
-      typeof window.shareSpot === 'function'
-    )
-    expect(exists).toBe(true)
+    await sessions.alice.page.evaluate(() => window.shareSpot?.('test-spot-id'))
+    await sessions.alice.page.waitForTimeout(500)
+    const alive = await sessions.alice.page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
     await snap(sessions.alice.page, PHASE, 'R04-05-share-spot-handler', 'after')
     await closeSessions(sessions)
   })

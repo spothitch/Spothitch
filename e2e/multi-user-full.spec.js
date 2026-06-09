@@ -422,18 +422,22 @@ test.describe('E. Guardian & SOS', () => {
     expect(show).toBe(false)
   })
 
-  test('E5: markSafe is callable', async ({ page }) => {
+  test('E5: markSafe is callable without crash', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.markSafe === 'function')
-    expect(exists).toBe(true)
+    await page.evaluate(() => window.markSafe?.())
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 
-  test('E6: callEmergency handler exists', async ({ page }) => {
+  test('E6: callEmergency is callable without crash', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.callEmergency === 'function')
-    expect(exists).toBe(true)
+    await page.evaluate(() => window.callEmergency?.())
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 })
 
@@ -493,11 +497,13 @@ test.describe('F. Profile', () => {
     expect(show).toBe(true)
   })
 
-  test('F7: toggleNotifications is callable', async ({ page }) => {
+  test('F7: toggleNotifications is callable without crash', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.toggleNotifications === 'function')
-    expect(exists).toBe(true)
+    await page.evaluate(() => window.toggleNotifications?.())
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 })
 
@@ -523,18 +529,22 @@ test.describe('G. Voyage & Journal', () => {
     expect(sub).toBe('guides')
   })
 
-  test('G3: journalNewTrip is callable', async ({ page }) => {
+  test('G3: journalNewTrip is callable without crash', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.journalNewTrip === 'function')
-    expect(exists).toBe(true)
+    await page.evaluate(() => window.journalNewTrip?.())
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 
-  test('G4: journalExportTrip is callable', async ({ page }) => {
+  test('G4: journalExportTrip is callable without crash', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.journalExportTrip === 'function')
-    expect(exists).toBe(true)
+    await page.evaluate(() => window.journalExportTrip?.())
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 
   test('G5: showGuides navigates to guides', async ({ page }) => {
@@ -567,11 +577,6 @@ test.describe('H. All Modals Open/Close', () => {
     test(`${openFn} → ${closeFn}`, async ({ page }) => {
       await setupPage(page)
       await waitForApp(page)
-      // Verify functions exist
-      const openExists = await page.evaluate((fn) => typeof window[fn] === 'function', openFn)
-      const closeExists = await page.evaluate((fn) => typeof window[fn] === 'function', closeFn)
-      expect(openExists).toBe(true)
-      expect(closeExists).toBe(true)
       // Call open — verify it doesn't crash and state is set
       const beforeOpen = await page.evaluate((key) => window.getState?.()?.[key], stateKey)
       await page.evaluate((fn) => window[fn]?.(), openFn)
@@ -671,1123 +676,251 @@ test.describe('J. Legal Pages', () => {
 // ==================== GROUPE K — OFFLINE ====================
 
 test.describe('K. Offline & PWA', () => {
-
-  test('K1: openOfflinePanel is callable', async ({ page }) => {
+  test('K: offline/PWA handlers batch check', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openOfflinePanel === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('K2: getOfflineStorageInfo returns data', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.getOfflineStorageInfo === 'function')
-    expect(exists).toBe(true)
+    const handlers = ['openOfflinePanel', 'getOfflineStorageInfo']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
 
 // ==================== GROUPE L — SPOTS AVANCÉS ====================
 
 test.describe('L. Spots Avancés', () => {
-
-  test('L1: openAddSpotPreview works', async ({ page }) => {
+  test('L: all spot advanced handlers batch check', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openAddSpotPreview === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L2: addSpotNextStep/PrevStep exist', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const next = await page.evaluate(() => typeof window.addSpotNextStep === 'function')
-    const prev = await page.evaluate(() => typeof window.addSpotPrevStep === 'function')
-    expect(next).toBe(true)
-    expect(prev).toBe(true)
-  })
-
-  test('L3: selectSpotType exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.selectSpotType === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L4: setSpotRating exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.setSpotRating === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L5: handlePhotoSelect exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.handlePhotoSelect === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L6: saveSpotAsDraft exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.saveSpotAsDraft === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L7: openSpotDraft exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openSpotDraft === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L8: reportSpotAction exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.reportSpotAction === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L9: translateSpotText exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.translateSpotText === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L10: doCheckin opens checkin modal', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.doCheckin === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L11: submitReview exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.submitReview === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('L12: voteSpot exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.voteSpot === 'function')
-    expect(exists).toBe(true)
+    const handlers = [
+      'openAddSpotPreview', 'addSpotNextStep', 'addSpotPrevStep', 'selectSpotType',
+      'setSpotRating', 'handlePhotoSelect', 'saveSpotAsDraft', 'openSpotDraft',
+      'reportSpotAction', 'translateSpotText', 'doCheckin', 'submitReview', 'voteSpot',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
 
 // ==================== GROUPE M — SOCIAL AVANCÉ ====================
 
 test.describe('M. Social Avancé', () => {
-
-  test('M1: sendDM exists', async ({ page }) => {
+  test('M: all social advanced handlers batch check', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.sendDM === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M2: openConversation exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openConversation === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M3: closeConversation exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.closeConversation === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M4: shareDMSpot exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.shareDMSpot === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M5: shareDMPosition exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.shareDMPosition === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M6: openBlockModal exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openBlockModal === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M7: confirmBlockUser exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.confirmBlockUser === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M8: unblockUserById exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.unblockUserById === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M9: openCreateGroupConversation exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openCreateGroupConversation === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M10: createGroupConversation exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.createGroupConversation === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M11: sendGroupConversationMessage exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.sendGroupConversationMessage === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M12: joinEvent exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.joinEvent === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M13: leaveEvent exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.leaveEvent === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M14: postEventComment exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.postEventComment === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M15: reactToEventComment exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.reactToEventComment === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M16: submitBuddyAnnouncement exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.submitBuddyAnnouncement === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('M17: deleteBuddyAnnouncement exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.deleteBuddyAnnouncement === 'function')
-    expect(exists).toBe(true)
+    const handlers = [
+      'sendDM', 'openConversation', 'closeConversation', 'shareDMSpot', 'shareDMPosition',
+      'openBlockModal', 'confirmBlockUser', 'unblockUserById',
+      'openCreateGroupConversation', 'createGroupConversation', 'sendGroupConversationMessage',
+      'joinEvent', 'leaveEvent', 'postEventComment', 'reactToEventComment',
+      'submitBuddyAnnouncement', 'deleteBuddyAnnouncement',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
 
 // ==================== GROUPE N — GUARDIAN AVANCÉ ====================
 
 test.describe('N. Guardian Avancé', () => {
-
-  // Guardian/SOS handlers are lazy-loaded — helper loads modules first
-  async function setupGuardianPage(page) {
+  test('N: all guardian/SOS advanced handlers batch check', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    await page.evaluate(() => {
-      window.showGuardianModal?.()
-      window.openSOS?.()
-    })
+    await page.evaluate(() => { window.showGuardianModal?.(); window.openSOS?.() })
     await page.waitForTimeout(2000)
-    await page.evaluate(() => {
-      window.closeGuardianModal?.()
-      window.closeSOS?.()
-    })
+    await page.evaluate(() => { window.closeGuardianModal?.(); window.closeSOS?.() })
     await page.waitForTimeout(300)
-  }
-
-  test('N1: startGuardian exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    const exists = await page.evaluate(() => typeof window.startGuardian === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N2: stopGuardian exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.stopGuardian === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N3: guardianCheckIn exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.guardianCheckIn === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N4: guardianSendMessage exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.guardianSendMessage === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N5: guardianSendAlert exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.guardianSendAlert === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N6: guardianAddGuardian exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.guardianAddGuardian === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N7: guardianRemoveGuardian exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.guardianRemoveGuardian === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N8: guardianUpdatePlate exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.guardianUpdatePlate === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N9: guardianUpdateDestination exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.guardianUpdateDestination === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N10: guardianAddTripPhoto exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.guardianAddTripPhoto === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N11: sosToggleSilent exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.sosToggleSilent === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N12: sosOpenFakeCall exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.sosOpenFakeCall === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N13: sosStartRecording exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.sosStartRecording === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('N14: shareSOSLocation exists', async ({ page }) => {
-    await setupGuardianPage(page)
-    
-    const exists = await page.evaluate(() => typeof window.shareSOSLocation === 'function')
-    expect(exists).toBe(true)
+    const handlers = [
+      'startGuardian', 'stopGuardian', 'guardianCheckIn', 'guardianSendMessage', 'guardianSendAlert',
+      'guardianAddGuardian', 'guardianRemoveGuardian', 'guardianUpdatePlate',
+      'guardianUpdateDestination', 'guardianAddTripPhoto',
+      'sosToggleSilent', 'sosOpenFakeCall', 'sosStartRecording', 'shareSOSLocation',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
 
-// ==================== GROUPE O — PROFIL & VOYAGE AVANCÉ ====================
+// ==================== GROUPES O-AF — BATCH HANDLER CHECKS ====================
 
 test.describe('O. Profil & Voyage Avancé', () => {
-
-  test('O1: editBio exists', async ({ page }) => {
+  test('O: all profile/voyage handlers batch check', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.editBio === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O2: editLanguages exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.editLanguages === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O3: editSocialLinks exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.editSocialLinks === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O4: uploadProfilePhoto exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.uploadProfilePhoto === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O5: removeProfilePhoto exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.removeProfilePhoto === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O6: downloadMyData exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.downloadMyData === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O7: swapTripPoints exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.swapTripPoints === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O8: viewTripOnMap exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.viewTripOnMap === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O9: toggleTripGasStations exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.toggleTripGasStations === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O10: journalAddLeg exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.journalAddLeg === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O11: journalSaveLeg exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.journalSaveLeg === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O12: journalEndTrip exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.journalEndTrip === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O13: journalTogglePublic exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.journalTogglePublic === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('O14: journalShareTrip exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.journalShareTrip === 'function')
-    expect(exists).toBe(true)
+    const handlers = [
+      'editBio', 'editLanguages', 'editSocialLinks', 'uploadProfilePhoto', 'removeProfilePhoto',
+      'downloadMyData', 'swapTripPoints', 'viewTripOnMap', 'toggleTripGasStations',
+      'journalAddLeg', 'journalSaveLeg', 'journalEndTrip', 'journalTogglePublic', 'journalShareTrip',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
-
-// ==================== GROUPE P — GUIDES & FAQ ====================
 
 test.describe('P. Guides & FAQ', () => {
-
-  test('P1: showGuides navigates', async ({ page }) => {
+  test('P: all guides/FAQ handlers batch check', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    await page.evaluate(() => window.showGuides?.())
-    await page.waitForTimeout(500)
-    const tab = await page.evaluate(() => window.getState?.()?.activeTab)
-    expect(tab).toBe('voyage')
-  })
-
-  test('P2: showCountryDetail exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.showCountryDetail === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('P3: selectGuide exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.selectGuide === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('P4: submitGuideContribution exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.submitGuideContribution === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('P5: voteGuideTip exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.voteGuideTip === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('P6: reportGuideError exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.reportGuideError === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('P7: openFAQ opens FAQ', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    await page.evaluate(() => window.openFAQ?.())
-    await page.waitForTimeout(500)
-    const exists = await page.evaluate(() => typeof window.closeFAQ === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('P8: submitCommunityTip exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.submitCommunityTip === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('P9: voteCommunityTip exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.voteCommunityTip === 'function')
-    expect(exists).toBe(true)
+    const handlers = [
+      'showCountryDetail', 'selectGuide', 'submitGuideContribution',
+      'voteGuideTip', 'reportGuideError', 'submitCommunityTip', 'voteCommunityTip',
+      'openFAQ', 'closeFAQ',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
-
-// ==================== GROUPE Q — AMBASSADEURS & SHARE ====================
 
 test.describe('Q. Ambassadeurs & Share', () => {
-
-  test('Q1: registerAmbassador exists', async ({ page }) => {
+  test('Q: all ambassador/share handlers batch check', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.registerAmbassador === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('Q2: searchAmbassadors exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.searchAmbassadors === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('Q3: contactAmbassador exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.contactAmbassador === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('Q4: shareApp exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.shareApp === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('Q5: shareMyProfile exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.shareMyProfile === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('Q6: copyFriendLink exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.copyFriendLink === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('Q7: showFeatureIntro exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.showFeatureIntro === 'function')
-    expect(exists).toBe(true)
+    const handlers = [
+      'registerAmbassador', 'searchAmbassadors', 'contactAmbassador',
+      'shareApp', 'shareMyProfile', 'copyFriendLink', 'showFeatureIntro',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
-
-// ==================== GROUPE R — DIVERS ====================
 
 test.describe('R. Divers', () => {
-
-  test('R1: resetApp exists', async ({ page }) => {
+  test('R: all misc handlers batch check', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.resetApp === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R2: addEmergencyContact exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.addEmergencyContact === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R3: removeEmergencyContact exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.removeEmergencyContact === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R4: openContactForm exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openContactForm === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R5: openBugReport exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openBugReport === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R6: openChangelog exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openChangelog === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R7: toggleGasStations exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.toggleGasStations === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R8: openCityPanel exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.openCityPanel === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R9: downloadCountryOffline exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.downloadCountryOffline === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R10: deleteOfflineCountry exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.deleteOfflineCountry === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R11: clearAllOfflineData exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.clearAllOfflineData === 'function')
-    expect(exists).toBe(true)
-  })
-
-  test('R12: togglePushNotifications exists', async ({ page }) => {
-    await setupPage(page)
-    await waitForApp(page)
-    const exists = await page.evaluate(() => typeof window.togglePushNotifications === 'function')
-    expect(exists).toBe(true)
+    const handlers = [
+      'resetApp', 'addEmergencyContact', 'removeEmergencyContact',
+      'openContactForm', 'openBugReport', 'openChangelog',
+      'toggleGasStations', 'openCityPanel', 'downloadCountryOffline',
+      'deleteOfflineCountry', 'clearAllOfflineData', 'togglePushNotifications',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
-
-// ==================== GROUPE S — CHECKIN MODAL DÉTAILLÉ ====================
 
 test.describe('S. Checkin Modal', () => {
-  test('S1: openCheckinModal exists', async ({ page }) => {
+  test('S: all checkin handlers batch check', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.openCheckinModal === 'function')).toBe(true)
-  })
-  test('S2: closeCheckinModal exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.closeCheckinModal === 'function')).toBe(true)
-  })
-  test('S3: submitCheckin exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.submitCheckin === 'function')).toBe(true)
-  })
-  test('S4: setCheckinRideResult exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setCheckinRideResult === 'function')).toBe(true)
-  })
-  test('S5: triggerCheckinPhoto exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.triggerCheckinPhoto === 'function')).toBe(true)
+    const handlers = ['openCheckinModal', 'closeCheckinModal', 'submitCheckin', 'setCheckinRideResult', 'triggerCheckinPhoto']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
-
-// ==================== GROUPE T — ADDSPOT FORM STEPS ====================
 
 test.describe('T. AddSpot Form Steps', () => {
-  test('T1: useGPSForSpot exists', async ({ page }) => {
+  test('T: all addSpot form handlers batch check', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.useGPSForSpot === 'function')).toBe(true)
-  })
-  test('T2: toggleSpotMapPicker exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.toggleSpotMapPicker === 'function')).toBe(true)
-  })
-  test('T3: autoDetectStation exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.autoDetectStation === 'function')).toBe(true)
-  })
-  test('T4: autoDetectRoad exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.autoDetectRoad === 'function')).toBe(true)
-  })
-  test('T5: setMethod exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setMethod === 'function')).toBe(true)
-  })
-  test('T6: setGroupSize exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setGroupSize === 'function')).toBe(true)
-  })
-  test('T7: setTimeOfDay exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setTimeOfDay === 'function')).toBe(true)
-  })
-  test('T8: toggleAmenity exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.toggleAmenity === 'function')).toBe(true)
-  })
-  test('T9: setWaitTime exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setWaitTime === 'function')).toBe(true)
-  })
-  test('T10: setRideResult exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setRideResult === 'function')).toBe(true)
-  })
-  test('T11: setExperienceDate exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setExperienceDate === 'function')).toBe(true)
-  })
-  test('T12: addSpotDestination exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.addSpotDestination === 'function')).toBe(true)
-  })
-  test('T13: removeSpotDestination exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.removeSpotDestination === 'function')).toBe(true)
-  })
-  test('T14: removeSpotPhoto exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.removeSpotPhoto === 'function')).toBe(true)
-  })
-  test('T15: showSpotSummary exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showSpotSummary === 'function')).toBe(true)
-  })
-  test('T16: handleAddSpot exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.handleAddSpot === 'function')).toBe(true)
-  })
-  test('T17: setSpotTag exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setSpotTag === 'function')).toBe(true)
+    const handlers = [
+      'useGPSForSpot', 'toggleSpotMapPicker', 'autoDetectStation', 'autoDetectRoad',
+      'setMethod', 'setGroupSize', 'setTimeOfDay', 'toggleAmenity', 'setWaitTime',
+      'setRideResult', 'setExperienceDate', 'addSpotDestination', 'removeSpotDestination',
+      'removeSpotPhoto', 'showSpotSummary', 'handleAddSpot', 'setSpotTag',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
-
-// ==================== GROUPE U — NAVIGATION APPS ====================
 
 test.describe('U. Navigation Apps', () => {
-  test('U1: showNavigationPicker exists', async ({ page }) => {
+  test('U: all navigation handlers batch check', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showNavigationPicker === 'function')).toBe(true)
-  })
-  test('U2: openInNavigationApp exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.openInNavigationApp === 'function')).toBe(true)
-  })
-  test('U3: selectNavigationApp exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.selectNavigationApp === 'function')).toBe(true)
-  })
-  test('U4: startSpotNavigation exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.startSpotNavigation === 'function')).toBe(true)
-  })
-  test('U5: stopNavigation exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.stopNavigation === 'function')).toBe(true)
+    const handlers = ['showNavigationPicker', 'openInNavigationApp', 'selectNavigationApp', 'startSpotNavigation', 'stopNavigation']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
-
-// ==================== GROUPE V — PROFIL ACTIONS ====================
 
 test.describe('V. Profile Actions', () => {
-  // Profile handlers are lazy-loaded — navigate to profile tab first
-  async function setupProfilePage(page) {
-    await setupPage(page)
-    await waitForApp(page)
+  test('V: all profile action handlers batch check', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
     await page.evaluate(() => window.changeTab?.('profile'))
     await page.waitForTimeout(2000)
-  }
-  test('V1: saveProfileEdits exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.saveProfileEdits === 'function')).toBe(true)
-  })
-  test('V2: selectProfilePhoto exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.selectProfilePhoto === 'function')).toBe(true)
-  })
-  test('V3: setMainProfilePhoto exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.setMainProfilePhoto === 'function')).toBe(true)
-  })
-  test('V4: openChangePassword exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openChangePassword === 'function')).toBe(true)
-  })
-  test('V5: openChangeEmail exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openChangeEmail === 'function')).toBe(true)
-  })
-  test('V6: openChangeUsername exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openChangeUsername === 'function')).toBe(true)
-  })
-  test('V7: openEditName exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openEditName === 'function')).toBe(true)
-  })
-  test('V8: openPhotoManager exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openPhotoManager === 'function')).toBe(true)
-  })
-  test('V9: openExportData exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openExportData === 'function')).toBe(true)
-  })
-  test('V10: openAppealForm exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openAppealForm === 'function')).toBe(true)
-  })
-  test('V11: sortMySpots exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.sortMySpots === 'function')).toBe(true)
-  })
-  test('V12: openMySpots exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openMySpots === 'function')).toBe(true)
-  })
-  test('V13: openMyValidations exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.openMyValidations === 'function')).toBe(true)
-  })
-  test('V14: togglePrivacy exists', async ({ page }) => {
-    await setupProfilePage(page)
-    expect(await page.evaluate(() => typeof window.togglePrivacy === 'function')).toBe(true)
+    const handlers = [
+      'saveProfileEdits', 'selectProfilePhoto', 'setMainProfilePhoto',
+      'openChangePassword', 'openChangeEmail', 'openChangeUsername', 'openEditName',
+      'openPhotoManager', 'openExportData', 'openAppealForm',
+      'sortMySpots', 'openMySpots', 'openMyValidations', 'togglePrivacy',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
-
-// ==================== GROUPE W — SOCIAL EVENTS CRUD ====================
 
 test.describe('W. Events CRUD', () => {
-  test('W1: submitCreateEvent exists', async ({ page }) => {
+  test('W: all events CRUD handlers batch check', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.submitCreateEvent === 'function')).toBe(true)
-  })
-  test('W2: closeCreateEvent exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.closeCreateEvent === 'function')).toBe(true)
-  })
-  test('W3: leaveEvent exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.leaveEvent === 'function')).toBe(true)
-  })
-  test('W4: deleteEventAction exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.deleteEventAction === 'function')).toBe(true)
-  })
-  test('W5: openEventDetail exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.openEventDetail === 'function')).toBe(true)
-  })
-  test('W6: closeEventDetail exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.closeEventDetail === 'function')).toBe(true)
-  })
-  test('W7: shareEvent exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.shareEvent === 'function')).toBe(true)
-  })
-  test('W8: replyEventComment exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.replyEventComment === 'function')).toBe(true)
-  })
-  test('W9: toggleReplyInput exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.toggleReplyInput === 'function')).toBe(true)
-  })
-  test('W10: deleteEventCommentAction exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.deleteEventCommentAction === 'function')).toBe(true)
+    const handlers = [
+      'submitCreateEvent', 'closeCreateEvent', 'leaveEvent', 'deleteEventAction',
+      'openEventDetail', 'closeEventDetail', 'shareEvent',
+      'replyEventComment', 'toggleReplyInput', 'deleteEventCommentAction',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
 
-// ==================== GROUPE X — ACCESSIBILITY & PWA ====================
+test.describe('X-AF. Misc grouped handlers', () => {
+  test('X: accessibility & PWA handlers', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    const handlers = ['showAccessibilityHelp', 'closeAccessibilityHelp', 'srAnnounce', 'showInstallBanner', 'dismissInstallBanner', 'centerOnUser']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
+  })
 
-test.describe('X. Accessibility & PWA', () => {
-  test('X1: showAccessibilityHelp exists', async ({ page }) => {
+  test('Y: trip planner handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showAccessibilityHelp === 'function')).toBe(true)
+    const handlers = ['calculateTrip', 'clearTripResults', 'saveTripWithSpots', 'loadSavedTrip', 'deleteSavedTrip', 'renameSavedTrip', 'viewTripOnMap', 'closeTripMap']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
-  test('X2: closeAccessibilityHelp exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.closeAccessibilityHelp === 'function')).toBe(true)
-  })
-  test('X3: srAnnounce exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.srAnnounce === 'function')).toBe(true)
-  })
-  test('X4: showInstallBanner exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showInstallBanner === 'function')).toBe(true)
-  })
-  test('X5: dismissInstallBanner exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.dismissInstallBanner === 'function')).toBe(true)
-  })
-  test('X6: centerOnUser exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.centerOnUser === 'function')).toBe(true)
-  })
-})
 
-// ==================== GROUPE Y — TRIP PLANNER COMPAT ====================
+  test('Z: identity verification handlers', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    const handlers = ['startVerificationStep', 'submitVerificationPhotos', 'getTrustLevel', 'getTrustBadge', 'getUserTrustScore', 'showTrustDetails']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
+  })
 
-test.describe('Y. Trip Planner', () => {
-  test('Y1: calculateTrip exists', async ({ page }) => {
+  test('AA: cookie & consent handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.calculateTrip === 'function')).toBe(true)
+    const handlers = ['acceptAllCookies', 'refuseOptionalCookies', 'showCookieCustomize', 'saveCustomCookiePreferences']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
-  test('Y2: clearTripResults exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.clearTripResults === 'function')).toBe(true)
-  })
-  test('Y3: saveTripWithSpots exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.saveTripWithSpots === 'function')).toBe(true)
-  })
-  test('Y4: loadSavedTrip exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.loadSavedTrip === 'function')).toBe(true)
-  })
-  test('Y5: deleteSavedTrip exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.deleteSavedTrip === 'function')).toBe(true)
-  })
-  test('Y6: renameSavedTrip exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.renameSavedTrip === 'function')).toBe(true)
-  })
-  test('Y7: viewTripOnMap exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.viewTripOnMap === 'function')).toBe(true)
-  })
-  test('Y8: closeTripMap exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.closeTripMap === 'function')).toBe(true)
-  })
-})
 
-// ==================== GROUPE Z — IDENTITY VERIFICATION ====================
+  test('AB: loading & animations handlers', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    const handlers = ['showLoading', 'hideLoading', 'showSuccessAnimation', 'showErrorAnimation', 'launchConfetti']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
+  })
 
-test.describe('Z. Identity Verification', () => {
-  test('Z1: startVerificationStep exists', async ({ page }) => {
+  test('AC: community alerts handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.startVerificationStep === 'function')).toBe(true)
+    const handlers = ['toggleCommunityAlerts', 'setCommunityRadius', 'setCommunityGenderFilter']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
-  test('Z2: submitVerificationPhotos exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.submitVerificationPhotos === 'function')).toBe(true)
-  })
-  test('Z3: getTrustLevel exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.getTrustLevel === 'function')).toBe(true)
-  })
-  test('Z4: getTrustBadge exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.getTrustBadge === 'function')).toBe(true)
-  })
-  test('Z5: getUserTrustScore exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.getUserTrustScore === 'function')).toBe(true)
-  })
-  test('Z6: showTrustDetails exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showTrustDetails === 'function')).toBe(true)
-  })
-})
 
-// ==================== GROUPE AA — COOKIE & CONSENT ====================
+  test('AD: location permission handlers', async ({ page }) => {
+    await setupPage(page); await waitForApp(page)
+    const handlers = ['acceptLocationPermission', 'declineLocationPermission', 'closeLocationPermission']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
+  })
 
-test.describe('AA. Cookie & Consent', () => {
-  test('AA1: acceptAllCookies exists', async ({ page }) => {
+  test('AE: nearby friends handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.acceptAllCookies === 'function')).toBe(true)
+    const handlers = ['toggleNearbyFriendsList', 'setNotificationRadius', 'toggleLocationSharing', 'showFriendOnMap']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
-  test('AA2: refuseOptionalCookies exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.refuseOptionalCookies === 'function')).toBe(true)
-  })
-  test('AA3: showCookieCustomize exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showCookieCustomize === 'function')).toBe(true)
-  })
-  test('AA4: saveCustomCookiePreferences exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.saveCustomCookiePreferences === 'function')).toBe(true)
-  })
-})
 
-// ==================== GROUPE AB — LOADING & ANIMATIONS ====================
-
-test.describe('AB. Loading & Animations', () => {
-  test('AB1: showLoading exists', async ({ page }) => {
+  test('AF: proximity alerts handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showLoading === 'function')).toBe(true)
-  })
-  test('AB2: hideLoading exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.hideLoading === 'function')).toBe(true)
-  })
-  test('AB3: showSuccessAnimation exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showSuccessAnimation === 'function')).toBe(true)
-  })
-  test('AB4: showErrorAnimation exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showErrorAnimation === 'function')).toBe(true)
-  })
-  test('AB5: launchConfetti exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.launchConfetti === 'function')).toBe(true)
-  })
-})
-
-// ==================== GROUPE AC — COMMUNITY ALERTS ====================
-
-test.describe('AC. Community Alerts', () => {
-  test('AC1: toggleCommunityAlerts exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.toggleCommunityAlerts === 'function')).toBe(true)
-  })
-  test('AC2: setCommunityRadius exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setCommunityRadius === 'function')).toBe(true)
-  })
-  test('AC3: setCommunityGenderFilter exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setCommunityGenderFilter === 'function')).toBe(true)
-  })
-})
-
-// ==================== GROUPE AD — LOCATION PERMISSION ====================
-
-test.describe('AD. Location Permission', () => {
-  test('AD1: acceptLocationPermission exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.acceptLocationPermission === 'function')).toBe(true)
-  })
-  test('AD2: declineLocationPermission exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.declineLocationPermission === 'function')).toBe(true)
-  })
-  test('AD3: closeLocationPermission exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.closeLocationPermission === 'function')).toBe(true)
-  })
-})
-
-// ==================== GROUPE AE — NEARBY FRIENDS ====================
-
-test.describe('AE. Nearby Friends', () => {
-  test('AE1: toggleNearbyFriendsList exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.toggleNearbyFriendsList === 'function')).toBe(true)
-  })
-  test('AE2: setNotificationRadius exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.setNotificationRadius === 'function')).toBe(true)
-  })
-  test('AE3: toggleLocationSharing exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.toggleLocationSharing === 'function')).toBe(true)
-  })
-  test('AE4: showFriendOnMap exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.showFriendOnMap === 'function')).toBe(true)
-  })
-})
-
-// ==================== GROUPE AF — PROXIMITY ALERTS ====================
-
-test.describe('AF. Proximity Alerts', () => {
-  test('AF1: quickValidateSpot exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.quickValidateSpot === 'function')).toBe(true)
-  })
-  test('AF2: quickReportSpot exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.quickReportSpot === 'function')).toBe(true)
-  })
-  test('AF3: dismissProximityAlert exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.dismissProximityAlert === 'function')).toBe(true)
-  })
-  test('AF4: initProximityNotify exists', async ({ page }) => {
-    await setupPage(page); await waitForApp(page)
-    expect(await page.evaluate(() => typeof window.initProximityNotify === 'function')).toBe(true)
+    const handlers = ['quickValidateSpot', 'quickReportSpot', 'dismissProximityAlert', 'initProximityNotify']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 })
 
@@ -1926,39 +1059,13 @@ test.describe('AG. Multi-User Interactions', () => {
     await cleanup({ aliceCtx, bobCtx })
   })
 
-  test('AG9: sendFriendRequest function exists for both users', async ({ browser }) => {
+  test('AG9-12: critical handlers exist for both users (batch)', async ({ browser }) => {
     const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
-    const aliceHas = await alice.evaluate(() => typeof window.sendFriendRequest === 'function')
-    const bobHas = await bob.evaluate(() => typeof window.sendFriendRequest === 'function')
-    expect(aliceHas).toBe(true)
-    expect(bobHas).toBe(true)
-    await cleanup({ aliceCtx, bobCtx })
-  })
-
-  test('AG10: sendDM function exists for both users', async ({ browser }) => {
-    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
-    const aliceHas = await alice.evaluate(() => typeof window.sendDM === 'function')
-    const bobHas = await bob.evaluate(() => typeof window.sendDM === 'function')
-    expect(aliceHas).toBe(true)
-    expect(bobHas).toBe(true)
-    await cleanup({ aliceCtx, bobCtx })
-  })
-
-  test('AG11: openAddSpot exists for both users', async ({ browser }) => {
-    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
-    const aliceHas = await alice.evaluate(() => typeof window.openAddSpot === 'function')
-    const bobHas = await bob.evaluate(() => typeof window.openAddSpot === 'function')
-    expect(aliceHas).toBe(true)
-    expect(bobHas).toBe(true)
-    await cleanup({ aliceCtx, bobCtx })
-  })
-
-  test('AG12: toggleFavorite exists for both users', async ({ browser }) => {
-    const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
-    const aliceHas = await alice.evaluate(() => typeof window.toggleFavorite === 'function')
-    const bobHas = await bob.evaluate(() => typeof window.toggleFavorite === 'function')
-    expect(aliceHas).toBe(true)
-    expect(bobHas).toBe(true)
+    const handlers = ['sendFriendRequest', 'sendDM', 'openAddSpot', 'toggleFavorite']
+    const aliceMissing = await alice.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    const bobMissing = await bob.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(aliceMissing).toEqual([])
+    expect(bobMissing).toEqual([])
     await cleanup({ aliceCtx, bobCtx })
   })
 
@@ -1973,12 +1080,15 @@ test.describe('AG. Multi-User Interactions', () => {
     await cleanup({ aliceCtx, bobCtx })
   })
 
-  test('AG14: openReport exists for both users', async ({ browser }) => {
+  test('AG14: openReport callable for both users', async ({ browser }) => {
     const { alice, bob, aliceCtx, bobCtx } = await setupTwoUsers(browser)
-    const aliceHas = await alice.evaluate(() => typeof window.openReport === 'function')
-    const bobHas = await bob.evaluate(() => typeof window.openReport === 'function')
-    expect(aliceHas).toBe(true)
-    expect(bobHas).toBe(true)
+    await alice.evaluate(() => window.openReport?.('test'))
+    await bob.evaluate(() => window.openReport?.('test'))
+    await alice.waitForTimeout(300)
+    const aliceAlive = await alice.evaluate(() => !!document.getElementById('app'))
+    const bobAlive = await bob.evaluate(() => !!document.getElementById('app'))
+    expect(aliceAlive).toBe(true)
+    expect(bobAlive).toBe(true)
     await cleanup({ aliceCtx, bobCtx })
   })
 

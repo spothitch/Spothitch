@@ -22,18 +22,12 @@ const SPOT_HANDLERS = [
 ]
 
 test.describe('Spot handlers exist', () => {
-  let session
-  test.beforeAll(async ({ browser }) => {
-    session = await createUserSession(browser, 'alice')
+  test('all spot handlers batch check', async ({ browser }) => {
+    const session = await createUserSession(browser, 'alice')
+    const missing = await session.page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), SPOT_HANDLERS)
+    expect(missing).toEqual([])
+    await session.context.close()
   })
-  test.afterAll(async () => { await session?.context?.close() })
-
-  for (const h of SPOT_HANDLERS) {
-    test(`window.${h} is a function`, async () => {
-      const exists = await session.page.evaluate((n) => typeof window[n] === 'function', h)
-      expect(exists).toBe(true)
-    })
-  }
 })
 
 // ═══════ SPOTS FUNCTIONALITY ═══════
@@ -93,18 +87,12 @@ const SOCIAL_HANDLERS = [
 ]
 
 test.describe('Social handlers exist', () => {
-  let session
-  test.beforeAll(async ({ browser }) => {
-    session = await createUserSession(browser, 'alice')
+  test('all social handlers batch check', async ({ browser }) => {
+    const session = await createUserSession(browser, 'alice')
+    const missing = await session.page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), SOCIAL_HANDLERS)
+    expect(missing).toEqual([])
+    await session.context.close()
   })
-  test.afterAll(async () => { await session?.context?.close() })
-
-  for (const h of SOCIAL_HANDLERS) {
-    test(`window.${h} is a function`, async () => {
-      const exists = await session.page.evaluate((n) => typeof window[n] === 'function', h)
-      expect(exists).toBe(true)
-    })
-  }
 })
 
 // ═══════ GUARDIAN HANDLERS ═══════
@@ -120,12 +108,10 @@ test.describe('Guardian handlers', () => {
   })
   test.afterAll(async () => { await session?.context?.close() })
 
-  for (const h of GUARDIAN_HANDLERS) {
-    test(`window.${h} exists`, async () => {
-      const exists = await session.page.evaluate((n) => typeof window[n] === 'function', h)
-      expect(exists).toBe(true)
-    })
-  }
+  test('all guardian handlers batch check', async () => {
+    const missing = await session.page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), GUARDIAN_HANDLERS)
+    expect(missing).toEqual([])
+  })
 
   test('openGuardian sets showGuardianModal', async () => {
     await session.page.evaluate(() => window.openGuardian?.())
@@ -145,14 +131,9 @@ test.describe('SOS handlers', () => {
   })
   test.afterAll(async () => { await session?.context?.close() })
 
-  test('openSOS exists', async () => {
-    expect(await session.page.evaluate(() => typeof window.openSOS === 'function')).toBe(true)
-  })
-  test('closeSOS exists', async () => {
-    expect(await session.page.evaluate(() => typeof window.closeSOS === 'function')).toBe(true)
-  })
-  test('triggerSOS exists', async () => {
-    expect(await session.page.evaluate(() => typeof window.triggerSOS === 'function')).toBe(true)
+  test('SOS handlers batch check', async () => {
+    const missing = await session.page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), ['openSOS', 'closeSOS', 'triggerSOS'])
+    expect(missing).toEqual([])
   })
   test('openSOS opens SOS modal', async () => {
     await session.page.evaluate(() => window.openSOS?.())
@@ -173,20 +154,14 @@ const EVENT_HANDLERS = [
 ]
 
 test.describe('Event handlers exist', () => {
-  let session
-  test.beforeAll(async ({ browser }) => {
-    session = await createUserSession(browser, 'alice')
+  test('all event handlers batch check', async ({ browser }) => {
+    const session = await createUserSession(browser, 'alice')
     await navigateToTab(session.page, 'social')
     await session.page.waitForTimeout(3000)
+    const missing = await session.page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), EVENT_HANDLERS)
+    expect(missing).toEqual([])
+    await session.context.close()
   })
-  test.afterAll(async () => { await session?.context?.close() })
-
-  for (const h of EVENT_HANDLERS) {
-    test(`window.${h} is a function`, async () => {
-      const exists = await session.page.evaluate((n) => typeof window[n] === 'function', h)
-      expect(exists).toBe(true)
-    })
-  }
 })
 
 // ═══════ GUIDE HANDLERS ═══════
@@ -262,20 +237,14 @@ const PROFILE_HANDLERS = [
 ]
 
 test.describe('Profile handlers exist', () => {
-  let session
-  test.beforeAll(async ({ browser }) => {
-    session = await createUserSession(browser, 'alice')
+  test('all profile handlers batch check', async ({ browser }) => {
+    const session = await createUserSession(browser, 'alice')
     await navigateToTab(session.page, 'profile')
     await session.page.waitForTimeout(2000)
+    const missing = await session.page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), PROFILE_HANDLERS)
+    expect(missing).toEqual([])
+    await session.context.close()
   })
-  test.afterAll(async () => { await session?.context?.close() })
-
-  for (const h of PROFILE_HANDLERS) {
-    test(`window.${h} is a function`, async () => {
-      const exists = await session.page.evaluate((n) => typeof window[n] === 'function', h)
-      expect(exists).toBe(true)
-    })
-  }
 })
 
 // ═══════ MISC HANDLERS ═══════
@@ -292,16 +261,10 @@ const MISC_HANDLERS = [
 ]
 
 test.describe('Miscellaneous handlers exist', () => {
-  let session
-  test.beforeAll(async ({ browser }) => {
-    session = await createUserSession(browser, 'alice')
+  test('all misc handlers batch check', async ({ browser }) => {
+    const session = await createUserSession(browser, 'alice')
+    const missing = await session.page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), MISC_HANDLERS)
+    expect(missing).toEqual([])
+    await session.context.close()
   })
-  test.afterAll(async () => { await session?.context?.close() })
-
-  for (const h of MISC_HANDLERS) {
-    test(`window.${h} exists`, async () => {
-      const exists = await session.page.evaluate((n) => typeof window[n] === 'function', h)
-      expect(exists).toBe(true)
-    })
-  }
 })

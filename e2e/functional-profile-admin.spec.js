@@ -49,6 +49,8 @@ test.describe('Profil — Fonctionnel', () => {
 
   test('openDeleteAccount ouvre et closeDeleteAccount ferme', async ({ page }) => {
     await setupProfile(page)
+    // Re-assert isLoggedIn in case Firebase auth callback reset it
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
     await page.evaluate(() => window.openDeleteAccount?.())
     await page.waitForTimeout(300)
     expect(await page.evaluate(() => window.getState?.()?.showDeleteAccount)).toBe(true)
@@ -58,6 +60,14 @@ test.describe('Profil — Fonctionnel', () => {
 
   test('Tous les 30 handlers profil existent après navigation', async ({ page }) => {
     await setupProfile(page)
+    // Trigger lazy modals to load their handlers (DeleteAccount.js, MyData.js)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
+    await page.evaluate(() => window.openDeleteAccount?.())
+    await page.waitForTimeout(500)
+    await page.evaluate(() => window.closeDeleteAccount?.())
+    await page.evaluate(() => window.openMyData?.())
+    await page.waitForTimeout(500)
+    await page.evaluate(() => window.closeMyData?.())
     const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), [
       'editBio', 'saveBio', 'editLanguages', 'editSocialLinks',
       'uploadProfilePhoto', 'removeProfilePhoto', 'selectProfilePhoto',
@@ -112,6 +122,10 @@ test.describe('Admin — Fonctionnel', () => {
 
   test('Tous les 15 handlers admin existent', async ({ page }) => {
     await setup(page)
+    // Open admin panel to load AdminPanel.js and register all its handlers
+    await page.evaluate(() => window.openAdminPanel?.())
+    await page.waitForTimeout(1500)
+    await page.evaluate(() => window.closeAdminPanel?.())
     const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), [
       'openAdminPanel', 'closeAdminPanel', 'setAdminTab',
       'loadAdminFeedback', 'setAdminFeedbackPeriod', 'exportFeedbackCSV',

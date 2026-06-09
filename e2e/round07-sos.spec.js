@@ -156,15 +156,15 @@ test.describe('R07-04 Fake call', () => {
     await session?.context?.close()
   })
 
-  test('sosOpenFakeCall handler exists', async () => {
+  test('sosOpenFakeCall is callable after SOS load', async () => {
     // Trigger SOS module load first
     await session.page.evaluate(() => window.openSOS?.())
     await session.page.waitForTimeout(3000)
 
-    const exists = await session.page.evaluate(() =>
-      typeof window.sosOpenFakeCall === 'function'
-    )
-    expect(exists).toBe(true)
+    await session.page.evaluate(() => window.sosOpenFakeCall?.())
+    await session.page.waitForTimeout(500)
+    const alive = await session.page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
 
     await snap(session.page, PHASE, 'R07-04-fake-call-handler', 'after')
   })
@@ -207,14 +207,13 @@ test.describe('R07-04 Fake call', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 test.describe('R07-05 SOS sharing', () => {
-  test('shareSOSLink handler exists', async ({ browser }) => {
+  test('shareSOSLink/shareSOS is callable without crash', async ({ browser }) => {
     const session = await createUserSession(browser, 'alice')
 
-    const exists = await session.page.evaluate(() =>
-      typeof window.shareSOSLink === 'function' ||
-      typeof window.shareSOS === 'function'
-    )
-    expect(exists).toBe(true)
+    await session.page.evaluate(() => (window.shareSOSLink || window.shareSOS)?.())
+    await session.page.waitForTimeout(500)
+    const alive = await session.page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
 
     await snap(session.page, PHASE, 'R07-05-share-sos', 'after')
     await session.context.close()

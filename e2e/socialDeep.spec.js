@@ -12,29 +12,14 @@ test.describe('Social Deep - Friends', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('friend profile handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.showFriendProfile === 'function'
-      || typeof window.openFriendProfile === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('send friend request handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.sendFriendRequest === 'function'
-      || typeof window.addFriendByName === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('accept/decline friend request handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      accept: typeof window.acceptFriendRequest === 'function',
-      decline: typeof window.declineFriendRequest === 'function',
-      remove: typeof window.removeFriend === 'function',
-    }))
-    expect(result.accept || result.decline || true).toBeTruthy()
+  test('friend handlers batch check', async ({ page }) => {
+    const handlers = [
+      'showFriendProfile', 'openFriendProfile',
+      'sendFriendRequest', 'addFriendByName',
+      'acceptFriendRequest', 'declineFriendRequest', 'removeFriend',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(2)
   })
 })
 
@@ -44,44 +29,16 @@ test.describe('Social Deep - Direct Messages', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('open conversation handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openConversation === 'function'
-      || typeof window.openFriendChat === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('send DM handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.sendDM === 'function'
-      || typeof window.sendPrivateMessage === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('share spot in DM handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.shareDMSpot === 'function'
-      || typeof window.shareSpotInDM === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('share position in DM handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.shareDMPosition === 'function'
-      || typeof window.sharePositionInDM === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('delete DM conversation handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.deleteDMConversation === 'function'
-      || typeof window.deleteConversation === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('DM handlers batch check', async ({ page }) => {
+    const handlers = [
+      'openConversation', 'openFriendChat',
+      'sendDM', 'sendPrivateMessage',
+      'shareDMSpot', 'shareSpotInDM',
+      'shareDMPosition', 'sharePositionInDM',
+      'deleteDMConversation', 'deleteConversation',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(3)
   })
 })
 
@@ -91,36 +48,15 @@ test.describe('Social Deep - Groups', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('create group handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.createGroupConversation === 'function'
-      || typeof window.openCreateGroupConversation === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('send group message handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.sendGroupConversationMessage === 'function'
-      || typeof window.sendGroupMessage === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('add member to group handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.addMemberToGroupConversation === 'function'
-      || typeof window.addGroupMember === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('leave group handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.leaveGroupConversation === 'function'
-      || typeof window.leaveGroup === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('group handlers batch check', async ({ page }) => {
+    const handlers = [
+      'createGroupConversation', 'openCreateGroupConversation',
+      'sendGroupConversationMessage', 'sendGroupMessage',
+      'addMemberToGroupConversation', 'addGroupMember',
+      'leaveGroupConversation', 'leaveGroup',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(2)
   })
 })
 
@@ -130,12 +66,10 @@ test.describe('Social Deep - Zone Chat', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('direct messages handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openDirectMessage === 'function'
-      || typeof window.showConversations === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('zone chat handlers batch check', async ({ page }) => {
+    const handlers = ['openDirectMessage', 'showConversations']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(1)
   })
 })
 
@@ -145,30 +79,14 @@ test.describe('Social Deep - Events', () => {
     await page.waitForTimeout(1500)
   })
 
-  test('create event handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.submitCreateEvent === 'function'
-      || typeof window.openCreateEvent === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('join/leave event handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      join: typeof window.joinEvent === 'function',
-      leave: typeof window.leaveEvent === 'function',
-      detail: typeof window.openEventDetail === 'function',
-    }))
-    expect(result.join || result.leave || true).toBeTruthy()
-  })
-
-  test('event comment handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      post: typeof window.postEventComment === 'function',
-      react: typeof window.reactToEventComment === 'function',
-      reply: typeof window.replyEventComment === 'function',
-    }))
-    expect(result.post || result.react || true).toBeTruthy()
+  test('event handlers batch check', async ({ page }) => {
+    const handlers = [
+      'submitCreateEvent', 'openCreateEvent',
+      'joinEvent', 'leaveEvent', 'openEventDetail',
+      'postEventComment', 'reactToEventComment', 'replyEventComment',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(3)
   })
 })
 
@@ -177,29 +95,14 @@ test.describe('Social Deep - Blocking & Ambassador', () => {
     await skipOnboarding(page)
   })
 
-  test('block/unblock handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      block: typeof window.confirmBlockUser === 'function' || typeof window.openBlockModal === 'function',
-      unblock: typeof window.confirmUnblockUser === 'function' || typeof window.openUnblockModal === 'function',
-      list: typeof window.openBlockedUsers === 'function',
-    }))
-    expect(result.block || result.unblock || true).toBeTruthy()
-  })
-
-  test('ambassador handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      search: typeof window.searchAmbassadors === 'function' || typeof window.searchAmbassadorsByCity === 'function',
-      register: typeof window.registerAmbassador === 'function',
-      contact: typeof window.contactAmbassador === 'function',
-    }))
-    expect(result.search || result.register || true).toBeTruthy()
-  })
-
-  test('nearby friends handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.openNearbyFriends === 'function'
-      || typeof window.toggleNearbyFriends === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('blocking and ambassador handlers batch check', async ({ page }) => {
+    const handlers = [
+      'confirmBlockUser', 'openBlockModal',
+      'confirmUnblockUser', 'openUnblockModal', 'openBlockedUsers',
+      'searchAmbassadors', 'searchAmbassadorsByCity', 'registerAmbassador', 'contactAmbassador',
+      'openNearbyFriends', 'toggleNearbyFriends',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThanOrEqual(3)
   })
 })

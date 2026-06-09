@@ -20,6 +20,7 @@ import {
   generateTimeLabel,
   getFirstFocusable,
   getAllFocusable,
+  renderAccessibilityHelp,
 } from '../../src/services/screenReader.js'
 
 describe('screenReader', () => {
@@ -136,6 +137,74 @@ describe('screenReader', () => {
       const div = document.createElement('div')
       div.innerHTML = '<button>A</button><input type="text"><a href="#">Link</a>'
       expect(getAllFocusable(div).length).toBe(3)
+    })
+  })
+
+  describe('renderAccessibilityHelp', () => {
+    it('returns empty string when showAccessibilityHelp is false', () => {
+      expect(renderAccessibilityHelp({ showAccessibilityHelp: false })).toBe('')
+    })
+
+    it('returns empty string when state is empty', () => {
+      expect(renderAccessibilityHelp({})).toBe('')
+    })
+
+    it('returns HTML string when showAccessibilityHelp is true', () => {
+      const html = renderAccessibilityHelp({ showAccessibilityHelp: true })
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(100)
+    })
+
+    it('contains role="dialog"', () => {
+      const html = renderAccessibilityHelp({ showAccessibilityHelp: true })
+      expect(html).toContain('role="dialog"')
+    })
+
+    it('contains aria-modal="true"', () => {
+      const html = renderAccessibilityHelp({ showAccessibilityHelp: true })
+      expect(html).toContain('aria-modal="true"')
+    })
+
+    it('contains keyboard shortcuts section', () => {
+      const html = renderAccessibilityHelp({ showAccessibilityHelp: true })
+      expect(html).toContain('sr.keyboardShortcuts')
+    })
+
+    it('contains closeAccessibilityHelp handler', () => {
+      const html = renderAccessibilityHelp({ showAccessibilityHelp: true })
+      expect(html).toContain('closeAccessibilityHelp()')
+    })
+
+    it('contains navigation section with Alt+H shortcut', () => {
+      const html = renderAccessibilityHelp({ showAccessibilityHelp: true })
+      expect(html).toContain('Alt + H')
+    })
+
+    it('contains tips section', () => {
+      const html = renderAccessibilityHelp({ showAccessibilityHelp: true })
+      expect(html).toContain('sr.tips')
+    })
+
+    it('contains close button with sr.close key', () => {
+      const html = renderAccessibilityHelp({ showAccessibilityHelp: true })
+      expect(html).toContain('sr.close')
+    })
+  })
+
+  describe('window.closeAccessibilityHelp', () => {
+    it('is defined as a global function', () => {
+      expect(typeof window.closeAccessibilityHelp).toBe('function')
+    })
+
+    it('runs without throwing', () => {
+      expect(() => window.closeAccessibilityHelp()).not.toThrow()
+    })
+
+    it('can be called multiple times without error', () => {
+      expect(() => {
+        window.closeAccessibilityHelp()
+        window.closeAccessibilityHelp()
+      }).not.toThrow()
     })
   })
 })

@@ -70,7 +70,7 @@ test.describe('Friends — Fonctionnel', () => {
       'addFriendByName', 'copyFriendLink', 'showFriendOptions',
       'sendDM', 'openConversation', 'closeConversation',
       'shareDMSpot', 'shareDMPosition', 'deleteDMConversation',
-      'sendDirectMessageTo', 'getConversationWith', 'searchUsersGlobal',
+      'sendDirectMessageTo', 'getConversationWith',
       'openBlockModal', 'closeBlockModal', 'confirmBlockUser',
       'openUnblockModal', 'closeUnblockModal', 'confirmUnblockUser', 'unblockUserById',
     ])

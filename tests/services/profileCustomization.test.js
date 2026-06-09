@@ -17,14 +17,22 @@ vi.mock('../../src/utils/sanitize.js', () => ({ escapeHTML: vi.fn((s) => s) }))
 import {
   PROFILE_FRAMES,
   PROFILE_TITLES,
+  AVATAR_BORDERS,
+  RARITY_COLORS,
   getUnlockedFrames,
   getUnlockedTitles,
   getCurrentFrame,
   getCurrentTitle,
   getCurrencyForCountry,
   checkUnlocks,
+  equipFrame,
+  equipTitle,
+  unlockFrame,
+  unlockTitle,
+  renderAvatarWithFrame,
+  renderTitleBadge,
 } from '../../src/services/profileCustomization.js'
-import { getState } from '../../src/stores/state.js'
+import { getState, setState } from '../../src/stores/state.js'
 
 describe('profileCustomization', () => {
   describe('PROFILE_FRAMES', () => {
@@ -93,8 +101,201 @@ describe('profileCustomization', () => {
         accountAgeDays: 400,
       })).not.toThrow()
     })
+
     it('does not throw with empty stats', () => {
       expect(() => checkUnlocks({})).not.toThrow()
+    })
+
+    it('unlocks explorer frame when level >= 5', () => {
+      getState.mockReturnValue({
+        unlockedFrames: ['default'],
+        unlockedTitles: ['hitchhiker'],
+      })
+      checkUnlocks({ level: 5, friendsCount: 0, trustScore: 0, countriesCount: 0, accountAgeDays: 0, reviewsCount: 0, spotsCreated: 0, totalDistance: 0 })
+      expect(setState).toHaveBeenCalled()
+    })
+
+    it('unlocks pathfinder title when spotsCreated >= 5', () => {
+      getState.mockReturnValue({
+        unlockedFrames: ['default'],
+        unlockedTitles: ['hitchhiker'],
+      })
+      checkUnlocks({ level: 0, friendsCount: 0, trustScore: 0, countriesCount: 0, accountAgeDays: 0, reviewsCount: 0, spotsCreated: 5, totalDistance: 0 })
+      expect(setState).toHaveBeenCalled()
+    })
+  })
+
+  describe('AVATAR_BORDERS', () => {
+    it('is an object', () => {
+      expect(typeof AVATAR_BORDERS).toBe('object')
+      expect(AVATAR_BORDERS).not.toBeNull()
+    })
+
+    it('has at least 2 border styles', () => {
+      expect(Object.keys(AVATAR_BORDERS).length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  describe('RARITY_COLORS', () => {
+    it('is an object', () => {
+      expect(typeof RARITY_COLORS).toBe('object')
+      expect(RARITY_COLORS).not.toBeNull()
+    })
+
+    it('has common rarity', () => {
+      expect(RARITY_COLORS.common).toBeDefined()
+    })
+
+    it('has rare rarity', () => {
+      expect(RARITY_COLORS.rare).toBeDefined()
+    })
+
+    it('each rarity has text and bg properties', () => {
+      Object.values(RARITY_COLORS).forEach(r => {
+        expect(typeof r.text).toBe('string')
+        expect(typeof r.bg).toBe('string')
+      })
+    })
+  })
+
+  describe('equipFrame', () => {
+    it('returns false when frame is not unlocked', () => {
+      getState.mockReturnValue({ unlockedFrames: ['default'], unlockedTitles: ['hitchhiker'] })
+      const result = equipFrame('explorer')
+      expect(result).toBe(false)
+    })
+
+    it('returns true when frame is unlocked', () => {
+      getState.mockReturnValue({ unlockedFrames: ['default', 'explorer'], unlockedTitles: ['hitchhiker'] })
+      const result = equipFrame('explorer')
+      expect(result).toBe(true)
+    })
+
+    it('calls setState when equipping valid frame', () => {
+      getState.mockReturnValue({ unlockedFrames: ['default', 'explorer'], unlockedTitles: ['hitchhiker'] })
+      equipFrame('explorer')
+      expect(setState).toHaveBeenCalledWith(
+        expect.objectContaining({ equippedFrame: 'explorer' })
+      )
+    })
+
+    it('equips default frame successfully', () => {
+      getState.mockReturnValue({ unlockedFrames: ['default'] })
+      const result = equipFrame('default')
+      expect(result).toBe(true)
+    })
+  })
+
+  describe('equipTitle', () => {
+    it('returns false when title is not unlocked', () => {
+      getState.mockReturnValue({ unlockedTitles: ['hitchhiker'], unlockedFrames: ['default'] })
+      const result = equipTitle('pathfinder')
+      expect(result).toBe(false)
+    })
+
+    it('returns true when title is unlocked', () => {
+      getState.mockReturnValue({ unlockedTitles: ['hitchhiker', 'pathfinder'], unlockedFrames: ['default'] })
+      const result = equipTitle('pathfinder')
+      expect(result).toBe(true)
+    })
+
+    it('calls setState when equipping valid title', () => {
+      getState.mockReturnValue({ unlockedTitles: ['hitchhiker', 'guide'], unlockedFrames: ['default'] })
+      equipTitle('guide')
+      expect(setState).toHaveBeenCalledWith(
+        expect.objectContaining({ equippedTitle: 'guide' })
+      )
+    })
+  })
+
+  describe('unlockFrame', () => {
+    it('does not throw', () => {
+      getState.mockReturnValue({ unlockedFrames: ['default'] })
+      expect(() => unlockFrame('explorer')).not.toThrow()
+    })
+
+    it('calls setState with updated frames list', () => {
+      getState.mockReturnValue({ unlockedFrames: ['default'] })
+      unlockFrame('explorer')
+      expect(setState).toHaveBeenCalledWith(
+        expect.objectContaining({ unlockedFrames: expect.arrayContaining(['default', 'explorer']) })
+      )
+    })
+
+    it('does not add duplicate frames', () => {
+      getState.mockReturnValue({ unlockedFrames: ['default', 'explorer'] })
+      unlockFrame('explorer')
+      // Already unlocked — no toast, no setState
+      expect(setState).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('unlockTitle', () => {
+    it('does not throw', () => {
+      getState.mockReturnValue({ unlockedTitles: ['hitchhiker'] })
+      expect(() => unlockTitle('pathfinder')).not.toThrow()
+    })
+
+    it('calls setState with updated titles list', () => {
+      getState.mockReturnValue({ unlockedTitles: ['hitchhiker'] })
+      unlockTitle('pathfinder')
+      expect(setState).toHaveBeenCalledWith(
+        expect.objectContaining({ unlockedTitles: expect.arrayContaining(['hitchhiker', 'pathfinder']) })
+      )
+    })
+  })
+
+  describe('renderAvatarWithFrame', () => {
+    it('returns an HTML string', () => {
+      const html = renderAvatarWithFrame()
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(20)
+    })
+
+    it('contains the avatar value', () => {
+      const html = renderAvatarWithFrame({ avatar: 'thumbs-up' })
+      expect(html).toContain('thumbs-up')
+    })
+
+    it('accepts different sizes', () => {
+      const sm = renderAvatarWithFrame({ size: 'sm' })
+      const lg = renderAvatarWithFrame({ size: 'lg' })
+      expect(sm).toContain('w-10 h-10')
+      expect(lg).toContain('w-24 h-24')
+    })
+
+    it('uses default frame when not specified', () => {
+      const html = renderAvatarWithFrame({})
+      expect(typeof html).toBe('string')
+    })
+
+    it('handles unknown frame gracefully', () => {
+      const html = renderAvatarWithFrame({ frameId: 'nonexistent' })
+      expect(typeof html).toBe('string')
+    })
+  })
+
+  describe('renderTitleBadge', () => {
+    it('returns an HTML string', () => {
+      const html = renderTitleBadge()
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(10)
+    })
+
+    it('contains span element', () => {
+      const html = renderTitleBadge('hitchhiker')
+      expect(html).toContain('span')
+    })
+
+    it('handles unknown title gracefully', () => {
+      const html = renderTitleBadge('nonexistent_title')
+      expect(typeof html).toBe('string')
+    })
+
+    it('uses hitchhiker as default title', () => {
+      getState.mockReturnValue({ equippedTitle: 'hitchhiker', unlockedTitles: ['hitchhiker'] })
+      const html = renderTitleBadge()
+      expect(html).toContain('span')
     })
   })
 })

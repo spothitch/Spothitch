@@ -173,4 +173,45 @@ describe('remoteConfig', () => {
       await expect(initRemoteConfig()).resolves.not.toThrow()
     })
   })
+
+  // After initRemoteConfig runs, _remoteConfig is set from the mock.
+  // getConfigValue enters the `if (_remoteConfig)` branch and either uses
+  // getValue() (if require is intercepted) or catches + falls to defaults.
+  describe('getConfigValue — _remoteConfig branch (post-init)', () => {
+    it('returns a boolean for guardian_mode_enabled after init', () => {
+      const val = getConfigValue('guardian_mode_enabled')
+      expect(typeof val).toBe('boolean')
+    })
+
+    it('returns a boolean for sos_mode_enabled after init', () => {
+      const val = getConfigValue('sos_mode_enabled')
+      expect(typeof val).toBe('boolean')
+    })
+
+    it('returns a number for min_reports_auto_hide after init', () => {
+      const val = getConfigValue('min_reports_auto_hide')
+      expect(typeof val).toBe('number')
+    })
+
+    it('returns a number for max_spots_per_day after init', () => {
+      const val = getConfigValue('max_spots_per_day')
+      expect(typeof val).toBe('number')
+    })
+
+    it('returns a string for maintenance_message after init', () => {
+      const val = getConfigValue('maintenance_message')
+      expect(typeof val === 'string' || val === '').toBe(true)
+    })
+
+    it('returns correct type for enable_posthog after init', () => {
+      const val = getConfigValue('enable_posthog')
+      expect(typeof val).toBe('boolean')
+    })
+
+    it('unknown key with fallback returns fallback after init', () => {
+      const val = getConfigValue('totally_unknown_xyz', 'fallback-val')
+      // Either from mocked getValue.asString() or from fallback
+      expect(typeof val).toBe('string')
+    })
+  })
 })

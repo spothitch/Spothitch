@@ -43,32 +43,23 @@ test.describe.skip('Trip Planner Deep (hidden during alpha)', () => {
     }
   })
 
-  test('trip save handler exists', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      save: typeof window.saveCurrentTrip === 'function' || typeof window.saveTripWithSpots === 'function',
-      load: typeof window.loadSavedTrip === 'function',
-      rename: typeof window.renameSavedTrip === 'function',
-      del: typeof window.deleteSavedTrip === 'function',
-      history: typeof window.openTripHistory === 'function',
-    }))
-    expect(result.save || result.load || true).toBeTruthy()
+  test('trip save/load/rename/delete handlers batch check', async ({ page }) => {
+    const handlers = ['saveCurrentTrip', 'saveTripWithSpots', 'loadSavedTrip', 'renameSavedTrip', 'deleteSavedTrip', 'openTripHistory']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThan(0)
   })
 
-  test('trip multi-stop handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      add: typeof window.addTripStepFromSearch === 'function' || typeof window.addTripStop === 'function',
-      move: typeof window.moveTripStep === 'function',
-      remove: typeof window.removeTripStep === 'function',
-    }))
-    expect(result.add || result.move || result.remove || true).toBeTruthy()
+  test('trip multi-stop handlers batch check', async ({ page }) => {
+    const handlers = ['addTripStepFromSearch', 'addTripStop', 'moveTripStep', 'removeTripStep']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThan(0)
   })
 
-  test('trip gas station toggle exists', async ({ page }) => {
-    const result = await page.evaluate(() => {
-      return typeof window.toggleTripGasStations === 'function'
-        || typeof window.toggleGasStations === 'function'
-    })
-    expect(result || true).toBeTruthy()
+  test('trip gas station toggle is callable', async ({ page }) => {
+    await page.evaluate(() => (window.toggleTripGasStations || window.toggleGasStations)?.())
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 
   test('trip bottom sheet handle exists for interaction', async ({ page }) => {
@@ -77,12 +68,10 @@ test.describe.skip('Trip Planner Deep (hidden during alpha)', () => {
     expect(count).toBeGreaterThanOrEqual(0) // Bottom sheet may not be visible on initial load
   })
 
-  test('trip route filter handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      filter: typeof window.setRouteFilter === 'function' || typeof window.filterRouteSpots === 'function',
-      amenities: typeof window.toggleRouteAmenities === 'function',
-    }))
-    expect(result.filter || result.amenities || true).toBeTruthy()
+  test('trip route filter handlers batch check', async ({ page }) => {
+    const handlers = ['setRouteFilter', 'filterRouteSpots', 'toggleRouteAmenities']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThan(0)
   })
 
   test('journal sub-tab shows content', async ({ page }) => {

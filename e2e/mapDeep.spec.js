@@ -24,67 +24,36 @@ test.describe('Map Deep Interactions', () => {
     expect(count).toBeGreaterThanOrEqual(0)
   })
 
-  test('filter modal apply/reset handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      apply: typeof window.applyFilters === 'function',
-      reset: typeof window.resetFilters === 'function',
-      rating: typeof window.setFilterMinRating === 'function',
-      country: typeof window.setFilterCountry === 'function',
-      wait: typeof window.setFilterMaxWait === 'function',
-      verified: typeof window.toggleVerifiedFilter === 'function',
-    }))
-    expect(result.apply || result.reset || true).toBeTruthy()
+  test('filter handlers batch check (apply, reset, rating, country)', async ({ page }) => {
+    const handlers = ['applyFilters', 'resetFilters', 'setFilterMinRating', 'setFilterCountry', 'setFilterMaxWait', 'toggleVerifiedFilter']
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
   })
 
-  test('city panel handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      open: typeof window.openCityPanel === 'function',
-      fly: typeof window.flyToCity === 'function',
-      route: typeof window.selectCityRoute === 'function',
-      view: typeof window.viewCitySpotsOnMap === 'function',
-    }))
-    expect(result.open || result.fly || true).toBeTruthy()
+  test('city panel handlers batch check', async ({ page }) => {
+    const handlers = ['openCityPanel', 'flyToCity', 'selectCityRoute', 'viewCitySpotsOnMap']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThan(0)
   })
 
-  test('country bubble download handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.downloadCountryFromBubble === 'function'
-      || typeof window.downloadCountryOffline === 'function'
-      || typeof window.downloadCountryForOffline === 'function'
-    )
-    expect(result || true).toBeTruthy()
+  test('offline download handlers batch check', async ({ page }) => {
+    const handlers = ['downloadCountryFromBubble', 'downloadCountryOffline', 'downloadCountryForOffline', 'deleteOfflineCountry', 'clearAllOfflineData']
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    expect(found.length).toBeGreaterThan(0)
   })
 
-  test('offline country management handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      download: typeof window.downloadCountryForOffline === 'function',
-      del: typeof window.deleteOfflineCountry === 'function',
-      clear: typeof window.clearAllOfflineData === 'function',
-    }))
-    expect(result.download || result.del || true).toBeTruthy()
+  test('toggleMapLegend is callable without crash', async ({ page }) => {
+    await page.evaluate(() => window.toggleMapLegend?.())
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 
-  test('map legend toggle handler exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.toggleMapLegend === 'function'
-    )
-    expect(result || true).toBeTruthy()
-  })
-
-  test('search clear handlers exist', async ({ page }) => {
-    const result = await page.evaluate(() => ({
-      clear: typeof window.homeClearSearch === 'function',
-      dest: typeof window.homeClearDestination === 'function',
-    }))
-    expect(result.clear || result.dest || true).toBeTruthy()
-  })
-
-  test('map fallback function exists', async ({ page }) => {
-    const result = await page.evaluate(() =>
-      typeof window.displayFallbackSpots === 'function'
-    )
-    // displayFallbackSpots was removed with old map.js — test kept for regression
-    expect(typeof result).toBe('boolean')
+  test('homeClearSearch is callable without crash', async ({ page }) => {
+    await page.evaluate(() => { window.homeClearSearch?.(); window.homeClearDestination?.() })
+    await page.waitForTimeout(300)
+    const alive = await page.evaluate(() => !!document.getElementById('app'))
+    expect(alive).toBe(true)
   })
 })
 

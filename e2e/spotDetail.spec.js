@@ -69,36 +69,15 @@ test.describe('Spot Detail', () => {
     }
   })
 
-  test('quickValidateSpot is callable', async ({ page }) => {
-    const result = await page.evaluate(() => {
-      return typeof window.quickValidateSpot === 'function'
-        || typeof window.validateSpot === 'function'
-    })
-    expect(result || true).toBeTruthy() // Handler may be lazy-loaded
-  })
-
-  test('toggleFavorite is callable', async ({ page }) => {
-    const result = await page.evaluate(() => {
-      return typeof window.toggleFavorite === 'function'
-        || typeof window.toggleSpotFavorite === 'function'
-    })
-    expect(result || true).toBeTruthy()
-  })
-
-  test('reportSpotAction is callable', async ({ page }) => {
-    const result = await page.evaluate(() => {
-      return typeof window.reportSpotAction === 'function'
-        || typeof window.quickReportSpot === 'function'
-        || typeof window.openReportSpot === 'function'
-    })
-    expect(result || true).toBeTruthy()
-  })
-
-  test('startSpotNavigation is callable', async ({ page }) => {
-    const result = await page.evaluate(() => {
-      return typeof window.startSpotNavigation === 'function'
-        || typeof window.openNavigation === 'function'
-    })
-    expect(result || true).toBeTruthy()
+  test('spot detail action handlers batch check', async ({ page }) => {
+    const handlers = [
+      'quickValidateSpot', 'validateSpot',
+      'toggleFavorite', 'toggleSpotFavorite',
+      'reportSpotAction', 'quickReportSpot', 'openReportSpot',
+      'startSpotNavigation', 'openNavigation',
+    ]
+    const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
+    // At least one from each pair should exist
+    expect(found.length).toBeGreaterThanOrEqual(3)
   })
 })

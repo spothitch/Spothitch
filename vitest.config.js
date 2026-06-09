@@ -30,6 +30,10 @@ export default defineConfig({
         'src/components/views/social/Voyageurs.js',
         'src/services/proximityRadar.js',
         'src/services/travelBuddies.js',
+        // Pure data files — no logic, no branches, not meaningful for coverage
+        'src/i18n/lang/**',
+        'src/data/**',
+        'public/data/**',
       ],
       thresholds: {
         statements: 19,

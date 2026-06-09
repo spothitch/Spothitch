@@ -36,26 +36,22 @@ async function simulateUser(page, overrides = {}) {
 }
 
 // ================================================================
-// 1. HANDLER WIRING (15 handlers)
+// 1. HANDLER WIRING (15 handlers) — batch check
 // ================================================================
 test.describe('Handlers - All radar & buddy handlers exist', () => {
-  test.beforeEach(async ({ page }) => { await goToVoyageurs(page) })
-
-  const handlers = [
-    'toggleProximityRadar', 'setRadarRadius', 'setRadarVisibility',
-    'setRadarMessage', 'showRadarExpanded', 'contactNearbyTraveler',
-    'showBuddyList', 'showBuddyCreate', 'showBuddyDetail',
-    'submitBuddyAnnouncement', 'deleteBuddyAnnouncement',
-    'closeBuddyAnnouncement', 'sendBuddyChatMessage',
-    'contactBuddyAuthor', 'backFromVoyageurs',
-  ]
-
-  for (const h of handlers) {
-    test(`${h} is a function`, async ({ page }) => {
-      const exists = await page.evaluate((name) => typeof window[name] === 'function', h)
-      expect(exists).toBe(true)
-    })
-  }
+  test('all 15 radar/buddy handlers are callable', async ({ page }) => {
+    await goToVoyageurs(page)
+    const handlers = [
+      'toggleProximityRadar', 'setRadarRadius', 'setRadarVisibility',
+      'setRadarMessage', 'showRadarExpanded', 'contactNearbyTraveler',
+      'showBuddyList', 'showBuddyCreate', 'showBuddyDetail',
+      'submitBuddyAnnouncement', 'deleteBuddyAnnouncement',
+      'closeBuddyAnnouncement', 'sendBuddyChatMessage',
+      'contactBuddyAuthor', 'backFromVoyageurs',
+    ]
+    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
+    expect(missing).toEqual([])
+  })
 })
 
 // ================================================================

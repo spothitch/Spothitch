@@ -535,11 +535,6 @@ test.describe('R03-09 Favorites', () => {
   test('toggleFavorite adds/removes spot from favorites', async ({ browser }) => {
     const session = await createUserSession(browser, 'alice')
 
-    const exists = await session.page.evaluate(() =>
-      typeof window.toggleFavorite === 'function'
-    )
-    expect(exists).toBe(true)
-
     // Create a test spot to favorite
     const spotId = await session.page.evaluate(async (uid) => {
       try {

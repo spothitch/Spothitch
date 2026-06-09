@@ -1,10 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 
 import {
   distanceMeters,
   CHECK_IN_RADIUS_M,
   VALIDATION_RADIUS_M,
   MAX_AGE_MS,
+  startLocationTracking,
+  stopLocationTracking,
+  verifyProximity,
 } from '../../src/services/locationHistory.js'
 
 describe('locationHistory', () => {
@@ -60,6 +63,164 @@ describe('locationHistory', () => {
 
     it('MAX_AGE_MS is 24 hours', () => {
       expect(MAX_AGE_MS).toBe(24 * 60 * 60 * 1000)
+    })
+  })
+
+  describe('startLocationTracking', () => {
+    afterEach(() => {
+      stopLocationTracking()
+    })
+
+    it('does nothing when geolocation is unavailable', () => {
+      Object.defineProperty(navigator, 'geolocation', {
+        value: null,
+        configurable: true,
+        writable: true,
+      })
+      expect(() => startLocationTracking()).not.toThrow()
+    })
+
+    it('calls watchPosition when geolocation is available', () => {
+      const clearWatch = vi.fn()
+      const watchPosition = vi.fn(() => 42)
+      Object.defineProperty(navigator, 'geolocation', {
+        value: { watchPosition, clearWatch },
+        configurable: true,
+        writable: true,
+      })
+      startLocationTracking()
+      expect(watchPosition).toHaveBeenCalled()
+    })
+
+    it('does not call watchPosition again if already tracking', () => {
+      const clearWatch = vi.fn()
+      const watchPosition = vi.fn(() => 42)
+      Object.defineProperty(navigator, 'geolocation', {
+        value: { watchPosition, clearWatch },
+        configurable: true,
+        writable: true,
+      })
+      startLocationTracking()
+      startLocationTracking() // second call is no-op
+      expect(watchPosition).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('stopLocationTracking', () => {
+    it('runs without error when not tracking', () => {
+      const clearWatch = vi.fn()
+      Object.defineProperty(navigator, 'geolocation', {
+        value: { watchPosition: vi.fn(() => 99), clearWatch },
+        configurable: true,
+        writable: true,
+      })
+      expect(() => stopLocationTracking()).not.toThrow()
+      expect(clearWatch).not.toHaveBeenCalled()
+    })
+
+    it('calls clearWatch with the watchId when stopping active tracking', () => {
+      const clearWatch = vi.fn()
+      const watchPosition = vi.fn(() => 99)
+      Object.defineProperty(navigator, 'geolocation', {
+        value: { watchPosition, clearWatch },
+        configurable: true,
+        writable: true,
+      })
+      startLocationTracking()
+      stopLocationTracking()
+      expect(clearWatch).toHaveBeenCalledWith(99)
+    })
+
+    it('is safe to call multiple times', () => {
+      const clearWatch = vi.fn()
+      Object.defineProperty(navigator, 'geolocation', {
+        value: { watchPosition: vi.fn(() => 1), clearWatch },
+        configurable: true,
+        writable: true,
+      })
+      stopLocationTracking()
+      stopLocationTracking()
+      expect(clearWatch).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('verifyProximity', () => {
+    it('returns verified_on_spot when user is at the exact spot location', async () => {
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: vi.fn((success) => {
+            success({ coords: { latitude: 48.8566, longitude: 2.3522, accuracy: 5 } })
+          }),
+        },
+        configurable: true,
+        writable: true,
+      })
+      const result = await verifyProximity(48.8566, 2.3522, 'checkin')
+      expect(result.allowed).toBe(true)
+      expect(result.confidence).toBe('verified_on_spot')
+      expect(typeof result.closestM).toBe('number')
+      expect(result.matchedAt).toBeDefined()
+    })
+
+    it('returns position_confirmed and allowed=true for validation within 2km', async () => {
+      // User at 48.8566, spot ~1km away at 48.866
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: vi.fn((success) => {
+            success({ coords: { latitude: 48.8566, longitude: 2.3522, accuracy: 10 } })
+          }),
+        },
+        configurable: true,
+        writable: true,
+      })
+      const result = await verifyProximity(48.866, 2.3522, 'validation')
+      expect(result.allowed).toBe(true)
+      expect(result.confidence).toBe('position_confirmed')
+    })
+
+    it('returns allowed=false for checkin when 500m-2km from spot', async () => {
+      // User at 48.8566, spot ~1km away at 48.866
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: vi.fn((success) => {
+            success({ coords: { latitude: 48.8566, longitude: 2.3522, accuracy: 10 } })
+          }),
+        },
+        configurable: true,
+        writable: true,
+      })
+      const result = await verifyProximity(48.866, 2.3522, 'checkin')
+      expect(result.allowed).toBe(false)
+      expect(result.confidence).toBe('position_confirmed')
+    })
+
+    it('result has closestM as rounded number', async () => {
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: vi.fn((success) => {
+            success({ coords: { latitude: 48.8566, longitude: 2.3522, accuracy: 5 } })
+          }),
+        },
+        configurable: true,
+        writable: true,
+      })
+      const result = await verifyProximity(48.8566, 2.3522, 'checkin')
+      expect(Number.isInteger(result.closestM)).toBe(true)
+    })
+
+    it('result has matchedAt as a timestamp', async () => {
+      const before = Date.now()
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: vi.fn((success) => {
+            success({ coords: { latitude: 48.8566, longitude: 2.3522, accuracy: 5 } })
+          }),
+        },
+        configurable: true,
+        writable: true,
+      })
+      const result = await verifyProximity(48.8566, 2.3522)
+      expect(result.matchedAt).toBeGreaterThanOrEqual(before)
     })
   })
 })

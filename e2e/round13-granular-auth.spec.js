@@ -157,19 +157,13 @@ const AUTH_HANDLERS = [
 ]
 
 test.describe('Auth handlers exist', () => {
-  let session
-  test.beforeAll(async ({ browser }) => {
-    session = await createUserSession(browser, 'alice')
+  test('all auth handlers are callable (batch)', async ({ browser }) => {
+    const session = await createUserSession(browser, 'alice')
     await page_loadAuth(session.page)
+    const missing = await session.page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), AUTH_HANDLERS)
+    expect(missing).toEqual([])
+    await session.context.close()
   })
-  test.afterAll(async () => { await session?.context?.close() })
-
-  for (const handler of AUTH_HANDLERS) {
-    test(`window.${handler} is a function`, async () => {
-      const exists = await session.page.evaluate((h) => typeof window[h] === 'function', handler)
-      expect(exists).toBe(true)
-    })
-  }
 })
 
 async function page_loadAuth(page) {
