@@ -1536,6 +1536,27 @@ if (!window.openCountryGuide) {
 }
 // MyData modal handlers — lazy-loaded
 if (!window.openConsentSettings) window.openConsentSettings = () => { /* not yet implemented */ }
+if (!window.closeMyData) window.closeMyData = () => setState({ showMyData: false })
+if (!window.downloadMyData) window.downloadMyData = () => {}
+// Ambassador handlers — lazy-loaded with ambassadors.js (via Friends.js)
+if (!window.registerAmbassador) window.registerAmbassador = () => {}
+if (!window.searchAmbassadors) window.searchAmbassadors = () => {}
+if (!window.contactAmbassador) window.contactAmbassador = () => {}
+if (!window.unregisterAmbassador) window.unregisterAmbassador = () => {}
+if (!window.updateAmbassadorAvailability) window.updateAmbassadorAvailability = () => {}
+if (!window.searchAmbassadorsByCity) window.searchAmbassadorsByCity = () => {}
+// Identity verification handlers — lazy-loaded with IdentityVerification.js
+if (!window.closeIdentityVerification) window.closeIdentityVerification = () => {}
+if (!window.startVerificationStep) window.startVerificationStep = () => {}
+// FAQ handlers — lazy-loaded with FAQ.js
+if (!window.toggleFAQItem) window.toggleFAQItem = () => {}
+if (!window.scrollToFAQCategory) window.scrollToFAQCategory = () => {}
+if (!window.filterFAQ) window.filterFAQ = () => {}
+if (!window.clearFAQSearch) window.clearFAQSearch = () => {}
+if (!window.searchFAQ) window.searchFAQ = () => {}
+if (!window.getFAQQuestionById) window.getFAQQuestionById = () => {}
+// Profile view — sortMySpots is inside a render function, add stub
+if (!window.sortMySpots) window.sortMySpots = (mode) => setState({ _mySpotsSort: mode })
 // Voyage view handlers — lazy-loaded with Voyage.js
 if (!window.openTripDetail) window.openTripDetail = (i) => setState({ tripDetailIndex: i })
 if (!window.openEditTrip) window.openEditTrip = (i) => setState({ editTripIndex: i })
