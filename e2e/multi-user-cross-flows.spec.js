@@ -274,7 +274,7 @@ test.describe('Flow 7: Report flow', () => {
 
     await admin.page.evaluate(() => window.setAdminTab?.('reports'))
     await admin.page.waitForTimeout(500)
-    expect(await getAppState(admin.page, 'adminTab')).toBe('reports')
+    expect(await getAppState(admin.page, 'adminActiveTab')).toBe('reports')
 
     // Admin can load reports
     await admin.page.evaluate(() => { try { window.loadAdminReports?.() } catch {} })

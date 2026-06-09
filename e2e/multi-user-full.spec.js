@@ -93,12 +93,16 @@ test.describe('A. Auth & Onboarding', () => {
   test('A4: Language change works', async ({ page }) => {
     await setupPage(page)
     await waitForApp(page)
-    await page.evaluate(() => window.setLanguage?.('en'))
+    // setLanguage triggers a full page reload — fire without awaiting to avoid "context destroyed" error
+    page.evaluate(() => window.setLanguage?.('en')).catch(() => {})
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {})
+    await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 }).catch(() => {})
     await page.waitForTimeout(500)
     const lang = await page.evaluate(() => window.getState?.()?.lang)
     expect(lang).toBe('en')
     // Reset to FR
-    await page.evaluate(() => window.setLanguage?.('fr'))
+    page.evaluate(() => window.setLanguage?.('fr')).catch(() => {})
+    await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {})
   })
 
   test('A5: Theme toggle works', async ({ page }) => {
