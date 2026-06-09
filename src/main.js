@@ -1557,6 +1557,24 @@ if (!window.searchFAQ) window.searchFAQ = () => {}
 if (!window.getFAQQuestionById) window.getFAQQuestionById = () => {}
 // Profile view — sortMySpots is inside a render function, add stub
 if (!window.sortMySpots) window.sortMySpots = (mode) => setState({ _mySpotsSort: mode })
+// Friend profile / blocking handlers — lazy-loaded with FriendProfile.js / userBlocking.js
+if (!window.closeFriendProfile) window.closeFriendProfile = () => setState({ showFriendProfile: false })
+if (!window.openBlockModal) window.openBlockModal = () => {}
+if (!window.closeBlockModal) window.closeBlockModal = () => {}
+if (!window.confirmBlockUser) window.confirmBlockUser = () => {}
+if (!window.openUnblockModal) window.openUnblockModal = () => {}
+if (!window.closeUnblockModal) window.closeUnblockModal = () => {}
+if (!window.confirmUnblockUser) window.confirmUnblockUser = () => {}
+if (!window.unblockUserById) window.unblockUserById = () => {}
+// Guide nudge handlers — lazy-loaded with GuideNudge.js
+if (!window.closeGuideNudge) window.closeGuideNudge = () => setState({ showGuideNudge: false })
+if (!window.acceptGuideNudge) window.acceptGuideNudge = () => {}
+if (!window.dismissGuideNudgeForCountry) window.dismissGuideNudgeForCountry = () => {}
+if (!window.dismissGuideNudgeGlobal) window.dismissGuideNudgeGlobal = () => {}
+// Spot verification handler — lazy-loaded with verification.js via Spots.js
+if (!window.voteSpot) window.voteSpot = () => {}
+// Alpha code validation — lazy-loaded with Landing.js
+if (!window.validateAlphaCode) window.validateAlphaCode = () => {}
 // Voyage view handlers — lazy-loaded with Voyage.js
 if (!window.openTripDetail) window.openTripDetail = (i) => setState({ tripDetailIndex: i })
 if (!window.openEditTrip) window.openEditTrip = (i) => setState({ editTripIndex: i })

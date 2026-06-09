@@ -32,6 +32,7 @@ test.describe('Firebase Auth - Login flows', () => {
 
   test('login sets currentUser in localStorage', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+    test.skip(isFallback, 'Fallback mode: no real Firebase login, onAuthStateChanged(null) clears state')
 
     const uid = await getCurrentUid(page)
     expect(uid).toBeTruthy()
@@ -177,15 +178,20 @@ test.describe('Firebase Auth - Error handling', () => {
 test.describe('Firebase Auth - Profile & Account', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let context, page, aliceUid
+  let context, page, aliceUid, isFallback
 
   test.beforeAll(async ({ browser }) => {
     if (!process.env.E2E_TEST_PASSWORD) return
     ;({ context, page, uid: aliceUid } = await initFirebasePage(browser, TEST_ACCOUNTS.alice.email))
+    isFallback = aliceUid?.startsWith('ci-ci-') || false
   })
 
   test.afterAll(async () => {
     await context?.close()
+  })
+
+  test.beforeEach(() => {
+    test.skip(!!isFallback, 'Firebase emulator not reachable from browser build')
   })
 
   test('password reset sends email without error', async () => {
