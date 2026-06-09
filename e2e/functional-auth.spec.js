@@ -158,8 +158,11 @@ test.describe('Navigation — Fonctionnel', () => {
 
   test('setLanguage en change toute l\'UI en anglais', async ({ page }) => {
     await setup(page)
-    await page.evaluate(() => window.setLanguage?.('en'))
-    await page.waitForTimeout(500)
+    // setLanguage() triggers a full page reload — fire-and-forget to avoid context destroyed error
+    page.evaluate(() => window.setLanguage?.('en')).catch(() => {})
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {})
+    await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 }).catch(() => {})
+    await page.waitForTimeout(300)
     const lang = await page.evaluate(() => window.getState?.()?.lang)
     expect(lang).toBe('en')
     // Verify UI text changed

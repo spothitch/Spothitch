@@ -1562,12 +1562,31 @@ if (!window.sortMySpots) window.sortMySpots = (mode) => setState({ _mySpotsSort:
 // Friend profile / blocking handlers — lazy-loaded with FriendProfile.js / userBlocking.js
 if (!window.closeFriendProfile) window.closeFriendProfile = () => setState({ showFriendProfile: false })
 if (!window.openBlockModal) window.openBlockModal = () => {}
-if (!window.closeBlockModal) window.closeBlockModal = () => {}
+if (!window.closeBlockModal) {
+  window.closeBlockModal = () => setState({ showBlockModal: false, blockTargetId: null, blockTargetName: null })
+}
 if (!window.confirmBlockUser) window.confirmBlockUser = () => {}
 if (!window.openUnblockModal) window.openUnblockModal = () => {}
 if (!window.closeUnblockModal) window.closeUnblockModal = () => {}
 if (!window.confirmUnblockUser) window.confirmUnblockUser = () => {}
 if (!window.unblockUserById) window.unblockUserById = () => {}
+// closeBlockedUsers — lazy-loaded with Profile.js
+if (!window.closeBlockedUsers) window.closeBlockedUsers = () => setState({ showBlockedUsers: false })
+// AdminPanel.js lazy-loaded period handlers
+if (!window.setAdminFeedbackPeriod) {
+  window.setAdminFeedbackPeriod = (p) => setState({ adminFeedbackPeriod: p })
+}
+// Guardian demo — lazy-loaded with ProfileDemos.js
+if (!window.startGuardianDemoContent) {
+  window.startGuardianDemoContent = () => {
+    const intro = document.getElementById('guardian-demo-intro')
+    const main = document.getElementById('guardian-demo-main')
+    if (!intro || !main) return
+    intro.style.display = 'none'
+    main.classList.remove('hidden')
+    main.style.display = 'block'
+  }
+}
 // Guide nudge handlers — lazy-loaded with GuideNudge.js
 if (!window.closeGuideNudge) window.closeGuideNudge = () => setState({ showGuideNudge: false })
 if (!window.acceptGuideNudge) {

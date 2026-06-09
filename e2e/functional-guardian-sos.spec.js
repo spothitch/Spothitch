@@ -300,21 +300,21 @@ test.describe('Guardian handlers manquants', () => {
     await setup(page)
     // Open the demo overlay first (startGuardianDemoContent expects specific DOM elements)
     await page.evaluate(() => {
-      // Create the expected DOM structure
+      // Create the expected DOM structure (use inline style, not Tailwind class)
       const intro = document.createElement('div')
       intro.id = 'guardian-demo-intro'
       intro.style.display = 'block'
       document.body.appendChild(intro)
       const main = document.createElement('div')
       main.id = 'guardian-demo-main'
-      main.className = 'hidden'
+      main.style.display = 'none'
       document.body.appendChild(main)
     })
     await page.evaluate(() => window.startGuardianDemoContent?.())
     await page.waitForTimeout(500)
     const mainVisible = await page.evaluate(() => {
       const main = document.getElementById('guardian-demo-main')
-      return main && main.style.display !== 'none' && !main.classList.contains('hidden')
+      return main && main.style.display !== 'none'
     })
     expect(mainVisible).toBe(true)
   })

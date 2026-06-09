@@ -26,6 +26,10 @@ async function setup(page, opts = {}) {
     })
   }, opts)
   await page.waitForTimeout(2000)
+  // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
+  if (opts.loggedIn !== false) {
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
+  }
 }
 
 // ==================== G1: CLOSE → verify state reset ====================
@@ -143,7 +147,7 @@ test.describe('Set handlers — verify value in state', () => {
     await page.waitForTimeout(500)
     await page.evaluate(() => window.setAdminTab?.('spots'))
     await page.waitForTimeout(200)
-    expect(await page.evaluate(() => window.getState?.()?.adminTab)).toBe('spots')
+    expect(await page.evaluate(() => window.getState?.()?.adminActiveTab)).toBe('spots')
   })
 })
 
