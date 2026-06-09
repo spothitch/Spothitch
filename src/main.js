@@ -1614,6 +1614,17 @@ if (!window.callEmergency) window.callEmergency = () => {}
 if (!window.sosToggleSilent) window.sosToggleSilent = () => {}
 if (!window.sosOpenFakeCall) window.sosOpenFakeCall = () => {}
 if (!window.sosFakeCallAnswer) window.sosFakeCallAnswer = () => {}
+// sosTracking.js is loaded separately from SOS.js — stubs until it loads
+if (!window.startSOSTracking) window.startSOSTracking = () => {}
+if (!window.stopSOSTracking) window.stopSOSTracking = () => {}
+if (!window.shareSOSLink) window.shareSOSLink = () => {}
+// AdminPanel.js lazy-loaded handlers stubs
+if (!window.setAdminReportFilter) {
+  window.setAdminReportFilter = (f) => setState({ adminReportFilter: f })
+}
+if (!window.setAdminReportStatusFilter) {
+  window.setAdminReportStatusFilter = (f) => setState({ adminReportStatusFilter: f })
+}
 // Guardian lazy-loaded handler stub — real handler in Guardian.js (overrides this)
 if (!window.guardianSendMessage) window.guardianSendMessage = () => {}
 // Community alerts handlers — lazy-loaded with SOS.js (override these)

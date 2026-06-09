@@ -880,6 +880,8 @@ test.describe('G11: Spots avancés', () => {
   test('clearTripHistory vide l historique et localStorage', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => localStorage.setItem('spothitch_trip_history', '[{"id":"t1"}]'))
+    // clearTripHistory uses confirm() — accept it so the clear actually runs
+    page.once('dialog', dialog => dialog.accept())
     await page.evaluate(() => { try { window.clearTripHistory?.() } catch {} })
     await page.waitForTimeout(300)
     const history = await page.evaluate(() => localStorage.getItem('spothitch_trip_history'))

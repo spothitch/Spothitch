@@ -154,6 +154,9 @@ test.describe('SOS', () => {
 
   test('Bouton ajouter contact visible dans le DOM', async ({ page }) => {
     await openSOS(page)
+    // addEmergencyContact button is in the contacts config view — navigate there first
+    await page.evaluate(() => window.sosOpenConfig?.('contacts'))
+    await page.waitForTimeout(500)
     const found = await page.evaluate(() => !!document.querySelector('[onclick*="addEmergencyContact"]'))
     expect(found).toBe(true)
   })
