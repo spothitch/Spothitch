@@ -1626,6 +1626,7 @@ if (!window.syncTripFieldsAndCalculate) {
 }
 
 // Trip planner handlers — canonical in Travel.js (lazy), Voyage.js has partial stubs
+if (!window.calculateTrip) window.calculateTrip = async () => {}
 if (!window.clearTripResults) window.clearTripResults = () => {}
 if (!window.saveTripWithSpots) window.saveTripWithSpots = () => {}
 if (!window.loadSavedTrip) window.loadSavedTrip = () => {}
@@ -1634,6 +1635,24 @@ if (!window.renameSavedTrip) window.renameSavedTrip = () => {}
 if (!window.viewTripOnMap) window.viewTripOnMap = () => {}
 if (!window.closeTripMap) window.closeTripMap = () => {}
 // removeSpotFromTrip — canonical in Travel.js
+// Voyage sub-tab handler — lazy-loaded with Voyage.js (overrides this)
+if (!window.setVoyageSubTab) window.setVoyageSubTab = (tab) => setState({ voyageSubTab: tab })
+// Social conversation handlers — lazy-loaded with directMessages.js / Conversations.js
+if (!window.openConversation) window.openConversation = () => {}
+if (!window.closeConversation) window.closeConversation = () => {}
+if (!window.shareDMSpot) window.shareDMSpot = () => {}
+if (!window.shareDMPosition) window.shareDMPosition = () => {}
+if (!window.openCreateGroupConversation) window.openCreateGroupConversation = () => {}
+if (!window.createGroupConversation) window.createGroupConversation = () => {}
+if (!window.sendGroupConversationMessage) window.sendGroupConversationMessage = () => {}
+// Event handlers — lazy-loaded with events.js
+if (!window.joinEvent) window.joinEvent = () => {}
+if (!window.leaveEvent) window.leaveEvent = () => {}
+if (!window.postEventComment) window.postEventComment = () => {}
+if (!window.reactToEventComment) window.reactToEventComment = () => {}
+// Buddy announcement handlers — lazy-loaded with Voyageurs.js
+if (!window.submitBuddyAnnouncement) window.submitBuddyAnnouncement = () => {}
+if (!window.deleteBuddyAnnouncement) window.deleteBuddyAnnouncement = () => {}
 
 // Feature intro wrappers + Beta guards (extracted to handlers/betaGuards.js)
 // MUST remain AFTER all handler definitions
