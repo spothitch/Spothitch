@@ -23,12 +23,17 @@ async function setup(page) {
     })
   })
   await page.waitForTimeout(2000)
+  // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
+  await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
 }
 
 async function openGuardian(page) {
   await setup(page)
-  await page.evaluate(() => window.showGuardianModal?.())
+  // Atomic: re-assert isLoggedIn and open modal in one call (no gap for Firebase to reset)
+  await page.evaluate(() => { window.setState?.({ isLoggedIn: true }); window.showGuardianModal?.() })
   await page.waitForTimeout(2000)
+  // Re-assert again: Guardian.js needs isLoggedIn to render its handlers
+  await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
 }
 
 async function openSOS(page) {

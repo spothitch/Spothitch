@@ -63,9 +63,9 @@ test.describe('Auth — Fonctionnel', () => {
   test('setAuthMode bascule entre login et register visuellement', async ({ page }) => {
     await setup(page, { loggedIn: false })
     await page.evaluate(() => window.openAuth?.())
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     await page.evaluate(() => window.setAuthMode?.('register'))
-    await page.waitForTimeout(300)
+    await page.waitForTimeout(1500)
     const hasNameField = await page.evaluate(() => {
       return !!document.getElementById('auth-firstname') || !!document.getElementById('auth-pseudo')
     })

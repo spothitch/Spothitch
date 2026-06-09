@@ -202,7 +202,7 @@ test.describe('Navigation — verify tab changes', () => {
     await page.waitForTimeout(2000)
     await page.evaluate(() => window.setSocialTab?.('friends'))
     await page.waitForTimeout(500)
-    expect(await page.evaluate(() => window.getState?.()?.socialTab)).toBe('friends')
+    expect(await page.evaluate(() => window.getState?.()?.socialSubTab)).toBe('friends')
   })
 })
 
