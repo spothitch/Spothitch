@@ -51,6 +51,8 @@ async function setupPage(page) {
 async function waitForApp(page) {
   // Already waited in setupPage — just a small extra pause
   await page.waitForTimeout(300)
+  // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
+  await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
 }
 
 // ==================== GROUPE A — AUTH & ONBOARDING ====================
@@ -224,8 +226,8 @@ test.describe('B. Carte & Navigation', () => {
     await waitForApp(page)
     await page.evaluate(() => window.openFullMap?.())
     await page.waitForTimeout(300)
-    const mode = await page.evaluate(() => window.getState?.()?.viewMode)
-    expect(mode).toBe('map')
+    const tab = await page.evaluate(() => window.getState?.()?.activeTab)
+    expect(tab).toBe('map')
   })
 
   test('B8: setViewMode changes view', async ({ page }) => {

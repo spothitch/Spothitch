@@ -1589,6 +1589,14 @@ if (!window.openTripPhotoUpload) window.openTripPhotoUpload = () => setState({ a
 window.openGuardian = () => window.showGuardianModal?.()
 window.closeGuardian = () => setState({ showGuardianModal: false })
 
+// SOS lazy-loaded handlers stubs — real handlers in SOS.js and sosTracking.js (override these)
+if (!window.callEmergency) window.callEmergency = () => {}
+if (!window.sosToggleSilent) window.sosToggleSilent = () => {}
+if (!window.sosOpenFakeCall) window.sosOpenFakeCall = () => {}
+if (!window.sosFakeCallAnswer) window.sosFakeCallAnswer = () => {}
+// Guardian lazy-loaded handler stub — real handler in Guardian.js (overrides this)
+if (!window.guardianSendMessage) window.guardianSendMessage = () => {}
+
 // AddSpot shortcut
 window.submitNewSpot = () => window.openAddSpot?.()
 
