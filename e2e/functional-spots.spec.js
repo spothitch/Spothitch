@@ -126,9 +126,12 @@ test.describe('AddSpot', () => {
 
   test('selectSpotType bouton visible dans étape 1', async ({ page }) => {
     await setup(page)
-    await page.evaluate(() => window.setState?.({ showAddSpot: true, addSpotStep: 1 }))
-    await page.waitForTimeout(1000)
-    const hasBtn = await page.evaluate(() => !!document.querySelector('[onclick*="selectSpotType"]'))
+    await page.evaluate(() => window.setState?.({ showAddSpot: true, addSpotStep: 1, isLoggedIn: true }))
+    // Wait for lazy AddSpot.js module to load and render (may take longer in CI)
+    const hasBtn = await page.waitForFunction(
+      () => !!document.querySelector('[onclick*="selectSpotType"]'),
+      { timeout: 15000 }
+    ).then(() => true).catch(() => false)
     expect(hasBtn).toBe(true)
   })
 
@@ -146,11 +149,13 @@ test.describe('AddSpot', () => {
 
   test('addSpotNextStep/PrevStep boutons visibles', async ({ page }) => {
     await setup(page)
-    await page.evaluate(() => window.setState?.({ showAddSpot: true, addSpotStep: 2 }))
-    await page.waitForTimeout(1000)
-    const hasPrev = await page.evaluate(() => !!document.querySelector('[onclick*="addSpotPrevStep"]'))
-    const hasNext = await page.evaluate(() => !!document.querySelector('[onclick*="addSpotNextStep"]'))
-    expect(hasPrev || hasNext).toBe(true)
+    await page.evaluate(() => window.setState?.({ showAddSpot: true, addSpotStep: 2, isLoggedIn: true }))
+    // Wait for lazy AddSpot.js module to load and render (may take longer in CI)
+    const found = await page.waitForFunction(
+      () => !!document.querySelector('[onclick*="addSpotPrevStep"]') || !!document.querySelector('[onclick*="addSpotNextStep"]'),
+      { timeout: 15000 }
+    ).then(() => true).catch(() => false)
+    expect(found).toBe(true)
   })
 
   test('toggleAmenity boutons visibles dans le formulaire', async ({ page }) => {

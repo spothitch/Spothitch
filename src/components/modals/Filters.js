@@ -161,6 +161,7 @@ export function applyFilters() {
  */
 export function resetFilters() {
   setState({
+    filterCountry: 'all',
     filterMinRating: 0,
     filterMaxWait: 999,
     filterVerifiedOnly: false,
