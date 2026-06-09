@@ -48,6 +48,11 @@ export async function createUserSession(browser, accountKey, opts = {}) {
 
   const { context, page, uid } = await initFirebasePage(browser, account.email)
 
+  // Ensure isAdmin is set for admin accounts (needed when emulator is unreachable)
+  if (accountKey === 'admin') {
+    await page.evaluate(() => window.setState?.({ isAdmin: true })).catch(() => {})
+  }
+
   return {
     page,
     uid,

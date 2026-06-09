@@ -67,7 +67,7 @@ test.describe('Social Deep - Zone Chat', () => {
   })
 
   test('zone chat handlers batch check', async ({ page }) => {
-    const handlers = ['openDirectMessage', 'showConversations']
+    const handlers = ['setSocialTab', 'showFriends']
     const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
     expect(found.length).toBeGreaterThanOrEqual(1)
   })

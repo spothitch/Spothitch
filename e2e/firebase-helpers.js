@@ -222,6 +222,7 @@ export async function openSecondBrowser(browser, email, password) {
       state.currentUser = { uid, email: e }
       state.userProfile = { uid, email: e }
       localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+      window.setState?.({ isLoggedIn: true, user: { uid, email: e, displayName: e.split('@')[0] } })
     }, { e: email, uid: syntheticUid })
   }
 
@@ -384,6 +385,8 @@ export async function initFirebasePage(browser, email, password) {
       state.currentUser = { uid, email: e }
       state.userProfile = { uid, email: e, displayName: e.split('@')[0] }
       localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+      // Also set in-memory state so handlers that check isLoggedIn work
+      window.setState?.({ isLoggedIn: true, user: { uid, email: e, displayName: e.split('@')[0] } })
     }, { e: email, uid: syntheticUid })
     return { context, page, uid: syntheticUid }
   }

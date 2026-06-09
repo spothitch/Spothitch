@@ -172,11 +172,14 @@ export async function waitForToast(page, text) {
 /**
  * Get app state from localStorage
  */
-export async function getAppState(page) {
-  return page.evaluate(() => {
+export async function getAppState(page, key) {
+  const state = await page.evaluate(() => {
+    if (typeof window.getState === 'function') return window.getState()
     const raw = localStorage.getItem('spothitch_v4_state')
     return raw ? JSON.parse(raw) : null
   })
+  if (key !== undefined) return state?.[key] ?? null
+  return state
 }
 
 /**

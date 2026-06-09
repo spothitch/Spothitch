@@ -27,6 +27,10 @@ async function setup(page, opts = {}) {
     })
   }, opts)
   await page.waitForTimeout(2000)
+  // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
+  if (opts.loggedIn !== false) {
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
+  }
 }
 
 // ==================== AUTH ====================

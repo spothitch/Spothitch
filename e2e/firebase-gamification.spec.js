@@ -17,11 +17,12 @@ import {
 test.describe('Firebase Gamification', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let context, page, aliceUid
+  let context, page, aliceUid, isFallback
 
   test.beforeAll(async ({ browser }) => {
     if (!process.env.E2E_TEST_PASSWORD) return
     ;({ context, page, uid: aliceUid } = await initFirebasePage(browser, TEST_ACCOUNTS.alice.email))
+    isFallback = aliceUid?.startsWith('ci-ci-') || false
   })
 
   test.afterAll(async () => {
@@ -35,6 +36,10 @@ test.describe('Firebase Gamification', () => {
       }, aliceUid)
     }
     await context?.close()
+  })
+
+  test.beforeEach(() => {
+    test.skip(!!isFallback, 'Firebase emulator not reachable from browser build')
   })
 
   test('points sync to Firestore on login', async () => {

@@ -18,22 +18,27 @@ import {
 test.describe('Firebase Security Rules', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let context, page, aliceUid, bobUid
+  let context, page, aliceUid, bobUid, isFallback
 
   test.beforeAll(async ({ browser }) => {
     if (!process.env.E2E_TEST_PASSWORD) return
     ;({ context, page, uid: aliceUid } = await initFirebasePage(browser, TEST_ACCOUNTS.alice.email))
-    bobUid = await getUidByEmail(page, TEST_ACCOUNTS.bob.email)
+    isFallback = aliceUid?.startsWith('ci-ci-') || false
+    if (!isFallback) bobUid = await getUidByEmail(page, TEST_ACCOUNTS.bob.email)
   })
 
   test.afterAll(async () => {
     // Reset bio
-    if (aliceUid && page) {
+    if (aliceUid && page && !isFallback) {
       await page.evaluate(async (uid) => {
         try { await window.__fb.updateDoc(window.__fb.doc(window.__fb.getDb(), 'users', uid), { bio: '' }) } catch {}
       }, aliceUid)
     }
     await context?.close()
+  })
+
+  test.beforeEach(() => {
+    test.skip(!!isFallback, 'Firebase emulator not reachable from browser build')
   })
 
   test('user can read own profile', async () => {

@@ -18,18 +18,25 @@ import {
 test.describe('Firebase Social', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let context, page, aliceUid, bobUid, charlieUid
+  let context, page, aliceUid, bobUid, charlieUid, isFallback
 
   test.beforeAll(async ({ browser }) => {
     if (!process.env.E2E_TEST_PASSWORD) return
     ;({ context, page, uid: aliceUid } = await initFirebasePage(browser, TEST_ACCOUNTS.alice.email))
-    bobUid = await getUidByEmail(page, TEST_ACCOUNTS.bob.email)
-    charlieUid = await getUidByEmail(page, TEST_ACCOUNTS.charlie.email)
+    isFallback = aliceUid?.startsWith('ci-ci-') || false
+    if (!isFallback) {
+      bobUid = await getUidByEmail(page, TEST_ACCOUNTS.bob.email)
+      charlieUid = await getUidByEmail(page, TEST_ACCOUNTS.charlie.email)
+    }
   })
 
   test.afterAll(async () => {
-    if (aliceUid && page) await cleanupTestData(page, aliceUid)
+    if (aliceUid && page && !isFallback) await cleanupTestData(page, aliceUid)
     await context?.close()
+  })
+
+  test.beforeEach(() => {
+    test.skip(!!isFallback, 'Firebase emulator not reachable from browser build')
   })
 
   test('send friend request writes to Firestore', async () => {

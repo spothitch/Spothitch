@@ -15,15 +15,20 @@ import {
 test.describe('Firebase Realtime', () => {
   test.describe.configure({ mode: 'serial' })
 
-  let context, page, aliceUid
+  let context, page, aliceUid, isFallback
 
   test.beforeAll(async ({ browser }) => {
     if (!process.env.E2E_TEST_PASSWORD) return
     ;({ context, page, uid: aliceUid } = await initFirebasePage(browser, TEST_ACCOUNTS.alice.email))
+    isFallback = aliceUid?.startsWith('ci-ci-') || false
   })
 
   test.afterAll(async () => {
     await context?.close()
+  })
+
+  test.beforeEach(() => {
+    test.skip(!!isFallback, 'Firebase emulator not reachable from browser build')
   })
 
   test('DM received in real-time by second browser', async ({ browser }) => {
