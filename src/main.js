@@ -1570,9 +1570,29 @@ if (!window.confirmUnblockUser) window.confirmUnblockUser = () => {}
 if (!window.unblockUserById) window.unblockUserById = () => {}
 // Guide nudge handlers — lazy-loaded with GuideNudge.js
 if (!window.closeGuideNudge) window.closeGuideNudge = () => setState({ showGuideNudge: false })
-if (!window.acceptGuideNudge) window.acceptGuideNudge = () => {}
-if (!window.dismissGuideNudgeForCountry) window.dismissGuideNudgeForCountry = () => {}
-if (!window.dismissGuideNudgeGlobal) window.dismissGuideNudgeGlobal = () => {}
+if (!window.acceptGuideNudge) {
+  window.acceptGuideNudge = () => {
+    try { setState({ showGuideNudge: false }) } catch { /* no-op */ }
+  }
+}
+if (!window.dismissGuideNudgeForCountry) {
+  window.dismissGuideNudgeForCountry = (code) => {
+    try {
+      const d = JSON.parse(localStorage.getItem('spothitch_guide_nudge_countries') || '[]')
+      if (code && !d.includes(code)) { d.push(code) }
+      localStorage.setItem('spothitch_guide_nudge_countries', JSON.stringify(d))
+      setState({ showGuideNudge: false })
+    } catch { /* no-op */ }
+  }
+}
+if (!window.dismissGuideNudgeGlobal) {
+  window.dismissGuideNudgeGlobal = () => {
+    try {
+      localStorage.setItem('spothitch_guide_nudge_seen', '1')
+      setState({ showGuideNudge: false })
+    } catch { /* no-op */ }
+  }
+}
 // Spot verification handler — lazy-loaded with verification.js via Spots.js
 if (!window.voteSpot) window.voteSpot = () => {}
 // Alpha code validation — lazy-loaded with Landing.js

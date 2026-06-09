@@ -117,9 +117,9 @@ window.closeGuideNudge = async () => {
 }
 
 // Dismiss for this specific country only — will re-appear for other countries
-window.dismissGuideNudgeForCountry = async () => {
+window.dismissGuideNudgeForCountry = async (countryCodeParam) => {
   const { getState, setState } = await import('../../stores/state.js')
-  const code = getState().pendingGuideCountry?.code
+  const code = getState().pendingGuideCountry?.code || countryCodeParam
   if (code) {
     try {
       const dismissed = JSON.parse(localStorage.getItem('spothitch_guide_nudge_countries') || '[]')

@@ -467,7 +467,7 @@ test.describe('G5: SOS handlers avancés', () => {
 
   test('sosAddFriendAsContact ajoute un ami comme contact SOS', async ({ page }) => {
     await setupSOS(page)
-    await page.evaluate(() => window.sosAddFriendAsContact?.('f1'))
+    await page.evaluate(() => window.sosAddFriendAsContact?.('f1', 'TestFriend'))
     await page.waitForTimeout(500)
     // Should have added to emergency contacts in state
     const contacts = await page.evaluate(() => window.getState?.()?.emergencyContacts || [])
@@ -624,7 +624,7 @@ test.describe('G8: Admin handlers', () => {
     await page.waitForTimeout(1000)
     await page.evaluate(() => window.setAdminTab?.('spots'))
     await page.waitForTimeout(300)
-    const tab = await page.evaluate(() => window.getState?.()?.adminTab)
+    const tab = await page.evaluate(() => window.getState?.()?.adminActiveTab)
     expect(tab).toBe('spots')
   })
 

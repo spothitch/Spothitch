@@ -378,7 +378,10 @@ export function renderCookieBanner() {
 window.acceptAllCookies = acceptAllCookies;
 window.refuseOptionalCookies = refuseOptionalCookies;
 window.showCookieCustomize = showCustomizeModal;
-window.hideCookieCustomize = hideCustomizeModal;
+window.hideCookieCustomize = () => {
+  hideCustomizeModal()
+  window.setState?.({ showCookieCustomize: false })
+}
 window.saveCustomCookiePreferences = saveCustomPreferences;
 
 export default {
