@@ -218,11 +218,13 @@ export async function openSecondBrowser(browser, email, password) {
     console.warn(`[openSecondBrowser] SDK login failed (${lastResult?.error}), using localStorage fallback for ${email}`)
     const syntheticUid = 'ci-' + email.replace(/[^a-z0-9]/gi, '-').slice(0, 20)
     await page.evaluate(({ e, uid }) => {
-      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-      state.currentUser = { uid, email: e }
-      state.userProfile = { uid, email: e }
-      localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
+      // Call setState first (it may overwrite localStorage with in-memory state)
       window.setState?.({ isLoggedIn: true, user: { uid, email: e, displayName: e.split('@')[0] } })
+      // Re-set currentUser AFTER setState (setState may have cleared it from localStorage)
+      const s = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+      s.currentUser = { uid, email: e }
+      s.userProfile = { uid, email: e, displayName: e.split('@')[0] }
+      localStorage.setItem('spothitch_v4_state', JSON.stringify(s))
     }, { e: email, uid: syntheticUid })
   }
 
@@ -381,12 +383,13 @@ export async function initFirebasePage(browser, email, password) {
   if (!loginResult?.success) {
     console.warn(`[initFirebasePage] SDK login failed (${loginResult?.error}), using localStorage fallback for ${email}`)
     await page.evaluate(({ e, uid }) => {
-      const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-      state.currentUser = { uid, email: e }
-      state.userProfile = { uid, email: e, displayName: e.split('@')[0] }
-      localStorage.setItem('spothitch_v4_state', JSON.stringify(state))
-      // Also set in-memory state so handlers that check isLoggedIn work
+      // Call setState first (it may overwrite localStorage with in-memory state)
       window.setState?.({ isLoggedIn: true, user: { uid, email: e, displayName: e.split('@')[0] } })
+      // Re-set currentUser AFTER setState (setState may have cleared it from localStorage)
+      const s = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
+      s.currentUser = { uid, email: e }
+      s.userProfile = { uid, email: e, displayName: e.split('@')[0] }
+      localStorage.setItem('spothitch_v4_state', JSON.stringify(s))
     }, { e: email, uid: syntheticUid })
     return { context, page, uid: syntheticUid }
   }

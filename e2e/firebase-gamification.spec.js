@@ -26,8 +26,8 @@ test.describe('Firebase Gamification', () => {
   })
 
   test.afterAll(async () => {
-    // Reset points
-    if (aliceUid && page) {
+    // Reset points (skip if fallback mode — page.evaluate would throw "Test ended")
+    if (aliceUid && page && !isFallback) {
       await page.evaluate(async (uid) => {
         try {
           const { getDb, doc, updateDoc } = window.__fb
