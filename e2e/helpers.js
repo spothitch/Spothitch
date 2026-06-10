@@ -126,22 +126,14 @@ export async function navigateToTab(page, tabId) {
     const btn = document.querySelector(`[data-tab="${id}"]`)
     if (btn) btn.click()
   }, tabId)
-  await page.waitForTimeout(500)
 
-  // Auth gate: protected tabs (voyage, social, profile) require login.
-  // In E2E tests, bypass by setting isLoggedIn + activeTab directly.
+  // For protected tabs: install lock + set auth state in ONE synchronous evaluate,
+  // BEFORE any waitForTimeout(). Firebase onAuthStateChanged(null) fires during waits
+  // and resets isLoggedIn:false. Installing the lock here prevents all future resets.
   const protectedTabs = ['voyage', 'social', 'profile']
   if (protectedTabs.includes(tabId)) {
-    const isLoggedIn = await page.evaluate(() => window.getState?.()?.isLoggedIn)
-    if (!isLoggedIn) {
-      await page.evaluate((id) => {
-        window.setState?.({ showAuth: false, isLoggedIn: true, activeTab: id })
-      }, tabId)
-      await page.waitForTimeout(500)
-    }
-    // Lock auth state: prevent Firebase onAuthStateChanged(null) from resetting isLoggedIn
-    // during waitForTimeout() calls. Firebase fires repeatedly in CI with no real auth.
-    await page.evaluate(() => {
+    await page.evaluate((id) => {
+      // Install lock (idempotent — only wraps setState once per page)
       if (!window.__e2eAuthLocked && window.setState) {
         const orig = window.setState
         window.__e2eAuthLocked = true
@@ -150,8 +142,12 @@ export async function navigateToTab(page, tabId) {
           orig(updates)
         }
       }
-    })
+      // Set auth state immediately while lock is active — no async gap
+      window.setState?.({ showAuth: false, isLoggedIn: true, activeTab: id })
+    }, tabId)
   }
+
+  await page.waitForTimeout(500)
   // Also close auth modal if it appeared
   const authShowing = await page.evaluate(() => window.getState?.()?.showAuth)
   if (authShowing) {
