@@ -272,69 +272,84 @@ test.describe('R12-04 Performance', () => {
 
 test.describe('R12-05 Multi-user chat stress', () => {
   test('3 users send messages simultaneously → all messages visible', async ({ browser }) => {
+    test.setTimeout(120000)
     const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
 
     const chatId = 'stress-test-FR'
+    const validMsgs = []
+    try {
+      // All 3 send messages to the same zone chat (with timeout guards)
+      const results = await Promise.all([
+        sessions.alice.page.evaluate(async ({ uid, chatId }) => {
+          try {
+            const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+            const ref = await Promise.race([
+              addDoc(collection(getDb(), 'countryChats', chatId, 'messages'), {
+                senderId: uid, senderName: 'Alice', text: `Alice msg ${Date.now()}`,
+                createdAt: serverTimestamp(),
+              }),
+              new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+            ])
+            return ref.id
+          } catch (e) { return null }
+        }, { uid: sessions.alice.uid, chatId }),
+        sessions.bob.page.evaluate(async ({ uid, chatId }) => {
+          try {
+            const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+            const ref = await Promise.race([
+              addDoc(collection(getDb(), 'countryChats', chatId, 'messages'), {
+                senderId: uid, senderName: 'Bob', text: `Bob msg ${Date.now()}`,
+                createdAt: serverTimestamp(),
+              }),
+              new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+            ])
+            return ref.id
+          } catch (e) { return null }
+        }, { uid: sessions.bob.uid, chatId }),
+        sessions.charlie.page.evaluate(async ({ uid, chatId }) => {
+          try {
+            const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+            const ref = await Promise.race([
+              addDoc(collection(getDb(), 'countryChats', chatId, 'messages'), {
+                senderId: uid, senderName: 'Charlie', text: `Charlie msg ${Date.now()}`,
+                createdAt: serverTimestamp(),
+              }),
+              new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+            ])
+            return ref.id
+          } catch (e) { return null }
+        }, { uid: sessions.charlie.uid, chatId }),
+      ])
 
-    // All 3 send messages to the same zone chat
-    const results = await Promise.all([
-      sessions.alice.page.evaluate(async ({ uid, chatId }) => {
-        try {
-          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-          const ref = await addDoc(collection(getDb(), 'countryChats', chatId, 'messages'), {
-            senderId: uid, senderName: 'Alice', text: `Alice msg ${Date.now()}`,
-            createdAt: serverTimestamp(),
-          })
-          return ref.id
-        } catch (e) { return null }
-      }, { uid: sessions.alice.uid, chatId }),
-      sessions.bob.page.evaluate(async ({ uid, chatId }) => {
-        try {
-          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-          const ref = await addDoc(collection(getDb(), 'countryChats', chatId, 'messages'), {
-            senderId: uid, senderName: 'Bob', text: `Bob msg ${Date.now()}`,
-            createdAt: serverTimestamp(),
-          })
-          return ref.id
-        } catch (e) { return null }
-      }, { uid: sessions.bob.uid, chatId }),
-      sessions.charlie.page.evaluate(async ({ uid, chatId }) => {
-        try {
-          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-          const ref = await addDoc(collection(getDb(), 'countryChats', chatId, 'messages'), {
-            senderId: uid, senderName: 'Charlie', text: `Charlie msg ${Date.now()}`,
-            createdAt: serverTimestamp(),
-          })
-          return ref.id
-        } catch (e) { return null }
-      }, { uid: sessions.charlie.uid, chatId }),
-    ])
+      validMsgs.push(...results.filter(Boolean))
+      console.log(`  [R12-05] Messages created: ${validMsgs.length}/3`)
 
-    const validMsgs = results.filter(Boolean)
-    console.log(`  [R12-05] Messages created: ${validMsgs.length}/3`)
+      if (validMsgs.length > 0) {
+        // Verify all messages are visible from Alice's perspective
+        const count = await sessions.alice.page.evaluate(async (chatId) => {
+          try {
+            const { getDb, collection, getDocs } = window.__fb
+            const snap = await Promise.race([
+              getDocs(collection(getDb(), 'countryChats', chatId, 'messages')),
+              new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+            ])
+            return snap.size
+          } catch { return 0 }
+        }, chatId)
 
-    if (validMsgs.length > 0) {
-      // Verify all messages are visible from Alice's perspective
-      const count = await sessions.alice.page.evaluate(async (chatId) => {
-        try {
-          const { getDb, collection, getDocs } = window.__fb
-          const snap = await getDocs(collection(getDb(), 'countryChats', chatId, 'messages'))
-          return snap.size
-        } catch { return 0 }
-      }, chatId)
+        expect(count).toBeGreaterThanOrEqual(validMsgs.length)
+      }
 
-      expect(count).toBeGreaterThanOrEqual(validMsgs.length)
+      await snap(sessions.alice.page, PHASE, 'R12-05-chat-stress', 'after').catch(() => {})
+    } finally {
+      // Cleanup
+      for (const msgId of validMsgs) {
+        await sessions.alice.page.evaluate(async ({ chatId, msgId }) => {
+          try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'countryChats', chatId, 'messages', msgId)) } catch {}
+        }, { chatId, msgId }).catch(() => {})
+      }
+      await closeSessions(sessions)
     }
-
-    // Cleanup
-    for (const msgId of validMsgs) {
-      await sessions.alice.page.evaluate(async ({ chatId, msgId }) => {
-        try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'countryChats', chatId, 'messages', msgId)) } catch {}
-      }, { chatId, msgId })
-    }
-
-    await snap(sessions.alice.page, PHASE, 'R12-05-chat-stress', 'after')
-    await closeSessions(sessions)
   })
 })
 

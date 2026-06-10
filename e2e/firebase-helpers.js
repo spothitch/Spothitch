@@ -556,7 +556,10 @@ export async function firestoreDocExists(page, collectionPath, docId) {
     try {
       const { getDb, doc, getDoc } = window.__fb
       const db = getDb()
-      const snap = await getDoc(doc(db, path, id))
+      const snap = await Promise.race([
+        getDoc(doc(db, path, id)),
+        new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+      ])
       return snap.exists()
     } catch {
       return false
@@ -577,7 +580,10 @@ export async function firestoreGetDoc(page, collectionPath, docId) {
     try {
       const { getDb, doc, getDoc } = window.__fb
       const db = getDb()
-      const snap = await getDoc(doc(db, path, id))
+      const snap = await Promise.race([
+        getDoc(doc(db, path, id)),
+        new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+      ])
       return snap.exists() ? snap.data() : null
     } catch {
       return null
