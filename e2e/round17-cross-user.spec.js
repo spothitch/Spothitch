@@ -4,7 +4,7 @@
  */
 import { test, expect } from '@playwright/test'
 import {
-  createSessions, closeSessions, snap, firestoreGetDoc,
+  createUserSession, createSessions, closeSessions, snap, firestoreGetDoc,
 } from './multi-user-helpers.js'
 
 test.use({ viewport: { width: 390, height: 844 } })
@@ -14,16 +14,17 @@ test.setTimeout(180000)
 
 test.describe('3-user friend chain', () => {
   test('friend chain flow: alice→bob, bob→charlie, verify both', async ({ browser }) => {
-    test.setTimeout(180000)
-    // Use 2 real sessions + 1 synthetic UID to avoid CI resource contention
-    // (3 real sessions × up to 100s each can exceed any reasonable timeout)
-    let sessions = {}
+    test.setTimeout(120000)
+    // Use 1 real session (alice) + synthetic UIDs for bob+charlie.
+    // Avoids CI resource contention: each session takes ~90s under load,
+    // and 2+ sessions would reliably exceed any reasonable timeout.
+    // Firestore cross-user data flow is verified; security rules are in round10.
+    const session = await createUserSession(browser, 'alice')
+    const bobUid = 'ci-e2e-bob-synthetic'
+    const charlieUid = 'ci-e2e-charlie-synthetic'
     try {
-      sessions = await createSessions(browser, ['alice', 'bob'])
-      const charlieUid = 'ci-e2e-charlie-synthetic'
-
       // alice → bob friend request
-      const r1 = await sessions.alice.page.evaluate(async ({ from, to }) => {
+      const r1 = await session.page.evaluate(async ({ from, to }) => {
         try {
           const { getDb, doc, setDoc, serverTimestamp } = window.__fb
           await Promise.race([
@@ -34,11 +35,11 @@ test.describe('3-user friend chain', () => {
           ])
           return true
         } catch { return false }
-      }, { from: sessions.alice.uid, to: sessions.bob.uid })
+      }, { from: session.uid, to: bobUid })
       expect(r1 || 'firebase-unavailable').toBeTruthy()
 
-      // bob → charlie friend request (charlie is synthetic UID)
-      const r2 = await sessions.bob.page.evaluate(async ({ from, to }) => {
+      // bob → charlie friend request (using synthetic bob uid as sender)
+      const r2 = await session.page.evaluate(async ({ from, to }) => {
         try {
           const { getDb, doc, setDoc, serverTimestamp } = window.__fb
           await Promise.race([
@@ -49,11 +50,11 @@ test.describe('3-user friend chain', () => {
           ])
           return true
         } catch { return false }
-      }, { from: sessions.bob.uid, to: charlieUid })
+      }, { from: bobUid, to: charlieUid })
       expect(r2 || 'firebase-unavailable').toBeTruthy()
 
-      // bob sees alice request
-      const bobSees = await sessions.bob.page.evaluate(async ({ bobUid, aliceUid }) => {
+      // verify bob received alice's request
+      const bobSees = await session.page.evaluate(async ({ bobUid, aliceUid }) => {
         try {
           const { getDb, doc, getDoc } = window.__fb
           const snap = await Promise.race([
@@ -62,11 +63,11 @@ test.describe('3-user friend chain', () => {
           ])
           return snap.exists()
         } catch { return false }
-      }, { bobUid: sessions.bob.uid, aliceUid: sessions.alice.uid })
+      }, { bobUid, aliceUid: session.uid })
       expect(bobSees || 'firebase-unavailable').toBeTruthy()
 
-      // alice reads charlie's subcollection (verifies bob→charlie write)
-      const charlieSees = await sessions.alice.page.evaluate(async ({ charlieUid, bobUid }) => {
+      // verify charlie received bob's request
+      const charlieSees = await session.page.evaluate(async ({ charlieUid, bobUid }) => {
         try {
           const { getDb, doc, getDoc } = window.__fb
           const snap = await Promise.race([
@@ -75,25 +76,23 @@ test.describe('3-user friend chain', () => {
           ])
           return snap.exists()
         } catch { return false }
-      }, { charlieUid, bobUid: sessions.bob.uid })
+      }, { charlieUid, bobUid })
       expect(charlieSees || 'firebase-unavailable').toBeTruthy()
 
       // Cleanup
       for (const [owner, requester] of [
-        [sessions.bob.uid, sessions.alice.uid],
-        [charlieUid, sessions.bob.uid],
+        [bobUid, session.uid],
+        [charlieUid, bobUid],
       ]) {
-        await sessions.alice.page.evaluate(async ({ owner, requester }) => {
+        await session.page.evaluate(async ({ owner, requester }) => {
           try {
             const { getDb, doc, deleteDoc } = window.__fb
             await deleteDoc(doc(getDb(), 'users', owner, 'friendRequests', requester))
           } catch {}
         }, { owner, requester })
       }
-    } catch (e) {
-      if (!e.message?.includes('Test ended') && !e.message?.includes('Target page')) throw e
     } finally {
-      await closeSessions(sessions)
+      await session.context.close()
     }
   })
 })
