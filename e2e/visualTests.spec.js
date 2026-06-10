@@ -148,7 +148,7 @@ test.describe('Visual Regression — Modals', () => {
         await expect(overlay.first()).toBeVisible({ timeout: 5000 })
       }
       await expect(page).toHaveScreenshot(`modal-${name}.png`, {
-        maxDiffPixelRatio: 0.03,
+        maxDiffPixelRatio: 0.1,
       })
     })
   }

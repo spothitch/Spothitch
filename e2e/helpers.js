@@ -139,6 +139,18 @@ export async function navigateToTab(page, tabId) {
       }, tabId)
       await page.waitForTimeout(500)
     }
+    // Lock auth state: prevent Firebase onAuthStateChanged(null) from resetting isLoggedIn
+    // during waitForTimeout() calls. Firebase fires repeatedly in CI with no real auth.
+    await page.evaluate(() => {
+      if (!window.__e2eAuthLocked && window.setState) {
+        const orig = window.setState
+        window.__e2eAuthLocked = true
+        window.setState = (updates) => {
+          if (updates && updates.isLoggedIn === false) return
+          orig(updates)
+        }
+      }
+    })
   }
   // Also close auth modal if it appeared
   const authShowing = await page.evaluate(() => window.getState?.()?.showAuth)
