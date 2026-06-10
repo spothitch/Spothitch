@@ -712,11 +712,12 @@ test.describe('Buddies - List & Filtering', () => {
   })
 
   test('buddy cards show with photo and languages', async ({ page }) => {
-    // voyageursView starts as 'combined' after goToVoyageurs()
-    // Changing it to 'buddyList' is a string change → fingerprint changes → normal setState re-render
+    // Set state then render synchronously via _appInternals.render() to avoid
+    // RAF race conditions where async setState may overwrite travelBuddies before render
     await page.evaluate(() => {
       window.setState?.({
         voyageursView: 'buddyList',
+        isLoggedIn: true,
         travelBuddies: [{
           id: 'card1', userId: 'u1', userName: 'Marie D.',
           photoURL: 'https://example.com/marie.jpg',
@@ -726,8 +727,11 @@ test.describe('Buddies - List & Filtering', () => {
           languages: ['Français', 'Español'],
         }],
       })
+      // Synchronous render with current state (bypasses RAF scheduling race)
+      window._appInternals?.clearRenderCache('app')
+      window._appInternals?.render()
     })
-    await page.waitForTimeout(800)
+    await page.waitForTimeout(500)
     const text = await page.evaluate(() => document.body.innerText)
     expect(text).toContain('Marie D.')
     expect(text).toContain('Paris')
