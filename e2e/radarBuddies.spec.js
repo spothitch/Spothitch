@@ -91,6 +91,7 @@ test.describe('Radar - Expanded View', () => {
   test('expanded view opens with radius options', async ({ page }) => {
     await page.evaluate(() => window.showRadarExpanded?.())
     await page.waitForTimeout(500)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
     const html = await page.evaluate(() => document.body.innerHTML)
     expect(html).toContain('setRadarRadius')
     expect(html).toContain('10 km')
@@ -101,6 +102,7 @@ test.describe('Radar - Expanded View', () => {
   test('expanded view has visibility pills', async ({ page }) => {
     await page.evaluate(() => window.showRadarExpanded?.())
     await page.waitForTimeout(500)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
     const html = await page.evaluate(() => document.body.innerHTML)
     expect(html).toContain('setRadarVisibility')
   })
@@ -108,6 +110,7 @@ test.describe('Radar - Expanded View', () => {
   test('expanded view has message input', async ({ page }) => {
     await page.evaluate(() => window.showRadarExpanded?.())
     await page.waitForTimeout(500)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
     const input = await page.evaluate(() => !!document.getElementById('radar-message'))
     expect(input).toBe(true)
   })
@@ -176,7 +179,7 @@ test.describe('Radar - Cooldown', () => {
 
   test('cooldown is detected correctly', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { saveRadarSettings, isRadarInCooldown, getRemainingCooldownMinutes } = await import('/src/services/proximityRadar.js')
+      const { saveRadarSettings, isRadarInCooldown, getRemainingCooldownMinutes } = await window.__getProximityRadarService()
       saveRadarSettings({ cooldownUntil: Date.now() + 5 * 60000 })
       return { inCooldown: isRadarInCooldown(), mins: getRemainingCooldownMinutes() }
     })
@@ -187,7 +190,7 @@ test.describe('Radar - Cooldown', () => {
 
   test('expired cooldown is not blocking', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { saveRadarSettings, isRadarInCooldown } = await import('/src/services/proximityRadar.js')
+      const { saveRadarSettings, isRadarInCooldown } = await window.__getProximityRadarService()
       saveRadarSettings({ cooldownUntil: Date.now() - 1000 })
       return isRadarInCooldown()
     })
@@ -290,6 +293,7 @@ test.describe('Radar - Nearby Travelers Display', () => {
       window._forceRender?.()
     })
     await page.waitForTimeout(500)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
     const html = await page.evaluate(() => document.body.innerHTML)
     expect(html).toContain('photo.jpg')
     expect(html).toContain('Jean Test')
@@ -307,6 +311,7 @@ test.describe('Radar - Nearby Travelers Display', () => {
       window._forceRender?.()
     })
     await page.waitForTimeout(500)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
     const text = await page.evaluate(() => document.body.innerText)
     expect(text).toContain('Marie D.')
   })
@@ -322,6 +327,7 @@ test.describe('Radar - Nearby Travelers Display', () => {
       window._forceRender?.()
     })
     await page.waitForTimeout(500)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
     const text = await page.evaluate(() => document.body.innerText)
     expect(text).toContain('< 5 km')
   })
@@ -554,7 +560,7 @@ test.describe('TravelBuddies - Service Validation', () => {
 
   test('rejects empty fields', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { createTravelBuddy } = await import('/src/services/travelBuddies.js')
+      const { createTravelBuddy } = await window.__getTravelBuddiesService()
       return createTravelBuddy({ departure: '', destination: '', dateFrom: '' })
     })
     expect(result.success).toBe(false)
@@ -563,7 +569,7 @@ test.describe('TravelBuddies - Service Validation', () => {
 
   test('rejects past dates', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { createTravelBuddy } = await import('/src/services/travelBuddies.js')
+      const { createTravelBuddy } = await window.__getTravelBuddiesService()
       return createTravelBuddy({ departure: 'A', destination: 'B', dateFrom: '2020-01-01' })
     })
     expect(result.success).toBe(false)
@@ -572,7 +578,7 @@ test.describe('TravelBuddies - Service Validation', () => {
 
   test('rejects end before start', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { createTravelBuddy } = await import('/src/services/travelBuddies.js')
+      const { createTravelBuddy } = await window.__getTravelBuddiesService()
       return createTravelBuddy({ departure: 'A', destination: 'B', dateFrom: '2026-12-30', dateTo: '2026-12-20' })
     })
     expect(result.success).toBe(false)
@@ -581,7 +587,7 @@ test.describe('TravelBuddies - Service Validation', () => {
 
   test('rejects too long departure', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { createTravelBuddy } = await import('/src/services/travelBuddies.js')
+      const { createTravelBuddy } = await window.__getTravelBuddiesService()
       return createTravelBuddy({ departure: 'x'.repeat(101), destination: 'B', dateFrom: '2026-12-30' })
     })
     expect(result.success).toBe(false)
@@ -590,7 +596,7 @@ test.describe('TravelBuddies - Service Validation', () => {
 
   test('rejects too long message', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { createTravelBuddy } = await import('/src/services/travelBuddies.js')
+      const { createTravelBuddy } = await window.__getTravelBuddiesService()
       return createTravelBuddy({ departure: 'A', destination: 'B', dateFrom: '2026-12-30', message: 'x'.repeat(501) })
     })
     expect(result.success).toBe(false)
@@ -607,7 +613,7 @@ test.describe('ProximityRadar - Service', () => {
   test('defaults are correct', async ({ page }) => {
     const settings = await page.evaluate(async () => {
       localStorage.removeItem('spothitch_proximity_radar')
-      const { getRadarSettings } = await import('/src/services/proximityRadar.js')
+      const { getRadarSettings } = await window.__getProximityRadarService()
       return getRadarSettings()
     })
     expect(settings.enabled).toBe(false)
@@ -619,7 +625,7 @@ test.describe('ProximityRadar - Service', () => {
   test('saveRadarSettings merges correctly', async ({ page }) => {
     const saved = await page.evaluate(async () => {
       localStorage.removeItem('spothitch_proximity_radar')
-      const { saveRadarSettings, getRadarSettings } = await import('/src/services/proximityRadar.js')
+      const { saveRadarSettings, getRadarSettings } = await window.__getProximityRadarService()
       saveRadarSettings({ radius: 10 })
       saveRadarSettings({ message: 'hello' })
       return getRadarSettings()
@@ -631,7 +637,7 @@ test.describe('ProximityRadar - Service', () => {
 
   test('formatRadarDistance returns null for close, number for far', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { formatRadarDistance } = await import('/src/services/proximityRadar.js')
+      const { formatRadarDistance } = await window.__getProximityRadarService()
       return {
         veryClose: formatRadarDistance(1),
         close: formatRadarDistance(4.9),
@@ -653,7 +659,7 @@ test.describe('ProximityRadar - Service', () => {
       navigator.geolocation.getCurrentPosition = (_ok, fail) => fail(new Error('denied'))
     })
     const result = await page.evaluate(async () => {
-      const { activateRadar } = await import('/src/services/proximityRadar.js')
+      const { activateRadar } = await window.__getProximityRadarService()
       return activateRadar()
     })
     expect(result.success).toBe(false)
@@ -662,7 +668,7 @@ test.describe('ProximityRadar - Service', () => {
 
   test('activateRadar blocked by cooldown', async ({ page }) => {
     const result = await page.evaluate(async () => {
-      const { saveRadarSettings, activateRadar } = await import('/src/services/proximityRadar.js')
+      const { saveRadarSettings, activateRadar } = await window.__getProximityRadarService()
       saveRadarSettings({ cooldownUntil: Date.now() + 60000 })
       return activateRadar()
     })
@@ -707,6 +713,7 @@ test.describe('Buddies - List & Filtering', () => {
       window._forceRender?.()
     })
     await page.waitForTimeout(500)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
     const text = await page.evaluate(() => document.body.innerText)
     expect(text).toContain('Marie D.')
     expect(text).toContain('Paris')

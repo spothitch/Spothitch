@@ -309,11 +309,17 @@ test.describe('R02-04 Social links', () => {
 
 test.describe('R02-05 Profile photos', () => {
   let session
+  let isFallback = false
 
   test.beforeAll(async ({ browser }) => {
     session = await createUserSession(browser, 'alice')
+    isFallback = session.uid?.startsWith('ci-') ?? false
     await navigateToTab(session.page, 'profile')
     await session.page.waitForTimeout(2000)
+  })
+
+  test.beforeEach(() => {
+    test.skip(isFallback, 'Firebase not reachable in CI (localStorage fallback)')
   })
 
   test.afterAll(async () => {

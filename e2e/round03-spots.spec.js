@@ -130,7 +130,7 @@ test.describe('R03-02 Submit spot to Firestore', () => {
   test('submitSpot creates document in spots collection', async () => {
     const uid = session.uid
     if (uid.startsWith('ci-')) {
-      console.log('  [R03-02] localStorage fallback — Firestore writes may fail')
+      test.skip(true, 'Firebase not reachable in CI (localStorage fallback)')
     }
 
     // Try to submit a spot programmatically via window.__fb
@@ -184,6 +184,7 @@ test.describe('R03-02 Submit spot to Firestore', () => {
 test.describe('R03-03 Cross-user spot visibility', () => {
   test('alice creates spot, bob queries and finds it', async ({ browser }) => {
     const sessions = await createSessions(browser, ['alice', 'bob'])
+    if (sessions.alice.uid?.startsWith('ci-')) { test.skip(true, 'Firebase not reachable in CI') }
     const aliceUid = sessions.alice.uid
 
     // Alice creates a spot
@@ -251,7 +252,7 @@ test.describe('R03-03 Cross-user spot visibility', () => {
 test.describe('R03-04 Spot validation', () => {
   test('bob validates alice spot → validationCount +1', async ({ browser }) => {
     const sessions = await createSessions(browser, ['alice', 'bob'])
-
+    if (sessions.alice.uid?.startsWith('ci-')) { test.skip(true, 'Firebase not reachable in CI') }
     // Alice creates spot
     const spotId = await sessions.alice.page.evaluate(async (uid) => {
       try {
@@ -312,7 +313,7 @@ test.describe('R03-04 Spot validation', () => {
 test.describe('R03-05 Spot review', () => {
   test('bob reviews alice spot → review in subcollection', async ({ browser }) => {
     const sessions = await createSessions(browser, ['alice', 'bob'])
-
+    if (sessions.alice.uid?.startsWith('ci-')) { test.skip(true, 'Firebase not reachable in CI') }
     const spotId = await sessions.alice.page.evaluate(async (uid) => {
       try {
         const { getDb, collection, addDoc, serverTimestamp } = window.__fb
@@ -373,9 +374,15 @@ test.describe('R03-05 Spot review', () => {
 
 test.describe('R03-06 Validation rules', () => {
   let session
+  let isFallback = false
 
   test.beforeAll(async ({ browser }) => {
     session = await createUserSession(browser, 'alice')
+    isFallback = session.uid?.startsWith('ci-') ?? false
+  })
+
+  test.beforeEach(() => {
+    test.skip(isFallback, 'Firebase not reachable in CI (localStorage fallback)')
   })
 
   test.afterAll(async () => {
@@ -465,7 +472,7 @@ test.describe('R03-06 Validation rules', () => {
 test.describe('R03-07 XSS in spots', () => {
   test('XSS in spot description is escaped', async ({ browser }) => {
     const session = await createUserSession(browser, 'alice')
-
+    if (session.uid?.startsWith('ci-')) { test.skip(true, 'Firebase not reachable in CI') }
     const spotId = await session.page.evaluate(async (uid) => {
       try {
         const { getDb, collection, addDoc, serverTimestamp } = window.__fb
@@ -534,6 +541,7 @@ test.describe('R03-08 Spot search', () => {
 test.describe('R03-09 Favorites', () => {
   test('toggleFavorite adds/removes spot from favorites', async ({ browser }) => {
     const session = await createUserSession(browser, 'alice')
+    if (session.uid?.startsWith('ci-')) { test.skip(true, 'Firebase not reachable in CI') }
 
     // Create a test spot to favorite
     const spotId = await session.page.evaluate(async (uid) => {

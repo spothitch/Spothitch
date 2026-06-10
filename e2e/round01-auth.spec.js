@@ -67,6 +67,9 @@ test.describe('R01-01 Account creation → Firestore', () => {
 test.describe('R01-02 Login/Logout session', () => {
   test('login sets currentUser in state', async ({ browser }) => {
     const session = await createUserSession(browser, 'alice')
+    if (session.uid?.startsWith('ci-')) {
+      test.skip(true, 'Firebase not reachable in CI (localStorage fallback)')
+    }
     const uid = await getCurrentUid(session.page)
     expect(uid).toBeTruthy()
 
@@ -602,7 +605,9 @@ test.describe('R01-09 Forgot password', () => {
 test.describe('R01-10 Session independence', () => {
   test('alice and bob have different UIDs', async ({ browser }) => {
     const sessions = await createSessions(browser, ['alice', 'bob'])
-
+    if (sessions.alice.uid?.startsWith('ci-')) {
+      test.skip(true, 'Firebase not reachable in CI (localStorage fallback)')
+    }
     const aliceUid = await getCurrentUid(sessions.alice.page)
     const bobUid = await getCurrentUid(sessions.bob.page)
 
@@ -618,7 +623,9 @@ test.describe('R01-10 Session independence', () => {
 
   test('logging out alice does not affect bob', async ({ browser }) => {
     const sessions = await createSessions(browser, ['alice', 'bob'])
-
+    if (sessions.alice.uid?.startsWith('ci-')) {
+      test.skip(true, 'Firebase not reachable in CI (localStorage fallback)')
+    }
     // Logout alice
     await programmaticLogout(sessions.alice.page)
     const aliceState = await sessions.alice.page.evaluate(() =>

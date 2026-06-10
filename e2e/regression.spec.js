@@ -220,6 +220,9 @@ test.describe('Regression: Profile View', () => {
   test('profile shows points and level', async ({ page }) => {
     await skipOnboarding(page, { points: 250, level: 3, tab: 'profile' })
     await navigateToTab(page, 'profile')
+    // Re-assert: Firebase onAuthStateChanged may have reset state during navigation
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true, points: 250, level: 3 }))
+    await page.waitForTimeout(500)
     const html = await page.evaluate(() => document.body.innerText)
     // Should show points or level information
     expect(html).toMatch(/250|Niveau|Level|Niv/i)
@@ -266,6 +269,8 @@ test.describe('Regression: Voyage / Trip Planner', () => {
     await navigateToTab(page, 'voyage')
     await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
+    await page.waitForTimeout(500)
     const html = await page.evaluate(() => document.body.innerHTML)
     expect(html).toMatch(/trip-from|trip-to|planTrip|itinéraire|Itinéraire/i)
   })
@@ -502,6 +507,8 @@ test.describe('Regression: Gamification', () => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showBadges: true }))
     await page.waitForTimeout(2000)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true, showBadges: true }))
+    await page.waitForTimeout(500)
     const html = await page.evaluate(() => document.body.innerText)
     expect(html).toMatch(/Badge|badge|Trophée|Trophy|premier|first/i)
   })
@@ -510,6 +517,8 @@ test.describe('Regression: Gamification', () => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showQuiz: true }))
     await page.waitForTimeout(2000)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true, showQuiz: true }))
+    await page.waitForTimeout(500)
     const html = await page.evaluate(() => document.body.innerText)
     if (html.length > 50) {
       expect(html).toMatch(/Quiz|question|France|Allemagne|Germany|pays|country/i)
@@ -528,6 +537,8 @@ test.describe('Regression: Gamification', () => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showLeaderboard: true }))
     await page.waitForTimeout(1500)
+    await page.evaluate(() => window.setState?.({ isLoggedIn: true, showLeaderboard: true }))
+    await page.waitForTimeout(500)
     const html = await page.evaluate(() => document.body.innerText)
     expect(html).toMatch(/Classement|Leaderboard|#\d|rang|rank|podium/i)
   })

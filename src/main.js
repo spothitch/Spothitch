@@ -1664,11 +1664,15 @@ if (!window.guardianSendReply) window.guardianSendReply = () => {}
 if (!window.guardianShowArrival) window.guardianShowArrival = () => {}
 if (!window.guardianAddToJournal) window.guardianAddToJournal = () => {}
 if (!window.guardianCloseSheet) window.guardianCloseSheet = () => {}
-// Expose guardian service module for E2E tests (avoids direct /src/* import which fails in production build)
+// Expose service modules for E2E tests (avoids direct /src/* import which fails in production build)
 if (!window.__getGuardianService) {
-  window.__getGuardianService = async () => {
-    return await import('./services/guardian.js')
-  }
+  window.__getGuardianService = async () => await import('./services/guardian.js')
+}
+if (!window.__getProximityRadarService) {
+  window.__getProximityRadarService = async () => await import('./services/proximityRadar.js')
+}
+if (!window.__getTravelBuddiesService) {
+  window.__getTravelBuddiesService = async () => await import('./services/travelBuddies.js')
 }
 // Community alerts handlers — lazy-loaded with SOS.js (override these)
 if (!window.toggleCommunityAlerts) window.toggleCommunityAlerts = () => {}

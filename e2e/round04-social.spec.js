@@ -31,13 +31,19 @@ const PHASE = 'R04'
 
 test.describe('R04-01 Friend request flow', () => {
   let sessions
+  let isFallback = false
 
   test.beforeAll(async ({ browser }) => {
     test.setTimeout(120000)
     sessions = await createSessions(browser, ['alice', 'bob'])
+    isFallback = sessions.alice.uid?.startsWith('ci-') ?? false
     // Load social modules (with generous timeout)
     await triggerModuleLoad(sessions.alice.page, 'social').catch(() => {})
     await triggerModuleLoad(sessions.bob.page, 'social').catch(() => {})
+  })
+
+  test.beforeEach(() => {
+    test.skip(isFallback, 'Firebase not reachable in CI (localStorage fallback)')
   })
 
   test.afterAll(async () => {
@@ -149,11 +155,17 @@ test.describe('R04-01 Friend request flow', () => {
 
 test.describe('R04-02 Direct Messages', () => {
   let sessions
+  let isFallback = false
 
   test.beforeAll(async ({ browser }) => {
     sessions = await createSessions(browser, ['alice', 'bob'])
+    isFallback = sessions.alice.uid?.startsWith('ci-') ?? false
     await triggerModuleLoad(sessions.alice.page, 'social')
     await triggerModuleLoad(sessions.bob.page, 'social')
+  })
+
+  test.beforeEach(() => {
+    test.skip(isFallback, 'Firebase not reachable in CI (localStorage fallback)')
   })
 
   test.afterAll(async () => {
@@ -272,6 +284,7 @@ test.describe('R04-02 Direct Messages', () => {
 test.describe('R04-03 Block user', () => {
   test('alice blocks bob → DM impossible', async ({ browser }) => {
     const sessions = await createSessions(browser, ['alice', 'bob'])
+    if (sessions.alice.uid?.startsWith('ci-')) { test.skip(true, 'Firebase not reachable in CI') }
     await triggerModuleLoad(sessions.alice.page, 'social')
 
     const aliceUid = sessions.alice.uid
@@ -318,6 +331,7 @@ test.describe('R04-03 Block user', () => {
 test.describe('R04-04 Duplicate prevention', () => {
   test('second friend request to same user is prevented', async ({ browser }) => {
     const sessions = await createSessions(browser, ['alice', 'bob'])
+    if (sessions.alice.uid?.startsWith('ci-')) { test.skip(true, 'Firebase not reachable in CI') }
     const aliceUid = sessions.alice.uid
     const bobUid = sessions.bob.uid
 
