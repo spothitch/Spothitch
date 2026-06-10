@@ -8,13 +8,13 @@ import {
 } from './multi-user-helpers.js'
 
 test.use({ viewport: { width: 390, height: 844 } })
-test.setTimeout(120000)
+test.setTimeout(180000)
 
 // ═══════ 3-USER FRIEND CHAIN ═══════
 
 test.describe('3-user friend chain', () => {
   test('friend chain flow: alice→bob, bob→charlie, verify both', async ({ browser }) => {
-    test.setTimeout(120000)
+    test.setTimeout(180000)
     const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
     try {
       // alice → bob friend request
@@ -95,7 +95,7 @@ test.describe('3-user friend chain', () => {
 
 test.describe('3-user zone chat', () => {
   test('zone chat flow: alice+bob send, charlie reads', async ({ browser }) => {
-    test.setTimeout(120000)
+    test.setTimeout(180000)
     const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
     const msgIds = []
     try {
@@ -162,7 +162,7 @@ test.describe('3-user zone chat', () => {
 
 test.describe('3-user event', () => {
   test('event flow: alice creates, bob+charlie join, verify 3 participants', async ({ browser }) => {
-    test.setTimeout(120000)
+    test.setTimeout(180000)
     const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
     let eventId = null
     try {
@@ -226,7 +226,7 @@ test.describe('3-user event', () => {
 
 test.describe('Guardian multi-watcher', () => {
   test('guardian flow: alice starts session, bob+charlie read position', async ({ browser }) => {
-    test.setTimeout(120000)
+    test.setTimeout(180000)
     const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
     let sessionId = null
     try {

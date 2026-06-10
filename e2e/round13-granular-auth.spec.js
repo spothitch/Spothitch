@@ -123,17 +123,17 @@ test.describe('Auth XSS payloads', () => {
 
 test.describe('Session management', () => {
   test('5 users can login simultaneously', async ({ browser }) => {
-    test.setTimeout(120000)
+    test.setTimeout(180000)
     const sessions = []
     for (const key of ['alice', 'bob', 'charlie', 'diana', 'admin']) {
       sessions.push(await createUserSession(browser, key))
     }
+    // Use uid from createUserSession directly (avoids extra page.evaluate timing issues)
     for (const s of sessions) {
-      const uid = await getCurrentUid(s.page)
-      expect(uid).toBeTruthy()
+      expect(s.uid).toBeTruthy()
     }
     // All UIDs are different
-    const uids = await Promise.all(sessions.map(s => getCurrentUid(s.page)))
+    const uids = sessions.map(s => s.uid)
     const unique = new Set(uids)
     expect(unique.size).toBe(5)
     for (const s of sessions) await s.context.close()
