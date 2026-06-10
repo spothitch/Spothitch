@@ -179,7 +179,11 @@ test.describe('Regression: Auth Modal', () => {
   test('auth modal has Google sign-in button', async ({ page }) => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showAuth: true }))
-    await page.waitForTimeout(2000)
+    // Auth modal is lazy-loaded; wait for content to appear rather than fixed timeout
+    await page.waitForFunction(
+      () => document.body.innerHTML.includes('Google') || document.body.innerHTML.includes('handleGoogleSignIn'),
+      { timeout: 8000 }
+    ).catch(() => {})
     const html = await page.evaluate(() => document.body.innerHTML)
     expect(html).toMatch(/Google|handleGoogleSignIn/i)
   })

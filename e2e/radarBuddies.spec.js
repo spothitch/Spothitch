@@ -714,7 +714,10 @@ test.describe('Buddies - List & Filtering', () => {
   test('buddy cards show with photo and languages', async ({ page }) => {
     // Set state + synchronous render, blurring any focused input first
     // (render() is skipped when an input has focus — line 836-841 of main.js)
-    await page.evaluate(() => {
+    // Use a data URI so the image loads successfully — no onerror replacement
+    // (onerror replaces <img src="https://..."> with <div> when remote image fails in CI)
+    const PHOTO_DATA_URI = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    await page.evaluate((photoURL) => {
       if (document.activeElement && document.activeElement !== document.body) {
         document.activeElement.blur()
       }
@@ -723,7 +726,7 @@ test.describe('Buddies - List & Filtering', () => {
         isLoggedIn: true,
         travelBuddies: [{
           id: 'card1', userId: 'u1', userName: 'Marie D.',
-          photoURL: 'https://example.com/marie.jpg',
+          photoURL,
           departure: 'Paris', destination: 'Barcelona',
           dateFrom: '2026-08-01', message: 'Road trip!',
           mode: 'autostop', visibility: ['tous'],
@@ -732,10 +735,9 @@ test.describe('Buddies - List & Filtering', () => {
       })
       window._appInternals?.clearRenderCache('app')
       window._appInternals?.render()
-    })
-    // Wait for RAF fallback in case synchronous render was still skipped
+    }, PHOTO_DATA_URI)
     await page.waitForFunction(
-      () => document.body.innerHTML.includes('marie.jpg') || document.body.innerText.includes('Marie D.'),
+      () => document.body.innerText.includes('Marie D.'),
       { timeout: 4000 }
     ).catch(() => {})
     const text = await page.evaluate(() => document.body.innerText)
@@ -743,7 +745,8 @@ test.describe('Buddies - List & Filtering', () => {
     expect(text).toContain('Paris')
     expect(text).toContain('Barcelona')
     const html = await page.evaluate(() => document.body.innerHTML)
-    expect(html).toContain('marie.jpg')
+    // Photo: check data URI in img src (data URI loads successfully → no onerror replacement)
+    expect(html).toContain('data:image/gif')
     expect(html).toContain('Français')
   })
 
