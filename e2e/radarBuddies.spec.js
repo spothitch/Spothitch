@@ -12,6 +12,8 @@ async function goToVoyageurs(page) {
   await navigateToTab(page, 'social')
   await page.evaluate(() => window.setSocialTab?.('voyageurs'))
   await page.waitForTimeout(500)
+  // Re-assert isLoggedIn: Firebase onAuthStateChanged may reset it during the wait
+  await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
 }
 
 // Helper: simulate logged-in user with profile
@@ -69,7 +71,8 @@ test.describe('Radar - Combined View', () => {
 
   test('radar card shows inactive state by default', async ({ page }) => {
     const text = await page.evaluate(() => document.body.innerText)
-    const hasInactive = text.includes('Inactif') || text.includes('Inactive') || text.includes('Inaktiv')
+    const t = text.toLowerCase()
+    const hasInactive = t.includes('inactif') || t.includes('inactive') || t.includes('inaktiv')
     expect(hasInactive).toBe(true)
   })
 

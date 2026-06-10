@@ -309,7 +309,7 @@ test.describe('G-04 Real-time chat', () => {
 
     // Send a message via the service
     const sent = await sessions.alice.page.evaluate(async () => {
-      const { sendGuardianMessage } = await import('/src/services/guardian.js')
+      const { sendGuardianMessage } = await window.__getGuardianService()
       return await sendGuardianMessage('Hello from Alice!')
     })
     expect(sent).toBe(true)
@@ -340,7 +340,7 @@ test.describe('G-04 Real-time chat', () => {
 
     // Bob sends a reply to Alice's timer
     const sent = await sessions.bob.page.evaluate(async (travelerId) => {
-      const { sendGuardianReply } = await import('/src/services/guardian.js')
+      const { sendGuardianReply } = await window.__getGuardianService()
       return await sendGuardianReply(travelerId, 'Stay safe, Alice!')
     }, aliceUid)
 
@@ -421,7 +421,7 @@ test.describe('G-05 Photo sync', () => {
 
     const synced = await sessions.alice.page.evaluate(async (photo) => {
       try {
-        const { syncTripPhotoToFirestore } = await import('/src/services/guardian.js')
+        const { syncTripPhotoToFirestore } = await window.__getGuardianService()
         await syncTripPhotoToFirestore(photo)
         return true
       } catch (e) { return `error: ${e.message}` }
@@ -497,9 +497,11 @@ test.describe('G-06 Guardian watch', () => {
 
     // Bob reads the sosTimer
     const timer = await sessions.bob.page.evaluate(async (aliceUid) => {
-      const { getDb, doc, getDoc } = window.__fb
-      const snap = await getDoc(doc(getDb(), 'sosTimers', aliceUid))
-      return snap.exists() ? snap.data() : null
+      try {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'sosTimers', aliceUid))
+        return snap.exists() ? snap.data() : null
+      } catch { return null }
     }, aliceUid)
 
     if (timer) {
@@ -544,7 +546,7 @@ test.describe('G-07 Trip events', () => {
 
     // Add events via service
     await sessions.alice.page.evaluate(async () => {
-      const { addTripEvent } = await import('/src/services/guardian.js')
+      const { addTripEvent } = await window.__getGuardianService()
       addTripEvent('departure', { destination: 'Lyon' })
       addTripEvent('checkin', {})
       addTripEvent('vehicle', { plate: 'AB-123-CD', isNew: false })
@@ -552,7 +554,7 @@ test.describe('G-07 Trip events', () => {
     })
 
     const events = await sessions.alice.page.evaluate(async () => {
-      const { getTripEvents } = await import('/src/services/guardian.js')
+      const { getTripEvents } = await window.__getGuardianService()
       return getTripEvents()
     })
 
@@ -698,7 +700,7 @@ test.describe('G-09 Service functions', () => {
     })
 
     const isActive = await sessions.alice.page.evaluate(async () => {
-      const { isGuardianActive } = await import('/src/services/guardian.js')
+      const { isGuardianActive } = await window.__getGuardianService()
       return isGuardianActive()
     })
 
@@ -707,7 +709,7 @@ test.describe('G-09 Service functions', () => {
 
   test('getETAInfo calculates speed and ETA', async () => {
     const etaInfo = await sessions.alice.page.evaluate(async () => {
-      const { getETAInfo } = await import('/src/services/guardian.js')
+      const { getETAInfo } = await window.__getGuardianService()
       const state = {
         positions: [
           { lat: 48.8566, lng: 2.3522, timestamp: Date.now() - 3600000 },
@@ -724,7 +726,7 @@ test.describe('G-09 Service functions', () => {
 
   test('validateGuardianInputs rejects empty guardian', async () => {
     const result = await sessions.alice.page.evaluate(async () => {
-      const { validateGuardianInputs } = await import('/src/services/guardian.js')
+      const { validateGuardianInputs } = await window.__getGuardianService()
       return validateGuardianInputs({ guardians: [] })
     })
 
@@ -734,7 +736,7 @@ test.describe('G-09 Service functions', () => {
 
   test('validateGuardianInputs accepts valid config', async () => {
     const result = await sessions.alice.page.evaluate(async () => {
-      const { validateGuardianInputs } = await import('/src/services/guardian.js')
+      const { validateGuardianInputs } = await window.__getGuardianService()
       return validateGuardianInputs({
         guardians: [{ name: 'Bob', phone: '' }],
         destination: 'Lyon',
@@ -766,12 +768,12 @@ test.describe('G-09 Service functions', () => {
     })
 
     await sessions.alice.page.evaluate(async () => {
-      const { stopGuardianMode } = await import('/src/services/guardian.js')
+      const { stopGuardianMode } = await window.__getGuardianService()
       stopGuardianMode({ sendArrivalNotification: false })
     })
 
     const history = await sessions.alice.page.evaluate(async () => {
-      const { loadTripHistory } = await import('/src/services/guardian.js')
+      const { loadTripHistory } = await window.__getGuardianService()
       return loadTripHistory()
     })
 

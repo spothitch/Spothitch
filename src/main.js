@@ -1644,8 +1644,18 @@ if (!window.setAdminReportFilter) {
 if (!window.setAdminReportStatusFilter) {
   window.setAdminReportStatusFilter = (f) => setState({ adminReportStatusFilter: f })
 }
-// Guardian lazy-loaded handler stub — real handler in Guardian.js (overrides this)
+// Guardian lazy-loaded handler stubs — real handlers in Guardian.js (override these)
 if (!window.guardianSendMessage) window.guardianSendMessage = () => {}
+if (!window.guardianGoToScreen) window.guardianGoToScreen = () => {}
+if (!window.guardianEditField) window.guardianEditField = () => {}
+if (!window.guardianSaveField) window.guardianSaveField = () => {}
+if (!window.guardianCancelEdit) window.guardianCancelEdit = () => {}
+// Expose guardian service module for E2E tests (avoids direct /src/* import which fails in production build)
+if (!window.__getGuardianService) {
+  window.__getGuardianService = async () => {
+    return await import('./services/guardian.js')
+  }
+}
 // Community alerts handlers — lazy-loaded with SOS.js (override these)
 if (!window.toggleCommunityAlerts) window.toggleCommunityAlerts = () => {}
 if (!window.setCommunityRadius) window.setCommunityRadius = () => {}
