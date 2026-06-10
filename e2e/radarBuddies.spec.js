@@ -712,9 +712,12 @@ test.describe('Buddies - List & Filtering', () => {
   })
 
   test('buddy cards show with photo and languages', async ({ page }) => {
-    // Set state then render synchronously via _appInternals.render() to avoid
-    // RAF race conditions where async setState may overwrite travelBuddies before render
+    // Set state + synchronous render, blurring any focused input first
+    // (render() is skipped when an input has focus — line 836-841 of main.js)
     await page.evaluate(() => {
+      if (document.activeElement && document.activeElement !== document.body) {
+        document.activeElement.blur()
+      }
       window.setState?.({
         voyageursView: 'buddyList',
         isLoggedIn: true,
@@ -727,11 +730,14 @@ test.describe('Buddies - List & Filtering', () => {
           languages: ['Français', 'Español'],
         }],
       })
-      // Synchronous render with current state (bypasses RAF scheduling race)
       window._appInternals?.clearRenderCache('app')
       window._appInternals?.render()
     })
-    await page.waitForTimeout(500)
+    // Wait for RAF fallback in case synchronous render was still skipped
+    await page.waitForFunction(
+      () => document.body.innerHTML.includes('marie.jpg') || document.body.innerText.includes('Marie D.'),
+      { timeout: 4000 }
+    ).catch(() => {})
     const text = await page.evaluate(() => document.body.innerText)
     expect(text).toContain('Marie D.')
     expect(text).toContain('Paris')
