@@ -712,10 +712,8 @@ test.describe('Buddies - List & Filtering', () => {
   })
 
   test('buddy cards show with photo and languages', async ({ page }) => {
-    await page.evaluate(() => {
-      window.showBuddyList?.()
-    })
-    await page.waitForTimeout(200)
+    // voyageursView starts as 'combined' after goToVoyageurs()
+    // Changing it to 'buddyList' is a string change → fingerprint changes → normal setState re-render
     await page.evaluate(() => {
       window.setState?.({
         voyageursView: 'buddyList',
@@ -728,10 +726,8 @@ test.describe('Buddies - List & Filtering', () => {
           languages: ['Français', 'Español'],
         }],
       })
-      window._forceRender?.()
     })
-    await page.waitForTimeout(500)
-    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
+    await page.waitForTimeout(800)
     const text = await page.evaluate(() => document.body.innerText)
     expect(text).toContain('Marie D.')
     expect(text).toContain('Paris')

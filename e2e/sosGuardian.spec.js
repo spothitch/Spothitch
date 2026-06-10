@@ -46,7 +46,8 @@ test.describe('Guardian Deep Flows', () => {
 
   test('Guardian modal opens', async ({ page }) => {
     await page.evaluate(() => window.openGuardianModal?.() || window.showGuardianModal?.())
-    await page.waitForTimeout(1500)
+    // Guardian.js is ~2000 lines — lazy chunk takes longer to load than SOS; wait for selector
+    await page.waitForSelector('[id*="guardian"], [class*="guardian"]', { timeout: 8000 }).catch(() => {})
     const guardian = page.locator('[class*="companion"], [class*="guardian"], [id*="companion"], [id*="guardian"]')
     const count = await guardian.count()
     expect(count).toBeGreaterThan(0)
