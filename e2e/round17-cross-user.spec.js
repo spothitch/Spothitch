@@ -20,6 +20,8 @@ test.describe('3-user friend chain', () => {
     // and 2+ sessions would reliably exceed any reasonable timeout.
     // Firestore cross-user data flow is verified; security rules are in round10.
     const session = await createUserSession(browser, 'alice')
+    // Limit all page operations after session creation so cleanup can't hang 45s
+    session.page.setDefaultTimeout(15000)
     const bobUid = 'ci-e2e-bob-synthetic'
     const charlieUid = 'ci-e2e-charlie-synthetic'
     try {
@@ -79,7 +81,7 @@ test.describe('3-user friend chain', () => {
       }, { charlieUid, bobUid })
       expect(charlieSees || 'firebase-unavailable').toBeTruthy()
 
-      // Cleanup
+      // Cleanup (5s timeout per op — cleanup is best-effort, not critical)
       for (const [owner, requester] of [
         [bobUid, session.uid],
         [charlieUid, bobUid],
@@ -87,12 +89,15 @@ test.describe('3-user friend chain', () => {
         await session.page.evaluate(async ({ owner, requester }) => {
           try {
             const { getDb, doc, deleteDoc } = window.__fb
-            await deleteDoc(doc(getDb(), 'users', owner, 'friendRequests', requester))
+            await Promise.race([
+              deleteDoc(doc(getDb(), 'users', owner, 'friendRequests', requester)),
+              new Promise((_, r) => setTimeout(() => r(), 5000)),
+            ])
           } catch {}
-        }, { owner, requester })
+        }, { owner, requester }).catch(() => {})
       }
     } finally {
-      await session.context.close()
+      await session.context.close().catch(() => {})
     }
   })
 })
