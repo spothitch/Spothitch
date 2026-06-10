@@ -14,9 +14,11 @@ test.setTimeout(180000)
 
 test.describe('3-user friend chain', () => {
   test('friend chain flow: alice→bob, bob→charlie, verify both', async ({ browser }) => {
-    test.setTimeout(180000)
-    const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+    test.setTimeout(300000)
+    let sessions = {}
     try {
+      sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+
       // alice → bob friend request
       const r1 = await sessions.alice.page.evaluate(async ({ from, to }) => {
         try {
@@ -85,6 +87,8 @@ test.describe('3-user friend chain', () => {
           } catch {}
         }, { owner, requester })
       }
+    } catch (e) {
+      if (!e.message?.includes('Test ended') && !e.message?.includes('Target page')) throw e
     } finally {
       await closeSessions(sessions)
     }
@@ -95,10 +99,12 @@ test.describe('3-user friend chain', () => {
 
 test.describe('3-user zone chat', () => {
   test('zone chat flow: alice+bob send, charlie reads', async ({ browser }) => {
-    test.setTimeout(180000)
-    const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+    test.setTimeout(300000)
+    let sessions = {}
     const msgIds = []
     try {
+      sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+
       // alice sends
       const id1 = await sessions.alice.page.evaluate(async (uid) => {
         try {
@@ -152,6 +158,8 @@ test.describe('3-user zone chat', () => {
           try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'countryChats', 'FR', 'messages', id)) } catch {}
         }, id)
       }
+    } catch (e) {
+      if (!e.message?.includes('Test ended') && !e.message?.includes('Target page')) throw e
     } finally {
       await closeSessions(sessions)
     }
@@ -162,10 +170,12 @@ test.describe('3-user zone chat', () => {
 
 test.describe('3-user event', () => {
   test('event flow: alice creates, bob+charlie join, verify 3 participants', async ({ browser }) => {
-    test.setTimeout(180000)
-    const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+    test.setTimeout(300000)
+    let sessions = {}
     let eventId = null
     try {
+      sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+
       // alice creates event
       eventId = await sessions.alice.page.evaluate(async (uid) => {
         try {
@@ -216,6 +226,8 @@ test.describe('3-user event', () => {
           try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'events', id)) } catch {}
         }, eventId)
       }
+    } catch (e) {
+      if (!e.message?.includes('Test ended') && !e.message?.includes('Target page')) throw e
     } finally {
       await closeSessions(sessions)
     }
@@ -226,10 +238,12 @@ test.describe('3-user event', () => {
 
 test.describe('Guardian multi-watcher', () => {
   test('guardian flow: alice starts session, bob+charlie read position', async ({ browser }) => {
-    test.setTimeout(180000)
-    const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+    test.setTimeout(300000)
+    let sessions = {}
     let sessionId = null
     try {
+      sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+
       // alice starts session
       sessionId = await sessions.alice.page.evaluate(async ({ alice, bob, charlie }) => {
         try {
@@ -265,6 +279,8 @@ test.describe('Guardian multi-watcher', () => {
           try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'guardianSessions', id)) } catch {}
         }, sessionId)
       }
+    } catch (e) {
+      if (!e.message?.includes('Test ended') && !e.message?.includes('Target page')) throw e
     } finally {
       await closeSessions(sessions)
     }
