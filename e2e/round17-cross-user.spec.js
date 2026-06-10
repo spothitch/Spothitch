@@ -14,7 +14,7 @@ test.setTimeout(180000)
 
 test.describe('3-user friend chain', () => {
   test('friend chain flow: alice→bob, bob→charlie, verify both', async ({ browser }) => {
-    test.setTimeout(120000)
+    test.setTimeout(150000)
     // Use 1 real session (alice) + synthetic UIDs for bob+charlie.
     // Avoids CI resource contention: each session takes ~90s under load,
     // and 2+ sessions would reliably exceed any reasonable timeout.

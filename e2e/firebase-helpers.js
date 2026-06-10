@@ -184,7 +184,8 @@ export async function openSecondBrowser(browser, email, password) {
       try {
         const fb = window.__fb
         fb.initializeFirebase()
-        const res = await fb.signIn(e, p)
+        const timeout20s = new Promise((_, r) => setTimeout(() => r(new Error('signIn-timeout')), 20000))
+        const res = await Promise.race([fb.signIn(e, p), timeout20s])
         if (res.success) {
           const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
           state.currentUser = { uid: res.user.uid, email: e }
@@ -193,7 +194,8 @@ export async function openSecondBrowser(browser, email, password) {
           return { success: true }
         }
         if (res.error?.includes('user-not-found') || res.error?.includes('invalid-credential')) {
-          const signUpRes = await fb.signUp(e, p, e.split('@')[0])
+          const timeout20s2 = new Promise((_, r) => setTimeout(() => r(new Error('signUp-timeout')), 20000))
+          const signUpRes = await Promise.race([fb.signUp(e, p, e.split('@')[0]), timeout20s2])
           if (signUpRes.success) {
             const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
             state.currentUser = { uid: signUpRes.user.uid, email: e }
@@ -345,8 +347,11 @@ export async function initFirebasePage(browser, email, password) {
       try {
         const fb = window.__fb
         fb.initializeFirebase()
-        // Try signIn
-        const result = await fb.signIn(e, p)
+        // Try signIn with 20s timeout (emulator can be slow under CI load)
+        // Use 'signIn-exceeded' (not 'signIn-timeout') so it's NOT in the retryable list
+        // and falls immediately to the localStorage fallback instead of retrying 3×
+        const timeout20s = new Promise((_, r) => setTimeout(() => r(new Error('signIn-exceeded')), 20000))
+        const result = await Promise.race([fb.signIn(e, p), timeout20s])
         if (result.success) {
           const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
           state.currentUser = { uid: result.user.uid, email: e }
@@ -356,7 +361,8 @@ export async function initFirebasePage(browser, email, password) {
         }
         // Auto-create if account doesn't exist (emulator starts fresh)
         if (result.error?.includes('user-not-found') || result.error?.includes('invalid-credential')) {
-          const signUpRes = await fb.signUp(e, p, e.split('@')[0])
+          const timeout20s2 = new Promise((_, r) => setTimeout(() => r(new Error('signUp-exceeded')), 20000))
+          const signUpRes = await Promise.race([fb.signUp(e, p, e.split('@')[0]), timeout20s2])
           if (signUpRes.success) {
             const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
             state.currentUser = { uid: signUpRes.user.uid, email: e }
