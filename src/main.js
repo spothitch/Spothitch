@@ -1650,6 +1650,20 @@ if (!window.guardianGoToScreen) window.guardianGoToScreen = () => {}
 if (!window.guardianEditField) window.guardianEditField = () => {}
 if (!window.guardianSaveField) window.guardianSaveField = () => {}
 if (!window.guardianCancelEdit) window.guardianCancelEdit = () => {}
+if (!window.guardianAddGuardian) window.guardianAddGuardian = () => {}
+if (!window.guardianEditGuardian) window.guardianEditGuardian = () => {}
+if (!window.guardianRemoveGuardian) window.guardianRemoveGuardian = () => {}
+if (!window.guardianUpdatePlate) window.guardianUpdatePlate = () => {}
+if (!window.guardianSavePlate) window.guardianSavePlate = () => {}
+if (!window.guardianAddTripPhoto) window.guardianAddTripPhoto = () => {}
+if (!window.guardianSaveTripPhoto) window.guardianSaveTripPhoto = () => {}
+if (!window.guardianUpdateDestination) window.guardianUpdateDestination = () => {}
+if (!window.guardianSaveDestination) window.guardianSaveDestination = () => {}
+if (!window.guardianQuickCheckin) window.guardianQuickCheckin = () => {}
+if (!window.guardianSendReply) window.guardianSendReply = () => {}
+if (!window.guardianShowArrival) window.guardianShowArrival = () => {}
+if (!window.guardianAddToJournal) window.guardianAddToJournal = () => {}
+if (!window.guardianCloseSheet) window.guardianCloseSheet = () => {}
 // Expose guardian service module for E2E tests (avoids direct /src/* import which fails in production build)
 if (!window.__getGuardianService) {
   window.__getGuardianService = async () => {

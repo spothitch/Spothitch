@@ -250,9 +250,15 @@ test.describe('G-03 Session lifecycle', () => {
 
 test.describe('G-04 Real-time chat', () => {
   let sessions
+  let isFallback = false
 
   test.beforeAll(async ({ browser }) => {
     sessions = await createSessions(browser, ['alice', 'bob'])
+    isFallback = sessions.alice.uid.startsWith('ci-')
+  })
+
+  test.beforeEach(() => {
+    test.skip(isFallback, 'Firebase not reachable in CI (localStorage fallback)')
   })
 
   test.afterAll(async () => {
@@ -371,9 +377,15 @@ test.describe('G-04 Real-time chat', () => {
 
 test.describe('G-05 Photo sync', () => {
   let sessions
+  let isFallback = false
 
   test.beforeAll(async ({ browser }) => {
     sessions = await createSessions(browser, ['alice'])
+    isFallback = sessions.alice.uid.startsWith('ci-')
+  })
+
+  test.beforeEach(() => {
+    test.skip(isFallback, 'Firebase not reachable in CI (localStorage fallback)')
   })
 
   test.afterAll(async () => {
