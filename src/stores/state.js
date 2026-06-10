@@ -534,6 +534,10 @@ export function getState() {
  * @param {Partial<typeof initialState>} updates - State updates
  */
 export function setState(updates) {
+  // E2E test hook: prevent Firebase onAuthStateChanged(null) from resetting isLoggedIn
+  // during test waits. Only active when window.__e2eAuthLock is set by test helpers.
+  if (typeof window !== 'undefined' && window.__e2eAuthLock && updates?.isLoggedIn === false) return
+
   // Skip render if caller already updated the DOM (fast step swap)
   const skipRender = updates._skipRender
   if (skipRender) delete updates._skipRender

@@ -133,16 +133,10 @@ export async function navigateToTab(page, tabId) {
   const protectedTabs = ['voyage', 'social', 'profile']
   if (protectedTabs.includes(tabId)) {
     await page.evaluate((id) => {
-      // Install lock (idempotent — only wraps setState once per page)
-      if (!window.__e2eAuthLocked && window.setState) {
-        const orig = window.setState
-        window.__e2eAuthLocked = true
-        window.setState = (updates) => {
-          if (updates && updates.isLoggedIn === false) return
-          orig(updates)
-        }
-      }
-      // Set auth state immediately while lock is active — no async gap
+      // Activate E2E auth lock — state.js setState now blocks isLoggedIn:false updates.
+      // Must be set BEFORE any async wait so Firebase onAuthStateChanged(null) is blocked.
+      window.__e2eAuthLock = true
+      // Immediately set auth state while lock is armed — no async gap
       window.setState?.({ showAuth: false, isLoggedIn: true, activeTab: id })
     }, tabId)
   }
