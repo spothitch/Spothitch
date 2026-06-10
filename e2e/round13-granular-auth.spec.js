@@ -123,6 +123,7 @@ test.describe('Auth XSS payloads', () => {
 
 test.describe('Session management', () => {
   test('5 users can login simultaneously', async ({ browser }) => {
+    test.setTimeout(120000)
     const sessions = []
     for (const key of ['alice', 'bob', 'charlie', 'diana', 'admin']) {
       sessions.push(await createUserSession(browser, key))

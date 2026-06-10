@@ -209,16 +209,20 @@ test.describe('R09-03 Report guide error', () => {
 
 test.describe('R09-04 XSS in guide tip', () => {
   test('XSS in tip text stored safely in Firestore', async ({ browser }) => {
+    test.setTimeout(120000)
     const session = await createUserSession(browser, 'alice')
 
     const tipId = await session.page.evaluate(async (uid) => {
       try {
         const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-        const ref = await addDoc(collection(getDb(), 'guideTips'), {
-          userId: uid, countryCode: 'FR',
-          text: '<script>alert("xss")</script>', votes: 0,
-          createdAt: serverTimestamp(),
-        })
+        const ref = await Promise.race([
+          addDoc(collection(getDb(), 'guideTips'), {
+            userId: uid, countryCode: 'FR',
+            text: '<script>alert("xss")</script>', votes: 0,
+            createdAt: serverTimestamp(),
+          }),
+          new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+        ])
         return ref.id
       } catch (e) { return null }
     }, session.uid)

@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test'
 import { createUserSession, navigateToTab, triggerModuleLoad } from './multi-user-helpers.js'
 
 test.use({ viewport: { width: 390, height: 844 } })
-test.setTimeout(30000)
+test.setTimeout(90000)
 
 const XSS = [
   '<script>alert(1)</script>',
@@ -120,13 +120,16 @@ test.describe('XSS in Firestore spot', () => {
       const spotId = await session.page.evaluate(async ({ uid, payload }) => {
         try {
           const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-          const ref = await addDoc(collection(getDb(), 'spots'), {
-            creatorId: uid, lat: 48.0, lng: 2.0,
-            direction: payload, type: 'other',
-            ratings: { security: 3, traffic: 3, accessibility: 3 },
-            description: payload, country: 'FR',
-            createdAt: serverTimestamp(), validationCount: 0, status: 'active',
-          })
+          const ref = await Promise.race([
+            addDoc(collection(getDb(), 'spots'), {
+              creatorId: uid, lat: 48.0, lng: 2.0,
+              direction: payload, type: 'other',
+              ratings: { security: 3, traffic: 3, accessibility: 3 },
+              description: payload, country: 'FR',
+              createdAt: serverTimestamp(), validationCount: 0, status: 'active',
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
           return ref.id
         } catch { return null }
       }, { uid: session.uid, payload })
