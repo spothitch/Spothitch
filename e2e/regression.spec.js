@@ -217,15 +217,13 @@ test.describe('Regression: Profile View', () => {
     expect(html).toMatch(/TestUser/i)
   })
 
-  test('profile shows points and level', async ({ page }) => {
+  test('profile shows username and main sections', async ({ page }) => {
     await skipOnboarding(page, { points: 250, level: 3, tab: 'profile' })
     await navigateToTab(page, 'profile')
-    // Re-assert: Firebase onAuthStateChanged may have reset state during navigation
-    await page.evaluate(() => window.setState?.({ isLoggedIn: true, points: 250, level: 3 }))
     await page.waitForTimeout(500)
     const html = await page.evaluate(() => document.body.innerText)
-    // Should show points or level information
-    expect(html).toMatch(/250|Niveau|Level|Niv/i)
+    // Profile shows username, settings, and stats sections (gamification points/level not in profile UI)
+    expect(html).toMatch(/TestUser|Profil|Roadmap|Réglages|Spots|Validations/i)
   })
 
   test('profile sub-tabs switch correctly', async ({ page }) => {
@@ -264,15 +262,13 @@ test.describe('Regression: Social Tab', () => {
 // 8. VOYAGE / TRIP
 // ================================================================
 test.describe('Regression: Voyage / Trip Planner', () => {
-  test('voyage tab shows trip planner with from/to inputs', async ({ page }) => {
+  test('voyage tab shows guides content (trip planner hidden during alpha)', async ({ page }) => {
     await skipOnboarding(page)
     await navigateToTab(page, 'voyage')
-    await page.evaluate(() => window.setVoyageSubTab?.('voyage'))
     await page.waitForTimeout(2000)
-    await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
-    await page.waitForTimeout(500)
-    const html = await page.evaluate(() => document.body.innerHTML)
-    expect(html).toMatch(/trip-from|trip-to|planTrip|itinéraire|Itinéraire/i)
+    const html = await page.evaluate(() => document.body.innerText)
+    // Trip planner hidden during alpha; voyageSubTab='voyage' redirects to 'guides'
+    expect(html).toMatch(/guide|Guide|pays|country|France|Débuter|hitchhik|autostop/i)
   })
 
   test('voyage sub-tabs switch correctly', async ({ page }) => {
@@ -503,7 +499,7 @@ test.describe('Regression: Share Target', () => {
 // 15. GAMIFICATION
 // ================================================================
 test.describe('Regression: Gamification', () => {
-  test('badges modal opens with badge content', async ({ page }) => {
+  test.skip('badges modal opens with badge content — gamification hidden during alpha', async ({ page }) => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showBadges: true }))
     await page.waitForTimeout(2000)
@@ -513,7 +509,7 @@ test.describe('Regression: Gamification', () => {
     expect(html).toMatch(/Badge|badge|Trophée|Trophy|premier|first/i)
   })
 
-  test('quiz modal opens with country or question content', async ({ page }) => {
+  test.skip('quiz modal opens with country or question content — gamification hidden during alpha', async ({ page }) => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showQuiz: true }))
     await page.waitForTimeout(2000)
@@ -533,7 +529,7 @@ test.describe('Regression: Gamification', () => {
     expect(html).toMatch(/pouce|thumb|100|Tout|All|boutique|shop/i)
   })
 
-  test('leaderboard opens with podium', async ({ page }) => {
+  test.skip('leaderboard opens with podium — gamification hidden during alpha', async ({ page }) => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showLeaderboard: true }))
     await page.waitForTimeout(1500)

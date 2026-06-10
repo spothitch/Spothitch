@@ -86,7 +86,12 @@ test.describe('Radar - Combined View', () => {
 // 3. RADAR UI — Expanded view
 // ================================================================
 test.describe('Radar - Expanded View', () => {
-  test.beforeEach(async ({ page }) => { await goToVoyageurs(page) })
+  test.beforeEach(async ({ page }) => {
+    await goToVoyageurs(page)
+    await page.evaluate(() => {
+      localStorage.setItem('spothitch_proximity_radar', JSON.stringify({ enabled: true, radius: 50, visibility: ['tous'], cooldownUntil: 0 }))
+    })
+  })
 
   test('expanded view opens with radius options', async ({ page }) => {
     await page.evaluate(() => window.showRadarExpanded?.())
@@ -279,7 +284,12 @@ test.describe('Radar - Guardian Integration', () => {
 // 8. RADAR — Nearby travelers rendering
 // ================================================================
 test.describe('Radar - Nearby Travelers Display', () => {
-  test.beforeEach(async ({ page }) => { await goToVoyageurs(page) })
+  test.beforeEach(async ({ page }) => {
+    await goToVoyageurs(page)
+    await page.evaluate(() => {
+      localStorage.setItem('spothitch_proximity_radar', JSON.stringify({ enabled: true, radius: 50 }))
+    })
+  })
 
   test('shows traveler with photo when available', async ({ page }) => {
     await page.evaluate(() => {
@@ -703,7 +713,12 @@ test.describe('Buddies - List & Filtering', () => {
 
   test('buddy cards show with photo and languages', async ({ page }) => {
     await page.evaluate(() => {
+      window.showBuddyList?.()
+    })
+    await page.waitForTimeout(200)
+    await page.evaluate(() => {
       window.setState?.({
+        voyageursView: 'buddyList',
         travelBuddies: [{
           id: 'card1', userId: 'u1', userName: 'Marie D.',
           photoURL: 'https://example.com/marie.jpg',
