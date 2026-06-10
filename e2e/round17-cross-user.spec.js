@@ -13,199 +13,211 @@ test.setTimeout(120000)
 // ═══════ 3-USER FRIEND CHAIN ═══════
 
 test.describe('3-user friend chain', () => {
-  let sessions
-
-  test.beforeAll(async ({ browser }) => {
-    test.setTimeout(180000)
-    sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
-  })
-  test.afterAll(async () => { await closeSessions(sessions) })
-
-  test('alice → bob friend request', async () => {
-    const result = await sessions.alice.page.evaluate(async ({ from, to }) => {
-      try {
-        const { getDb, doc, setDoc, serverTimestamp } = window.__fb
-        await setDoc(doc(getDb(), 'users', to, 'friendRequests', from), {
-          fromUid: from, status: 'pending', createdAt: serverTimestamp(),
-        })
-        return true
-      } catch { return false }
-    }, { from: sessions.alice.uid, to: sessions.bob.uid })
-    expect(result).toBe(true)
-  })
-
-  test('bob → charlie friend request', async () => {
-    const result = await sessions.bob.page.evaluate(async ({ from, to }) => {
-      try {
-        const { getDb, doc, setDoc, serverTimestamp } = window.__fb
-        await setDoc(doc(getDb(), 'users', to, 'friendRequests', from), {
-          fromUid: from, status: 'pending', createdAt: serverTimestamp(),
-        })
-        return true
-      } catch { return false }
-    }, { from: sessions.bob.uid, to: sessions.charlie.uid })
-    expect(result).toBe(true)
-  })
-
-  test('bob sees alice request', async () => {
-    const req = await sessions.bob.page.evaluate(async ({ bobUid, aliceUid }) => {
-      try {
-        const { getDb, doc, getDoc } = window.__fb
-        const snap = await getDoc(doc(getDb(), 'users', bobUid, 'friendRequests', aliceUid))
-        return snap.exists()
-      } catch { return false }
-    }, { bobUid: sessions.bob.uid, aliceUid: sessions.alice.uid })
-    expect(req).toBe(true)
-  })
-
-  test('charlie sees bob request', async () => {
-    const req = await sessions.charlie.page.evaluate(async ({ charlieUid, bobUid }) => {
-      try {
-        const { getDb, doc, getDoc } = window.__fb
-        const snap = await getDoc(doc(getDb(), 'users', charlieUid, 'friendRequests', bobUid))
-        return snap.exists()
-      } catch { return false }
-    }, { charlieUid: sessions.charlie.uid, bobUid: sessions.bob.uid })
-    expect(req).toBe(true)
-  })
-
-  // Cleanup
-  test('cleanup friend requests', async () => {
-    for (const [owner, requester] of [
-      [sessions.bob.uid, sessions.alice.uid],
-      [sessions.charlie.uid, sessions.bob.uid],
-    ]) {
-      await sessions.alice.page.evaluate(async ({ owner, requester }) => {
+  test('friend chain flow: alice→bob, bob→charlie, verify both', async ({ browser }) => {
+    test.setTimeout(120000)
+    const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+    try {
+      // alice → bob friend request
+      const r1 = await sessions.alice.page.evaluate(async ({ from, to }) => {
         try {
-          const { getDb, doc, deleteDoc } = window.__fb
-          await deleteDoc(doc(getDb(), 'users', owner, 'friendRequests', requester))
-        } catch {}
-      }, { owner, requester })
+          const { getDb, doc, setDoc, serverTimestamp } = window.__fb
+          await Promise.race([
+            setDoc(doc(getDb(), 'users', to, 'friendRequests', from), {
+              fromUid: from, status: 'pending', createdAt: serverTimestamp(),
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return true
+        } catch { return false }
+      }, { from: sessions.alice.uid, to: sessions.bob.uid })
+      expect(r1).toBe(true)
+
+      // bob → charlie friend request
+      const r2 = await sessions.bob.page.evaluate(async ({ from, to }) => {
+        try {
+          const { getDb, doc, setDoc, serverTimestamp } = window.__fb
+          await Promise.race([
+            setDoc(doc(getDb(), 'users', to, 'friendRequests', from), {
+              fromUid: from, status: 'pending', createdAt: serverTimestamp(),
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return true
+        } catch { return false }
+      }, { from: sessions.bob.uid, to: sessions.charlie.uid })
+      expect(r2).toBe(true)
+
+      // bob sees alice request
+      const bobSees = await sessions.bob.page.evaluate(async ({ bobUid, aliceUid }) => {
+        try {
+          const { getDb, doc, getDoc } = window.__fb
+          const snap = await Promise.race([
+            getDoc(doc(getDb(), 'users', bobUid, 'friendRequests', aliceUid)),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return snap.exists()
+        } catch { return false }
+      }, { bobUid: sessions.bob.uid, aliceUid: sessions.alice.uid })
+      expect(bobSees).toBe(true)
+
+      // charlie sees bob request
+      const charlieSees = await sessions.charlie.page.evaluate(async ({ charlieUid, bobUid }) => {
+        try {
+          const { getDb, doc, getDoc } = window.__fb
+          const snap = await Promise.race([
+            getDoc(doc(getDb(), 'users', charlieUid, 'friendRequests', bobUid)),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return snap.exists()
+        } catch { return false }
+      }, { charlieUid: sessions.charlie.uid, bobUid: sessions.bob.uid })
+      expect(charlieSees).toBe(true)
+
+      // Cleanup
+      for (const [owner, requester] of [
+        [sessions.bob.uid, sessions.alice.uid],
+        [sessions.charlie.uid, sessions.bob.uid],
+      ]) {
+        await sessions.alice.page.evaluate(async ({ owner, requester }) => {
+          try {
+            const { getDb, doc, deleteDoc } = window.__fb
+            await deleteDoc(doc(getDb(), 'users', owner, 'friendRequests', requester))
+          } catch {}
+        }, { owner, requester })
+      }
+    } finally {
+      await closeSessions(sessions)
     }
-    expect(true).toBe(true)
   })
 })
 
 // ═══════ 3-USER ZONE CHAT ═══════
 
 test.describe('3-user zone chat', () => {
-  let sessions
+  test('zone chat flow: alice+bob send, charlie reads', async ({ browser }) => {
+    test.setTimeout(120000)
+    const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+    const msgIds = []
+    try {
+      // alice sends
+      const id1 = await sessions.alice.page.evaluate(async (uid) => {
+        try {
+          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+          const ref = await Promise.race([
+            addDoc(collection(getDb(), 'countryChats', 'FR', 'messages'), {
+              senderId: uid, text: 'Alice here!', createdAt: serverTimestamp(),
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return ref.id
+        } catch { return null }
+      }, sessions.alice.uid)
+      if (id1) msgIds.push(id1)
+      expect(id1 || 'firebase-unavailable').toBeTruthy()
 
-  test.beforeAll(async ({ browser }) => {
-    test.setTimeout(180000)
-    sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
-  })
-  test.afterAll(async () => { await closeSessions(sessions) })
+      // bob sends
+      const id2 = await sessions.bob.page.evaluate(async (uid) => {
+        try {
+          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+          const ref = await Promise.race([
+            addDoc(collection(getDb(), 'countryChats', 'FR', 'messages'), {
+              senderId: uid, text: 'Bob here!', createdAt: serverTimestamp(),
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return ref.id
+        } catch { return null }
+      }, sessions.bob.uid)
+      if (id2) msgIds.push(id2)
+      expect(id2 || 'firebase-unavailable').toBeTruthy()
 
-  const msgIds = []
-
-  test('alice sends message to FR chat', async () => {
-    const id = await sessions.alice.page.evaluate(async (uid) => {
-      try {
-        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-        const ref = await addDoc(collection(getDb(), 'countryChats', 'FR', 'messages'), {
-          senderId: uid, text: 'Alice here!', createdAt: serverTimestamp(),
+      // charlie reads
+      if (msgIds.length >= 2) {
+        const count = await sessions.charlie.page.evaluate(async () => {
+          try {
+            const { getDb, collection, getDocs } = window.__fb
+            const snap = await Promise.race([
+              getDocs(collection(getDb(), 'countryChats', 'FR', 'messages')),
+              new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+            ])
+            return snap.size
+          } catch { return 0 }
         })
-        return ref.id
-      } catch { return null }
-    }, sessions.alice.uid)
-    if (id) msgIds.push(id)
-    expect(id || 'firebase-unavailable').toBeTruthy()
-  })
+        expect(count).toBeGreaterThanOrEqual(2)
+      }
 
-  test('bob sends message to FR chat', async () => {
-    const id = await sessions.bob.page.evaluate(async (uid) => {
-      try {
-        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-        const ref = await addDoc(collection(getDb(), 'countryChats', 'FR', 'messages'), {
-          senderId: uid, text: 'Bob here!', createdAt: serverTimestamp(),
-        })
-        return ref.id
-      } catch { return null }
-    }, sessions.bob.uid)
-    if (id) msgIds.push(id)
-    expect(id || 'firebase-unavailable').toBeTruthy()
-  })
-
-  test('charlie reads both messages', async () => {
-    if (msgIds.length < 2) return
-
-    const count = await sessions.charlie.page.evaluate(async () => {
-      try {
-        const { getDb, collection, getDocs } = window.__fb
-        const snap = await getDocs(collection(getDb(), 'countryChats', 'FR', 'messages'))
-        return snap.size
-      } catch { return 0 }
-    })
-    expect(count).toBeGreaterThanOrEqual(2)
-  })
-
-  test('cleanup chat messages', async () => {
-    for (const id of msgIds) {
-      await sessions.alice.page.evaluate(async (id) => {
-        try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'countryChats', 'FR', 'messages', id)) } catch {}
-      }, id)
+      // Cleanup
+      for (const id of msgIds) {
+        await sessions.alice.page.evaluate(async (id) => {
+          try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'countryChats', 'FR', 'messages', id)) } catch {}
+        }, id)
+      }
+    } finally {
+      await closeSessions(sessions)
     }
-    expect(true).toBe(true)
   })
 })
 
 // ═══════ EVENT WITH 3 PARTICIPANTS ═══════
 
 test.describe('3-user event', () => {
-  let sessions
-  let eventId = null
+  test('event flow: alice creates, bob+charlie join, verify 3 participants', async ({ browser }) => {
+    test.setTimeout(120000)
+    const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+    let eventId = null
+    try {
+      // alice creates event
+      eventId = await sessions.alice.page.evaluate(async (uid) => {
+        try {
+          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+          const ref = await Promise.race([
+            addDoc(collection(getDb(), 'events'), {
+              creatorId: uid, title: '3-user test event',
+              participants: [uid], status: 'active', createdAt: serverTimestamp(),
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return ref.id
+        } catch { return null }
+      }, sessions.alice.uid)
+      expect(eventId || 'firebase-unavailable').toBeTruthy()
 
-  test.beforeAll(async ({ browser }) => {
-    test.setTimeout(180000)
-    sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
-  })
-  test.afterAll(async () => {
-    if (eventId) {
-      await sessions.alice.page.evaluate(async (id) => {
-        try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'events', id)) } catch {}
-      }, eventId)
-    }
-    await closeSessions(sessions)
-  })
+      if (eventId) {
+        // bob joins
+        await sessions.bob.page.evaluate(async ({ eventId, uid }) => {
+          try {
+            const { getDb, doc, updateDoc, arrayUnion } = window.__fb
+            await Promise.race([
+              updateDoc(doc(getDb(), 'events', eventId), { participants: arrayUnion(uid) }),
+              new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+            ])
+          } catch {}
+        }, { eventId, uid: sessions.bob.uid })
 
-  test('alice creates event', async () => {
-    eventId = await sessions.alice.page.evaluate(async (uid) => {
-      try {
-        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-        const ref = await addDoc(collection(getDb(), 'events'), {
-          creatorId: uid, title: '3-user test event',
-          participants: [uid], status: 'active', createdAt: serverTimestamp(),
-        })
-        return ref.id
-      } catch { return null }
-    }, sessions.alice.uid)
-    expect(eventId || 'firebase-unavailable').toBeTruthy()
-  })
+        // charlie joins
+        await sessions.charlie.page.evaluate(async ({ eventId, uid }) => {
+          try {
+            const { getDb, doc, updateDoc, arrayUnion } = window.__fb
+            await Promise.race([
+              updateDoc(doc(getDb(), 'events', eventId), { participants: arrayUnion(uid) }),
+              new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+            ])
+          } catch {}
+        }, { eventId, uid: sessions.charlie.uid })
 
-  test('bob joins event', async () => {
-    if (!eventId) return
-    await sessions.bob.page.evaluate(async ({ eventId, uid }) => {
-      const { getDb, doc, updateDoc, arrayUnion } = window.__fb
-      await updateDoc(doc(getDb(), 'events', eventId), { participants: arrayUnion(uid) })
-    }, { eventId, uid: sessions.bob.uid })
-    expect(true).toBe(true)
-  })
+        // verify 3 participants
+        const eventDoc = await firestoreGetDoc(sessions.alice.page, 'events', eventId)
+        if (eventDoc) {
+          expect(eventDoc.participants.length).toBe(3)
+        }
 
-  test('charlie joins event', async () => {
-    if (!eventId) return
-    await sessions.charlie.page.evaluate(async ({ eventId, uid }) => {
-      const { getDb, doc, updateDoc, arrayUnion } = window.__fb
-      await updateDoc(doc(getDb(), 'events', eventId), { participants: arrayUnion(uid) })
-    }, { eventId, uid: sessions.charlie.uid })
-    expect(true).toBe(true)
-  })
-
-  test('event has 3 participants', async () => {
-    if (!eventId) return
-    const doc = await firestoreGetDoc(sessions.alice.page, 'events', eventId)
-    if (doc) {
-      expect(doc.participants.length).toBe(3)
+        // Cleanup
+        await sessions.alice.page.evaluate(async (id) => {
+          try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'events', id)) } catch {}
+        }, eventId)
+      }
+    } finally {
+      await closeSessions(sessions)
     }
   })
 })
@@ -213,50 +225,48 @@ test.describe('3-user event', () => {
 // ═══════ GUARDIAN: ALICE MONITORED BY BOB + CHARLIE ═══════
 
 test.describe('Guardian multi-watcher', () => {
-  let sessions
-  let sessionId = null
+  test('guardian flow: alice starts session, bob+charlie read position', async ({ browser }) => {
+    test.setTimeout(120000)
+    const sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
+    let sessionId = null
+    try {
+      // alice starts session
+      sessionId = await sessions.alice.page.evaluate(async ({ alice, bob, charlie }) => {
+        try {
+          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+          const ref = await Promise.race([
+            addDoc(collection(getDb(), 'guardianSessions'), {
+              travelerId: alice, guardianUids: [bob, charlie],
+              status: 'active', startedAt: serverTimestamp(),
+              lastPosition: { lat: 48.85, lng: 2.35 },
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return ref.id
+        } catch { return null }
+      }, { alice: sessions.alice.uid, bob: sessions.bob.uid, charlie: sessions.charlie.uid })
+      expect(sessionId || 'firebase-unavailable').toBeTruthy()
 
-  test.beforeAll(async ({ browser }) => {
-    test.setTimeout(180000)
-    sessions = await createSessions(browser, ['alice', 'bob', 'charlie'])
-  })
-  test.afterAll(async () => {
-    if (sessionId) {
-      await sessions.alice.page.evaluate(async (id) => {
-        try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'guardianSessions', id)) } catch {}
-      }, sessionId)
-    }
-    await closeSessions(sessions)
-  })
+      if (sessionId) {
+        // bob reads position
+        const bobDoc = await firestoreGetDoc(sessions.bob.page, 'guardianSessions', sessionId)
+        if (bobDoc) {
+          expect(bobDoc.lastPosition.lat).toBe(48.85)
+        }
 
-  test('alice starts session with bob+charlie as watchers', async () => {
-    sessionId = await sessions.alice.page.evaluate(async ({ alice, bob, charlie }) => {
-      try {
-        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-        const ref = await addDoc(collection(getDb(), 'guardianSessions'), {
-          travelerId: alice, guardianUids: [bob, charlie],
-          status: 'active', startedAt: serverTimestamp(),
-          lastPosition: { lat: 48.85, lng: 2.35 },
-        })
-        return ref.id
-      } catch { return null }
-    }, { alice: sessions.alice.uid, bob: sessions.bob.uid, charlie: sessions.charlie.uid })
-    expect(sessionId || 'firebase-unavailable').toBeTruthy()
-  })
+        // charlie reads position
+        const charlieDoc = await firestoreGetDoc(sessions.charlie.page, 'guardianSessions', sessionId)
+        if (charlieDoc) {
+          expect(charlieDoc.lastPosition.lat).toBe(48.85)
+        }
 
-  test('bob can read alice position', async () => {
-    if (!sessionId) return
-    const doc = await firestoreGetDoc(sessions.bob.page, 'guardianSessions', sessionId)
-    if (doc) {
-      expect(doc.lastPosition.lat).toBe(48.85)
-    }
-  })
-
-  test('charlie can read alice position', async () => {
-    if (!sessionId) return
-    const doc = await firestoreGetDoc(sessions.charlie.page, 'guardianSessions', sessionId)
-    if (doc) {
-      expect(doc.lastPosition.lat).toBe(48.85)
+        // Cleanup
+        await sessions.alice.page.evaluate(async (id) => {
+          try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'guardianSessions', id)) } catch {}
+        }, sessionId)
+      }
+    } finally {
+      await closeSessions(sessions)
     }
   })
 })

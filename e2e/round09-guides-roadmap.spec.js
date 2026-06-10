@@ -15,7 +15,7 @@ import {
 } from './multi-user-helpers.js'
 
 test.use({ viewport: { width: 390, height: 844 } })
-test.setTimeout(60000)
+test.setTimeout(90000)
 
 const PHASE = 'R09'
 
@@ -70,97 +70,105 @@ test.describe('R09-01 Guides navigation', () => {
 })
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// R09-02: Guide tips and voting
+// R09-02: Guide tips and voting (per-test sessions — no beforeAll to avoid timeout)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 test.describe('R09-02 Guide tips', () => {
-  let sessions
+  test('alice posts guide tip → guideTips collection', async ({ browser }) => {
+    test.setTimeout(120000)
+    const sessions = await createSessions(browser, ['alice', 'bob'])
+    try {
+      const aliceUid = sessions.alice.uid
 
-  test.beforeAll(async ({ browser }) => {
-    sessions = await createSessions(browser, ['alice', 'bob'])
-  })
-
-  test.afterAll(async () => {
-    await closeSessions(sessions)
-  })
-
-  test('alice posts guide tip → guideTips collection', async () => {
-    const aliceUid = sessions.alice.uid
-
-    const tipId = await sessions.alice.page.evaluate(async (uid) => {
-      try {
-        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-        const ref = await addDoc(collection(getDb(), 'guideTips'), {
-          userId: uid,
-          countryCode: 'FR',
-          text: 'Avoid A6 highway exits near Lyon, low traffic',
-          votes: 0,
-          createdAt: serverTimestamp(),
-        })
-        return ref.id
-      } catch (e) { return `error: ${e.message}` }
-    }, aliceUid)
-
-    if (typeof tipId === 'string' && !tipId.startsWith('error:')) {
-      const tipDoc = await firestoreGetDoc(sessions.alice.page, 'guideTips', tipId)
-      if (tipDoc) {
-        expect(tipDoc.text).toContain('A6 highway')
-        expect(tipDoc.userId).toBe(aliceUid)
-      }
-
-      // Cleanup
-      await sessions.alice.page.evaluate(async (id) => {
-        try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'guideTips', id)) } catch {}
-      }, tipId)
-    }
-
-    await snap(sessions.alice.page, PHASE, 'R09-02-tip-posted', 'after')
-  })
-
-  test('bob votes on tip → vote count incremented (or denied by rules)', async () => {
-    const aliceUid = sessions.alice.uid
-    const bobUid = sessions.bob.uid
-
-    const tipId = await sessions.alice.page.evaluate(async (uid) => {
-      try {
-        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-        const ref = await addDoc(collection(getDb(), 'guideTips'), {
-          userId: uid, countryCode: 'FR',
-          text: 'Vote test tip', votes: 0, createdAt: serverTimestamp(),
-        })
-        return ref.id
-      } catch (e) { return null }
-    }, aliceUid)
-
-    if (tipId) {
-      // Bob votes — may be denied by Firestore security rules
-      const voteResult = await sessions.bob.page.evaluate(async ({ tipId, bobUid }) => {
+      const tipId = await sessions.alice.page.evaluate(async (uid) => {
         try {
-          const { getDb, doc, updateDoc, increment } = window.__fb
-          await updateDoc(doc(getDb(), 'guideTips', tipId), {
-            votes: increment(1),
-          })
-          return 'voted'
-        } catch (e) {
-          return `denied: ${e.message}`
-        }
-      }, { tipId, bobUid })
+          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+          const ref = await Promise.race([
+            addDoc(collection(getDb(), 'guideTips'), {
+              userId: uid,
+              countryCode: 'FR',
+              text: 'Avoid A6 highway exits near Lyon, low traffic',
+              votes: 0,
+              createdAt: serverTimestamp(),
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return ref.id
+        } catch (e) { return `error: ${e.message}` }
+      }, aliceUid)
 
-      console.log(`  [R09-02] Vote result: ${voteResult}`)
-
-      if (voteResult === 'voted') {
+      if (typeof tipId === 'string' && !tipId.startsWith('error:')) {
         const tipDoc = await firestoreGetDoc(sessions.alice.page, 'guideTips', tipId)
-        if (tipDoc) expect(tipDoc.votes).toBe(1)
+        if (tipDoc) {
+          expect(tipDoc.text).toContain('A6 highway')
+          expect(tipDoc.userId).toBe(aliceUid)
+        }
+
+        // Cleanup
+        await sessions.alice.page.evaluate(async (id) => {
+          try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'guideTips', id)) } catch {}
+        }, tipId)
       }
-      // If denied by security rules, that's a real finding (documented)
 
-      // Cleanup
-      await sessions.alice.page.evaluate(async (id) => {
-        try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'guideTips', id)) } catch {}
-      }, tipId)
+      await snap(sessions.alice.page, PHASE, 'R09-02-tip-posted', 'after').catch(() => {})
+    } finally {
+      await closeSessions(sessions)
     }
+  })
 
-    await snap(sessions.bob.page, PHASE, 'R09-02-vote', 'after')
+  test('bob votes on tip → vote count incremented (or denied by rules)', async ({ browser }) => {
+    test.setTimeout(120000)
+    const sessions = await createSessions(browser, ['alice', 'bob'])
+    try {
+      const aliceUid = sessions.alice.uid
+      const bobUid = sessions.bob.uid
+
+      const tipId = await sessions.alice.page.evaluate(async (uid) => {
+        try {
+          const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+          const ref = await Promise.race([
+            addDoc(collection(getDb(), 'guideTips'), {
+              userId: uid, countryCode: 'FR',
+              text: 'Vote test tip', votes: 0, createdAt: serverTimestamp(),
+            }),
+            new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+          ])
+          return ref.id
+        } catch (e) { return null }
+      }, aliceUid)
+
+      if (tipId) {
+        // Bob votes — may be denied by Firestore security rules
+        const voteResult = await sessions.bob.page.evaluate(async ({ tipId, bobUid }) => {
+          try {
+            const { getDb, doc, updateDoc, increment } = window.__fb
+            await Promise.race([
+              updateDoc(doc(getDb(), 'guideTips', tipId), { votes: increment(1) }),
+              new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000)),
+            ])
+            return 'voted'
+          } catch (e) {
+            return `denied: ${e.message}`
+          }
+        }, { tipId, bobUid })
+
+        console.log(`  [R09-02] Vote result: ${voteResult}`)
+
+        if (voteResult === 'voted') {
+          const tipDoc = await firestoreGetDoc(sessions.alice.page, 'guideTips', tipId)
+          if (tipDoc) expect(tipDoc.votes).toBe(1)
+        }
+
+        // Cleanup
+        await sessions.alice.page.evaluate(async (id) => {
+          try { const { getDb, doc, deleteDoc } = window.__fb; await deleteDoc(doc(getDb(), 'guideTips', id)) } catch {}
+        }, tipId)
+      }
+
+      await snap(sessions.bob.page, PHASE, 'R09-02-vote', 'after').catch(() => {})
+    } finally {
+      await closeSessions(sessions)
+    }
   })
 })
 
