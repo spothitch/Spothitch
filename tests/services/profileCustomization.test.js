@@ -31,6 +31,7 @@ import {
   unlockTitle,
   renderAvatarWithFrame,
   renderTitleBadge,
+  renderCustomizationModal,
 } from '../../src/services/profileCustomization.js'
 import { getState, setState } from '../../src/stores/state.js'
 
@@ -296,6 +297,180 @@ describe('profileCustomization', () => {
       getState.mockReturnValue({ equippedTitle: 'hitchhiker', unlockedTitles: ['hitchhiker'] })
       const html = renderTitleBadge()
       expect(html).toContain('span')
+    })
+  })
+
+  describe('renderCustomizationModal', () => {
+    beforeEach(() => {
+      getState.mockReturnValue({
+        equippedFrame: 'default',
+        equippedTitle: 'hitchhiker',
+        unlockedFrames: ['default'],
+        unlockedTitles: ['hitchhiker'],
+        showProfileCustomization: false,
+      })
+    })
+
+    it('returns empty string when showProfileCustomization is false', () => {
+      const html = renderCustomizationModal({ showProfileCustomization: false })
+      expect(html).toBe('')
+    })
+
+    it('returns HTML string when showProfileCustomization is true', () => {
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'testuser',
+        bio: 'My bio',
+        user: null,
+        userProfile: null,
+        avatar: '👍',
+      })
+      expect(typeof html).toBe('string')
+      expect(html.length).toBeGreaterThan(100)
+    })
+
+    it('contains dialog role', () => {
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'alice',
+        bio: '',
+        user: null,
+      })
+      expect(html).toContain('role="dialog"')
+    })
+
+    it('contains username input', () => {
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'alice',
+        bio: '',
+        user: null,
+      })
+      expect(html).toContain('edit-username')
+    })
+
+    it('contains bio textarea', () => {
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: '',
+        bio: 'Hello world',
+        user: null,
+      })
+      expect(html).toContain('edit-bio')
+    })
+
+    it('contains save button', () => {
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'user1',
+        bio: '',
+        user: null,
+      })
+      expect(html).toContain('saveProfileEdits')
+    })
+
+    it('shows photo URL when user has photoURL', () => {
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'user1',
+        bio: '',
+        user: { photoURL: 'https://example.com/photo.jpg' },
+      })
+      expect(html).toContain('example.com/photo.jpg')
+    })
+
+    it('handles locked username change (< 60 days)', () => {
+      // Set last change to 10 days ago
+      localStorage.setItem('spothitch_last_username_change', String(Date.now() - 10 * 24 * 60 * 60 * 1000))
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'user1',
+        bio: '',
+        user: null,
+      })
+      expect(typeof html).toBe('string')
+      expect(html).toContain('edit-username')
+      localStorage.removeItem('spothitch_last_username_change')
+    })
+
+    it('handles unlocked username change (> 60 days)', () => {
+      localStorage.setItem('spothitch_last_username_change', String(Date.now() - 70 * 24 * 60 * 60 * 1000))
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'user1',
+        bio: '',
+        user: null,
+      })
+      expect(typeof html).toBe('string')
+      localStorage.removeItem('spothitch_last_username_change')
+    })
+
+    it('renders gallery photos when available', () => {
+      localStorage.setItem('spothitch_gallery', JSON.stringify([
+        'https://example.com/img1.jpg',
+        'https://example.com/img2.jpg',
+      ]))
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'user1',
+        bio: '',
+        user: null,
+      })
+      expect(html).toContain('selectProfilePhoto')
+      localStorage.removeItem('spothitch_gallery')
+    })
+
+    it('renders languages when available', () => {
+      localStorage.setItem('spothitch_languages', JSON.stringify([
+        { name: 'French', flag: '🇫🇷' },
+        { name: 'English', flag: '🇬🇧' },
+      ]))
+      const html = renderCustomizationModal({
+        showProfileCustomization: true,
+        username: 'user1',
+        bio: '',
+        user: null,
+      })
+      expect(html).toContain('removeEditLanguage')
+      localStorage.removeItem('spothitch_languages')
+    })
+
+    it('handles null/undefined state gracefully', () => {
+      expect(() => renderCustomizationModal({ showProfileCustomization: true })).not.toThrow()
+    })
+  })
+
+  describe('window.removeEditLanguage', () => {
+    beforeEach(() => {
+      localStorage.clear()
+    })
+
+    it('removes language at given index from localStorage', () => {
+      localStorage.setItem('spothitch_languages', JSON.stringify([
+        { name: 'French', flag: '🇫🇷' },
+        { name: 'Spanish', flag: '🇪🇸' },
+        { name: 'German', flag: '🇩🇪' },
+      ]))
+      window.removeEditLanguage(1) // Remove Spanish
+      const langs = JSON.parse(localStorage.getItem('spothitch_languages'))
+      expect(langs).toHaveLength(2)
+      expect(langs[0].name).toBe('French')
+      expect(langs[1].name).toBe('German')
+    })
+
+    it('does not throw for empty language list', () => {
+      localStorage.setItem('spothitch_languages', JSON.stringify([]))
+      expect(() => window.removeEditLanguage(0)).not.toThrow()
+    })
+
+    it('does not throw when localStorage is empty', () => {
+      expect(() => window.removeEditLanguage(0)).not.toThrow()
+    })
+
+    it('calls setState to trigger re-render', () => {
+      localStorage.setItem('spothitch_languages', JSON.stringify([{ name: 'French' }]))
+      window.removeEditLanguage(0)
+      expect(setState).toHaveBeenCalled()
     })
   })
 })
