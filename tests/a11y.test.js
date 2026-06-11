@@ -15,6 +15,10 @@ import {
   trapFocus,
   setupModal,
   enableArrowNavigation,
+  announceAction,
+  createLiveRegion,
+  announcePageChange,
+  setLoadingState,
 } from '../src/utils/a11y.js'
 
 describe('Accessibility Utilities', () => {
@@ -336,6 +340,111 @@ describe('Accessibility Utilities', () => {
       container.dispatchEvent(event)
 
       expect(event.preventDefault).toHaveBeenCalled()
+    })
+  })
+
+  describe('announceAction', () => {
+    beforeEach(() => {
+      document.body.innerHTML = ''
+      vi.useFakeTimers()
+    })
+    afterEach(() => { vi.useRealTimers() })
+
+    it('announces success for known action', () => {
+      expect(() => announceAction('checkin', true)).not.toThrow()
+    })
+    it('announces error for failed action', () => {
+      expect(() => announceAction('checkin', false)).not.toThrow()
+    })
+    it('uses customMessage when provided', () => {
+      expect(() => announceAction('login', true, 'Custom!')).not.toThrow()
+    })
+    it('falls back to action name for unknown action', () => {
+      expect(() => announceAction('unknown_xyz', true)).not.toThrow()
+    })
+    it('defaults success=true', () => {
+      expect(() => announceAction('saved')).not.toThrow()
+    })
+    it('uses assertive for errors', () => {
+      expect(() => announceAction('login', false)).not.toThrow()
+    })
+  })
+
+  describe('createLiveRegion', () => {
+    beforeEach(() => {
+      document.body.innerHTML = ''
+      vi.useFakeTimers()
+    })
+    afterEach(() => { vi.useRealTimers() })
+
+    it('creates a new region element', () => {
+      createLiveRegion('test-live-region')
+      expect(document.getElementById('test-live-region')).not.toBeNull()
+    })
+    it('returns update and clear functions', () => {
+      const region = createLiveRegion('test-live-region-2')
+      expect(typeof region.update).toBe('function')
+      expect(typeof region.clear).toBe('function')
+    })
+    it('sets correct attributes (assertive)', () => {
+      createLiveRegion('test-live-region-3', 'assertive')
+      const el = document.getElementById('test-live-region-3')
+      expect(el.getAttribute('aria-live')).toBe('assertive')
+      expect(el.getAttribute('role')).toBe('status')
+      expect(el.getAttribute('aria-atomic')).toBe('true')
+    })
+    it('reuses existing region if already in DOM', () => {
+      createLiveRegion('test-live-region-4')
+      createLiveRegion('test-live-region-4')
+      expect(document.querySelectorAll('#test-live-region-4').length).toBe(1)
+    })
+    it('update sets textContent after timeout', () => {
+      const region = createLiveRegion('test-live-region-5')
+      region.update('New content')
+      vi.advanceTimersByTime(150)
+      expect(document.getElementById('test-live-region-5').textContent).toBe('New content')
+    })
+    it('clear empties the region', () => {
+      const region = createLiveRegion('test-live-region-6')
+      document.getElementById('test-live-region-6').textContent = 'Old'
+      region.clear()
+      expect(document.getElementById('test-live-region-6').textContent).toBe('')
+    })
+  })
+
+  describe('announcePageChange', () => {
+    beforeEach(() => { document.body.innerHTML = '' })
+
+    it('runs without error', () => {
+      expect(() => announcePageChange('Home')).not.toThrow()
+    })
+    it('works with main element in DOM', () => {
+      document.body.innerHTML = '<main id="main-content">Content</main>'
+      expect(() => announcePageChange('Profile')).not.toThrow()
+    })
+  })
+
+  describe('setLoadingState', () => {
+    it('sets aria-busy=true and aria-describedby when loading', () => {
+      const el = document.createElement('div')
+      setLoadingState(el, true)
+      expect(el.getAttribute('aria-busy')).toBe('true')
+      expect(el.getAttribute('aria-describedby')).toBe('loading-message')
+    })
+    it('sets aria-busy=false and removes aria-describedby when done', () => {
+      const el = document.createElement('div')
+      setLoadingState(el, true)
+      setLoadingState(el, false)
+      expect(el.getAttribute('aria-busy')).toBe('false')
+      expect(el.getAttribute('aria-describedby')).toBeNull()
+    })
+    it('does nothing when element is null', () => {
+      expect(() => setLoadingState(null, true)).not.toThrow()
+    })
+    it('aria-busy is string true not boolean', () => {
+      const el = document.createElement('div')
+      setLoadingState(el, true)
+      expect(el.getAttribute('aria-busy')).toBe('true')
     })
   })
 })

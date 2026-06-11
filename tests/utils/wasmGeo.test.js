@@ -184,4 +184,29 @@ describe('wasmGeo (JS fallback)', () => {
       expect(result.iterations).toBe(10000)
     })
   })
+
+  describe('findNearest — partial sort branch (n < spots.length/10)', () => {
+    it('uses partial sort for small n relative to spots count', () => {
+      // Need n < spots.length/10 to trigger partial sort
+      // 120 spots with n=1 → 1 < 12 → partial sort branch
+      const spots = Array.from({ length: 120 }, (_, i) => ({
+        id: i,
+        lat: 48.8566 + (i * 0.01),
+        lng: 2.3522 + (i * 0.01),
+      }))
+      const nearest = findNearest(48.8566, 2.3522, spots, 1)
+      expect(nearest.length).toBe(1)
+      expect(nearest[0].spot.id).toBe(0) // closest is spot[0]
+    })
+
+    it('returns correct count with partial sort', () => {
+      const spots = Array.from({ length: 50 }, (_, i) => ({
+        id: i,
+        lat: 48.0 + i * 0.1,
+        lng: 2.0 + i * 0.1,
+      }))
+      const nearest = findNearest(48.0, 2.0, spots, 3)
+      expect(nearest.length).toBe(3)
+    })
+  })
 })

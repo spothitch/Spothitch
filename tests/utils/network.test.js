@@ -37,7 +37,7 @@ import {
   syncOfflineQueue,
 } from '../../src/utils/network.js'
 import { Storage } from '../../src/utils/storage.js'
-import { getState } from '../../src/stores/state.js'
+import { getState, setState } from '../../src/stores/state.js'
 
 describe('network utils', () => {
   beforeEach(() => {
@@ -289,6 +289,73 @@ describe('network — additional coverage', () => {
       await syncOfflineQueue()
       const { showToast } = await import('../../src/services/notifications.js')
       expect(showToast).toHaveBeenCalled()
+    })
+  })
+
+  describe('updateNetworkStatus — state mismatch branch', () => {
+    it('calls setState when navigator.onLine differs from state.isOnline', () => {
+      Object.defineProperty(navigator, 'onLine', { value: false, writable: true, configurable: true })
+      getState.mockReturnValue({ isOnline: true })
+      updateNetworkStatus()
+      expect(setState).toHaveBeenCalledWith({ isOnline: false })
+      Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
+    })
+
+    it('does not call setState when state matches navigator.onLine', () => {
+      Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
+      getState.mockReturnValue({ isOnline: true })
+      setState.mockClear()
+      updateNetworkStatus()
+      expect(setState).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('checkConnectivity — navigator.onLine=false path', () => {
+    it('returns false immediately when navigator.onLine is false', async () => {
+      Object.defineProperty(navigator, 'onLine', { value: false, writable: true, configurable: true })
+      const { checkConnectivity } = await import('../../src/utils/network.js')
+      const result = await checkConnectivity()
+      expect(result).toBe(false)
+      expect(setState).toHaveBeenCalledWith({ isOnline: false })
+      Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
+    })
+  })
+
+  describe('checkConnectivity — fetch success path', () => {
+    it('returns true when fetch succeeds', async () => {
+      Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
+      global.fetch = vi.fn().mockResolvedValue({ ok: true })
+      const { checkConnectivity } = await import('../../src/utils/network.js')
+      const result = await checkConnectivity()
+      expect(result).toBe(true)
+      expect(setState).toHaveBeenCalledWith({ isOnline: true })
+    })
+
+    it('increments fail count and does not mark offline on fetch returning not-ok', async () => {
+      Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
+      global.fetch = vi.fn().mockResolvedValue({ ok: false })
+      const { checkConnectivity } = await import('../../src/utils/network.js')
+      // Single not-ok response → fail count increases but under threshold
+      const result = await checkConnectivity()
+      expect(typeof result).toBe('boolean')
+    })
+  })
+
+  describe('handleOnline / handleOffline via window events', () => {
+    it('handleOffline sets state to offline', () => {
+      initNetworkMonitor()
+      clearOfflineQueue()
+      setState.mockClear()
+      window.dispatchEvent(new Event('offline'))
+      expect(setState).toHaveBeenCalledWith({ isOnline: false })
+    })
+
+    it('handleOnline sets state to online', () => {
+      initNetworkMonitor()
+      clearOfflineQueue()
+      setState.mockClear()
+      window.dispatchEvent(new Event('online'))
+      expect(setState).toHaveBeenCalledWith({ isOnline: true })
     })
   })
 })

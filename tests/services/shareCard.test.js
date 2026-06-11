@@ -18,11 +18,14 @@ vi.mock('../../src/i18n/index.js', () => ({
 
 import {
   generateShareCard,
+  showShareModal,
   closeShareModal,
   copySpotLink,
+  shareOnSMS,
   copyProfileLink,
   shareProfileModal,
 } from '../../src/services/shareCard.js'
+import { getState } from '../../src/stores/state.js'
 import { copyToClipboard } from '../../src/utils/share.js'
 import { showToast } from '../../src/services/notifications.js'
 
@@ -169,6 +172,102 @@ describe('shareCard', () => {
 
     it('handles missing username gracefully', () => {
       expect(() => shareProfileModal('uid123', null, 'thumbs-up')).not.toThrow()
+    })
+  })
+
+  describe('showShareModal', () => {
+    it('creates a modal element in the DOM', () => {
+      showShareModal({ id: 'abc', name: 'Test Spot' })
+      const modal = document.getElementById('share-card-modal')
+      expect(modal).not.toBeNull()
+    })
+
+    it('returns early when spot is null', () => {
+      showShareModal(null)
+      expect(document.getElementById('share-card-modal')).toBeNull()
+    })
+
+    it('includes spot name in modal', () => {
+      showShareModal({ id: '1', name: 'Madrid Exit' })
+      const modal = document.getElementById('share-card-modal')
+      expect(modal.innerHTML).toContain('Madrid Exit')
+    })
+
+    it('uses from field when no name', () => {
+      showShareModal({ id: '2', from: 'Berlin Ost' })
+      const modal = document.getElementById('share-card-modal')
+      expect(modal).not.toBeNull()
+    })
+
+    it('replaces existing modal', () => {
+      showShareModal({ id: '1', name: 'Spot A' })
+      showShareModal({ id: '2', name: 'Spot B' })
+      const modals = document.querySelectorAll('#share-card-modal')
+      expect(modals.length).toBe(1)
+    })
+
+    it('adds modal to document.body', () => {
+      showShareModal({ id: '3', name: 'Highway Spot' })
+      expect(document.body.contains(document.getElementById('share-card-modal'))).toBe(true)
+    })
+
+    it('contains spot share URL', () => {
+      showShareModal({ id: 'spot-99', name: 'Test' })
+      const modal = document.getElementById('share-card-modal')
+      expect(modal.innerHTML).toContain('spot-99')
+    })
+
+    it('does not throw for spot with missing fields', () => {
+      expect(() => showShareModal({})).not.toThrow()
+    })
+  })
+
+  describe('shareOnSMS', () => {
+    beforeEach(() => {
+      window.open = vi.fn()
+    })
+
+    it('does nothing when spot not found in state', () => {
+      getState.mockReturnValue({ spots: [] })
+      shareOnSMS('nonexistent-id')
+      expect(window.open).not.toHaveBeenCalled()
+    })
+
+    it('opens WhatsApp URL when spot found', () => {
+      getState.mockReturnValue({
+        spots: [{ id: '42', name: 'Autoroute A1' }],
+      })
+      shareOnSMS('42')
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining('wa.me'),
+        '_blank',
+        'noopener,noreferrer'
+      )
+    })
+
+    it('encodes spot name in SMS text', () => {
+      getState.mockReturnValue({
+        spots: [{ id: '10', name: 'Spot Paris' }],
+      })
+      shareOnSMS('10')
+      const call = window.open.mock.calls[0][0]
+      expect(call).toContain('Spot%20Paris')
+    })
+
+    it('uses from field when spot has no name', () => {
+      getState.mockReturnValue({
+        spots: [{ id: '5', from: 'From Lyon' }],
+      })
+      shareOnSMS('5')
+      expect(window.open).toHaveBeenCalled()
+    })
+
+    it('matches spot by string id even when stored as number', () => {
+      getState.mockReturnValue({
+        spots: [{ id: 7, name: 'Spot Numeric' }],
+      })
+      shareOnSMS('7')
+      expect(window.open).toHaveBeenCalled()
     })
   })
 })

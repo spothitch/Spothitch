@@ -9,7 +9,7 @@ vi.mock('../../src/stores/state.js', () => ({
   })),
   setState: vi.fn(),
 }))
-vi.mock('../../src/services/notifications.js', () => ({ showToast: vi.fn() }))
+vi.mock('../../src/services/notifications.js', () => ({ showToast: vi.fn(), showError: vi.fn(), showSuccess: vi.fn() }))
 vi.mock('../../src/i18n/index.js', () => ({ t: vi.fn((k) => k) }))
 vi.mock('../../src/utils/icons.js', () => ({ icon: vi.fn((n) => `<svg>${n}</svg>`) }))
 vi.mock('../../src/utils/sanitize.js', () => ({ escapeHTML: vi.fn((s) => s) }))
@@ -471,6 +471,83 @@ describe('profileCustomization', () => {
       localStorage.setItem('spothitch_languages', JSON.stringify([{ name: 'French' }]))
       window.removeEditLanguage(0)
       expect(setState).toHaveBeenCalled()
+    })
+  })
+
+  describe('window.saveProfileEdits', () => {
+    beforeEach(() => {
+      document.body.innerHTML = ''
+      vi.clearAllMocks()
+      localStorage.clear()
+    })
+
+    it('is defined as a function', () => {
+      expect(typeof window.saveProfileEdits).toBe('function')
+    })
+
+    it('does not throw when called with no DOM elements (invalid username path)', async () => {
+      await expect(window.saveProfileEdits()).resolves.toBeUndefined()
+    })
+
+    it('does not throw when called with short username in DOM', async () => {
+      document.body.innerHTML = '<input id="edit-username" value="ab"><textarea id="edit-bio">bio</textarea>'
+      await expect(window.saveProfileEdits()).resolves.toBeUndefined()
+    })
+
+    it('takes the valid-username branch when username is long enough', async () => {
+      getState.mockReturnValue({ username: 'alice123', showProfileCustomization: true })
+      document.body.innerHTML = '<input id="edit-username" value="alice123"><textarea id="edit-bio">my bio</textarea>'
+      await expect(window.saveProfileEdits()).resolves.toBeUndefined()
+    })
+
+    it('handles username cooldown when lastChange is recent', async () => {
+      getState.mockReturnValue({ username: 'old_name', showProfileCustomization: true })
+      localStorage.setItem('spothitch_last_username_change', String(Date.now() - 5 * 24 * 60 * 60 * 1000))
+      document.body.innerHTML = '<input id="edit-username" value="newname"><textarea id="edit-bio">bio</textarea>'
+      await expect(window.saveProfileEdits()).resolves.toBeUndefined()
+      localStorage.removeItem('spothitch_last_username_change')
+    })
+
+    it('handles username change when cooldown is past', async () => {
+      getState.mockReturnValue({ username: 'old_name', showProfileCustomization: true })
+      localStorage.setItem('spothitch_last_username_change', String(Date.now() - 70 * 24 * 60 * 60 * 1000))
+      document.body.innerHTML = '<input id="edit-username" value="newname"><textarea id="edit-bio">bio</textarea>'
+      await expect(window.saveProfileEdits()).resolves.toBeUndefined()
+      localStorage.removeItem('spothitch_last_username_change')
+    })
+
+    it('handles no lastChange in localStorage (first time)', async () => {
+      getState.mockReturnValue({ username: 'old_name', showProfileCustomization: true })
+      document.body.innerHTML = '<input id="edit-username" value="newname"><textarea id="edit-bio">bio</textarea>'
+      await expect(window.saveProfileEdits()).resolves.toBeUndefined()
+    })
+  })
+
+  describe('window.uploadProfilePhoto', () => {
+    it('is defined as a function', () => {
+      expect(typeof window.uploadProfilePhoto).toBe('function')
+    })
+
+    it('does not throw when called', () => {
+      expect(() => window.uploadProfilePhoto()).not.toThrow()
+    })
+
+    it('creates a file input element', () => {
+      const createSpy = vi.spyOn(document, 'createElement')
+      window.uploadProfilePhoto()
+      const inputCalls = createSpy.mock.calls.filter(c => c[0] === 'input')
+      expect(inputCalls.length).toBeGreaterThan(0)
+      createSpy.mockRestore()
+    })
+  })
+
+  describe('window.equipFrame / window.equipTitle (global handlers)', () => {
+    it('window.equipFrame is defined', () => {
+      expect(typeof window.equipFrame).toBe('function')
+    })
+
+    it('window.equipTitle is defined', () => {
+      expect(typeof window.equipTitle).toBe('function')
     })
   })
 })

@@ -26,9 +26,10 @@ import {
   addTripStep, removeTripStep, clearTripSteps,
   getSpotsBetween, findSpotsNearRoute, createTrip,
   reorderTripSteps, getSuggestedStartingSpots,
+  getSpotsForRoute, searchTripLocation,
 } from '../../src/services/planner.js'
 import { getState, setState } from '../../src/stores/state.js'
-import { getRoute } from '../../src/services/osrm.js'
+import { getRoute, searchLocation } from '../../src/services/osrm.js'
 
 describe('planner', () => {
   beforeEach(() => {
@@ -248,6 +249,88 @@ describe('planner', () => {
       })
       const result = getSuggestedStartingSpots({ lat: 48.8566, lng: 2.3522 }, 2)
       expect(result.length).toBe(2)
+    })
+  })
+
+  describe('getSpotsForRoute', () => {
+    it('returns empty spots when route is not found', async () => {
+      getRoute.mockResolvedValue(null)
+      const result = await getSpotsForRoute({ lat: 48.8, lng: 2.3 }, { lat: 45.7, lng: 4.8 })
+      expect(result.route).toBeNull()
+      expect(Array.isArray(result.spots)).toBe(true)
+    })
+
+    it('returns route and spots when route geometry exists', async () => {
+      getRoute.mockResolvedValue({
+        geometry: [[2.3, 48.8], [4.8, 45.7]],
+        distance: 400000,
+        duration: 14400,
+      })
+      getState.mockReturnValue({
+        spots: [
+          { id: '1', coordinates: { lat: 48.8, lng: 2.3 } },
+          { id: '2' }, // no coordinates
+        ],
+      })
+      const result = await getSpotsForRoute(
+        { lat: 48.8, lng: 2.3 },
+        { lat: 45.7, lng: 4.8 },
+        50
+      )
+      expect(result.route).not.toBeNull()
+      expect(typeof result.distance).toBe('number')
+      expect(typeof result.duration).toBe('number')
+    })
+
+    it('returns empty spots when route has no geometry', async () => {
+      getRoute.mockResolvedValue({ distance: 100, duration: 60 }) // no geometry
+      const result = await getSpotsForRoute({ lat: 48.8, lng: 2.3 }, { lat: 45.7, lng: 4.8 })
+      expect(result.route).toBeNull()
+      expect(result.spots).toEqual([])
+    })
+
+    it('returns empty spots on fetch error', async () => {
+      getRoute.mockRejectedValue(new Error('fetch failed'))
+      const result = await getSpotsForRoute({ lat: 48.8, lng: 2.3 }, { lat: 45.7, lng: 4.8 })
+      expect(result.route).toBeNull()
+      expect(result.spots).toEqual([])
+    })
+
+    it('filters spots without coordinates', async () => {
+      getRoute.mockResolvedValue({
+        geometry: [[2.3, 48.8], [2.4, 48.9]],
+        distance: 10000,
+        duration: 600,
+      })
+      getState.mockReturnValue({
+        spots: [
+          { id: 'no-coord' }, // filtered out
+          { id: 'with-coord', coordinates: { lat: 48.85, lng: 2.35 } },
+        ],
+      })
+      const result = await getSpotsForRoute({ lat: 48.8, lng: 2.3 }, { lat: 48.9, lng: 2.4 }, 100)
+      expect(result.spots.some(s => s.id === 'no-coord')).toBe(false)
+    })
+  })
+
+  describe('searchTripLocation', () => {
+    it('maps OSRM results to simplified format', async () => {
+      searchLocation.mockResolvedValue([
+        { name: 'Paris, France', lat: 48.8566, lng: 2.3522 },
+        { name: 'Lyon, France', lat: 45.764, lng: 4.8357 },
+      ])
+      const results = await searchTripLocation('Paris')
+      expect(results.length).toBe(2)
+      expect(results[0].name).toBe('Paris')
+      expect(results[0].fullName).toBe('Paris, France')
+      expect(results[0].lat).toBe(48.8566)
+      expect(results[0].lng).toBe(2.3522)
+    })
+
+    it('returns empty array when no results', async () => {
+      searchLocation.mockResolvedValue([])
+      const results = await searchTripLocation('unknown_place_xyz')
+      expect(results).toEqual([])
     })
   })
 })

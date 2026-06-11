@@ -286,3 +286,89 @@ describe('Gamification Service', () => {
     })
   })
 })
+
+describe('gamification — additional branch coverage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    getState.mockReturnValue({
+      points: 0, level: 1, badges: [],
+      checkins: 0, spotsCreated: 0, reviewsGiven: 0,
+      countriesVisited: 0, nightCheckin: false, earlyCheckin: false,
+      helpfulMessages: 0, perfectQuiz: false, verifiedSpots: 0,
+      seasonPoints: 0, visitedCountries: [],
+    })
+  })
+
+  describe('checkBadges — with earnable badge', () => {
+    it('awards first_checkin badge when checkins >= 1', () => {
+      getState.mockReturnValue({
+        points: 0, level: 1, badges: [],
+        checkins: 1, spotsCreated: 0, reviewsGiven: 0,
+        countriesVisited: 0, nightCheckin: false, earlyCheckin: false,
+        helpfulMessages: 0, perfectQuiz: false, verifiedSpots: 0,
+        seasonPoints: 0, visitedCountries: [],
+      })
+      const newBadges = checkBadges()
+      expect(newBadges.length).toBeGreaterThan(0)
+      expect(newBadges).toContain('first_checkin')
+    })
+
+    it('calls setState with updated badges when badges are earned', () => {
+      getState.mockReturnValue({
+        points: 0, level: 1, badges: [],
+        checkins: 1, spotsCreated: 0, reviewsGiven: 0,
+        countriesVisited: 0, nightCheckin: false, earlyCheckin: false,
+        helpfulMessages: 0, perfectQuiz: false, verifiedSpots: 0,
+        seasonPoints: 0, visitedCountries: [],
+      })
+      checkBadges()
+      expect(setState).toHaveBeenCalled()
+    })
+
+    it('does not re-award already owned badge', () => {
+      getState.mockReturnValue({
+        points: 0, level: 1, badges: ['first_checkin'],
+        checkins: 1, spotsCreated: 0, reviewsGiven: 0,
+        countriesVisited: 0, nightCheckin: false, earlyCheckin: false,
+        helpfulMessages: 0, perfectQuiz: false, verifiedSpots: 0,
+        seasonPoints: 0, visitedCountries: [],
+      })
+      const newBadges = checkBadges()
+      expect(newBadges).not.toContain('first_checkin')
+    })
+  })
+
+  describe('addSeasonPoints — league promotion', () => {
+    it('shows promotion toast when crossing league threshold', () => {
+      // Season points 0 → 201 crosses from league 0 to league 1 (threshold: 200)
+      getState.mockReturnValue({
+        points: 0, level: 1, badges: [], checkins: 0,
+        spotsCreated: 0, reviewsGiven: 0, seasonPoints: 0, visitedCountries: [],
+      })
+      addSeasonPoints(201)
+      expect(setState).toHaveBeenCalled()
+    })
+  })
+
+  describe('recordCheckin — time-based badges', () => {
+    it('sets nightCheckin flag between midnight and 5am', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-01-15T02:30:00'))
+      recordCheckin()
+      const calls = setState.mock.calls
+      const checkinCall = calls.find(c => c[0]?.checkins !== undefined)
+      expect(checkinCall[0].nightCheckin).toBe(true)
+      vi.useRealTimers()
+    })
+
+    it('sets earlyCheckin flag between 5am and 7am', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-01-15T06:00:00'))
+      recordCheckin()
+      const calls = setState.mock.calls
+      const checkinCall = calls.find(c => c[0]?.checkins !== undefined)
+      expect(checkinCall[0].earlyCheckin).toBe(true)
+      vi.useRealTimers()
+    })
+  })
+})

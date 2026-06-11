@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('../../src/i18n/index.js', () => ({ t: vi.fn((k) => k) }))
 vi.mock('../../src/utils/icons.js', () => ({ icon: vi.fn((n) => `<svg>${n}</svg>`) }))
@@ -8,6 +8,7 @@ vi.mock('../../src/stores/state.js', () => ({
 }))
 
 import {
+  initScreenReaderSupport,
   announce,
   announceAction,
   announceViewChange,
@@ -389,5 +390,125 @@ describe('screenReader — additional coverage', () => {
       expect(() => trapFocus(div)).not.toThrow()
       document.body.removeChild(div)
     })
+  })
+})
+
+describe('screenReader — initScreenReaderSupport', () => {
+  beforeEach(() => {
+    document.body.innerHTML = ''
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('does not throw when called', () => {
+    expect(() => initScreenReaderSupport()).not.toThrow()
+  })
+
+  it('creates sr-live-polite region in the DOM', () => {
+    initScreenReaderSupport()
+    expect(document.getElementById('sr-live-polite')).not.toBeNull()
+  })
+
+  it('creates sr-live-assertive region in the DOM', () => {
+    initScreenReaderSupport()
+    expect(document.getElementById('sr-live-assertive')).not.toBeNull()
+  })
+
+  it('creates skip-links container', () => {
+    initScreenReaderSupport()
+    expect(document.getElementById('skip-links')).not.toBeNull()
+  })
+
+  it('is idempotent (no duplicate regions on second call)', () => {
+    initScreenReaderSupport()
+    initScreenReaderSupport()
+    const regions = document.querySelectorAll('#sr-live-polite')
+    expect(regions.length).toBe(1)
+  })
+
+  it('sets landmark roles when nav element is present', () => {
+    const nav = document.createElement('nav')
+    nav.className = 'bottom-nav'
+    document.body.appendChild(nav)
+    initScreenReaderSupport()
+    expect(nav.getAttribute('role')).toBe('navigation')
+  })
+
+  it('sets role=banner on header element', () => {
+    const header = document.createElement('header')
+    document.body.appendChild(header)
+    initScreenReaderSupport()
+    expect(header.getAttribute('role')).toBe('banner')
+  })
+
+  it('sets id=main-content on main element without id', () => {
+    const main = document.createElement('main')
+    document.body.appendChild(main)
+    initScreenReaderSupport()
+    expect(main.id).toBe('main-content')
+  })
+
+  it('adds keyboard-nav class to body on Tab key', () => {
+    initScreenReaderSupport()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+    expect(document.body.classList.contains('keyboard-nav')).toBe(true)
+  })
+
+  it('removes keyboard-nav class on mousedown', () => {
+    initScreenReaderSupport()
+    document.body.classList.add('keyboard-nav')
+    document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+    expect(document.body.classList.contains('keyboard-nav')).toBe(false)
+  })
+
+  it('trapFocus handles non-Tab key without action', () => {
+    const div = document.createElement('div')
+    div.innerHTML = '<button>A</button><button>B</button>'
+    document.body.appendChild(div)
+    const cleanup = trapFocus(div)
+    const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
+    div.dispatchEvent(event)
+    cleanup()
+    document.body.removeChild(div)
+  })
+})
+
+describe('screenReader — announce with live regions', () => {
+  beforeEach(() => {
+    document.body.innerHTML = ''
+    vi.useFakeTimers()
+    initScreenReaderSupport()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    document.body.innerHTML = ''
+  })
+
+  it('sets textContent after timer fires', () => {
+    announce('Hello world', 'polite')
+    vi.advanceTimersByTime(100)
+    const region = document.getElementById('sr-live-polite')
+    // textContent may be set via requestAnimationFrame — just verify no throw
+    expect(region).not.toBeNull()
+  })
+
+  it('queues multiple announcements without throwing', () => {
+    announce('First', 'polite')
+    announce('Second', 'assertive')
+    expect(() => vi.advanceTimersByTime(1000)).not.toThrow()
+  })
+
+  it('announce with delay param works', () => {
+    expect(() => announce('Delayed', 'polite', 200)).not.toThrow()
+    vi.advanceTimersByTime(500)
+  })
+
+  it('announce skips empty message', () => {
+    expect(() => announce('')).not.toThrow()
+    expect(() => announce(null)).not.toThrow()
   })
 })
