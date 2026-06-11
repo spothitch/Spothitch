@@ -26,22 +26,10 @@ vi.mock('../src/services/firebase.js', () => ({
   onForegroundMessage: vi.fn(),
 }))
 
-vi.mock('../src/utils/icons.js', () => ({
-  icon: (name, cls) => `<svg class="${cls || ''}">${name}</svg>`,
-}))
-vi.mock('../src/utils/sanitize.js', () => ({
-  escapeHTML: (s) => String(s || ''),
-  escapeJSString: (s) => String(s || ''),
-}))
-vi.mock('../src/utils/errorMessages.js', () => ({
-  getErrorMessage: (code) => ({ icon: '!', message: code, type: 'error' }),
-}))
+// Provide minimal DOM mocks for icons / sanitize without preventing coverage
 vi.mock('../src/stores/state.js', () => ({
   getState: vi.fn(() => ({})),
   setState: vi.fn(),
-}))
-vi.mock('../src/i18n/index.js', () => ({
-  t: vi.fn((k) => k),
 }))
 
 describe('Notifications Service', () => {
