@@ -15,7 +15,10 @@ vi.mock('../../src/services/notifications.js', () => ({
 }))
 
 import { getState, setState } from '../../src/stores/state.js'
+import { showToast } from '../../src/services/notifications.js'
 import {
+  initPWA,
+  installPWA,
   isAppInstalled,
   dismissInstallBanner,
   showInstallBanner,
@@ -162,6 +165,84 @@ describe('pwa utils', () => {
       Object.defineProperty(navigator, 'serviceWorker', {
         value: original, writable: true, configurable: true,
       })
+    })
+  })
+
+  describe('initPWA', () => {
+    it('runs without error', () => {
+      expect(() => initPWA()).not.toThrow()
+    })
+
+    it('registers beforeinstallprompt event listener', () => {
+      const addSpy = vi.spyOn(window, 'addEventListener')
+      initPWA()
+      expect(addSpy).toHaveBeenCalledWith('beforeinstallprompt', expect.any(Function))
+    })
+
+    it('registers appinstalled event listener', () => {
+      const addSpy = vi.spyOn(window, 'addEventListener')
+      initPWA()
+      expect(addSpy).toHaveBeenCalledWith('appinstalled', expect.any(Function))
+    })
+
+    it('calls setState with isPWAInstalled when pwa_installed flag is set', () => {
+      localStorage.setItem('pwa_installed', 'true')
+      initPWA()
+      expect(setState).toHaveBeenCalledWith({ isPWAInstalled: true })
+    })
+  })
+
+  describe('installPWA', () => {
+    beforeEach(() => {
+      Object.defineProperty(navigator, 'userAgent', { value: 'Mozilla/5.0 TestBrowser', writable: true, configurable: true })
+    })
+
+    it('returns false when no deferredPrompt', async () => {
+      const result = await installPWA()
+      expect(result).toBe(false)
+    })
+
+    it('calls showToast with instructions when no deferredPrompt', async () => {
+      await installPWA()
+      expect(showToast).toHaveBeenCalled()
+    })
+
+    it('handles iOS UA correctly', async () => {
+      Object.defineProperty(navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15)', writable: true, configurable: true })
+      await installPWA()
+      expect(showToast).toHaveBeenCalled()
+    })
+
+    it('handles Android UA correctly', async () => {
+      Object.defineProperty(navigator, 'userAgent', { value: 'Mozilla/5.0 (Linux; Android 12)', writable: true, configurable: true })
+      await installPWA()
+      expect(showToast).toHaveBeenCalled()
+    })
+
+    it('handles Chrome UA correctly', async () => {
+      Object.defineProperty(navigator, 'userAgent', { value: 'Mozilla/5.0 Chrome/99.0', writable: true, configurable: true })
+      await installPWA()
+      expect(showToast).toHaveBeenCalled()
+    })
+
+    it('handles Firefox UA correctly', async () => {
+      Object.defineProperty(navigator, 'userAgent', { value: 'Mozilla/5.0 Firefox/99.0', writable: true, configurable: true })
+      await installPWA()
+      expect(showToast).toHaveBeenCalled()
+    })
+  })
+
+  describe('applyUpdate with waiting registration', () => {
+    it('calls postMessage on registration.waiting when set', async () => {
+      const postMessage = vi.fn()
+      Object.defineProperty(navigator, 'serviceWorker', {
+        value: { ready: Promise.resolve({ waiting: { postMessage } }) },
+        writable: true, configurable: true,
+      })
+      applyUpdate()
+      // Wait for Promise to resolve
+      await new Promise(resolve => setTimeout(resolve, 10))
+      expect(postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' })
     })
   })
 

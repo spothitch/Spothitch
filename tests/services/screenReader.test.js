@@ -20,6 +20,7 @@ import {
   generateTimeLabel,
   getFirstFocusable,
   getAllFocusable,
+  trapFocus,
   renderAccessibilityHelp,
 } from '../../src/services/screenReader.js'
 
@@ -205,6 +206,188 @@ describe('screenReader', () => {
         window.closeAccessibilityHelp()
         window.closeAccessibilityHelp()
       }).not.toThrow()
+    })
+  })
+
+  describe('generateTimeLabel — time branches', () => {
+    it('returns empty string for null', () => {
+      expect(generateTimeLabel(null)).toBe('')
+    })
+
+    it('returns "just now" for less than 1 minute ago', () => {
+      const now = new Date().toISOString()
+      const label = generateTimeLabel(now)
+      expect(typeof label).toBe('string')
+      expect(label.length).toBeGreaterThan(0)
+    })
+
+    it('returns minutes for date 30 minutes ago', () => {
+      const d = new Date(Date.now() - 30 * 60 * 1000).toISOString()
+      const label = generateTimeLabel(d)
+      expect(typeof label).toBe('string')
+      expect(label).toContain('30')
+    })
+
+    it('returns hours for date 3 hours ago', () => {
+      const d = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
+      const label = generateTimeLabel(d)
+      expect(typeof label).toBe('string')
+      expect(label).toContain('3')
+    })
+
+    it('returns days for date 4 days ago', () => {
+      const d = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+      const label = generateTimeLabel(d)
+      expect(typeof label).toBe('string')
+      expect(label).toContain('4')
+    })
+
+    it('returns formatted date for date > 7 days ago', () => {
+      const d = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
+      const label = generateTimeLabel(d)
+      expect(typeof label).toBe('string')
+      expect(label.length).toBeGreaterThan(0)
+    })
+
+    it('handles singular minute (1 min ago)', () => {
+      const d = new Date(Date.now() - 1 * 60 * 1000).toISOString()
+      const label = generateTimeLabel(d)
+      expect(typeof label).toBe('string')
+    })
+
+    it('handles singular hour (1 hour ago)', () => {
+      const d = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
+      const label = generateTimeLabel(d)
+      expect(typeof label).toBe('string')
+    })
+
+    it('handles singular day (1 day ago)', () => {
+      const d = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+      const label = generateTimeLabel(d)
+      expect(typeof label).toBe('string')
+    })
+  })
+
+  describe('announceListUpdate — list types', () => {
+    it('announces spots count', () => {
+      expect(() => announceListUpdate('spots', 5)).not.toThrow()
+    })
+
+    it('announces messages count', () => {
+      expect(() => announceListUpdate('messages', 3)).not.toThrow()
+    })
+
+    it('announces friends count', () => {
+      expect(() => announceListUpdate('friends', 10)).not.toThrow()
+    })
+
+    it('announces unknown type without crash', () => {
+      expect(() => announceListUpdate('unknown', 0)).not.toThrow()
+    })
+  })
+
+  describe('trapFocus', () => {
+    it('returns cleanup function', () => {
+      const div = document.createElement('div')
+      div.innerHTML = '<button>First</button><button>Last</button>'
+      document.body.appendChild(div)
+      const cleanup = trapFocus(div)
+      expect(typeof cleanup).toBe('function')
+      cleanup()
+      document.body.removeChild(div)
+    })
+
+    it('returns empty cleanup when no focusable elements', () => {
+      const div = document.createElement('div')
+      div.innerHTML = '<p>No focusable</p>'
+      const cleanup = trapFocus(div)
+      expect(typeof cleanup).toBe('function')
+    })
+
+    it('does not throw with single focusable element', () => {
+      const div = document.createElement('div')
+      div.innerHTML = '<button>Only</button>'
+      document.body.appendChild(div)
+      expect(() => trapFocus(div)).not.toThrow()
+      document.body.removeChild(div)
+    })
+
+    it('handles Tab key forward navigation', () => {
+      const div = document.createElement('div')
+      div.innerHTML = '<button id="b1">First</button><button id="b2">Last</button>'
+      document.body.appendChild(div)
+      const cleanup = trapFocus(div)
+      const lastBtn = div.querySelector('#b2')
+      lastBtn.focus()
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true })
+      Object.defineProperty(event, 'preventDefault', { value: vi.fn() })
+      div.dispatchEvent(event)
+      cleanup()
+      document.body.removeChild(div)
+    })
+
+    it('handles Shift+Tab backward navigation', () => {
+      const div = document.createElement('div')
+      div.innerHTML = '<button id="b1">First</button><button id="b2">Last</button>'
+      document.body.appendChild(div)
+      const cleanup = trapFocus(div)
+      const firstBtn = div.querySelector('#b1')
+      firstBtn.focus()
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true })
+      Object.defineProperty(event, 'preventDefault', { value: vi.fn() })
+      div.dispatchEvent(event)
+      cleanup()
+      document.body.removeChild(div)
+    })
+  })
+})
+
+describe('screenReader — additional coverage', () => {
+  describe('generateSpotDescription — all fields', () => {
+    it('includes type when spot.type is set', () => {
+      const desc = generateSpotDescription({ name: 'Test', type: 'gas_station' })
+      expect(desc).toContain('Test')
+      expect(typeof desc).toBe('string')
+    })
+
+    it('includes verificationStatus when set', () => {
+      const desc = generateSpotDescription({ name: 'Test', verificationStatus: 'verified' })
+      expect(typeof desc).toBe('string')
+    })
+
+    it('includes all fields: name + country + rating + type + status', () => {
+      const desc = generateSpotDescription({
+        name: 'Paris Nord', country: 'FR', globalRating: 4.2,
+        type: 'roadside', verificationStatus: 'disputed'
+      })
+      expect(desc).toContain('Paris Nord')
+    })
+
+    it('handles toll type', () => {
+      const desc = generateSpotDescription({ name: 'Toll', type: 'toll' })
+      expect(typeof desc).toBe('string')
+    })
+
+    it('handles dangerous verificationStatus', () => {
+      const desc = generateSpotDescription({ name: 'Spot', verificationStatus: 'dangerous' })
+      expect(typeof desc).toBe('string')
+    })
+
+    it('handles unknown type (uses type as-is)', () => {
+      const desc = generateSpotDescription({ name: 'Spot', type: 'unknown_custom_type' })
+      expect(desc).toContain('unknown_custom_type')
+    })
+  })
+
+  describe('trapFocus — input focus handling', () => {
+    it('does not focus first when active element is an input inside container', () => {
+      const div = document.createElement('div')
+      div.innerHTML = '<input type="text" id="inp"/><button>Submit</button>'
+      document.body.appendChild(div)
+      const input = div.querySelector('input')
+      input.focus()
+      expect(() => trapFocus(div)).not.toThrow()
+      document.body.removeChild(div)
     })
   })
 })

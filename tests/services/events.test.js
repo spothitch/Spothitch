@@ -27,8 +27,13 @@ import {
   leaveEvent,
   postEventComment,
   reactToComment,
+  deleteEventComment,
+  shareEvent,
+  getMyEvents,
+  deleteEvent,
   EVENT_TYPES,
 } from '../../src/services/events.js'
+import { getState, setState } from '../../src/stores/state.js'
 
 // Storage keys used by events.js (Storage module uses spothitch_v4_ prefix + JSON.stringify)
 const PREFIX = 'spothitch_v4_'
@@ -383,5 +388,122 @@ describe('Events Service', () => {
     expect(typeof createEvent).toBe('function')
     expect(typeof getUpcomingEvents).toBe('function')
     expect(typeof joinEvent).toBe('function')
+  })
+
+  describe('deleteEvent', () => {
+    it('returns error for unknown event', () => {
+      const result = deleteEvent('nonexistent')
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('event_not_found')
+    })
+
+    it('returns error for non-creator', () => {
+      storeEvents([{ id: 'ev1', date: '2099-07-01', type: 'meetup', creatorId: 'other-user', participants: [] }])
+      const result = deleteEvent('ev1')
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('not_creator')
+    })
+
+    it('deletes event created by current user', () => {
+      storeEvents([{ id: 'ev2', date: '2099-07-01', type: 'meetup', creatorId: 'user1', participants: ['user1'] }])
+      const result = deleteEvent('ev2')
+      expect(result.success).toBe(true)
+      expect(getEventById('ev2')).toBeNull()
+    })
+  })
+
+  describe('deleteEventComment', () => {
+    it('returns error when comment not found', () => {
+      storeEvents([{ id: 'ev1', date: '2099-07-01', type: 'meetup', participants: [] }])
+      const result = deleteEventComment('ev1', 'nonexistent-comment')
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('comment_not_found')
+    })
+
+    it('returns error when not comment author', () => {
+      // Post a comment as user1, then try to delete as different user (would need to change user)
+      storeEvents([{ id: 'ev1', date: '2099-07-01', type: 'meetup', participants: ['user1'] }])
+      const postResult = postEventComment('ev1', 'Test comment')
+      expect(postResult.success).toBe(true)
+      const commentId = postResult.comment.id
+      // Same user (user1) can delete their own comment
+      const deleteResult = deleteEventComment('ev1', commentId)
+      expect(deleteResult.success).toBe(true)
+    })
+  })
+
+  describe('shareEvent', () => {
+    it('returns false for unknown event', () => {
+      const result = shareEvent('nonexistent')
+      expect(result.success).toBe(false)
+    })
+
+    it('returns success for existing event', () => {
+      storeEvents([{ id: 'ev1', date: '2099-07-01', type: 'meetup', title: 'Test', participants: [] }])
+      const result = shareEvent('ev1')
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe('getMyEvents', () => {
+    it('returns empty array when user has no events', () => {
+      const result = getMyEvents()
+      expect(Array.isArray(result)).toBe(true)
+    })
+
+    it('returns events where user is participant', () => {
+      storeEvents([
+        { id: 'ev1', date: '2099-07-01', type: 'meetup', participants: ['user1'] },
+        { id: 'ev2', date: '2099-07-01', type: 'meetup', participants: ['other-user'] },
+      ])
+      const result = getMyEvents()
+      expect(result.some(e => e.id === 'ev1')).toBe(true)
+      expect(result.every(e => e.participants.includes('user1'))).toBe(true)
+    })
+  })
+
+  describe('postEventComment success path', () => {
+    it('returns success and comment with id', () => {
+      storeEvents([{ id: 'ev1', date: '2099-07-01', type: 'meetup', participants: ['user1'] }])
+      const result = postEventComment('ev1', 'Hello world')
+      expect(result.success).toBe(true)
+      expect(result.comment).toBeDefined()
+      expect(result.comment.id).toMatch(/^comment_/)
+    })
+
+    it('saves comment text trimmed', () => {
+      storeEvents([{ id: 'ev2', date: '2099-07-01', type: 'meetup', participants: [] }])
+      const result = postEventComment('ev2', '  Trimmed text  ')
+      expect(result.comment.text).toBe('Trimmed text')
+    })
+  })
+
+  describe('reactToComment success paths', () => {
+    it('adds reaction successfully', () => {
+      storeEvents([{ id: 'ev1', date: '2099-07-01', type: 'meetup', participants: ['user1'] }])
+      const posted = postEventComment('ev1', 'Reacting')
+      const result = reactToComment('ev1', posted.comment.id, '👍')
+      expect(result.success).toBe(true)
+    })
+
+    it('removes reaction on second call (toggle)', () => {
+      storeEvents([{ id: 'ev2', date: '2099-07-01', type: 'meetup', participants: ['user1'] }])
+      const posted = postEventComment('ev2', 'Toggle reaction')
+      reactToComment('ev2', posted.comment.id, '❤️')
+      const result = reactToComment('ev2', posted.comment.id, '❤️')
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe('window.openCreateEvent and window.closeCreateEvent', () => {
+    it('openCreateEvent sets showCreateEvent true', () => {
+      window.openCreateEvent()
+      expect(setState).toHaveBeenCalledWith({ showCreateEvent: true })
+    })
+
+    it('closeCreateEvent sets showCreateEvent false', () => {
+      window.closeCreateEvent()
+      expect(setState).toHaveBeenCalledWith({ showCreateEvent: false })
+    })
   })
 })

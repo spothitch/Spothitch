@@ -201,6 +201,206 @@ describe('State Store', () => {
         actions.skipTutorial();
         expect(getState().showTutorial).toBe(false);
       });
+
+      it('prevTutorialStep should not go below 0', () => {
+        setState({ tutorialStep: 0 });
+        actions.prevTutorialStep();
+        expect(getState().tutorialStep).toBe(0);
+      });
+    });
+
+    describe('setLanguage', () => {
+      it('should set language', () => {
+        actions.setLanguage('en');
+        expect(getState().lang).toBe('en');
+      });
+
+      it('should set language to de', () => {
+        actions.setLanguage('de');
+        expect(getState().lang).toBe('de');
+      });
+    });
+
+    describe('setSpots', () => {
+      it('should set spots and clear loading flag', () => {
+        const spots = [{ id: 's1', name: 'Spot 1' }];
+        actions.setSpots(spots);
+        expect(getState().spots).toEqual(spots);
+        expect(getState().isLoadingSpots).toBe(false);
+      });
+    });
+
+    describe('selectSpot', () => {
+      it('should set selectedSpot', () => {
+        const spot = { id: 'abc', name: 'Paris Nord' };
+        actions.selectSpot(spot);
+        expect(getState().selectedSpot).toEqual(spot);
+      });
+
+      it('should clear selectedSpot when null', () => {
+        actions.selectSpot({ id: 'x' });
+        actions.selectSpot(null);
+        expect(getState().selectedSpot).toBeNull();
+      });
+    });
+
+    describe('setFilter', () => {
+      it('should set activeFilter', () => {
+        actions.setFilter('top');
+        expect(getState().activeFilter).toBe('top');
+      });
+    });
+
+    describe('setSearchQuery', () => {
+      it('should set searchQuery', () => {
+        actions.setSearchQuery('Lyon');
+        expect(getState().searchQuery).toBe('Lyon');
+      });
+    });
+
+    describe('setUser', () => {
+      it('should set user and isLoggedIn', () => {
+        actions.setUser({ uid: 'u1', displayName: 'Alice' });
+        const s = getState();
+        expect(s.user).toBeDefined();
+        expect(s.isLoggedIn).toBe(true);
+        expect(s.username).toBe('Alice');
+      });
+
+      it('should set isLoggedIn to false when user is null', () => {
+        actions.setUser(null);
+        expect(getState().isLoggedIn).toBe(false);
+      });
+    });
+
+    describe('updateProfile', () => {
+      it('should update username', () => {
+        actions.updateProfile({ username: 'Bob' });
+        expect(getState().username).toBe('Bob');
+      });
+
+      it('should update avatar', () => {
+        actions.updateProfile({ avatar: 'adventurer' });
+        expect(getState().avatar).toBe('adventurer');
+      });
+    });
+
+    describe('incrementSpotsCreated', () => {
+      it('should increment spotsCreated', () => {
+        actions.incrementSpotsCreated();
+        expect(getState().spotsCreated).toBe(1);
+      });
+
+      it('should add 20 points', () => {
+        actions.incrementSpotsCreated();
+        expect(getState().points).toBe(20);
+      });
+    });
+
+    describe('incrementReviews', () => {
+      it('should increment reviewsGiven', () => {
+        actions.incrementReviews();
+        expect(getState().reviewsGiven).toBe(1);
+      });
+
+      it('should add 10 points', () => {
+        actions.incrementReviews();
+        expect(getState().points).toBe(10);
+      });
+    });
+
+    describe('setTripSteps', () => {
+      it('should set tripSteps', () => {
+        actions.setTripSteps([{ from: 'Paris', to: 'Lyon' }]);
+        expect(getState().tripSteps.length).toBe(1);
+      });
+    });
+
+    describe('saveTrip', () => {
+      it('should append trip to savedTrips', () => {
+        actions.saveTrip({ id: 't1', name: 'Paris-Lyon' });
+        expect(getState().savedTrips.length).toBe(1);
+      });
+
+      it('should preserve existing trips', () => {
+        actions.saveTrip({ id: 't1' });
+        actions.saveTrip({ id: 't2' });
+        expect(getState().savedTrips.length).toBe(2);
+      });
+    });
+
+    describe('toggleSOS', () => {
+      it('should toggle sosActive to true', () => {
+        setState({ sosActive: false });
+        actions.toggleSOS();
+        expect(getState().sosActive).toBe(true);
+      });
+
+      it('should toggle sosActive back to false', () => {
+        setState({ sosActive: true });
+        actions.toggleSOS();
+        expect(getState().sosActive).toBe(false);
+      });
+    });
+
+    describe('addEmergencyContact', () => {
+      it('should append contact to emergencyContacts', () => {
+        actions.addEmergencyContact({ name: 'Maman', phone: '+33600000000' });
+        expect(getState().emergencyContacts.length).toBe(1);
+      });
+
+      it('should preserve existing contacts', () => {
+        actions.addEmergencyContact({ name: 'A' });
+        actions.addEmergencyContact({ name: 'B' });
+        expect(getState().emergencyContacts.length).toBe(2);
+      });
+    });
+
+    describe('setOnlineStatus', () => {
+      it('should set isOnline to true', () => {
+        actions.setOnlineStatus(true);
+        expect(getState().isOnline).toBe(true);
+      });
+
+      it('should set isOnline to false', () => {
+        actions.setOnlineStatus(false);
+        expect(getState().isOnline).toBe(false);
+      });
+    });
+
+    describe('setUserLocation', () => {
+      it('should set userLocation and gpsEnabled', () => {
+        actions.setUserLocation({ lat: 48.8, lng: 2.3 });
+        const s = getState();
+        expect(s.userLocation).toEqual({ lat: 48.8, lng: 2.3 });
+        expect(s.gpsEnabled).toBe(true);
+      });
+
+      it('should set gpsEnabled to false when null', () => {
+        actions.setUserLocation(null);
+        expect(getState().gpsEnabled).toBe(false);
+      });
+    });
+
+    describe('addCheckinToHistory', () => {
+      it('should prepend checkin to checkinHistory', () => {
+        const checkin = actions.addCheckinToHistory({ spotId: 'sp1', note: 'Great!' });
+        const history = getState().checkinHistory;
+        expect(history.length).toBe(1);
+        expect(history[0].spotId).toBe('sp1');
+      });
+
+      it('should return the new checkin with id', () => {
+        const checkin = actions.addCheckinToHistory({ spotId: 'sp2' });
+        expect(checkin.id).toBeDefined();
+        expect(checkin.id).toContain('checkin_');
+      });
+
+      it('should prepend (most recent first)', () => {
+        actions.addCheckinToHistory({ spotId: 'old' });
+        actions.addCheckinToHistory({ spotId: 'new' });
+        expect(getState().checkinHistory[0].spotId).toBe('new');
+      });
     });
   });
 });

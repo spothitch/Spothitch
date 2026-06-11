@@ -224,3 +224,51 @@ describe('locationHistory', () => {
     })
   })
 })
+
+  describe('verifyProximity — no_history and too_far paths', () => {
+    let origIDB
+    beforeEach(() => { origIDB = global.indexedDB; global.indexedDB = undefined })
+    afterEach(() => { global.indexedDB = origIDB })
+
+    it('returns no_history when GPS unavailable and DB is empty', async () => {
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: vi.fn((_success, error) => {
+            error(new Error('GPS denied'))
+          }),
+        },
+        configurable: true, writable: true,
+      })
+      const result = await verifyProximity(48.8566, 2.3522, 'checkin')
+      expect(result.allowed).toBe(false)
+      expect(result.confidence).toBe('no_history')
+      expect(result.closestM).toBeNull()
+    })
+
+    it('falls through to DB when user is >2km from spot', async () => {
+      // User in Paris (48.8566), spot in Lyon (45.764) → dist > 2km
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: vi.fn((success) => {
+            success({ coords: { latitude: 48.8566, longitude: 2.3522, accuracy: 10 } })
+          }),
+        },
+        configurable: true, writable: true,
+      })
+      const result = await verifyProximity(45.764, 4.8357, 'checkin')
+      // Falls through to DB (empty) → no_history
+      expect(result.confidence).toBe('no_history')
+    })
+
+    it('startLocationTracking and stopLocationTracking do not throw', () => {
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          watchPosition: vi.fn(() => 1),
+          clearWatch: vi.fn(),
+        },
+        configurable: true, writable: true,
+      })
+      expect(() => startLocationTracking()).not.toThrow()
+      expect(() => stopLocationTracking()).not.toThrow()
+    })
+  })

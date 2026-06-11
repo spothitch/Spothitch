@@ -178,5 +178,76 @@ describe('overpass', () => {
       const fuelPois = result.filter(p => p.type === 'fuel')
       expect(fuelPois.length).toBe(0)
     })
+
+    it('filters by showRestAreas=false', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve({
+          elements: [
+            { type: 'node', id: 1, lat: 48.87, lon: 2.38, tags: { amenity: 'fuel' } },
+            { type: 'node', id: 2, lat: 48.87, lon: 2.39, tags: { highway: 'rest_area' } },
+          ],
+        }),
+      })
+      const geometry = [[2.38, 48.88], [2.43, 48.93]]
+      const result = await getAmenitiesAlongRoute(geometry, 2, { showFuel: true, showRestAreas: false })
+      const restPois = result.filter(p => p.type === 'rest_area')
+      expect(restPois.length).toBe(0)
+    })
+
+    it('handles way elements (with center coords)', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve({
+          elements: [
+            {
+              type: 'way',
+              id: 5,
+              center: { lat: 48.87, lon: 2.38 },
+              tags: { amenity: 'fuel', name: 'BP', brand: 'BP' },
+            },
+          ],
+        }),
+      })
+      const geometry = [[2.39, 48.89], [2.44, 48.94]]
+      const result = await getAmenitiesAlongRoute(geometry)
+      expect(Array.isArray(result)).toBe(true)
+    })
+
+    it('handles elements with highway=services tag', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve({
+          elements: [
+            { type: 'node', id: 6, lat: 48.87, lon: 2.38, tags: { highway: 'services', name: 'Services A6' } },
+          ],
+        }),
+      })
+      const geometry = [[2.40, 48.90], [2.45, 48.95]]
+      const result = await getAmenitiesAlongRoute(geometry)
+      expect(Array.isArray(result)).toBe(true)
+    })
+
+    it('returns from cache with option filtering', async () => {
+      // Prime the cache
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: () => Promise.resolve({
+          elements: [
+            { type: 'node', id: 7, lat: 48.87, lon: 2.38, tags: { amenity: 'fuel' } },
+            { type: 'node', id: 8, lat: 48.88, lon: 2.39, tags: { highway: 'rest_area' } },
+          ],
+        }),
+      })
+      const geometry = [[2.41, 48.91], [2.46, 48.96]]
+      await getAmenitiesAlongRoute(geometry, 2, { showFuel: true, showRestAreas: true })
+      // Second call uses cache
+      const cached = await getAmenitiesAlongRoute(geometry, 2, { showFuel: true, showRestAreas: false })
+      expect(cached.filter(p => p.type === 'rest_area').length).toBe(0)
+    })
   })
 })

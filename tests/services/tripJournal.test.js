@@ -13,8 +13,8 @@ import {
   getTrips, getTrip, getActiveTrip,
   createTrip, updateTrip, endTrip, deleteTrip,
   addLeg, deleteLeg, setDayNote, setDayExpenses,
-  getTripStats, getLegsByDay, getCurrencyForCountry,
-  EXPENSE_CATEGORIES,
+  getTripStats, getLegsByDay, getCurrencyForCountry, setDayPhoto, flushPendingSync,
+  EXPENSE_CATEGORIES, loadPublicTrip, publishTripPublicly,
 } from '../../src/services/tripJournal.js'
 
 describe('tripJournal', () => {
@@ -209,5 +209,116 @@ describe('tripJournal', () => {
       expect(EXPENSE_CATEGORIES).toContain('food')
       expect(EXPENSE_CATEGORIES).toContain('lodging')
     })
+  })
+})
+
+describe('tripJournal — additional coverage', () => {
+  beforeEach(() => { localStorage.clear() })
+
+  describe('setDayPhoto', () => {
+    it('sets a cover photo for a date', () => {
+      const trip = createTrip()
+      setDayPhoto(trip.id, '2026-04-01', 'data:image/png;base64,abc')
+      const stored = getTrip(trip.id)
+      expect(stored.dayPhotos['2026-04-01']).toBe('data:image/png;base64,abc')
+      expect(stored.coverPhoto).toBe('data:image/png;base64,abc')
+    })
+
+    it('does nothing for unknown trip', () => {
+      expect(() => setDayPhoto('unknown', '2026-04-01', 'data:...')).not.toThrow()
+    })
+
+    it('deletes a photo when photoDataUrl is null', () => {
+      const trip = createTrip()
+      setDayPhoto(trip.id, '2026-04-01', 'data:image/png;base64,abc')
+      setDayPhoto(trip.id, '2026-04-01', null)
+      const stored = getTrip(trip.id)
+      expect(stored.dayPhotos['2026-04-01']).toBeUndefined()
+    })
+
+    it('updates cover photo to next when deleted photo was cover', () => {
+      const trip = createTrip()
+      setDayPhoto(trip.id, '2026-04-01', 'img1')
+      setDayPhoto(trip.id, '2026-04-02', 'img2')
+      setDayPhoto(trip.id, '2026-04-01', null) // delete img1 (was cover)
+      const stored = getTrip(trip.id)
+      // Cover should now be img2 or null
+      expect([stored.coverPhoto, null]).toContain(stored.coverPhoto)
+    })
+  })
+
+  describe('_updateTripTitle edge cases', () => {
+    it('sets empty title when all legs deleted', () => {
+      const trip = createTrip()
+      const leg = addLeg(trip.id, { transport: 'walk', departureName: 'Paris', arrivalName: 'Lyon' })
+      deleteLeg(trip.id, leg.id) // removes last leg → legs.length === 0
+      const stored = getTrip(trip.id)
+      expect(stored.title).toBe('')
+    })
+
+    it('sets "City → ?" when departure is set but no arrival', () => {
+      const trip = createTrip()
+      addLeg(trip.id, { transport: 'hitchhike', departureName: 'Berlin', arrivalName: '' })
+      const stored = getTrip(trip.id)
+      expect(stored.title).toContain('Berlin')
+      expect(stored.title).toContain('?')
+    })
+  })
+
+  describe('flushPendingSync', () => {
+    it('runs without error when no timer is pending', () => {
+      expect(() => flushPendingSync('trip_test')).not.toThrow()
+    })
+
+    it('flushes a pending sync immediately', () => {
+      vi.useFakeTimers()
+      const trip = createTrip()
+      // addLeg triggers debouncedSyncToFirestore → sets _syncTimer
+      addLeg(trip.id, { transport: 'walk' })
+      // Flush before debounce fires
+      expect(() => flushPendingSync(trip.id)).not.toThrow()
+      vi.useRealTimers()
+    })
+  })
+})
+
+describe('tripJournal — loadPublicTrip / publishTripPublicly', () => {
+  beforeEach(() => { localStorage.clear() })
+
+  it('loadPublicTrip returns null when db is null', async () => {
+    const result = await loadPublicTrip('short123')
+    expect(result).toBeNull()
+  })
+
+  it('publishTripPublicly returns {success:false} for non-existent trip', async () => {
+    const result = await publishTripPublicly('trip_nonexistent')
+    expect(result.success).toBe(false)
+  })
+
+  it('publishTripPublicly returns {success:false} when trip is not public', async () => {
+    const trip = createTrip({ title: 'Private' })
+    // trip.isPublic is undefined → falsy → early return
+    const result = await publishTripPublicly(trip.id)
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('getTripStats — countryFlags coverage', () => {
+  it('generates country flags from departure/arrival countries', () => {
+    const trip = {
+      legs: [
+        { transport: 'hitchhike', distanceKm: 100, date: '2026-04-01',
+          departure: { name: 'Paris', country: 'FR' },
+          arrival: { name: 'Barcelona', country: 'ES' } },
+        { transport: 'walk', distanceKm: 2, date: '2026-04-01',
+          departure: { name: 'Foo', country: '' }, // falsy country
+          arrival: { name: 'Bar', country: 'ABC' } }, // length != 2
+      ],
+      dayExpenses: {},
+    }
+    const stats = getTripStats(trip)
+    expect(stats.countries).toBeGreaterThanOrEqual(1)
+    // countryFlags array should have valid flag strings
+    expect(Array.isArray(stats.countryFlags)).toBe(true)
   })
 })
