@@ -26,6 +26,17 @@ vi.mock('../../src/utils/mapMarkers.js', () => ({
 vi.mock('../../src/utils/a11y.js', () => ({
   trapFocus: vi.fn(),
 }))
+// Mock lazy-loaded views to prevent EnvironmentTeardownError (async imports
+// that resolve after the test environment is torn down)
+vi.mock('../../src/components/views/Profile.js', () => ({
+  renderProfile: vi.fn(() => '<div id="profile-view"></div>'),
+}))
+vi.mock('../../src/components/views/Social.js', () => ({
+  renderSocial: vi.fn(() => '<div id="social-view"></div>'),
+}))
+vi.mock('../../src/components/views/Voyage.js', () => ({
+  renderVoyage: vi.fn(() => '<div id="voyage-view"></div>'),
+}))
 
 import {
   renderApp,
