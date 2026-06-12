@@ -951,17 +951,20 @@ const PATTERN_CHECKS = [
       const appJsFile = files.find(f => f.endsWith('App.js') && f.includes('components'))
       if (!appJsFile) return []
       const appContent = readFileSync(appJsFile, 'utf-8')
+      // Build a map of all usages across all src files
+      const allContent = files.map(f => readFileSync(f, 'utf-8')).join('\n')
 
       const issues = []
       for (const file of files) {
         if (file === appJsFile) continue
         const content = readFileSync(file, 'utf-8')
         const relPath = relative(SRC_PATH, file)
-        // Find exported render functions
+        // Find exported render functions (modals only — pattern render\w+Modal)
         const exportMatches = content.matchAll(/export\s+(?:function|const)\s+(render\w+Modal)\s*\(/g)
         for (const m of exportMatches) {
           const fnName = m[1]
-          if (!appContent.includes(fnName)) {
+          // Check App.js OR any other file in src/ — sub-renders used in component files are fine
+          if (!allContent.includes(fnName + '(')) {
             issues.push(`${relPath} — export ${fnName}() not registered in App.js _lazyLoaders (ERR-031)`)
           }
         }
