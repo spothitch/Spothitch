@@ -85,7 +85,6 @@ import {
   Gift,
   GitFork,
   GitMerge,
-  Github,
   Globe,
   GraduationCap,
   Grid2x2,
@@ -318,7 +317,7 @@ const ICON_MAP = {
   'gift': Gift,
   'git-fork': GitFork,
   'git-merge': GitMerge,
-  'github': Github,
+  'github': null, // served via BRANDS fallback (brand icon removed from lucide 1.x)
   'globe': Globe,
   'graduation-cap': GraduationCap,
   'grid-2x2': Grid2x2,

@@ -215,26 +215,16 @@ export default defineConfig({
     rollupOptions: {
       external: [],
       output: {
-        manualChunks: {
-          'vendor-maplibre': ['maplibre-gl'],
-          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
-          'vendor-utils': ['dompurify'],
-          // gamification + social merged — they import each other, separate chunks cause TDZ errors
-          'gamification': [
-            './src/services/gamification.js',
-            './src/services/quiz.js',
-            './src/services/teamChallenges.js',
-            './src/services/friendChallenges.js',
-            './src/services/dailyReward.js',
-            './src/services/nearbyFriends.js',
-            './src/services/profileCustomization.js',
-          ],
-          'admin': [
-            './src/services/moderation.js',
-          ],
-          'guides': [
-            './src/data/guides.js',
-          ],
+        manualChunks(id) {
+          if (id.includes('maplibre-gl')) return 'vendor-maplibre'
+          if (id.includes('firebase/') || id.includes('node_modules/firebase')) return 'vendor-firebase'
+          if (id.includes('dompurify')) return 'vendor-utils'
+          if (id.includes('/services/gamification') || id.includes('/services/quiz') ||
+              id.includes('/services/teamChallenges') || id.includes('/services/friendChallenges') ||
+              id.includes('/services/dailyReward') || id.includes('/services/nearbyFriends') ||
+              id.includes('/services/profileCustomization')) return 'gamification'
+          if (id.includes('/services/moderation')) return 'admin'
+          if (id.includes('/data/guides')) return 'guides'
         }
       }
     },
