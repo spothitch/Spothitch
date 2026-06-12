@@ -1031,6 +1031,7 @@ window.addSpotNextStep = async () => {
  // No nearby spots (or user already confirmed) → go to step 2
  const newState = { ...state, addSpotStep: 2, addSpotType: spotType }
  if (swapStepContent(2, newState)) {
+ document.activeElement?.blur()
  setState({ addSpotStep: 2, addSpotType: spotType, _skipRender: true })
  } else {
  document.activeElement?.blur()

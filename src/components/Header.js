@@ -29,7 +29,7 @@ export function renderHeader(state) {
             title="${t('adminPanel') || 'Panneau Admin'}"
           >
             ${icon('shield', 'w-5 h-5')}
-            ${(state.adminReportsData || []).filter(r => r.status === 'pending').length > 0 ? `<span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">${(state.adminReportsData || []).filter(r => r.status === 'pending').length}</span>` : ''}
+            ${(state.adminReportsData || []).filter(r => r.status === 'pending').length > 0 ? `<span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">${(state.adminReportsData || []).filter(r => r.status === 'pending').length}</span>` : ''}
           </button>
           ` : ''}
           <!-- Guardian Button -->

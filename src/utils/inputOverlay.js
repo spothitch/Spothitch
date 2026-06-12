@@ -84,7 +84,7 @@ export function showInputOverlay(options = {}) {
             autocomplete="off"
           />
         `}
-        ${maxLength ? `<p class="text-[9px] text-slate-600 mt-1 text-right">${t('maxChars') || 'max'} ${maxLength}</p>` : ''}
+        ${maxLength ? `<p class="text-[10px] text-slate-600 mt-1 text-right">${t('maxChars') || 'max'} ${maxLength}</p>` : ''}
 
         <!-- Buttons -->
         <div class="flex gap-2 mt-4">

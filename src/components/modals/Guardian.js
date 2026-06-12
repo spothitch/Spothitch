@@ -570,19 +570,19 @@ function renderActiveScreen(guardianState) {
     <div class="flex shrink-0" style="border-bottom:1px solid rgba(255,255,255,.06);padding:8px 16px">
       <div class="flex-1 text-center">
         <div class="text-[13px] font-extrabold" style="color:#22c55e">${durationText}</div>
-        <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">${t('onRoute') || 'en route'}</div>
+        <div class="text-[10px] text-slate-600 uppercase tracking-wide mt-0.5">${t('onRoute') || 'en route'}</div>
       </div>
       <div class="flex-1 text-center">
         <div class="text-[13px] font-extrabold text-white">${checkInCount}</div>
-        <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">check-ins</div>
+        <div class="text-[10px] text-slate-600 uppercase tracking-wide mt-0.5">check-ins</div>
       </div>
       <div class="flex-1 text-center">
         <div class="text-[13px] font-extrabold" id="guardian-battery-row" style="color:${battColor}">${battText}</div>
-        <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">${t('batteryLevel') || 'batterie'}</div>
+        <div class="text-[10px] text-slate-600 uppercase tracking-wide mt-0.5">${t('batteryLevel') || 'batterie'}</div>
       </div>
       <div class="flex-1 text-center">
         <div class="text-[13px] font-extrabold" style="color:#3b82f6">${etaText}</div>
-        <div class="text-[8px] text-slate-600 uppercase tracking-wide mt-0.5">ETA</div>
+        <div class="text-[10px] text-slate-600 uppercase tracking-wide mt-0.5">ETA</div>
       </div>
     </div>
 
@@ -737,7 +737,7 @@ function timelineEvent(ts, colorClass, iconName, badgeText, message, extra) {
       <div class="flex-1 min-w-0 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
         <div class="flex items-center gap-1.5 mb-1">
           <span class="text-[10px] font-semibold text-slate-600">${ts}</span>
-          <span class="text-[8px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md" style="background:${c.badgeBg};color:${c.text}">${badgeText}</span>
+          <span class="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md" style="background:${c.badgeBg};color:${c.text}">${badgeText}</span>
         </div>
         <div class="text-[13px] leading-relaxed text-slate-200">${message}</div>
         ${extra}
@@ -827,22 +827,22 @@ function renderGuardianScreen(guardianState) {
         <div class="flex items-center gap-2">
           <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-dark-primary bg-gradient-to-br from-amber-500 to-amber-600">${escapeHTML(initial)}</div>
           <div class="text-[13px] font-bold text-white flex-1">${escapeHTML(guardianName)}</div>
-          <div class="text-[9px] flex items-center gap-1 ${statusColor}">
+          <div class="text-[10px] flex items-center gap-1 ${statusColor}">
             <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span> ${statusText}
           </div>
         </div>
         <div class="grid grid-cols-3 gap-1 mt-2">
           <div class="text-center py-1.5 rounded bg-white/[0.02]">
             <div class="text-xs font-bold ${isOverdue ? 'text-red-400' : 'text-emerald-400'}">${icon('check', 'w-3 h-3 inline')} ${lastCheckIn ? formatTimeAgo(lastCheckIn) : '...'}</div>
-            <div class="text-[8px] text-slate-500">Check-in</div>
+            <div class="text-[10px] text-slate-500">Check-in</div>
           </div>
           <div class="text-center py-1.5 rounded bg-white/[0.02]">
             <div class="text-xs font-bold text-white">${icon('clock', 'w-3 h-3 inline')} ${tripHours > 0 ? `${tripHours}h${String(tripMins).padStart(2, '0')}` : `${tripMins}min`}</div>
-            <div class="text-[8px] text-slate-500">${t('duration') || 'Duration'}</div>
+            <div class="text-[10px] text-slate-500">${t('duration') || 'Duration'}</div>
           </div>
           <div class="text-center py-1.5 rounded bg-white/[0.02]">
             <div class="text-xs font-bold text-amber-400">${destination ? escapeHTML(destination.slice(0, 15)) : '...'}</div>
-            <div class="text-[8px] text-slate-500">${t('guardianDestination') || 'Dest.'}</div>
+            <div class="text-[10px] text-slate-500">${t('guardianDestination') || 'Dest.'}</div>
           </div>
         </div>
       </div>
@@ -925,7 +925,7 @@ function renderGuardianChatMessages(travelerId) {
                   style="background:${senderColor}">${escapeHTML(initial)}</div>
                 <div class="max-w-[75%] rounded-xl overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
                   <img src="${msg.photoUrl}" alt="Photo" class="w-full h-[100px] object-cover" />
-                  <div class="px-2 py-1 text-[9px] text-slate-500">${ts}</div>
+                  <div class="px-2 py-1 text-[10px] text-slate-500">${ts}</div>
                 </div>
               </div>
             `
@@ -938,7 +938,7 @@ function renderGuardianChatMessages(travelerId) {
               <div class="max-w-[75%] rounded-xl px-3 py-2" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)${isMe ? ';border-right:3px solid ' + senderColor : ';border-left:3px solid ' + senderColor}">
                 <div class="text-[10px] font-bold" style="color:${senderColor}">${escapeHTML(msg.senderName || '?')}</div>
                 <div class="text-[12px] text-slate-200 mt-0.5">${escapeHTML(msg.text)}</div>
-                <div class="text-[9px] text-slate-600 mt-0.5">${ts}</div>
+                <div class="text-[10px] text-slate-600 mt-0.5">${ts}</div>
               </div>
             </div>
           `
@@ -991,22 +991,22 @@ function renderAlertScreen(guardianState) {
           <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-[#0f1117]"
             style="background:linear-gradient(135deg,#ef4444,#dc2626)">${escapeHTML(initial)}</div>
           <div class="text-[13px] font-bold text-white flex-1">${escapeHTML(guardianName)}</div>
-          <div class="text-[9px] flex items-center gap-1 text-red-400">
+          <div class="text-[10px] flex items-center gap-1 text-red-400">
             <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> ${t('noResponse') || 'Pas de reponse'}
           </div>
         </div>
         <div class="grid grid-cols-3 gap-1 mt-2">
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
             <div class="text-xs font-bold text-red-400">${icon('triangle-alert', 'w-3 h-3 inline')} ${overdueMin} min</div>
-            <div class="text-[8px] text-slate-500">${t('noResponse') || 'Sans reponse'}</div>
+            <div class="text-[10px] text-slate-500">${t('noResponse') || 'Sans reponse'}</div>
           </div>
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
             <div class="text-xs font-bold text-white">${icon('zap', 'w-3 h-3 inline')} ${_batteryPct !== null ? `${_batteryPct}%` : '...'}</div>
-            <div class="text-[8px] text-slate-500">${t('batteryLevel') || 'Batterie'}</div>
+            <div class="text-[10px] text-slate-500">${t('batteryLevel') || 'Batterie'}</div>
           </div>
           <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
             <div class="text-xs font-bold text-white">${lastCheckInTime}</div>
-            <div class="text-[8px] text-slate-500">${t('lastSignal') || 'Dernier signal'}</div>
+            <div class="text-[10px] text-slate-500">${t('lastSignal') || 'Dernier signal'}</div>
           </div>
         </div>
       </div>
@@ -1150,19 +1150,19 @@ function renderArrivalScreen(guardianState) {
       <div class="grid grid-cols-2 gap-2 w-full mb-5">
         <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
           <div class="text-lg font-extrabold" style="color:#22c55e">${durationText}</div>
-          <div class="text-[9px] text-slate-600 uppercase mt-0.5">${t('duration') || 'duree'}</div>
+          <div class="text-[10px] text-slate-600 uppercase mt-0.5">${t('duration') || 'duree'}</div>
         </div>
         <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
           <div class="text-lg font-extrabold" style="color:#3b82f6">${distText}</div>
-          <div class="text-[9px] text-slate-600 uppercase mt-0.5">${t('distance') || 'distance'}</div>
+          <div class="text-[10px] text-slate-600 uppercase mt-0.5">${t('distance') || 'distance'}</div>
         </div>
         <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
           <div class="text-lg font-extrabold" style="color:#f59e0b">${checkInCount}</div>
-          <div class="text-[9px] text-slate-600 uppercase mt-0.5">check-ins</div>
+          <div class="text-[10px] text-slate-600 uppercase mt-0.5">check-ins</div>
         </div>
         <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
           <div class="text-lg font-extrabold" style="color:#06b6d4">${vehicleCount}</div>
-          <div class="text-[9px] text-slate-600 uppercase mt-0.5">${t('vehicles') || 'vehicules'}</div>
+          <div class="text-[10px] text-slate-600 uppercase mt-0.5">${t('vehicles') || 'vehicules'}</div>
         </div>
       </div>
 

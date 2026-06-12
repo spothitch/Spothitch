@@ -185,10 +185,10 @@ function _renderTripCard(trip, isActive) {
         </div>
       </div>
       <div class="flex">
-        <div class="flex-1 text-center py-2.5 px-1.5 border-r border-white/[0.05]"><div class="text-[15px] font-bold text-amber-500">${stats?.totalKm || 0}</div><div class="text-[9px] text-slate-500 uppercase mt-0.5">km</div></div>
-        <div class="flex-1 text-center py-2.5 px-1.5 border-r border-white/[0.05]"><div class="text-[15px] font-bold text-amber-500">${stats?.rides || 0}</div><div class="text-[9px] text-slate-500 uppercase mt-0.5">rides</div></div>
-        <div class="flex-1 text-center py-2.5 px-1.5 border-r border-white/[0.05]"><div class="text-[15px] font-bold text-amber-500">${stats?.totalWaitMin || 0}</div><div class="text-[9px] text-slate-500 uppercase mt-0.5">min att.</div></div>
-        <div class="flex-1 text-center py-2.5 px-1.5"><div class="text-[15px] font-bold text-amber-500">${stats?.countries || 0}</div><div class="text-[9px] text-slate-500 uppercase mt-0.5">${t('countries') || 'pays'}</div></div>
+        <div class="flex-1 text-center py-2.5 px-1.5 border-r border-white/[0.05]"><div class="text-[15px] font-bold text-amber-500">${stats?.totalKm || 0}</div><div class="text-[10px] text-slate-500 uppercase mt-0.5">km</div></div>
+        <div class="flex-1 text-center py-2.5 px-1.5 border-r border-white/[0.05]"><div class="text-[15px] font-bold text-amber-500">${stats?.rides || 0}</div><div class="text-[10px] text-slate-500 uppercase mt-0.5">rides</div></div>
+        <div class="flex-1 text-center py-2.5 px-1.5 border-r border-white/[0.05]"><div class="text-[15px] font-bold text-amber-500">${stats?.totalWaitMin || 0}</div><div class="text-[10px] text-slate-500 uppercase mt-0.5">min att.</div></div>
+        <div class="flex-1 text-center py-2.5 px-1.5"><div class="text-[15px] font-bold text-amber-500">${stats?.countries || 0}</div><div class="text-[10px] text-slate-500 uppercase mt-0.5">${t('countries') || 'pays'}</div></div>
       </div>
     </div>
   `
@@ -294,10 +294,10 @@ function renderTripDetail(state, tripId) {
       <!-- Bottom stats bar -->
       ${stats && stats.totalKm > 0 ? `
         <div class="sticky bottom-0 bg-[rgba(15,21,32,.95)] backdrop-blur-[12px] border-t border-white/[0.06] px-4 py-2.5 flex justify-around">
-          <div class="text-center"><div class="text-[13px] font-bold text-emerald-500">${stats.hitchKm}</div><div class="text-[9px] text-slate-500 uppercase">km stop</div></div>
-          <div class="text-center"><div class="text-[13px] font-bold text-[#8b5cf6]">${stats.paidKm}</div><div class="text-[9px] text-slate-500 uppercase">km payés</div></div>
-          <div class="text-center"><div class="text-[13px] font-bold text-amber-500">${stats.totalWaitMin}</div><div class="text-[9px] text-slate-500 uppercase">min att.</div></div>
-          <div class="text-center"><div class="text-[13px] font-bold">${stats.totalExpenses > 0 ? stats.totalExpenses + '€' : '0€'}</div><div class="text-[9px] text-slate-500 uppercase">${t('spent') || 'dépensé'}</div></div>
+          <div class="text-center"><div class="text-[13px] font-bold text-emerald-500">${stats.hitchKm}</div><div class="text-[10px] text-slate-500 uppercase">km stop</div></div>
+          <div class="text-center"><div class="text-[13px] font-bold text-[#8b5cf6]">${stats.paidKm}</div><div class="text-[10px] text-slate-500 uppercase">km payés</div></div>
+          <div class="text-center"><div class="text-[13px] font-bold text-amber-500">${stats.totalWaitMin}</div><div class="text-[10px] text-slate-500 uppercase">min att.</div></div>
+          <div class="text-center"><div class="text-[13px] font-bold">${stats.totalExpenses > 0 ? stats.totalExpenses + '€' : '0€'}</div><div class="text-[10px] text-slate-500 uppercase">${t('spent') || 'dépensé'}</div></div>
         </div>
       ` : ''}
     </div>
@@ -696,9 +696,9 @@ function renderTripStats(state, tripId) {
 
       <!-- Advanced stats -->
       <div class="grid grid-cols-3 gap-2 mb-4">
-        <div class="bg-white/[0.04] rounded-[10px] p-2.5 text-center"><div class="text-base font-bold text-slate-200">${stats.avgWaitMin}</div><div class="text-[9px] text-slate-500">${t('avgWaitMin') || 'min moy. attente'}</div></div>
-        <div class="bg-white/[0.04] rounded-[10px] p-2.5 text-center"><div class="text-base font-bold text-slate-200">${stats.budgetPerDay}</div><div class="text-[9px] text-slate-500">${t('budgetPerDay') || '\u20AC/jour'}</div></div>
-        <div class="bg-white/[0.04] rounded-[10px] p-2.5 text-center"><div class="text-base font-bold text-slate-200">${stats.avgSpeed || '?'}</div><div class="text-[9px] text-slate-500">${t('avgSpeedKmh') || 'km/h moy.'}</div></div>
+        <div class="bg-white/[0.04] rounded-[10px] p-2.5 text-center"><div class="text-base font-bold text-slate-200">${stats.avgWaitMin}</div><div class="text-[10px] text-slate-500">${t('avgWaitMin') || 'min moy. attente'}</div></div>
+        <div class="bg-white/[0.04] rounded-[10px] p-2.5 text-center"><div class="text-base font-bold text-slate-200">${stats.budgetPerDay}</div><div class="text-[10px] text-slate-500">${t('budgetPerDay') || '\u20AC/jour'}</div></div>
+        <div class="bg-white/[0.04] rounded-[10px] p-2.5 text-center"><div class="text-base font-bold text-slate-200">${stats.avgSpeed || '?'}</div><div class="text-[10px] text-slate-500">${t('avgSpeedKmh') || 'km/h moy.'}</div></div>
       </div>
 
       <!-- Ratio bar -->
@@ -799,10 +799,10 @@ function renderPublicTrip(trip) {
       <!-- Stats -->
       ${stats ? `
       <div class="grid grid-cols-4 gap-2 mb-5">
-        <div class="bg-[rgba(34,197,94,.08)] rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-emerald-500">${stats.totalKm}</div><div class="text-[9px] text-slate-500">km</div></div>
-        <div class="bg-[rgba(245,158,11,.08)] rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-amber-500">${stats.rides}</div><div class="text-[9px] text-slate-500">rides</div></div>
-        <div class="bg-[rgba(59,130,246,.08)] rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-blue-500">${stats.totalWaitMin}</div><div class="text-[9px] text-slate-500">min</div></div>
-        <div class="bg-[rgba(139,92,246,.08)] rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-[#8b5cf6]">${stats.countries}</div><div class="text-[9px] text-slate-500">${t('countries') || 'pays'}</div></div>
+        <div class="bg-[rgba(34,197,94,.08)] rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-emerald-500">${stats.totalKm}</div><div class="text-[10px] text-slate-500">km</div></div>
+        <div class="bg-[rgba(245,158,11,.08)] rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-amber-500">${stats.rides}</div><div class="text-[10px] text-slate-500">rides</div></div>
+        <div class="bg-[rgba(59,130,246,.08)] rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-blue-500">${stats.totalWaitMin}</div><div class="text-[10px] text-slate-500">min</div></div>
+        <div class="bg-[rgba(139,92,246,.08)] rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-[#8b5cf6]">${stats.countries}</div><div class="text-[10px] text-slate-500">${t('countries') || 'pays'}</div></div>
       </div>
       ` : ''}
 

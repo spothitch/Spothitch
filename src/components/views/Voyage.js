@@ -788,7 +788,7 @@ window.closeTripDetail = () => {
 }
 
 window.deleteJournalTrip = (tripIndex) => {
- if (!confirm(window.t?.('confirmDeleteTrip') || 'Supprimer ce voyage ? Cette action est irréversible.')) return
+ if (!confirm(t('confirmDeleteTrip') || 'Supprimer ce voyage ? Cette action est irréversible.')) return
  try {
  const savedTrips = getSavedTrips()
  const trip = savedTrips[tripIndex]

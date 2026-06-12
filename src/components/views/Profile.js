@@ -264,7 +264,7 @@ function renderProfilTab(state) {
  ${(state.profilePhotos || []).map((url, i) => `
  <div class="relative aspect-square rounded-lg overflow-hidden bg-white/5 group">
  <img src="${escapeHTML(url)}" class="w-full h-full object-cover" alt="" loading="lazy" />
- ${i === 0 ? `<div class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/90 text-white">${t('setMainPhoto')}</div>` : `<button onclick="setMainProfilePhoto(${i})" class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">${icon('star', 'w-2.5 h-2.5 inline')}</button>`}
+ ${i === 0 ? `<div class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/90 text-white">${t('setMainPhoto')}</div>` : `<button onclick="setMainProfilePhoto(${i})" class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[10px] bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">${icon('star', 'w-2.5 h-2.5 inline')}</button>`}
  <button onclick="removeProfilePhoto(${i})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="${t('removePhoto')}">
  ${icon('x', 'w-3 h-3 text-white')}
  </button>
@@ -273,7 +273,7 @@ function renderProfilTab(state) {
  ${(state.profilePhotos || []).length < 6 ? `
  <button onclick="addProfilePhoto()" class="aspect-square rounded-lg border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-1 hover:border-primary-500/50 hover:bg-white/5 transition-colors">
  ${icon('camera', 'w-5 h-5 text-slate-500')}
- <span class="text-[9px] text-slate-500">${t('addPhoto')}</span>
+ <span class="text-[10px] text-slate-500">${t('addPhoto')}</span>
  </button>` : ''}
  </div>
  </div>

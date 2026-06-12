@@ -219,6 +219,7 @@ const PATTERN_CHECKS = [
         'showSettings',        // settings rendered inline in Profile.js
         'showTeamSettings',    // future feature, stub handler in teamChallenges.js
         'showTitlePopup',      // auto-hide popup in gamification.js, no modal
+        'showAddPastTrip',     // form rendered inline in Profile.js, not a standalone modal
       ])
       const realGhosts = ghostFlags.filter(f => !EXPECTED_NON_RENDERED.has(f))
 
@@ -403,7 +404,7 @@ const PATTERN_CHECKS = [
     name: 'activeTab value without matching case in renderActiveView',
     check(files) {
       // Known valid tab IDs from renderActiveView in App.js
-      const VALID_TABS = new Set(['map', 'challenges', 'social', 'chat', 'profile', 'spots', 'travel-groups'])
+      const VALID_TABS = new Set(['map', 'voyage', 'challenges', 'social', 'chat', 'profile', 'spots', 'travel-groups'])
       const issues = []
       for (const file of files) {
         const content = readFileSync(file, 'utf-8')
@@ -521,7 +522,9 @@ const PATTERN_CHECKS = [
               'team-avatar-btn', 'landing-dot', 'spot-type-btn', 'language-option',
               'category-btn', 'hostel-tab', 'faq-answer', 'contact-error', 'custom-select-menu',
               // External library classes
-              'maplibregl-popup'])
+              'maplibregl-popup',
+              // Cross-file classes (defined in one component, queried from another)
+              'slide-panel-in'])
             if (!KNOWN_CLASSES.has(className)) {
               issues.push(`${relPath}:${i + 1} — querySelector('.${className}') — class may not exist in template (ERR-008)`)
             }
@@ -664,7 +667,7 @@ const PATTERN_CHECKS = [
     name: 'setState activeTab value without case in renderActiveView',
     check(files) {
       // Valid tabs from renderActiveView in App.js (including default 'map' handled by return '')
-      const VALID_TABS = new Set(['map', 'challenges', 'social', 'chat', 'profile', 'spots', 'travel-groups'])
+      const VALID_TABS = new Set(['map', 'voyage', 'challenges', 'social', 'chat', 'profile', 'spots', 'travel-groups'])
       const issues = []
       for (const file of files) {
         const content = readFileSync(file, 'utf-8')
@@ -851,8 +854,8 @@ const PATTERN_CHECKS = [
           if (!m) continue
           const handler = m[1]
           if (handler.startsWith('_') || SKIP.has(handler)) continue
-          // Check for guard (look up to 200 lines back for enclosing guard block)
-          const prevLines = lines.slice(Math.max(0, i - 200), i).join(' ')
+          // Check for guard (look up to 200 lines back + current line for inline guards)
+          const prevLines = lines.slice(Math.max(0, i - 200), i + 1).join(' ')
           if (new RegExp(`if\\s*\\(\\s*!\\s*window\\.${handler}\\s*\\)`).test(prevLines)) continue
           if (!handlersByFile[handler]) handlersByFile[handler] = new Set()
           handlersByFile[handler].add(relPath)
@@ -919,6 +922,9 @@ const PATTERN_CHECKS = [
       if (componentFiles.length === 0) return []
       const allComponentContent = componentFiles.map(f => readFileSync(f, 'utf-8')).join('\n')
 
+      // Flags handled inline (not via App.js modal render, e.g. inside a view's own render)
+      const INLINE_FLAGS = new Set(['showAddPastTrip'])
+
       const issues = []
       for (const file of files) {
         const content = readFileSync(file, 'utf-8')
@@ -928,6 +934,7 @@ const PATTERN_CHECKS = [
         for (const m of openHandlerMatches) {
           const handlerName = m[1]
           const stateFlag = m[2]
+          if (INLINE_FLAGS.has(stateFlag)) continue
           // Check if ANY component renders something when this flag is true
           if (!allComponentContent.includes(`state.${stateFlag}`) && !allComponentContent.includes(`${stateFlag} ?`) && !allComponentContent.includes(`${stateFlag} &&`)) {
             issues.push(`${relPath} — window.${handlerName} sets ${stateFlag}:true but no component ever renders it (ERR-028)`)
