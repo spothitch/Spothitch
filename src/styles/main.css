@@ -1315,11 +1315,11 @@ details[open] summary svg { transform: rotate(180deg); }
 details summary svg { transition: transform 0.2s ease; }
 
 /* Rating bar segments — clickable area */
-.spot-star-btn[style*="height:4px"] {
+.spot-star-btn {
   min-height: 16px;
   position: relative;
 }
-.spot-star-btn[style*="height:4px"]::before {
+.spot-star-btn::before {
   content: '';
   position: absolute;
   top: -6px;

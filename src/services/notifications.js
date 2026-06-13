@@ -800,6 +800,7 @@ export default {
 // Exposed globally for the foreground listener in pushNotifications.js
 window._showCommunitySOSBanner = _showCommunitySOSBanner
 function _showCommunitySOSBanner(data) {
+ if (!data) return
  const { voyagerName, lat, lng, distance, alertType } = data
  const existing = document.getElementById('community-sos-banner')
  if (existing) existing.remove()

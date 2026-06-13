@@ -39,11 +39,10 @@ function renderBarRating(criterion, label) {
  <button
  type="button"
  onclick="setSpotRating('${escapeJSString(criterion)}', ${val})"
- class="spot-star-btn"
+ class="spot-star-btn flex-1 h-2 rounded-sm border-0 cursor-pointer p-0 transition-colors ${val <= currentValue ? 'bg-amber-500' : 'bg-slate-700'}"
  data-criterion="${criterion}"
  data-star="${val}"
  aria-label="${val}/5"
- style="flex:1;height:4px;border-radius:2px;background:${val <= currentValue ? '#f59e0b' : '#1a1f2e'};border:none;cursor:pointer;padding:0"
  ></button>
  `).join('')}
  </div>
@@ -411,7 +410,7 @@ export function renderStep3(state) {
  style="border-bottom:${window.spotFormData._expCustom ? '2px solid #f59e0b' : 'none'};color:${window.spotFormData._expCustom ? '#f59e0b' : '#64748b'}">
  ${t('chooseDate') || 'Choisir une date'}
  </button></div>
- <div id="exp-date-selectors" class="gap-3 mt-2.5" style="display:${window.spotFormData._expCustom ? 'flex' : 'none'}">
+ <div id="exp-date-selectors" class="${window.spotFormData._expCustom ? 'flex' : 'hidden'} gap-3 mt-2.5">
  <select id="exp-month" onchange="updateExperienceDate()"
  class="flex-1 bg-transparent border-0 border-b border-slate-700 py-2 text-slate-200 text-sm outline-none appearance-none cursor-pointer">
  ${(() => {

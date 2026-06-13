@@ -903,12 +903,17 @@ export function renderRoadmapTab(_state) {
  const rank = i + 1
  const rankIcons = [icon('trophy', 'w-5 h-5 text-amber-400'), icon('medal', 'w-5 h-5 text-slate-300'), icon('medal', 'w-5 h-5 text-amber-700')]
  const rankLabel = rank <= 3 ? rankIcons[rank - 1] : '<span class="text-xs text-slate-500 font-bold">#' + rank + '</span>'
+ const featureIcon = f.emoji
+   ? '<span class="text-lg">' + f.emoji + '</span>'
+   : f.iconName
+     ? '<span class="text-amber-400">' + icon(f.iconName, 'w-5 h-5') + '</span>'
+     : ''
  return '<div class="card p-3">'
  + '<div class="flex items-start gap-3">'
  + '<div class="text-lg shrink-0 w-7 text-center">' + rankLabel + '</div>'
  + '<div class="flex-1 min-w-0">'
  + '<div class="flex items-center gap-2 mb-1">'
- + '<span class="text-lg">' + f.emoji + '</span>'
+ + featureIcon
  + '<h3 class="font-semibold text-sm truncate">' + escapeHTML(t('featureName_' + f.id) || f.name || f.title) + '</h3>'
  + '</div>'
  + '<div class="flex flex-wrap gap-1.5 mb-2">'
