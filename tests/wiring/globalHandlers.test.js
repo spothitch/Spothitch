@@ -204,7 +204,6 @@ const MAIN_JS_HANDLERS = [
   'openConversation', 'closeConversation', 'sendDM',
   'shareDMSpot', 'shareDMPosition', 'deleteDMConversation',
   'sendDirectMessageTo', 'getConversationWith',
-  'searchUsersGlobal',
   // Events (defined in events.js)
   'openCreateEvent', 'closeCreateEvent', 'submitCreateEvent',
   'joinEvent', 'leaveEvent', 'deleteEventAction',
@@ -366,7 +365,7 @@ const MAIN_JS_HANDLERS = [
   // Social Demo (defined in Profile.js)
   'showSocialDemo', 'closeSocialDemo', 'startSocialDemo', 'switchSocialDemoTab',
   // Companion Demo (defined in Profile.js)
-  'showGuardianDemo', 'closeGuardianDemo', 'startGuardianDemo', 'startGuardianDemoContent', 'switchGuardianDemoTab',
+  'showGuardianDemo', 'closeGuardianDemo', 'startGuardianDemoContent', 'switchGuardianDemoTab',
   // Hostels Demo (defined in Profile.js)
   'showHostelsDemo', 'closeHostelsDemo', 'startHostelsDemo', 'switchHostelsDemoTab',
   // Spot Demo (defined in ProfileDemos.js)
@@ -432,8 +431,7 @@ const MAIN_JS_HANDLERS = [
   'handleCreateTeam', 'forceOfflineSync',
   'translateElement', 'showOriginal',
   'startNavigation', 'removeKnownDevice',
-  'closeShareModal', 'copySpotLink',
-  'exportUserData', 'shareLink', 'generateShareUrl', 'processShare',
+  'closeShareModal', 'copySpotLink', 'shareLink', 'generateShareUrl', 'processShare',
   'openInGoogleMaps', 'openInWaze', 'openInAppleMaps', 'openInNativeMaps',
   'selectNavigationApp', 'closeNavigationPicker',
   // Feedback Panel (session 2026-02-27)
@@ -450,7 +448,6 @@ const MAIN_JS_HANDLERS = [
   'loadAdminGuideTips', 'adminApproveGuideTipAction', 'adminRejectGuideTipAction',
   'loadAdminIdVerifications', 'adminApproveIdVerification', 'adminRejectIdVerification',
   // Beta Banner (session 2026-02-28)
-  'closeBetaPopup',
   // Feature Slides (session 2026-03-03)
   'openFeatureSlides',
   'closeFeatureSlides',

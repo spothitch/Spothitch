@@ -216,7 +216,7 @@ export function renderMainScreen(guardianState, editOverlay) {
             return `
               <div class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-white/[0.02] transition-colors"
                 style="border-bottom:1px solid rgba(255,255,255,.03)"
-                onclick="guardianEditGuardian(${i})">
+                onclick="guardianEditGuardian(${i})" role="button" tabindex="0">
                 <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:${ci.bg};color:${g.color || '#22c55e'}">
                   ${icon('user', 'w-[18px] h-[18px]')}
                 </div>
@@ -230,7 +230,7 @@ export function renderMainScreen(guardianState, editOverlay) {
           }).join('')}
           ${remaining > 0 ? `
             <div class="flex items-center justify-center gap-1.5 px-4 py-3 cursor-pointer text-slate-500 text-xs font-semibold active:bg-white/[0.02] transition-colors"
-              onclick="guardianAddGuardian()">
+              onclick="guardianAddGuardian()" role="button" tabindex="0">
               ${icon('plus', 'w-3.5 h-3.5')}
               ${t('addGuardian') || 'Ajouter un gardien'} (${remaining} ${t('remaining') || 'restants'})
             </div>
@@ -291,7 +291,7 @@ function cfgRow(iconName, color, label, value, action) {
   return `
     <div class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-white/[0.02] transition-colors"
       style="border-bottom:1px solid rgba(255,255,255,.03)"
-      ${action ? `onclick="${action}"` : ''}>
+      ${action ? `onclick="${action}"` : ''} role="button" tabindex="0">
       <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:${ci.bg};color:${color}">
         ${icon(iconName, 'w-[18px] h-[18px]')}
       </div>
@@ -1175,7 +1175,7 @@ export function renderBottomSheet(guardianState, guardianSheet) {
   }
 
   return `
-    <div class="absolute inset-0 z-50 flex items-end" onclick="guardianCloseSheet()">
+    <div class="absolute inset-0 z-50 flex items-end" onclick="guardianCloseSheet()" role="button" tabindex="0">
       <div class="absolute inset-0" style="background:rgba(0,0,0,.6)"></div>
       <div class="relative w-full rounded-t-[20px] px-4 pt-5 pb-7" style="background:#161b28;animation:sheetSlideUp .25s ease" onclick="event.stopPropagation()">
         ${sheetContent}
