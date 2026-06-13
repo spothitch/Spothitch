@@ -43,6 +43,8 @@ vi.mock('../../src/stores/state.js', () => ({
 // Mock notifications
 vi.mock('../../src/services/notifications.js', () => ({
   showToast: vi.fn(),
+  notifyNewMessage: vi.fn(),
+  sendLocalNotification: vi.fn(),
 }))
 
 describe('DirectMessages Service', () => {
