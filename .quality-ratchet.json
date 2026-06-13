@@ -1,11 +1,11 @@
 {
-  "totalScore": 96,
-  "updatedAt": "2026-06-12T15:03:08.959Z",
+  "totalScore": 98,
+  "updatedAt": "2026-06-13T23:36:04.013Z",
   "checks": {
     "Handlers Wiring": {
-      "score": 90,
+      "score": 100,
       "errors": 0,
-      "warnings": 5
+      "warnings": 0
     },
     "i18n Keys": {
       "score": 100,
@@ -38,14 +38,14 @@
       "warnings": 1
     },
     "Accessibility": {
-      "score": 88,
+      "score": 100,
       "errors": 0,
-      "warnings": 5
+      "warnings": 0
     },
     "Bundle Size": {
-      "score": 65,
+      "score": 60,
       "errors": 1,
-      "warnings": 1
+      "warnings": 2
     },
     "Import Cycles": {
       "score": 100,
