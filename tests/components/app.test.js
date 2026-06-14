@@ -37,6 +37,40 @@ vi.mock('../../src/components/views/Social.js', () => ({
 vi.mock('../../src/components/views/Voyage.js', () => ({
   renderVoyage: vi.fn(() => '<div id="voyage-view"></div>'),
 }))
+// Mock lazy-loaded modals to prevent EnvironmentTeardownError
+vi.mock('../../src/components/modals/Auth.js', () => ({
+  renderAuth: vi.fn(() => '<div id="auth-modal"></div>'),
+  initAuthAfterRender: vi.fn(),
+}))
+vi.mock('../../src/components/modals/Guardian.js', () => ({
+  renderGuardianModal: vi.fn(() => '<div id="guardian-modal"></div>'),
+  initGuardianAfterRender: vi.fn(),
+}))
+vi.mock('../../src/components/modals/SpotDetail.js', () => ({
+  renderSpotDetail: vi.fn(() => '<div id="spot-detail-modal"></div>'),
+}))
+vi.mock('../../src/components/modals/Stats.js', () => ({
+  renderStatsModal: vi.fn(() => '<div id="stats-modal"></div>'),
+}))
+vi.mock('../../src/components/ui/NavigationOverlay.js', () => ({
+  renderNavigationOverlay: vi.fn(() => '<div id="nav-overlay"></div>'),
+}))
+vi.mock('../../src/components/modals/FeedbackPanel.js', () => ({
+  renderFeedbackPanel: vi.fn(() => '<div id="feedback-panel"></div>'),
+}))
+vi.mock('../../src/components/modals/SOS.js', () => ({
+  renderSOS: vi.fn(() => '<div id="sos-modal"></div>'),
+}))
+vi.mock('../../src/services/nearbyFriends.js', () => ({
+  renderNearbyFriendsList: vi.fn(() => '<div id="nearby-friends"></div>'),
+  renderNearbyFriendsWidget: vi.fn(() => ''),
+}))
+vi.mock('../../src/services/proximityNotify.js', () => ({
+  renderProximityAlert: vi.fn(() => ''),
+}))
+vi.mock('../../src/services/sosTracking.js', () => ({
+  renderSOSTrackingWidget: vi.fn(() => ''),
+}))
 
 import {
   renderApp,

@@ -303,7 +303,7 @@ export function renderLanding(_state) {
                         alt="${screen.label}"
                         loading="${i === 0 ? 'eager' : 'lazy'}"
                         class="w-full h-full object-cover"
-                        onerror="this.parentElement.innerHTML='<div class=\\'h-full bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center\\'><span class=\\'text-4xl\\'>\uD83E\uDD19</span></div>'"
+                        onerror="this.parentElement.innerHTML='<div class=\\'h-full bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center\\'><span class=\\'text-4xl\\'>\uD83D\uDC4D</span></div>'"
                       />
                     </div>
                     <!-- Label -->
