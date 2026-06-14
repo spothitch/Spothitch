@@ -17,6 +17,16 @@ vi.mock('../../src/utils/idb.js', () => ({
 vi.mock('../../src/utils/geo.js', () => ({
   haversineKm: vi.fn(() => 1.0), // always within buffer
 }))
+vi.mock('../../src/services/notifications.js', () => ({
+  showToast: vi.fn(),
+  showError: vi.fn(),
+  showSuccess: vi.fn(),
+}))
+vi.mock('../../src/utils/sanitize.js', () => ({
+  escapeHTML: vi.fn((s) => String(s)),
+  escapeJSString: vi.fn((s) => String(s)),
+  sanitizeHTML: vi.fn((s) => String(s)),
+}))
 
 import {
   fetchGasStationsAlongRoute,

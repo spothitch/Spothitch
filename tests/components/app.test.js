@@ -123,6 +123,119 @@ vi.mock('../../src/services/userBlocking.js', () => ({
   renderUnblockModal: vi.fn(() => '<div id="unblock-modal"></div>'),
 }))
 
+// Comprehensive mocks for ALL remaining lazy-loaded modules (prevents EnvironmentTeardownError)
+vi.mock('../../src/services/teamChallenges.js', () => ({
+  renderTeamDashboard: vi.fn(() => '<div id="team-dashboard"></div>'),
+}))
+
+vi.mock('../../src/services/spotDrafts.js', () => ({
+  renderDraftBanner: vi.fn(() => ''),
+}))
+
+vi.mock('../../src/services/tripHistory.js', () => ({
+  renderTripHistory: vi.fn(() => '<div id="trip-history"></div>'),
+}))
+
+vi.mock('../../src/services/profileCustomization.js', () => ({
+  renderCustomizationModal: vi.fn(() => '<div id="customization-modal"></div>'),
+}))
+
+vi.mock('../../src/services/screenReader.js', () => ({
+  renderAccessibilityHelp: vi.fn(() => ''),
+}))
+
+vi.mock('../../src/components/views/Spots.js', () => ({
+  renderSpots: vi.fn(() => '<div id="spots-view"></div>'),
+}))
+
+vi.mock('../../src/components/views/ChallengesHub.js', () => ({
+  renderChallengesHub: vi.fn(() => '<div id="challenges-hub"></div>'),
+}))
+
+vi.mock('../../src/components/views/FAQ.js', () => ({
+  renderFAQ: vi.fn(() => '<div id="faq"></div>'),
+}))
+
+vi.mock('../../src/components/views/Friends.js', () => ({
+  renderAddFriendModal: vi.fn(() => '<div id="add-friend-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/AddSpot.js', () => ({
+  renderAddSpot: vi.fn(() => '<div id="addspot-modal"></div>'),
+  renderNearbySpotChoice: vi.fn(() => '<div id="nearby-choice"></div>'),
+  initAddSpotAfterRender: vi.fn(),
+  initNearbyComparisonMap: vi.fn(),
+}))
+
+vi.mock('../../src/components/modals/AgeVerification.js', () => ({
+  renderAgeVerification: vi.fn(() => '<div id="age-verification"></div>'),
+}))
+
+vi.mock('../../src/components/modals/Badges.js', () => ({
+  renderBadgesModal: vi.fn(() => '<div id="badges-modal"></div>'),
+  renderBadgePopup: vi.fn(() => ''),
+  renderBadgeDetail: vi.fn(() => '<div id="badge-detail"></div>'),
+}))
+
+vi.mock('../../src/components/modals/Challenges.js', () => ({
+  renderChallengesModal: vi.fn(() => '<div id="challenges-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/CheckinModal.js', () => ({
+  renderCheckinModal: vi.fn(() => '<div id="checkin-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/DailyReward.js', () => ({
+  renderDailyRewardModal: vi.fn(() => '<div id="daily-reward"></div>'),
+}))
+
+vi.mock('../../src/components/modals/Filters.js', () => ({
+  renderFiltersModal: vi.fn(() => '<div id="filters-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/GuideNudge.js', () => ({
+  renderGuideNudge: vi.fn(() => ''),
+}))
+
+vi.mock('../../src/components/modals/IdentityVerification.js', () => ({
+  renderIdentityVerification: vi.fn(() => '<div id="identity-verification"></div>'),
+}))
+
+vi.mock('../../src/components/modals/LanguageSelector.js', () => ({
+  renderLanguageSelector: vi.fn(() => '<div id="language-selector"></div>'),
+}))
+
+vi.mock('../../src/components/modals/LocationPermission.js', () => ({
+  renderLocationPermission: vi.fn(() => ''),
+}))
+
+vi.mock('../../src/components/modals/Quiz.js', () => ({
+  renderQuiz: vi.fn(() => '<div id="quiz-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/Shop.js', () => ({
+  renderShopModal: vi.fn(() => '<div id="shop-modal"></div>'),
+  renderMyRewardsModal: vi.fn(() => '<div id="rewards-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/TitlesModal.js', () => ({
+  renderTitlesModal: vi.fn(() => '<div id="titles-modal"></div>'),
+}))
+
+vi.mock('../../src/components/ui/DonationCard.js', () => ({
+  renderDonationModal: vi.fn(() => '<div id="donation-modal"></div>'),
+  renderThankYouModal: vi.fn(() => '<div id="thankyou-modal"></div>'),
+}))
+
+vi.mock('../../src/utils/pwa.js', () => ({
+  renderInstallBanner: vi.fn(() => ''),
+}))
+
+vi.mock('../../src/components/Landing.js', () => ({
+  renderLanding: vi.fn(() => '<div id="landing"></div>'),
+  initLandingCarousel: vi.fn(),
+}))
+
 import {
   renderApp,
   afterRender,
