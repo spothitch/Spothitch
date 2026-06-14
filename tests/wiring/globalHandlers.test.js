@@ -420,6 +420,7 @@ const MAIN_JS_HANDLERS = [
   'closeRouteAmenities', 'closePostTravelPlan', 'closePhotoUpload',
   'closeLanguageSelector', 'closeCookieBanner',
   // Wolf audit handlers (session 2026-02-23)
+  'navigate',
   'flyToCity', 'openProfile', 'openEditProfile',
   'planTrip', 'clearTrip', 'openGuides', 'openChallengesHub',
   'loginWithEmail', 'claimDailyReward',

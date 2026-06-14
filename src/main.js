@@ -1119,6 +1119,7 @@ window.changeTab = (tab) => {
  trackPageView(tab);
  announceViewChange(tab);
 };
+window.navigate = window.changeTab
 
 // Open full map — just navigate to home map tab
 window.openFullMap = () => {
