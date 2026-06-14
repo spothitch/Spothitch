@@ -123,7 +123,7 @@ export function renderMyDataModal() {
 
   return `
     <div class="modal-overlay" onclick="closeMyData()" role="dialog" aria-modal="true" aria-labelledby="mydata-title" tabindex="0">
-      <div class="modal-content max-w-lg max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <div class="modal-content max-w-lg max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()" role="button" tabindex="0">
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">

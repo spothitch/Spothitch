@@ -122,7 +122,7 @@ export function renderGuardianModal(_state) {
       <div
         class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden slide-up flex flex-col"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         ${content}
         ${sheetHTML}
       </div>

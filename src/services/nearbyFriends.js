@@ -340,7 +340,7 @@ export function renderNearbyFriendsList(state) {
     <div
       class="fixed inset-0 bg-black/80 z-50 flex items-end justify-center"
       onclick="if(event.target===this)closeNearbyFriendsList()"
-    >
+     role="button" tabindex="0">
       <div class="bg-dark-card w-full max-w-md rounded-t-3xl max-h-[70vh] overflow-hidden">
         <!-- Header -->
         <div class="p-4 border-b border-white/10 flex justify-between items-center">

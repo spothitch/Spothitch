@@ -268,7 +268,7 @@ function renderPrivateMessage(message, friend) {
 export function renderAddFriendModal() {
  return `
  <div class="add-friend-modal fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center justify-center"
- onclick="if(event.target===this)closeAddFriend()">
+ onclick="if(event.target===this)closeAddFriend()" role="button" tabindex="0">
  <div class="modal-panel w-full sm:max-w-md sm:rounded-2xl p-8">
  <div class="flex justify-between items-center mb-6">
  <h2 class="text-xl font-bold text-white">${t('addFriend') || 'Ajouter un ami'}</h2>

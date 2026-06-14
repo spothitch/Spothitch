@@ -71,7 +71,7 @@ function renderSOSIntro() {
   return `
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeSOS()" role="dialog" aria-modal="true" aria-labelledby="sos-intro-title" tabindex="0">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()">
+      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()" role="button" tabindex="0">
         <div class="p-6 flex flex-col items-center text-center">
           <div class="w-14 h-14 rounded-full bg-red-500/[0.06] border-[1.5px] border-red-500/[0.12] flex items-center justify-center mb-4">
             ${icon('shield-alert', 'w-6 h-6 text-red-500')}
@@ -142,7 +142,7 @@ function renderSOSMain(state) {
   return `
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeSOS()" role="alertdialog" aria-modal="true" aria-labelledby="sos-modal-title" tabindex="0">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden slide-up flex flex-col" onclick="event.stopPropagation()">
+      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden slide-up flex flex-col" onclick="event.stopPropagation()" role="button" tabindex="0">
 
         <!-- Header -->
         <div class="flex items-center gap-2 px-5 pt-4 pb-3 border-b border-white/5 shrink-0">

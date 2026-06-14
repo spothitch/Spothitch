@@ -514,7 +514,7 @@ function renderBlockedUsersModal(_state) {
   return `
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeBlockedUsers()" role="dialog" aria-modal="true" tabindex="0">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-      <div class="relative modal-panel rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()">
+      <div class="relative modal-panel rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()" role="button" tabindex="0">
         <div class="p-6">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-bold">${t('blockedUsers') || 'Blocked users'}</h2>

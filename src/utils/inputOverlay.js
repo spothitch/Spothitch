@@ -56,7 +56,7 @@ export function showInputOverlay(options = {}) {
     overlay.className = 'fixed inset-0 z-[60] flex items-center justify-center p-4'
     overlay.innerHTML = `
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" data-overlay-bg></div>
-      <div class="relative bg-[#1a1d23] border border-white/10 rounded-2xl w-full max-w-sm p-5 slide-up" onclick="event.stopPropagation()">
+      <div class="relative bg-[#1a1d23] border border-white/10 rounded-2xl w-full max-w-sm p-5 slide-up" onclick="event.stopPropagation()" role="button" tabindex="0">
         <!-- Title -->
         <h3 class="text-[15px] font-bold text-slate-200 mb-1">${escapeHTML(title)}</h3>
         ${description ? `<p class="text-[11px] text-slate-500 mb-3">${escapeHTML(description)}</p>` : '<div class="mb-3"></div>'}

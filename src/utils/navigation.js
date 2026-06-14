@@ -252,7 +252,7 @@ export function renderNavigationPicker(data) {
         class="relative modal-panel sm:rounded-3xl
           w-full max-w-md p-6 slide-up"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <h2 id="nav-picker-title" class="text-xl font-bold mb-2 text-center">
           ${icon('route', 'w-5 h-5 text-primary-400 mr-2')}
           Y aller

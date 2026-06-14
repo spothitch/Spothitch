@@ -1279,7 +1279,7 @@ window.showSpotSummary = async () => {
  overlay.className = 'fixed inset-0 z-[60] flex items-center justify-center p-4'
  overlay.innerHTML = `
  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeSpotSummary()" role="button" tabindex="0" aria-label="Fermer"></div>
- <div class="relative bg-[#0f1520] border border-[#1e293b] rounded-xl max-w-[400px] w-full max-h-[80vh] overflow-y-auto p-5" onclick="event.stopPropagation()">
+ <div class="relative bg-[#0f1520] border border-[#1e293b] rounded-xl max-w-[400px] w-full max-h-[80vh] overflow-y-auto p-5" onclick="event.stopPropagation()" role="button" tabindex="0">
  <h3 class="text-lg font-semibold text-slate-200 mb-4 text-center">${state.addSpotValidateId ? (t('summaryTitle') || 'Récapitulatif') : (t('summaryTitle') || 'Récapitulatif du spot')}</h3>
 
  ${!state.addSpotValidateId ? row(t('spotTypeLabel') || 'Type', typeLabels[spotType] || spotType) : ''}

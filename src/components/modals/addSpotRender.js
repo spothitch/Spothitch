@@ -561,7 +561,7 @@ export function renderAddSpot(_state) {
  <div
  class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl bg-[#0f1520] border border-[#1e293b]"
  onclick="event.stopPropagation()"
- >
+  role="button" tabindex="0">
  <!-- Header — minimal -->
  <div class="flex items-center justify-between px-5 py-4 border-b border-[#1a1f2e]">
  <h2 id="addspot-modal-title" class="text-base font-semibold text-slate-200">${isValidation ? (t('validateSpotTitle') || 'Valider ce spot') : t('addSpot')}${isPreview ? ` <span class="text-xs font-normal text-amber-500 ml-2">${t('previewMode')}</span>` : ''}</h2>

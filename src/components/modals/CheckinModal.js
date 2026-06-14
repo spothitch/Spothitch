@@ -27,7 +27,7 @@ export function renderCheckinModal(state) {
       <div
         class="relative modal-panel rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden slide-up"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <!-- Header -->
         <div class="px-5 py-4 border-b border-white/10 bg-gradient-to-r from-emerald-500/20 to-primary-500/20">
           <div class="flex items-center justify-between">

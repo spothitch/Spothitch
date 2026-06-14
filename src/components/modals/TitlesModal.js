@@ -25,7 +25,7 @@ export function renderTitlesModal(state) {
  <div
  class="relative modal-panel rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto slide-up"
  onclick="event.stopPropagation()"
- >
+  role="button" tabindex="0">
  <!-- Header -->
  <div class="p-6 text-center border-b border-white/10">
  <span class="text-5xl mb-3 block">${currentTitle.emoji}</span>

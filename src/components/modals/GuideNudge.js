@@ -34,7 +34,7 @@ export function renderGuideNudge(state) {
       <div
         class="relative modal-panel rounded-3xl w-full max-w-sm slide-up pb-safe"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <div class="p-6 space-y-4">
           <!-- Header -->
           <div class="flex items-start justify-between">

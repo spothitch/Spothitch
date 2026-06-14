@@ -41,7 +41,7 @@ export function renderFriendProfileModal(state) {
       <div
         class="relative modal-panel rounded-3xl w-full max-w-sm slide-up max-h-[90vh] overflow-y-auto"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <div class="p-6 space-y-4">
           <!-- Avatar + Name -->
           <div class="text-center">

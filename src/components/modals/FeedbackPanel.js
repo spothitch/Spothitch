@@ -113,7 +113,7 @@ export function renderFeedbackPanel(state) {
 
   return `
     <div class="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby="fb-panel-title">
-      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="if(event.target===this)closeFeedbackPanel()" aria-hidden="true"></div>
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="if(event.target===this)closeFeedbackPanel()" aria-hidden="true" role="button" tabindex="0"></div>
       <div class="absolute top-0 right-0 bottom-0 w-[88%] max-w-md overflow-hidden flex flex-col shadow-2xl slide-panel-in z-50 bg-slate-800">
 
         <!-- Header -->

@@ -22,7 +22,7 @@ export function renderDeleteAccountModal(state) {
       <div
         class="relative bg-dark-primary border border-red-500/30 rounded-3xl w-full max-w-md overflow-hidden slide-up"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <!-- Close -->
         <button
           onclick="closeDeleteAccount()"

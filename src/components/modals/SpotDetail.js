@@ -171,7 +171,7 @@ export function renderSpotDetail(state) {
  <div
  class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl bg-dark-primary"
  onclick="event.stopPropagation()"
- >
+  role="button" tabindex="0">
  <!-- ========== PHOTO HERO 200px ========== -->
  <div class="relative h-[200px] bg-[#161b28] flex items-center justify-center text-[#475569] text-xs">
  ${renderPhotoHero(spot)}
@@ -636,7 +636,7 @@ window.confirmStreetViewAvailable = async (spotId) => {
  overlay.className = 'fixed inset-0 z-70 flex items-center justify-center p-4'
  overlay.innerHTML = `
  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="document.getElementById('sv-confirm-overlay')?.remove()" role="button" tabindex="0" aria-label="${t('cancel') || 'Annuler'}"></div>
- <div class="relative bg-dark-primary border border-slate-800 rounded-[14px] max-w-[340px] w-full p-5 text-center" onclick="event.stopPropagation()">
+ <div class="relative bg-dark-primary border border-slate-800 rounded-[14px] max-w-[340px] w-full p-5 text-center" onclick="event.stopPropagation()" role="button" tabindex="0">
  <div class="w-12 h-12 bg-[rgba(96,165,250,0.15)] rounded-full flex items-center justify-center mx-auto mb-3">
  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v8"/><path d="M8 21l4-5 4 5"/></svg></div>
  <h3 class="text-base font-semibold text-slate-200 mb-2">${t('streetViewConfirmTitle') || 'Vérifier Street View'}</h3>

@@ -24,7 +24,7 @@ export function renderContactFormModal() {
       <div
         class="relative bg-dark-primary border border-primary-500/30 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <!-- Close -->
         <button
           onclick="closeContactForm()"

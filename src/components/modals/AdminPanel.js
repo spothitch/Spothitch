@@ -915,7 +915,7 @@ export function renderAdminPanel(state) {
 
  return `
  <div class="modal-overlay active" role="dialog" aria-modal="true" onclick="closeAdminPanel()" tabindex="0">
- <div class="modal-content max-w-lg max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+ <div class="modal-content max-w-lg max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()" role="button" tabindex="0">
  <div class="flex items-center justify-between mb-4">
  <h2 class="text-xl font-bold flex items-center gap-2">
  ${icon('shield', 'w-5 h-5 text-amber-400')}

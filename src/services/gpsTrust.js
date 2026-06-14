@@ -129,7 +129,7 @@ function showGpsConfirmDialog(showDateOption = false) {
     overlay.className = 'fixed inset-0 z-[100] flex items-center justify-center p-4'
     overlay.innerHTML = `
       <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-      <div class="relative bg-dark-primary border border-slate-800 rounded-2xl max-w-[340px] w-full p-5 text-center" onclick="event.stopPropagation()">
+      <div class="relative bg-dark-primary border border-slate-800 rounded-2xl max-w-[340px] w-full p-5 text-center" onclick="event.stopPropagation()" role="button" tabindex="0">
         <div class="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
           ${icon('map-pin', 'w-6 h-6 text-amber-400')}
         </div>

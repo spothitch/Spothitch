@@ -1177,7 +1177,7 @@ export function renderBottomSheet(guardianState, guardianSheet) {
   return `
     <div class="absolute inset-0 z-50 flex items-end" onclick="guardianCloseSheet()" role="button" tabindex="0">
       <div class="absolute inset-0" style="background:rgba(0,0,0,.6)"></div>
-      <div class="relative w-full rounded-t-[20px] px-4 pt-5 pb-7" style="background:#161b28;animation:sheetSlideUp .25s ease" onclick="event.stopPropagation()">
+      <div class="relative w-full rounded-t-[20px] px-4 pt-5 pb-7" style="background:#161b28;animation:sheetSlideUp .25s ease" onclick="event.stopPropagation()" role="button" tabindex="0">
         ${sheetContent}
       </div>
     </div>

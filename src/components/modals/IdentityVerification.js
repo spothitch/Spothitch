@@ -70,7 +70,7 @@ export function renderIdentityVerification() {
       <div
         class="relative modal-panel rounded-3xl w-full max-w-lg max-h-[90vh] overflow-hidden slide-up"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <!-- Close Button -->
         <button
           onclick="closeIdentityVerification()"

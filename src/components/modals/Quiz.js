@@ -319,7 +319,7 @@ function renderQuizResult(result) {
 
   return `
     <div class="quiz-modal fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-         onclick="if(event.target===this)closeQuiz()">
+         onclick="if(event.target===this)closeQuiz()" role="button" tabindex="0">
       <div class="modal-panel w-full max-w-md rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
         <!-- Result Header -->
         <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-8 text-center">

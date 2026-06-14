@@ -133,7 +133,7 @@ export function renderBadgePopup() {
  role="dialog" aria-modal="true"
  onclick="dismissBadgePopup()" tabindex="0">
  <div class="modal-panel w-full max-w-sm rounded-2xl overflow-hidden animate-scale-up"
- onclick="event.stopPropagation()">
+ onclick="event.stopPropagation()" role="button" tabindex="0">
  <!-- Confetti effect would be nice here -->
  <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-8 text-center relative overflow-hidden">
  <!-- Animated sparkles -->
@@ -183,7 +183,7 @@ export function renderBadgeDetail(badgeId) {
  role="dialog" aria-modal="true"
  onclick="closeBadgeDetail()" tabindex="0">
  <div class="modal-panel w-full max-w-sm rounded-2xl overflow-hidden"
- onclick="event.stopPropagation()">
+ onclick="event.stopPropagation()" role="button" tabindex="0">
  <div class="bg-gradient-to-r from-amber-500/20 to-orange-500/20 p-8 text-center">
  ${badge.image
  ? `<img src="${badge.image}" alt="${badge.name}" class="w-20 h-20 mx-auto" loading="lazy" />`

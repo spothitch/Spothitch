@@ -28,7 +28,7 @@ export function renderWelcome(state) {
         class="relative bg-dark-primary border border-white/10 rounded-3xl
           w-full max-w-md max-h-[90vh] overflow-y-auto slide-up"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <!-- Header -->
         <div class="bg-primary-500/10 p-6 text-center rounded-t-3xl">
           <div class="flex justify-center mb-3" aria-hidden="true">${icon("thumbs-up", "w-12 h-12 text-amber-400")}</div>

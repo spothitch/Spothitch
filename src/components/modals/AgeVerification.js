@@ -95,7 +95,7 @@ export function renderAgeVerification(_state) {
       <div
         class="relative modal-panel rounded-3xl w-full max-w-md overflow-hidden scale-in"
         onclick="event.stopPropagation()"
-      >
+       role="button" tabindex="0">
         <!-- Header -->
         <div class="p-6 text-center border-b border-white/10">
           <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
