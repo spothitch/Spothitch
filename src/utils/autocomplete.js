@@ -64,6 +64,7 @@ export function initAutocomplete({
 
     if (!items.length) {
       dd.classList.add('hidden')
+      input.setAttribute('aria-expanded', 'false')
       return
     }
 
@@ -79,6 +80,7 @@ export function initAutocomplete({
     `).join('')
 
     dd.classList.remove('hidden')
+    input.setAttribute('aria-expanded', 'true')
 
     // Click handlers on items
     dd.querySelectorAll('.autocomplete-item').forEach(el => {
@@ -92,6 +94,7 @@ export function initAutocomplete({
 
   function hideDropdown() {
     if (dropdown) dropdown.classList.add('hidden')
+    input.setAttribute('aria-expanded', 'false')
     results = []
     activeIndex = -1
   }
@@ -213,6 +216,8 @@ export function initAutocomplete({
   input.setAttribute('autocomplete', 'off')
   input.setAttribute('role', 'combobox')
   input.setAttribute('aria-autocomplete', 'list')
+  input.setAttribute('aria-expanded', 'false')
+  input.setAttribute('aria-controls', dropdownId || `${inputId}-dropdown`)
 
   return {
     destroy() {

@@ -209,7 +209,7 @@ export function renderCookieBanner() {
           <div class="flex gap-2 shrink-0">
             <button
               onclick="acceptAllCookies()"
-              class="px-3 py-1.5 rounded-xl bg-primary-500 text-white text-xs font-medium hover:bg-primary-600 transition-colors"
+              class="px-3 py-1.5 rounded-xl bg-primary-700 text-white text-xs font-medium hover:bg-primary-800 transition-colors"
               type="button"
             >
               ${t('cookieAccept') || 'Accepter'}

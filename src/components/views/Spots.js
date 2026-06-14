@@ -107,7 +107,7 @@ function renderSpotsList(spots) {
   }
 
   return `
-    <div class="space-y-3" role="list" aria-label="Liste des spots d'autostop">
+    <div class="space-y-3" aria-label="Liste des spots d'autostop">
       ${spots.map(spot => renderSpotCard(spot)).join('')}
     </div>
 

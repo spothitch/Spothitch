@@ -943,7 +943,7 @@ textarea:focus-visible {
   position: absolute;
   top: -100px;
   left: 0;
-  background: var(--color-primary-500, #f59e0b);
+  background: var(--color-primary-800, #92400e);
   color: white;
   padding: 1rem 1.5rem;
   text-decoration: none;

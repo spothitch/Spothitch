@@ -32,7 +32,7 @@ function renderBarRating(criterion, label) {
  return `
  <div class="mb-6">
  <div class="flex justify-between items-center mb-1">
- <span class="text-[11px] text-slate-500 uppercase tracking-wide">${label} <span class="text-amber-500">*</span></span>
+ <span class="text-[11px] text-slate-400 uppercase tracking-wide">${label} <span class="text-amber-500">*</span></span>
  <span class="text-xs text-amber-500" id="spot-rating-value-${criterion}">${currentValue ? currentValue + '/5' : ''}</span></div>
  <div class="flex gap-1" role="radiogroup" aria-label="${label}">
  ${[1, 2, 3, 4, 5].map(val => `
@@ -46,7 +46,7 @@ function renderBarRating(criterion, label) {
  ></button>
  `).join('')}
  </div>
- <p class="text-[11px] text-slate-500 mt-1 min-h-5" id="spot-rating-desc-${criterion}" aria-live="polite"></p></div>
+ <p class="text-[11px] text-slate-400 mt-1 min-h-5" id="spot-rating-desc-${criterion}" aria-live="polite"></p></div>
  `
 }
 
@@ -93,22 +93,22 @@ export function renderStep1(state) {
  <div class="step-transition">
  <!-- Spot Type — 3x2 grid -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('spotTypeLabel')} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-3">${t('spotTypeLabel')} <span class="text-amber-500">*</span></div>
  <div class="grid grid-cols-2 gap-2.5">
  ${['gas_station', 'toll', 'roundabout', 'on_ramp', 'roadside', 'custom'].map(type => `
  <button type="button" onclick="selectSpotType('${type}')"
  class="spot-type-btn ${spotType === type ? 'active' : ''}"
- style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === type ? '#f59e0b' : '#1a1f2e'};background:${spotType === type ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === type ? '#f59e0b' : '#64748b'};cursor:pointer">
+ style="padding:14px 12px;text-align:center;font-size:13px;border-radius:8px;border:1px solid ${spotType === type ? '#f59e0b' : '#1a1f2e'};background:${spotType === type ? 'rgba(245,158,11,0.07)' : '#1a1f2e'};color:${spotType === type ? '#f59e0b' : '#94a3b8'};cursor:pointer">
  ${t('spotType' + type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(''))}
  </button>`).join('')}
  </div>
- <button type="button" onclick="autoDetectRoad()" class="w-full mt-2 py-2 bg-transparent border-0 border-b border-white/10 text-[11px] text-[#475569] cursor-pointer flex items-center justify-center gap-1.5">
+ <button type="button" onclick="autoDetectRoad()" class="w-full mt-2 py-2 bg-transparent border-0 border-b border-white/10 text-[11px] text-slate-400 cursor-pointer flex items-center justify-center gap-1.5">
  ${icon('crosshair', 'w-3 h-3')} ${t('autoDetectType') || 'Auto-detecter le type'}
  </button></div>
 
  <!-- Departure City — underline input -->
  <div class="mb-6 relative">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('departureCity') || 'Ville'} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-2">${t('departureCity') || 'Ville'} <span class="text-amber-500">*</span></div>
  <input
  type="text"
  id="spot-departure-city"
@@ -133,7 +133,7 @@ export function renderStep1(state) {
 
  <!-- Photo — dashed underline zone -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-3">
  ${t('photoLabel') || 'Photo'} <span class="text-[10px] text-slate-700 normal-case tracking-normal">(${t('recommended') || 'recommandé'})</span></div>
  <input
  type="file"
@@ -218,7 +218,7 @@ export function renderStep2(state) {
  <div class="step-transition">
  <!-- Direction — underline input -->
  <div class="mb-6 relative">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('destinationCity') || 'Direction'} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-2">${t('destinationCity') || 'Direction'} <span class="text-amber-500">*</span></div>
  <input
  type="text"
  id="spot-direction-city"
@@ -262,7 +262,7 @@ export function renderStep2(state) {
 
  <!-- Wait Time — range slider + amber value -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">${t('waitTimeLabel') || "Attente"} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-2">${t('waitTimeLabel') || "Attente"} <span class="text-amber-500">*</span></div>
  <div class="flex items-center gap-3">
  <input
  type="range"
@@ -279,7 +279,7 @@ export function renderStep2(state) {
 
  <!-- Method — underline tab bar -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('practicalTips') || 'Méthode'} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-3">${t('practicalTips') || 'Méthode'} <span class="text-amber-500">*</span></div>
  ${tabBar([
  { value: 'sign', label: t('methodSign') || 'Panneau' },
  { value: 'thumb', label: t('methodThumb') || 'Pouce' },
@@ -289,7 +289,7 @@ export function renderStep2(state) {
 
  <!-- Group — underline tab bar -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('groupSizeLabel') || 'Groupe'} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-3">${t('groupSizeLabel') || 'Groupe'} <span class="text-amber-500">*</span></div>
  ${tabBar([
  { value: 'solo', label: t('groupSolo') || 'Solo' },
  { value: 'duo', label: t('groupDuo') || 'Duo' },
@@ -299,7 +299,7 @@ export function renderStep2(state) {
 
  <!-- Moment — underline tab bar -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('timeOfDayLabel') || 'Moment'} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-3">${t('timeOfDayLabel') || 'Moment'} <span class="text-amber-500">*</span></div>
  ${tabBar([
  { value: 'morning', label: t('timeMorning') || 'Matin' },
  { value: 'afternoon', label: t('timeAfternoon') || 'Après-midi' },
@@ -310,7 +310,7 @@ export function renderStep2(state) {
 
  <!-- Lift obtenu — underline tab bar (Oui = green, Abandonné = grey) -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3">${t('gotARide') || 'Lift obtenu'} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-3">${t('gotARide') || 'Lift obtenu'} <span class="text-amber-500">*</span></div>
  <div class="flex gap-0 border-b border-slate-700">
  <div onclick="setRideResult('yes')" role="button" tabindex="0"
  class="flex-1 py-2.5 text-center text-[13px] cursor-pointer"
@@ -351,7 +351,7 @@ export function renderStep3(state) {
 
  <!-- Amenities — underline tab style -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2.5">${t('amenitiesLabel') || 'Commodités'}</div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-2.5">${t('amenitiesLabel') || 'Commodités'}</div>
  <div class="flex flex-wrap gap-0">
  <button type="button" onclick="toggleAmenity('shelter')"
  class="amenity-chip px-4 py-2 text-xs bg-transparent border-0 cursor-pointer"
@@ -381,7 +381,7 @@ export function renderStep3(state) {
 
  <!-- Description — underline textarea -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2">
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-2">
  ${t('description')} <span class="text-[10px] text-slate-700 normal-case tracking-normal">(${t('recommended') || 'recommandé'})</span></div>
  <textarea
  id="spot-description"
@@ -396,7 +396,7 @@ export function renderStep3(state) {
 
  <!-- Experience date -->
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-2.5">${t('experienceDateLabel') || 'Quand as-tu fait du stop ici ?'}</div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-2.5">${t('experienceDateLabel') || 'Quand as-tu fait du stop ici ?'}</div>
  <div class="flex gap-2 flex-wrap">
  <button type="button" onclick="setExperienceDate('today')"
  id="exp-date-today"
@@ -478,7 +478,7 @@ function renderPositionBlock() {
 
  return `
  <div class="mb-6">
- <div class="text-[11px] text-slate-500 uppercase tracking-wide mb-3" id="location-label">${t('position') || 'Position sur la carte'} <span class="text-amber-500">*</span></div>
+ <div class="text-[11px] text-slate-400 uppercase tracking-wide mb-3" id="location-label">${t('position') || 'Position sur la carte'} <span class="text-amber-500">*</span></div>
 
  ${hasPosition ? `
  <!-- Position chosen — mini map preview + info -->
@@ -498,12 +498,12 @@ function renderPositionBlock() {
  <div onclick="openFullscreenMapPicker()" role="button" tabindex="0"
  onkeydown="if(event.key==='Enter')openFullscreenMapPicker()"
  aria-label="${t('tapToPlaceSpot') || 'Placer le spot sur la carte'}"
- class="bg-[#111827] h-[110px] flex flex-col items-center justify-center text-[#475569] text-xs gap-1.5 cursor-pointer">
+ class="bg-[#111827] h-[110px] flex flex-col items-center justify-center text-slate-400 text-xs gap-1.5 cursor-pointer">
  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
  ${t('tapToPlaceSpot') || 'Toucher pour placer le spot'}
  </div>
  <button type="button" onclick="useGPSForSpot()"
- class="w-full mt-2 py-2.5 bg-transparent border-0 border-b border-white/5 text-xs text-[#475569] cursor-pointer flex items-center justify-center gap-1.5"
+ class="w-full mt-2 py-2.5 bg-transparent border-0 border-b border-white/5 text-xs text-slate-400 cursor-pointer flex items-center justify-center gap-1.5"
  aria-describedby="location-display">
  ${icon('crosshair', 'w-4 h-4')} ${t('useMyPosition') || 'Ma position GPS'}
  </button>
@@ -560,8 +560,7 @@ export function renderAddSpot(_state) {
  <!-- Modal -->
  <div
  class="relative w-full max-w-lg max-h-[90vh] overflow-hidden slide-up sm:rounded-xl bg-[#0f1520] border border-[#1e293b]"
- onclick="event.stopPropagation()"
-  role="button" tabindex="0">
+ onclick="event.stopPropagation()">
  <!-- Header — minimal -->
  <div class="flex items-center justify-between px-5 py-4 border-b border-[#1a1f2e]">
  <h2 id="addspot-modal-title" class="text-base font-semibold text-slate-200">${isValidation ? (t('validateSpotTitle') || 'Valider ce spot') : t('addSpot')}${isPreview ? ` <span class="text-xs font-normal text-amber-500 ml-2">${t('previewMode')}</span>` : ''}</h2>

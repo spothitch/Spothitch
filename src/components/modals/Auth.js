@@ -25,8 +25,7 @@ export function renderAuth(state) {
       <!-- Modal -->
       <div
         class="relative modal-panel rounded-3xl w-full max-w-md overflow-hidden slide-up max-h-[90vh] overflow-y-auto"
-        onclick="event.stopPropagation()"
-       role="button" tabindex="0">
+        onclick="event.stopPropagation()">
         <!-- Close -->
         <button
           onclick="closeAuth()"
@@ -303,8 +302,7 @@ export function renderCompleteProfile(_state) {
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true"></div>
       <div
         class="relative modal-panel rounded-3xl w-full max-w-md overflow-hidden slide-up max-h-[90vh] overflow-y-auto"
-        onclick="event.stopPropagation()"
-       role="button" tabindex="0">
+        onclick="event.stopPropagation()">
         <div class="p-6 pb-4 text-center">
           <div class="flex justify-center mb-3" aria-hidden="true">${icon("hand", "w-10 h-10 text-amber-400")}</div>
           <h2 id="complete-profile-title" class="text-2xl font-bold gradient-text">

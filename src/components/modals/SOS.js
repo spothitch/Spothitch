@@ -71,7 +71,7 @@ function renderSOSIntro() {
   return `
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeSOS()" role="dialog" aria-modal="true" aria-labelledby="sos-intro-title" tabindex="0">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()" role="button" tabindex="0">
+      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto slide-up" onclick="event.stopPropagation()">
         <div class="p-6 flex flex-col items-center text-center">
           <div class="w-14 h-14 rounded-full bg-red-500/[0.06] border-[1.5px] border-red-500/[0.12] flex items-center justify-center mb-4">
             ${icon('shield-alert', 'w-6 h-6 text-red-500')}
@@ -91,7 +91,7 @@ function renderSOSIntro() {
             ${icon('settings', 'w-[18px] h-[18px]')}
             ${t('sosConfigureNow') || 'Configurer mon SOS'}
           </button>
-          <button onclick="acceptSOSIntro()" class="text-[13px] text-slate-500 mt-2 py-1">${t('sosConfigureLater') || 'Configurer plus tard'}</button>
+          <button onclick="acceptSOSIntro()" class="text-[13px] text-slate-400 mt-2 py-1">${t('sosConfigureLater') || 'Configurer plus tard'}</button>
         </div>
       </div>
     </div>
@@ -114,7 +114,7 @@ function _introFeature(iconName, color, title, desc) {
       </div>
       <div>
         <div class="text-[13px] font-semibold text-slate-200">${title}</div>
-        <div class="text-[11px] text-slate-500 leading-snug">${desc}</div>
+        <div class="text-[11px] text-slate-400 leading-snug">${desc}</div>
       </div>
     </div>
   `
@@ -142,7 +142,7 @@ function renderSOSMain(state) {
   return `
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onclick="closeSOS()" role="alertdialog" aria-modal="true" aria-labelledby="sos-modal-title" tabindex="0">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" aria-hidden="true"></div>
-      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden slide-up flex flex-col" onclick="event.stopPropagation()" role="button" tabindex="0">
+      <div class="relative bg-dark-primary border border-white/5 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden slide-up flex flex-col" onclick="event.stopPropagation()">
 
         <!-- Header -->
         <div class="flex items-center gap-2 px-5 pt-4 pb-3 border-b border-white/5 shrink-0">
@@ -208,7 +208,7 @@ function renderSOSMain(state) {
               ${icon('shield', 'w-5 h-5 text-red-500')}
               ${state.sosActive ? (t('stopSharing') || 'Arrêter le partage') : (t('sosAlertGuardians') || 'Alerter mes gardiens')}
             </button>
-            <p class="text-[11px] text-slate-500 text-center leading-relaxed">
+            <p class="text-[11px] text-slate-400 text-center leading-relaxed">
               Push + SMS + appel → <strong class="text-slate-400">${contactNames}</strong> · Position GPS
             </p>
 
@@ -238,7 +238,7 @@ function renderSOSMain(state) {
             <!-- Config progress -->
             <div class="text-center py-2 px-4 bg-amber-500/[0.04] border border-amber-500/[0.08] rounded-lg mt-2">
               <div class="text-[13px] font-semibold text-amber-500">${configCount}/6 ${t('sosConfigured') || 'configurés'}</div>
-              <div class="text-[11px] text-slate-500 mt-0.5">${t('sosConfigHint') || 'Appuie sur chaque élément pour le configurer'}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">${t('sosConfigHint') || 'Appuie sur chaque élément pour le configurer'}</div>
             </div>
 
             <!-- Test -->
@@ -246,7 +246,7 @@ function renderSOSMain(state) {
               ${icon('play-circle', 'w-4 h-4 text-blue-400 shrink-0')}
               <div class="text-left">
                 <div class="text-[13px] font-semibold text-blue-300">${t('sosTestSOS') || 'Tester le SOS'}</div>
-                <div class="text-[11px] text-slate-500">${t('sosTestDesc') || 'Envoie une alerte test à un contact'}</div>
+                <div class="text-[11px] text-slate-400">${t('sosTestDesc') || 'Envoie une alerte test à un contact'}</div>
               </div>
             </button>
           </div>
@@ -297,7 +297,7 @@ function _configItem(iconName, color, title, desc, isReady, onclick) {
       </div>
       <div class="flex-1 text-left min-w-0">
         <div class="text-[13px] font-semibold text-slate-200">${title}</div>
-        <div class="text-[11px] text-slate-500 truncate">${desc}</div>
+        <div class="text-[11px] text-slate-400 truncate">${desc}</div>
       </div>
       <div class="w-6 h-6 rounded-full ${isReady ? 'bg-emerald-500/[0.12]' : 'bg-red-500/[0.08]'} flex items-center justify-center shrink-0">
         ${icon(isReady ? 'check' : 'x', `w-3 h-3 ${isReady ? 'text-emerald-500' : 'text-red-500'}`)}
@@ -773,10 +773,10 @@ function _getConfigContent(section) {
           <span class="text-[13px] flex items-center gap-1.5">${icon('volume-2', 'w-3 h-3 text-amber-500')} ${t('sosForceSoundVibration') || 'Forcer son + vibration'}</span>
           <div class="w-9 h-5 rounded-full bg-amber-500 relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] right-[3px]"></span></div>
         </div>
-        <p class="text-[11px] text-slate-500 leading-relaxed mt-1">${t('sosSoundHint') || 'La vibration marche même en silencieux. Le son dépend des réglages du téléphone.'}</p>
+        <p class="text-[11px] text-slate-400 leading-relaxed mt-1">${t('sosSoundHint') || 'La vibration marche même en silencieux. Le son dépend des réglages du téléphone.'}</p>
         <div class="mt-4 p-3 bg-emerald-500/[0.04] border border-emerald-500/[0.08] rounded-lg">
           <div class="text-[13px] font-bold text-emerald-400 flex items-center gap-1.5 mb-1">${icon('play-circle', 'w-3.5 h-3.5')} ${t('sosTest') || 'Tester'}</div>
-          <div class="text-[11px] text-slate-500 mb-2">${t('sosFakeCallTestDesc') || 'Lance un faux appel pour voir le résultat.'}</div>
+          <div class="text-[11px] text-slate-400 mb-2">${t('sosFakeCallTestDesc') || 'Lance un faux appel pour voir le résultat.'}</div>
           <button onclick="sosOpenFakeCall();sosCloseConfig()" class="w-full py-2 bg-emerald-500/10 border border-emerald-500/15 rounded-lg text-emerald-400 text-[12px] font-semibold flex items-center justify-center gap-1.5" type="button">${icon('phone-incoming', 'w-3.5 h-3.5')} ${t('sosLaunchTest') || 'Lancer un test'}</button>
         </div>`
 
@@ -786,7 +786,7 @@ function _getConfigContent(section) {
         <div class="${descCls}">${t('sosMessageConfigDesc') || 'Ce message est envoyé avec ta position GPS quand tu appuies sur "Alerter".'}</div>
         <div class="${labelCls}">${t('sosYourMessage') || 'Ton message'}</div>
         <textarea id="sos-custom-msg" class="input-field w-full text-[13px] resize-none h-20" maxlength="200" placeholder="${t('sosCustomMsgPlaceholder') || 'Ex: Je suis en autostop et j\'ai besoin d\'aide...'}" oninput="sosUpdateCustomMsg(this.value)">${escapeHTML(customMsg)}</textarea>
-        <p class="text-[11px] text-slate-500 mt-1">${t('sosMaxChars') || '200 caractères max. Position GPS toujours jointe.'}</p>
+        <p class="text-[11px] text-slate-400 mt-1">${t('sosMaxChars') || '200 caractères max. Position GPS toujours jointe.'}</p>
         <div class="${labelCls}">${t('sosChannels') || 'Canaux'}</div>
         <div class="space-y-1">
           <div class="flex items-center justify-between py-2"><span class="text-[13px] flex items-center gap-1.5">${icon('bell', 'w-3 h-3 text-amber-500')} Push (SpotHitch)</span><div class="w-9 h-5 rounded-full bg-amber-500 relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] right-[3px]"></span></div></div>
@@ -795,7 +795,7 @@ function _getConfigContent(section) {
         </div>
         <div class="mt-4 p-3 bg-emerald-500/[0.04] border border-emerald-500/[0.08] rounded-lg">
           <div class="text-[13px] font-bold text-emerald-400 flex items-center gap-1.5 mb-1">${icon('play-circle', 'w-3.5 h-3.5')} ${t('sosTestAlert') || 'Tester l\'alerte'}</div>
-          <div class="text-[11px] text-slate-500 mb-2">${t('sosTestAlertDesc') || 'Envoie un test à un contact.'}</div>
+          <div class="text-[11px] text-slate-400 mb-2">${t('sosTestAlertDesc') || 'Envoie un test à un contact.'}</div>
           <button onclick="sosOpenConfig('test')" class="w-full py-2 bg-emerald-500/10 border border-emerald-500/15 rounded-lg text-emerald-400 text-[12px] font-semibold flex items-center justify-center gap-1.5" type="button">${icon('send', 'w-3.5 h-3.5')} Test → ${contacts[0] ? escapeHTML(contacts[0].name) : '...'}</button>
         </div>`
 
@@ -810,7 +810,7 @@ function _getConfigContent(section) {
         </div>
         <div class="mt-4 p-3 bg-blue-500/[0.04] border border-blue-500/[0.08] rounded-lg">
           <div class="flex items-center justify-between py-1"><span class="text-[13px] flex items-center gap-1.5">${icon('heart', 'w-3 h-3 text-blue-400')} ${t('sosReceiveAlerts') || 'Recevoir les alertes des autres'}</span><div onclick="toggleCommunityAlerts()" role="switch" tabindex="0" aria-checked="${getCommunityAlertSettings().receiveAlerts}" aria-label="${t('sosReceiveAlerts') || 'Recevoir les alertes'}" class="w-9 h-5 rounded-full ${getCommunityAlertSettings().receiveAlerts ? 'bg-amber-500' : 'bg-white/10'} relative cursor-pointer shrink-0"><span class="absolute w-3.5 h-3.5 rounded-full bg-white top-[3px] ${getCommunityAlertSettings().receiveAlerts ? 'right-[3px]' : 'left-[3px]'}"></span></div></div>
-          <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">${t('sosReceiveAlertsHint') || 'Sois notifié si un autostoppeur proche a besoin d\'aide.'}</p>
+          <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${t('sosReceiveAlertsHint') || 'Sois notifié si un autostoppeur proche a besoin d\'aide.'}</p>
         </div>`
 
     case 'recording':
@@ -841,7 +841,7 @@ function _getConfigContent(section) {
         <div class="${descCls}">${t('sosEmergencyConfigDesc') || 'Détecté automatiquement selon ton pays.'}</div>
         <div class="flex items-center gap-3 p-3 bg-emerald-500/[0.06] border border-emerald-500/10 rounded-lg">
           ${icon('phone-call', 'w-5 h-5 text-emerald-500')}
-          <div><div class="text-xl font-extrabold">${detectedNumber}</div><div class="text-[11px] text-slate-500">Europe (${t('sosAutoDetected') || 'détecté automatiquement'})</div></div>
+          <div><div class="text-xl font-extrabold">${detectedNumber}</div><div class="text-[11px] text-slate-400">Europe (${t('sosAutoDetected') || 'détecté automatiquement'})</div></div>
         </div>
         <div class="${labelCls}" style="margin-top:1rem">${t('sosOtherNumbers') || 'Autres numéros'}</div>
         <div class="flex gap-1.5 flex-wrap">
@@ -849,7 +849,7 @@ function _getConfigContent(section) {
           <a href="tel:000" class="px-3 py-1.5 rounded-full text-[12px] font-medium bg-white/[0.04] border border-white/[0.06] text-slate-400 no-underline">000 AUS</a>
           <a href="tel:111" class="px-3 py-1.5 rounded-full text-[12px] font-medium bg-white/[0.04] border border-white/[0.06] text-slate-400 no-underline">111 NZ</a>
         </div>
-        <p class="text-[11px] text-slate-500 mt-3 leading-relaxed">${t('sosNumberChanges') || 'Le numéro change automatiquement quand tu voyages dans un autre pays.'}</p>`
+        <p class="text-[11px] text-slate-400 mt-3 leading-relaxed">${t('sosNumberChanges') || 'Le numéro change automatiquement quand tu voyages dans un autre pays.'}</p>`
 
     case 'test':
       return `${backBtn}
@@ -859,7 +859,7 @@ function _getConfigContent(section) {
         ${contacts.map((c) => `
           <button onclick="this.style.borderColor='#f59e0b'" class="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/[0.06] rounded-lg mb-1.5 transition-colors" type="button">
             <div class="w-7 h-7 rounded-full ${c.type === 'app' ? 'bg-gradient-to-br from-amber-500 to-amber-700' : 'bg-gradient-to-br from-blue-500 to-blue-700'} flex items-center justify-center text-[10px] font-bold text-white shrink-0">${escapeHTML(c.name.substring(0, 2).toUpperCase())}</div>
-            <div class="flex-1 text-left"><div class="text-[13px] font-semibold">${escapeHTML(c.name)}</div><div class="text-[11px] text-slate-500">${c.type === 'app' ? 'Push' : 'SMS'}</div></div>
+            <div class="flex-1 text-left"><div class="text-[13px] font-semibold">${escapeHTML(c.name)}</div><div class="text-[11px] text-slate-400">${c.type === 'app' ? 'Push' : 'SMS'}</div></div>
           </button>
         `).join('') || `<p class="text-[12px] text-slate-500">${t('sosNoContacts') || 'Aucun contact'}</p>`}
         <div class="${labelCls}" style="margin-top:1rem">${t('sosTestPreview') || 'Aperçu'}</div>
@@ -869,7 +869,7 @@ function _getConfigContent(section) {
         <button class="w-full mt-3 py-2.5 bg-emerald-500/10 border border-emerald-500/15 rounded-lg text-emerald-400 text-[13px] font-semibold flex items-center justify-center gap-2" type="button">
           ${icon('send', 'w-3.5 h-3.5')} ${t('sosSendTest') || 'Envoyer le test'}
         </button>
-        <p class="text-[11px] text-slate-500 text-center mt-2">${t('sosTestClarification') || 'Le contact recevra un message clairement identifié comme test.'}</p>`
+        <p class="text-[11px] text-slate-400 text-center mt-2">${t('sosTestClarification') || 'Le contact recevra un message clairement identifié comme test.'}</p>`
 
     default:
       return `${backBtn}<p class="text-slate-500">Section inconnue</p>`
