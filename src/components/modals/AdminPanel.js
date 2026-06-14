@@ -1273,6 +1273,8 @@ window.loadAdminIdVerifications = async () => {
 }
 
 window.adminApproveIdVerification = async (verificationId) => {
+ const { auth } = await import('../../services/firebase.js')
+ if (!auth.currentUser || !getState().isAdmin) { window.showToast?.(t('unauthorized') || 'Not authorized', 'error'); return }
  try {
   const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
   const { getApp } = await import('firebase/app')
@@ -1291,6 +1293,8 @@ window.adminApproveIdVerification = async (verificationId) => {
 }
 
 window.adminRejectIdVerification = async (verificationId) => {
+ const { auth } = await import('../../services/firebase.js')
+ if (!auth.currentUser || !getState().isAdmin) { window.showToast?.(t('unauthorized') || 'Not authorized', 'error'); return }
  try {
   const { getFirestore, doc, updateDoc, serverTimestamp } = await import('firebase/firestore')
   const { getApp } = await import('firebase/app')

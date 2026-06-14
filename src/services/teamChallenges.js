@@ -15,7 +15,8 @@ async function syncTeamToFirestore(team) {
   try {
     const fb = await import('./firebase.js')
     const db = fb.getDb()
-    if (!db) return
+    const currentUser = fb.getCurrentUser()
+    if (!db || !currentUser) return
     const { id, ...data } = team
     await fb.setDoc(fb.doc(db, 'teamChallenges', id), data, { merge: true })
   } catch (e) {

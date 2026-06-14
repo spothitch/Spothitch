@@ -28,6 +28,8 @@ async function getFirebaseModules() {
 async function syncEventToFirestore(event) {
   const fb = await getFirebaseModules()
   if (!fb) return
+  const currentUser = fb.getCurrentUser()
+  if (!currentUser) return
   try {
     const db = fb.getDb()
     const { id, ...data } = event
@@ -40,6 +42,8 @@ async function syncEventToFirestore(event) {
 async function deleteEventFromFirestore(eventId) {
   const fb = await getFirebaseModules()
   if (!fb) return
+  const currentUser = fb.getCurrentUser()
+  if (!currentUser) return
   try {
     const db = fb.getDb()
     await fb.deleteDoc(fb.doc(db, 'events', eventId))
@@ -51,6 +55,8 @@ async function deleteEventFromFirestore(eventId) {
 async function syncCommentToFirestore(eventId, comment) {
   const fb = await getFirebaseModules()
   if (!fb) return
+  const currentUser = fb.getCurrentUser()
+  if (!currentUser) return
   try {
     const db = fb.getDb()
     const { id, ...data } = comment

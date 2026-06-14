@@ -16,7 +16,8 @@ async function syncChallengeToFirestore(challenge) {
   try {
     const fb = await import('./firebase.js')
     const db = fb.getDb()
-    if (!db) return
+    const currentUser = fb.getCurrentUser()
+    if (!db || !currentUser) return
     const { id, ...data } = challenge
     await fb.setDoc(fb.doc(db, 'friendChallenges', id), data, { merge: true })
   } catch (e) {

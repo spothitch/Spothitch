@@ -190,7 +190,8 @@ window.journalTogglePublic = async (tripId) => {
     try {
       const fb = await import('../services/firebase.js')
       const db = fb.getDb()
-      if (db) {
+      const user = fb.getCurrentUser()
+      if (db && user) {
         const { doc, deleteDoc } = await import('firebase/firestore')
         await deleteDoc(doc(db, 'publicTrips', tripId.slice(5, 13)))
       }
