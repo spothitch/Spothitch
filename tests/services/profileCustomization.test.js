@@ -13,6 +13,12 @@ vi.mock('../../src/services/notifications.js', () => ({ showToast: vi.fn(), show
 vi.mock('../../src/i18n/index.js', () => ({ t: vi.fn((k) => k) }))
 vi.mock('../../src/utils/icons.js', () => ({ icon: vi.fn((n) => `<svg>${n}</svg>`) }))
 vi.mock('../../src/utils/sanitize.js', () => ({ escapeHTML: vi.fn((s) => s) }))
+vi.mock('../../src/services/firebase.js', () => ({
+  getCurrentUser: vi.fn(() => null),
+  updateUserProfile: vi.fn(),
+  initializeFirebase: vi.fn(),
+  getDb: vi.fn(() => null),
+}))
 
 import {
   PROFILE_FRAMES,
