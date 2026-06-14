@@ -784,6 +784,7 @@ window.handleGoogleSignIn = async () => {
 let _usernameCheckTimer = null
 
 window.checkUsernameField = (value) => {
+  if (value == null) return
   const v = value.toLowerCase().trim()
 
   // Find the status div (works for both auth form and complete profile form)
