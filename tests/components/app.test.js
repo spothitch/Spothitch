@@ -72,6 +72,57 @@ vi.mock('../../src/services/sosTracking.js', () => ({
   renderSOSTrackingWidget: vi.fn(() => ''),
 }))
 
+vi.mock('../../src/components/modals/FriendProfile.js', () => ({
+  renderFriendProfileModal: vi.fn(() => '<div id="friend-profile-modal"></div>'),
+  default: { renderFriendProfileModal: vi.fn(() => '<div id="friend-profile-modal"></div>') },
+}))
+
+// Mock all remaining lazy-loaded modules to prevent EnvironmentTeardownError
+vi.mock('../../src/components/views/Guides.js', () => ({
+  renderGuides: vi.fn(() => '<div id="guides"></div>'),
+  renderCountryDetail: vi.fn(() => '<div id="country-detail"></div>'),
+  renderSafety: vi.fn(() => '<div id="safety"></div>'),
+  default: { renderGuides: vi.fn(), renderCountryDetail: vi.fn(), renderSafety: vi.fn() },
+}))
+
+vi.mock('../../src/components/modals/AdminPanel.js', () => ({
+  renderAdminPanel: vi.fn(() => '<div id="admin-panel"></div>'),
+}))
+
+vi.mock('../../src/components/modals/DeleteAccount.js', () => ({
+  renderDeleteAccountModal: vi.fn(() => '<div id="delete-account-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/MyData.js', () => ({
+  renderMyDataModal: vi.fn(() => '<div id="mydata-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/ContactForm.js', () => ({
+  renderContactFormModal: vi.fn(() => '<div id="contact-form-modal"></div>'),
+}))
+
+vi.mock('../../src/components/modals/Welcome.js', () => ({
+  renderWelcome: vi.fn(() => '<div id="welcome-modal"></div>'),
+}))
+
+vi.mock('../../src/components/views/Legal.js', () => ({
+  renderLegalPage: vi.fn(() => '<div id="legal-page"></div>'),
+}))
+
+vi.mock('../../src/components/views/Travel.js', () => ({
+  renderTravel: vi.fn(() => '<div id="travel-view"></div>'),
+}))
+
+vi.mock('../../src/services/moderation.js', () => ({
+  renderReportModal: vi.fn(() => '<div id="report-modal"></div>'),
+}))
+
+vi.mock('../../src/services/userBlocking.js', () => ({
+  renderBlockModal: vi.fn(() => '<div id="block-modal"></div>'),
+  renderBlockedUsersList: vi.fn(() => '<div id="blocked-list"></div>'),
+  renderUnblockModal: vi.fn(() => '<div id="unblock-modal"></div>'),
+}))
+
 import {
   renderApp,
   afterRender,
