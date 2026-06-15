@@ -399,6 +399,37 @@ jobs:
           name: e2e-comprehensive-report
           path: playwright-report/
 
+  e2e-exhaustive:
+    name: E2E Exhaustive (PWA, SEO, RGPD, a11y, chaos, perf, viewport, security)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - run: npx playwright test --project=chromium e2e/pwa-lifecycle.spec.js e2e/seo-schema.spec.js e2e/rgpd-behavioral.spec.js e2e/viewport-responsive.spec.js e2e/a11y-deep.spec.js e2e/chaos-network.spec.js e2e/performance-deep.spec.js e2e/security-xss.spec.js
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-exhaustive-report
+          path: playwright-report/
+
   e2e-stress:
     name: E2E Stress (monkey, journeys, visual)
     runs-on: ubuntu-latest
@@ -784,7 +815,7 @@ jobs:
   deploy:
     name: Deploy to Cloudflare Pages (main → spothitch.com)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2, e2e-multi-user]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2, e2e-multi-user, e2e-exhaustive]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
@@ -824,7 +855,7 @@ jobs:
   deploy-dev:
     name: Deploy to Cloudflare Pages (dev → preview)
     runs-on: ubuntu-latest
-    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2]
+    needs: [build, test, wiring, lint, quality-gate, e2e-core, e2e-features, e2e-comprehensive, e2e-stress, e2e-functional-1, e2e-functional-2, e2e-exhaustive]
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     # Note: feature/* branches run tests only, no deploy
     steps:
