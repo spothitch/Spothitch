@@ -12,6 +12,18 @@ import {
 } from '@firebase/rules-unit-testing'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import http from 'http'
+
+// Check if Firestore emulator is running (CI unit test job does not start it)
+const emulatorRunning = await new Promise(res => {
+  const req = http.get({ hostname: 'localhost', port: 8080, path: '/', timeout: 1500 }, () => res(true))
+  req.on('error', () => res(false))
+  req.on('timeout', () => { req.destroy(); res(false) })
+})
+
+if (!emulatorRunning) {
+  console.log('[firestore-rules] Firestore emulator not available — all tests skipped')
+}
 
 let testEnv
 
@@ -21,6 +33,7 @@ const BOB_UID = 'bob-uid-002'
 const ADMIN_EMAIL = 'ci-admin@spothitch.com'
 
 beforeAll(async () => {
+  if (!emulatorRunning) return
   testEnv = await initializeTestEnvironment({
     projectId: PROJECT_ID,
     firestore: {
@@ -51,32 +64,32 @@ describe('Firestore Rules — /spots/{spotId}', () => {
     createdBy: ALICE_UID,
   }
 
-  it('unauthenticated user CAN read spots', async () => {
+  it.skipIf(!emulatorRunning)('unauthenticated user CAN read spots', async () => {
     const db = asAnon()
     await assertSucceeds(db.collection('spots').limit(5).get())
   })
 
-  it('unauthenticated user CANNOT create spot', async () => {
+  it.skipIf(!emulatorRunning)('unauthenticated user CANNOT create spot', async () => {
     const db = asAnon()
     await assertFails(db.collection('spots').add(spotData))
   })
 
-  it('authenticated user CAN create spot with required fields', async () => {
+  it.skipIf(!emulatorRunning)('authenticated user CAN create spot with required fields', async () => {
     const db = asUser(ALICE_UID)
     await assertSucceeds(db.collection('spots').add(spotData))
   })
 
-  it('authenticated user CANNOT create spot without lat', async () => {
+  it.skipIf(!emulatorRunning)('authenticated user CANNOT create spot without lat', async () => {
     const db = asUser(ALICE_UID)
     await assertFails(db.collection('spots').add({ lng: 2.35, createdAt: new Date() }))
   })
 
-  it('authenticated user CANNOT create spot without lng', async () => {
+  it.skipIf(!emulatorRunning)('authenticated user CANNOT create spot without lng', async () => {
     const db = asUser(ALICE_UID)
     await assertFails(db.collection('spots').add({ lat: 48.85, createdAt: new Date() }))
   })
 
-  it('authenticated user CAN update spot validation fields only', async () => {
+  it.skipIf(!emulatorRunning)('authenticated user CAN update spot validation fields only', async () => {
     // First create a spot
     const db = asUser(ALICE_UID)
     const ref = await db.collection('spots').add(spotData)
@@ -89,7 +102,7 @@ describe('Firestore Rules — /spots/{spotId}', () => {
     )
   })
 
-  it('authenticated user CANNOT change spot lat/lng (immutable core data)', async () => {
+  it.skipIf(!emulatorRunning)('authenticated user CANNOT change spot lat/lng (immutable core data)', async () => {
     const db = asUser(ALICE_UID)
     const ref = await db.collection('spots').add(spotData)
     const bobDb = asUser(BOB_UID)
@@ -98,7 +111,7 @@ describe('Firestore Rules — /spots/{spotId}', () => {
     )
   })
 
-  it('non-admin CANNOT delete spot', async () => {
+  it.skipIf(!emulatorRunning)('non-admin CANNOT delete spot', async () => {
     const db = asUser(ALICE_UID)
     const ref = await db.collection('spots').add(spotData)
     const bobDb = asUser(BOB_UID)
@@ -116,7 +129,7 @@ describe('Firestore Rules — /users/{userId} — IDOR', () => {
     email: 'alice@test.com',
   }
 
-  it('authenticated user CAN read another user profile', async () => {
+  it.skipIf(!emulatorRunning)('authenticated user CAN read another user profile', async () => {
     // Set up Alice's profile
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().collection('users').doc(ALICE_UID).set(profileData)
@@ -125,26 +138,26 @@ describe('Firestore Rules — /users/{userId} — IDOR', () => {
     await assertSucceeds(bobDb.collection('users').doc(ALICE_UID).get())
   })
 
-  it('unauthenticated user CANNOT read user profiles', async () => {
+  it.skipIf(!emulatorRunning)('unauthenticated user CANNOT read user profiles', async () => {
     const db = asAnon()
     await assertFails(db.collection('users').doc(ALICE_UID).get())
   })
 
-  it('user CAN update own profile', async () => {
+  it.skipIf(!emulatorRunning)('user CAN update own profile', async () => {
     const db = asUser(ALICE_UID)
     await assertSucceeds(
       db.collection('users').doc(ALICE_UID).set({ username: 'alice2', updatedAt: new Date() }, { merge: true })
     )
   })
 
-  it('user CANNOT update another user profile (IDOR)', async () => {
+  it.skipIf(!emulatorRunning)('user CANNOT update another user profile (IDOR)', async () => {
     const bobDb = asUser(BOB_UID)
     await assertFails(
       bobDb.collection('users').doc(ALICE_UID).update({ username: 'hacked' })
     )
   })
 
-  it('user CANNOT delete any user profile', async () => {
+  it.skipIf(!emulatorRunning)('user CANNOT delete any user profile', async () => {
     const db = asUser(BOB_UID)
     await assertFails(db.collection('users').doc(ALICE_UID).delete())
     await assertFails(db.collection('users').doc(BOB_UID).delete())
@@ -165,7 +178,7 @@ describe('Firestore Rules — /spots/{spotId}/reviews — IDOR', () => {
     })
   })
 
-  it('user CAN create review for own UID (reviewId = uid)', async () => {
+  it.skipIf(!emulatorRunning)('user CAN create review for own UID (reviewId = uid)', async () => {
     const db = asUser(ALICE_UID)
     await assertSucceeds(
       db.collection('spots').doc(spotRef.id)
@@ -174,7 +187,7 @@ describe('Firestore Rules — /spots/{spotId}/reviews — IDOR', () => {
     )
   })
 
-  it('user CANNOT create review with mismatched userId', async () => {
+  it.skipIf(!emulatorRunning)('user CANNOT create review with mismatched userId', async () => {
     const db = asUser(BOB_UID)
     await assertFails(
       db.collection('spots').doc(spotRef.id)
@@ -183,7 +196,7 @@ describe('Firestore Rules — /spots/{spotId}/reviews — IDOR', () => {
     )
   })
 
-  it('user CANNOT delete another user review (IDOR)', async () => {
+  it.skipIf(!emulatorRunning)('user CANNOT delete another user review (IDOR)', async () => {
     // Alice already has a review
     const bobDb = asUser(BOB_UID)
     await assertFails(
@@ -193,7 +206,7 @@ describe('Firestore Rules — /spots/{spotId}/reviews — IDOR', () => {
     )
   })
 
-  it('user CAN delete own review', async () => {
+  it.skipIf(!emulatorRunning)('user CAN delete own review', async () => {
     const aliceDb = asUser(ALICE_UID)
     // Ensure Alice's review exists
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
