@@ -27,7 +27,7 @@ function stepIndicator(active) {
 export function renderLanding() {
   const currentLang = getState().lang || 'fr'
   const langButtons = Object.values(languageConfig).map(l =>
-    `<button onclick="changeLandingLanguage('${l.code}')" class="w-10 h-10 rounded-full ${l.code === currentLang ? 'bg-primary-500/30 border-2 border-primary-400 scale-110' : 'bg-white/10 border border-white/10'} flex items-center justify-center text-lg transition-colors hover:bg-white/20" aria-label="${l.nativeName}">${l.flag}</button>`
+    `<button onclick="changeLandingLanguage('${l.code}')" class="w-11 h-11 rounded-full ${l.code === currentLang ? 'bg-primary-500/30 border-2 border-primary-400 scale-110' : 'bg-white/10 border border-white/10'} flex items-center justify-center text-lg transition-colors hover:bg-white/20" aria-label="${l.nativeName}">${l.flag}</button>`
   ).join('')
 
   return `
@@ -190,7 +190,7 @@ export function renderLanding() {
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="5"></div>
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="6"></div>
         </div>
-        <button id="landing-next" onclick="landingNext()" class="text-primary-400 text-sm font-semibold">
+        <button id="landing-next" onclick="landingNext()" class="text-primary-400 text-sm font-semibold min-h-[44px] px-3">
           ${t('onboardingNext')} →
         </button>
       </div>
