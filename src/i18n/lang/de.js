@@ -2669,6 +2669,7 @@ export default {
  skillTreePointsAvailable: 'Verfuegbare Daumen',
  skillTreePts: '',
  skillTreeViewTree: 'Baum anzeigen',
+ skillTreeCompétences: 'Fähigkeiten',
 
  // notifications
  notifSpotSubscribed: 'Benachrichtigungen fuer "{name}" aktiviert',
