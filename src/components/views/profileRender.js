@@ -1645,7 +1645,7 @@ window.showCityPageDemo = () => {
  <div id="city-demo-overlay-content" class="w-full max-w-[420px] m-4 relative">
  <div class="bg-amber-500/20 border border-amber-500/30 rounded-xl px-3 py-2 mb-3 text-center"><span class="text-amber-400 text-xs font-semibold">${t('demoPreviewBanner') || 'Aperçu. Les noms et chiffres sont fictifs.'}</span></div>
  <!-- Close button -->
- <button onclick="closeCityPageDemo()" class="absolute top-2 right-2 z-5 bg-white/10 border-none text-white w-8 h-8 rounded-full text-[1.2rem] cursor-pointer flex items-center justify-center" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+ <button onclick="closeCityPageDemo()" class="absolute top-2 right-2 z-5 bg-white/10 border-none text-white w-8 h-8 rounded-full text-[1.2rem] cursor-pointer flex items-center justify-center" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
 
  <!-- Intro screen -->
  <div id="city-demo-intro-screen" class="bg-slate-800 rounded-2xl px-5 py-7 text-center">

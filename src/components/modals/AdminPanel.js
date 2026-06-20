@@ -751,7 +751,7 @@ function renderReportsTab(state) {
  ? `<button onclick="adminRelocateSpot('${escapeJSString(report.id)}', '${escapeJSString(report.targetId)}', ${report.suggestedLat}, ${report.suggestedLng})" class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">Déplacer</button>`
  : `<button onclick="adminConfirmReport('${escapeJSString(report.id)}', '${escapeJSString(report.targetId)}')" class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"> Masquer le spot</button>`
  }
- <button onclick="adminDismissReport('${escapeJSString(report.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400 hover:bg-slate-500/30">✕ Rejeter</button></div>` : ''
+ <button onclick="adminDismissReport('${escapeJSString(report.id)}')" class="text-xs px-2 py-1 rounded bg-slate-500/20 text-slate-400 hover:bg-slate-500/30">${icon('x', 'w-3.5 h-3.5 inline')} Rejeter</button></div>` : ''
 
  return `<div class="py-3 border-b border-slate-700/50">
  <div class="flex items-start gap-2">

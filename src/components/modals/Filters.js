@@ -55,7 +55,7 @@ export function renderFiltersModal() {
                     class="w-10 h-10 flex items-center justify-center hover:bg-white/5 rounded-full"
                     type="button"
                     aria-label="${t('closeFilters') || 'Close filters'}">
-              <span aria-hidden="true">✕</span>
+              <span aria-hidden="true">${icon('x', 'w-4 h-4')}</span>
             </button>
           </div>
         </div>

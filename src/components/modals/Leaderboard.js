@@ -119,7 +119,7 @@ export function renderLeaderboardModal() {
                     class="p-2 bg-white/20 rounded-full text-white hover:bg-white/30"
                     type="button"
                     aria-label="${t('close') || 'Close'}">
-              <span aria-hidden="true">✕</span>
+              <span aria-hidden="true">${icon('x', 'w-4 h-4')}</span>
             </button>
           </div>
 

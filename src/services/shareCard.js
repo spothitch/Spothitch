@@ -238,7 +238,7 @@ export function shareProfileModal(uid, username, avatar) {
  <h3 class="text-[white] text-[1.25rem] font-bold m-0">
  ${t('shareProfile') || 'Partager mon profil'}
  </h3>
- <button class="bg-[rgba(255,255,255,0.1)] border-0 text-[white] w-[36px] h-[36px] rounded-full cursor-pointer text-[1.25rem]" onclick="window.closeShareModal()" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button></div>
+ <button class="bg-[rgba(255,255,255,0.1)] border-0 text-[white] w-[36px] h-[36px] rounded-full cursor-pointer text-[1.25rem]" onclick="window.closeShareModal()" aria-label="${escapeHTML(t('close') || 'Close')}">${icon('x', 'w-4 h-4')}</button></div>
  <div class="bg-[linear-gradient(135deg,#1e2a3a,#0f1520)] rounded-[12px] p-[20px] mb-[20px] text-center border border-[rgba(245,158,11,0.3)]">
  <div class="text-[3rem] mb-[8px]">${avatar || 'thumbs-up'}</div>
  <div class="text-[white] font-bold text-[1.1rem]">${escapeHTML(displayName)}</div>

@@ -45,7 +45,7 @@ export function renderChallengesHub(state) {
  ${icon('sparkles', 'w-4 h-4 text-amber-400')}
  ${t('thumbHistoryTitle') || 'Comment gagner des Pouces'}
  </h3>
- <button onclick="toggleThumbHistory()" class="text-slate-400 hover:text-white text-xs cursor-pointer relative z-10" type="button" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button></div>
+ <button onclick="toggleThumbHistory()" class="text-slate-400 hover:text-white text-xs cursor-pointer relative z-10" type="button" aria-label="${escapeHTML(t('close') || 'Close')}">${icon('x', 'w-4 h-4')}</button></div>
  <div class="space-y-2 text-sm">
  <div class="flex justify-between items-center p-2 rounded-lg bg-white/5">
  <span class="text-slate-300">${icon('map-pin', 'w-3 h-3 inline mr-1')} ${t('thumbHistoryCreate') || 'Créer un spot'}</span>

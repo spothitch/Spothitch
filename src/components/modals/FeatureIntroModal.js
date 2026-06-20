@@ -160,7 +160,7 @@ function buildModalHTML(feature) {
         <!-- Close button -->
         <button onclick="closeFeatureIntro()"
           class="absolute top-3 right-3 z-[2] w-7 h-7 rounded-full bg-white/10 border-none cursor-pointer text-white text-xs flex items-center justify-center"
-          aria-label="${escapeHTML(t('close') || 'Fermer')}">✕</button>
+          aria-label="${escapeHTML(t('close') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
 
         <!-- Card content -->
         <div class="relative z-[1] pt-5 px-4 pb-4 text-center">

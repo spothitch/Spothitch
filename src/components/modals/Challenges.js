@@ -5,6 +5,7 @@
 
 import { getState } from '../../stores/state.js';
 import { t } from '../../i18n/index.js';
+import { icon } from '../../utils/icons.js';
 import { getActiveChallenges } from '../../data/challenges.js';
 
 /**
@@ -51,7 +52,7 @@ export function renderChallengesModal() {
  class="p-2 bg-white/20 rounded-full text-white hover:bg-white/30"
  type="button"
  aria-label="${t('close') || 'Close'}">
- <span aria-hidden="true">✕</span></button></div></div>
+ <span aria-hidden="true">${icon('x', 'w-4 h-4')}</span></button></div></div>
 
  <!-- Tabs -->
  <div class="flex border-b border-white/10">

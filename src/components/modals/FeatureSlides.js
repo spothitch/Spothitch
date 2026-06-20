@@ -6,6 +6,7 @@
 
 import { t } from '../../i18n/index.js'
 import { escapeHTML, escapeJSString } from '../../utils/sanitize.js'
+import { icon } from '../../utils/icons.js'
 
 // ==================== SLIDES DATA ====================
 
@@ -409,7 +410,7 @@ function buildOverlayHTML(featureId, slides) {
  <div id="fs-progress-bar" class="absolute top-0 left-0 h-[3px] transition-all duration-400" style="background:linear-gradient(90deg,#f59e0b,#fb923c);width:${Math.round(100 / slides.length)}%;border-radius:0 2px 2px 0"></div>
 
  <!-- Close button -->
- <button onclick="closeFeatureSlides()" class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-base z-10 bg-white/[0.08] text-slate-400 border-none cursor-pointer" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button>
+ <button onclick="closeFeatureSlides()" class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-base z-10 bg-white/[0.08] text-slate-400 border-none cursor-pointer" aria-label="${escapeHTML(t('close') || 'Close')}">${icon('x', 'w-4 h-4')}</button>
 
  <!-- Dots -->
  <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">

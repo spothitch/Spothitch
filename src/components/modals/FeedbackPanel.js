@@ -118,7 +118,7 @@ export function renderFeedbackPanel(state) {
 
         <!-- Header -->
         <div class="shrink-0 relative pt-[54px] px-4 pb-3 bg-gradient-to-br from-indigo-500/12 to-purple-500/8">
-          <button onclick="closeFeedbackPanel()" class="absolute right-3 top-[50px] w-8 h-8 rounded-full flex items-center justify-center text-white text-base bg-white/10" aria-label="${escapeHTML(t('close') || 'Fermer')}">✕</button>
+          <button onclick="closeFeedbackPanel()" class="absolute right-3 top-[50px] w-8 h-8 rounded-full flex items-center justify-center text-white text-base bg-white/10" aria-label="${escapeHTML(t('close') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
           <h2 id="fb-panel-title" class="text-lg font-extrabold">${escapeHTML(t('fbTitle') || 'Aide & Feedback')}</h2>
           <p class="text-xs mt-0.5 text-slate-400">${escapeHTML(t('fbSubtitle') || 'Vote pour les features que tu veux !')}</p>
           <div class="flex items-center gap-2 mt-2.5">

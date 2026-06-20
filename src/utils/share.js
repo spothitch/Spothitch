@@ -5,6 +5,7 @@
 
 import { t } from '../i18n/index.js'
 import { escapeJSString } from './sanitize.js'
+import { icon } from './icons.js'
 
 const APP_URL = 'https://spothitch.com'
 
@@ -171,7 +172,7 @@ function showShareModal(data) {
  <div class="bg-[#1a2332] w-[100%] max-w-[500px] rounded-[24px 24px 0 0] p-[24px] [animation:slideUp_0.3s_ease-out]">
  <div class="flex justify-between items-center mb-[20px]">
  <h3 class="text-[white] text-[1.25rem] font-semibold">${t('share') || 'Partager'}</h3>
- <button class="bg-[rgba(255,255,255,0.1)] border-0 text-[white] w-[32px] h-[32px] rounded-full cursor-pointer text-[1.2rem]" onclick="this.closest('.share-modal').remove()">✕</button></div>
+ <button class="bg-[rgba(255,255,255,0.1)] border-0 text-[white] w-[32px] h-[32px] rounded-full cursor-pointer text-[1.2rem]" onclick="this.closest('.share-modal').remove()">${icon('x', 'w-4 h-4')}</button></div>
 
  <div class="grid [grid-template-columns:repeat(3,_1fr)] gap-[12px] mb-[20px]">
  ${socialLinks.map(link => `

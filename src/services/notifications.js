@@ -827,7 +827,7 @@ function _showCommunitySOSBanner(data) {
  <div class="flex gap-2 justify-center">
  <button onclick="showCommunitySOSOnMap(${Number(lat)||0},${Number(lng)||0},'${escapeJSString(voyagerName || '')}')" class="flex-1 p-2.5 rounded-xl border-none bg-white text-red-600 font-bold text-[13px] cursor-pointer">${t('seeOnMap') || 'Voir sur la carte'}</button>
  <a href="tel:112" class="py-2.5 px-4 rounded-xl border-2 border-white/30 bg-transparent text-white font-bold text-[13px] no-underline flex items-center gap-1">${icon('phone', 'w-4 h-4 inline mr-1')} 112</a>
- <button onclick="document.getElementById('community-sos-banner')?.remove()" class="p-2.5 rounded-xl border-2 border-white/30 bg-transparent text-white text-[13px] cursor-pointer" aria-label="${t('close') || 'Fermer'}">✕</button></div></div>
+ <button onclick="document.getElementById('community-sos-banner')?.remove()" class="p-2.5 rounded-xl border-2 border-white/30 bg-transparent text-white text-[13px] cursor-pointer" aria-label="${t('close') || 'Fermer'}">${icon('x', 'w-4 h-4')}</button></div></div>
  `
  document.body.appendChild(banner)
 

@@ -6,6 +6,7 @@
 
 import { t } from '../../i18n/index.js'
 import { escapeHTML } from '../../utils/sanitize.js'
+import { icon } from '../../utils/icons.js'
 
 // ==================== GENERIC TAB SWITCH ====================
 function _switchDemoTab(btn, tabName) {
@@ -68,7 +69,7 @@ window.showPointsDemo = () => {
  <div class="${_c.wrap}">
  ${_previewBanner}
  ${_previewBanner}
- <button onclick="closePointsDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+ <button onclick="closePointsDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
  <div id="points-demo-intro" class="${_c.intro} ${_cIntro}">
  <div class="text-5xl mb-3"></div>
  <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('pointsDemoIntroTitle') || 'Points, Classement & Récompenses')}</h2>
@@ -176,7 +177,7 @@ window.showJournalDemo = () => {
  <div class="${_c.wrap}">
  ${_previewBanner}
  ${_previewBanner}
- <button onclick="closeJournalDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+ <button onclick="closeJournalDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
  <div id="journal-demo-intro" class="${_c.intro} ${_cIntro}">
  <div class="text-5xl mb-3"></div>
  <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('journalDemoIntroTitle') || 'Carnet de Voyage')}</h2>
@@ -265,7 +266,7 @@ window.showSocialDemo = () => {
  <div class="${_c.wrap}">
  ${_previewBanner}
  ${_previewBanner}
- <button onclick="closeSocialDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+ <button onclick="closeSocialDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
  <div id="social-demo-intro" class="${_c.intro} ${_cIntro}">
  <div class="text-5xl mb-3"></div>
  <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('socialDemoIntroTitle') || 'Social, Courses & Événements')}</h2>
@@ -349,7 +350,7 @@ window.showGuardianDemo = () => {
  <div class="${_c.wrap}">
  ${_previewBanner}
  ${_previewBanner}
- <button onclick="closeGuardianDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+ <button onclick="closeGuardianDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
  <div id="guardian-demo-intro" class="${_c.intro} ${_cIntro}">
  <div class="text-5xl mb-3"></div>
  <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('guardianDemoIntroTitle') || 'Mode Compagnon Sécurité')}</h2>
@@ -446,7 +447,7 @@ window.showHostelsDemo = () => {
  <div class="${_c.wrap}">
  ${_previewBanner}
  ${_previewBanner}
- <button onclick="closeHostelsDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+ <button onclick="closeHostelsDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
  <div id="hostels-demo-intro" class="${_c.intro} ${_cIntro}">
  <div class="text-5xl mb-3"></div>
  <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('hostelsDemoIntroTitle') || 'Auberges & Événements')}</h2>
@@ -521,7 +522,7 @@ window.showSpotDemo = () => {
  <div class="${_c.wrap}">
  ${_previewBanner}
  ${_previewBanner}
- <button onclick="closeSpotDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">✕</button>
+ <button onclick="closeSpotDemo()" class="${_c.close}" aria-label="${escapeHTML(t('cityDemoCloseBtn') || 'Fermer')}">${icon('x', 'w-4 h-4')}</button>
  <div id="spot-demo-intro" class="${_c.intro} ${_cIntro}">
  <div class="text-5xl mb-3"></div>
  <h2 class="text-[1.3rem] font-extrabold text-white m-0 mb-2">${escapeHTML(t('spotDemoIntroTitle') || 'Nouvelle fiche spot')}</h2>

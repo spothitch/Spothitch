@@ -156,7 +156,7 @@ export function renderInstallBanner() {
  rounded-2xl shadow-2xl shadow-primary-500/30 z-40 animate-slide-up overflow-hidden" role="alert">
  <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2720%27 height=%2720%27%3E%3Ccircle cx=%272%27 cy=%272%27 r=%271%27 fill=%27white%27 opacity=%270.08%27/%3E%3C/svg%3E')]"></div>
  <div class="relative p-4">
- <button onclick="dismissInstallBanner()" class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-white/50 hover:text-white rounded-full hover:bg-white/10" aria-label="${t('close')}">✕</button>
+ <button onclick="dismissInstallBanner()" class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-white/50 hover:text-white rounded-full hover:bg-white/10" aria-label="${t('close')}">${icon('x', 'w-4 h-4')}</button>
  <div class="flex items-start gap-3 pr-6">
  <div class="w-11 h-11 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center shrink-0">
  ${icon("smartphone", "w-6 h-6 text-amber-400")}

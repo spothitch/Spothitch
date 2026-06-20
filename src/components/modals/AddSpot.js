@@ -69,7 +69,7 @@ window.handlePhotoSelect = async (event) => {
  const thumb = document.createElement('div')
  thumb.style.cssText = 'width:60px;height:60px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0'
  thumb.innerHTML = `<img class="w-[100%] h-[100%] [object-fit:cover]" src="${compressed}" alt="Photo ${window.spotFormData.photos.length}">
- <button class="absolute top-[2px] right-[2px] w-[18px] h-[18px] bg-[rgba(0,0,0,0.6)] rounded-full border-0 text-[white] text-[10px] cursor-pointer flex items-center justify-center" type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" aria-label="${escapeHTML(t('removePhoto') || 'Remove photo')}">✕</button>`
+ <button class="absolute top-[2px] right-[2px] w-[18px] h-[18px] bg-[rgba(0,0,0,0.6)] rounded-full border-0 text-[white] text-[10px] cursor-pointer flex items-center justify-center" type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" aria-label="${escapeHTML(t('removePhoto') || 'Remove photo')}">${icon('x', 'w-4 h-4')}</button>`
  const uploadBtn = photoZone.querySelector('label, [for="spot-photo"]')?.parentElement
  if (uploadBtn) photoZone.insertBefore(thumb, uploadBtn)
  // Hide upload button if max reached
