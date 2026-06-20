@@ -17,23 +17,6 @@ function versionPlugin() {
   }
 }
 
-// In emulator/test builds only (VITE_FIREBASE_EMULATOR=true), allow the local
-// Firebase emulators in the CSP connect-src so the browser app can reach them.
-// Production builds are NOT affected — the prod CSP stays locked down.
-function emulatorCspPlugin() {
-  const isEmulator = process.env.VITE_FIREBASE_EMULATOR === 'true'
-  return {
-    name: 'emulator-csp',
-    transformIndexHtml(html) {
-      if (!isEmulator) return html
-      return html.replace(
-        /(connect-src 'self')/,
-        "$1 http://127.0.0.1:9099 http://127.0.0.1:8080 ws://127.0.0.1:9099 ws://127.0.0.1:8080"
-      )
-    }
-  }
-}
-
 // Sur Cloudflare Pages, CF_PAGES_BRANCH est injecté automatiquement.
 // VITE_SHOW_BETA=true uniquement sur la branche 'dev' (ou en local via .env.local).
 const showBeta = process.env.VITE_SHOW_BETA === 'true'
@@ -51,9 +34,6 @@ export default defineConfig({
 
     // Version check for auto-reload
     versionPlugin(),
-
-    // Allow Firebase emulators in CSP for test builds only
-    emulatorCspPlugin(),
 
     // PWA Plugin
     VitePWA({

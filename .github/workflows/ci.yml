@@ -777,10 +777,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      # Runs the firebase specs validated green against the emulator. data/social/spots
-      # are excluded pending product decisions (e.g. can a creator delete their own spot?
-      # rule = admin-only) + a 2-browser friend-accept flow. See memory/project_firebase_e2e.md.
-      - run: npx playwright test --project=chromium --retries=1 e2e/firebase-auth.spec.js e2e/firebase-gamification.spec.js e2e/firebase-realtime.spec.js e2e/firebase-security.spec.js
+      - run: npx playwright test --project=chromium --retries=1 e2e/firebase-auth.spec.js e2e/firebase-data.spec.js e2e/firebase-gamification.spec.js e2e/firebase-realtime.spec.js e2e/firebase-security.spec.js e2e/firebase-social.spec.js e2e/firebase-spots.spec.js
         env:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
           FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
