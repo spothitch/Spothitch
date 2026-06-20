@@ -160,7 +160,7 @@ export function renderMainScreen(guardianState, editOverlay) {
   if (editOverlay) {
     return `
       <div class="px-5 py-3 flex items-center gap-2 border-b border-white/5">
-        <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,.08)">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center bg-[rgba(34,197,94,.08)]">
           ${icon('shield-check', 'w-3.5 h-3.5 text-emerald-500')}
         </div>
         <h2 id="guardian-modal-title" class="text-[15px] font-extrabold text-white flex-1">${t('guardianModeTitle') || 'Mode Gardien'}</h2>
@@ -189,7 +189,7 @@ export function renderMainScreen(guardianState, editOverlay) {
   return `
     <!-- Header -->
     <div class="px-5 py-3 flex items-center gap-2 border-b border-white/5">
-      <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,.08)">
+      <div class="w-7 h-7 rounded-full flex items-center justify-center bg-[rgba(34,197,94,.08)]">
         ${icon('shield-check', 'w-3.5 h-3.5 text-emerald-500')}
       </div>
       <h2 id="guardian-modal-title" class="text-[15px] font-extrabold text-white flex-1">${t('guardianModeTitle') || 'Mode Gardien'}</h2>
@@ -205,7 +205,7 @@ export function renderMainScreen(guardianState, editOverlay) {
         <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">
           ${t('myGuardians') || 'Mes gardiens'} (${guardianCount}/5)
         </div>
-        <div class="rounded-2xl overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+        <div class="rounded-2xl overflow-hidden bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]">
           ${guardians.map((g, i) => {
             const ci = colorInfo(g.color || '#22c55e')
             const label = i === 0
@@ -215,8 +215,8 @@ export function renderMainScreen(guardianState, editOverlay) {
               ? `${escapeHTML(g.name)} (${escapeHTML(g.phone)})`
               : escapeHTML(g.name)
             return `
-              <div class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-white/[0.02] transition-colors"
-                style="border-bottom:1px solid rgba(255,255,255,.03)"
+              <div class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-white/[0.02] transition-colors border-b border-b-[rgba(255,255,255,.03)]"
+               
                 onclick="guardianEditGuardian(${i})" role="button" tabindex="0">
                 <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:${ci.bg};color:${g.color || '#22c55e'}">
                   ${icon('user', 'w-[18px] h-[18px]')}
@@ -244,7 +244,7 @@ export function renderMainScreen(guardianState, editOverlay) {
         <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">
           ${t('tripConfig') || 'Configuration du voyage'}
         </div>
-        <div class="rounded-2xl overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+        <div class="rounded-2xl overflow-hidden bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]">
           <!-- Check-in interval -->
           ${cfgRow('clock', '#3b82f6', t('guardianCheckinInterval') || 'Check-in toutes les', formatInterval(interval), "guardianEditField('interval')")}
           <!-- Destination -->
@@ -262,8 +262,8 @@ export function renderMainScreen(guardianState, editOverlay) {
       <div class="px-4 pt-4 pb-2">
         <button
           onclick="startGuardian()"
-          class="w-full py-[15px] rounded-2xl text-white text-[15px] font-extrabold flex items-center justify-center gap-2.5"
-          style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 24px rgba(34,197,94,.3)">
+          class="w-full py-[15px] rounded-2xl text-white text-[15px] font-extrabold flex items-center justify-center gap-2.5 bg-[linear-gradient(135deg,#22c55e,#16a34a)] shadow-[0_4px_24px_rgba(34,197,94,.3)]"
+         >
           ${icon('play', 'w-[18px] h-[18px]')}
           ${t('guardianStartTrip') || 'Demarrer mon voyage'}
         </button>
@@ -271,9 +271,9 @@ export function renderMainScreen(guardianState, editOverlay) {
 
       <!-- Tip box -->
       ${guardianNames ? `
-        <div class="mx-4 mb-4 mt-2 flex gap-2.5 items-start p-3 rounded-xl text-[11px] leading-relaxed text-slate-400"
-          style="background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.1)">
-          <span class="shrink-0 mt-0.5" style="color:#f59e0b">${icon('info', 'w-3.5 h-3.5')}</span>
+        <div class="mx-4 mb-4 mt-2 flex gap-2.5 items-start p-3 rounded-xl text-[11px] leading-relaxed text-slate-400 bg-[rgba(245,158,11,.04)] border border-[rgba(245,158,11,.1)]"
+         >
+          <span class="shrink-0 mt-0.5 text-[#f59e0b]">${icon('info', 'w-3.5 h-3.5')}</span>
           <div>${guardianNames} ${t('guardianTipWillBeNotified') || 'recevront ta position et seront alertes si tu ne fais pas ton check-in a temps.'}</div>
         </div>
       ` : ''}
@@ -290,8 +290,8 @@ function cfgRow(iconName, color, label, value, action) {
   const isEmpty = !value
   const displayVal = isEmpty ? (t('optional') || 'Optionnel') : value
   return `
-    <div class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-white/[0.02] transition-colors"
-      style="border-bottom:1px solid rgba(255,255,255,.03)"
+    <div class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-white/[0.02] transition-colors border-b border-b-[rgba(255,255,255,.03)]"
+     
       ${action ? `onclick="${action}"` : ''} role="button" tabindex="0">
       <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:${ci.bg};color:${color}">
         ${icon(iconName, 'w-[18px] h-[18px]')}
@@ -342,8 +342,8 @@ export function renderEditOverlay(editOverlay) {
       ` : isTextarea ? `
         <textarea
           id="guardian-edit-input"
-          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
+          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.1)]"
+         
           placeholder="${placeholder || ''}"
           rows="3"
           ${maxLength ? `maxlength="${maxLength}"` : ''}
@@ -352,8 +352,8 @@ export function renderEditOverlay(editOverlay) {
         <input
           id="guardian-edit-input"
           type="${inputType || 'text'}"
-          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
+          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.1)]"
+         
           value="${escapedValue}"
           placeholder="${placeholder || ''}"
           ${maxLength ? `maxlength="${maxLength}"` : ''}
@@ -364,8 +364,8 @@ export function renderEditOverlay(editOverlay) {
         <input
           id="guardian-edit-phone"
           type="tel"
-          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 mt-2"
-          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
+          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 mt-2 bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.1)]"
+         
           value="${escapeHTML(editOverlay.phone || '')}"
           placeholder="${t('guardianPhoneOptionalPrompt') || 'Telephone (optionnel)'}"
           autocomplete="off"
@@ -377,15 +377,15 @@ export function renderEditOverlay(editOverlay) {
         <div class="flex gap-2 mt-4">
           <button
             onclick="guardianCancelEdit()"
-            class="flex-1 py-3 rounded-xl text-slate-400 font-semibold text-sm transition-colors"
-            style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)"
+            class="flex-1 py-3 rounded-xl text-slate-400 font-semibold text-sm transition-colors bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.08)]"
+           
           >
             ${t('cancel') || 'Annuler'}
           </button>
           <button
             onclick="guardianSaveField()"
-            class="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-colors"
-            style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3)"
+            class="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-colors bg-[rgba(34,197,94,.15)] border border-[rgba(34,197,94,.3)]"
+           
           >
             ${icon('circle-check', 'w-4 h-4 inline-block mr-1')}
             ${t('save') || 'Enregistrer'}
@@ -441,8 +441,8 @@ export function renderActiveScreen(guardianState, batteryPct) {
 
   return `
     <!-- Header -->
-    <div class="px-4 py-3 flex items-center gap-2.5 shrink-0" style="border-bottom:1px solid rgba(34,197,94,.12);background:rgba(15,21,32,.95)">
-      <button onclick="guardianGoToScreen('main')" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:rgba(255,255,255,.06)" aria-label="${t('back') || 'Retour'}">
+    <div class="px-4 py-3 flex items-center gap-2.5 shrink-0 border-b border-b-[rgba(34,197,94,.12)] bg-[rgba(15,21,32,.95)]">
+      <button onclick="guardianGoToScreen('main')" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-[rgba(255,255,255,.06)]" aria-label="${t('back') || 'Retour'}">
         ${icon('chevron-left', 'w-3.5 h-3.5 text-slate-400')}
       </button>
       <div class="flex-1 min-w-0">
@@ -456,9 +456,9 @@ export function renderActiveScreen(guardianState, batteryPct) {
     </div>
 
     <!-- Stats strip -->
-    <div class="flex shrink-0" style="border-bottom:1px solid rgba(255,255,255,.06);padding:8px 16px">
+    <div class="flex shrink-0 border-b border-b-[rgba(255,255,255,.06)] py-[8px] px-[16px]">
       <div class="flex-1 text-center">
-        <div class="text-[13px] font-extrabold" style="color:#22c55e">${durationText}</div>
+        <div class="text-[13px] font-extrabold text-[#22c55e]">${durationText}</div>
         <div class="text-[10px] text-slate-600 uppercase tracking-wide mt-0.5">${t('onRoute') || 'en route'}</div>
       </div>
       <div class="flex-1 text-center">
@@ -470,14 +470,14 @@ export function renderActiveScreen(guardianState, batteryPct) {
         <div class="text-[10px] text-slate-600 uppercase tracking-wide mt-0.5">${t('batteryLevel') || 'batterie'}</div>
       </div>
       <div class="flex-1 text-center">
-        <div class="text-[13px] font-extrabold" style="color:#3b82f6">${etaText}</div>
+        <div class="text-[13px] font-extrabold text-[#3b82f6]">${etaText}</div>
         <div class="text-[10px] text-slate-600 uppercase tracking-wide mt-0.5">ETA</div>
       </div>
     </div>
 
     <!-- Guardians bar -->
     ${guardians.length > 0 ? `
-      <div class="flex items-center gap-1.5 shrink-0 overflow-x-auto" style="padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.06)">
+      <div class="flex items-center gap-1.5 shrink-0 overflow-x-auto py-[8px] px-[16px] border-b border-b-[rgba(255,255,255,.06)]">
         <span class="text-[10px] text-slate-500 shrink-0">${t('guardians') || 'Gardiens'} :</span>
         ${guardians.map(g => {
           const ci = colorInfo(g.color || '#22c55e')
@@ -486,7 +486,7 @@ export function renderActiveScreen(guardianState, batteryPct) {
             <div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0 relative"
               style="background:linear-gradient(135deg,${g.color || '#22c55e'},${ci.dark})">
               ${escapeHTML(initial)}
-              <span class="absolute -bottom-px -right-px w-2 h-2 rounded-full border-2" style="background:#22c55e;border-color:#0f1520"></span>
+              <span class="absolute -bottom-px -right-px w-2 h-2 rounded-full border-2 bg-[#22c55e] border-[#0f1520]"></span>
             </div>
           `
         }).join('')}
@@ -494,34 +494,34 @@ export function renderActiveScreen(guardianState, batteryPct) {
     ` : ''}
 
     <!-- Timeline -->
-    <div class="flex-1 overflow-y-auto relative" style="padding:12px 16px 8px" id="guardian-timeline">
-      <div class="absolute left-[29px] top-3 bottom-2 w-[2px]" style="background:rgba(255,255,255,.04)"></div>
+    <div class="flex-1 overflow-y-auto relative pt-[12px] px-[16px] pb-[8px]" id="guardian-timeline">
+      <div class="absolute left-[29px] top-3 bottom-2 w-[2px] bg-[rgba(255,255,255,.04)]"></div>
       ${renderTimelineV2(events, guardians)}
     </div>
 
     <!-- Compose bar -->
-    <div class="shrink-0" style="padding:8px 12px 12px;background:rgba(15,21,32,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06)">
+    <div class="shrink-0 pt-[8px] px-[12px] pb-[12px] bg-[rgba(15,21,32,.95)] [backdrop-filter:blur(20px)] border-t border-t-[rgba(255,255,255,.06)]">
       <!-- Quick actions -->
       <div class="flex gap-1.5 mb-2">
-        <button onclick="guardianUpdatePlate()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#06b6d4">
+        <button onclick="guardianUpdatePlate()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)] text-[#06b6d4]">
           ${icon('car', 'w-3.5 h-3.5')} ${t('plate') || 'Plaque'}
         </button>
-        <button onclick="guardianAddTripPhoto()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#a855f7">
+        <button onclick="guardianAddTripPhoto()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)] text-[#a855f7]">
           ${icon('camera', 'w-3.5 h-3.5')} ${t('photo') || 'Photo'}
         </button>
-        <button onclick="guardianUpdateDestination()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#f59e0b">
+        <button onclick="guardianUpdateDestination()" class="h-9 px-3 rounded-[10px] flex items-center gap-1.5 text-[11px] font-semibold bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)] text-[#f59e0b]">
           ${icon('map-pin', 'w-3.5 h-3.5')} ${t('guardianDestination') || 'Destination'}
         </button>
       </div>
       <!-- Message row -->
       <div class="flex gap-2 items-center">
-        <input type="text" id="guardian-message-input" class="flex-1 px-3.5 py-2.5 rounded-xl text-[13px] text-white placeholder-slate-600 focus:outline-none"
-          style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)"
+        <input type="text" id="guardian-message-input" class="flex-1 px-3.5 py-2.5 rounded-xl text-[13px] text-white placeholder-slate-600 focus:outline-none bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.06)]"
+         
           placeholder="${t('writeMessage') || 'Ecrire un message...'}" />
-        <button onclick="guardianSendMessage()" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#22c55e">
+        <button onclick="guardianSendMessage()" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#22c55e]">
           ${icon('send', 'w-3.5 h-3.5 text-white')}
         </button>
-        <button onclick="guardianQuickCheckin()" class="px-4 py-2.5 rounded-xl flex items-center gap-1.5 shrink-0 text-[13px] font-extrabold text-white" style="background:#22c55e">
+        <button onclick="guardianQuickCheckin()" class="px-4 py-2.5 rounded-xl flex items-center gap-1.5 shrink-0 text-[13px] font-extrabold text-white bg-[#22c55e]">
           ${icon('check', 'w-3.5 h-3.5')} OK
         </button>
       </div>
@@ -561,7 +561,7 @@ export function renderTimelineV2(events, _guardians) {
         const tripPhoto = getTripPhoto()
         const photoContent = tripPhoto
           ? `<img src="${tripPhoto}" alt="${t('driverPhoto') || 'Photo conducteur'}" class="w-full h-[120px] rounded-[10px] mt-1.5 object-cover" />`
-          : `<div class="w-full h-[90px] rounded-[10px] flex items-center justify-center mt-1.5 text-[11px] gap-1.5" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);color:#475569">
+          : `<div class="w-full h-[90px] rounded-[10px] flex items-center justify-center mt-1.5 text-[11px] gap-1.5 bg-[rgba(255,255,255,.02)] border border-[rgba(255,255,255,.06)] text-[#475569]">
               ${icon('camera', 'w-[18px] h-[18px]')} ${t('driverPhoto') || 'Photo avec le conducteur'}
             </div>`
         return timelineEvent(ts, 'purple', 'camera',
@@ -623,7 +623,7 @@ function timelineEvent(ts, colorClass, iconName, badgeText, message, extra) {
         style="background:${c.bg};border:2px solid ${c.border};color:${c.text}">
         ${icon(iconName, 'w-3 h-3')}
       </div>
-      <div class="flex-1 min-w-0 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+      <div class="flex-1 min-w-0 rounded-xl px-3 py-2.5 bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]">
         <div class="flex items-center gap-1.5 mb-1">
           <span class="text-[10px] font-semibold text-slate-600">${ts}</span>
           <span class="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md" style="background:${c.badgeBg};color:${c.text}">${badgeText}</span>
@@ -773,12 +773,12 @@ export function renderGuardianScreen(guardianState) {
 
     <!-- Compose bar for guardian to reply -->
     ${watchedTimer ? `
-      <div class="shrink-0" style="padding:8px 12px 12px;background:rgba(15,21,32,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06)">
+      <div class="shrink-0 pt-[8px] px-[12px] pb-[12px] bg-[rgba(15,21,32,.95)] [backdrop-filter:blur(20px)] border-t border-t-[rgba(255,255,255,.06)]">
         <div class="flex gap-2 items-center">
-          <input type="text" id="guardian-reply-input" class="flex-1 px-3.5 py-2.5 rounded-xl text-[13px] text-white placeholder-slate-600 focus:outline-none"
-            style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)"
+          <input type="text" id="guardian-reply-input" class="flex-1 px-3.5 py-2.5 rounded-xl text-[13px] text-white placeholder-slate-600 focus:outline-none bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.06)]"
+           
             placeholder="${t('writeMessage') || 'Write a message...'}" />
-          <button onclick="guardianSendReply()" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#f59e0b">
+          <button onclick="guardianSendReply()" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#f59e0b]">
             ${icon('send', 'w-3.5 h-3.5 text-white')}
           </button>
         </div>
@@ -812,7 +812,7 @@ export function renderGuardianChatMessages(travelerId) {
               <div class="flex gap-2 ${isMe ? 'flex-row-reverse' : ''}">
                 <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
                   style="background:${senderColor}">${escapeHTML(initial)}</div>
-                <div class="max-w-[75%] rounded-xl overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+                <div class="max-w-[75%] rounded-xl overflow-hidden bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]">
                   <img src="${msg.photoUrl}" alt="Photo" class="w-full h-[100px] object-cover" />
                   <div class="px-2 py-1 text-[10px] text-slate-500">${ts}</div>
                 </div>
@@ -854,8 +854,8 @@ export function renderAlertScreen(guardianState, batteryPct) {
 
   return `
     <!-- Header -->
-    <div class="px-5 py-3 flex items-center gap-2" style="border-bottom:1px solid rgba(239,68,68,.2)">
-      <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(239,68,68,.1)">
+    <div class="px-5 py-3 flex items-center gap-2 border-b border-b-[rgba(239,68,68,.2)]">
+      <div class="w-7 h-7 rounded-full flex items-center justify-center bg-[rgba(239,68,68,.1)]">
         ${icon('triangle-alert', 'w-3.5 h-3.5 text-red-500')}
       </div>
       <h2 id="guardian-modal-title" class="text-[15px] font-extrabold text-red-500 flex-1">
@@ -868,32 +868,32 @@ export function renderAlertScreen(guardianState, batteryPct) {
 
     <div class="flex-1 overflow-y-auto p-4">
       <!-- Red map -->
-      <div class="w-full h-[180px] rounded-xl mb-3 flex items-center justify-center relative overflow-hidden"
-        style="background:linear-gradient(135deg,#1a2332,#0f1520);border:2px solid rgba(239,68,68,.3)">
-        <div class="absolute inset-0" style="background:radial-gradient(circle at 60% 40%,rgba(239,68,68,.12) 0%,transparent 50%)"></div>
+      <div class="w-full h-[180px] rounded-xl mb-3 flex items-center justify-center relative overflow-hidden bg-[linear-gradient(135deg,#1a2332,#0f1520)] border-[2px] border-[rgba(239,68,68,.3)]"
+       >
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(239,68,68,.12)_0%,transparent_50%)]"></div>
         <span class="text-red-400 text-[11px] z-10">${icon('triangle-alert', 'w-3 h-3 inline')} ${t('lastKnownPosition') || 'Derniere position connue'}</span>
       </div>
 
       <!-- Alert card -->
-      <div class="rounded-xl p-3 mb-2" style="background:rgba(239,68,68,.03);border:1px solid rgba(239,68,68,.2)">
+      <div class="rounded-xl p-3 mb-2 bg-[rgba(239,68,68,.03)] border border-[rgba(239,68,68,.2)]">
         <div class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-[#0f1117]"
-            style="background:linear-gradient(135deg,#ef4444,#dc2626)">${escapeHTML(initial)}</div>
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-[#0f1117] bg-[linear-gradient(135deg,#ef4444,#dc2626)]"
+           >${escapeHTML(initial)}</div>
           <div class="text-[13px] font-bold text-white flex-1">${escapeHTML(guardianName)}</div>
           <div class="text-[10px] flex items-center gap-1 text-red-400">
             <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> ${t('noResponse') || 'Pas de reponse'}
           </div>
         </div>
         <div class="grid grid-cols-3 gap-1 mt-2">
-          <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
+          <div class="text-center py-1.5 rounded bg-[rgba(255,255,255,.02)]">
             <div class="text-xs font-bold text-red-400">${icon('triangle-alert', 'w-3 h-3 inline')} ${overdueMin} min</div>
             <div class="text-[10px] text-slate-500">${t('noResponse') || 'Sans reponse'}</div>
           </div>
-          <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
+          <div class="text-center py-1.5 rounded bg-[rgba(255,255,255,.02)]">
             <div class="text-xs font-bold text-white">${icon('zap', 'w-3 h-3 inline')} ${batteryPct !== null ? `${batteryPct}%` : '...'}</div>
             <div class="text-[10px] text-slate-500">${t('batteryLevel') || 'Batterie'}</div>
           </div>
-          <div class="text-center py-1.5 rounded" style="background:rgba(255,255,255,.02)">
+          <div class="text-center py-1.5 rounded bg-[rgba(255,255,255,.02)]">
             <div class="text-xs font-bold text-white">${lastCheckInTime}</div>
             <div class="text-[10px] text-slate-500">${t('lastSignal') || 'Dernier signal'}</div>
           </div>
@@ -901,7 +901,7 @@ export function renderAlertScreen(guardianState, batteryPct) {
       </div>
 
       <!-- Alert info box -->
-      <div class="py-2.5 px-3 rounded-xl mb-2" style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15)">
+      <div class="py-2.5 px-3 rounded-xl mb-2 bg-[rgba(239,68,68,.06)] border border-[rgba(239,68,68,.15)]">
         <div class="text-[11px] font-bold text-red-400 mb-1">${icon('triangle-alert', 'w-3 h-3 inline')} ${t('missedCheckIn') || 'Check-in manque'}</div>
         <div class="text-[10px] text-slate-400 leading-relaxed">
           ${t('missedCheckInDetail') || `Pas de reponse depuis ${overdueMin} minutes.`}
@@ -911,17 +911,17 @@ export function renderAlertScreen(guardianState, batteryPct) {
 
       <!-- Call + SMS buttons -->
       <div class="flex gap-1.5 mb-2">
-        <button onclick="guardianCallTraveler()" class="flex-[2] py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1" style="background:rgba(239,68,68,.1);color:#f87171;border:none">
+        <button onclick="guardianCallTraveler()" class="flex-[2] py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 bg-[rgba(239,68,68,.1)] text-[#f87171] border-0">
           ${icon('phone', 'w-3 h-3')} ${t('callNow') || 'Appeler maintenant'}
         </button>
-        <button onclick="guardianMessageTraveler()" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1" style="background:rgba(34,197,94,.08);color:#22c55e;border:none">
+        <button onclick="guardianMessageTraveler()" class="flex-1 py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 bg-[rgba(34,197,94,.08)] text-[#22c55e] border-0">
           ${icon('message-circle', 'w-3 h-3')} SMS
         </button>
       </div>
 
       <!-- Emergency button -->
-      <button onclick="guardianCallEmergency()" class="w-full py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 mt-1"
-        style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b">
+      <button onclick="guardianCallEmergency()" class="w-full py-2.5 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 mt-1 bg-[rgba(245,158,11,.08)] border border-[rgba(245,158,11,.2)] text-[#f59e0b]"
+       >
         ${icon('phone-call', 'w-3 h-3')} ${t('emergency112') || 'Urgences (112)'}
       </button>
     </div>
@@ -939,15 +939,15 @@ export function renderOverdueScreen(_guardianState) {
 
   return `
     <!-- Header -->
-    <div class="px-4 py-3 flex items-center gap-2.5 shrink-0" style="border-bottom:1px solid rgba(239,68,68,.2);background:rgba(15,21,32,.95)">
-      <button onclick="guardianGoToScreen('active')" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:rgba(255,255,255,.06)" aria-label="${t('back') || 'Retour'}">
+    <div class="px-4 py-3 flex items-center gap-2.5 shrink-0 border-b border-b-[rgba(239,68,68,.2)] bg-[rgba(15,21,32,.95)]">
+      <button onclick="guardianGoToScreen('active')" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-[rgba(255,255,255,.06)]" aria-label="${t('back') || 'Retour'}">
         ${icon('chevron-left', 'w-3.5 h-3.5 text-slate-400')}
       </button>
       <div class="flex-1 min-w-0">
-        <h2 id="guardian-modal-title" class="text-sm font-extrabold" style="color:#ef4444">${t('checkInLate') || 'Check-in en retard'}</h2>
+        <h2 id="guardian-modal-title" class="text-sm font-extrabold text-[#ef4444]">${t('checkInLate') || 'Check-in en retard'}</h2>
       </div>
-      <div class="shrink-0 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold" style="background:rgba(239,68,68,.12);color:#ef4444">
-        <span class="w-[7px] h-[7px] rounded-full" style="background:#ef4444;animation:pulse 2s infinite"></span>
+      <div class="shrink-0 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold bg-[rgba(239,68,68,.12)] text-[#ef4444]">
+        <span class="w-[7px] h-[7px] rounded-full bg-[#ef4444] [animation:pulse_2s_infinite]"></span>
         ${timerText}
       </div>
     </div>
@@ -955,10 +955,10 @@ export function renderOverdueScreen(_guardianState) {
     <!-- Content -->
     <div class="flex-1 flex flex-col items-center justify-center px-6 py-8">
       <!-- Pulsing red ring -->
-      <div class="w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center mb-5"
-        style="border:5px solid rgba(239,68,68,.4);animation:pulseBorderRing 1.5s infinite">
-        <div class="text-4xl font-extrabold" style="color:#ef4444">${timerText}</div>
-        <div class="text-[10px] mt-1" style="color:#ef4444;opacity:.7">${t('late') || 'en retard'}</div>
+      <div class="w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center mb-5 border-[5px] border-[rgba(239,68,68,.4)] [animation:pulseBorderRing_1.5s_infinite]"
+       >
+        <div class="text-4xl font-extrabold text-[#ef4444]">${timerText}</div>
+        <div class="text-[10px] mt-1 text-[#ef4444] opacity-[.7]">${t('late') || 'en retard'}</div>
       </div>
 
       <!-- Warning text -->
@@ -967,15 +967,15 @@ export function renderOverdueScreen(_guardianState) {
       </div>
 
       <!-- Big check-in button -->
-      <button onclick="guardianCheckIn()" class="w-4/5 max-w-[280px] py-4 rounded-2xl text-white text-base font-extrabold flex items-center justify-center gap-2 mb-4"
-        style="background:#22c55e;box-shadow:0 4px 24px rgba(34,197,94,.3)">
+      <button onclick="guardianCheckIn()" class="w-4/5 max-w-[280px] py-4 rounded-2xl text-white text-base font-extrabold flex items-center justify-center gap-2 mb-4 bg-[#22c55e] shadow-[0_4px_24px_rgba(34,197,94,.3)]"
+       >
         ${icon('check', 'w-5 h-5')}
         ${t('imSafe') || 'Je vais bien'}
       </button>
 
       <!-- Emergency button -->
-      <button onclick="guardianCallEmergency()" class="w-4/5 max-w-[280px] py-3 rounded-xl flex items-center justify-center gap-1.5 text-[13px] font-bold"
-        style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#ef4444">
+      <button onclick="guardianCallEmergency()" class="w-4/5 max-w-[280px] py-3 rounded-xl flex items-center justify-center gap-1.5 text-[13px] font-bold bg-[rgba(239,68,68,.08)] border border-[rgba(239,68,68,.2)] text-[#ef4444]"
+       >
         ${icon('phone-call', 'w-3.5 h-3.5')}
         ${t('callEmergency112') || 'Appeler les urgences (112)'}
       </button>
@@ -1020,16 +1020,16 @@ export function renderArrivalScreen(guardianState) {
 
   return `
     <!-- Header -->
-    <div class="px-5 py-3 flex items-center justify-center shrink-0" style="border-bottom:1px solid rgba(34,197,94,.15)">
-      <h2 id="guardian-modal-title" class="text-[14px] font-extrabold" style="color:#22c55e">${t('tripFinished') || 'Voyage termine'}</h2>
+    <div class="px-5 py-3 flex items-center justify-center shrink-0 border-b border-b-[rgba(34,197,94,.15)]">
+      <h2 id="guardian-modal-title" class="text-[14px] font-extrabold text-[#22c55e]">${t('tripFinished') || 'Voyage termine'}</h2>
     </div>
 
     <!-- Content -->
     <div class="flex-1 flex flex-col items-center justify-center px-6 py-6 text-center">
       <!-- Animated checkmark -->
-      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-        style="background:rgba(34,197,94,.1);border:3px solid rgba(34,197,94,.3);animation:scaleCheckIn .4s ease">
-        <span style="color:#22c55e">${icon('check', 'w-9 h-9')}</span>
+      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-5 bg-[rgba(34,197,94,.1)] border-[3px] border-[rgba(34,197,94,.3)] [animation:scaleCheckIn_.4s_ease]"
+       >
+        <span class="text-[#22c55e]">${icon('check', 'w-9 h-9')}</span>
       </div>
 
       <div class="text-[22px] font-extrabold text-white mb-1.5">${t('arrivedSafely') || 'Bien arrive !'}</div>
@@ -1037,41 +1037,41 @@ export function renderArrivalScreen(guardianState) {
 
       <!-- Summary grid -->
       <div class="grid grid-cols-2 gap-2 w-full mb-5">
-        <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
-          <div class="text-lg font-extrabold" style="color:#22c55e">${durationText}</div>
+        <div class="rounded-xl py-3 text-center bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]">
+          <div class="text-lg font-extrabold text-[#22c55e]">${durationText}</div>
           <div class="text-[10px] text-slate-600 uppercase mt-0.5">${t('duration') || 'duree'}</div>
         </div>
-        <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
-          <div class="text-lg font-extrabold" style="color:#3b82f6">${distText}</div>
+        <div class="rounded-xl py-3 text-center bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]">
+          <div class="text-lg font-extrabold text-[#3b82f6]">${distText}</div>
           <div class="text-[10px] text-slate-600 uppercase mt-0.5">${t('distance') || 'distance'}</div>
         </div>
-        <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
-          <div class="text-lg font-extrabold" style="color:#f59e0b">${checkInCount}</div>
+        <div class="rounded-xl py-3 text-center bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]">
+          <div class="text-lg font-extrabold text-[#f59e0b]">${checkInCount}</div>
           <div class="text-[10px] text-slate-600 uppercase mt-0.5">check-ins</div>
         </div>
-        <div class="rounded-xl py-3 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
-          <div class="text-lg font-extrabold" style="color:#06b6d4">${vehicleCount}</div>
+        <div class="rounded-xl py-3 text-center bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]">
+          <div class="text-lg font-extrabold text-[#06b6d4]">${vehicleCount}</div>
           <div class="text-[10px] text-slate-600 uppercase mt-0.5">${t('vehicles') || 'vehicules'}</div>
         </div>
       </div>
 
       <!-- Sent confirmation -->
       ${guardianNames ? `
-        <div class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] mb-4 text-[11px] font-semibold"
-          style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);color:#22c55e">
+        <div class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] mb-4 text-[11px] font-semibold bg-[rgba(34,197,94,.06)] border border-[rgba(34,197,94,.12)] text-[#22c55e]"
+         >
           ${icon('check', 'w-3 h-3')} ${t('confirmationSentTo') || 'Confirmation envoyee a'} ${guardianNames}
         </div>
       ` : ''}
 
       <!-- Add to journal -->
-      <button onclick="guardianAddToJournal()" class="w-full py-3.5 rounded-xl flex items-center justify-center gap-2 text-[13px] font-bold mb-2.5"
-        style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:#3b82f6">
+      <button onclick="guardianAddToJournal()" class="w-full py-3.5 rounded-xl flex items-center justify-center gap-2 text-[13px] font-bold mb-2.5 bg-[rgba(59,130,246,.1)] border border-[rgba(59,130,246,.2)] text-[#3b82f6]"
+       >
         ${icon('book', 'w-3.5 h-3.5')} ${t('addToJournal') || 'Ajouter au journal'}
       </button>
 
       <!-- Close -->
-      <button onclick="closeGuardianModal()" class="w-full py-3.5 rounded-xl flex items-center justify-center text-[13px] font-semibold text-slate-500"
-        style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)">
+      <button onclick="closeGuardianModal()" class="w-full py-3.5 rounded-xl flex items-center justify-center text-[13px] font-semibold text-slate-500 bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.06)]"
+       >
         ${t('close') || 'Fermer'}
       </button>
     </div>
@@ -1096,25 +1096,25 @@ export function renderBottomSheet(guardianState, guardianSheet) {
     sheetContent = `
       <div class="w-9 h-1 rounded bg-white/10 mx-auto mb-4"></div>
       <div class="flex items-center gap-2 text-[15px] font-extrabold text-white mb-1">
-        <span style="color:#06b6d4">${icon('car', 'w-[18px] h-[18px]')}</span>
+        <span class="text-[#06b6d4]">${icon('car', 'w-[18px] h-[18px]')}</span>
         ${t('licensePlateLabel') || 'Plaque du vehicule'}
       </div>
       <div class="text-[11px] text-slate-500 mb-4">${t('plateSheetDesc') || 'Note la plaque du vehicule dans lequel tu montes.'}</div>
       ${currentPlate ? `
-        <div class="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[11px] text-slate-500 mb-3"
-          style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+        <div class="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[11px] text-slate-500 mb-3 bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]"
+         >
           ${icon('history', 'w-3 h-3')} ${t('previousPlate') || 'Plaque precedente'}
           <span class="ml-auto font-bold text-slate-400 tracking-wider">${escapeHTML(currentPlate)}</span>
         </div>
       ` : ''}
-      <input type="text" id="guardian-sheet-plate" class="w-full px-4 py-3 rounded-xl text-xl font-bold text-center tracking-widest uppercase text-white placeholder-slate-600 mb-2.5 focus:outline-none"
-        style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)"
+      <input type="text" id="guardian-sheet-plate" class="w-full px-4 py-3 rounded-xl text-xl font-bold text-center tracking-widest uppercase text-white placeholder-slate-600 mb-2.5 focus:outline-none bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.1)]"
+       
         placeholder="${t('plateExample') || 'AB-123-CD'}" maxlength="12" />
       <div class="flex gap-2 mt-2">
-        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px]"
-          style="border:1px solid rgba(255,255,255,.08)">${t('cancel') || 'Annuler'}</button>
-        <button onclick="guardianSavePlate()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px]"
-          style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
+        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px] border border-[rgba(255,255,255,.08)]"
+         >${t('cancel') || 'Annuler'}</button>
+        <button onclick="guardianSavePlate()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px] bg-[linear-gradient(135deg,#06b6d4,#0891b2)]"
+         >
           ${icon('check', 'w-3.5 h-3.5 inline')} ${t('save') || 'Enregistrer'}
         </button>
       </div>
@@ -1123,12 +1123,12 @@ export function renderBottomSheet(guardianState, guardianSheet) {
     sheetContent = `
       <div class="w-9 h-1 rounded bg-white/10 mx-auto mb-4"></div>
       <div class="flex items-center gap-2 text-[15px] font-extrabold text-white mb-1">
-        <span style="color:#a855f7">${icon('camera', 'w-[18px] h-[18px]')}</span>
+        <span class="text-[#a855f7]">${icon('camera', 'w-[18px] h-[18px]')}</span>
         ${t('driverPhoto') || 'Photo avec le conducteur'}
       </div>
       <div class="text-[11px] text-slate-500 mb-4">${t('photoSheetDesc') || 'Partagee avec tes gardiens. Supprimee automatiquement apres le voyage.'}</div>
-      <div class="w-full h-[140px] rounded-xl flex flex-col items-center justify-center gap-2 mb-3" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);color:#475569">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(168,85,247,.1);color:#a855f7">
+      <div class="w-full h-[140px] rounded-xl flex flex-col items-center justify-center gap-2 mb-3 bg-[rgba(255,255,255,.02)] border border-[rgba(255,255,255,.06)] text-[#475569]">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[rgba(168,85,247,.1)] text-[#a855f7]">
           ${icon('camera', 'w-6 h-6')}
         </div>
         <span class="text-xs">${t('tapToTakePhoto') || 'Appuyer pour prendre une photo'}</span>
@@ -1137,10 +1137,10 @@ export function renderBottomSheet(guardianState, guardianSheet) {
         ${icon('lock', 'w-3 h-3')} ${t('autoDeleteAfterTrip') || 'Supprimee automatiquement a la fin du voyage'}
       </div>
       <div class="flex gap-2">
-        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px]"
-          style="border:1px solid rgba(255,255,255,.08)">${t('cancel') || 'Annuler'}</button>
-        <button onclick="guardianSaveTripPhoto()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px]"
-          style="background:linear-gradient(135deg,#a855f7,#7c3aed)">
+        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px] border border-[rgba(255,255,255,.08)]"
+         >${t('cancel') || 'Annuler'}</button>
+        <button onclick="guardianSaveTripPhoto()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px] bg-[linear-gradient(135deg,#a855f7,#7c3aed)]"
+         >
           ${icon('camera', 'w-3.5 h-3.5 inline')} ${t('takePhoto') || 'Prendre la photo'}
         </button>
       </div>
@@ -1150,25 +1150,25 @@ export function renderBottomSheet(guardianState, guardianSheet) {
     sheetContent = `
       <div class="w-9 h-1 rounded bg-white/10 mx-auto mb-4"></div>
       <div class="flex items-center gap-2 text-[15px] font-extrabold text-white mb-1">
-        <span style="color:#f59e0b">${icon('map-pin', 'w-[18px] h-[18px]')}</span>
+        <span class="text-[#f59e0b]">${icon('map-pin', 'w-[18px] h-[18px]')}</span>
         ${t('guardianDestination') || 'Destination'}
       </div>
       <div class="text-[11px] text-slate-500 mb-4">${t('destSheetDesc') || 'Change ta destination si ton trajet a evolue.'}</div>
       ${currentDest ? `
-        <div class="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[11px] text-slate-500 mb-3"
-          style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+        <div class="flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[11px] text-slate-500 mb-3 bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.06)]"
+         >
           ${icon('map-pin', 'w-3 h-3')} ${t('current') || 'Actuelle'}
           <span class="ml-auto font-bold text-slate-400">${escapeHTML(currentDest)}</span>
         </div>
       ` : ''}
-      <input type="text" id="guardian-sheet-dest" class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-600 mb-3 focus:outline-none"
-        style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)"
+      <input type="text" id="guardian-sheet-dest" class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-600 mb-3 focus:outline-none bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.1)]"
+       
         placeholder="${t('newDestination') || 'Nouvelle destination...'}" />
       <div class="flex gap-2">
-        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px]"
-          style="border:1px solid rgba(255,255,255,.08)">${t('cancel') || 'Annuler'}</button>
-        <button onclick="guardianSaveDestination()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px]"
-          style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+        <button onclick="guardianCloseSheet()" class="flex-1 py-3 rounded-xl text-slate-400 font-bold text-[13px] border border-[rgba(255,255,255,.08)]"
+         >${t('cancel') || 'Annuler'}</button>
+        <button onclick="guardianSaveDestination()" class="flex-[2] py-3 rounded-xl text-white font-extrabold text-[13px] bg-[linear-gradient(135deg,#f59e0b,#d97706)]"
+         >
           ${icon('check', 'w-3.5 h-3.5 inline')} ${t('save') || 'Enregistrer'}
         </button>
       </div>
@@ -1177,8 +1177,8 @@ export function renderBottomSheet(guardianState, guardianSheet) {
 
   return `
     <div class="absolute inset-0 z-50 flex items-end" onclick="guardianCloseSheet()" role="button" tabindex="0">
-      <div class="absolute inset-0" style="background:rgba(0,0,0,.6)"></div>
-      <div class="relative w-full rounded-t-[20px] px-4 pt-5 pb-7" style="background:#161b28;animation:sheetSlideUp .25s ease" onclick="event.stopPropagation()" role="button" tabindex="0">
+      <div class="absolute inset-0 bg-[rgba(0,0,0,.6)]"></div>
+      <div class="relative w-full rounded-t-[20px] px-4 pt-5 pb-7 bg-[#161b28] [animation:sheetSlideUp_.25s_ease]" onclick="event.stopPropagation()" role="button" tabindex="0">
         ${sheetContent}
       </div>
     </div>
@@ -1238,7 +1238,7 @@ export function renderTripHistory(history) {
   const shown = history.slice(0, 5)
 
   return `
-    <details class="group mt-4 rounded-xl" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06)">
+    <details class="group mt-4 rounded-xl bg-[rgba(255,255,255,.02)] border border-[rgba(255,255,255,.06)]">
       <summary class="flex items-center justify-between p-3 cursor-pointer list-none select-none">
         <span class="text-xs font-semibold text-slate-300 flex items-center gap-2">
           ${icon('history', 'w-3.5 h-3.5 text-slate-400')}
@@ -1258,7 +1258,7 @@ export function renderTripHistory(history) {
           const dur = h > 0 ? `${h}h${String(m).padStart(2, '0')}` : `${m}min`
 
           return `
-            <div class="rounded-lg p-2.5" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04)">
+            <div class="rounded-lg p-2.5 bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.04)]">
               <div class="flex items-center justify-between mb-0.5">
                 <span class="text-xs font-medium text-white">
                   ${start.toLocaleDateString(lang, { day: '2-digit', month: 'short' })}
