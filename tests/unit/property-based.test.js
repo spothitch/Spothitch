@@ -25,6 +25,12 @@ import {
   detectShortMapUrl,
   detectOpaqueMapUrl,
 } from '../../src/utils/mapsUrlParser.js'
+import {
+  getSpotFreshness,
+  getSpotAge,
+  isGasStation,
+  getMarkerIcon,
+} from '../../src/services/spotFreshness.js'
 
 // ── Arbitraries ────────────────────────────────────────────────────────────
 const anyString = fc.string({ minLength: 0, maxLength: 200 })
@@ -295,6 +301,55 @@ describe('detectShortMapUrl / detectOpaqueMapUrl — property-based', () => {
       const b = detectOpaqueMapUrl(url)
       expect(a === null || typeof a === 'string').toBe(true)
       expect(b === null || typeof b === 'string').toBe(true)
+    }), { numRuns: 1500 })
+  })
+})
+
+// ══════════════════════════════════════════════════════════════════════════
+// spotFreshness — property-based (ingests untrusted community spot objects)
+// A malformed spot from Firestore must never crash the map render.
+// ══════════════════════════════════════════════════════════════════════════
+const arbitrarySpot = fc.record({
+  validationCount: fc.option(fc.integer(), { nil: undefined }),
+  userValidations: fc.option(fc.integer(), { nil: undefined }),
+  liveTestCount: fc.option(fc.integer(), { nil: undefined }),
+  ambassadorVerified: fc.option(fc.boolean(), { nil: undefined }),
+  spotType: fc.option(fc.string(), { nil: undefined }),
+  createdAt: fc.option(fc.oneof(fc.string(), fc.integer(), fc.constant('not-a-date')), { nil: undefined }),
+  experienceDate: fc.option(fc.record({
+    year: fc.option(fc.integer({ min: -1, max: 99999 }), { nil: undefined }),
+    month: fc.option(fc.integer({ min: -5, max: 50 }), { nil: undefined }),
+    day: fc.option(fc.integer({ min: -5, max: 50 }), { nil: undefined }),
+  }), { nil: undefined }),
+}, { requiredKeys: [] })
+
+describe('spotFreshness — property-based (untrusted community spot data)', () => {
+  const TIERS = ['grey', 'gold', 'green', 'blue']
+
+  it('getSpotFreshness never throws and always returns a valid tier + shape', () => {
+    fc.assert(fc.property(fc.option(arbitrarySpot, { nil: null }), (spot) => {
+      const r = getSpotFreshness(spot)
+      expect(TIERS).toContain(r.tier)
+      expect(typeof r.labelKey).toBe('string')
+      expect(typeof r.isCertified).toBe('boolean')
+      expect(typeof r.isStation).toBe('boolean')
+    }), { numRuns: 2000 })
+  })
+
+  it('getSpotAge never throws on malformed dates and returns a labelKey', () => {
+    fc.assert(fc.property(fc.option(arbitrarySpot, { nil: null }), (spot) => {
+      const r = getSpotAge(spot)
+      expect(typeof r.labelKey).toBe('string')
+      expect(typeof r.icon).toBe('string')
+    }), { numRuns: 2000 })
+  })
+
+  it('isGasStation / getMarkerIcon never throw and return valid types', () => {
+    fc.assert(fc.property(fc.option(arbitrarySpot, { nil: null }), (spot) => {
+      expect(typeof isGasStation(spot)).toBe('boolean')
+      const icon = getMarkerIcon(spot)
+      expect(typeof icon).toBe('string')
+      expect(icon.startsWith('marker-')).toBe(true)
     }), { numRuns: 1500 })
   })
 })
