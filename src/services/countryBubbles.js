@@ -248,16 +248,16 @@ export function createBubblePopup(maplibregl, feature, lngLat) {
   const html = `
     <div class="p-3 min-w-[200px]">
       <div class="flex items-center gap-3 mb-3">
-        <div class="relative flex-shrink-0" id="bubble-ring-wrap-${code}" style="width:56px;height:56px">
-          <svg viewBox="0 0 56 56" style="position:absolute;top:0;left:0;width:56px;height:56px;transform:rotate(-90deg)">
+        <div class="relative flex-shrink-0 w-[56px] h-[56px]" id="bubble-ring-wrap-${code}">
+          <svg class="absolute top-[0] left-[0] w-[56px] h-[56px] [transform:rotate(-90deg)]" viewBox="0 0 56 56">
             <circle cx="28" cy="28" r="25" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="5"/>
-            <circle id="bubble-ring-${code}" cx="28" cy="28" r="25" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round"
-              stroke-dasharray="157" stroke-dashoffset="157" style="transition:stroke-dashoffset 0.3s ease;filter:drop-shadow(0 0 4px rgba(34,197,94,0.5))"/>
+            <circle class="[transition:stroke-dashoffset_0.3s_ease] [filter:drop-shadow(0_0_4px_rgba(34,197,94,0.5))]" id="bubble-ring-${code}" cx="28" cy="28" r="25" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round"
+              stroke-dasharray="157" stroke-dashoffset="157"/>
           </svg>
-          <div id="bubble-flag-${code}" style="position:absolute;top:0;left:0;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:1.5rem">
+          <div class="absolute top-[0] left-[0] w-[56px] h-[56px] flex items-center justify-center text-[1.5rem]" id="bubble-flag-${code}">
             ${getFlagEmoji(code)}
           </div>
-          <div id="bubble-ring-pct-${code}" style="display:none;position:absolute;top:0;left:0;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:#fff;text-shadow:0 0 6px rgba(34,197,94,0.9),0 1px 3px rgba(0,0,0,0.8);letter-spacing:-0.02em"></div>
+          <div class="hidden absolute top-[0] left-[0] w-[56px] h-[56px] flex items-center justify-center text-[0.8rem] font-extrabold text-[#fff] [text-shadow:0_0_6px_rgba(34,197,94,0.9),0_1px_3px_rgba(0,0,0,0.8)] tracking-[-0.02em]" id="bubble-ring-pct-${code}"></div>
         </div>
         <div>
           <div class="text-sm font-bold leading-tight">${name}</div>

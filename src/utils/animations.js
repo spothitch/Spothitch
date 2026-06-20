@@ -38,16 +38,9 @@ export function showSuccessAnimation(message, options = {}) {
  const container = document.createElement('div');
  container.className = 'success-animation';
  container.innerHTML = `
- <div style="
- background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
- padding: 24px 48px;
- border-radius: 20px;
- text-align: center;
- box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4);
- animation: successPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
- ">
- <div style="font-size: 3rem; margin-bottom: 12px; animation: successBounce 0.6s ease-out;">${emoji}</div>
- <div style="color: white; font-size: 1.25rem; font-weight: 600;">${message}</div></div>
+ <div class="bg-[linear-gradient(135deg,_rgba(16,_185,_129,_0.95),_rgba(5,_150,_105,_0.95))] py-[24px] px-[48px] rounded-[20px] text-center shadow-[0_20px_60px_rgba(16,_185,_129,_0.4)] [animation:successPop_0.5s_cubic-bezier(0.175,_0.885,_0.32,_1.275)]">
+ <div class="text-[3rem] mb-[12px] [animation:successBounce_0.6s_ease-out]">${emoji}</div>
+ <div class="text-[white] text-[1.25rem] font-semibold">${message}</div></div>
  `;
 
  overlay.appendChild(container);
@@ -85,16 +78,9 @@ export function showErrorAnimation(message) {
 
  const container = document.createElement('div');
  container.innerHTML = `
- <div style="
- background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
- padding: 24px 48px;
- border-radius: 20px;
- text-align: center;
- box-shadow: 0 20px 60px rgba(239, 68, 68, 0.4);
- animation: errorShake 0.5s ease-out;
- ">
- <div style="margin-bottom: 12px;">${icon("x", "w-12 h-12 text-red-400")}</div>
- <div style="color: white; font-size: 1.25rem; font-weight: 600;">${message}</div></div>
+ <div class="bg-[linear-gradient(135deg,_rgba(239,_68,_68,_0.95),_rgba(220,_38,_38,_0.95))] py-[24px] px-[48px] rounded-[20px] text-center shadow-[0_20px_60px_rgba(239,_68,_68,_0.4)] [animation:errorShake_0.5s_ease-out]">
+ <div class="mb-[12px]">${icon("x", "w-12 h-12 text-red-400")}</div>
+ <div class="text-[white] text-[1.25rem] font-semibold">${message}</div></div>
  `;
 
  overlay.appendChild(container);
@@ -126,16 +112,8 @@ export function showBadgeUnlockAnimation(badge) {
  `;
 
  overlay.innerHTML = `
- <div style="
- background: linear-gradient(135deg, #1a2332, #0f1520);
- padding: 40px 60px;
- border-radius: 24px;
- text-align: center;
- border: 2px solid rgba(245, 158, 11, 0.5);
- box-shadow: 0 0 100px rgba(245, 158, 11, 0.3);
- animation: badgeReveal 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
- ">
- <div style="font-size: 1rem; color: #f59e0b; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px;">
+ <div class="bg-[linear-gradient(135deg,_#1a2332,_#0f1520)] py-[40px] px-[60px] rounded-[24px] text-center border-[2px] border-[rgba(245,_158,_11,_0.5)] shadow-[0_0_100px_rgba(245,_158,_11,_0.3)] [animation:badgeReveal_0.8s_cubic-bezier(0.175,_0.885,_0.32,_1.275)]">
+ <div class="text-[1rem] text-[#f59e0b] uppercase tracking-[3px] mb-[20px]">
  Nouveau Badge !
  </div>
  <div style="
@@ -151,24 +129,15 @@ export function showBadgeUnlockAnimation(badge) {
  animation: badgeSpin 1s ease-out;
  box-shadow: 0 0 50px rgba(245, 158, 11, 0.5);
  ">
- ${badge.image ? `<img src="${badge.image}" alt="${badge.name}" style="width: 80px; height: 80px; object-fit: contain;">` : badge.icon}
+ ${badge.image ? `<img class="w-[80px] h-[80px] [object-fit:contain]" src="${badge.image}" alt="${badge.name}">` : badge.icon}
  </div>
- <div style="font-size: 1.5rem; font-weight: bold; color: white; margin-bottom: 8px;">
+ <div class="text-[1.5rem] font-bold text-[white] mb-[8px]">
  ${badge.name}
  </div>
- <div style="color: #94a3b8; margin-bottom: 16px;">
+ <div class="text-[#94a3b8] mb-[16px]">
  ${badge.description || ''}
  </div>
- <div style="
- display: inline-flex;
- align-items: center;
- gap: 8px;
- padding: 8px 20px;
- background: rgba(245, 158, 11, 0.2);
- border-radius: 20px;
- color: #f59e0b;
- font-weight: bold;
- ">
+ <div class="inline-flex items-center gap-[8px] py-[8px] px-[20px] bg-[rgba(245,_158,_11,_0.2)] rounded-[20px] text-[#f59e0b] font-bold">
  +${badge.points} pts
  </div></div>
  `;
@@ -217,17 +186,10 @@ export function showLevelUpAnimation(newLevel) {
  `;
 
  overlay.innerHTML = `
- <div style="
- background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95));
- padding: 30px 60px;
- border-radius: 20px;
- text-align: center;
- box-shadow: 0 20px 60px rgba(59, 130, 246, 0.4);
- animation: levelUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
- ">
- <div style="margin-bottom: 8px;">${icon("party-popper", "w-12 h-12 text-amber-400")}</div>
- <div style="color: white; font-size: 1rem; opacity: 0.8;">${t('levelLabel') || 'NIVEAU'}</div>
- <div style="color: white; font-size: 3rem; font-weight: 800;">${newLevel}</div></div>
+ <div class="bg-[linear-gradient(135deg,_rgba(59,_130,_246,_0.95),_rgba(37,_99,_235,_0.95))] py-[30px] px-[60px] rounded-[20px] text-center shadow-[0_20px_60px_rgba(59,_130,_246,_0.4)] [animation:levelUp_0.8s_cubic-bezier(0.175,_0.885,_0.32,_1.275)]">
+ <div class="mb-[8px]">${icon("party-popper", "w-12 h-12 text-amber-400")}</div>
+ <div class="text-[white] text-[1rem] opacity-[0.8]">${t('levelLabel') || 'NIVEAU'}</div>
+ <div class="text-[white] text-[3rem] font-extrabold">${newLevel}</div></div>
  `;
 
  document.body.appendChild(overlay);

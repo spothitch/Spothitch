@@ -410,49 +410,49 @@ export function renderCustomizationModal(state) {
       aria-modal="true"
       aria-labelledby="profile-customization-title"
     >
-      <div class="w-full sm:max-w-lg max-h-[90vh] rounded-t-3xl sm:rounded-2xl overflow-hidden" style="background:#1a2332">
+      <div class="w-full sm:max-w-lg max-h-[90vh] rounded-t-3xl sm:rounded-2xl overflow-hidden bg-[#1a2332]">
         <!-- Header -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06)">
-          <h2 id="profile-customization-title" style="font-size:16px;font-weight:600;color:#e2e8f0">${t('editProfile') || 'Modifier le profil'}</h2>
-          <button
+        <div class="flex items-center justify-between py-[16px] px-[20px] border-b border-b-[rgba(255,255,255,0.06)]">
+          <h2 class="text-[16px] font-semibold text-[#e2e8f0]" id="profile-customization-title">${t('editProfile') || 'Modifier le profil'}</h2>
+          <button class="w-[32px] h-[32px] bg-[rgba(255,255,255,0.05)] flex items-center justify-center border-0 cursor-pointer text-[#64748b] rounded-full"
             onclick="closeProfileCustomization()"
-            style="width:32px;height:32px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:#64748b;border-radius:50%"
+           
             aria-label="${t('close') || 'Fermer'}"
           >
             ${icon('x', 'w-5 h-5')}
           </button>
         </div>
 
-        <div style="overflow-y:auto;max-height:calc(90vh - 60px);padding:20px">
+        <div class="overflow-y-auto max-h-[calc(90vh_-_60px)] p-[20px]">
 
           <!-- Photo de profil -->
-          <div style="text-align:center;margin-bottom:24px">
+          <div class="text-center mb-[24px]">
             <div style="width:80px;height:80px;border-radius:50%;margin:0 auto 12px;background:linear-gradient(135deg,#f59e0b,#d97706);padding:3px">
-              <div id="edit-avatar-preview" style="width:100%;height:100%;border-radius:50%;background:#0f1520;display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden">
-                ${photoURL ? `<img src="${photoURL}" style="width:100%;height:100%;object-fit:cover" alt="">` : (state.avatar || 'thumbs-up')}
+              <div class="w-[100%] h-[100%] rounded-full bg-[#0f1520] flex items-center justify-center text-[36px] overflow-hidden" id="edit-avatar-preview">
+                ${photoURL ? `<img class="w-[100%] h-[100%] [object-fit:cover]" src="${photoURL}" alt="">` : (state.avatar || 'thumbs-up')}
               </div>
             </div>
             ${availablePhotos.length > 0 ? `
-              <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
+              <div class="flex gap-[8px] justify-center [flex-wrap:wrap] mb-[8px]">
                 ${availablePhotos.map((url, i) => `
                   <button type="button" onclick="selectProfilePhoto(${i})"
                     style="width:44px;height:44px;border-radius:50%;border:2px solid ${url === photoURL ? '#f59e0b' : 'rgba(255,255,255,0.1)'};overflow:hidden;cursor:pointer;padding:0;background:none">
-                    <img src="${url}" style="width:100%;height:100%;object-fit:cover" alt="">
+                    <img class="w-[100%] h-[100%] [object-fit:cover]" src="${url}" alt="">
                   </button>
                 `).join('')}
               </div>
             ` : ''}
-            <button type="button" onclick="uploadProfilePhoto()"
-              style="font-size:12px;color:#f59e0b;background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+            <button class="text-[12px] text-[#f59e0b] bg-[none] border-0 cursor-pointer inline-flex items-center gap-[4px]" type="button" onclick="uploadProfilePhoto()"
+             >
               ${svgCamera} ${t('changePhoto') || 'Changer la photo'}
             </button>
           </div>
 
           <!-- Pseudo -->
-          <div style="margin-bottom:20px">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <div class="mb-[20px]">
+            <div class="flex items-center gap-[6px] mb-[8px]">
               ${svgUser}
-              <span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">${t('username') || 'Pseudo'}</span>
+              <span class="text-[12px] text-[#64748b] uppercase tracking-[0.5px]">${t('username') || 'Pseudo'}</span>
             </div>
             ${(() => {
               const lastChange = localStorage.getItem('spothitch_last_username_change')
@@ -460,8 +460,8 @@ export function renderCustomizationModal(state) {
               const locked = daysSince < 60
               const daysLeft = locked ? Math.ceil(60 - daysSince) : 0
               return `
-                <div style="display:flex;gap:8px;align-items:center">
-                  <span style="color:#475569;font-size:16px">@</span>
+                <div class="flex gap-[8px] items-center">
+                  <span class="text-[#475569] text-[16px]">@</span>
                   <input type="text" id="edit-username" value="${escapeHTML(username)}"
                     style="flex:1;background:transparent;border:none;border-bottom:1px solid ${locked ? '#475569' : '#334155'};padding:8px 0;color:${locked ? '#64748b' : '#e2e8f0'};font-size:15px;outline:none"
                     placeholder="${t('usernamePlaceholder') || 'ton_pseudo'}"
@@ -478,47 +478,47 @@ export function renderCustomizationModal(state) {
           </div>
 
           <!-- Bio -->
-          <div style="margin-bottom:20px">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <div class="mb-[20px]">
+            <div class="flex items-center gap-[6px] mb-[8px]">
               ${svgPen}
-              <span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">${t('bio') || 'Bio'}</span>
+              <span class="text-[12px] text-[#64748b] uppercase tracking-[0.5px]">${t('bio') || 'Bio'}</span>
             </div>
-            <textarea id="edit-bio"
-              style="width:100%;background:transparent;border:none;border-bottom:1px solid #334155;padding:8px 0;color:#e2e8f0;font-size:14px;outline:none;resize:none;min-height:60px;font-family:inherit"
+            <textarea class="w-[100%] bg-[transparent] border-0 border-b border-b-[#334155] py-[8px] px-[0] text-[#e2e8f0] text-[14px] [outline:none] [resize:none] min-h-[60px] [font-family:inherit]" id="edit-bio"
+             
               placeholder="${t('bioPlaceholder') || 'Quelques mots sur toi...'}"
               maxlength="200"
             >${escapeHTML(bio)}</textarea>
-            <div style="text-align:right;font-size:10px;color:#475569;margin-top:2px">
+            <div class="text-right text-[10px] text-[#475569] mt-[2px]">
               <span id="edit-bio-count">${bio.length}</span>/200
             </div>
           </div>
 
           <!-- Langues -->
-          <div style="margin-bottom:20px">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <div class="mb-[20px]">
+            <div class="flex items-center gap-[6px] mb-[8px]">
               ${svgGlobe}
-              <span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">${t('languages') || 'Langues'}</span>
+              <span class="text-[12px] text-[#64748b] uppercase tracking-[0.5px]">${t('languages') || 'Langues'}</span>
             </div>
             ${langs.length > 0 ? `
-              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+              <div class="flex [flex-wrap:wrap] gap-[6px] mb-[8px]">
                 ${langs.map((l, i) => `
-                  <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;font-size:12px;background:rgba(255,255,255,0.05);border-radius:20px;color:#94a3b8">
+                  <span class="inline-flex items-center gap-[4px] py-[4px] px-[10px] text-[12px] bg-[rgba(255,255,255,0.05)] rounded-[20px] text-[#94a3b8]">
                     ${l.flag || ''} ${escapeHTML(l.name || '')}
-                    <button type="button" onclick="removeEditLanguage(${i})"
-                      style="background:none;border:none;color:#64748b;cursor:pointer;padding:0;font-size:14px;line-height:1">×</button>
+                    <button class="bg-[none] border-0 text-[#64748b] cursor-pointer p-[0] text-[14px] leading-[1]" type="button" onclick="removeEditLanguage(${i})"
+                     >×</button>
                   </span>
                 `).join('')}
               </div>
             ` : ''}
-            <button type="button" onclick="editLanguages()"
-              style="font-size:12px;color:#a855f7;background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+            <button class="text-[12px] text-[#a855f7] bg-[none] border-0 cursor-pointer inline-flex items-center gap-[4px]" type="button" onclick="editLanguages()"
+             >
               ${icon('plus', 'w-3.5 h-3.5')} ${t('addLanguage') || 'Ajouter une langue'}
             </button>
           </div>
 
           <!-- Save button -->
-          <button type="button" onclick="saveProfileEdits()"
-            style="width:100%;padding:14px;background:#f59e0b;border:none;color:#0f1520;font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;margin-top:8px">
+          <button class="w-[100%] p-[14px] bg-[#f59e0b] border-0 text-[#0f1520] text-[14px] font-semibold cursor-pointer rounded-[10px] mt-[8px]" type="button" onclick="saveProfileEdits()"
+           >
             ${t('save') || 'Enregistrer'}
           </button>
         </div>
@@ -662,7 +662,7 @@ window.selectProfilePhoto = async (index) => {
     setState({ userProfile: { ...getState().userProfile, photoURL: selected } })
     // Update preview
     const preview = document.getElementById('edit-avatar-preview')
-    if (preview) preview.innerHTML = `<img src="${escapeHTML(selected)}" style="width:100%;height:100%;object-fit:cover" alt="">`
+    if (preview) preview.innerHTML = `<img class="w-[100%] h-[100%] [object-fit:cover]" src="${escapeHTML(selected)}" alt="">`
     showToast(t('photoUpdated') || 'Photo mise à jour', 'success')
   } catch { /* offline */ }
 }
@@ -695,7 +695,7 @@ window.uploadProfilePhoto = () => {
         await updateUserProfile(user.uid, { photoURL: result.url })
         setState({ userProfile: { ...getState().userProfile, photoURL: result.url } })
         const preview = document.getElementById('edit-avatar-preview')
-        if (preview) preview.innerHTML = `<img src="${escapeHTML(result.url)}" style="width:100%;height:100%;object-fit:cover" alt="">`
+        if (preview) preview.innerHTML = `<img class="w-[100%] h-[100%] [object-fit:cover]" src="${escapeHTML(result.url)}" alt="">`
         showToast(t('photoUpdated') || 'Photo mise à jour', 'success')
       }
     } catch {

@@ -444,11 +444,11 @@ function renderBuddyDetail(state) {
         <!-- Route card -->
         <div class="bg-[#161b28] border border-white/10 rounded-xl overflow-hidden mb-4">
           <!-- Route map visualization -->
-          <div class="h-[100px] relative flex items-center justify-center" style="background:linear-gradient(135deg,#1a2744 0%,#0f1520 100%)">
-            <div class="w-4/5 h-[3px] rounded-sm relative" style="background:linear-gradient(90deg,#f59e0b 0%,#f59e0b 40%,rgba(245,158,11,0.3) 60%,#f59e0b 100%)">
-              <div class="w-3.5 h-3.5 rounded-full bg-amber-500 absolute border-2 border-[#0f1520]" style="top:-5.5px;left:-7px"></div>
-              <div class="w-2 h-2 rounded-full bg-amber-500/50 absolute left-1/2 -translate-x-1/2" style="top:-2.5px"></div>
-              <div class="w-3.5 h-3.5 rounded-full bg-amber-500 absolute border-2 border-[#0f1520]" style="top:-5.5px;right:-7px"></div>
+          <div class="h-[100px] relative flex items-center justify-center bg-[linear-gradient(135deg,#1a2744_0%,#0f1520_100%)]">
+            <div class="w-4/5 h-[3px] rounded-sm relative bg-[linear-gradient(90deg,#f59e0b_0%,#f59e0b_40%,rgba(245,158,11,0.3)_60%,#f59e0b_100%)]">
+              <div class="w-3.5 h-3.5 rounded-full bg-amber-500 absolute border-2 border-[#0f1520] top-[-5.5px] left-[-7px]"></div>
+              <div class="w-2 h-2 rounded-full bg-amber-500/50 absolute left-1/2 -translate-x-1/2 top-[-2.5px]"></div>
+              <div class="w-3.5 h-3.5 rounded-full bg-amber-500 absolute border-2 border-[#0f1520] top-[-5.5px] right-[-7px]"></div>
             </div>
             <div class="absolute bottom-2 left-4 text-slate-400 text-[0.7rem]">${escapeHTML(buddy.departure || '')}</div>
             <div class="absolute bottom-2 right-4 text-slate-400 text-[0.7rem]">${escapeHTML(buddy.destination || '')}</div>
@@ -540,7 +540,7 @@ function renderBuddyDetail(state) {
       </div>
 
       <!-- Fixed bottom CTA -->
-      <div class="fixed bottom-0 left-0 right-0 z-20 px-4 pt-4 pb-9" style="background:linear-gradient(to top,#0f1520 80%,transparent)">
+      <div class="fixed bottom-0 left-0 right-0 z-20 px-4 pt-4 pb-9 bg-[linear-gradient(to_top,#0f1520_80%,transparent)]">
         ${isOwn ? `
           <button onclick="closeBuddyAnnouncement('${escapeJSString(buddy.id)}')" class="w-full bg-[rgba(34,197,94,0.15)] text-emerald-500 border border-[rgba(34,197,94,0.2)] rounded-xl p-4 text-base font-bold cursor-pointer mb-2 min-h-[48px] flex items-center justify-center gap-2">
             ${icon('check-circle', 'w-4.5 h-4.5')}

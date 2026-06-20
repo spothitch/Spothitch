@@ -168,40 +168,14 @@ function showShareModal(data) {
  `;
 
  modal.innerHTML = `
- <div style="
- background: #1a2332;
- width: 100%;
- max-width: 500px;
- border-radius: 24px 24px 0 0;
- padding: 24px;
- animation: slideUp 0.3s ease-out;
- ">
- <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
- <h3 style="color: white; font-size: 1.25rem; font-weight: 600;">${t('share') || 'Partager'}</h3>
- <button onclick="this.closest('.share-modal').remove()" style="
- background: rgba(255,255,255,0.1);
- border: none;
- color: white;
- width: 32px;
- height: 32px;
- border-radius: 50%;
- cursor: pointer;
- font-size: 1.2rem;
- ">✕</button></div>
+ <div class="bg-[#1a2332] w-[100%] max-w-[500px] rounded-[24px 24px 0 0] p-[24px] [animation:slideUp_0.3s_ease-out]">
+ <div class="flex justify-between items-center mb-[20px]">
+ <h3 class="text-[white] text-[1.25rem] font-semibold">${t('share') || 'Partager'}</h3>
+ <button class="bg-[rgba(255,255,255,0.1)] border-0 text-[white] w-[32px] h-[32px] rounded-full cursor-pointer text-[1.2rem]" onclick="this.closest('.share-modal').remove()">✕</button></div>
 
- <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+ <div class="grid [grid-template-columns:repeat(3,_1fr)] gap-[12px] mb-[20px]">
  ${socialLinks.map(link => `
- <a href="${link.url}" target="_blank" rel="noopener noreferrer" style="
- display: flex;
- flex-direction: column;
- align-items: center;
- gap: 8px;
- padding: 16px;
- background: rgba(255,255,255,0.05);
- border-radius: 12px;
- text-decoration: none;
- transition: background 0.2s;
- " onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+ <a class="flex flex-col items-center gap-[8px] p-[16px] bg-[rgba(255,255,255,0.05)] rounded-[12px] [text-decoration:none] [transition:background_0.2s]" href="${link.url}" target="_blank" rel="noopener noreferrer" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
  <div style="
  width: 48px;
  height: 48px;
@@ -214,25 +188,12 @@ function showShareModal(data) {
  font-size: 1.5rem;
  font-weight: bold;
  ">${link.icon}</div>
- <span style="color: #94a3b8; font-size: 0.75rem;">${link.name}</span></a>
+ <span class="text-[#94a3b8] text-[0.75rem]">${link.name}</span></a>
  `).join('')}
  </div>
 
- <div style="
- display: flex;
- gap: 8px;
- padding: 12px;
- background: rgba(255,255,255,0.05);
- border-radius: 12px;
- ">
- <input type="text" value="${url}" readonly style="
- flex: 1;
- background: transparent;
- border: none;
- color: white;
- font-size: 0.875rem;
- outline: none;
- " id="share-url-input">
+ <div class="flex gap-[8px] p-[12px] bg-[rgba(255,255,255,0.05)] rounded-[12px]">
+ <input class="[flex:1] bg-[transparent] border-0 text-[white] text-[0.875rem] [outline:none]" type="text" value="${url}" readonly id="share-url-input">
  <button onclick="
  navigator.clipboard?.writeText('${escapeJSString(url)}').catch(()=>{});
  this.textContent = '${escapeJSString(t('copied') || 'Copié !')}';

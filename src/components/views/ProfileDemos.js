@@ -95,7 +95,7 @@ window.startPointsDemo = () => {
  main.style.display = 'block'
  main.innerHTML = `
  <div data-demo="overlay" class="${_c.demo}">
- <div class="text-center p-3 rounded-xl mb-2.5" style="background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(217,119,6,0.05))">
+ <div class="text-center p-3 rounded-xl mb-2.5 bg-[linear-gradient(135deg,rgba(251,191,36,0.08),rgba(217,119,6,0.05))]">
  <div class="text-[2.2rem] font-black text-amber-400">1 250</div>
  <div class="text-[0.68rem] text-slate-400">Points SpotHitch</div>
  <div class="inline-block text-[0.6rem] font-bold px-2.5 py-[3px] rounded-xl mt-1 bg-green-500/15 text-green-500">Niveau Explorateur</div></div>
@@ -112,13 +112,13 @@ window.startPointsDemo = () => {
  <div class="${_c.stat}"><div class="text-base font-extrabold text-amber-400">23</div><div class="text-[0.48rem] text-slate-500 uppercase">Spots créés</div></div>
  <div class="${_c.stat}"><div class="text-base font-extrabold text-amber-400">47</div><div class="text-[0.48rem] text-slate-500 uppercase">Validations</div></div>
  <div class="${_c.stat}"><div class="text-base font-extrabold text-amber-400">12</div><div class="text-[0.48rem] text-slate-500 uppercase">Conseils</div></div></div>
- <div class="rounded-[10px] px-2.5 py-2 mb-2 flex items-center gap-2 border border-green-500/25" style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.05))">
+ <div class="rounded-[10px] px-2.5 py-2 mb-2 flex items-center gap-2 border border-green-500/25 bg-[linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.05))]">
  <span class="text-[1.1rem] animate-[shake_1s_ease_infinite]"></span>
  <div class="flex-1 text-[0.68rem] font-semibold text-emerald-500">Tu passes près d'un spot !<br><span class="font-normal text-[0.6rem] text-slate-400">Aire de Fleury · Valide-le pour +20 pts</span></div>
  <span class="bg-emerald-500 text-dark-primary text-[0.6rem] font-bold px-2.5 py-[5px] rounded-md">Valider ✓</span></div>
  <div class="${_c.card}">
  <div class="flex justify-between mb-1"><span class="text-[0.68rem] font-semibold">Prochain niveau : Aventurier</span><span class="text-[0.6rem] text-amber-400 font-bold">1 250 / 2 000</span></div>
- <div class="h-[5px] bg-slate-800 rounded-[3px] overflow-hidden"><div class="h-full rounded-[3px] w-[62.5%]" style="background:linear-gradient(90deg,#fbbf24,#d97706)"></div></div></div></div>
+ <div class="h-[5px] bg-slate-800 rounded-[3px] overflow-hidden"><div class="h-full rounded-[3px] w-[62.5%] bg-[linear-gradient(90deg,#fbbf24,#d97706)]"></div></div></div></div>
 
  <!-- Gagner -->
  <div data-cd-panel="pts-earn" class="hidden">
@@ -131,7 +131,7 @@ window.startPointsDemo = () => {
  <div class="${_c.card} flex items-center gap-2"><span class="text-base"></span><div class="flex-1"><div class="font-semibold">Inviter un ami</div><div class="text-[0.6rem] text-slate-500">Ton ami rejoint SpotHitch</div></div><span class="font-extrabold text-amber-400">+100</span></div>
  <div class="${_c.card} flex items-center gap-2"><span class="text-base"></span><div class="flex-1"><div class="font-semibold">Participer à une course</div><div class="text-[0.6rem] text-slate-500">Termine une course entre potes</div></div><span class="font-extrabold text-amber-400">+50</span></div>
  <div class="${_c.card} flex items-center gap-2"><span class="text-base"></span><div class="flex-1"><div class="font-semibold">Organiser un événement</div><div class="text-[0.6rem] text-slate-500">Crée un meetup autostoppeurs</div></div><span class="font-extrabold text-amber-400">+40</span></div>
- <div class="rounded-[10px] p-2 mt-2 text-[0.65rem] text-emerald-500 border border-green-500/25" style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.05))">
+ <div class="rounded-[10px] p-2 mt-2 text-[0.65rem] text-emerald-500 border border-green-500/25 bg-[linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.05))]">
  <strong>Validation automatique</strong> : Quand tu passes près d'un spot, une notification te propose de le valider, même si tu ne fais pas de stop. +20 pts !
  </div></div>
 
@@ -142,7 +142,7 @@ window.startPointsDemo = () => {
  <div class="${_c.card} flex items-center gap-1.5"><span class="text-[0.85rem] font-black text-slate-400 min-w-[18px]">2</span><span class="w-6 h-6 rounded-full bg-slate-400 text-dark-primary flex items-center justify-center text-[0.6rem] font-bold shrink-0">M</span><div class="flex-1"><div class="font-semibold">MarcoHitch</div><div class="text-[0.58rem] text-slate-500">Paris · 98 spots</div></div><span class="font-extrabold text-amber-400">6 890</span></div>
  <div class="${_c.card} flex items-center gap-1.5"><span class="text-[0.85rem] font-black min-w-[18px] text-[#cd7f32]">3</span><span class="w-6 h-6 rounded-full text-dark-primary flex items-center justify-center text-[0.6rem] font-bold shrink-0 bg-[#cd7f32]">L</span><div class="flex-1"><div class="font-semibold">LunaVoyage</div><div class="text-[0.58rem] text-slate-500">Toulouse · 87 spots</div></div><span class="font-extrabold text-amber-400">5 210</span></div>
  <div class="text-center p-1.5 text-[0.6rem] text-slate-500">• • •</div>
- <div class="${_c.card} flex items-center gap-1.5 border border-amber-400/30 bg-amber-400/5"><span class="text-[0.85rem] font-black text-amber-400 min-w-[18px]">42</span><span class="w-6 h-6 rounded-full text-dark-primary flex items-center justify-center text-[0.6rem] font-bold shrink-0" style="background:linear-gradient(135deg,#fbbf24,#d97706)">T</span><div class="flex-1"><div class="font-semibold text-amber-400">Toi ← C'est toi !</div><div class="text-[0.58rem] text-slate-500">Paris · 23 spots</div></div><span class="font-extrabold text-amber-400">1 250</span></div>
+ <div class="${_c.card} flex items-center gap-1.5 border border-amber-400/30 bg-amber-400/5"><span class="text-[0.85rem] font-black text-amber-400 min-w-[18px]">42</span><span class="w-6 h-6 rounded-full text-dark-primary flex items-center justify-center text-[0.6rem] font-bold shrink-0 bg-[linear-gradient(135deg,#fbbf24,#d97706)]">T</span><div class="flex-1"><div class="font-semibold text-amber-400">Toi ← C'est toi !</div><div class="text-[0.58rem] text-slate-500">Paris · 23 spots</div></div><span class="font-extrabold text-amber-400">1 250</span></div>
  <div class="mt-2.5 flex gap-1 flex-wrap">
  <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/30">🇫🇷 France</span>
  <span class="px-2.5 py-1 rounded-[10px] text-[0.58rem] font-semibold bg-transparent text-slate-400 border border-white/[0.08]">🇪🇺 Europe</span>
@@ -203,8 +203,8 @@ window.startJournalDemo = () => {
  main.style.display = 'block'
  main.innerHTML = `
  <div data-demo="overlay" class="${_c.demo}">
- <div class="rounded-xl h-20 relative overflow-hidden mb-2" style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a)">
- <div class="absolute h-0.5 top-[38px] left-[30px] right-[30px]" style="background:linear-gradient(90deg,#fbbf24,#22c55e,#3b82f6,#ec4899)"></div>
+ <div class="rounded-xl h-20 relative overflow-hidden mb-2 bg-[linear-gradient(135deg,#1a2a1a,#2a3a2a)]">
+ <div class="absolute h-0.5 top-[38px] left-[30px] right-[30px] bg-[linear-gradient(90deg,#fbbf24,#22c55e,#3b82f6,#ec4899)]"></div>
  <div class="absolute w-2 h-2 rounded-full bg-amber-400 border-2 border-white top-[35px] left-[28px]"></div>
  <div class="absolute w-2 h-2 rounded-full bg-emerald-500 border-2 border-white top-[35px] left-[30%]"></div>
  <div class="absolute w-2 h-2 rounded-full bg-blue-500 border-2 border-white top-[35px] left-[55%]"></div>
@@ -230,7 +230,7 @@ window.startJournalDemo = () => {
  <div data-cd-panel="jrn-current" class="block">
  <div class="${_c.secT}"><span class="text-[0.85rem]"></span> Étapes du voyage</div>
  <div class="relative pl-6">
- <div class="absolute w-0.5 left-[7px] top-0 bottom-0" style="background:linear-gradient(180deg,#fbbf24,#22c55e,#3b82f6,#ec4899)"></div>
+ <div class="absolute w-0.5 left-[7px] top-0 bottom-0 bg-[linear-gradient(180deg,#fbbf24,#22c55e,#3b82f6,#ec4899)]"></div>
  <div class="relative mb-2.5"><div class="absolute w-2 h-2 rounded-full bg-amber-400 -left-[20px] top-[5px]"></div><div class="${_c.card}"><div class="text-[0.55rem] text-slate-500"> 15 mars · 7h30</div><div class="font-bold text-[0.78rem]"> Paris · Départ</div><div class="text-[0.62rem] text-slate-400">Porte d'Orléans, direction A6</div><div class="flex gap-1.5 mt-[3px] text-[0.58rem]"><span class="text-emerald-500">⏱️ 12 min</span><span class="text-slate-500">Panneau "Lyon"</span></div></div></div>
  <div class="relative mb-2.5"><div class="absolute w-2 h-2 rounded-full bg-emerald-500 -left-[20px] top-[5px]"></div><div class="${_c.card}"><div class="text-[0.55rem] text-slate-500"> 15 mars · 12h15</div><div class="font-bold text-[0.78rem]"> Lyon · Étape 1</div><div class="text-[0.62rem] text-slate-400">Aire de Dardilly · Pause déjeuner</div><div class="flex gap-1.5 mt-[3px] text-[0.58rem]"><span class="text-slate-500">465 km</span><span class="text-amber-400">⭐ +50 pts</span></div></div></div>
  <div class="relative mb-2.5"><div class="absolute w-2 h-2 rounded-full bg-blue-500 -left-[20px] top-[5px]"></div><div class="${_c.card}"><div class="text-[0.55rem] text-slate-500"> 15 mars · 17h00</div><div class="font-bold text-[0.78rem]"> Marseille · Étape 2</div><div class="text-[0.62rem] text-slate-400">La Joliette · Nuit en auberge</div><div class="flex gap-1.5 mt-[3px] text-[0.58rem]"><span class="text-slate-500">315 km</span><span class="text-amber-400">⭐ +50 pts</span></div></div></div>
@@ -300,7 +300,7 @@ window.startSocialDemo = () => {
 
  <!-- Proches -->
  <div data-cd-panel="soc-nearby" class="block">
- <div class="rounded-xl h-[140px] relative overflow-hidden mb-2" style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a)">
+ <div class="rounded-xl h-[140px] relative overflow-hidden mb-2 bg-[linear-gradient(135deg,#1a2a1a,#2a3a2a)]">
  <div class="absolute w-3 h-3 rounded-full bg-amber-400 border-2 border-white z-[2] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
  <div class="absolute w-2 h-2 rounded-full bg-emerald-500 border-2 border-white top-[35%] left-[35%]"></div>
  <div class="absolute text-[0.48rem] font-bold text-emerald-500 rounded-[3px] top-[28%] left-[24%] bg-black/70 px-1 py-px">Clara · 1.2 km</div>
@@ -320,10 +320,10 @@ window.startSocialDemo = () => {
  <div class="text-[0.65rem] text-slate-400 mb-2">1 085 km · 4 participants · Départ 15 mars</div>
  <div class="${_c.secT} text-[0.68rem]">Classement live</div>
  <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-amber-400 min-w-[14px] text-[0.7rem]">1</span><span class="w-5 h-5 rounded-full bg-emerald-500 text-dark-primary flex items-center justify-center text-[0.55rem] font-bold shrink-0">C</span><div class="flex-1 text-[0.65rem]">Clara<div class="text-[0.55rem] text-slate-400">Marseille · 780 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full bg-emerald-500 rounded-sm w-[72%]"></div></div></div><span class="text-[0.58rem] font-bold text-emerald-500">72%</span></div>
- <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-slate-400 min-w-[14px] text-[0.7rem]">2</span><span class="w-5 h-5 rounded-full text-dark-primary flex items-center justify-center text-[0.55rem] font-bold shrink-0" style="background:linear-gradient(135deg,#fbbf24,#d97706)">T</span><div class="flex-1 text-[0.65rem]"><span class="text-amber-400">Toi</span><div class="text-[0.55rem] text-slate-400">Lyon · 600 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full bg-amber-400 rounded-sm w-[55%]"></div></div></div><span class="text-[0.58rem] font-bold text-amber-400">55%</span></div>
+ <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-slate-400 min-w-[14px] text-[0.7rem]">2</span><span class="w-5 h-5 rounded-full text-dark-primary flex items-center justify-center text-[0.55rem] font-bold shrink-0 bg-[linear-gradient(135deg,#fbbf24,#d97706)]">T</span><div class="flex-1 text-[0.65rem]"><span class="text-amber-400">Toi</span><div class="text-[0.55rem] text-slate-400">Lyon · 600 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full bg-amber-400 rounded-sm w-[55%]"></div></div></div><span class="text-[0.58rem] font-bold text-amber-400">55%</span></div>
  <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-slate-400 min-w-[14px] text-[0.7rem]">3</span><span class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[0.55rem] font-bold shrink-0">A</span><div class="flex-1 text-[0.65rem]">Alex<div class="text-[0.55rem] text-slate-400">Dijon · 430 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full bg-blue-500 rounded-sm w-[40%]"></div></div></div><span class="text-[0.58rem] font-bold text-blue-500">40%</span></div>
  <div class="mb-1 flex items-center gap-1.5 py-1"><span class="font-black text-slate-400 min-w-[14px] text-[0.7rem]">4</span><span class="w-5 h-5 rounded-full text-white flex items-center justify-center text-[0.55rem] font-bold shrink-0 bg-violet-500">M</span><div class="flex-1 text-[0.65rem]">Max<div class="text-[0.55rem] text-slate-400">Auxerre · 270 km</div><div class="h-[3px] bg-slate-800 rounded-sm mt-0.5 overflow-hidden"><div class="h-full rounded-sm w-[25%] bg-violet-500"></div></div></div><span class="text-[0.58rem] font-bold text-violet-500">25%</span></div></div>
- <div class="block text-dark-primary font-bold text-center p-2.5 rounded-[10px] mt-2 text-xs" style="background:linear-gradient(135deg,#fbbf24,#d97706)"> Créer une nouvelle course</div></div>
+ <div class="block text-dark-primary font-bold text-center p-2.5 rounded-[10px] mt-2 text-xs bg-[linear-gradient(135deg,#fbbf24,#d97706)]"> Créer une nouvelle course</div></div>
 
  <!-- Événements -->
  <div data-cd-panel="soc-events" class="hidden">
@@ -383,11 +383,11 @@ window.startGuardianDemoContent = () => {
 
  <!-- Mon trajet -->
  <div data-cd-panel="cmp-me" class="block">
- <div class="rounded-xl p-3 text-center mb-2 border border-emerald-500/20" style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02))">
+ <div class="rounded-xl p-3 text-center mb-2 border border-emerald-500/20 bg-[linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02))]">
  <div class="text-[1.8rem] mb-0.5"></div>
  <div class="text-[0.72rem] font-bold text-emerald-500">Mode Compagnon actif</div>
  <div class="text-[0.58rem] text-slate-400">Maman et Clara voient ta position en direct</div></div>
- <div class="rounded-xl h-[100px] relative overflow-hidden mb-2" style="background:linear-gradient(135deg,#1a2a1a,#2a3a2a)">
+ <div class="rounded-xl h-[100px] relative overflow-hidden mb-2 bg-[linear-gradient(135deg,#1a2a1a,#2a3a2a)]">
  <div class="absolute h-0.5 top-[48px] left-[30px] right-[80px] bg-emerald-500/30"></div>
  <div class="absolute w-1.5 h-1.5 rounded-full bg-amber-400 top-[46px] left-[28px]"></div>
  <div class="absolute w-3 h-3 rounded-full bg-emerald-500 border-2 border-white top-[43px] left-[60%]"></div>
@@ -397,9 +397,9 @@ window.startGuardianDemoContent = () => {
  <div class="text-center p-3 bg-dark-secondary rounded-[10px] mb-2">
  <div class="text-[1.8rem] font-black text-emerald-500 tabular-nums">47:23</div>
  <div class="text-[0.6rem] text-slate-400 mt-0.5">Prochain check-in dans</div>
- <div class="h-[3px] bg-slate-800 rounded-sm mt-1.5 overflow-hidden"><div class="h-full rounded-sm w-[21%]" style="background:linear-gradient(90deg,#22c55e,#10b981)"></div></div></div>
- <div class="text-white text-[0.82rem] font-extrabold text-center p-3 rounded-xl mb-1.5" style="background:linear-gradient(135deg,#22c55e,#10b981);box-shadow:0 4px 20px rgba(34,197,94,0.3)"> Tout va bien · Envoyer check-in</div>
- <div class="text-white text-[0.78rem] font-extrabold text-center p-2.5 rounded-xl" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 20px rgba(239,68,68,0.3)">🆘 SOS · Alerter mes gardiens + urgences</div>
+ <div class="h-[3px] bg-slate-800 rounded-sm mt-1.5 overflow-hidden"><div class="h-full rounded-sm w-[21%] bg-[linear-gradient(90deg,#22c55e,#10b981)]"></div></div></div>
+ <div class="text-white text-[0.82rem] font-extrabold text-center p-3 rounded-xl mb-1.5 bg-[linear-gradient(135deg,#22c55e,#10b981)] shadow-[0_4px_20px_rgba(34,197,94,0.3)]"> Tout va bien · Envoyer check-in</div>
+ <div class="text-white text-[0.78rem] font-extrabold text-center p-2.5 rounded-xl bg-[linear-gradient(135deg,#ef4444,#dc2626)] shadow-[0_4px_20px_rgba(239,68,68,0.3)]">🆘 SOS · Alerter mes gardiens + urgences</div>
  <div class="${_c.secT} mt-2.5"><span class="text-[0.85rem]"></span> Mes gardiens</div>
  <div class="${_c.card} flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-pink-500 text-white flex items-center justify-center text-[0.65rem] font-bold shrink-0">M</span><div class="flex-1"><div class="font-semibold">Maman</div><div class="text-[0.55rem] text-slate-400">Voit ta position en temps réel</div></div><span class="text-[0.55rem] font-bold text-emerald-500"> En ligne</span></div>
  <div class="${_c.card} flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-500 text-dark-primary flex items-center justify-center text-[0.65rem] font-bold shrink-0">C</span><div class="flex-1"><div class="font-semibold">Clara</div><div class="text-[0.55rem] text-slate-400">Voit ta position en temps réel</div></div><span class="text-[0.55rem] font-bold text-slate-500"> Hors ligne</span></div></div>
@@ -407,7 +407,7 @@ window.startGuardianDemoContent = () => {
  <!-- Vue Gardien -->
  <div data-cd-panel="cmp-guardian" class="hidden">
  <div class="${_c.card} border-l-[3px] border-l-emerald-500 text-[0.65rem] text-slate-400 mb-2">Voici ce que tes gardiens (maman, amis) voient sur leur téléphone</div>
- <div class="rounded-xl p-3 text-center mb-2 border border-emerald-500/20" style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04))">
+ <div class="rounded-xl p-3 text-center mb-2 border border-emerald-500/20 bg-[linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04))]">
  <div class="text-2xl"></div>
  <div class="text-[0.72rem] font-bold text-emerald-500">Antoine va bien</div>
  <div class="text-[0.55rem] text-slate-400">Dernier check-in il y a 12 min · Lyon</div></div>
@@ -510,7 +510,7 @@ window.startHostelsDemo = () => {
  <div class="mb-1.5"><div class="text-[0.65rem] font-semibold mb-[3px]"> Date</div><div class="${_c.card}">29 mars 2026 · 19h00</div></div>
  <div class="mb-1.5"><div class="text-[0.65rem] font-semibold mb-[3px]">Lieu</div><div class="${_c.card}">Bar Le Petit Vélo, Toulouse</div></div>
  <div class="mb-1.5"><div class="text-[0.65rem] font-semibold mb-[3px]">Description</div><div class="${_c.card}">Première rencontre des autostoppeurs toulousains ! Venez partager vos aventures et trouver des compagnons de route.</div></div>
- <div class="block text-dark-primary font-bold text-center p-2.5 rounded-[10px] mt-2 text-xs" style="background:linear-gradient(135deg,#fbbf24,#d97706)">Créer l'événement · +40 pts</div></div></div>
+ <div class="block text-dark-primary font-bold text-center p-2.5 rounded-[10px] mt-2 text-xs bg-[linear-gradient(135deg,#fbbf24,#d97706)]">Créer l'événement · +40 pts</div></div></div>
  `
 }
 
@@ -597,7 +597,7 @@ window.startSpotDemo = () => {
  <!-- Photo -->
  <div class="px-1 pt-1 mb-2">
  <div class="${_spot.photoWrap} aspect-[2/1]">
- <div class="w-full h-full flex items-center justify-center text-[2rem]" style="background:linear-gradient(135deg,#1a2332,#0f1520)"></div>
+ <div class="w-full h-full flex items-center justify-center text-[2rem] bg-[linear-gradient(135deg,#1a2332,#0f1520)]"></div>
  <div class="${_spot.gradient}" style="${_spotStyles.gradient}"></div>
  <div class="absolute top-1.5 left-1.5 inline-flex items-center gap-[5px] px-3 py-[5px] rounded-[20px] text-[0.6rem] font-bold" style="${_spotStyles.statusGreenCrown}"><span class="text-[0.65rem]"></span> Fiable certifié</div>
  <div class="absolute rounded-xl text-[0.55rem] font-semibold bottom-2 right-2 bg-black/60 px-2 py-[3px]"> 4 photos</div>
@@ -675,7 +675,7 @@ window.startSpotDemo = () => {
  <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] bg-[#065f46] text-[#6ee7b7] border border-emerald-500">⭐</span><span class="text-[0.5rem] text-slate-500">3+ avis & valid.</span></div>
  <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem]" style="${_spotStyles.statusGreenCrown}"></span><span class="text-[0.5rem] text-slate-500">Fiable certifié</span></div>
  <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] bg-red-900 text-red-300 border border-red-500"></span><span class="text-[0.5rem] text-slate-500">Station</span></div>
- <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] text-yellow-300 border-2 border-yellow-500" style="background:linear-gradient(135deg,#78350f,#92400e)"></span><span class="text-[0.5rem] text-slate-500">Spot d'Or</span></div></div></div>
+ <div class="${_c.card} flex items-center gap-1.5 px-2 py-1.5"><span class="${_spot.statusBadge} text-[0.5rem] text-yellow-300 border-2 border-yellow-500 bg-[linear-gradient(135deg,#78350f,#92400e)]"></span><span class="text-[0.5rem] text-slate-500">Spot d'Or</span></div></div></div>
 
  <!-- ===== TAB 3: COMMUNAUTÉ ===== -->
  <div data-cd-panel="spot-community" class="hidden">

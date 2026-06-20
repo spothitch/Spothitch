@@ -25,39 +25,24 @@ export function generateShareCard(spot) {
  const waitTime = spot.avgWaitTime || '?'
 
  return `
- <div id="share-card" style="
- width: 400px;
- max-width: 90vw;
- padding: 24px;
- background: linear-gradient(135deg, #0f1520, #1a2332);
- border-radius: 16px;
- color: white;
- font-family: system-ui, -apple-system, sans-serif;
- box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
- ">
- <div style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">
+ <div class="w-[400px] max-w-[90vw] p-[24px] bg-[linear-gradient(135deg,_#0f1520,_#1a2332)] rounded-[16px] text-[white] [font-family:system-ui,_-apple-system,_sans-serif] shadow-[0_20px_50px_rgba(0,_0,_0,_0.5)]" id="share-card">
+ <div class="text-[24px] font-bold mb-[8px]">
  Check-in!
  </div>
- <div style="font-size: 18px; margin-bottom: 4px; line-height: 1.4;">
+ <div class="text-[18px] mb-[4px] leading-[1.4]">
  ${escapeHTML(spotName)}
  </div>
- <div style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">
+ <div class="text-[#94a3b8] text-[14px] mb-[16px]">
  ${escapeHTML(country)}
  </div>
- <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
- <div style="display: flex; align-items: center; gap: 4px;">
- <span style="color: #fbbf24;">⭐</span>
+ <div class="flex gap-[16px] mb-[16px] [flex-wrap:wrap]">
+ <div class="flex items-center gap-[4px]">
+ <span class="text-[#fbbf24]">⭐</span>
  <span>${rating}/5</span></div>
- <div style="display: flex; align-items: center; gap: 4px;">
+ <div class="flex items-center gap-[4px]">
  <span>⏱️</span>
  <span>~${waitTime} min</span></div></div>
- <div style="
- border-top: 1px solid #334155;
- padding-top: 12px;
- font-size: 12px;
- color: #64748b;
- text-align: center;
- ">
+ <div class="border-t border-t-[#334155] [padding-top:12px] text-[12px] text-[#64748b] text-center">
  SpotHitch — ${t('shareCardTagline') || 'La communauté des autostoppeurs'}
  </div></div>
  `
@@ -98,108 +83,44 @@ export function showShareModal(spot) {
  `
 
  modal.innerHTML = `
- <div style="
- background: #1a2332;
- max-width: 500px;
- width: 100%;
- border-radius: 20px;
- padding: 24px;
- animation: slideUp 0.3s ease-out;
- box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
- ">
+ <div class="bg-[#1a2332] max-w-[500px] w-[100%] rounded-[20px] p-[24px] [animation:slideUp_0.3s_ease-out] shadow-[0_25px_50px_rgba(0,_0,_0,_0.5)]">
  <!-- Header -->
- <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
- <h3 style="color: white; font-size: 1.5rem; font-weight: 700; margin: 0;">
+ <div class="flex justify-between items-center mb-[20px]">
+ <h3 class="text-[white] text-[1.5rem] font-bold m-0">
  ${t('shareCardTitle') || 'Partager ton check-in'}
  </h3>
- <button onclick="window.closeShareModal()" style="
- background: rgba(255, 255, 255, 0.1);
- border: none;
- color: white;
- width: 36px;
- height: 36px;
- border-radius: 50%;
- cursor: pointer;
- font-size: 1.5rem;
- line-height: 1;
- transition: all 0.2s;
- " onmouseover="this.style.background='rgba(255,255,255,0.2)'"
+ <button class="bg-[rgba(255,_255,_255,_0.1)] border-0 text-[white] w-[36px] h-[36px] rounded-full cursor-pointer text-[1.5rem] leading-[1] [transition:all_0.2s]" onclick="window.closeShareModal()" onmouseover="this.style.background='rgba(255,255,255,0.2)'"
  onmouseout="this.style.background='rgba(255,255,255,0.1)'">
  ✕
  </button></div>
 
  <!-- Share Card Preview -->
- <div style="
- display: flex;
- justify-content: center;
- margin-bottom: 24px;
- ">
+ <div class="flex justify-center mb-[24px]">
  ${generateShareCard(spot)}
  </div>
 
  <!-- Capture Screenshot Hint -->
- <div style="
- background: rgba(59, 130, 246, 0.1);
- border: 1px solid rgba(59, 130, 246, 0.3);
- border-radius: 12px;
- padding: 12px;
- margin-bottom: 20px;
- text-align: center;
- ">
- <span style="color: #60a5fa; font-size: 14px;">
+ <div class="bg-[rgba(59,_130,_246,_0.1)] border border-[rgba(59,_130,_246,_0.3)] rounded-[12px] p-[12px] mb-[20px] text-center">
+ <span class="text-[#60a5fa] text-[14px]">
  ${t('shareCardScreenshotHint') || 'Fais une capture d\'écran pour partager cette carte !'}
  </span></div>
 
  <!-- Share Buttons -->
- <div style="display: grid; gap: 12px; margin-bottom: 16px;">
+ <div class="grid gap-[12px] mb-[16px]">
  <!-- SMS -->
- <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="
- display: flex;
- align-items: center;
- gap: 12px;
- padding: 14px;
- background: #25d366;
- border-radius: 12px;
- text-decoration: none;
- color: white;
- font-weight: 600;
- transition: all 0.2s;
- " onmouseover="this.style.background='#20c05c'"
+ <a class="flex items-center gap-[12px] p-[14px] bg-[#25d366] rounded-[12px] [text-decoration:none] text-[white] font-semibold [transition:all_0.2s]" href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" onmouseover="this.style.background='#20c05c'"
  onmouseout="this.style.background='#25d366'">
  ${icon('smartphone', 'w-6 h-6')}
  <span>${t('shareCardSMS') || 'Partager sur SMS'}</span></a>
 
  <!-- Copy Link -->
- <button onclick="window.copySpotLink('${spot.id}')" style="
- display: flex;
- align-items: center;
- gap: 12px;
- padding: 14px;
- background: rgba(59, 130, 246, 0.2);
- border: 1px solid rgba(59, 130, 246, 0.3);
- border-radius: 12px;
- color: #60a5fa;
- font-weight: 600;
- cursor: pointer;
- width: 100%;
- transition: all 0.2s;
- " onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'"
+ <button class="flex items-center gap-[12px] p-[14px] bg-[rgba(59,_130,_246,_0.2)] border border-[rgba(59,_130,_246,_0.3)] rounded-[12px] text-[#60a5fa] font-semibold cursor-pointer w-[100%] [transition:all_0.2s]" onclick="window.copySpotLink('${spot.id}')" onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'"
  onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
  ${icon('link', 'w-6 h-6')}
  <span>${t('shareCardCopyLink') || 'Copier le lien du spot'}</span></button></div>
 
  <!-- Close Button -->
- <button onclick="window.closeShareModal()" style="
- width: 100%;
- padding: 12px;
- background: rgba(255, 255, 255, 0.05);
- border: 1px solid rgba(255, 255, 255, 0.1);
- border-radius: 12px;
- color: #94a3b8;
- font-weight: 600;
- cursor: pointer;
- transition: all 0.2s;
- " onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+ <button class="w-[100%] p-[12px] bg-[rgba(255,_255,_255,_0.05)] border border-[rgba(255,_255,_255,_0.1)] rounded-[12px] text-[#94a3b8] font-semibold cursor-pointer [transition:all_0.2s]" onclick="window.closeShareModal()" onmouseover="this.style.background='rgba(255,255,255,0.1)'"
  onmouseout="this.style.background='rgba(255,255,255,0.05)'">
  ${t('close') || 'Fermer'}
  </button></div>
@@ -312,22 +233,22 @@ export function shareProfileModal(uid, username, avatar) {
  modal.id = 'share-card-modal'
  modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;`
  modal.innerHTML = `
- <div style="background:#1a2332;max-width:440px;width:100%;border-radius:20px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,0.5);">
- <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
- <h3 style="color:white;font-size:1.25rem;font-weight:700;margin:0;">
+ <div class="bg-[#1a2332] max-w-[440px] w-[100%] rounded-[20px] p-[24px] shadow-[0_25px_50px_rgba(0,0,0,0.5)]">
+ <div class="flex justify-between items-center mb-[20px]">
+ <h3 class="text-[white] text-[1.25rem] font-bold m-0">
  ${t('shareProfile') || 'Partager mon profil'}
  </h3>
- <button onclick="window.closeShareModal()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.25rem;" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button></div>
- <div style="background:linear-gradient(135deg,#1e2a3a,#0f1520);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;border:1px solid rgba(245,158,11,0.3);">
- <div style="font-size:3rem;margin-bottom:8px;">${avatar || 'thumbs-up'}</div>
- <div style="color:white;font-weight:700;font-size:1.1rem;">${escapeHTML(displayName)}</div>
- <div style="color:#64748b;font-size:0.75rem;margin-top:6px;word-break:break-all;">${profileUrl}</div></div>
- <div style="display:grid;gap:12px;margin-bottom:12px;">
- <a href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:14px;background:#25d366;border-radius:12px;text-decoration:none;color:white;font-weight:600;">
+ <button class="bg-[rgba(255,255,255,0.1)] border-0 text-[white] w-[36px] h-[36px] rounded-full cursor-pointer text-[1.25rem]" onclick="window.closeShareModal()" aria-label="${escapeHTML(t('close') || 'Close')}">✕</button></div>
+ <div class="bg-[linear-gradient(135deg,#1e2a3a,#0f1520)] rounded-[12px] p-[20px] mb-[20px] text-center border border-[rgba(245,158,11,0.3)]">
+ <div class="text-[3rem] mb-[8px]">${avatar || 'thumbs-up'}</div>
+ <div class="text-[white] font-bold text-[1.1rem]">${escapeHTML(displayName)}</div>
+ <div class="text-[#64748b] text-[0.75rem] mt-[6px] [word-break:break-all]">${profileUrl}</div></div>
+ <div class="grid gap-[12px] mb-[12px]">
+ <a class="flex items-center gap-[12px] p-[14px] bg-[#25d366] rounded-[12px] [text-decoration:none] text-[white] font-semibold" href="https://wa.me/?text=${SMSText}" target="_blank" rel="noopener noreferrer">
  ${icon('smartphone', 'w-6 h-6')}<span>${t('shareCardSMS') || 'Partager sur SMS'}</span></a>
- <button onclick="window.copyProfileLink('${escapeHTML(uid)}')" style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);border-radius:12px;color:#60a5fa;font-weight:600;cursor:pointer;width:100%;">
+ <button class="flex items-center gap-[12px] p-[14px] bg-[rgba(59,130,246,0.2)] border border-[rgba(59,130,246,0.3)] rounded-[12px] text-[#60a5fa] font-semibold cursor-pointer w-[100%]" onclick="window.copyProfileLink('${escapeHTML(uid)}')">
  ${icon('link', 'w-6 h-6')}<span>${t('copyProfileLink') || 'Copier le lien du profil'}</span></button></div>
- <button onclick="window.closeShareModal()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-weight:600;cursor:pointer;">
+ <button class="w-[100%] p-[12px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-[12px] text-[#94a3b8] font-semibold cursor-pointer" onclick="window.closeShareModal()">
  ${t('close') || 'Fermer'}
  </button></div>
  `

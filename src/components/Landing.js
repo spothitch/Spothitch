@@ -39,15 +39,15 @@ export function renderLanding() {
       </div>
 
       <!-- Carousel Track -->
-      <div id="landing-track" class="flex h-full transition-transform duration-300 ease-out" style="width:700%">
+      <div id="landing-track" class="flex h-full transition-transform duration-300 ease-out w-[700%]">
 
         <!-- Slide 1: Bienvenue -->
-        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:#192839">
-          <div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:rgba(245,158,11,0.05);top:50%;left:50%;transform:translate(-50%,-50%);filter:blur(100px)"></div>
+        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative bg-[#192839]">
+          <div class="absolute rounded-full pointer-events-none w-[500px] h-[500px] bg-[rgba(245,158,11,0.05)] top-[50%] left-[50%] [transform:translate(-50%,-50%)] [filter:blur(100px)]"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(0)}</div>
           <div class="relative w-[170px] h-[170px] mb-6 z-10">
-            <div class="absolute -inset-1 rounded-full opacity-40 animate-spin" style="background:conic-gradient(from 0deg,#f59e0b,#d97706,#f59e0b);animation-duration:6s"></div>
-            <div class="absolute inset-0 rounded-full" style="background:#192839"></div>
+            <div class="absolute -inset-1 rounded-full opacity-40 animate-spin bg-[conic-gradient(from_0deg,#f59e0b,#d97706,#f59e0b)] [animation-duration:6s]"></div>
+            <div class="absolute inset-0 rounded-full bg-[#192839]"></div>
             <img src="/images/branding/logo-source.png" alt="SpotHitch" class="w-full h-full rounded-full object-cover relative z-[1]">
           </div>
           <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-primary-500/[0.08] border border-primary-500/[0.15] rounded-xl text-[11px] font-semibold text-primary-300 tracking-wide mb-4 relative z-10">
@@ -60,20 +60,20 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 2: Le problème + la solution -->
-        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(170deg,#1a1508,#0f172a)">
-          <div class="absolute rounded-full pointer-events-none" style="width:250px;height:250px;background:rgba(251,191,36,0.06);bottom:-30px;right:-30px;filter:blur(90px)"></div>
+        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative bg-[linear-gradient(170deg,#1a1508,#0f172a)]">
+          <div class="absolute rounded-full pointer-events-none w-[250px] h-[250px] bg-[rgba(251,191,36,0.06)] bottom-[-30px] right-[-30px] [filter:blur(90px)]"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(1)}</div>
           <h2 class="text-[22px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('slide2Title')} <span class="text-primary-400">${t('slide2TitleAccent')}</span>
           </h2>
           <p class="text-[13px] text-slate-400 leading-relaxed max-w-[280px] mt-2 relative z-10">${t('slide2Desc')}</p>
-          <div class="w-full max-w-[280px] p-3.5 mt-4 rounded-xl text-left relative z-10" style="background:linear-gradient(135deg,rgba(251,191,36,0.05),rgba(251,146,60,0.03));border:1px solid rgba(251,191,36,0.1);border-left:2px solid #fbbf24">
+          <div class="w-full max-w-[280px] p-3.5 mt-4 rounded-xl text-left relative z-10 bg-[linear-gradient(135deg,rgba(251,191,36,0.05),rgba(251,146,60,0.03))] border border-[rgba(251,191,36,0.1)] [border-left:2px_solid_#fbbf24]">
             <p class="text-[12px] italic leading-relaxed text-amber-100">"${t('slide2Quote')}"</p>
           </div>
         </div>
 
         <!-- Slide 3: Partager un spot -->
-        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(170deg,#140f08,#0f172a)">
+        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative bg-[linear-gradient(170deg,#140f08,#0f172a)]">
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(2)}</div>
           <h2 class="text-[22px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('slide3Title')} <span class="text-primary-400">${t('slide3TitleAccent')}</span>
@@ -82,8 +82,8 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 4: Sécurité -->
-        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(170deg,#0f0c12,#0f172a)">
-          <div class="absolute rounded-full pointer-events-none" style="width:200px;height:200px;background:rgba(139,92,246,0.04);top:15%;right:-20px;filter:blur(90px)"></div>
+        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative bg-[linear-gradient(170deg,#0f0c12,#0f172a)]">
+          <div class="absolute rounded-full pointer-events-none w-[200px] h-[200px] bg-[rgba(139,92,246,0.04)] top-[15%] right-[-20px] [filter:blur(90px)]"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(3)}</div>
           <h2 class="text-[22px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('slide4Title')} <span class="text-primary-400">${t('slide4TitleAccent')}</span>
@@ -91,14 +91,14 @@ export function renderLanding() {
           <div class="inline-flex px-2.5 py-1 rounded-xl text-[10px] font-semibold mt-2 mb-4 relative z-10 bg-violet-500/[0.08] border border-violet-500/15 text-violet-400">
             ${t('slide4ComingSoon')}
           </div>
-          <div class="w-full max-w-[280px] p-4 rounded-xl relative z-10" style="background:linear-gradient(135deg,rgba(139,92,246,0.05),rgba(99,102,241,0.03));border:1px solid rgba(139,92,246,0.1)">
+          <div class="w-full max-w-[280px] p-4 rounded-xl relative z-10 bg-[linear-gradient(135deg,rgba(139,92,246,0.05),rgba(99,102,241,0.03))] border border-[rgba(139,92,246,0.1)]">
             <h3 class="text-[13px] font-bold mb-1.5 text-violet-300">${t('slide4CardTitle')}</h3>
             <p class="text-[12px] text-slate-400 leading-relaxed">${t('slide4CardDesc')}</p>
           </div>
         </div>
 
         <!-- Slide 5: Alpha, on construit avec toi -->
-        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(170deg,#15120a,#0f172a)">
+        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative bg-[linear-gradient(170deg,#15120a,#0f172a)]">
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(4)}</div>
           <h2 class="text-[22px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('slide5Title')} <span class="text-primary-400">${t('slide5TitleAccent')}</span>
@@ -108,8 +108,8 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 6: Code d'accès alpha -->
-        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(170deg,#1a1408,#0f172a)">
-          <div class="absolute rounded-full pointer-events-none" style="width:280px;height:280px;background:rgba(251,191,36,0.06);top:20%;left:50%;transform:translate(-50%,-50%);filter:blur(90px)"></div>
+        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative bg-[linear-gradient(170deg,#1a1408,#0f172a)]">
+          <div class="absolute rounded-full pointer-events-none w-[280px] h-[280px] bg-[rgba(251,191,36,0.06)] top-[20%] left-[50%] [transform:translate(-50%,-50%)] [filter:blur(90px)]"></div>
           <div class="flex items-center mb-5 relative z-10">${stepIndicator(5)}</div>
 
           <div class="relative z-10">
@@ -149,8 +149,8 @@ export function renderLanding() {
         </div>
 
         <!-- Slide 7: Bonne route -->
-        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative" style="background:linear-gradient(170deg,#13100b,#0f172a)">
-          <div class="absolute rounded-full pointer-events-none" style="width:200px;height:200px;background:rgba(251,191,36,0.05);bottom:-20px;left:50%;transform:translateX(-50%);filter:blur(90px)"></div>
+        <div class="w-[14.2857%] h-full flex-shrink-0 flex flex-col items-center justify-center px-6 text-center relative bg-[linear-gradient(170deg,#13100b,#0f172a)]">
+          <div class="absolute rounded-full pointer-events-none w-[200px] h-[200px] bg-[rgba(251,191,36,0.05)] bottom-[-20px] left-[50%] [transform:translateX(-50%)] [filter:blur(90px)]"></div>
           <div class="flex items-center mb-7 relative z-10">${stepIndicator(6)}</div>
           <h2 class="text-[26px] font-extrabold text-white leading-tight mb-3 tracking-tight relative z-10">
             ${t('slide7Title')} <span class="text-primary-400">${t('slide7TitleAccent')}</span>
@@ -180,7 +180,7 @@ export function renderLanding() {
       </div>
 
       <!-- Controls: dots + next -->
-      <div class="absolute bottom-0 left-0 right-0 flex items-center justify-between px-7 pb-10 pt-4 z-10" style="background:linear-gradient(transparent,#0f1520)">
+      <div class="absolute bottom-0 left-0 right-0 flex items-center justify-between px-7 pb-10 pt-4 z-10 bg-[linear-gradient(transparent,#0f1520)]">
         <div id="landing-dots" class="flex gap-2">
           <div class="landing-dot w-6 h-2 rounded-full bg-primary-400 transition-colors duration-200" data-i="0"></div>
           <div class="landing-dot w-2 h-2 rounded-full bg-white/20 transition-colors duration-200" data-i="1"></div>
