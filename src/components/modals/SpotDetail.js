@@ -278,7 +278,7 @@ export function renderSpotDetail(state) {
  <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] text-white shrink-0" style="background:${r.rideResult === 'yes' ? '#22c55e' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '#ef4444' : '#64748b'}">${escapeHTML(String(r.userName || '?')[0])}</div>
  <div class="flex-1 min-w-0">
  <span class="text-xs font-medium" style="${r.userId ? 'color:#f59e0b;cursor:pointer' : ''}" ${r.userId ? `onclick="showFriendProfile('${escapeJSString(r.userId)}')" role="button" tabindex="0"` : ''}>${escapeHTML(r.userName || 'Anonyme')}</span>
- ${r.rideResult === 'yes' ? '<span class="text-[10px] text-emerald-500 ml-1">✓</span>' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '<span class="text-[10px] text-red-500 ml-1"></span>' : ''}
+ ${r.rideResult === 'yes' ? '<span class="text-[10px] text-emerald-500 ml-1">' + icon('check', 'w-3 h-3 inline') + '</span>' : r.rideResult === 'no' || r.rideResult === 'gaveUp' ? '<span class="text-[10px] text-red-500 ml-1"></span>' : ''}
  </div>
  <span class="text-[10px] text-slate-500">${r.date ? formatRelativeDate(r.date) : ''}</span></div>
  `).join('')}

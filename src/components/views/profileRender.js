@@ -1073,7 +1073,7 @@ function renderOfflineManagerCard(_state) {
  <div class="flex items-center gap-3 min-w-0">
  <span class="text-lg">${info.flag}</span>
  <div class="min-w-0">
- <div class="text-sm font-medium truncate">${info.name} <span class="text-emerald-400 text-xs">✓</span></div>
+ <div class="text-sm font-medium truncate">${info.name} <span class="text-emerald-400 text-xs">${icon('check', 'w-3 h-3 inline')}</span></div>
  <div class="text-xs text-slate-400">${spots} spots · ${stations} · ${tiles}</div></div></div>
  <button
  onclick="deleteOfflineCountry('${c.code}')"

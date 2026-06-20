@@ -145,7 +145,7 @@ export function renderFeedbackPanel(state) {
                 aria-pressed="${isActive}">
                 ${icon(tab.iconName, 'w-3.5 h-3.5 inline')} ${escapeHTML(t(tab.labelKey) || tab.id)}
                 ${hasUnvoted && !allTabVoted ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-soft"></span>' : ''}
-                ${allTabVoted ? '<span class="text-[10px]">✓</span>' : ''}
+                ${allTabVoted ? '<span class="text-[10px]">' + icon('check', 'w-3 h-3 inline') + '</span>' : ''}
               </button>
             `
           }).join('')}

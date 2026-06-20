@@ -759,7 +759,7 @@ export function renderCountryDetail(guideOrCode) {
         <button onclick="selectGuide(null)" class="text-slate-400 hover:text-white text-sm">←</button>
         <span class="text-xl">${guide.flag}</span>
         <h1 class="text-sm font-extrabold flex-1">${escapeHTML(getGuideName(guide))}</h1>
-        ${guide.legality === 'legal' ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold">✓ ' + (t('guideLegal') || 'Légal') + '</span>' : ''}
+        ${guide.legality === 'legal' ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold">' + icon('check', 'w-3 h-3 inline') + ' ' + (t('guideLegal') || 'Légal') + '</span>' : ''}
       </div>
 
       <!-- Stories nav -->

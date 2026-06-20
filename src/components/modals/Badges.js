@@ -106,7 +106,7 @@ export function renderBadgesModal() {
 }
  <div class="text-white text-xs font-medium truncate">${badge.name}</div>
  ${isEarned
- ? `<div class="text-green-400 text-xs mt-1">✓ ${t('unlocked') || 'Unlocked'}</div>`
+ ? `<div class="text-green-400 text-xs mt-1">${icon('check', 'w-3 h-3 inline')} ${t('unlocked') || 'Unlocked'}</div>`
  : '<div class="text-slate-400 text-xs mt-1"></div>'
 }
  </div>
