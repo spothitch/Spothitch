@@ -164,17 +164,18 @@ test.describe('Firebase Realtime', () => {
 
       // Alice sends a friend request to Bob's subcollection
       const reqId = await page.evaluate(async ({ from, to }) => {
-        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
-        const ref = await addDoc(collection(getDb(), 'users', to, 'friendRequests'), {
-          from, to, status: 'pending', createdAt: serverTimestamp(),
+        const { getDb, doc, setDoc, serverTimestamp } = window.__fb
+        // Per firestore.rules: doc id must equal sender uid + data.fromUserId == sender
+        await setDoc(doc(getDb(), 'users', to, 'friendRequests', from), {
+          fromUserId: from, to, status: 'pending', createdAt: serverTimestamp(),
         })
-        return ref.id
+        return from
       }, { from: aliceUid, to: bobUid })
 
       await bobPage.waitForFunction(() => window.__friendRequests?.length > 0, { timeout: 10000 })
       const requests = await bobPage.evaluate(() => window.__friendRequests)
       expect(requests.length).toBeGreaterThan(0)
-      expect(requests[0].from).toBe(aliceUid)
+      expect(requests[0].fromUserId).toBe(aliceUid)
 
       await bobPage.evaluate(() => window.__unsubFr?.())
       // Bob deletes his own friendRequest

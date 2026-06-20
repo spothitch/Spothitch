@@ -229,11 +229,12 @@ test.describe('Firebase Security Rules', () => {
       try {
         const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
         const voteId = `test-feature_${testUid}`
-        await setDoc(doc(getDb(), 'featureVotes', voteId), {
+        // featureUserVotes is the per-user collection (featureVotes is admin-only per firestore.rules)
+        await setDoc(doc(getDb(), 'featureUserVotes', voteId), {
           userId: testUid, featureId: 'test-feature', vote: 'up',
         })
-        const snap = await getDoc(doc(getDb(), 'featureVotes', voteId))
-        await deleteDoc(doc(getDb(), 'featureVotes', voteId))
+        const snap = await getDoc(doc(getDb(), 'featureUserVotes', voteId))
+        await deleteDoc(doc(getDb(), 'featureUserVotes', voteId))
         return { voted: snap.exists(), vote: snap.data()?.vote }
       } catch (err) { return { error: err.message } }
     }, aliceUid)

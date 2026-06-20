@@ -44,14 +44,15 @@ test.describe('Firebase Social', () => {
 
     const result = await page.evaluate(async ({ from, to }) => {
       try {
-        const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+        const { getDb, doc, setDoc, serverTimestamp } = window.__fb
         const db = getDb()
-        // Write to recipient's friendRequests subcollection
-        const ref = await addDoc(collection(db, 'users', to, 'friendRequests'), {
-          from, to, status: 'pending', createdAt: serverTimestamp(),
+        // Write to recipient's friendRequests subcollection. Per firestore.rules the
+        // doc id must equal the sender's uid and the data must carry fromUserId == sender.
+        await setDoc(doc(db, 'users', to, 'friendRequests', from), {
+          fromUserId: from, to, status: 'pending', createdAt: serverTimestamp(),
         })
-        // addDoc succeeded = write worked. Alice can't read/delete Bob's subcollection (security rules)
-        return { sent: !!ref.id }
+        // setDoc succeeded = write worked. Alice can't read/delete Bob's subcollection (security rules)
+        return { sent: true }
       } catch (err) { return { error: err.message } }
     }, { from: aliceUid, to: bobUid })
 

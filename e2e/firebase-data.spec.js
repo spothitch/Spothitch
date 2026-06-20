@@ -69,7 +69,8 @@ test.describe('Firebase Data', () => {
         await updateDoc(doc(db, 'guideVotes', voteKey), { count: increment(1) })
         const snap = await getDoc(doc(db, 'guideVotes', voteKey))
         const count = snap.data()?.count
-        await deleteDoc(doc(db, 'guideVotes', voteKey))
+        // Cleanup is best-effort: only admin can delete guideVotes per firestore.rules
+        try { await deleteDoc(doc(db, 'guideVotes', voteKey)) } catch { /* non-admin cannot delete */ }
         return { count }
       } catch (err) { return { error: err.message } }
     })
@@ -85,17 +86,17 @@ test.describe('Firebase Data', () => {
         const { getDb, doc, setDoc, getDoc, deleteDoc } = window.__fb
         const db = getDb()
         const voteId = `feature-e2e_${testUid}`
-        await setDoc(doc(db, 'featureVotes', voteId), {
+        await setDoc(doc(db, 'featureUserVotes', voteId), {
           userId: testUid, featureId: 'feature-e2e', vote: 'up',
         })
-        const snap1 = await getDoc(doc(db, 'featureVotes', voteId))
+        const snap1 = await getDoc(doc(db, 'featureUserVotes', voteId))
         const vote1 = snap1.data()?.vote
-        await setDoc(doc(db, 'featureVotes', voteId), {
+        await setDoc(doc(db, 'featureUserVotes', voteId), {
           userId: testUid, featureId: 'feature-e2e', vote: 'down',
         })
-        const snap2 = await getDoc(doc(db, 'featureVotes', voteId))
+        const snap2 = await getDoc(doc(db, 'featureUserVotes', voteId))
         const vote2 = snap2.data()?.vote
-        await deleteDoc(doc(db, 'featureVotes', voteId))
+        await deleteDoc(doc(db, 'featureUserVotes', voteId))
         return { vote1, vote2 }
       } catch (err) { return { error: err.message } }
     }, aliceUid)

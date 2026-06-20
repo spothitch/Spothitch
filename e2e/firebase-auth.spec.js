@@ -261,34 +261,28 @@ test.describe('Firebase Auth - Profile & Account', () => {
     // Test the data deletion part (not actual account deletion to preserve test accounts)
     const result = await page.evaluate(async (testUid) => {
       try {
-        const { getDb, doc, collection, addDoc, setDoc, getDocs, deleteDoc, writeBatch, serverTimestamp } = window.__fb
+        const { getDb, doc, collection, setDoc, getDocs, writeBatch, serverTimestamp } = window.__fb
         const db = getDb()
-        // Create test data to delete
-        const spotRef = await addDoc(collection(db, 'spots'), {
-          lat: 48.0, lng: 2.0, creatorId: testUid, createdAt: serverTimestamp(),
-        })
+        // Create user-owned test data to delete (spots are admin-delete-only per
+        // firestore.rules, so the cascade only covers data the user can remove).
         await setDoc(doc(db, 'users', testUid, 'favorites', 'delete-test'), {
           spotId: 'delete-test', addedAt: serverTimestamp(),
         })
         await setDoc(doc(db, 'users', testUid, 'fcmTokens', 'delete-test'), {
           token: 'fake', createdAt: serverTimestamp(),
         })
-        // Now simulate cascade delete
+        // Now simulate cascade delete of the user's own subcollections
         const batch = writeBatch(db)
-        batch.delete(doc(db, 'spots', spotRef.id))
         batch.delete(doc(db, 'users', testUid, 'favorites', 'delete-test'))
         batch.delete(doc(db, 'users', testUid, 'fcmTokens', 'delete-test'))
         await batch.commit()
         // Verify all deleted
-        const spotSnap = await getDocs(collection(db, 'spots'))
-        const spotGone = !spotSnap.docs.some(d => d.id === spotRef.id)
         const favGone = !(await getDocs(collection(db, 'users', testUid, 'favorites'))).docs.some(d => d.id === 'delete-test')
         const tokenGone = !(await getDocs(collection(db, 'users', testUid, 'fcmTokens'))).docs.some(d => d.id === 'delete-test')
-        return { spotGone, favGone, tokenGone }
+        return { favGone, tokenGone }
       } catch (err) { return { error: err.message } }
     }, aliceUid)
 
-    expect(result.spotGone).toBe(true)
     expect(result.favGone).toBe(true)
     expect(result.tokenGone).toBe(true)
   })
