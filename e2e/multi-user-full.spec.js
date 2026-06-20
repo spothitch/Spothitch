@@ -817,7 +817,7 @@ test.describe('T. AddSpot Form Steps', () => {
   test('T: all addSpot form handlers batch check', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = [
-      'useGPSForSpot', 'toggleSpotMapPicker', 'autoDetectStation', 'autoDetectRoad',
+      'useGPSForSpot', 'autoDetectStation', 'autoDetectRoad',
       'setMethod', 'setGroupSize', 'setTimeOfDay', 'toggleAmenity', 'setWaitTime',
       'setRideResult', 'setExperienceDate', 'addSpotDestination', 'removeSpotDestination',
       'removeSpotPhoto', 'showSpotSummary', 'handleAddSpot', 'setSpotTag',

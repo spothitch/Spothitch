@@ -787,10 +787,6 @@ function closeFullscreenMapPicker() {
  document.body.style.overflow = ''
 }
 
-// Legacy stubs for backward compat (wiring tests)
-window.toggleSpotMapPicker = async () => {}
-window.spotMapPickLocation = () => {}
-
 // Gas station verification — checks Overpass for fuel amenity within 300m
 async function verifyGasStationNearby(lat, lng) {
  try {

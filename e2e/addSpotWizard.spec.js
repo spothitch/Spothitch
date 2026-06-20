@@ -63,7 +63,6 @@ test.describe('AddSpot Wizard', () => {
       'useGPSForSpot', 'addSpotUseGPS',
       'addSpotDestination', 'removeSpotDestination',
       'handleAddSpot', 'submitNewSpot', 'submitSpot',
-      'spotMapPickLocation', 'toggleSpotMapPicker',
     ]
     const found = await page.evaluate((hs) => hs.filter(h => typeof window[h] === 'function'), handlers)
     // At least several core handlers should be registered after modal opens

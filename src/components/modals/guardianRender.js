@@ -7,6 +7,7 @@ import { t } from '../../i18n/index.js'
 import { icon } from '../../utils/icons.js'
 import { escapeHTML } from '../../utils/sanitize.js'
 import { getState } from '../../stores/state.js'
+import { lng2tile, lat2tile } from '../../data/countryBounds.js'
 import {
   getTimeUntilNextCheckIn,
   loadTripHistory,
@@ -671,8 +672,8 @@ export function renderGuardianScreen(guardianState) {
   const mapContent = lastPos?.lat && lastPos?.lng
     ? `<a href="https://www.google.com/maps?q=${lastPos.lat},${lastPos.lng}" target="_blank" rel="noopener"
         class="block w-full h-[180px] rounded-xl mb-3 relative overflow-hidden bg-dark-secondary/50 border border-white/5">
-        <img src="https://maps.googleapis.com/maps/api/staticmap?center=${lastPos.lat},${lastPos.lng}&zoom=14&size=400x180&markers=color:red%7C${lastPos.lat},${lastPos.lng}&key="
-          alt="Position" class="w-full h-full object-cover opacity-60" onerror="this.style.display='none'">
+        <img src="https://tile.openstreetmap.org/14/${lng2tile(lastPos.lng, 14)}/${lat2tile(lastPos.lat, 14)}.png"
+          alt="${t('seeOnMap') || 'See on map'}" class="w-full h-full object-cover opacity-60" onerror="this.style.display='none'">
         <div class="absolute inset-0 flex items-center justify-center">
           <div class="bg-red-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
             ${icon('map-pin', 'w-3.5 h-3.5')} ${t('seeOnMap') || 'See on map'}

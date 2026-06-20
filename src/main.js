@@ -1537,40 +1537,51 @@ if (!window.openWriteReview) window.openWriteReview = (uid) => setState({ showWr
 if (!window.openCountryGuide) {
  window.openCountryGuide = (code) => setState({ selectedCountryGuide: code, activeSubTab: 'guides' })
 }
+
+// Fallback for lazy-loaded handlers: if a button is tapped before its module
+// has loaded (or the module failed to load), tell the user instead of doing
+// nothing silently. The real handler overwrites window.X once its module loads.
+function _lazyStub(name) {
+ return () => {
+ console.warn(`[lazy] handler "${name}" not ready yet`)
+ window.showToast?.(t('featureLoading') || 'Chargement en cours, réessaie dans un instant', 'info')
+ }
+}
+
 // MyData modal handlers — lazy-loaded
 if (!window.openConsentSettings) window.openConsentSettings = () => { /* not yet implemented */ }
 if (!window.closeMyData) window.closeMyData = () => setState({ showMyData: false })
-if (!window.downloadMyData) window.downloadMyData = () => {}
+if (!window.downloadMyData) window.downloadMyData = _lazyStub('downloadMyData')
 // Ambassador handlers — lazy-loaded with ambassadors.js (via Friends.js)
-if (!window.registerAmbassador) window.registerAmbassador = () => {}
-if (!window.searchAmbassadors) window.searchAmbassadors = () => {}
-if (!window.contactAmbassador) window.contactAmbassador = () => {}
-if (!window.unregisterAmbassador) window.unregisterAmbassador = () => {}
-if (!window.updateAmbassadorAvailability) window.updateAmbassadorAvailability = () => {}
-if (!window.searchAmbassadorsByCity) window.searchAmbassadorsByCity = () => {}
+if (!window.registerAmbassador) window.registerAmbassador = _lazyStub('registerAmbassador')
+if (!window.searchAmbassadors) window.searchAmbassadors = _lazyStub('searchAmbassadors')
+if (!window.contactAmbassador) window.contactAmbassador = _lazyStub('contactAmbassador')
+if (!window.unregisterAmbassador) window.unregisterAmbassador = _lazyStub('unregisterAmbassador')
+if (!window.updateAmbassadorAvailability) window.updateAmbassadorAvailability = _lazyStub('updateAmbassadorAvailability')
+if (!window.searchAmbassadorsByCity) window.searchAmbassadorsByCity = _lazyStub('searchAmbassadorsByCity')
 // Identity verification handlers — lazy-loaded with IdentityVerification.js
-if (!window.closeIdentityVerification) window.closeIdentityVerification = () => {}
-if (!window.startVerificationStep) window.startVerificationStep = () => {}
+if (!window.closeIdentityVerification) window.closeIdentityVerification = _lazyStub('closeIdentityVerification')
+if (!window.startVerificationStep) window.startVerificationStep = _lazyStub('startVerificationStep')
 // FAQ handlers — lazy-loaded with FAQ.js
-if (!window.toggleFAQItem) window.toggleFAQItem = () => {}
-if (!window.scrollToFAQCategory) window.scrollToFAQCategory = () => {}
-if (!window.filterFAQ) window.filterFAQ = () => {}
-if (!window.clearFAQSearch) window.clearFAQSearch = () => {}
-if (!window.searchFAQ) window.searchFAQ = () => {}
-if (!window.getFAQQuestionById) window.getFAQQuestionById = () => {}
+if (!window.toggleFAQItem) window.toggleFAQItem = _lazyStub('toggleFAQItem')
+if (!window.scrollToFAQCategory) window.scrollToFAQCategory = _lazyStub('scrollToFAQCategory')
+if (!window.filterFAQ) window.filterFAQ = _lazyStub('filterFAQ')
+if (!window.clearFAQSearch) window.clearFAQSearch = _lazyStub('clearFAQSearch')
+if (!window.searchFAQ) window.searchFAQ = _lazyStub('searchFAQ')
+if (!window.getFAQQuestionById) window.getFAQQuestionById = _lazyStub('getFAQQuestionById')
 // Profile view — sortMySpots is inside a render function, add stub
 if (!window.sortMySpots) window.sortMySpots = (mode) => setState({ _mySpotsSort: mode })
 // Friend profile / blocking handlers — lazy-loaded with FriendProfile.js / userBlocking.js
 if (!window.closeFriendProfile) window.closeFriendProfile = () => setState({ showFriendProfile: false })
-if (!window.openBlockModal) window.openBlockModal = () => {}
+if (!window.openBlockModal) window.openBlockModal = _lazyStub('openBlockModal')
 if (!window.closeBlockModal) {
   window.closeBlockModal = () => setState({ showBlockModal: false, blockTargetId: null, blockTargetName: null })
 }
-if (!window.confirmBlockUser) window.confirmBlockUser = () => {}
-if (!window.openUnblockModal) window.openUnblockModal = () => {}
-if (!window.closeUnblockModal) window.closeUnblockModal = () => {}
-if (!window.confirmUnblockUser) window.confirmUnblockUser = () => {}
-if (!window.unblockUserById) window.unblockUserById = () => {}
+if (!window.confirmBlockUser) window.confirmBlockUser = _lazyStub('confirmBlockUser')
+if (!window.openUnblockModal) window.openUnblockModal = _lazyStub('openUnblockModal')
+if (!window.closeUnblockModal) window.closeUnblockModal = _lazyStub('closeUnblockModal')
+if (!window.confirmUnblockUser) window.confirmUnblockUser = _lazyStub('confirmUnblockUser')
+if (!window.unblockUserById) window.unblockUserById = _lazyStub('unblockUserById')
 // closeBlockedUsers — lazy-loaded with Profile.js
 if (!window.closeBlockedUsers) window.closeBlockedUsers = () => setState({ showBlockedUsers: false })
 // AdminPanel.js lazy-loaded period handlers
@@ -1614,9 +1625,9 @@ if (!window.dismissGuideNudgeGlobal) {
   }
 }
 // Spot verification handler — lazy-loaded with verification.js via Spots.js
-if (!window.voteSpot) window.voteSpot = () => {}
+if (!window.voteSpot) window.voteSpot = _lazyStub('voteSpot')
 // Alpha code validation — lazy-loaded with Landing.js
-if (!window.validateAlphaCode) window.validateAlphaCode = () => {}
+if (!window.validateAlphaCode) window.validateAlphaCode = _lazyStub('validateAlphaCode')
 // Voyage view handlers — lazy-loaded with Voyage.js
 if (!window.openTripDetail) window.openTripDetail = (i) => setState({ tripDetailIndex: i })
 if (!window.openEditTrip) window.openEditTrip = (i) => setState({ editTripIndex: i })
@@ -1630,14 +1641,14 @@ window.openGuardian = () => window.showGuardianModal?.()
 window.closeGuardian = () => setState({ showGuardianModal: false })
 
 // SOS lazy-loaded handlers stubs — real handlers in SOS.js and sosTracking.js (override these)
-if (!window.callEmergency) window.callEmergency = () => {}
-if (!window.sosToggleSilent) window.sosToggleSilent = () => {}
-if (!window.sosOpenFakeCall) window.sosOpenFakeCall = () => {}
-if (!window.sosFakeCallAnswer) window.sosFakeCallAnswer = () => {}
+if (!window.callEmergency) window.callEmergency = _lazyStub('callEmergency')
+if (!window.sosToggleSilent) window.sosToggleSilent = _lazyStub('sosToggleSilent')
+if (!window.sosOpenFakeCall) window.sosOpenFakeCall = _lazyStub('sosOpenFakeCall')
+if (!window.sosFakeCallAnswer) window.sosFakeCallAnswer = _lazyStub('sosFakeCallAnswer')
 // sosTracking.js is loaded separately from SOS.js — stubs until it loads
-if (!window.startSOSTracking) window.startSOSTracking = () => {}
-if (!window.stopSOSTracking) window.stopSOSTracking = () => {}
-if (!window.shareSOSLink) window.shareSOSLink = () => {}
+if (!window.startSOSTracking) window.startSOSTracking = _lazyStub('startSOSTracking')
+if (!window.stopSOSTracking) window.stopSOSTracking = _lazyStub('stopSOSTracking')
+if (!window.shareSOSLink) window.shareSOSLink = _lazyStub('shareSOSLink')
 // AdminPanel.js lazy-loaded handlers stubs
 if (!window.setAdminReportFilter) {
   window.setAdminReportFilter = (f) => setState({ adminReportFilter: f })
@@ -1646,25 +1657,25 @@ if (!window.setAdminReportStatusFilter) {
   window.setAdminReportStatusFilter = (f) => setState({ adminReportStatusFilter: f })
 }
 // Guardian lazy-loaded handler stubs — real handlers in Guardian.js (override these)
-if (!window.guardianSendMessage) window.guardianSendMessage = () => {}
-if (!window.guardianGoToScreen) window.guardianGoToScreen = () => {}
-if (!window.guardianEditField) window.guardianEditField = () => {}
-if (!window.guardianSaveField) window.guardianSaveField = () => {}
-if (!window.guardianCancelEdit) window.guardianCancelEdit = () => {}
-if (!window.guardianAddGuardian) window.guardianAddGuardian = () => {}
-if (!window.guardianEditGuardian) window.guardianEditGuardian = () => {}
-if (!window.guardianRemoveGuardian) window.guardianRemoveGuardian = () => {}
-if (!window.guardianUpdatePlate) window.guardianUpdatePlate = () => {}
-if (!window.guardianSavePlate) window.guardianSavePlate = () => {}
-if (!window.guardianAddTripPhoto) window.guardianAddTripPhoto = () => {}
-if (!window.guardianSaveTripPhoto) window.guardianSaveTripPhoto = () => {}
-if (!window.guardianUpdateDestination) window.guardianUpdateDestination = () => {}
-if (!window.guardianSaveDestination) window.guardianSaveDestination = () => {}
-if (!window.guardianQuickCheckin) window.guardianQuickCheckin = () => {}
-if (!window.guardianSendReply) window.guardianSendReply = () => {}
-if (!window.guardianShowArrival) window.guardianShowArrival = () => {}
-if (!window.guardianAddToJournal) window.guardianAddToJournal = () => {}
-if (!window.guardianCloseSheet) window.guardianCloseSheet = () => {}
+if (!window.guardianSendMessage) window.guardianSendMessage = _lazyStub('guardianSendMessage')
+if (!window.guardianGoToScreen) window.guardianGoToScreen = _lazyStub('guardianGoToScreen')
+if (!window.guardianEditField) window.guardianEditField = _lazyStub('guardianEditField')
+if (!window.guardianSaveField) window.guardianSaveField = _lazyStub('guardianSaveField')
+if (!window.guardianCancelEdit) window.guardianCancelEdit = _lazyStub('guardianCancelEdit')
+if (!window.guardianAddGuardian) window.guardianAddGuardian = _lazyStub('guardianAddGuardian')
+if (!window.guardianEditGuardian) window.guardianEditGuardian = _lazyStub('guardianEditGuardian')
+if (!window.guardianRemoveGuardian) window.guardianRemoveGuardian = _lazyStub('guardianRemoveGuardian')
+if (!window.guardianUpdatePlate) window.guardianUpdatePlate = _lazyStub('guardianUpdatePlate')
+if (!window.guardianSavePlate) window.guardianSavePlate = _lazyStub('guardianSavePlate')
+if (!window.guardianAddTripPhoto) window.guardianAddTripPhoto = _lazyStub('guardianAddTripPhoto')
+if (!window.guardianSaveTripPhoto) window.guardianSaveTripPhoto = _lazyStub('guardianSaveTripPhoto')
+if (!window.guardianUpdateDestination) window.guardianUpdateDestination = _lazyStub('guardianUpdateDestination')
+if (!window.guardianSaveDestination) window.guardianSaveDestination = _lazyStub('guardianSaveDestination')
+if (!window.guardianQuickCheckin) window.guardianQuickCheckin = _lazyStub('guardianQuickCheckin')
+if (!window.guardianSendReply) window.guardianSendReply = _lazyStub('guardianSendReply')
+if (!window.guardianShowArrival) window.guardianShowArrival = _lazyStub('guardianShowArrival')
+if (!window.guardianAddToJournal) window.guardianAddToJournal = _lazyStub('guardianAddToJournal')
+if (!window.guardianCloseSheet) window.guardianCloseSheet = _lazyStub('guardianCloseSheet')
 // Expose service modules for E2E tests (avoids direct /src/* import which fails in production build)
 if (!window.__getGuardianService) {
   window.__getGuardianService = async () => await import('./services/guardian.js')
@@ -1676,12 +1687,12 @@ if (!window.__getTravelBuddiesService) {
   window.__getTravelBuddiesService = async () => await import('./services/travelBuddies.js')
 }
 // Community alerts handlers — lazy-loaded with SOS.js (override these)
-if (!window.toggleCommunityAlerts) window.toggleCommunityAlerts = () => {}
-if (!window.setCommunityRadius) window.setCommunityRadius = () => {}
-if (!window.setCommunityGenderFilter) window.setCommunityGenderFilter = () => {}
+if (!window.toggleCommunityAlerts) window.toggleCommunityAlerts = _lazyStub('toggleCommunityAlerts')
+if (!window.setCommunityRadius) window.setCommunityRadius = _lazyStub('setCommunityRadius')
+if (!window.setCommunityGenderFilter) window.setCommunityGenderFilter = _lazyStub('setCommunityGenderFilter')
 // Social interaction handlers — lazy-loaded with Social.js / directMessages.js
-if (!window.sendFriendRequest) window.sendFriendRequest = () => {}
-if (!window.sendDM) window.sendDM = () => {}
+if (!window.sendFriendRequest) window.sendFriendRequest = _lazyStub('sendFriendRequest')
+if (!window.sendDM) window.sendDM = _lazyStub('sendDM')
 // Profile sub-tab — lazy-loaded with Profile.js (overrides this)
 if (!window.setProfileSubTab) window.setProfileSubTab = (tab) => setState({ profileSubTab: tab })
 // Delete account close — lazy-loaded with DeleteAccount.js
@@ -1689,8 +1700,8 @@ if (!window.closeDeleteAccount) window.closeDeleteAccount = () => setState({ sho
 // Cookie customize close — lazy-loaded with CookieBanner.js
 if (!window.hideCookieCustomize) window.hideCookieCustomize = () => setState({ showCookieCustomize: false })
 // Trust score handlers — lazy-loaded with trustScore.js
-if (!window.getUserTrustScore) window.getUserTrustScore = () => {}
-if (!window.showTrustDetails) window.showTrustDetails = () => {}
+if (!window.getUserTrustScore) window.getUserTrustScore = _lazyStub('getUserTrustScore')
+if (!window.showTrustDetails) window.showTrustDetails = _lazyStub('showTrustDetails')
 
 // AddSpot shortcut
 window.submitNewSpot = () => window.openAddSpot?.()
@@ -1706,32 +1717,32 @@ if (!window.syncTripFieldsAndCalculate) {
 
 // Trip planner handlers — canonical in Travel.js (lazy), Voyage.js has partial stubs
 if (!window.calculateTrip) window.calculateTrip = async () => {}
-if (!window.clearTripResults) window.clearTripResults = () => {}
-if (!window.saveTripWithSpots) window.saveTripWithSpots = () => {}
-if (!window.loadSavedTrip) window.loadSavedTrip = () => {}
-if (!window.deleteSavedTrip) window.deleteSavedTrip = () => {}
-if (!window.renameSavedTrip) window.renameSavedTrip = () => {}
-if (!window.viewTripOnMap) window.viewTripOnMap = () => {}
-if (!window.closeTripMap) window.closeTripMap = () => {}
+if (!window.clearTripResults) window.clearTripResults = _lazyStub('clearTripResults')
+if (!window.saveTripWithSpots) window.saveTripWithSpots = _lazyStub('saveTripWithSpots')
+if (!window.loadSavedTrip) window.loadSavedTrip = _lazyStub('loadSavedTrip')
+if (!window.deleteSavedTrip) window.deleteSavedTrip = _lazyStub('deleteSavedTrip')
+if (!window.renameSavedTrip) window.renameSavedTrip = _lazyStub('renameSavedTrip')
+if (!window.viewTripOnMap) window.viewTripOnMap = _lazyStub('viewTripOnMap')
+if (!window.closeTripMap) window.closeTripMap = _lazyStub('closeTripMap')
 // removeSpotFromTrip — canonical in Travel.js
 // Voyage sub-tab handler — lazy-loaded with Voyage.js (overrides this)
 if (!window.setVoyageSubTab) window.setVoyageSubTab = (tab) => setState({ voyageSubTab: tab })
 // Social conversation handlers — lazy-loaded with directMessages.js / Conversations.js
-if (!window.openConversation) window.openConversation = () => {}
-if (!window.closeConversation) window.closeConversation = () => {}
-if (!window.shareDMSpot) window.shareDMSpot = () => {}
-if (!window.shareDMPosition) window.shareDMPosition = () => {}
-if (!window.openCreateGroupConversation) window.openCreateGroupConversation = () => {}
-if (!window.createGroupConversation) window.createGroupConversation = () => {}
-if (!window.sendGroupConversationMessage) window.sendGroupConversationMessage = () => {}
+if (!window.openConversation) window.openConversation = _lazyStub('openConversation')
+if (!window.closeConversation) window.closeConversation = _lazyStub('closeConversation')
+if (!window.shareDMSpot) window.shareDMSpot = _lazyStub('shareDMSpot')
+if (!window.shareDMPosition) window.shareDMPosition = _lazyStub('shareDMPosition')
+if (!window.openCreateGroupConversation) window.openCreateGroupConversation = _lazyStub('openCreateGroupConversation')
+if (!window.createGroupConversation) window.createGroupConversation = _lazyStub('createGroupConversation')
+if (!window.sendGroupConversationMessage) window.sendGroupConversationMessage = _lazyStub('sendGroupConversationMessage')
 // Event handlers — lazy-loaded with events.js
-if (!window.joinEvent) window.joinEvent = () => {}
-if (!window.leaveEvent) window.leaveEvent = () => {}
-if (!window.postEventComment) window.postEventComment = () => {}
-if (!window.reactToEventComment) window.reactToEventComment = () => {}
+if (!window.joinEvent) window.joinEvent = _lazyStub('joinEvent')
+if (!window.leaveEvent) window.leaveEvent = _lazyStub('leaveEvent')
+if (!window.postEventComment) window.postEventComment = _lazyStub('postEventComment')
+if (!window.reactToEventComment) window.reactToEventComment = _lazyStub('reactToEventComment')
 // Buddy announcement handlers — lazy-loaded with Voyageurs.js
-if (!window.submitBuddyAnnouncement) window.submitBuddyAnnouncement = () => {}
-if (!window.deleteBuddyAnnouncement) window.deleteBuddyAnnouncement = () => {}
+if (!window.submitBuddyAnnouncement) window.submitBuddyAnnouncement = _lazyStub('submitBuddyAnnouncement')
+if (!window.deleteBuddyAnnouncement) window.deleteBuddyAnnouncement = _lazyStub('deleteBuddyAnnouncement')
 
 // Feature intro wrappers + Beta guards (extracted to handlers/betaGuards.js)
 // MUST remain AFTER all handler definitions

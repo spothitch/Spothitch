@@ -237,7 +237,7 @@ const MAIN_JS_HANDLERS = [
   // AddSpot (all defined in AddSpot.js)
   'handlePhotoSelect', 'setSpotRating', 'onSpotTypeChange',
   'triggerPhotoUpload', 'addSpotNextStep', 'addSpotPrevStep',
-  'useGPSForSpot', 'toggleSpotMapPicker', 'spotMapPickLocation', 'openFullscreenMapPicker',
+  'useGPSForSpot', 'openFullscreenMapPicker',
   'autoDetectStation', 'autoDetectRoad',
   'saveSpotAsDraft', 'openSpotDraft', 'deleteSpotDraft',
   'addSpotDestination', 'removeSpotDestination',
