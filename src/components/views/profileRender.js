@@ -1115,7 +1115,7 @@ function renderOfflineManagerCard(_state) {
  <span class="text-xs text-slate-400">${t('storageUsed') || 'Espace utilisé'}</span>
  <span class="text-xs font-mono text-slate-300" id="offline-storage-size">...</span></div>
  <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
- <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all" id="offline-storage-bar" style="width: 0%"></div></div></div>
+ <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all w-[0%]" id="offline-storage-bar"></div></div></div>
 
  <!-- Progress indicator (hidden by default) -->
  <div id="offline-dl-progress" class="hidden p-3 rounded-xl bg-primary-500/5 border border-primary-500/10">
@@ -1123,7 +1123,7 @@ function renderOfflineManagerCard(_state) {
  <span class="text-xs text-primary-400 font-medium" id="offline-dl-label">${t('downloading') || 'Téléchargement...'}</span>
  <span class="text-xs font-mono text-primary-300" id="offline-dl-pct">0%</span></div>
  <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
- <div class="h-full bg-gradient-to-r from-primary-500 to-amber-400 rounded-full transition-all" id="offline-dl-bar" style="width: 0%"></div></div>
+ <div class="h-full bg-gradient-to-r from-primary-500 to-amber-400 rounded-full transition-all w-[0%]" id="offline-dl-bar"></div></div>
  <div class="text-[10px] text-slate-500 mt-1" id="offline-dl-phase">${t('offlinePhaseSpots') || 'Spots...'}</div></div>
 
  <!-- Downloaded countries -->
@@ -1697,7 +1697,7 @@ window.startCityPageDemo = () => {
  <div class="block bg-gradient-to-br from-amber-300 to-amber-600 text-dark-primary font-bold text-center p-2.5 rounded-[10px] my-2.5 text-[0.8rem]">Ouvrir dans l&rsquo;app</div>
 
  <!-- Tabs -->
- <div class="flex gap-1 my-2 overflow-x-auto pb-1" style="-webkit-overflow-scrolling:touch">
+ <div class="flex gap-1 my-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
  <span class="cd-tab cd-tab-active" onclick="switchCityDemoTab(this,'spots')" role="button" tabindex="0">Spots</span>
  <span class="cd-tab" onclick="switchCityDemoTab(this,'conseils')" role="button" tabindex="0">Conseils</span>
  <span class="cd-tab" onclick="switchCityDemoTab(this,'auberges')" role="button" tabindex="0">Dormir</span>

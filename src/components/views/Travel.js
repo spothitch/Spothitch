@@ -67,7 +67,7 @@ function renderPlanner(state) {
   return `
     <div class="space-y-4">
       <!-- New Trip Form -->
-      <div class="card p-4 space-y-4" style="overflow:visible!important">
+      <div class="card p-4 space-y-4 [overflow:visible!important]">
         <h3 class="font-bold text-lg flex items-center gap-2">
           ${icon('signpost', 'w-5 h-5 text-primary-400')}
           ${t('newTrip') || 'Nouveau voyage'}
@@ -332,7 +332,7 @@ function renderTripMapView(results) {
   const spots = results.spots || []
 
   return `
-    <div class="relative" style="height:calc(100dvh - 8rem)">
+    <div class="relative h-[calc(100dvh_-_8rem)]">
       <div id="trip-map" class="w-full h-full rounded-xl overflow-hidden"></div>
 
       <!-- Back button -->

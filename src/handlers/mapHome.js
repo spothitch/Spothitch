@@ -61,12 +61,12 @@ function _buildSuggestionHTML(results) {
   return `
     <div class="bg-dark-secondary/95 backdrop-blur rounded-xl border border-white/10 overflow-hidden shadow-xl">
       <div class="flex">
-        <div class="flex-1" style="border-right:1px solid rgba(255,255,255,0.08)">
-          <div class="px-3 py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider" style="background:rgba(255,255,255,0.03)">${t('places') || 'Lieux'}</div>
+        <div class="flex-1 [border-right:1px_solid_rgba(255,255,255,0.08)]">
+          <div class="px-3 py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider bg-[rgba(255,255,255,0.03)]">${t('places') || 'Lieux'}</div>
           ${places}
         </div>
-        <div class="flex-1" style="background:rgba(245,158,11,0.03)">
-          <div class="px-3 py-1.5 text-[10px] font-semibold text-primary-400 uppercase tracking-wider" style="background:rgba(245,158,11,0.08)">${t('guides') || 'Guides'}</div>
+        <div class="flex-1 bg-[rgba(245,158,11,0.03)]">
+          <div class="px-3 py-1.5 text-[10px] font-semibold text-primary-400 uppercase tracking-wider bg-[rgba(245,158,11,0.08)]">${t('guides') || 'Guides'}</div>
           ${guides || `<div class="px-3 py-3 text-xs text-slate-500">${t('noGuides') || 'Aucun guide'}</div>`}
         </div>
       </div>

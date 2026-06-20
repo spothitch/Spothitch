@@ -401,8 +401,8 @@ function renderHostelCard(hostel, cityName) {
           href="${links.hostelworld}"
           target="_blank"
           rel="noopener"
-          class="flex-1 py-2 px-3 rounded-xl text-center text-sm font-medium text-white transition-colors"
-          style="background-color: #f47521"
+          class="flex-1 py-2 px-3 rounded-xl text-center text-sm font-medium text-white transition-colors bg-[#f47521]"
+         
           onmouseover="this.style.backgroundColor='#d86818'"
           onmouseout="this.style.backgroundColor='#f47521'"
         >
@@ -412,8 +412,8 @@ function renderHostelCard(hostel, cityName) {
           href="${links.booking}"
           target="_blank"
           rel="noopener"
-          class="flex-1 py-2 px-3 rounded-xl text-center text-sm font-medium text-white transition-colors"
-          style="background-color: #003580"
+          class="flex-1 py-2 px-3 rounded-xl text-center text-sm font-medium text-white transition-colors bg-[#003580]"
+         
           onmouseover="this.style.backgroundColor='#002a66'"
           onmouseout="this.style.backgroundColor='#003580'"
         >

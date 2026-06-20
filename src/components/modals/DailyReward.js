@@ -45,9 +45,9 @@ export function renderDailyRewardModal() {
  <!-- Decorative elements -->
  <div class="absolute inset-0 opacity-20">
  <div class="absolute top-2 left-4 animate-bounce-slow">${icon("gift", "w-8 h-8 text-amber-400")}</div>
- <div class="absolute top-4 right-6 animate-bounce-slow" style="animation-delay: 0.2s">${icon("sparkles", "w-6 h-6 text-amber-400")}</div>
- <div class="absolute bottom-2 left-8 animate-bounce-slow" style="animation-delay: 0.4s">${icon("star", "w-6 h-6 text-amber-400")}</div>
- <div class="absolute bottom-4 right-4 animate-bounce-slow" style="animation-delay: 0.3s">${icon("gift", "w-8 h-8 text-amber-400")}</div></div>
+ <div class="absolute top-4 right-6 animate-bounce-slow [animation-delay:0.2s]">${icon("sparkles", "w-6 h-6 text-amber-400")}</div>
+ <div class="absolute bottom-2 left-8 animate-bounce-slow [animation-delay:0.4s]">${icon("star", "w-6 h-6 text-amber-400")}</div>
+ <div class="absolute bottom-4 right-4 animate-bounce-slow [animation-delay:0.3s]">${icon("gift", "w-8 h-8 text-amber-400")}</div></div>
 
  <div class="relative z-10">
  <div class="flex justify-center mb-3 animate-bounce-slow">${icon("gift", "w-12 h-12 text-amber-400")}</div>

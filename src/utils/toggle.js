@@ -104,8 +104,8 @@ export function renderToggle(isOn, handler, label) {
   const tid = `t${_nextId++}`
   _handlers.set(tid, handler)
   return `<button onclick="window._toggleExec(this)" data-tid="${tid}" role="switch" aria-checked="${isOn}" aria-label="${safeLabel}"
-    class="spothitch-toggle shrink-0 ${isOn ? 'toggle-on' : ''}"
-    style="outline:none">
+    class="spothitch-toggle shrink-0 ${isOn ? 'toggle-on' : ''} [outline:none]"
+   >
     <span class="spothitch-toggle-thumb">${isOn ? _thumbOn : _thumbOff}</span>
   </button>`
 }
@@ -118,8 +118,8 @@ export function renderToggleCompact(isOn, handler, label) {
   const tid = `t${_nextId++}`
   _handlers.set(tid, handler)
   return `<button onclick="window._toggleExec(this)" data-tid="${tid}" role="switch" aria-checked="${isOn}" aria-label="${safeLabel}"
-    class="spothitch-toggle spothitch-toggle-compact shrink-0 ${isOn ? 'toggle-on' : ''}"
-    style="outline:none">
+    class="spothitch-toggle spothitch-toggle-compact shrink-0 ${isOn ? 'toggle-on' : ''} [outline:none]"
+   >
     <span class="spothitch-toggle-thumb">${isOn ? _thumbOn : _thumbOff}</span>
   </button>`
 }

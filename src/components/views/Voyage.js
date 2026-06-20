@@ -410,7 +410,7 @@ function renderEnRouteRadar(_state, activeTrip) {
  <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0 z-10"></span>
  <!-- Line + spot dots -->
  <div class="relative flex-1 h-1.5 bg-white/10 rounded-full overflow-visible">
- <div class="absolute inset-y-0 left-0 bg-emerald-500/50 rounded-full" style="width: 30%"></div>
+ <div class="absolute inset-y-0 left-0 bg-emerald-500/50 rounded-full w-[30%]"></div>
  ${spots.slice(0, 8).map((_, i) => {
  const pct = Math.round(((i + 1) / (spots.length + 1)) * 100)
  return `<span class="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-dark-primary z-10 ${
@@ -652,7 +652,7 @@ async function _loadJournal() {
 function renderJournalTab(state) {
  if (!_journalModule) {
  _loadJournal().then(() => window._forceRender?.())
- return `<div style="text-align:center;padding:40px;color:#64748b">${t('loading') || 'Chargement...'}</div>`
+ return `<div class="text-center p-[40px] text-[#64748b]">${t('loading') || 'Chargement...'}</div>`
  }
  return _journalModule.renderJournal(state)
 }

@@ -338,7 +338,7 @@ function showGasStationMarkers(stations) {
       const label = t('createSpotStation') || 'Créer un spot station'
       const popup = new maplibregl.Popup({ offset: 10, closeButton: false, className: 'create-spot-popup' })
         .setLngLat(coords)
-        .setHTML(`<button onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'gas_station')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#f59e0b;color:#0f172a;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap">${icon("fuel", "w-4 h-4 inline")}${label}</button>`)
+        .setHTML(`<button class="flex items-center gap-[6px] py-[8px] px-[14px] bg-[#f59e0b] text-[#0f172a] border-0 rounded-[20px] text-[14px] font-semibold cursor-pointer whitespace-nowrap" onclick="this.closest('.maplibregl-popup').remove();window._createSpotFromBubble(${lngLat.lat},${lngLat.lng},'gas_station')">${icon("fuel", "w-4 h-4 inline")}${label}</button>`)
         .addTo(map)
       setTimeout(() => { try { popup.remove() } catch { /* already removed */ } }, 4000)
     })

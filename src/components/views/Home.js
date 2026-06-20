@@ -19,7 +19,7 @@ export function renderHome(state) {
   const hasGuide = !!currentGuide
 
   return `
-    <div id="map-layout" class="relative overflow-hidden" style="height:calc(100dvh - 4rem)">
+    <div id="map-layout" class="relative overflow-hidden h-[calc(100dvh_-_4rem)]">
       <!-- Map — full screen behind everything (z-0) -->
       <div id="home-map-container" class="absolute inset-0 z-0 bg-dark-secondary">
         <div id="home-map" class="w-full h-full"></div>

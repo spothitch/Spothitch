@@ -169,7 +169,7 @@ window.downloadCountryForOffline = async (code) => {
  btn.style.position = 'relative'
  btn.style.overflow = 'hidden'
  btn.style.minWidth = '90px'
- btn.innerHTML = `<div id="dl-fill-${code}" style="position:absolute;inset:0;background:rgba(245,158,11,0.25);width:0%;transition:width 0.3s ease;border-radius:7px"></div><span style="position:relative">0%</span>`
+ btn.innerHTML = `<div class="absolute [inset:0] bg-[rgba(245,158,11,0.25)] w-[0%] [transition:width_0.3s_ease] rounded-[7px]" id="dl-fill-${code}"></div><span class="relative">0%</span>`
  }
 
  const { downloadCountrySpots } = await import('../services/offlineDownload.js')

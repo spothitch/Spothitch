@@ -360,7 +360,7 @@ export function renderReportModal(state) {
           <!-- Mini-map for misplaced reports -->
           <div class="mt-4" id="report-misplaced-wrapper">
             <label class="block text-sm text-slate-400 mb-2">${t('reportMisplacedHint') || 'Place le pin bleu au bon endroit'}</label>
-            <div id="report-misplaced-map" style="width:100%;height:200px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)"></div>
+            <div class="w-[100%] h-[200px] rounded-[12px] overflow-hidden border border-[rgba(255,255,255,0.1)]" id="report-misplaced-map"></div>
             <div id="report-misplaced-coords" class="text-xs text-slate-500 mt-1"></div>
           </div>
           ` : ''}

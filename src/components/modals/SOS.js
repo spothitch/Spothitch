@@ -843,7 +843,7 @@ function _getConfigContent(section) {
           ${icon('phone-call', 'w-5 h-5 text-emerald-500')}
           <div><div class="text-xl font-extrabold">${detectedNumber}</div><div class="text-[11px] text-slate-400">Europe (${t('sosAutoDetected') || 'détecté automatiquement'})</div></div>
         </div>
-        <div class="${labelCls}" style="margin-top:1rem">${t('sosOtherNumbers') || 'Autres numéros'}</div>
+        <div class="${labelCls} mt-[1rem]">${t('sosOtherNumbers') || 'Autres numéros'}</div>
         <div class="flex gap-1.5 flex-wrap">
           <a href="tel:911" class="px-3 py-1.5 rounded-full text-[12px] font-medium bg-white/[0.04] border border-white/[0.06] text-slate-400 no-underline">911 USA</a>
           <a href="tel:000" class="px-3 py-1.5 rounded-full text-[12px] font-medium bg-white/[0.04] border border-white/[0.06] text-slate-400 no-underline">000 AUS</a>
@@ -862,7 +862,7 @@ function _getConfigContent(section) {
             <div class="flex-1 text-left"><div class="text-[13px] font-semibold">${escapeHTML(c.name)}</div><div class="text-[11px] text-slate-400">${c.type === 'app' ? 'Push' : 'SMS'}</div></div>
           </button>
         `).join('') || `<p class="text-[12px] text-slate-500">${t('sosNoContacts') || 'Aucun contact'}</p>`}
-        <div class="${labelCls}" style="margin-top:1rem">${t('sosTestPreview') || 'Aperçu'}</div>
+        <div class="${labelCls} mt-[1rem]">${t('sosTestPreview') || 'Aperçu'}</div>
         <div class="p-3 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[12px] text-slate-400 leading-relaxed">
           <strong class="text-amber-500">[TEST]</strong> ${t('sosTestMessage') || 'Ceci est un test du SOS SpotHitch. Aucune urgence.'}
         </div>

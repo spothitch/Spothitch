@@ -433,7 +433,7 @@ export function renderSpotDetail(state) {
  </div>
  <textarea id="review-comment" class="w-full bg-[#0f1520] border border-slate-700 rounded-lg p-3 text-sm text-slate-200 placeholder-slate-600 resize-none h-20" placeholder="${t('reviewPlaceholder') || 'Décris ton expérience (optionnel, min 10 caractères)...'}"></textarea>
  <div class="flex gap-2 mt-3">
- <button onclick="submitReview('${escapeJSString(String(spot.id))}')" type="button" class="flex-1 bg-primary-500 text-black font-medium py-2.5 rounded-lg text-sm" ${!(state.currentRating) ? 'disabled style="opacity:0.5"' : ''}>${t('submitReviewBtn') || 'Publier'}</button>
+ <button onclick="submitReview('${escapeJSString(String(spot.id))}')" type="button" class="flex-1 bg-primary-500 text-black font-medium py-2.5 rounded-lg text-sm opacity-[0.5]" ${!(state.currentRating) ? 'disabled' : ''}>${t('submitReviewBtn') || 'Publier'}</button>
  <button onclick="closeRating()" type="button" class="px-4 py-2.5 bg-slate-700 text-slate-300 rounded-lg text-sm">${t('cancel') || 'Annuler'}</button></div></div>
  ` : `
  <div class="mx-3 mb-3">
@@ -716,7 +716,7 @@ window.addDestinationToExistingSpot = async (spotId) => {
  wrapper.className = 'mt-1.5'
  wrapper.innerHTML = `
  <input type="text" id="spot-detail-dest-input"
- class="input-modern text-sm" style="font-size:13px;padding:8px 12px"
+ class="input-modern text-sm text-[13px] py-[8px] px-[12px]"
  placeholder="${t('destinationCityPlaceholder') || 'Ville de destination'}" />
  `
  btn.style.display = 'none'

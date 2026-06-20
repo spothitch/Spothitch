@@ -68,8 +68,8 @@ window.handlePhotoSelect = async (event) => {
  // Add thumbnail directly
  const thumb = document.createElement('div')
  thumb.style.cssText = 'width:60px;height:60px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0'
- thumb.innerHTML = `<img src="${compressed}" style="width:100%;height:100%;object-fit:cover" alt="Photo ${window.spotFormData.photos.length}">
- <button type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);border-radius:50%;border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center" aria-label="${escapeHTML(t('removePhoto') || 'Remove photo')}">✕</button>`
+ thumb.innerHTML = `<img class="w-[100%] h-[100%] [object-fit:cover]" src="${compressed}" alt="Photo ${window.spotFormData.photos.length}">
+ <button class="absolute top-[2px] right-[2px] w-[18px] h-[18px] bg-[rgba(0,0,0,0.6)] rounded-full border-0 text-[white] text-[10px] cursor-pointer flex items-center justify-center" type="button" onclick="removeSpotPhoto(${window.spotFormData.photos.length - 1})" aria-label="${escapeHTML(t('removePhoto') || 'Remove photo')}">✕</button>`
  const uploadBtn = photoZone.querySelector('label, [for="spot-photo"]')?.parentElement
  if (uploadBtn) photoZone.insertBefore(thumb, uploadBtn)
  // Hide upload button if max reached

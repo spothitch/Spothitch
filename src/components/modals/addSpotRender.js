@@ -422,7 +422,7 @@ export function renderStep3(state) {
  t('monthOct') || 'Octobre', t('monthNov') || 'Novembre', t('monthDec') || 'Décembre'
  ]
  const selMonth = window.spotFormData.experienceMonth ?? (now.getMonth() + 1)
- return months.map((m, i) => `<option value="${i + 1}" ${(i + 1) === selMonth ? 'selected' : ''} style="background:#1e293b">${m}</option>`).join('')
+ return months.map((m, i) => `<option class="bg-[#1e293b]" value="${i + 1}" ${(i + 1) === selMonth ? 'selected' : ''}>${m}</option>`).join('')
  })()}
  </select>
  <select id="exp-year" onchange="updateExperienceDate()"
@@ -431,7 +431,7 @@ export function renderStep3(state) {
  const now = new Date()
  const selYear = window.spotFormData.experienceYear ?? now.getFullYear()
  const years = []
- for (let y = now.getFullYear(); y >= 2010; y--) years.push(`<option value="${y}" ${y === selYear ? 'selected' : ''} style="background:#1e293b">${y}</option>`)
+ for (let y = now.getFullYear(); y >= 2010; y--) years.push(`<option class="bg-[#1e293b]" value="${y}" ${y === selYear ? 'selected' : ''}>${y}</option>`)
  return years.join('')
  })()}
  </select></div></div>

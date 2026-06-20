@@ -65,8 +65,8 @@ export function showInputOverlay(options = {}) {
         ${multiline ? `
           <textarea
             id="spothitch-overlay-input"
-            class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none"
-            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
+            class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.1)]"
+           
             placeholder="${escapeHTML(placeholder)}"
             rows="3"
             ${maxLength ? `maxlength="${maxLength}"` : ''}
@@ -75,8 +75,8 @@ export function showInputOverlay(options = {}) {
           <input
             id="spothitch-overlay-input"
             type="${inputType}"
-            class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-            style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"
+            class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.1)]"
+           
             value="${escapedValue}"
             placeholder="${escapeHTML(placeholder)}"
             ${inputType === 'number' ? 'inputmode="numeric"' : ''}
@@ -90,8 +90,8 @@ export function showInputOverlay(options = {}) {
         <div class="flex gap-2 mt-4">
           <button
             data-overlay-cancel
-            class="flex-1 py-3 rounded-xl text-slate-400 font-semibold text-sm transition-colors active:bg-white/[0.08]"
-            style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)"
+            class="flex-1 py-3 rounded-xl text-slate-400 font-semibold text-sm transition-colors active:bg-white/[0.08] bg-[rgba(255,255,255,.04)] border border-[rgba(255,255,255,.08)]"
+           
           >
             ${t('cancel') || 'Annuler'}
           </button>

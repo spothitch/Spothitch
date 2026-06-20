@@ -693,7 +693,7 @@ function renderGuideFilterChips(sectionData, countryCode, catId) {
   const inactiveStyle = 'border-color:rgba(255,255,255,0.1);color:#64748b;background:rgba(255,255,255,0.02)'
 
   return `
-    <div class="flex gap-1.5 overflow-x-auto scrollbar-none py-2 sticky top-0 z-10" style="background:#0f1117">
+    <div class="flex gap-1.5 overflow-x-auto scrollbar-none py-2 sticky top-0 z-10 bg-[#0f1117]">
       <button onclick="setGuideFilterType(null)" style="${allActive ? 'border-color:rgba(245,158,11,0.4);color:#fbbf24;background:rgba(245,158,11,0.1)' : inactiveStyle}" class="px-3 py-1.5 rounded-full text-xs font-semibold border cursor-pointer shrink-0 transition-colors" role="button" tabindex="0">
         ${t('guideChipAll') || 'Tout'}${totalCount > 0 ? ` <span class="text-[10px] opacity-70">${totalCount}</span>` : ''}
       </button>
