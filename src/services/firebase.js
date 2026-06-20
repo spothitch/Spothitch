@@ -114,8 +114,12 @@ export function initializeFirebase() {
     // Requires: serviceWorker + PushManager + Notification + indexedDB + fetch
     // Some browsers (Firefox, old Android WebView) pass these checks but still fail
     // Wrapped in its own try/catch so a messaging failure doesn't break auth/db
+    // Skip entirely in emulator mode: getMessaging triggers Firebase Installations,
+    // which validates the (fake) API key against the real backend and fails with
+    // installations/request-failed — that cascades into auth/network-request-failed.
     try {
       if (
+        import.meta.env.VITE_FIREBASE_EMULATOR !== 'true' &&
         'serviceWorker' in navigator &&
         'PushManager' in window &&
         'Notification' in window &&
