@@ -298,72 +298,6 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
           VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
 
-  e2e-firebase:
-    name: E2E Firebase (browser to emulator)
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - name: Start Firebase Emulators
-        run: |
-          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
-          for i in $(seq 1 30); do
-            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Emulators ready" && break
-            sleep 1
-          done
-      # Build the browser app pointing at the local emulators. VITE_FIREBASE_EMULATOR
-      # makes firebase.js connect to 127.0.0.1:9099/8080 + the CSP plugin allow them.
-      - name: Build app for emulator
-        run: npm run build
-        env:
-          VITE_FIREBASE_EMULATOR: 'true'
-          VITE_FIREBASE_API_KEY: 'fake-api-key-for-emulator'
-          VITE_FIREBASE_AUTH_DOMAIN: 'localhost'
-          VITE_FIREBASE_PROJECT_ID: 'spothitch-emulator'
-          VITE_FIREBASE_STORAGE_BUCKET: 'spothitch-emulator.appspot.com'
-          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
-          VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
-      # Seed accounts under the SAME project id as the build (spothitch-emulator),
-      # otherwise the browser reads a different emulator data partition.
-      - name: Seed test accounts
-        run: node scripts/firebase-test-setup.mjs
-        env:
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
-          FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080'
-          VITE_FIREBASE_API_KEY: 'fake-api-key-for-emulator'
-          VITE_FIREBASE_AUTH_DOMAIN: 'localhost'
-          VITE_FIREBASE_PROJECT_ID: 'spothitch-emulator'
-          VITE_FIREBASE_STORAGE_BUCKET: 'spothitch-emulator.appspot.com'
-          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
-          VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
-      # Runs the specs validated green against the emulator. firebase-data,
-      # firebase-social and firebase-spots are temporarily excluded: they have a
-      # few tests that need product decisions (e.g. should a creator be able to
-      # delete their own spot? rule is admin-only) or 2-browser friend-accept
-      # flows. See memory/project_firebase_e2e.md. They run once those are resolved.
-      - name: Run Firebase browser E2E (preview serves the emulator build)
-        run: npx playwright test e2e/firebase-auth.spec.js e2e/firebase-gamification.spec.js e2e/firebase-realtime.spec.js e2e/firebase-security.spec.js --project=chromium
-        env:
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-      - name: Upload report on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-firebase-report
-          path: playwright-report/
-          retention-days: 7
-
   e2e-core:
     name: E2E Core (navigation, admin, social, profile)
     runs-on: ubuntu-latest
@@ -843,7 +777,10 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium --retries=1 e2e/firebase-auth.spec.js e2e/firebase-data.spec.js e2e/firebase-gamification.spec.js e2e/firebase-realtime.spec.js e2e/firebase-security.spec.js e2e/firebase-social.spec.js e2e/firebase-spots.spec.js
+      # Runs the firebase specs validated green against the emulator. data/social/spots
+      # are excluded pending product decisions (e.g. can a creator delete their own spot?
+      # rule = admin-only) + a 2-browser friend-accept flow. See memory/project_firebase_e2e.md.
+      - run: npx playwright test --project=chromium --retries=1 e2e/firebase-auth.spec.js e2e/firebase-gamification.spec.js e2e/firebase-realtime.spec.js e2e/firebase-security.spec.js
         env:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
           FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
