@@ -10,7 +10,11 @@
     "src/utils/storage.js",
     "src/services/gpsTrust.js",
     "src/services/locationHistory.js",
-    "src/services/spotFreshness.js"
+    "src/services/spotFreshness.js",
+    "src/utils/mapsUrlParser.js",
+    "src/utils/sanitize.js",
+    "src/utils/geo.js",
+    "src/services/firebaseUtils.js"
   ],
   "reporters": ["clear-text", "progress"],
   "thresholds": {

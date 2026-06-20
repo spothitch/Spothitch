@@ -52,6 +52,34 @@ jobs:
       - run: npm ci
       - run: npx vitest run tests/wiring/ tests/integration/modals.test.js
 
+  security-rules:
+    name: Firestore Security Rules (IDOR)
+    runs-on: ubuntu-latest
+    # Runs on EVERY branch (incl. feature/*) — security boundaries must never regress silently.
+    # Local emulator only: zero Firebase billing, no external calls (RULE #22 compliant).
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - name: Start Firestore emulator
+        run: |
+          npx firebase emulators:start --only firestore --project spothitch-emulator &
+          for i in $(seq 1 30); do
+            curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Firestore emulator ready" && break
+            sleep 1
+          done
+      - name: Run Firestore security rules tests (IDOR) — enforced
+        run: npx vitest run tests/security/firestore-rules.test.js
+        env:
+          REQUIRE_FIRESTORE_EMULATOR: '1'
+
   i18n-lint:
     name: i18n Key Check
     runs-on: ubuntu-latest

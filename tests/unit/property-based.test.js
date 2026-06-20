@@ -20,6 +20,11 @@ vi.mock('../../src/stores/state.js', () => ({
 import { validateUsername } from '../../src/services/firebaseUtils.js'
 import { haversineKm } from '../../src/utils/geo.js'
 import { escapeHTML } from '../../src/utils/sanitize.js'
+import {
+  extractCoordsFromShare,
+  detectShortMapUrl,
+  detectOpaqueMapUrl,
+} from '../../src/utils/mapsUrlParser.js'
 
 // ── Arbitraries ────────────────────────────────────────────────────────────
 const anyString = fc.string({ minLength: 0, maxLength: 200 })
@@ -209,4 +214,87 @@ describe('GPS coordinates — boundary values', () => {
   it('lng 180 is valid', () => expect(isValidLng(180)).toBe(true))
   it('lng 180.0001 is invalid', () => expect(isValidLng(180.0001)).toBe(false))
   it('lng NaN is invalid', () => expect(isValidLng(NaN)).toBe(false))
+})
+
+// ══════════════════════════════════════════════════════════════════════════
+// mapsUrlParser — property-based (the URL parser had 40+ historical bugs)
+// Highest-value fuzz target: it ingests untrusted shared URLs/text from users.
+// ══════════════════════════════════════════════════════════════════════════
+const isValidLat = (v) => Number.isFinite(v) && v >= -90 && v <= 90
+const isValidLng = (v) => Number.isFinite(v) && v >= -180 && v <= 180
+// Strings biased toward coordinate-shaped chaos (digits, separators, scheme bits)
+const coordish = fc.array(
+  fc.constantFrom('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-', ',', ' ', '@', 'q', '=', '/', ':', 'e', 'N'),
+  { maxLength: 400 },
+).map((a) => a.join(''))
+
+describe('extractCoordsFromShare — property-based (untrusted URL/text fuzzing)', () => {
+  it('never throws on arbitrary url + text', () => {
+    fc.assert(fc.property(
+      fc.option(longString, { nil: undefined }),
+      fc.option(longString, { nil: undefined }),
+      (url, text) => {
+        expect(() => extractCoordsFromShare(url, text)).not.toThrow()
+      },
+    ), { numRuns: 2000 })
+  })
+
+  it('never crashes on null/undefined/empty', () => {
+    expect(() => extractCoordsFromShare(null, null)).not.toThrow()
+    expect(() => extractCoordsFromShare(undefined, undefined)).not.toThrow()
+    expect(() => extractCoordsFromShare('', '')).not.toThrow()
+    expect(extractCoordsFromShare(null, null)).toBe(null)
+  })
+
+  it('returns null OR in-range coords — never out-of-range (would break MapLibre)', () => {
+    fc.assert(fc.property(anyString, longString, (url, text) => {
+      const r = extractCoordsFromShare(url, text)
+      if (r !== null) {
+        expect(isValidLat(r.lat)).toBe(true)
+        expect(isValidLng(r.lng)).toBe(true)
+      }
+    }), { numRuns: 2000 })
+  })
+
+  it('coordinate-shaped chaos never yields invalid coords or crashes', () => {
+    fc.assert(fc.property(coordish, (text) => {
+      const r = extractCoordsFromShare(null, text)
+      if (r !== null) {
+        expect(isValidLat(r.lat) && isValidLng(r.lng)).toBe(true)
+      }
+    }), { numRuns: 3000 })
+  })
+
+  it('no ReDoS — completes fast on pathological coordinate-like input', () => {
+    const evil = '9'.repeat(50000) + '.' + '9'.repeat(50000)
+    const t0 = Date.now()
+    extractCoordsFromShare(evil, evil)
+    expect(Date.now() - t0).toBeLessThan(250)
+  })
+
+  // Sanity anchors: real share formats must still parse correctly
+  it('parses real Google Maps ?q= share', () => {
+    expect(extractCoordsFromShare('https://maps.google.com/?q=48.8566,2.3522')).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+  it('parses Android geo: URI from text', () => {
+    expect(extractCoordsFromShare(null, 'Here: geo:48.8566,2.3522')).toEqual({ lat: 48.8566, lng: 2.3522 })
+  })
+})
+
+describe('detectShortMapUrl / detectOpaqueMapUrl — property-based', () => {
+  it('never throw on arbitrary input', () => {
+    fc.assert(fc.property(fc.option(longString, { nil: undefined }), (url) => {
+      expect(() => detectShortMapUrl(url)).not.toThrow()
+      expect(() => detectOpaqueMapUrl(url)).not.toThrow()
+    }), { numRuns: 1500 })
+  })
+
+  it('always return null or a string', () => {
+    fc.assert(fc.property(anyString, (url) => {
+      const a = detectShortMapUrl(url)
+      const b = detectOpaqueMapUrl(url)
+      expect(a === null || typeof a === 'string').toBe(true)
+      expect(b === null || typeof b === 'string').toBe(true)
+    }), { numRuns: 1500 })
+  })
 })

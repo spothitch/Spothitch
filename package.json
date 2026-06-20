@@ -29,6 +29,7 @@
     "quality:fix": "node scripts/quality-gate.mjs --fix",
     "la-carte": "node scripts/la-carte.mjs",
     "test:mutate": "stryker run",
+    "test:mutate:critical": "stryker run --mutate \"src/utils/mapsUrlParser.js,src/utils/sanitize.js,src/utils/geo.js,src/services/firebaseUtils.js\"",
     "prepare": "husky"
   },
   "lint-staged": {

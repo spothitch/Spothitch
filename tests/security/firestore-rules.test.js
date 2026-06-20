@@ -21,9 +21,27 @@ const emulatorRunning = await new Promise(res => {
   req.on('timeout', () => { req.destroy(); res(false) })
 })
 
+// In the dedicated CI security-rules job we set REQUIRE_FIRESTORE_EMULATOR=1.
+// There, a missing emulator must FAIL loudly instead of silently skipping
+// (a skipped security-rules suite is a false-green that hides IDOR regressions).
+const requireEmulator = process.env.REQUIRE_FIRESTORE_EMULATOR === '1'
+
 if (!emulatorRunning) {
-  console.log('[firestore-rules] Firestore emulator not available — all tests skipped')
+  console.log('[firestore-rules] Firestore emulator not available — all tests skipped (set REQUIRE_FIRESTORE_EMULATOR=1 to enforce)')
 }
+
+describe('Firestore Rules — CI enforcement (no silent skip)', () => {
+  it('Firestore emulator MUST be running when REQUIRE_FIRESTORE_EMULATOR=1', () => {
+    // Passes in local/unit runs (no enforcement). Fails the dedicated CI job
+    // if the emulator is down, so the 17 IDOR tests can never silently skip.
+    if (requireEmulator) {
+      expect(
+        emulatorRunning,
+        'REQUIRE_FIRESTORE_EMULATOR=1 but no Firestore emulator on :8080 — security rules would silently skip (false-green).',
+      ).toBe(true)
+    }
+  })
+})
 
 let testEnv
 
