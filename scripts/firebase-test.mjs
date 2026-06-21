@@ -164,13 +164,26 @@ async function firestoreTests() {
     assert(snap.data().validationCount === 1, 'validationCount was not updated')
   })
 
-  await test('Alice cannot delete her spot (admin-only)', async () => {
+  await test('Alice cannot delete a community-engaged spot', async () => {
+    // validationCount: 2 means another user validated it beyond the creator's own 1.
+    const engagedId = `ci-engaged-spot-${Date.now()}`
+    await setDoc(doc(db, 'spots', engagedId), {
+      name: 'Engaged Spot', lat: 48.8, lng: 2.3, country: 'FR', type: 'roadside',
+      creatorId: aliceUid, validationCount: 2, testCount: 2, createdAt: serverTimestamp(),
+    })
     try {
-      await deleteDoc(doc(db, 'spots', testSpotId))
-      throw new Error('Delete should have been denied')
+      await deleteDoc(doc(db, 'spots', engagedId))
+      throw new Error('Delete of an engaged spot should have been denied')
     } catch (e) {
-      assert(e.code === 'permission-denied' || e.message.includes('PERMISSION_DENIED'), 'Expected permission denied')
+      assert(e.code === 'permission-denied' || e.message.includes('PERMISSION_DENIED'), 'Expected permission denied for engaged spot')
     }
+  })
+
+  await test('Alice can delete her own un-engaged spot', async () => {
+    // testSpotId has validationCount 1 (the creator's own) and no other engagement.
+    await deleteDoc(doc(db, 'spots', testSpotId))
+    const snap = await getDoc(doc(db, 'spots', testSpotId))
+    assert(!snap.exists(), 'Un-engaged spot was not deleted by its creator')
   })
 
   await signOut(auth)
