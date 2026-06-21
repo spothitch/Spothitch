@@ -13,6 +13,19 @@ export function renderSpotDetail(state) {
  if (!spot) return ''
 
  const spotIdStr = typeof spot.id === 'string' ? `'${escapeJSString(spot.id)}'` : spot.id
+
+ // Creator can delete their own spot ONLY while it has no community engagement
+ // from other users (Firestore rules enforce this server-side too). A freshly
+ // created spot starts at validationCount: 1, testCount: 1, totalReviews: 0.
+ const currentUid = state.user?.uid || null
+ const isCreator = !!(currentUid && spot.creatorId && spot.creatorId === currentUid)
+ const noOtherEngagement = Number(spot.validationCount ?? 0) <= 1
+ && Number(spot.testCount ?? 0) <= 1
+ && Number(spot.userValidations ?? 0) <= 0
+ && Number(spot.liveTestCount ?? 0) <= 0
+ && Number(spot.totalReviews ?? 0) <= 0
+ const canDeleteOwnSpot = isCreator && noOtherEngagement
+
  const totalValidations = spot.validationCount || spot.userValidations || 0
  const testCount = spot.liveTestCount || spot.testCount || 0
  const checkins = spot.checkins || 0
@@ -442,13 +455,20 @@ export function renderSpotDetail(state) {
  </button></div>
  `}
 
- <!-- Report -->
- <div class="text-center py-2 px-4 pb-4">
+ <!-- Report + delete own spot (creator only, no community engagement yet) -->
+ <div class="text-center py-2 px-4 pb-4 flex flex-col items-center gap-2">
  <button onclick="openReport('SPOT', '${escapeJSString(String(spot.id))}')" type="button"
  class="text-[11px] text-slate-700 bg-transparent border-none cursor-pointer inline-flex items-center gap-1">
  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
  ${t('report') || 'Signaler'}
- </button></div></div></div></div>
+ </button>
+ ${canDeleteOwnSpot ? `
+ <button onclick="deleteMySpot('${escapeJSString(String(spot.id))}')" type="button"
+ class="text-[11px] text-red-400 bg-transparent border-none cursor-pointer inline-flex items-center gap-1">
+ ${icon('trash-2', 'w-3 h-3')}
+ ${t('deleteMySpot') || 'Supprimer mon spot'}
+ </button>` : ''}
+ </div></div></div></div>
  `
 }
 
@@ -760,6 +780,47 @@ window.addDestinationToExistingSpot = async (spotId) => {
  },
  onClear: () => {},
  })
+ }
+}
+
+// Handler: creator deletes their own spot (only when it has no community
+// engagement from other users — Firestore rules enforce this server-side too).
+window.deleteMySpot = async (spotId) => {
+ const { getCurrentUser, deleteSpot, spotHasNoOtherEngagement } = await import('../../services/firebase.js')
+ const user = getCurrentUser()
+ if (!user) {
+ const { setState } = await import('../../stores/state.js')
+ setState({ showAuth: true })
+ return
+ }
+
+ const { getState, setState } = await import('../../stores/state.js')
+ const spot = getState().selectedSpot
+ if (!spot || String(spot.id) !== String(spotId)) return
+
+ const { showError, showSuccess } = await import('../../services/notifications.js')
+
+ // Guard: only the creator, and only with no other engagement
+ if (spot.creatorId !== user.uid || !spotHasNoOtherEngagement(spot)) {
+ showError(t('deleteSpotBlocked') || 'Ce spot a déjà été validé par la communauté. Il ne peut plus être supprimé.')
+ return
+ }
+
+ if (!confirm(t('confirmDeleteMySpot') || 'Supprimer ton spot ? Cette action est irréversible.')) return
+
+ const result = await deleteSpot(spotId)
+ if (result.success) {
+ // Remove from local state and close the modal
+ const currentSpots = getState().spots || []
+ setState({
+ spots: currentSpots.filter(s => String(s.id) !== String(spotId)),
+ selectedSpot: null,
+ showSpotDetail: false,
+ })
+ if (window._refreshMapSpots) window._refreshMapSpots()
+ showSuccess(t('spotDeleted') || 'Spot supprimé.')
+ } else {
+ showError(t('deleteSpotError') || 'Impossible de supprimer ce spot.')
  }
 }
 

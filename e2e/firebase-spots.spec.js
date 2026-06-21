@@ -65,9 +65,11 @@ test.describe('Firebase Spots', () => {
     }, spotId)
   })
 
-  test('delete own spot works', async () => {
+  test('delete own spot works (no community engagement)', async () => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
+    // Creator can delete their own spot that has NO reviews/validations from others.
+    // A freshly created spot starts at validationCount: 1, testCount: 1, totalReviews: 0.
     const spotId = await page.evaluate(async () => {
       const { getDb, getAuth, collection, addDoc, deleteDoc, doc, serverTimestamp } = window.__fb
       const db = getDb()
@@ -76,6 +78,7 @@ test.describe('Firebase Spots', () => {
       const ref = await addDoc(collection(db, 'spots'), {
         lat: 50.0, lng: 4.0, direction: 'south', type: 'highway',
         description: 'E2E delete test', creatorId: uid, createdAt: serverTimestamp(),
+        validationCount: 1, testCount: 1, totalReviews: 0,
       })
       await deleteDoc(doc(db, 'spots', ref.id))
       return ref.id
@@ -84,6 +87,35 @@ test.describe('Firebase Spots', () => {
     expect(spotId).toBeTruthy()
     const exists = await firestoreDocExists(page, 'spots', spotId)
     expect(exists).toBe(false)
+  })
+
+  test('creator CANNOT delete own spot once community has engaged', async () => {
+    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+
+    // Once OTHER users have validated/reviewed the spot it becomes permanent
+    // community data — even the creator can no longer delete it.
+    const result = await page.evaluate(async () => {
+      const { getDb, getAuth, collection, addDoc, deleteDoc, doc, serverTimestamp } = window.__fb
+      const db = getDb()
+      const uid = getAuth().currentUser?.uid
+      if (!uid) return { error: 'no-uid' }
+      const ref = await addDoc(collection(db, 'spots'), {
+        lat: 50.1, lng: 4.1, direction: 'south', type: 'highway',
+        description: 'E2E engaged spot', creatorId: uid, createdAt: serverTimestamp(),
+        validationCount: 5, testCount: 3, totalReviews: 2,
+      })
+      try {
+        await deleteDoc(doc(db, 'spots', ref.id))
+        return { id: ref.id, denied: false }
+      } catch {
+        return { id: ref.id, denied: true }
+      }
+    })
+
+    expect(result.denied).toBe(true)
+    // Spot still exists (cleanup handled by global test teardown / admin)
+    const exists = await firestoreDocExists(page, 'spots', result.id)
+    expect(exists).toBe(true)
   })
 
   test('add and remove favorite syncs to Firestore', async () => {

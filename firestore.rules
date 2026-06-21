@@ -28,10 +28,28 @@ service cloud.firestore {
                'streetViewVerified', 'streetViewVerifiedBy', 'streetViewVerifiedAt'
              ])
         );
-      // Only admin can delete spots
+      // Delete rules:
+      //  - Admins can always delete any spot.
+      //  - The creator can delete their OWN spot ONLY while it has no community
+      //    engagement from other users. Firestore rules cannot query the reviews/
+      //    validations subcollections, so we rely on the counter fields stored on
+      //    the spot document. A freshly created spot starts at validationCount: 1,
+      //    testCount: 1, totalReviews: 0 (the creator's own initial entry), so the
+      //    "no other engagement" threshold is validationCount/testCount <= 1,
+      //    userValidations/liveTestCount/totalReviews <= 0 (treating missing as 0).
       allow delete: if request.auth != null
-        && (request.auth.token.email == 'antoine.v.ville@gmail.com'
-            || request.auth.token.email == 'ci-admin@spothitch.com');
+        && (
+          request.auth.token.email == 'antoine.v.ville@gmail.com'
+          || request.auth.token.email == 'ci-admin@spothitch.com'
+          || (
+            request.auth.uid == resource.data.creatorId
+            && resource.data.get('validationCount', 1) <= 1
+            && resource.data.get('testCount', 1) <= 1
+            && resource.data.get('userValidations', 0) <= 0
+            && resource.data.get('liveTestCount', 0) <= 0
+            && resource.data.get('totalReviews', 0) <= 0
+          )
+        );
 
       // Spot reviews subcollection
       // Self-review blocked via request data (not resource, which is null on create)

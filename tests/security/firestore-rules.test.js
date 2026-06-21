@@ -135,6 +135,93 @@ describe('Firestore Rules — /spots/{spotId}', () => {
     const bobDb = asUser(BOB_UID)
     await assertFails(bobDb.collection('spots').doc(ref.id).delete())
   })
+
+  // ── Self-delete: creator can delete their OWN un-engaged spot ──────────────
+  // A freshly created spot starts at validationCount: 1, testCount: 1,
+  // totalReviews: 0 (the creator's own initial entry only).
+  const freshOwnSpot = {
+    lat: 48.85,
+    lng: 2.35,
+    createdAt: new Date(),
+    type: 'city_exit',
+    creatorId: ALICE_UID,
+    validationCount: 1,
+    testCount: 1,
+    totalReviews: 0,
+  }
+
+  it.skipIf(!emulatorRunning)('creator CAN delete their OWN un-engaged spot', async () => {
+    let ref
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      ref = await ctx.firestore().collection('spots').add(freshOwnSpot)
+    })
+    const aliceDb = asUser(ALICE_UID)
+    await assertSucceeds(aliceDb.collection('spots').doc(ref.id).delete())
+  })
+
+  it.skipIf(!emulatorRunning)('creator CAN delete their OWN spot with no counter fields at all', async () => {
+    let ref
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      ref = await ctx.firestore().collection('spots').add({
+        lat: 48.85, lng: 2.35, createdAt: new Date(), creatorId: ALICE_UID,
+      })
+    })
+    const aliceDb = asUser(ALICE_UID)
+    await assertSucceeds(aliceDb.collection('spots').doc(ref.id).delete())
+  })
+
+  it.skipIf(!emulatorRunning)('creator CANNOT delete their OWN spot once OTHERS validated it (validationCount > 1)', async () => {
+    let ref
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      ref = await ctx.firestore().collection('spots').add({
+        ...freshOwnSpot, validationCount: 2,
+      })
+    })
+    const aliceDb = asUser(ALICE_UID)
+    await assertFails(aliceDb.collection('spots').doc(ref.id).delete())
+  })
+
+  it.skipIf(!emulatorRunning)('creator CANNOT delete their OWN spot once OTHERS tested it (testCount > 1)', async () => {
+    let ref
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      ref = await ctx.firestore().collection('spots').add({
+        ...freshOwnSpot, testCount: 3,
+      })
+    })
+    const aliceDb = asUser(ALICE_UID)
+    await assertFails(aliceDb.collection('spots').doc(ref.id).delete())
+  })
+
+  it.skipIf(!emulatorRunning)('creator CANNOT delete their OWN spot once OTHERS reviewed it (totalReviews > 0)', async () => {
+    let ref
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      ref = await ctx.firestore().collection('spots').add({
+        ...freshOwnSpot, totalReviews: 1,
+      })
+    })
+    const aliceDb = asUser(ALICE_UID)
+    await assertFails(aliceDb.collection('spots').doc(ref.id).delete())
+  })
+
+  it.skipIf(!emulatorRunning)('non-creator CANNOT delete an un-engaged spot', async () => {
+    let ref
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      ref = await ctx.firestore().collection('spots').add(freshOwnSpot)
+    })
+    const bobDb = asUser(BOB_UID)
+    await assertFails(bobDb.collection('spots').doc(ref.id).delete())
+  })
+
+  it.skipIf(!emulatorRunning)('admin CAN delete any spot even with community engagement', async () => {
+    let ref
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      ref = await ctx.firestore().collection('spots').add({
+        ...freshOwnSpot, validationCount: 50, testCount: 30, totalReviews: 12,
+      })
+    })
+    const adminDb = asUser('admin-uid-003', ADMIN_EMAIL)
+    await assertSucceeds(adminDb.collection('spots').doc(ref.id).delete())
+  })
 })
 
 // ══════════════════════════════════════════════════════════════════════════

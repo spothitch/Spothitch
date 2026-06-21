@@ -3656,6 +3656,11 @@ export default {
  shareThisSpot: "Diesen Spot teilen",
  submittingSpot: "Spot wird gesendet...",
  spotShared: "Spot erfolgreich geteilt!",
+ deleteMySpot: "Meinen Spot löschen",
+ confirmDeleteMySpot: "Deinen Spot löschen? Diese Aktion ist unwiderruflich.",
+ deleteSpotBlocked: "Dieser Spot wurde bereits von der Community bestätigt. Er kann nicht mehr gelöscht werden.",
+ spotDeleted: "Spot gelöscht.",
+ deleteSpotError: "Dieser Spot kann nicht gelöscht werden.",
 
  // ValidateSpot
  iTestedThisSpot: "Ich habe diesen Spot getestet",

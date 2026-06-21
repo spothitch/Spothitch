@@ -1895,6 +1895,47 @@ export async function updateTrip(uid, tripId, fields) {
 }
 
 /**
+ * Returns true when a spot still has NO community engagement from other users
+ * (only the creator's own initial validation/test). Mirrors the Firestore
+ * delete rule so the UI can show/hide the delete action consistently.
+ * A freshly created spot starts at validationCount: 1, testCount: 1.
+ * @param {Object} spot
+ * @returns {boolean}
+ */
+export function spotHasNoOtherEngagement(spot) {
+  if (!spot) return false
+  const validationCount = Number(spot.validationCount ?? 0)
+  const testCount = Number(spot.testCount ?? 0)
+  const userValidations = Number(spot.userValidations ?? 0)
+  const liveTestCount = Number(spot.liveTestCount ?? 0)
+  const totalReviews = Number(spot.totalReviews ?? 0)
+  return validationCount <= 1
+    && testCount <= 1
+    && userValidations <= 0
+    && liveTestCount <= 0
+    && totalReviews <= 0
+}
+
+/**
+ * Delete a spot. Allowed only for the creator while the spot has no community
+ * engagement (or for admins, enforced server-side by Firestore rules).
+ * @param {string} spotId
+ * @returns {Promise<{success: boolean, error?: any}>}
+ */
+export async function deleteSpot(spotId) {
+  try {
+    const user = getCurrentUser()
+    if (!user) return { success: false, error: 'not_authenticated' }
+    const spotRef = doc(db, 'spots', String(spotId))
+    await deleteDoc(spotRef)
+    return { success: true }
+  } catch (error) {
+    console.error('deleteSpot error:', error)
+    return { success: false, error }
+  }
+}
+
+/**
  * Delete a trip from Firestore.
  */
 export async function deleteTrip(uid, tripId) {
