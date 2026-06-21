@@ -17,6 +17,24 @@ function versionPlugin() {
   }
 }
 
+// CSP: allow the local Firebase emulators in connect-src ONLY for the isolated E2E
+// emulator build (VITE_FIREBASE_EMULATOR_E2E=true). This flag is set ONLY by the
+// dedicated e2e-firebase CI job's build — NEVER by the shared build job — so production
+// and the rest of the E2E suite keep the locked-down CSP (no suite-wide ripple).
+function emulatorCspPlugin() {
+  const isE2eEmulator = process.env.VITE_FIREBASE_EMULATOR_E2E === 'true'
+  return {
+    name: 'emulator-csp',
+    transformIndexHtml(html) {
+      if (!isE2eEmulator) return html
+      return html.replace(
+        /(connect-src 'self')/,
+        "$1 http://127.0.0.1:9099 http://127.0.0.1:8080 ws://127.0.0.1:9099 ws://127.0.0.1:8080"
+      )
+    }
+  }
+}
+
 // Sur Cloudflare Pages, CF_PAGES_BRANCH est injecté automatiquement.
 // VITE_SHOW_BETA=true uniquement sur la branche 'dev' (ou en local via .env.local).
 const showBeta = process.env.VITE_SHOW_BETA === 'true'
@@ -34,6 +52,9 @@ export default defineConfig({
 
     // Version check for auto-reload
     versionPlugin(),
+
+    // Firebase emulators in CSP for the isolated E2E build only
+    emulatorCspPlugin(),
 
     // PWA Plugin
     VitePWA({

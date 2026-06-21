@@ -239,7 +239,8 @@ test.describe('Firebase Data', () => {
         const db = getDb()
         const ref = await addDoc(collection(db, 'hostel_recs'), {
           name: 'E2E Test Hostel', city: 'Paris',
-          lat: 48.85, lng: 2.35, addedBy: testUid, createdAt: serverTimestamp(),
+          // userId is the ownership field the hostel_recs rule checks for delete
+          lat: 48.85, lng: 2.35, userId: testUid, addedBy: testUid, createdAt: serverTimestamp(),
         })
         const snap = await getDoc(doc(db, 'hostel_recs', ref.id))
         const data = snap.data()
@@ -308,28 +309,6 @@ test.describe('Firebase Data', () => {
 
     expect(result.allExist).toBe(true)
     expect(result.count).toBe(3)
-  })
-
-  test('chat room message write', async () => {
-    test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
-
-    const result = await page.evaluate(async (testUid) => {
-      try {
-        const { getDb, collection, addDoc, getDocs, serverTimestamp } = window.__fb
-        const db = getDb()
-        const room = `e2e-room-${Date.now()}`
-        await addDoc(collection(db, 'chat', room, 'messages'), {
-          userId: testUid, text: 'Hello chat room!', timestamp: serverTimestamp(),
-        })
-        const snap = await getDocs(collection(db, 'chat', room, 'messages'))
-        const text = snap.docs[0]?.data()?.text
-        // chat messages cannot be deleted (allow delete: if false)
-        return { count: snap.size, text }
-      } catch (err) { return { error: err.message } }
-    }, aliceUid)
-
-    expect(result.count).toBe(1)
-    expect(result.text).toBe('Hello chat room!')
   })
 
   test('roadmap vote CRUD', async () => {

@@ -298,6 +298,72 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
           VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
 
+  # Browser Firebase E2E against the emulator, fully ISOLATED from the shared build.
+  # This job builds its OWN dist with VITE_FIREBASE_EMULATOR_E2E=true, which is the ONLY
+  # flag that unlocks the emulator in the CSP (vite.config.js) + skips Messaging
+  # (firebase.js). The shared `build` job never sets it, so the rest of the E2E suite is
+  # unaffected (no suite-wide ripple). Runs the 5 specs validated green (~73 tests that
+  # were always skipping before). realtime/social (2-browser flows) + the Storage photo
+  # test are deferred — see memory/project_firebase_e2e.md.
+  e2e-firebase:
+    name: E2E Firebase (isolated emulator build)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start Firebase Emulators
+        run: |
+          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
+          for i in $(seq 1 30); do
+            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Emulators ready" && break
+            sleep 1
+          done
+      - name: Build isolated emulator app
+        run: npm run build
+        env:
+          VITE_FIREBASE_EMULATOR: 'true'
+          VITE_FIREBASE_EMULATOR_E2E: 'true'
+          VITE_FIREBASE_API_KEY: 'fake-api-key-for-emulator'
+          VITE_FIREBASE_AUTH_DOMAIN: 'localhost'
+          VITE_FIREBASE_PROJECT_ID: 'spothitch-emulator'
+          VITE_FIREBASE_STORAGE_BUCKET: 'spothitch-emulator.appspot.com'
+          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+          VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
+      - name: Seed test accounts (same project id as the build)
+        run: node scripts/firebase-test-setup.mjs
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
+          FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080'
+          VITE_FIREBASE_API_KEY: 'fake-api-key-for-emulator'
+          VITE_FIREBASE_AUTH_DOMAIN: 'localhost'
+          VITE_FIREBASE_PROJECT_ID: 'spothitch-emulator'
+          VITE_FIREBASE_STORAGE_BUCKET: 'spothitch-emulator.appspot.com'
+          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+          VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
+      - name: Run Firebase browser E2E (preview serves the isolated build)
+        run: npx playwright test --project=chromium --retries=2 e2e/firebase-auth.spec.js e2e/firebase-gamification.spec.js e2e/firebase-security.spec.js e2e/firebase-data.spec.js e2e/firebase-spots.spec.js
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-firebase-isolated-report
+          path: playwright-report/
+          retention-days: 7
+
   e2e-core:
     name: E2E Core (navigation, admin, social, profile)
     runs-on: ubuntu-latest

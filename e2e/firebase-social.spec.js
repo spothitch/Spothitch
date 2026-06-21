@@ -13,6 +13,7 @@ import {
   cleanupTestData,
   getUidByEmail,
   initFirebasePage,
+  openSecondBrowser,
 } from './firebase-helpers.js'
 
 test.describe('Firebase Social', () => {
@@ -59,48 +60,80 @@ test.describe('Firebase Social', () => {
     expect(result.sent).toBe(true)
   })
 
-  test('accept friend request updates status', async () => {
+  // friendRequests are immutable (rule: update=false) and a request can only be created
+  // by its sender (doc id == sender uid, fromUserId == sender). So Bob must send it from
+  // his own session; "accept" = create the mutual friendship + delete the request.
+  test('accept friend request creates friendship and clears request', async ({ browser }) => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+    test.skip(isFallback, 'Firebase emulator not reachable from browser build')
 
-    // Create a request in Alice's OWN subcollection (she can read/write/delete her own)
-    const result = await page.evaluate(async ({ from, aliceUid }) => {
-      try {
-        const { getDb, collection, addDoc, getDoc, updateDoc, deleteDoc, serverTimestamp } = window.__fb
-        const db = getDb()
-        const ref = await addDoc(collection(db, 'users', aliceUid, 'friendRequests'), {
-          from, to: aliceUid, status: 'pending', createdAt: serverTimestamp(),
+    const { context: bobCtx, page: bobPage } = await openSecondBrowser(browser, TEST_ACCOUNTS.bob.email)
+    try {
+      // Bob sends a friend request to Alice (rule: doc id = sender uid, fromUserId = sender)
+      await bobPage.evaluate(async (aUid) => {
+        const { getDb, doc, setDoc, getAuth, serverTimestamp } = window.__fb
+        const me = getAuth().currentUser.uid
+        await setDoc(doc(getDb(), 'users', aUid, 'friendRequests', me), {
+          fromUserId: me, to: aUid, status: 'pending', createdAt: serverTimestamp(),
         })
-        // Alice can read and update her own friendRequests
-        await updateDoc(ref, { status: 'accepted' })
-        const snap = await getDoc(ref)
-        const status = snap.data()?.status
-        await deleteDoc(ref)
-        return { accepted: status === 'accepted' }
-      } catch (err) { return { error: err.message } }
-    }, { from: bobUid, aliceUid })
+      }, aliceUid)
 
-    expect(result.accepted).toBe(true)
+      // Alice accepts: verify the request, create mutual friends, delete the request
+      const result = await page.evaluate(async ({ aUid, bUid }) => {
+        try {
+          const { getDb, doc, setDoc, getDoc, deleteDoc, serverTimestamp } = window.__fb
+          const db = getDb()
+          const reqBefore = await getDoc(doc(db, 'users', aUid, 'friendRequests', bUid))
+          await setDoc(doc(db, 'users', aUid, 'friends', bUid), { uid: bUid, since: serverTimestamp() })
+          await setDoc(doc(db, 'users', bUid, 'friends', aUid), { uid: aUid, since: serverTimestamp() })
+          await deleteDoc(doc(db, 'users', aUid, 'friendRequests', bUid))
+          const reqAfter = await getDoc(doc(db, 'users', aUid, 'friendRequests', bUid))
+          const friend = await getDoc(doc(db, 'users', aUid, 'friends', bUid))
+          // cleanup friends
+          try { await deleteDoc(doc(db, 'users', aUid, 'friends', bUid)) } catch { /* ignore */ }
+          try { await deleteDoc(doc(db, 'users', bUid, 'friends', aUid)) } catch { /* ignore */ }
+          return { hadRequest: reqBefore.exists(), friendCreated: friend.exists(), requestCleared: !reqAfter.exists() }
+        } catch (err) { return { error: err.message } }
+      }, { aUid: aliceUid, bUid: bobUid })
+
+      expect(result.hadRequest).toBe(true)
+      expect(result.friendCreated).toBe(true)
+      expect(result.requestCleared).toBe(true)
+    } finally {
+      await bobCtx.close()
+    }
   })
 
-  test('reject friend request updates status', async () => {
+  test('reject friend request deletes the request', async ({ browser }) => {
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
+    test.skip(isFallback, 'Firebase emulator not reachable from browser build')
 
-    // Create in Alice's own subcollection (she can read/delete her own)
-    const result = await page.evaluate(async ({ from, to, aliceUid }) => {
-      try {
-        const { getDb, collection, addDoc, getDoc, deleteDoc, serverTimestamp } = window.__fb
-        const db = getDb()
-        const ref = await addDoc(collection(db, 'users', aliceUid, 'friendRequests'), {
-          from: to, to: aliceUid, status: 'pending', createdAt: serverTimestamp(),
+    const { context: bobCtx, page: bobPage } = await openSecondBrowser(browser, TEST_ACCOUNTS.bob.email)
+    try {
+      await bobPage.evaluate(async (aUid) => {
+        const { getDb, doc, setDoc, getAuth, serverTimestamp } = window.__fb
+        const me = getAuth().currentUser.uid
+        await setDoc(doc(getDb(), 'users', aUid, 'friendRequests', me), {
+          fromUserId: me, to: aUid, status: 'pending', createdAt: serverTimestamp(),
         })
-        const snap = await getDoc(ref)
-        const status = snap.data()?.status
-        await deleteDoc(ref)
-        return { rejected: status === 'pending' }
-      } catch (err) { return { error: err.message } }
-    }, { from: aliceUid, to: charlieUid, aliceUid })
+      }, aliceUid)
 
-    expect(result.rejected).toBe(true)
+      const result = await page.evaluate(async ({ aUid, bUid }) => {
+        try {
+          const { getDb, doc, getDoc, deleteDoc } = window.__fb
+          const db = getDb()
+          const before = await getDoc(doc(db, 'users', aUid, 'friendRequests', bUid))
+          await deleteDoc(doc(db, 'users', aUid, 'friendRequests', bUid))
+          const after = await getDoc(doc(db, 'users', aUid, 'friendRequests', bUid))
+          return { hadRequest: before.exists(), rejected: !after.exists() }
+        } catch (err) { return { error: err.message } }
+      }, { aUid: aliceUid, bUid: bobUid })
+
+      expect(result.hadRequest).toBe(true)
+      expect(result.rejected).toBe(true)
+    } finally {
+      await bobCtx.close()
+    }
   })
 
   test('send DM creates conversation and message', async () => {
