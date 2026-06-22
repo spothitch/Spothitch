@@ -353,7 +353,7 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
           VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
       - name: Run Firebase browser E2E (preview serves the isolated build)
-        run: npx playwright test --project=chromium --retries=2 e2e/firebase-auth.spec.js e2e/firebase-gamification.spec.js e2e/firebase-security.spec.js e2e/firebase-data.spec.js e2e/firebase-spots.spec.js e2e/firebase-submit-handlers.spec.js
+        run: npx playwright test --project=chromium --retries=2 e2e/firebase-auth.spec.js e2e/firebase-gamification.spec.js e2e/firebase-security.spec.js e2e/firebase-data.spec.js e2e/firebase-spots.spec.js e2e/firebase-submit-handlers.spec.js e2e/firebase-messaging-handlers.spec.js
         env:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
       - name: Upload report on failure
