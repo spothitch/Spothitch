@@ -733,7 +733,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npx playwright test --project=chromium --retries=2 e2e/regression.spec.js e2e/handlerCoverage.spec.js e2e/guardian-complete.spec.js e2e/radarBuddies.spec.js e2e/sosGuardian.spec.js e2e/visualTests.spec.js e2e/round01-auth.spec.js e2e/round02-profile.spec.js e2e/round03-spots.spec.js e2e/round04-social.spec.js e2e/guardian-config.spec.js e2e/modal-state-handlers.spec.js e2e/toggle-handlers.spec.js e2e/delegation-handlers.spec.js
+      - run: npx playwright test --project=chromium --retries=2 e2e/regression.spec.js e2e/handlerCoverage.spec.js e2e/guardian-complete.spec.js e2e/radarBuddies.spec.js e2e/sosGuardian.spec.js e2e/visualTests.spec.js e2e/round01-auth.spec.js e2e/round02-profile.spec.js e2e/round03-spots.spec.js e2e/round04-social.spec.js e2e/guardian-config.spec.js e2e/modal-state-handlers.spec.js e2e/toggle-handlers.spec.js e2e/delegation-handlers.spec.js e2e/handler-fuzz.spec.js
         env:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
           FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
