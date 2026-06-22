@@ -85,4 +85,43 @@ test.describe('Firebase submit handlers', () => {
     // 5. And the handler cleared the rating state on success.
     expect(await page.evaluate(() => window.getState().currentRating)).toBe(0)
   })
+
+  test('submitPastTrip saves a trip to Firestore (users/{uid}/trips)', async () => {
+    const uid = await getCurrentUid(page)
+    expect(uid).toBeTruthy()
+
+    // Load the real submitPastTrip handler (profileRender module) by visiting the profile.
+    await page.evaluate(() => { window.changeTab('profile'); window.setState({ showAddPastTrip: true }) })
+    await page.waitForFunction(() => typeof window.submitPastTrip === 'function', { timeout: 15000 })
+
+    // The handler reads the form fields via getElementById — provide them, fill, run it.
+    const marker = 'E2E-' + Date.now()
+    await page.evaluate(({ marker, uid }) => {
+      window.setState({ currentUser: { uid }, username: 'AliceTraveller' })
+      const mk = (id, val) => {
+        let el = document.getElementById(id)
+        if (!el) { el = document.createElement('input'); el.id = id; document.body.appendChild(el) }
+        el.value = val
+      }
+      mk('past-trip-from', marker + '-From')
+      mk('past-trip-to', marker + '-To')
+      mk('past-trip-date', '2026-01-01')
+      mk('past-trip-km', '120')
+      mk('past-trip-lifts', '3')
+      mk('past-trip-note', 'e2e trip')
+      window.submitPastTrip()
+    }, { marker, uid })
+
+    // The handler imports firebase.saveTrip(uid, trip) → users/{uid}/trips/{id}.
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ uid, marker }) => {
+        const { getDb, collection, getDocs } = window.__fb
+        const db = getDb()
+        const snap = await getDocs(collection(db, 'users', uid, 'trips'))
+        let found = 0
+        snap.forEach((d) => { const t = d.data(); if ((t.from || '').includes(marker)) found++ })
+        return found
+      }, { uid, marker })
+    }, { timeout: 12000 }).toBeGreaterThan(0)
+  })
 })
