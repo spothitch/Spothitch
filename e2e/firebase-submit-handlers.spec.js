@@ -217,4 +217,27 @@ test.describe('Firebase submit handlers', () => {
       }, { uid, spotId })
     }, { timeout: 12000 }).toBe(true)
   })
+
+  test('submitIntroVote persists a feature vote to Firestore (featureUserVotes)', async () => {
+    const uid = await getCurrentUid(page)
+    const featureId = 'feat-' + Date.now()
+    // Load the FeatureIntro module so the real handler exists, then provide the overlay
+    // node it reads the selected vote from, and run it.
+    await page.evaluate((fid) => { window.showFeatureIntro?.(fid); window.setState({ showFeatureIntro: true }) }, featureId)
+    await page.waitForFunction(() => typeof window.submitIntroVote === 'function', { timeout: 15000 })
+    await page.evaluate(({ fid }) => {
+      let ov = document.getElementById('feature-intro-overlay')
+      if (!ov) { ov = document.createElement('div'); ov.id = 'feature-intro-overlay'; document.body.appendChild(ov) }
+      ov.dataset.selectedVote = 'up'
+      window.submitIntroVote(fid)
+    }, { fid: featureId })
+
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ uid, fid }) => {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'featureUserVotes', `${uid}_${fid}`))
+        return snap.exists()
+      }, { uid, fid: featureId })
+    }, { timeout: 12000 }).toBe(true)
+  })
 })
