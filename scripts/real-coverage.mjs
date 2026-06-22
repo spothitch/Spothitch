@@ -36,6 +36,9 @@ if (fs.existsSync('e2e/modal-state-handlers.spec.js')) {
   const open = execSync('grep -rhoP "window\\.(?:open|show)[A-Z]\\w* = \\(\\w*\\) => setState\\(\\{ \\w+: true" src/ --include=*.js').toString()
   const needsArgs = new Set(['openTestSpot', 'openSpotDraft', 'openFeedbackDetail', 'openProgressionStats'])
   for (const m of open.matchAll(/window\.(\w+) =/g)) if (!needsArgs.has(m[1])) dataDriven.add(m[1])
+  // set* handlers covered by the data-driven setter test
+  const set = execSync('grep -rhoP "window\\.set[A-Z]\\w* = \\(\\w*\\) => (?:window\\.)?setState\\(\\{ \\w+:" src/ --include=*.js').toString()
+  for (const m of set.matchAll(/window\.(set\w+) =/g)) dataDriven.add(m[1])
 }
 
 let invoked = 0
