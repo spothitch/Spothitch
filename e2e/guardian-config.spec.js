@@ -95,4 +95,23 @@ test.describe('Guardian config — real handler effects', () => {
     })
     expect(isClosed).toBe(true)
   })
+
+  test('guardianClearHistory erases the saved trip history', async ({ page }) => {
+    const after = await page.evaluate(async () => {
+      localStorage.setItem('spothitch_trip_history', JSON.stringify([{ id: 'trip1' }, { id: 'trip2' }]))
+      await window.guardianClearHistory()
+      await new Promise(r => setTimeout(r, 200))
+      return localStorage.getItem('spothitch_trip_history')
+    })
+    expect(after).toBeNull()
+  })
+
+  test('guardianAddToJournal closes Guardian and routes to the journal', async ({ page }) => {
+    const closed = await page.evaluate(async () => {
+      window.guardianAddToJournal()
+      await new Promise(r => setTimeout(r, 300))
+      return window.getState?.().showGuardianModal === false
+    })
+    expect(closed).toBe(true)
+  })
 })
