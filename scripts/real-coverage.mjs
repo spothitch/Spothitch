@@ -31,9 +31,9 @@ const dataDriven = new Set()
 if (fs.existsSync('e2e/modal-state-handlers.spec.js')) {
   // modal-state-handlers.spec.js triggers every close* (setState false) handler and
   // every no-arg open/show* (setState true) handler.
-  const close = execSync('grep -rhoP "window\\.close[A-Z]\\w* = \\(\\w*\\) => setState\\(\\{ \\w+: false" src/ --include=*.js').toString()
+  const close = execSync('grep -rhoP "window\\.close[A-Z]\\w* = \\(\\w*\\) => (window\\.)?setState(\\?\\.)?\\(\\{ \\w+: false" src/ --include=*.js').toString()
   for (const m of close.matchAll(/window\.(\w+) =/g)) dataDriven.add(m[1])
-  const open = execSync('grep -rhoP "window\\.(?:open|show)[A-Z]\\w* = \\(\\w*\\) => setState\\(\\{ \\w+: true" src/ --include=*.js').toString()
+  const open = execSync('grep -rhoP "window\\.(?:open|show)[A-Z]\\w* = \\(\\w*\\) => (window\\.)?setState(\\?\\.)?\\(\\{ \\w+: true" src/ --include=*.js').toString()
   const needsArgs = new Set(['openTestSpot', 'openSpotDraft', 'openFeedbackDetail', 'openProgressionStats'])
   for (const m of open.matchAll(/window\.(\w+) =/g)) if (!needsArgs.has(m[1])) dataDriven.add(m[1])
   // set* handlers covered by the data-driven setter test

@@ -12,9 +12,9 @@ import { execSync } from 'child_process'
  */
 function pairs(re, value) {
   const out = execSync(
-    `grep -rhoP "window\\.${re} = \\(\\w*\\) => setState\\(\\{ \\w+: ${value}" src/ --include=*.js`,
+    `grep -rhoP "window\\.${re} = \\(\\w*\\) => (window\\.)?setState(\\?\\.)?\\(\\{ \\w+: ${value}" src/ --include=*.js`,
   ).toString()
-  const m = [...out.matchAll(new RegExp(`window\\.(\\w+) = .*setState\\(\\{ (\\w+): ${value}`, 'g'))]
+  const m = [...out.matchAll(new RegExp(`window\\.(\\w+) = .*setState\\??\\.?\\(\\{ (\\w+): ${value}`, 'g'))]
   return [...new Map(m.map((x) => [x[1], { fn: x[1], flag: x[2] }])).values()]
 }
 
