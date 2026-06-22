@@ -58,6 +58,25 @@ if (fs.existsSync('e2e/toggle-auto.spec.js')) {
   const allTog = execSync("grep -rhoP 'window\\.toggle[A-Z]\\w* =' src/ --include=*.js").toString()
   for (const m of allTog.matchAll(/window\.(\w+) =/g)) if (!needs.has(m[1])) dataDriven.add(m[1])
 }
+// close-auto.spec.js parses every window.closeX, finds the flag it sets false/null, opens
+// the modal and asserts the flag clears. Credit that set (minus its documented SKIP list).
+if (fs.existsSync('e2e/close-auto.spec.js')) {
+  const spec = fs.readFileSync('e2e/close-auto.spec.js', 'utf8')
+  const skipBlock = spec.slice(spec.indexOf('const SKIP'), spec.indexOf('])', spec.indexOf('const SKIP')))
+  const skip = new Set([...skipBlock.matchAll(/'(\w+)'/g)].map((m) => m[1]))
+  const files = execSync('grep -rl "window.close" src/ --include=*.js').toString().trim().split('\n')
+  for (const f of files) {
+    const txt = fs.readFileSync(f, 'utf8')
+    const re = /window\.(close[A-Z]\w*)\s*=\s*\([^)]*\)\s*=>\s*(\{[\s\S]*?\n\}|[^\n]+)/g
+    let m
+    while ((m = re.exec(txt))) {
+      const name = m[1]
+      const body = m[2]
+      const hasFlag = /setState\??\.?\(\{\s*\w+:\s*(false|null)/.test(body)
+      if (hasFlag && !skip.has(name)) dataDriven.add(name)
+    }
+  }
+}
 // Delegation wrappers covered by delegation-handlers.spec.js (verified by delegated state effect)
 if (fs.existsSync('e2e/delegation-handlers.spec.js')) {
   for (const h of ['submitNewSpot', 'openAccessibilityHelp', 'closeAddPastTrip', 'closeLocationPermission', 'closeWelcome', 'closeCityPanel', 'markSafe', 'loginWithEmail']) dataDriven.add(h)
