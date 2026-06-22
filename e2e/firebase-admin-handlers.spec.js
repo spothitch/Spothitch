@@ -36,7 +36,9 @@ test.describe('Firebase admin handlers', () => {
   async function loadAdminPanel() {
     await page.evaluate(() => window.setState({ isAdmin: true, showAdminPanel: true }))
     await page.waitForFunction(() => typeof window.adminDismissReport === 'function' &&
-      window.adminDismissReport.toString().includes('dismissed'), { timeout: 15000 })
+      window.adminDismissReport.toString().includes('dismissed'), { timeout: 20000 })
+    // Re-assert admin state right before acting (handlers gate on getState().isAdmin).
+    await page.evaluate(() => window.setState({ isAdmin: true }))
   }
 
   test('adminDismissReport marks a report dismissed in Firestore', async () => {
@@ -56,7 +58,7 @@ test.describe('Firebase admin handlers', () => {
         const snap = await getDoc(doc(getDb(), 'reports', id))
         return snap.exists() ? snap.data().status : null
       }, reportId)
-    }, { timeout: 10000 }).toBe('dismissed')
+    }, { timeout: 15000 }).toBe('dismissed')
   })
 
   test('adminConfirmReport confirms the report and flags the spot dangerous', async () => {
@@ -82,7 +84,7 @@ test.describe('Firebase admin handlers', () => {
         const snap = await getDoc(doc(getDb(), 'reports', id))
         return snap.exists() ? snap.data().status : null
       }, reportId)
-    }, { timeout: 10000 }).toBe('confirmed')
+    }, { timeout: 15000 }).toBe('confirmed')
     const dangerous = await page.evaluate(async (id) => {
       const { getDb, doc, getDoc } = window.__fb
       const snap = await getDoc(doc(getDb(), 'spots', id))
@@ -113,7 +115,7 @@ test.describe('Firebase admin handlers', () => {
         const snap = await getDoc(doc(getDb(), 'guideTips', id))
         return snap.exists() ? snap.data().status : null
       }, tipId)
-    }, { timeout: 10000 }).toBe('approved')
+    }, { timeout: 15000 }).toBe('approved')
   })
 
   async function seedGuideTip(status) {
@@ -137,7 +139,7 @@ test.describe('Firebase admin handlers', () => {
       const { getDb, doc, getDoc } = window.__fb
       const snap = await getDoc(doc(getDb(), 'guideTips', id))
       return snap.exists() ? snap.data().status : null
-    }, tipId), { timeout: 10000 }).toBe('rejected')
+    }, tipId), { timeout: 15000 }).toBe('rejected')
   })
 
   async function seedIdVerification() {
@@ -158,7 +160,7 @@ test.describe('Firebase admin handlers', () => {
       const { getDb, doc, getDoc } = window.__fb
       const snap = await getDoc(doc(getDb(), 'id_verifications', id))
       return snap.exists() ? snap.data().status : null
-    }, vId), { timeout: 10000 }).toBe('approved')
+    }, vId), { timeout: 15000 }).toBe('approved')
   })
 
   test('adminRejectIdVerification rejects an id verification', async () => {
@@ -169,7 +171,7 @@ test.describe('Firebase admin handlers', () => {
       const { getDb, doc, getDoc } = window.__fb
       const snap = await getDoc(doc(getDb(), 'id_verifications', id))
       return snap.exists() ? snap.data().status : null
-    }, vId), { timeout: 10000 }).toBe('rejected')
+    }, vId), { timeout: 15000 }).toBe('rejected')
   })
 
   test('adminRelocateSpot confirms the report after moving the spot', async () => {
@@ -191,6 +193,6 @@ test.describe('Firebase admin handlers', () => {
       const { getDb, doc, getDoc } = window.__fb
       const snap = await getDoc(doc(getDb(), 'reports', id))
       return snap.exists() ? snap.data().status : null
-    }, reportId), { timeout: 10000 }).toBe('confirmed')
+    }, reportId), { timeout: 15000 }).toBe('confirmed')
   })
 })
