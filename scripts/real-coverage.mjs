@@ -40,6 +40,15 @@ if (fs.existsSync('e2e/modal-state-handlers.spec.js')) {
   const set = execSync('grep -rhoP "window\\.set[A-Z]\\w* = \\(\\w*\\) => (?:window\\.)?setState\\(\\{ \\w+:" src/ --include=*.js').toString()
   for (const m of set.matchAll(/window\.(set\w+) =/g)) dataDriven.add(m[1])
 }
+// open-auto.spec.js triggers EVERY window.open*/show* handler (except the NEEDS_CONTEXT
+// list it carries) and asserts each opens a flag/dialog. Credit exactly that set.
+if (fs.existsSync('e2e/open-auto.spec.js')) {
+  const spec = fs.readFileSync('e2e/open-auto.spec.js', 'utf8')
+  const block = spec.slice(spec.indexOf('const NEEDS_CONTEXT'), spec.indexOf('])', spec.indexOf('const NEEDS_CONTEXT')))
+  const needs = new Set([...block.matchAll(/'(\w+)'/g)].map((m) => m[1]))
+  const allOpen = execSync("grep -rhoP 'window\\.(?:open|show)[A-Z]\\w* =' src/ --include=*.js").toString()
+  for (const m of allOpen.matchAll(/window\.(\w+) =/g)) if (!needs.has(m[1])) dataDriven.add(m[1])
+}
 // Delegation wrappers covered by delegation-handlers.spec.js (verified by delegated state effect)
 if (fs.existsSync('e2e/delegation-handlers.spec.js')) {
   for (const h of ['submitNewSpot', 'openAccessibilityHelp', 'closeAddPastTrip', 'closeLocationPermission', 'closeWelcome', 'closeCityPanel', 'markSafe', 'loginWithEmail']) dataDriven.add(h)
