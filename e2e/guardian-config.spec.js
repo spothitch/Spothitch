@@ -57,4 +57,42 @@ test.describe('Guardian config — real handler effects', () => {
     })
     expect(type).toBe('boolean')
   })
+
+  test('guardianRemoveGuardian removes the guardian at the given index', async ({ page }) => {
+    const guardians = await page.evaluate(async () => {
+      const s = JSON.parse(localStorage.getItem('spothitch_guardian') || '{}')
+      s.guardians = [
+        { name: 'Maman', phone: '0601', color: '#22c55e' },
+        { name: 'Lea', phone: '0602', color: '#3b82f6' },
+      ]
+      localStorage.setItem('spothitch_guardian', JSON.stringify(s))
+      await window.guardianRemoveGuardian(0)
+      return JSON.parse(localStorage.getItem('spothitch_guardian') || '{}').guardians
+    })
+    expect(guardians).toHaveLength(1)
+    expect(guardians[0].name).toBe('Lea')
+  })
+
+  test('guardianRemoveTrustedContact removes the contact at the given index', async ({ page }) => {
+    const contacts = await page.evaluate(async () => {
+      const s = JSON.parse(localStorage.getItem('spothitch_guardian') || '{}')
+      s.trustedContacts = [{ name: 'A', phone: '01' }, { name: 'B', phone: '02' }]
+      localStorage.setItem('spothitch_guardian', JSON.stringify(s))
+      await window.guardianRemoveTrustedContact(0)
+      return JSON.parse(localStorage.getItem('spothitch_guardian') || '{}').trustedContacts
+    })
+    expect(contacts).toHaveLength(1)
+    expect(contacts[0].name).toBe('B')
+  })
+
+  test('closeGuardian closes the Guardian modal', async ({ page }) => {
+    const wasOpen = await page.evaluate(() => !!window.getState?.().showGuardianModal)
+    expect(wasOpen).toBe(true)
+    const isClosed = await page.evaluate(async () => {
+      window.closeGuardian()
+      await new Promise(r => setTimeout(r, 250))
+      return window.getState?.().showGuardianModal === false
+    })
+    expect(isClosed).toBe(true)
+  })
 })
