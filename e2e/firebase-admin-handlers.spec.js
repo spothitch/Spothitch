@@ -115,4 +115,82 @@ test.describe('Firebase admin handlers', () => {
       }, tipId)
     }, { timeout: 10000 }).toBe('approved')
   })
+
+  async function seedGuideTip(status) {
+    return await page.evaluate(async (status) => {
+      const { getDb, getAuth, doc, setDoc, serverTimestamp } = window.__fb
+      const uid = getAuth().currentUser?.uid
+      const id = `${uid}_DE_general_seed_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+      await setDoc(doc(getDb(), 'guideTips', id), {
+        countryCode: 'DE', category: 'general', text: 'seed', userId: uid, status, createdAt: serverTimestamp(),
+      })
+      return id
+    }, status)
+  }
+
+  test('adminRejectGuideTip rejects a pending tip in Firestore', async () => {
+    await page.evaluate(() => { window.changeTab('voyage'); window.setVoyageSubTab?.('guides') })
+    await page.waitForFunction(() => typeof window.adminRejectGuideTip === 'function', { timeout: 15000 })
+    const tipId = await seedGuideTip('pending')
+    await page.evaluate((id) => window.adminRejectGuideTip(id), tipId)
+    await expect.poll(async () => page.evaluate(async (id) => {
+      const { getDb, doc, getDoc } = window.__fb
+      const snap = await getDoc(doc(getDb(), 'guideTips', id))
+      return snap.exists() ? snap.data().status : null
+    }, tipId), { timeout: 10000 }).toBe('rejected')
+  })
+
+  async function seedIdVerification() {
+    return await page.evaluate(async () => {
+      const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
+      const ref = await addDoc(collection(getDb(), 'id_verifications'), {
+        userId: getAuth().currentUser?.uid, status: 'pending', createdAt: serverTimestamp(),
+      })
+      return ref.id
+    })
+  }
+
+  test('adminApproveIdVerification approves an id verification', async () => {
+    await loadAdminPanel()
+    const vId = await seedIdVerification()
+    await page.evaluate((id) => window.adminApproveIdVerification(id), vId)
+    await expect.poll(async () => page.evaluate(async (id) => {
+      const { getDb, doc, getDoc } = window.__fb
+      const snap = await getDoc(doc(getDb(), 'id_verifications', id))
+      return snap.exists() ? snap.data().status : null
+    }, vId), { timeout: 10000 }).toBe('approved')
+  })
+
+  test('adminRejectIdVerification rejects an id verification', async () => {
+    await loadAdminPanel()
+    const vId = await seedIdVerification()
+    await page.evaluate((id) => window.adminRejectIdVerification(id), vId)
+    await expect.poll(async () => page.evaluate(async (id) => {
+      const { getDb, doc, getDoc } = window.__fb
+      const snap = await getDoc(doc(getDb(), 'id_verifications', id))
+      return snap.exists() ? snap.data().status : null
+    }, vId), { timeout: 10000 }).toBe('rejected')
+  })
+
+  test('adminRelocateSpot confirms the report after moving the spot', async () => {
+    await loadAdminPanel()
+    const { reportId, spotId } = await page.evaluate(async () => {
+      const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
+      const db = getDb()
+      const spotRef = await addDoc(collection(db, 'spots'), {
+        lat: 50.0, lng: 4.0, direction: 'east', type: 'city_exit', description: 'relocate target',
+        creatorId: getAuth().currentUser?.uid, createdAt: serverTimestamp(), rating: { safety: 3, traffic: 3, accessibility: 3 },
+      })
+      const repRef = await addDoc(collection(db, 'reports'), {
+        type: 'spot', targetId: spotRef.id, reason: 'misplaced', reporterId: 'someone', status: 'pending', createdAt: serverTimestamp(),
+      })
+      return { reportId: repRef.id, spotId: spotRef.id }
+    })
+    await page.evaluate(({ reportId, spotId }) => window.adminRelocateSpot(reportId, spotId, 48.0, 2.5), { reportId, spotId })
+    await expect.poll(async () => page.evaluate(async (id) => {
+      const { getDb, doc, getDoc } = window.__fb
+      const snap = await getDoc(doc(getDb(), 'reports', id))
+      return snap.exists() ? snap.data().status : null
+    }, reportId), { timeout: 10000 }).toBe('confirmed')
+  })
 })
