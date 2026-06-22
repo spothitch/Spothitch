@@ -19,6 +19,10 @@ function pairs(re, value) {
 }
 
 const CLOSE = pairs('close[A-Z]\\w*', 'false')
+// These open* handlers require an argument (a draft, a feature id, …) so calling them
+// with no args is a no-op. They are covered by their feature-specific tests, not here.
+const OPEN_NEEDS_ARGS = new Set(['openTestSpot', 'openSpotDraft', 'openFeedbackDetail', 'openProgressionStats'])
+const OPEN = pairs('(?:open|show)[A-Z]\\w*', 'true').filter((p) => !OPEN_NEEDS_ARGS.has(p.fn))
 
 test('every close* handler closes its modal (open -> close -> flag false)', async ({ page }) => {
   await page.addInitScript(() => {
@@ -51,4 +55,33 @@ test('every close* handler closes its modal (open -> close -> flag false)', asyn
   }
 
   expect(fails, 'close handlers that did NOT set their flag to false').toEqual([])
+})
+
+test('every open/show* handler opens its modal (flag true)', async ({ page }) => {
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem('spothitch_welcomed', 'true')
+      localStorage.setItem('spothitch_age_verified', 'true')
+      localStorage.setItem('spothitch_cookie_consent', 'true')
+      localStorage.setItem('spothitch_landing_seen', 'true')
+    } catch { /* ignore */ }
+  })
+  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.waitForFunction(() => typeof window.setState === 'function' && typeof window.getState === 'function', { timeout: 15000 })
+
+  expect(OPEN.length).toBeGreaterThan(8)
+
+  const fails = []
+  for (const { fn, flag } of OPEN) {
+    await page.evaluate((f) => window.setState({ [f]: false }), flag)
+    const v = await page.evaluate(({ fn, flag }) => {
+      if (typeof window[fn] !== 'function') return 'not-a-function'
+      try { window[fn]() } catch (e) { return 'threw ' + e.message }
+      return window.getState()[flag]
+    }, { fn, flag })
+    if (v !== true) fails.push(`${fn}:${JSON.stringify(v)}`)
+    await page.evaluate((f) => window.setState({ [f]: false }), flag)
+  }
+
+  expect(fails, 'open/show handlers that did NOT set their flag to true').toEqual([])
 })
