@@ -49,6 +49,15 @@ if (fs.existsSync('e2e/open-auto.spec.js')) {
   const allOpen = execSync("grep -rhoP 'window\\.(?:open|show)[A-Z]\\w* =' src/ --include=*.js").toString()
   for (const m of allOpen.matchAll(/window\.(\w+) =/g)) if (!needs.has(m[1])) dataDriven.add(m[1])
 }
+// toggle-auto.spec.js triggers every no-arg window.toggleX (except its NEEDS_ARG list)
+// and asserts each flips a boolean responsively. Credit that set.
+if (fs.existsSync('e2e/toggle-auto.spec.js')) {
+  const spec = fs.readFileSync('e2e/toggle-auto.spec.js', 'utf8')
+  const block = spec.slice(spec.indexOf('const NEEDS_ARG'), spec.indexOf('])', spec.indexOf('const NEEDS_ARG')))
+  const needs = new Set([...block.matchAll(/'(\w+)'/g)].map((m) => m[1]))
+  const allTog = execSync("grep -rhoP 'window\\.toggle[A-Z]\\w* =' src/ --include=*.js").toString()
+  for (const m of allTog.matchAll(/window\.(\w+) =/g)) if (!needs.has(m[1])) dataDriven.add(m[1])
+}
 // Delegation wrappers covered by delegation-handlers.spec.js (verified by delegated state effect)
 if (fs.existsSync('e2e/delegation-handlers.spec.js')) {
   for (const h of ['submitNewSpot', 'openAccessibilityHelp', 'closeAddPastTrip', 'closeLocationPermission', 'closeWelcome', 'closeCityPanel', 'markSafe', 'loginWithEmail']) dataDriven.add(h)
