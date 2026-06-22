@@ -83,4 +83,40 @@ test.describe('Firebase messaging handlers', () => {
     }, { convId, text })
     expect(bobSees).toBeGreaterThan(0)
   })
+
+  test('sendFriendRequest creates a request Bob can see (users/{bob}/friendRequests/{alice})', async () => {
+    expect(bobUid).toBeTruthy()
+    // Re-login Alice (the previous test ended as Bob) and load the real lazy handler.
+    await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
+    expect(await getCurrentUid(page)).toBe(aliceUid)
+    await page.evaluate(() => window.changeTab('social'))
+    await page.waitForFunction(() => typeof window.sendFriendRequest === 'function' &&
+      window.sendFriendRequest.toString().includes('friendRequestSent'), { timeout: 15000 })
+
+    await page.evaluate(({ bobUid }) => {
+      window.setState({ isLoggedIn: true, username: 'Alice', user: { uid: window.__fb.getAuth().currentUser?.uid } })
+      window.sendFriendRequest(bobUid)
+    }, { bobUid })
+
+    // The request doc must appear under Bob's friendRequests, authored by Alice.
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ bobUid, aliceUid }) => {
+        try {
+          const { getDb, doc, getDoc } = window.__fb
+          const snap = await getDoc(doc(getDb(), 'users', bobUid, 'friendRequests', aliceUid))
+          return snap.exists()
+        } catch { return false }
+      }, { bobUid, aliceUid })
+    }, { timeout: 12000 }).toBe(true)
+
+    // Bob logs in and reads his own friendRequests — he must see Alice's.
+    await programmaticLogin(page, TEST_ACCOUNTS.bob.email)
+    const bobSeesReq = await page.evaluate(async ({ aliceUid }) => {
+      const { getDb, getAuth, doc, getDoc } = window.__fb
+      const me = getAuth().currentUser?.uid
+      const snap = await getDoc(doc(getDb(), 'users', me, 'friendRequests', aliceUid))
+      return snap.exists()
+    }, { aliceUid })
+    expect(bobSeesReq).toBe(true)
+  })
 })
