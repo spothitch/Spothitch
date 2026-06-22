@@ -265,4 +265,25 @@ test.describe('Firebase submit handlers', () => {
       }, { spotId, uid })
     }, { timeout: 12000 }).toBeGreaterThan(0)
   })
+
+  test('sosBroadcastCommunity writes a community SOS alert to Firestore', async () => {
+    const uid = await getCurrentUid(page)
+    // Open the SOS modal so the real handler (lazy with SOS.js) is installed.
+    await page.evaluate(() => { window.openSOS?.(); window.setState({ showSOS: true }) })
+    await page.waitForFunction(() => typeof window.sosBroadcastCommunity === 'function', { timeout: 15000 })
+    await page.evaluate(({ uid }) => {
+      window.setState({ username: 'SOSUser', user: { uid }, isLoggedIn: true })
+      // Mock geolocation so _getSOSPosition resolves a real position headlessly.
+      navigator.geolocation.getCurrentPosition = (ok) => ok({ coords: { latitude: 48.0, longitude: 2.0, accuracy: 10 } })
+      window.sosBroadcastCommunity()
+    }, { uid })
+
+    await expect.poll(async () => {
+      return await page.evaluate(async (uid) => {
+        const { getDb, collection, getDocs, query, where } = window.__fb
+        const snap = await getDocs(query(collection(getDb(), 'communityAlerts'), where('userId', '==', uid)))
+        return snap.size
+      }, uid)
+    }, { timeout: 12000 }).toBeGreaterThan(0)
+  })
 })
