@@ -169,4 +169,38 @@ test.describe('Firebase submit handlers', () => {
       }, marker)
     }, { timeout: 12000 }).toBeGreaterThan(0)
   })
+
+  test('submitBuddyAnnouncement writes a travelBuddy to Firestore', async () => {
+    const uid = await getCurrentUid(page)
+    const marker = 'Dep-' + Date.now()
+    // Load the real handler (lazy with Voyageurs.js) by visiting the social/buddies view.
+    await page.evaluate(() => { window.changeTab('social'); window.showBuddyCreate?.() })
+    await page.waitForFunction(() => typeof window.submitBuddyAnnouncement === 'function' &&
+      window.submitBuddyAnnouncement.toString().includes('buddy-departure'), { timeout: 15000 })
+
+    await page.evaluate(({ marker }) => {
+      window.setState({ isLoggedIn: true, username: 'BuddySeeker' })
+      const mk = (id, val) => {
+        let el = document.getElementById(id)
+        if (!el) { el = document.createElement('input'); el.id = id; document.body.appendChild(el) }
+        el.value = val
+      }
+      const future = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
+      mk('buddy-departure', marker)
+      mk('buddy-destination', 'Berlin')
+      mk('buddy-date-from', future)
+      mk('buddy-description', 'e2e buddy announcement')
+      window.submitBuddyAnnouncement()
+    }, { marker })
+
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ uid, marker }) => {
+        const { getDb, collection, getDocs, query, where } = window.__fb
+        const snap = await getDocs(query(collection(getDb(), 'travelBuddies'), where('userId', '==', uid)))
+        let found = 0
+        snap.forEach((d) => { if ((d.data().departure || '') === marker) found++ })
+        return found
+      }, { uid, marker })
+    }, { timeout: 12000 }).toBeGreaterThan(0)
+  })
 })
