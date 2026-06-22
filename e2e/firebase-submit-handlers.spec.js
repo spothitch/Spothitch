@@ -124,4 +124,49 @@ test.describe('Firebase submit handlers', () => {
       }, { uid, marker })
     }, { timeout: 12000 }).toBeGreaterThan(0)
   })
+
+  test('submitCommunityTip writes a guideTip to Firestore (guideTips/{uid}_{cc}_general)', async () => {
+    const uid = await getCurrentUid(page)
+    const text = 'E2E community tip ' + Date.now()
+    await page.evaluate((text) => {
+      window.setState({ username: 'TipAuthor' })
+      let el = document.getElementById('community-tip-input')
+      if (!el) { el = document.createElement('input'); el.id = 'community-tip-input'; document.body.appendChild(el) }
+      el.value = text
+      window.submitCommunityTip('FR')
+    }, text)
+
+    await expect.poll(async () => {
+      return await page.evaluate(async (uid) => {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'guideTips', `${uid}_FR_general`))
+        return snap.exists()
+      }, uid)
+    }, { timeout: 12000 }).toBe(true)
+  })
+
+  test('submitCurrentReport writes a report to Firestore (reports collection)', async () => {
+    const marker = 'spot-' + Date.now()
+    // selectReportReason loads the moderation module (real handlers) and sets the reason.
+    await page.evaluate(() => window.selectReportReason('spam'))
+    await page.waitForFunction(() => window.getState().selectedReportReason === 'spam', { timeout: 8000 })
+    await page.evaluate((marker) => {
+      window.setState({ reportType: 'spot', reportTargetId: marker, username: 'Reporter' })
+      let el = document.getElementById('report-details')
+      if (!el) { el = document.createElement('textarea'); el.id = 'report-details'; document.body.appendChild(el) }
+      el.value = 'e2e report details'
+      window.submitCurrentReport()
+    }, marker)
+
+    // The reports collection is admin-read-only (firestore.rules), so verify as the admin.
+    await page.waitForTimeout(1500)
+    await programmaticLogin(page, TEST_ACCOUNTS.admin.email)
+    await expect.poll(async () => {
+      return await page.evaluate(async (marker) => {
+        const { getDb, collection, getDocs, query, where } = window.__fb
+        const snap = await getDocs(query(collection(getDb(), 'reports'), where('targetId', '==', marker)))
+        return snap.size
+      }, marker)
+    }, { timeout: 12000 }).toBeGreaterThan(0)
+  })
 })
