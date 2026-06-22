@@ -240,4 +240,29 @@ test.describe('Firebase submit handlers', () => {
       }, { uid, fid: featureId })
     }, { timeout: 12000 }).toBe(true)
   })
+
+  test('doCheckin writes a validation to the spot (spots/{id}/validations)', async () => {
+    const uid = await getCurrentUid(page)
+    // Create a spot to check in on.
+    const spotId = await page.evaluate(async () => {
+      const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
+      const ref = await addDoc(collection(getDb(), 'spots'), {
+        lat: 47.2, lng: 5.0, direction: 'south', type: 'city_exit', description: 'checkin target',
+        creatorId: getAuth().currentUser?.uid, createdAt: serverTimestamp(), rating: { safety: 4, traffic: 3, accessibility: 4 },
+      })
+      return ref.id
+    })
+    await page.evaluate(async ({ spotId, uid }) => {
+      window.setState({ username: 'CheckinUser', user: { uid } })
+      await window.doCheckin(spotId)
+    }, { spotId, uid })
+
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ spotId, uid }) => {
+        const { getDb, collection, getDocs, query, where } = window.__fb
+        const snap = await getDocs(query(collection(getDb(), 'spots', spotId, 'validations'), where('userId', '==', uid)))
+        return snap.size
+      }, { spotId, uid })
+    }, { timeout: 12000 }).toBeGreaterThan(0)
+  })
 })
