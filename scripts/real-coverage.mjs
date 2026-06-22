@@ -77,6 +77,16 @@ if (fs.existsSync('e2e/close-auto.spec.js')) {
     }
   }
 }
+// set-auto.spec.js triggers every window.setX (parsed arity, sentinel args) and asserts the
+// arg lands in state or the form buffer. Credit that set; setAuthMode has a dedicated test.
+if (fs.existsSync('e2e/set-auto.spec.js')) {
+  const spec = fs.readFileSync('e2e/set-auto.spec.js', 'utf8')
+  const skipBlock = spec.slice(spec.indexOf('const SKIP'), spec.indexOf('])', spec.indexOf('const SKIP')))
+  const skip = new Set([...skipBlock.matchAll(/'(\w+)'/g)].map((m) => m[1]))
+  const out = execSync("grep -rhoP 'window\\.set[A-Z]\\w* = \\([^)]*\\) =>' src/ --include=*.js").toString()
+  for (const m of out.matchAll(/window\.(set\w+) = \(/g)) if (!skip.has(m[1])) dataDriven.add(m[1])
+  dataDriven.add('setAuthMode') // covered by its dedicated test
+}
 // Delegation wrappers covered by delegation-handlers.spec.js (verified by delegated state effect)
 if (fs.existsSync('e2e/delegation-handlers.spec.js')) {
   for (const h of ['submitNewSpot', 'openAccessibilityHelp', 'closeAddPastTrip', 'closeLocationPermission', 'closeWelcome', 'closeCityPanel', 'markSafe', 'loginWithEmail']) dataDriven.add(h)
