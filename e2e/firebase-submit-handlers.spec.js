@@ -203,4 +203,18 @@ test.describe('Firebase submit handlers', () => {
       }, { uid, marker })
     }, { timeout: 12000 }).toBeGreaterThan(0)
   })
+
+  test('toggleFavorite persists a favorite to Firestore (users/{uid}/favorites)', async () => {
+    const uid = await getCurrentUid(page)
+    const spotId = 'fav-spot-' + Date.now()
+    // A fresh spotId is not yet favourited, so the real toggle adds it (writes Firestore).
+    await page.evaluate(async (spotId) => { await window.toggleFavorite(spotId) }, spotId)
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ uid, spotId }) => {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'users', uid, 'favorites', spotId))
+        return snap.exists()
+      }, { uid, spotId })
+    }, { timeout: 12000 }).toBe(true)
+  })
 })
