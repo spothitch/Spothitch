@@ -40,6 +40,10 @@ if (fs.existsSync('e2e/modal-state-handlers.spec.js')) {
   const set = execSync('grep -rhoP "window\\.set[A-Z]\\w* = \\(\\w*\\) => (?:window\\.)?setState\\(\\{ \\w+:" src/ --include=*.js').toString()
   for (const m of set.matchAll(/window\.(set\w+) =/g)) dataDriven.add(m[1])
 }
+// Delegation wrappers covered by delegation-handlers.spec.js (verified by delegated state effect)
+if (fs.existsSync('e2e/delegation-handlers.spec.js')) {
+  for (const h of ['submitNewSpot', 'openAccessibilityHelp', 'closeAddPastTrip', 'closeLocationPermission', 'closeWelcome', 'closeCityPanel', 'markSafe', 'loginWithEmail']) dataDriven.add(h)
+}
 
 let invoked = 0
 const notInvoked = []
