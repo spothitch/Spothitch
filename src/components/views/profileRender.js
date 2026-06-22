@@ -428,7 +428,7 @@ function renderVerificationCard(state) {
  ${t('improve') || 'Améliorer'}
  ${icon('chevron-right', 'w-3 h-3')}
  </button>
- ` : `<span class="text-xs text-emerald-400 font-semibold">✓ ${t('fullyVerified') || 'Vérifié'}</span>`}
+ ` : `<span class="text-xs text-emerald-400 font-semibold inline-flex items-center gap-1">${icon('check', 'w-3 h-3')} ${t('fullyVerified') || 'Vérifié'}</span>`}
  </div>
  <div class="flex gap-2">
  ${steps.map((s, i) => `
@@ -477,7 +477,7 @@ function timeAgo(dateStr) {
 
 function renderValidationProgress(validations) {
  if (validations >= 10) {
- return `<span class="text-amber-400 font-semibold">${t('certified') || 'Certifié'} ✓</span>`
+ return `<span class="text-amber-400 font-semibold inline-flex items-center gap-1">${t('certified') || 'Certifié'} ${icon('check', 'w-3 h-3')}</span>`
  }
  if (validations >= 3) {
  return `<span class="text-emerald-400">${validations}/10 ${t('towardsCertified') || 'vers Certifié'}</span>`
@@ -495,7 +495,7 @@ function renderSpotAvgRating(spot) {
  const full = Math.floor(avg)
  const half = avg - full >= 0.5 ? 1 : 0
  const empty = 5 - full - half
- return `<span class="text-amber-400 text-[10px]">${'★'.repeat(full)}${half ? '½' : ''}${'☆'.repeat(empty)}</span>`
+ return `<span class="text-amber-400 inline-flex items-center">${icon('star', 'w-2.5 h-2.5 fill-current').repeat(full)}${half ? icon('star-half', 'w-2.5 h-2.5 fill-current') : ''}${icon('star', 'w-2.5 h-2.5').repeat(empty)}</span>`
 }
 
 function renderMySpotsList(state) {
@@ -668,7 +668,7 @@ function renderMySpotsList(state) {
  </div>
  <div class="flex-shrink-0 text-right">
  <div class="text-xs ${validations > 0 ? 'text-emerald-400' : 'text-slate-500'} font-semibold">
- ${validations > 0 ? `✓ ${validations}` : '0'}
+ ${validations > 0 ? `${icon('check', 'w-3 h-3 inline')} ${validations}` : '0'}
  </div>
  ${renderSpotAvgRating(s)}
  </div></div>
@@ -767,7 +767,7 @@ function renderMyValidationsList(state) {
  <div>
  ${renderDetailBackButton()}
  <h2 class="text-base font-bold flex items-center gap-2 mb-4">
- ✓ ${t('myValidations') || 'Mes validations'} (${count})
+ ${icon('check', 'w-4 h-4')} ${t('myValidations') || 'Mes validations'} (${count})
  </h2>
  ${count === 0
  ? `<div class="card p-6 text-center">
@@ -776,12 +776,12 @@ function renderMyValidationsList(state) {
  ${mockValidations.map(v => `
  <div class="card p-3 flex items-center gap-3">
  <div class="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
- <span class="text-amber-400">★</span></div>
+ <span class="text-amber-400">${icon('star', 'w-4 h-4 fill-current')}</span></div>
  <div class="flex-1 min-w-0">
  <div class="text-sm font-semibold truncate">${v.name}</div>
  <div class="text-[10px] text-slate-400">${v.location} · ${v.date}</div></div>
  <div class="flex-shrink-0">
- <div class="text-amber-400 text-xs">${'★'.repeat(v.stars)}${'☆'.repeat(5 - v.stars)}</div></div></div>
+ <div class="text-amber-400 inline-flex items-center">${icon('star', 'w-3 h-3 fill-current').repeat(v.stars)}${icon('star', 'w-3 h-3').repeat(5 - v.stars)}</div></div></div>
  `).join('')}
  ${count > mockValidations.length ? `<p class="text-xs text-slate-500 text-center pt-2">+ ${count - mockValidations.length} ${t('otherValidations') || 'autres validations'}</p>` : ''}
  </div>`
@@ -1712,7 +1712,7 @@ window.startCityPageDemo = () => {
  <div class="bg-dark-secondary rounded-lg px-2.5 py-2 mb-[5px] text-xs leading-[1.4] flex justify-between items-center"><div><strong>→ Bruxelles</strong><div class="text-[0.6rem] text-slate-500">4 spots · A1</div></div><div class="text-xs font-bold text-emerald-500">~20&rsquo;</div></div>
  <div class="bg-dark-secondary rounded-lg px-2.5 py-2 mb-[5px] text-xs leading-[1.4] flex justify-between items-center"><div><strong>→ Nantes</strong><div class="text-[0.6rem] text-slate-500">3 spots · A11</div></div><div class="text-xs font-bold text-emerald-500">~30&rsquo;</div></div>
  <div class="bg-dark-secondary rounded-lg px-2.5 py-2 mb-[5px] text-xs leading-[1.4] flex justify-between items-center"><div><strong>→ Bordeaux</strong><div class="text-[0.6rem] text-slate-500">3 spots · A10</div></div><div class="text-xs font-bold text-emerald-500">~35&rsquo;</div></div></div>
- <div class="mt-2.5"><div class="text-xs font-bold text-amber-300 mb-1.5 flex items-center gap-[5px]"><span class="text-[0.9rem]">⏰</span> Quand partir</div>
+ <div class="mt-2.5"><div class="text-xs font-bold text-amber-300 mb-1.5 flex items-center gap-[5px]"><span class="text-[0.9rem]">${icon('clock', 'w-3.5 h-3.5')}</span> Quand partir</div>
  <div class="grid grid-cols-4 gap-1">
  <div class="bg-emerald-500/[0.06] border border-emerald-500/30 rounded-md px-[3px] py-[5px] text-center"><div class="text-[0.9rem]"></div><div class="text-[0.5rem] text-slate-500">Matin</div><div class="text-[0.7rem] font-bold text-emerald-500">~18&rsquo;</div></div>
  <div class="bg-dark-secondary rounded-md px-[3px] py-[5px] text-center"><div class="text-[0.9rem]"></div><div class="text-[0.5rem] text-slate-500">Aprèm</div><div class="text-[0.7rem] font-bold text-amber-300">~28&rsquo;</div></div>
@@ -1725,10 +1725,10 @@ window.startCityPageDemo = () => {
  <!-- Panel: Conseils -->
  <div data-cd-panel="conseils" class="hidden">
  <div class="mt-2.5"><div class="text-xs font-bold text-amber-300 mb-1.5 flex items-center gap-[5px]"><span class="text-[0.9rem]"></span> Conseils (12)</div>
- <div class="bg-dark-secondary border-l-2 border-l-amber-300 rounded-r-lg px-2.5 py-2 mb-[5px]"><div class="text-[0.72rem] leading-[1.35] italic">"Aire de Fleury sur l&rsquo;A6, direction Lyon. 15 min max."</div><div class="text-[0.58rem] text-slate-500 mt-[3px]">RoadSophie · ⭐ 12</div></div>
- <div class="bg-dark-secondary border-l-2 border-l-amber-300 rounded-r-lg px-2.5 py-2 mb-[5px]"><div class="text-[0.72rem] leading-[1.35] italic">"Porte Maillot, terre-plein avant le périph → A1. Panneau &lsquo;Lille&rsquo; obligatoire."</div><div class="text-[0.58rem] text-slate-500 mt-[3px]">MarcoHitch · ⭐ 8</div></div>
- <div class="bg-dark-secondary border-l-2 border-l-amber-300 rounded-r-lg px-2.5 py-2 mb-[5px]"><div class="text-[0.72rem] leading-[1.35] italic">"Évitez Porte d&rsquo;Orléans le vendredi soir. Samedi matin tôt = parfait."</div><div class="text-[0.58rem] text-slate-500 mt-[3px]">LunaVoyage · ⭐ 5</div></div>
- <div class="bg-dark-secondary border-l-2 border-l-amber-300 rounded-r-lg px-2.5 py-2 mb-[5px]"><div class="text-[0.72rem] leading-[1.35] italic">"Station Total de Rungis, accès RER. Routiers vers le sud."</div><div class="text-[0.58rem] text-slate-500 mt-[3px]">TomPouce34 · ⭐ 3</div></div></div>
+ <div class="bg-dark-secondary border-l-2 border-l-amber-300 rounded-r-lg px-2.5 py-2 mb-[5px]"><div class="text-[0.72rem] leading-[1.35] italic">"Aire de Fleury sur l&rsquo;A6, direction Lyon. 15 min max."</div><div class="text-[0.58rem] text-slate-500 mt-[3px]">RoadSophie · ${icon('star', 'w-2.5 h-2.5 inline fill-current')} 12</div></div>
+ <div class="bg-dark-secondary border-l-2 border-l-amber-300 rounded-r-lg px-2.5 py-2 mb-[5px]"><div class="text-[0.72rem] leading-[1.35] italic">"Porte Maillot, terre-plein avant le périph → A1. Panneau &lsquo;Lille&rsquo; obligatoire."</div><div class="text-[0.58rem] text-slate-500 mt-[3px]">MarcoHitch · ${icon('star', 'w-2.5 h-2.5 inline fill-current')} 8</div></div>
+ <div class="bg-dark-secondary border-l-2 border-l-amber-300 rounded-r-lg px-2.5 py-2 mb-[5px]"><div class="text-[0.72rem] leading-[1.35] italic">"Évitez Porte d&rsquo;Orléans le vendredi soir. Samedi matin tôt = parfait."</div><div class="text-[0.58rem] text-slate-500 mt-[3px]">LunaVoyage · ${icon('star', 'w-2.5 h-2.5 inline fill-current')} 5</div></div>
+ <div class="bg-dark-secondary border-l-2 border-l-amber-300 rounded-r-lg px-2.5 py-2 mb-[5px]"><div class="text-[0.72rem] leading-[1.35] italic">"Station Total de Rungis, accès RER. Routiers vers le sud."</div><div class="text-[0.58rem] text-slate-500 mt-[3px]">TomPouce34 · ${icon('star', 'w-2.5 h-2.5 inline fill-current')} 3</div></div></div>
  <div class="mt-2.5"><div class="text-xs font-bold text-amber-300 mb-1.5 flex items-center gap-[5px]"><span class="text-[0.9rem]"></span> Méthode efficace</div>
  <div class="flex h-2 rounded overflow-hidden my-1.5"><div class="w-[58%] bg-amber-300 h-full"></div><div class="w-[33%] bg-emerald-500 h-full"></div><div class="w-[9%] bg-blue-500 h-full"></div></div>
  <div class="flex flex-wrap gap-2 text-[0.6rem] text-slate-400"><span><span class="w-1.5 h-1.5 rounded-full inline-block mr-[3px] align-middle bg-amber-300"></span>Panneau 58%</span><span><span class="w-1.5 h-1.5 rounded-full inline-block mr-[3px] align-middle bg-emerald-500"></span>Pouce 33%</span><span><span class="w-1.5 h-1.5 rounded-full inline-block mr-[3px] align-middle bg-blue-500"></span>Demander 9%</span></div></div></div>

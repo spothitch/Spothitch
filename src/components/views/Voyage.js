@@ -262,10 +262,10 @@ function renderMapFirstView(state) {
  <!-- Filter chips -->
  <div class="flex gap-2 overflow-x-auto scrollbar-none pb-3 pr-4">
  ${renderFilterChip('all', `${t('tripFilterAll') || 'Tous'} (${counts.all})`, !routeFilter || routeFilter === 'all', false)}
- ${renderFilterChip('rating4', `⭐ 4+ (${counts.rating4})`, routeFilter === 'rating4', counts.rating4 === 0)}
- ${renderFilterChip('wait20', `⏱ <20min (${counts.wait20})`, routeFilter === 'wait20', counts.wait20 === 0)}
+ ${renderFilterChip('rating4', `${icon('star', 'w-3 h-3 inline mr-0.5')} 4+ (${counts.rating4})`, routeFilter === 'rating4', counts.rating4 === 0)}
+ ${renderFilterChip('wait20', `${icon('clock', 'w-3 h-3 inline mr-0.5')} <20min (${counts.wait20})`, routeFilter === 'wait20', counts.wait20 === 0)}
  ${renderFilterChip('station', `${icon('fuel', 'w-3 h-3 inline mr-0.5')} Station (${counts.station})`, routeFilter === 'station', counts.station === 0)}
- ${renderFilterChip('verified', `✓ ${t('tripFilterVerified') || 'Vérifié'} (${counts.verified})`, routeFilter === 'verified', counts.verified === 0)}
+ ${renderFilterChip('verified', `${icon('check', 'w-3 h-3 inline mr-0.5')} ${t('tripFilterVerified') || 'Vérifié'} (${counts.verified})`, routeFilter === 'verified', counts.verified === 0)}
  ${renderFilterChip('shelter', `${icon('home', 'w-3 h-3 inline mr-0.5')} ${t('filterShelter') || 'Abri'} (${counts.shelter})`, routeFilter === 'shelter', counts.shelter === 0)}
  ${renderFilterChip('recent', `${icon('clock', 'w-3 h-3 inline mr-0.5')} ${t('filterRecent') || 'Récent'} (${counts.recent})`, routeFilter === 'recent', counts.recent === 0)}
  </div>
@@ -320,7 +320,8 @@ function renderBottomSheetSpotItem(spot, i, results, favSet) {
  const waitTime = spot.avgWaitTime || spot.avgWait
  // Stars display (1-5 based on rating)
  const rating = spot.globalRating || 0
- const stars = rating > 0 ? '★'.repeat(Math.round(Math.min(5, rating))) + '☆'.repeat(5 - Math.round(Math.min(5, rating))) : ''
+ const fullStars = Math.round(Math.min(5, rating))
+ const stars = rating > 0 ? icon('star', 'w-3 h-3 inline fill-current').repeat(fullStars) + icon('star', 'w-3 h-3 inline').repeat(5 - fullStars) : ''
  const safeSpotId = escapeJSString(String(spot.id))
 
  return `
@@ -432,8 +433,8 @@ function renderEnRouteRadar(_state, activeTrip) {
  ${icon('map-pin', 'w-3 h-3 inline mr-0.5')} ${t('voyageClosestSpot') || 'Spot le plus proche devant toi'}
  </div>
  <div class="flex items-center gap-3 mb-3">
- <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
- ⭐
+ <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-400">
+ ${icon('star', 'w-5 h-5')}
  </div>
  <div class="flex-1 min-w-0">
  <div class="font-semibold truncate">${escapeHTML(closestSpot.from || closestSpot.city || closestSpot.stationName || closestSpot.description?.substring(0, 50) || (closestSpot.country ? `${t('spot')} · ${closestSpot.country}` : t('spot')))}</div>
@@ -478,7 +479,7 @@ function renderEnRouteRadar(_state, activeTrip) {
  <span class="w-2.5 h-2.5 rounded-full shrink-0 ${i === 0 ? 'bg-amber-400' : 'bg-slate-600'}"></span>
  <div class="flex-1 min-w-0">
  <div class="text-sm font-medium truncate">${escapeHTML(spot.from || spot.city || spot.stationName || spot.description?.substring(0, 50) || (spot.country ? `${t('spot')} · ${spot.country}` : `${t('spot')} #${i + 1}`))}</div>
- <div class="text-[10px] text-slate-500">${spot.spotType || ''} ${spot.userValidations ? `· ✓${spot.userValidations}` : ''}</div></div>
+ <div class="text-[10px] text-slate-500">${spot.spotType || ''} ${spot.userValidations ? `· ${icon('check', 'w-3 h-3 inline')}${spot.userValidations}` : ''}</div></div>
  ${icon('chevron-right', 'w-3.5 h-3.5 text-slate-600 shrink-0')}
  </button>
  `

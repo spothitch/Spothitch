@@ -291,7 +291,7 @@ function renderOfflinePanel(state) {
           <div class="text-sm font-medium">${name}</div>
           <div class="text-xs text-slate-400">${c.count || 0} spots · ~${estimateDownloadedSize(c)} MB</div>
         </div>
-        <button onclick="deleteOfflineCountry('${c.code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" type="button">✓ ${t('offlineSaved') || 'Sauvé'}</button>
+        <button onclick="deleteOfflineCountry('${c.code}')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" type="button">${icon('check', 'w-3 h-3 inline')} ${t('offlineSaved') || 'Sauvé'}</button>
       </div>`
   }
 

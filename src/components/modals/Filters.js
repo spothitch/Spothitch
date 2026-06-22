@@ -19,12 +19,13 @@ export function renderFiltersModal() {
 
   if (!showFilters) return '';
 
+  const starIcon = icon('star', 'w-3.5 h-3.5 inline-block align-middle')
   const ratingOptions = [
     { value: 0, label: t('all') || 'Tous' },
-    { value: 3, label: '⭐ 3+' },
-    { value: 3.5, label: '⭐ 3.5+' },
-    { value: 4, label: '⭐ 4+' },
-    { value: 4.5, label: '⭐ 4.5+' },
+    { value: 3, label: `${starIcon} 3+` },
+    { value: 3.5, label: `${starIcon} 3.5+` },
+    { value: 4, label: `${starIcon} 4+` },
+    { value: 4.5, label: `${starIcon} 4.5+` },
   ];
 
   const waitOptions = [
@@ -103,7 +104,7 @@ export function renderFiltersModal() {
             <label class="flex items-center justify-between p-5 bg-white/5 rounded-xl cursor-pointer">
               <div>
                 <span class="text-white font-medium">${t('verifiedOnly') || 'Spots vérifiés uniquement'}</span>
-                <p class="text-slate-400 text-sm">${t('verifiedOnlyDesc') || "N'afficher que les spots avec ✓"}</p>
+                <p class="text-slate-400 text-sm">${t('verifiedOnlyDesc') || "N'afficher que les spots avec " + icon('check', 'w-3.5 h-3.5 inline-block align-middle')}</p>
               </div>
               ${renderToggle(filterVerifiedOnly, "toggleVerifiedFilter()", t('verifiedOnly') || 'Spots vérifiés uniquement')}
             </label>
@@ -116,7 +117,7 @@ export function renderFiltersModal() {
             </label>
             <div class="grid grid-cols-2 gap-3">
               ${[
-    { value: 'rating', label: t('rating') || 'Note', icon: '⭐' },
+    { value: 'rating', label: t('rating') || 'Note', iconName: 'star' },
     { value: 'recent', label: t('recent') || 'Récent', iconName: 'clock' },
     { value: 'popular', label: t('popular') || 'Populaire', iconName: 'flame' },
     { value: 'distance', label: 'Distance', iconName: 'map-pin' },

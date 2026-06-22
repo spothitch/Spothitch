@@ -270,14 +270,14 @@ export function renderSpotDetail(state) {
  ${Object.entries(methodBreakdown).map(([label, v]) => `
  <div class="flex justify-between py-1.5 border-b border-white/[0.04] text-xs">
  <span>${label}</span>
- <span style="color:${v.fail > 0 ? '#ef4444' : '#22c55e'}">${v.ok > 0 ? v.ok + ' ✓' : ''}${v.ok > 0 && v.fail > 0 ? ' · ' : ''}${v.fail > 0 ? v.fail + ' ' : ''}</span></div>
+ <span style="color:${v.fail > 0 ? '#ef4444' : '#22c55e'}">${v.ok > 0 ? v.ok + ' ' + icon('check', 'w-3 h-3 inline') : ''}${v.ok > 0 && v.fail > 0 ? ' · ' : ''}${v.fail > 0 ? v.fail + ' ' : ''}</span></div>
  `).join('')}
  ${Object.entries(timeBreakdown).map(([label, v]) => `
  <div class="flex justify-between py-1.5 border-b border-white/[0.04] text-xs">
  <span>${label}</span>
- <span style="color:${v.fail > 0 ? '#ef4444' : '#22c55e'}">${v.ok > 0 ? v.ok + ' ✓' : ''}${v.ok > 0 && v.fail > 0 ? ' · ' : ''}${v.fail > 0 ? v.fail + ' ' : ''}</span></div>
+ <span style="color:${v.fail > 0 ? '#ef4444' : '#22c55e'}">${v.ok > 0 ? v.ok + ' ' + icon('check', 'w-3 h-3 inline') : ''}${v.ok > 0 && v.fail > 0 ? ' · ' : ''}${v.fail > 0 ? v.fail + ' ' : ''}</span></div>
  `).join('')}
- <div class="text-center text-[10px] text-[#475569] pt-1.5 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ▲</div>
+ <div class="text-center text-[10px] text-[#475569] pt-1.5 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')" role="button" tabindex="0">${t('close') || 'Fermer'} ${icon('chevron-up', 'w-3 h-3 inline')}</div>
  `
  })()}
  </div>
@@ -312,7 +312,7 @@ export function renderSpotDetail(state) {
  <div class="flex-1">
  <div class="flex items-center gap-1.5">
  <span class="text-sm font-semibold" style="color:${spot.streetViewVerified ? '#ffffff' : '#94a3b8'}">Street View</span>
- ${spot.streetViewVerified ? `<span class="text-[10px] text-emerald-500 bg-[rgba(34,197,94,0.15)] px-1.5 py-0.5 rounded-full font-semibold">${t('streetViewCertified') || 'Certifié'} ✓</span>` : `<span class="text-[10px] text-slate-400 bg-[rgba(100,116,139,0.15)] px-1.5 py-0.5 rounded-full font-medium">?</span>`}
+ ${spot.streetViewVerified ? `<span class="text-[10px] text-emerald-500 bg-[rgba(34,197,94,0.15)] px-1.5 py-0.5 rounded-full font-semibold">${t('streetViewCertified') || 'Certifié'} ${icon('check', 'w-3 h-3 inline')}</span>` : `<span class="text-[10px] text-slate-400 bg-[rgba(100,116,139,0.15)] px-1.5 py-0.5 rounded-full font-medium">?</span>`}
  </div>
  <div class="text-[11px]" style="color:${spot.streetViewVerified ? '#86efac' : '#64748b'}">${spot.streetViewVerified ? (t('streetViewSubtitle') || 'Voir cet endroit comme si vous y étiez') : (t('streetViewNotVerified') || 'Pas encore vérifié par la communauté')}</div></div></div>
  <div class="flex items-center gap-1.5">
@@ -669,7 +669,7 @@ window.confirmStreetViewAvailable = async (spotId) => {
  </button>
  <button type="button" onclick="doConfirmStreetView('${escapeJSString(String(spotId))}')"
  class="w-full bg-emerald-500 border-none text-white py-3 rounded-[10px] text-sm font-semibold cursor-pointer">
- ${t('streetViewYesConfirm') || 'Oui, Street View fonctionne ici'} ✓
+ ${t('streetViewYesConfirm') || 'Oui, Street View fonctionne ici'} ${icon('check', 'w-3 h-3 inline')}
  </button>
  <button type="button" onclick="document.getElementById('sv-confirm-overlay')?.remove()"
  class="w-full bg-transparent border border-slate-700 text-slate-500 py-2.5 rounded-[10px] text-xs cursor-pointer">

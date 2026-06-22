@@ -607,11 +607,11 @@ export function renderGmapsTipCard() {
  <div class="p-2 text-center text-[10px] text-slate-400">
  ${t('gmapsTipManualDesc')}
  <div class="text-red-500 font-semibold mt-1">
- ⏱ ~2 min
+ ${icon('clock', 'w-3 h-3 inline')} ~2 min
  </div></div></div>
  <div class="flex-1 bg-[#1a1f2e] rounded-[10px] overflow-hidden border border-emerald-500/20">
  <div class="bg-emerald-500/[0.08] p-1.5 text-center text-[10px] font-bold text-emerald-500 tracking-wide">
- ✓ GOOGLE MAPS
+ ${icon('check', 'w-3 h-3 inline')} GOOGLE MAPS
  </div>
  <div class="h-20 relative overflow-hidden bg-[#111827]">
  <img src="https://tile.openstreetmap.org/14/8529/5975.png"
@@ -624,7 +624,7 @@ export function renderGmapsTipCard() {
  <div class="p-2 text-center text-[10px] text-slate-400">
  ${t('gmapsTipShareDesc')}
  <div class="text-emerald-500 font-semibold mt-1">
- ⏱ 3 sec
+ ${icon('clock', 'w-3 h-3 inline')} 3 sec
  </div></div></div></div>
  <div class="text-center text-xs text-slate-400 mb-3">
  ${t('gmapsTipHowTo')}
