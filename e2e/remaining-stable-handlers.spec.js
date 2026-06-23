@@ -29,6 +29,12 @@ const CASES = [
   ['sortMySpots', '_mySpotsSort', 'recent', 'profil'],
   ['setBuddyTravelMode', 'buddyFormData', 'car', 'social'],
   ['setBuddyVisibility', 'buddyFormData', 'public', 'social'],
+  ['openCountryGuide', 'selectedCountryGuide', 'FR', null],
+  ['openFriendChat', 'activeDMConversation', 'u1', null],
+  ['openMyCountries', 'profileDetailView', undefined, 'profil'],
+  ['openMySpots', 'profileDetailView', undefined, 'profil'],
+  ['openMyValidations', 'profileDetailView', undefined, 'profil'],
+  ['openTripDetail', 'tripDetailIndex', 1, null],
 ]
 
 for (const [fn, key, arg, tab] of CASES) {
