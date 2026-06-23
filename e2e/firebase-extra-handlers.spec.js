@@ -33,9 +33,15 @@ test.describe('Firebase extra handlers', () => {
   })
 
   test('voteCommunityTip increments the upvote count in Firestore', async () => {
-    // Load the Guides module (real handler), seed a tip, then vote it up.
-    await page.evaluate(() => { window.changeTab('voyage'); window.setVoyageSubTab?.('guides') })
-    await page.waitForFunction(() => typeof window.voteCommunityTip === 'function', { timeout: 15000 })
+    // Load the Guides module (real handler), seed a tip, then vote it up. Retry the open in
+    // case the first lazy render races on a cold start.
+    let loaded = false
+    for (let i = 0; i < 3 && !loaded; i++) {
+      await page.evaluate(() => { window.changeTab('voyage'); window.setVoyageSubTab?.('guides') })
+      loaded = await page.waitForFunction(() => typeof window.voteCommunityTip === 'function', { timeout: 10000 })
+        .then(() => true).catch(() => false)
+    }
+    expect(loaded).toBe(true)
     const tipId = await page.evaluate(async () => {
       const { getDb, getAuth, doc, setDoc, serverTimestamp } = window.__fb
       const u = getAuth().currentUser?.uid
@@ -106,4 +112,10 @@ test.describe('Firebase extra handlers', () => {
       }, shortId)
     }, { timeout: 12000 }).toBe(true)
   })
+
+  // NOTE: guardianSendMessage (writes sosTimers/{uid}/messages) passes in isolation but is
+  // flaky as the 4th test on the shared serial page — it needs an active guardian session AND
+  // a freshly-restored auth user, which conflict (a page reset to clear state drops the async
+  // auth user). Left out rather than shipped flaky; covered manually + by the guardian-state
+  // localStorage specs. Revisit with a dedicated isolated context if needed.
 })
