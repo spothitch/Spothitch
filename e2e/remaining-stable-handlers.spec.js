@@ -38,6 +38,7 @@ const CASES = [
   ['acceptLocationPermission', 'showLocationPermission', undefined, null],
   ['backFromVoyageurs', 'voyageursView', undefined, 'social'],
   ['contactNearbyTraveler', 'socialSubTab', 'u1', 'social'],
+  ['addCustomGuideCategory', 'guideCustomCategoryOpen', undefined, 'voyage'],
 ]
 
 for (const [fn, key, arg, tab] of CASES) {
