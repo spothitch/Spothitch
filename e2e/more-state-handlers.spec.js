@@ -66,3 +66,29 @@ test('updateExperienceDate stores the experience date in the spot form', async (
   expect(String(stored.m)).toBe('3')
   expect(String(stored.y)).toBe('2026')
 })
+
+test('startIdentityVerification opens the identity verification flow', async ({ page }) => {
+  await boot(page)
+  await page.waitForFunction(() => typeof window.startIdentityVerification === 'function', { timeout: 15000 }).catch(() => {})
+  test.skip(!(await page.evaluate(() => typeof window.startIdentityVerification === 'function')), 'handler not in shell build')
+  await page.evaluate(() => window.setState({ showIdentityVerification: false }))
+  await page.evaluate(() => window.startIdentityVerification())
+  await expect.poll(() => page.evaluate(() => window.getState().showIdentityVerification), { timeout: 8000 }).toBe(true)
+})
+
+test('reactToEventComment bumps the events update timestamp', async ({ page }) => {
+  await boot(page)
+  await loadHandler(page, 'reactToEventComment', () => window.changeTab('social'))
+  await page.evaluate(() => window.setState({ eventsLastUpdate: 0 }))
+  await page.evaluate(() => window.reactToEventComment('comment-1', '👍'))
+  await expect.poll(() => page.evaluate(() => window.getState().eventsLastUpdate), { timeout: 8000 }).not.toBe(0)
+})
+
+test('setMainProfilePhoto promotes a photo to first', async ({ page }) => {
+  await boot(page)
+  await loadHandler(page, 'setMainProfilePhoto', () => window.changeTab('profil'))
+  await page.evaluate(() => window.setState({ profilePhotos: ['a.jpg', 'b.jpg', 'c.jpg'] }))
+  await page.evaluate(() => window.setMainProfilePhoto(2)) // promote 'c.jpg'
+  await expect.poll(() => page.evaluate(() => (window.getState().profilePhotos || [])[0]), { timeout: 8000 }).toBe('c.jpg')
+})
+
