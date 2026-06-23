@@ -25,6 +25,10 @@ const CASES = [
   ['showFriends', 'socialSubTab', undefined, 'social'],
   ['showGuides', 'selectedCountryCode', 'FR', null],
   ['journalAddLeg', 'journalView', undefined, 'carnet'],
+  ['closeSettings', 'profileSubTab', undefined, null],
+  ['sortMySpots', '_mySpotsSort', 'recent', 'profil'],
+  ['setBuddyTravelMode', 'buddyFormData', 'car', 'social'],
+  ['setBuddyVisibility', 'buddyFormData', 'public', 'social'],
 ]
 
 for (const [fn, key, arg, tab] of CASES) {
