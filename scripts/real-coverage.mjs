@@ -87,6 +87,13 @@ if (fs.existsSync('e2e/set-auto.spec.js')) {
   for (const m of out.matchAll(/window\.(set\w+) = \(/g)) if (!skip.has(m[1])) dataDriven.add(m[1])
   dataDriven.add('setAuthMode') // covered by its dedicated test
 }
+// remaining-stable-handlers.spec.js triggers each handler in its CASES table (one isolated
+// test per handler) and asserts its target state key changes. Credit those handler names.
+if (fs.existsSync('e2e/remaining-stable-handlers.spec.js')) {
+  const spec = fs.readFileSync('e2e/remaining-stable-handlers.spec.js', 'utf8')
+  const block = spec.slice(spec.indexOf('const CASES'), spec.indexOf('for (', spec.indexOf('const CASES')))
+  for (const m of block.matchAll(/\[\s*'(\w+)'/g)) dataDriven.add(m[1])
+}
 // Delegation wrappers covered by delegation-handlers.spec.js (verified by delegated state effect)
 if (fs.existsSync('e2e/delegation-handlers.spec.js')) {
   for (const h of ['submitNewSpot', 'openAccessibilityHelp', 'closeAddPastTrip', 'closeLocationPermission', 'closeWelcome', 'closeCityPanel', 'markSafe', 'loginWithEmail']) dataDriven.add(h)
