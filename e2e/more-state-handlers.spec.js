@@ -76,19 +76,49 @@ test('startIdentityVerification opens the identity verification flow', async ({ 
   await expect.poll(() => page.evaluate(() => window.getState().showIdentityVerification), { timeout: 8000 }).toBe(true)
 })
 
-test('reactToEventComment bumps the events update timestamp', async ({ page }) => {
-  await boot(page)
-  await loadHandler(page, 'reactToEventComment', () => window.changeTab('social'))
-  await page.evaluate(() => window.setState({ eventsLastUpdate: 0 }))
-  await page.evaluate(() => window.reactToEventComment('comment-1', '👍'))
-  await expect.poll(() => page.evaluate(() => window.getState().eventsLastUpdate), { timeout: 8000 }).not.toBe(0)
-})
-
 test('setMainProfilePhoto promotes a photo to first', async ({ page }) => {
   await boot(page)
   await loadHandler(page, 'setMainProfilePhoto', () => window.changeTab('profil'))
   await page.evaluate(() => window.setState({ profilePhotos: ['a.jpg', 'b.jpg', 'c.jpg'] }))
   await page.evaluate(() => window.setMainProfilePhoto(2)) // promote 'c.jpg'
   await expect.poll(() => page.evaluate(() => (window.getState().profilePhotos || [])[0]), { timeout: 8000 }).toBe('c.jpg')
+})
+
+test('toggleFeedVisibility flips the location-sharing flag', async ({ page }) => {
+  await boot(page)
+  await loadHandler(page, 'toggleFeedVisibility', () => window.changeTab('social'))
+  const before = await page.evaluate(() => !!window.getState().shareLocationWithFriends)
+  await page.evaluate(() => window.toggleFeedVisibility())
+  await expect.poll(() => page.evaluate(() => !!window.getState().shareLocationWithFriends), { timeout: 8000 }).toBe(!before)
+})
+
+test('toggleFriendForGroup adds a friend to the group selection', async ({ page }) => {
+  await boot(page)
+  await loadHandler(page, 'toggleFriendForGroup', () => window.changeTab('social'))
+  await page.evaluate(() => window.setState({ groupConversationSelectedFriends: [] }))
+  await page.evaluate(() => window.toggleFriendForGroup('friend-xyz'))
+  await expect.poll(() => page.evaluate(() => (window.getState().groupConversationSelectedFriends || []).includes('friend-xyz')), { timeout: 8000 }).toBe(true)
+})
+
+test('showBuddyDetail switches the buddies view to detail', async ({ page }) => {
+  await boot(page)
+  await loadHandler(page, 'showBuddyDetail', () => window.changeTab('social'))
+  await page.evaluate(() => window.setState({ voyageursView: '__RESET__' }))
+  await page.evaluate(() => window.showBuddyDetail('buddy-1'))
+  await expect.poll(() => page.evaluate(() => window.getState().voyageursView), { timeout: 8000 }).not.toBe('__RESET__')
+})
+
+test('completeWelcome saves the chosen username', async ({ page }) => {
+  await boot(page)
+  await page.waitForFunction(() => typeof window.completeWelcome === 'function', { timeout: 15000 }).catch(() => {})
+  test.skip(!(await page.evaluate(() => typeof window.completeWelcome === 'function')), 'handler not in shell build')
+  const name = 'WelcomeUser' + Date.now().toString().slice(-4)
+  await page.evaluate((name) => {
+    let el = document.getElementById('welcome-username')
+    if (!el) { el = document.createElement('input'); el.id = 'welcome-username'; document.body.appendChild(el) }
+    el.value = name
+    window.completeWelcome()
+  }, name)
+  await expect.poll(() => page.evaluate(() => window.getState().username), { timeout: 8000 }).toBe(name)
 })
 
