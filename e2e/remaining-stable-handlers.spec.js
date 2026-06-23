@@ -35,6 +35,9 @@ const CASES = [
   ['openMySpots', 'profileDetailView', undefined, 'profil'],
   ['openMyValidations', 'profileDetailView', undefined, 'profil'],
   ['openTripDetail', 'tripDetailIndex', 1, null],
+  ['acceptLocationPermission', 'showLocationPermission', undefined, null],
+  ['backFromVoyageurs', 'voyageursView', undefined, 'social'],
+  ['contactNearbyTraveler', 'socialSubTab', 'u1', 'social'],
 ]
 
 for (const [fn, key, arg, tab] of CASES) {
