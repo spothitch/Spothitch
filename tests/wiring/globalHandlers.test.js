@@ -346,7 +346,7 @@ const MAIN_JS_HANDLERS = [
   'openAddPastTrip', 'closeAddPastTrip', 'submitPastTrip',
   'removeLanguage', 'cycleLanguageLevel',
   'saveSocialLink', 'addProfilePhoto', 'removeProfilePhoto', 'setMainProfilePhoto',
-  'openPhotoManager', 'openEditName', 'openChangePassword', 'openChangeEmail',
+  'openPhotoManager', 'openPhotoFullscreen', 'openEditName', 'openChangePassword', 'openChangeEmail',
   'openEditPersonalInfo', 'openExportData', 'openAppealForm',
   'openChangeUsername', 'editSocialLinks',
   'setThemeMode', 'toggleAccessibility',
