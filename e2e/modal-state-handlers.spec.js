@@ -39,7 +39,7 @@ test('every close* handler closes its modal (open -> close -> flag false)', asyn
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function' && typeof window.getState === 'function', { timeout: 15000 })
 
   expect(CLOSE.length).toBeGreaterThan(30)
@@ -72,7 +72,7 @@ test('every open/show* handler opens its modal (flag true)', async ({ page }) =>
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function' && typeof window.getState === 'function', { timeout: 15000 })
 
   expect(OPEN.length).toBeGreaterThan(8)
@@ -101,7 +101,7 @@ test('every set* handler stores its argument in state', async ({ page }) => {
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function' && typeof window.getState === 'function', { timeout: 15000 })
 
   expect(SET.length).toBeGreaterThan(8)

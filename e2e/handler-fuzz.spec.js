@@ -30,7 +30,7 @@ test('no handler crashes the app (fuzz / monkey)', async ({ page }) => {
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 })
 
   expect(HANDLERS.length).toBeGreaterThan(400)
@@ -61,7 +61,7 @@ test('no handler crashes the app (fuzz / monkey)', async ({ page }) => {
     if (res === 'dead') broke.push(h)
     if (res === 'navigated') {
       navigators.push(h)
-      await page.goto('/', { waitUntil: 'networkidle' })
+      await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
       await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 })
     }
   }

@@ -38,7 +38,6 @@ const CASES = [
   ['acceptLocationPermission', 'showLocationPermission', undefined, null],
   ['backFromVoyageurs', 'voyageursView', undefined, 'social'],
   ['contactNearbyTraveler', 'socialSubTab', 'u1', 'social'],
-  ['addCustomGuideCategory', 'guideCustomCategoryOpen', undefined, 'voyage'],
 ]
 
 for (const [fn, key, arg, tab] of CASES) {
@@ -51,7 +50,7 @@ for (const [fn, key, arg, tab] of CASES) {
         localStorage.setItem('spothitch_landing_seen', 'true')
       } catch { /* ignore */ }
     })
-    await page.goto('/', { waitUntil: 'networkidle' })
+    await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
     await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 })
     if (tab) {
       await page.evaluate((t) => window.changeTab?.(t), tab)

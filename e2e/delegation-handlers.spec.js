@@ -26,7 +26,7 @@ test('delegation wrappers produce their delegated effect', async ({ page }) => {
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function' && typeof window.getState === 'function', { timeout: 15000 })
 
   const fails = []

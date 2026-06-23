@@ -17,7 +17,7 @@ test.describe('Guardian config — real handler effects', () => {
         localStorage.setItem('spothitch_landing_seen', 'true')
       } catch { /* ignore */ }
     })
-    await page.goto('/', { waitUntil: 'networkidle' })
+    await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
     await page.waitForTimeout(1500)
     // Open Guardian so Guardian.js loads and replaces the lazy-stub handlers with
     // the real ones. Poll until a real handler actually persists state (the lazy

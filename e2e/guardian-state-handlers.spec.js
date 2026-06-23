@@ -16,7 +16,7 @@ async function bootGuardian(page) {
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 15000 })
   // Re-trigger the open a couple of times in case the first lazy render races, then wait
   // generously for the (heavy) Guardian module to install its handlers.

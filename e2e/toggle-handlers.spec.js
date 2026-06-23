@@ -15,7 +15,7 @@ test.describe('Toggle handlers', () => {
         localStorage.setItem('spothitch_landing_seen', 'true')
       } catch { /* ignore */ }
     })
-    await page.goto('/', { waitUntil: 'networkidle' })
+    await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
     await page.waitForFunction(() => typeof window.setState === 'function' && typeof window.getState === 'function', { timeout: 15000 })
   })
 
@@ -56,6 +56,9 @@ test.describe('Toggle handlers', () => {
   })
 
   test('toggleAmenity flips a spot-form tag', async ({ page }) => {
+    // toggleAmenity lives in the lazy AddSpot module — open it so the real handler installs.
+    await page.evaluate(() => window.setState({ showAddSpot: true }))
+    await page.waitForFunction(() => typeof window.toggleAmenity === 'function', { timeout: 15000 })
     const r = await page.evaluate(async () => {
       window.spotFormData = window.spotFormData || { tags: {} }
       window.spotFormData.tags = {}

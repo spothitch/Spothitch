@@ -17,7 +17,7 @@ async function bootVoyage(page) {
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 15000 })
   await page.evaluate(() => window.changeTab('voyage'))
   await page.waitForFunction(() => typeof window.tripExpandForm === 'function' && typeof window.tripFitBounds === 'function', { timeout: 15000 })

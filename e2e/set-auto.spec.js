@@ -40,7 +40,7 @@ test('every setter writes its argument into state', async ({ page }) => {
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 })
 
   expect(SETTERS.length).toBeGreaterThan(20)
@@ -93,7 +93,7 @@ test('setAuthMode stores the auth mode in state (async import)', async ({ page }
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 })
   await page.evaluate(() => window.setAuthMode('signup'))
   await page.waitForFunction(() => window.getState().authMode === 'signup', { timeout: 5000 })

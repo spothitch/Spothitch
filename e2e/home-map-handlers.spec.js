@@ -17,7 +17,7 @@ async function bootHome(page) {
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 15000 })
   // The map instance is created when the Home view mounts. Wait for it.
   await page.waitForFunction(

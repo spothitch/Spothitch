@@ -46,7 +46,7 @@ test('every close handler clears its state flag (open -> close -> false/null)', 
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function' && typeof window.getState === 'function', { timeout: 15000 })
 
   expect(CLOSE.length).toBeGreaterThan(60)
@@ -59,7 +59,7 @@ test('every close handler clears its state flag (open -> close -> false/null)', 
   const fails = []
   const navigators = []
   const reload = async () => {
-    await page.goto('/', { waitUntil: 'networkidle' })
+    await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
     await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 15000 })
   }
   for (const { fn, flag, val } of CLOSE) {

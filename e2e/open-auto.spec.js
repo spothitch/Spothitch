@@ -51,7 +51,7 @@ test('every modal opener actually opens something (flag true or dialog node)', a
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 })
 
   expect(TARGETS.length).toBeGreaterThan(50)

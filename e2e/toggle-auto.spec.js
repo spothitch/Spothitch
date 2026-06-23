@@ -34,7 +34,7 @@ test('every no-arg toggle flips a boolean and flips it back', async ({ page }) =
       localStorage.setItem('spothitch_landing_seen', 'true')
     } catch { /* ignore */ }
   })
-  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.getState === 'function', { timeout: 15000 })
 
   expect(TARGETS.length).toBeGreaterThan(8)
