@@ -19,7 +19,20 @@ import { execSync } from 'child_process'
 import fs from 'fs'
 
 const src = execSync("grep -rohE 'window\\.[a-zA-Z][a-zA-Z0-9]+ ?=' src/ --include=*.js").toString()
-const handlers = [...new Set([...src.matchAll(/window\.([a-zA-Z][a-zA-Z0-9]+)/g)].map(m => m[1]))].sort()
+const publicHandlers = [...new Set([...src.matchAll(/window\.([a-zA-Z][a-zA-Z0-9]+)/g)].map(m => m[1]))]
+
+// Completeness fix: underscore-prefixed window handlers are usually internal, BUT a few are
+// real user actions wired straight into inline onclick="_foo(...)" attributes. Include any
+// such handler that is BOTH defined as window._foo AND referenced from an on*="..." handler,
+// so the inventory captures every user-triggerable action (proven by cross-checking onclick).
+const usrc = execSync("grep -rohE 'window\\.[a-zA-Z_][a-zA-Z0-9_]* ?=' src/ --include=*.js").toString()
+const allWin = new Set([...usrc.matchAll(/window\.([a-zA-Z_][a-zA-Z0-9_]*)/g)].map(m => m[1]))
+const onclickRefs = new Set(
+  [...execSync('grep -rohE "on(click|input|change|submit|keydown|keyup|focus|blur|mousedown|touchstart|touchend|touchmove)=\\"[^\\"]*\\"" src/ --include=*.js')
+    .toString().matchAll(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g)].map(m => m[1]),
+)
+const underscoreActions = [...allWin].filter(h => h.startsWith('_') && onclickRefs.has(h))
+const handlers = [...new Set([...publicHandlers, ...underscoreActions])].sort()
 
 const testFiles = execSync('find e2e tests -name "*.spec.js" -o -name "*.test.js"').toString().trim().split('\n')
 const allTests = testFiles.map(f => { try { return fs.readFileSync(f, 'utf8') } catch { return '' } }).join('\n')

@@ -627,6 +627,25 @@ function formatRelativeDate(dateInput) {
  */
 // autoTranslateComments + formatReviewDate removed (reviews section removed)
 
+// Handler: open the spot photo in a fullscreen overlay (tapped from the photo hero).
+window.openPhotoFullscreen = (index = 0) => {
+ const spot = window.getState?.().selectedSpot
+ const photos = (spot?.photos && spot.photos.length ? spot.photos : window._mapillaryPhotos) || []
+ const url = photos[index] || spot?.photoUrl
+ if (!url) return
+ document.getElementById('photo-fullscreen-overlay')?.remove()
+ const overlay = document.createElement('div')
+ overlay.id = 'photo-fullscreen-overlay'
+ overlay.className = 'fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4'
+ overlay.innerHTML = `
+ <button id="photo-fullscreen-close" aria-label="${t('close') || 'Fermer'}" class="absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 text-white">${icon('x')}</button>
+ <img src="${escapeHTML(url)}" alt="${t('spotPhoto') || 'Photo du spot'}" class="max-w-full max-h-full object-contain rounded-lg" />`
+ const close = () => overlay.remove()
+ overlay.addEventListener('click', close)
+ overlay.querySelector('#photo-fullscreen-close')?.addEventListener('click', close)
+ document.body.appendChild(overlay)
+}
+
 // Handler: open Google Street View for a spot
 window.openSpotStreetView = async (lat, lng) => {
  if (!isFinite(Number(lat)) || !isFinite(Number(lng))) return
