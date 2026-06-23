@@ -28,7 +28,7 @@ const NEEDS_CONTEXT = new Set([
   'openFullMap', 'openFullscreenMapPicker', 'openGroupConversation', 'openGuardianChat', 'openGuideCategory',
   'openGuidesOverlay', 'openInAppleMaps', 'openInGoogleMaps', 'openInNativeMaps', 'openInNavigationApp',
   'openInWaze', 'openJoinTeam', 'openMyCountries', 'openMySpots', 'openMyValidations',
-  'openNavigation', 'openOfflinePanel', 'openPhotoManager', 'openProgressionStats', 'openReferences',
+  'openNavigation', 'openOfflinePanel', 'openPhotoManager', 'openPhotoFullscreen', 'openProgressionStats', 'openReferences',
   'openRoadmapFeature', 'openSettings', 'openShareCard', 'openSideMenu', 'openSpotDetail',
   'openSpotDraft', 'openSpotStreetView', 'openTeamSettings', 'openTestSpot', 'openTripDetail',
   'openTripPhotoUpload', 'openTripPlanner', 'openUnblockModal', 'openValidateSpot', 'showAddFriend',

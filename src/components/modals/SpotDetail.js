@@ -637,6 +637,8 @@ window.openPhotoFullscreen = (index = 0) => {
  const overlay = document.createElement('div')
  overlay.id = 'photo-fullscreen-overlay'
  overlay.className = 'fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4'
+ overlay.setAttribute('role', 'dialog')
+ overlay.setAttribute('aria-modal', 'true')
  overlay.innerHTML = `
  <button id="photo-fullscreen-close" aria-label="${t('close') || 'Fermer'}" class="absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 text-white">${icon('x')}</button>
  <img src="${escapeHTML(url)}" alt="${t('spotPhoto') || 'Photo du spot'}" class="max-w-full max-h-full object-contain rounded-lg" />`
