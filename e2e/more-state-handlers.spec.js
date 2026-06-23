@@ -108,6 +108,14 @@ test('showBuddyDetail switches the buddies view to detail', async ({ page }) => 
   await expect.poll(() => page.evaluate(() => window.getState().voyageursView), { timeout: 8000 }).not.toBe('__RESET__')
 })
 
+test('equipAvatar sets the avatar in state', async ({ page }) => {
+  await boot(page)
+  await page.waitForFunction(() => typeof window.equipAvatar === 'function', { timeout: 15000 }).catch(() => {})
+  test.skip(!(await page.evaluate(() => typeof window.equipAvatar === 'function')), 'handler not in shell build')
+  await page.evaluate(() => window.equipAvatar('fox-gold'))
+  await expect.poll(() => page.evaluate(() => window.getState().avatar), { timeout: 8000 }).toBe('fox-gold')
+})
+
 test('completeWelcome saves the chosen username', async ({ page }) => {
   await boot(page)
   await page.waitForFunction(() => typeof window.completeWelcome === 'function', { timeout: 15000 }).catch(() => {})
