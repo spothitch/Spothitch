@@ -65,3 +65,26 @@ test('guardianSaveField (edit -> save) adds a guardian', async ({ page }) => {
     return (g.guardians || []).length
   }, { timeout: 8000 }).toBeGreaterThan(before)
 })
+
+test('guardianSavePlate persists the licence plate', async ({ page }) => {
+  await bootGuardian(page)
+  await page.evaluate(() => {
+    let el = document.getElementById('guardian-sheet-plate')
+    if (!el) { el = document.createElement('input'); el.id = 'guardian-sheet-plate'; document.body.appendChild(el) }
+    el.value = 'ab-123-cd'
+    window.guardianSavePlate()
+  })
+  await expect.poll(async () => (await guardianLS(page)).licensePlate, { timeout: 8000 }).toBe('AB-123-CD')
+})
+
+test('guardianSaveDestination persists the destination', async ({ page }) => {
+  await bootGuardian(page)
+  const dest = 'Berlin-' + Date.now()
+  await page.evaluate((dest) => {
+    let el = document.getElementById('guardian-sheet-dest')
+    if (!el) { el = document.createElement('input'); el.id = 'guardian-sheet-dest'; document.body.appendChild(el) }
+    el.value = dest
+    window.guardianSaveDestination()
+  }, dest)
+  await expect.poll(async () => (await guardianLS(page)).destination, { timeout: 8000 }).toBe(dest)
+})
