@@ -39,8 +39,14 @@ test('dismissRoadmapDetailIntro marks the roadmap detail seen', async ({ page })
 test('sosToggleSilent flips the silent-SOS preference', async ({ page }) => {
   test.setTimeout(60000)
   await boot(page)
-  await page.evaluate(() => window.setState({ showSOS: true }))
-  await page.waitForFunction(() => typeof window.sosToggleSilent === 'function', { timeout: 15000 })
+  // Retry the SOS-modal open in case the first lazy render races on a cold start.
+  let loaded = false
+  for (let i = 0; i < 3 && !loaded; i++) {
+    await page.evaluate(() => window.setState({ showSOS: true }))
+    loaded = await page.waitForFunction(() => typeof window.sosToggleSilent === 'function', { timeout: 10000 })
+      .then(() => true).catch(() => false)
+  }
+  expect(loaded).toBe(true)
   const before = await ls(page, 'spothitch_sos_silent')
   await page.evaluate(() => window.sosToggleSilent())
   await expect.poll(async () => ls(page, 'spothitch_sos_silent'), { timeout: 8000 }).not.toBe(before)

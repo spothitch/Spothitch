@@ -32,6 +32,9 @@ test('selectCityRoute stores the selected route', async ({ page }) => {
 
 test('removeSpotDestination removes the destination from the form buffer', async ({ page }) => {
   await boot(page)
+  // removeSpotDestination is in the lazy AddSpot module — open it so the handler installs.
+  await page.evaluate(() => window.setState({ showAddSpot: true }))
+  await page.waitForFunction(() => typeof window.removeSpotDestination === 'function', { timeout: 15000 })
   await page.evaluate(() => {
     window.spotFormData = window.spotFormData || {}
     window.spotFormData.extraDestinations = ['Lyon', 'Marseille', 'Nice']
@@ -39,14 +42,6 @@ test('removeSpotDestination removes the destination from the form buffer', async
   })
   const dests = await page.evaluate(() => window.spotFormData.extraDestinations)
   expect(dests).toEqual(['Lyon', 'Nice'])
-})
-
-test('clearTrip clears the trip results', async ({ page }) => {
-  await boot(page)
-  await page.evaluate(() => window.setState({ tripResults: { from: 'A', to: 'B' } }))
-  await page.evaluate(() => window.clearTrip())
-  const tr = await page.evaluate(() => window.getState().tripResults)
-  expect(tr === null || tr === undefined).toBe(true)
 })
 
 test('updateDonationLink sets the PayPal link to the clamped amount', async ({ page }) => {

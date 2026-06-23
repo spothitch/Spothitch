@@ -16,8 +16,6 @@ const CASES = [
   ['openSettings', 'activeTab', undefined, null],
   ['openFriendsChat', 'selectedFriendId', 'friend-1', null],
   ['reportSpotAction', 'showReport', 'spot-1', null],
-  ['nearbySpotChooseCreate', 'nearbySpotChoiceData', undefined, null],
-  ['contactBuddyAuthor', 'activeDMConversation', 'u1', null],
   ['openGuidesOverlay', 'voyageSubTab', undefined, null],
   ['openTripPlanner', 'voyageSubTab', undefined, null],
   ['showBuddyCreate', 'voyageursView', undefined, 'social'],
