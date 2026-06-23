@@ -53,6 +53,7 @@ import {
 } from 'firebase/firestore';
 import {
   getStorage,
+  connectStorageEmulator,
   ref,
   uploadString,
   uploadBytes,
@@ -104,7 +105,8 @@ export function initializeFirebase() {
       try {
         connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
         connectFirestoreEmulator(db, '127.0.0.1', 8080)
-        console.log('[Firebase] Connected to local emulators (Auth:9099, Firestore:8080)')
+        try { connectStorageEmulator(storage, '127.0.0.1', 9199) } catch (se) { console.warn('[Firebase] Storage emulator:', se?.message) }
+        console.log('[Firebase] Connected to local emulators (Auth:9099, Firestore:8080, Storage:9199)')
       } catch (e) {
         console.warn('[Firebase] Emulator connection failed:', e?.message)
       }

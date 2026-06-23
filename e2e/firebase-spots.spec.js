@@ -318,9 +318,7 @@ test.describe('Firebase Spots', () => {
   })
 
   test('upload spot photo to Firebase Storage', async () => {
-    // Needs the Storage emulator + a connectStorageEmulator() call in firebase.js
-    // (only auth+firestore are emulated today). Deferred — see memory/project_firebase_e2e.md.
-    test.skip(true, 'Storage emulator not wired yet')
+    // Storage emulator (port 9199) is now wired via connectStorageEmulator() in firebase.js.
     test.skip(!process.env.E2E_TEST_PASSWORD, 'E2E_TEST_PASSWORD not set')
 
     const result = await page.evaluate(async (testUid) => {
@@ -348,7 +346,8 @@ test.describe('Firebase Spots', () => {
 
         return {
           uploaded: !!downloadURL,
-          urlValid: downloadURL.includes('firebasestorage.googleapis.com') || downloadURL.includes('storage.googleapis.com'),
+          // prod uses *.googleapis.com; the local Storage emulator serves from 127.0.0.1:9199.
+          urlValid: /firebasestorage\.googleapis\.com|storage\.googleapis\.com|127\.0\.0\.1:9199/.test(downloadURL),
           path,
         }
       } catch (err) { return { error: err.message } }

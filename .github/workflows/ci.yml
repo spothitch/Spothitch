@@ -324,9 +324,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Start Firebase Emulators
         run: |
-          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
-          for i in $(seq 1 30); do
-            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Emulators ready" && break
+          npx firebase emulators:start --only auth,firestore,storage --project spothitch-emulator &
+          for i in $(seq 1 45); do
+            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && curl -s http://127.0.0.1:9199/ > /dev/null 2>&1 && echo "Emulators ready" && break
             sleep 1
           done
       - name: Build isolated emulator app

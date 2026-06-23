@@ -29,7 +29,7 @@ function emulatorCspPlugin() {
       if (!isE2eEmulator) return html
       return html.replace(
         /(connect-src 'self')/,
-        "$1 http://127.0.0.1:9099 http://127.0.0.1:8080 ws://127.0.0.1:9099 ws://127.0.0.1:8080"
+        "$1 http://127.0.0.1:9099 http://127.0.0.1:8080 http://127.0.0.1:9199 ws://127.0.0.1:9099 ws://127.0.0.1:8080 ws://127.0.0.1:9199"
       )
     }
   }
