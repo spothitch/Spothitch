@@ -131,6 +131,15 @@ export function showTip(tipId) {
     return false;
   }
 
+  // Don't show a contextual tip while a modal/dialog is open: the tip overlay (z-100,
+  // bottom-24, pointer-events-auto) would sit ON TOP of the modal's buttons and intercept
+  // taps — e.g. it was blocking the SOS intro "Configurer mon SOS" button. Defer instead.
+  try {
+    if (typeof document !== 'undefined' && document.querySelector('[role="dialog"],[aria-modal="true"]')) {
+      return false;
+    }
+  } catch { /* ignore */ }
+
   // Get the tip configuration
   const tip = Object.values(TIPS).find(t => t.id === tipId);
   if (!tip) {

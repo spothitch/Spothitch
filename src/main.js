@@ -594,6 +594,13 @@ async function init() {
 
  // Auto-update check: reload if a new version is deployed
  startVersionCheck()
+
+ // Hide the loading screen now that the app is initialised. CRITICAL: this must NOT depend on
+ // the map loading — on a poor/offline connection (a hitchhiker in a remote area) the map tiles
+ // may never load, and previously the loader (z-9999, fixed, pointer-events:auto) stayed up and
+ // blocked the ENTIRE app. hideLoader() was defined but never called; the only hide was in the
+ // map 'load' handler. Call it here, and keep the map handler as a redundant early-hide.
+ hideLoader()
  } catch (error) {
  console.error('Init error:', error);
  // Show error to user but still try to render
