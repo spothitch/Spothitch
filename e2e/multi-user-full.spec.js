@@ -643,8 +643,18 @@ test.describe('I. All Handlers Exist', () => {
   ]
 
   test('All critical handlers are functions', async ({ page }) => {
+    // Heavy setup (cold preview server boot + preloading every lazy module) can exceed the
+    // default 45s budget on a cold serial run — give it room so it never flakes on timing.
+    test.setTimeout(120000)
     await setupPage(page)
     await waitForApp(page)
+
+    // handleAuth is defined in the lazy-loaded Auth modal (App.js imports it only when
+    // state.showAuth is true). In production the auth form that calls handleAuth only
+    // exists once that same module renders, so this is correct — but to assert it here we
+    // must first open the auth modal so the real handler registers.
+    await page.evaluate(() => (window.openAuth ? window.openAuth() : window.setState?.({ showAuth: true })))
+    await page.waitForFunction(() => typeof window.handleAuth === 'function', { timeout: 10000 }).catch(() => {})
 
     const missing = await page.evaluate((handlers) => {
       return handlers.filter(h => typeof window[h] !== 'function')
