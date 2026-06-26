@@ -250,6 +250,9 @@ window.openTestSpot = async (spotId) => {
     photos: [],
     lat, lng,
     spotType: spot?.spotType || 'custom',
+    // Validating a KNOWN spot: skip the "nearby duplicate" detection (it would otherwise find
+    // the very spot being validated and block step 1 → step 2 with a confusing "Spot nearby!" modal).
+    _duplicateConfirmed: true,
     ratings: {
       safety: 0, traffic: 0, accessibility: 0,
     },
