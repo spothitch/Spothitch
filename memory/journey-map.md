@@ -294,22 +294,70 @@
 236. ☐ Feature intro / slides (suivant / précédent / voter / feedback)
 237. ☐ Démos profil (points/journal/social/gardien/auberges/spot) — vitrine
 
+## 23. EXPÉRIENCES NON-CLIQUABLES (24 parcours) — trouvées au contre-contrôle, à NE PAS oublier
+> Tout ce que l'utilisateur VIT sans cliquer : lancement, automatique, gestes, liens entrants.
+238. ☐ Premier lancement : splash → landing → onboarding (enchaînement fluide) [D]
+239. ☐ Écrans de chargement (loading) pendant que ça charge [D: pas de page blanche]
+240. ☐ État VIDE "aucun spot" [D: message clair, pas vide cassé]
+241. ☐ État VIDE "aucun ami / aucun message / aucun voyage" [D]
+242. ☐ État d'ERREUR réseau (échec de chargement) [D: message + bouton réessayer]
+243. ☐ Raccourci clavier : Échap ferme la modale ouverte
+244. ☐ Raccourci clavier : Ctrl/Cmd+K ouvre la recherche
+245. ☐ Raccourci clavier : "/" met le focus sur la recherche
+246. ☐ Geste : balayer le bottom-sheet du trajet (haut/bas) [D: animation]
+247. ☐ Geste : déplacer / zoomer la carte au doigt (pan / pinch)
+248. ☐ Recevoir une notif push, APP OUVERTE → bandeau in-app [M]
+249. ☐ Recevoir une notif push, APP FERMÉE → la taper → ouvre le bon écran [M]
+250. ☐ Notif de proximité d'un spot → valider/signaler rapide depuis la notif [M]
+251. ☐ Partage ENTRANT (share target) : partager une position depuis Maps → l'app propose de créer un spot
+252. ☐ Deep link : ouvrir un lien de spot → l'app ouvre le bon spot
+253. ☐ Deep link : ouvrir une page ville/pays (SEO) → bon écran
+254. ☐ Partage SORTANT : partager un spot / badge / SOS → feuille de partage native s'ouvre
+255. ☐ Passer hors-ligne → bandeau "hors-ligne", spots en cache lisibles
+256. ☐ Revenir en ligne → synchronisation automatique (forceOfflineSync) [M: les actions faites hors-ligne arrivent]
+257. ☐ Mise à jour PWA disponible → s'applique au prochain lancement (PAS de reload en plein usage)
+258. ☐ Position GPS qui se met à jour pendant qu'on bouge (carte/gardien suivent)
+259. ☐ Session expirée / token invalide → redemande de connexion proprement
+260. ☐ Escalade GARDIEN côté serveur (Cloud Function) : check-in raté + batterie morte → le gardien est alerté [M] ⚠️ SÉCURITÉ
+261. ☐ Email transactionnel reçu (validation compte, reset mdp) [M: vrai email]
+
 ---
 
-## TOTAL : 237 parcours réels
-- **Mono-utilisateur** : ~180 parcours (un seul téléphone suffit)
-- **Multi-utilisateur [M]** : ~57 parcours qui exigent **2 comptes / 2 téléphones** pour vérifier
-  que l'action de A produit bien l'effet attendu sur l'interface de B.
-- **Sécurité critique** (Gardien + SOS) : 27 parcours — priorité absolue
-- **Destructeurs / gated** : ~15 (à faire avec précaution / si réactivés)
+## TOTAL : 261 parcours réels
+
+### LE MÉGA-PLAN — comment résoudre le problème pour de bon
+Le problème réalisé : tester un handler tout seul ≠ tester le vrai parcours. La solution n'est
+PAS juste de lister — c'est de **classer chaque parcours** puis de l'exécuter de la bonne façon :
+
+**🤖 AUTOMATISABLE par moi (click-through Playwright : clique le vrai bouton, remplit les vrais
+champs, 2 navigateurs pour le multi-user). ≈ 175 parcours.**
+→ Une fois faits + verts en CI, ils deviennent un **filet permanent**. **TU NE LES REFAIS JAMAIS.**
+Couvre : création/validation de spots, voyage, carnet, social (amis/messages/groupes/compagnons/
+événements via 2 contextes navigateur sur l'émulateur), guides, profil/paramètres, admin, filtres,
+RGPD, états vides/erreur/chargement, raccourcis clavier, deep-links, la logique gardien/SOS.
+
+**👤 MANUEL — toi seul (vrai matériel / service externe / sélecteur natif). ≈ 86 parcours.**
+→ La liste FOCALISÉE pour toi (déjà dans `manual-test-checklist.md`, à fusionner) :
+- Vrais logins **Google / Apple / téléphone (SMS)** + emails transactionnels (#14,15,16,261)
+- **Caméra / sélecteur de fichier natif** : toutes les photos (spot, profil, check-in, identité, gardien)
+- **GPS réel** en bougeant (#20,33,258), **notifs push réelles** (#248-250), **vrai réseau lent / hors-ligne**
+- **Partage natif** entrant/sortant (#251,254), **install PWA** sur vrai Android/iPhone (#4,257)
+- **Escalade gardien serveur** batterie morte (#260), **vrais SMS/appels** SOS (#155,159,165)
+- **Conformité visuelle [D] sur vrai téléphone** : couleurs, vieux tél, 4 langues, mode sombre
 
 ### Pour chaque parcours, 3 vérifications obligatoires
-1. **[V] Fonctionnel + variations** : le bouton fait ce qu'il doit, dans tous les cas (vide,
-   rempli, chaque type, erreur)
+1. **[V] Fonctionnel + variations** : le bouton fait ce qu'il doit, dans TOUS les cas (vide, rempli, chaque type, erreur)
 2. **[D] Visuel** : couleurs, icônes, layout = ce qui était prévu (pas de texte coupé/invisible)
-3. **[M] Multi-utilisateur** : quand pertinent, l'effet est bien visible côté autre(s) utilisateur(s)
+3. **[M] Multi-utilisateur** (57 parcours) : l'effet est bien visible côté autre(s) utilisateur(s)
 
-### État actuel (honnête)
-- **2 parcours** vérifiés en VRAI click-through (validation spot étape 1 ✅, photo plein écran ✅)
-- **235 parcours** restent à tester en cliquant les vrais boutons. Les "tests handlers" existants
-  prouvent la tuyauterie, PAS le parcours réel — d'où ce plan.
+### Méthode d'exécution (la règle qui empêche de refaire l'erreur)
+- **Cliquer le VRAI bouton** (`locator.click()`), JAMAIS appeler `window.fn()` seul.
+- Remplir les VRAIS champs (`fill`, `selectOption`), pas juste setState.
+- Multi-user = 2 BrowserContexts sur l'émulateur Firebase : A agit, on VÉRIFIE sur l'écran de B.
+- Chaque parcours auto = 1 test qui échoue si le bouton est cassé (comme le bug validation spot).
+
+### État (honnête, mis à jour en continu)
+- **2 / 261** vérifiés en VRAI click-through (validation spot ✅, photo plein écran ✅ — 2 bugs corrigés)
+- Prochaine étape : exécuter les ~175 automatisables, un par un, en commençant par la SÉCURITÉ
+  (Gardien + SOS) puis les SPOTS. Puis te livrer la liste manuelle nette des ~86.
+- **Quand les 175 auto seront verts + tu auras fait les 86 manuels → l'app est prête.**
