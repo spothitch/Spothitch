@@ -1964,3 +1964,13 @@ Chaque erreur suit ce format :
 - **Correction** : Remplacé par DataCategory.SETTINGS
 - **Fichiers** : src/services/storageRegistry.js
 - **Statut** : CORRIGÉ
+
+### ERR-166 — Tests E2E flaky : handlers lazy assertés après un délai FIXE
+- **Date** : 2026-07-01
+- **Gravité** : MAJEUR (bloque le CI de façon intermittente)
+- **Description** : Le job « E2E Functional 2 » échouait par intermittence sur 2 tests de `functional-profile-admin.spec.js` : (1) `Handlers location/proximity existent` — les handlers `quickValidateSpot/quickReportSpot/dismissProximityAlert/initProximityNotify` sont enregistrés par un import lazy de services d'arrière-plan (`main.js:478`), APRÈS l'init Firebase, et le test assertait leur existence après un `waitForTimeout(2000)` fixe ; (2) `openIdentityVerification ouvre, close ferme` — `closeIdentityVerification` reste un `_lazyStub` (no-op qui ne fait que `console.warn('[lazy]…')`) tant que `IdentityVerification.js` n'est pas chargé ; un `waitForTimeout(500)` fixe pouvait tirer le stub → le flag `showIdentityVerification` restait `true`.
+- **Cause racine** : assertion sur un handler/effet lazy après un délai FIXE au lieu d'un poll. Sur un runner CI chargé, le module lazy n'est pas prêt dans la fenêtre → échec intermittent. AUCUNE modification du source (bug purement de test).
+- **Correction** : `setup()` poll désormais jusqu'à l'enregistrement des services d'arrière-plan (couvre les ~20 tests d'existence du fichier d'un coup). Le test open/close attend le VRAI handler close (`toString()` ne contient pas `[lazy]`) puis `expect.poll` le flag. Même correctif propagé à `multi-user-phase1-auth.spec.js` (même pattern).
+- **Leçon** : Ne JAMAIS asserter l'existence d'un handler lazy ou l'effet d'un handler lazy après un `waitForTimeout` FIXE. Toujours `waitForFunction`/`expect.poll`. Pour un handler qui peut être un `_lazyStub`, attendre que `!fn.toString().includes('[lazy]')` avant de l'appeler.
+- **Fichiers** : e2e/functional-profile-admin.spec.js, e2e/multi-user-phase1-auth.spec.js
+- **Statut** : CORRIGÉ (CI en cours de vérification)
