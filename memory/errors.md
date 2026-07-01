@@ -1973,4 +1973,14 @@ Chaque erreur suit ce format :
 - **Correction** : `setup()` poll désormais jusqu'à l'enregistrement des services d'arrière-plan (couvre les ~20 tests d'existence du fichier d'un coup). Le test open/close attend le VRAI handler close (`toString()` ne contient pas `[lazy]`) puis `expect.poll` le flag. Même correctif propagé à `multi-user-phase1-auth.spec.js` (même pattern).
 - **Leçon** : Ne JAMAIS asserter l'existence d'un handler lazy ou l'effet d'un handler lazy après un `waitForTimeout` FIXE. Toujours `waitForFunction`/`expect.poll`. Pour un handler qui peut être un `_lazyStub`, attendre que `!fn.toString().includes('[lazy]')` avant de l'appeler.
 - **Fichiers** : e2e/functional-profile-admin.spec.js, e2e/multi-user-phase1-auth.spec.js
+- **Statut** : CORRIGÉ (CI vert confirmé)
+
+### ERR-167 — Job Unit Tests flaky : couverture pile sur le seuil (60.99% vs 61%)
+- **Date** : 2026-07-01
+- **Gravité** : MAJEUR (bloque le CI de façon intermittente)
+- **Description** : Le job « Unit Tests » échouait par intermittence : `ERROR: Coverage for lines (60.99%) does not meet global threshold (61%)`. La couverture globale était PILE sur le seuil et la variance run-to-run (±0.2 à 0.3%) la faisait basculer sous 61%. En local elle mesurait 61.18%, en CI 60.99% (des tests skippés en CI creusent l'écart). AUCUNE régression source cette session (uniquement des specs E2E ajoutés, non comptés par vitest).
+- **Cause racine** : seuil de couverture fixé exactement à la moyenne d'une mesure non-déterministe → flake garanti.
+- **Correction** : 2 nouveaux fichiers de tests unitaires déterministes (logique pure, fetch mocké) : `tests/services/osrm-parsing.test.js` (parsing Nominatim : mapping, fallbacks adresse, tri importance, dedup, branches erreur) + `tests/services/location-permission.test.js` (choix de permission : unknown/granted/denied-récent/denied-expiré + save/reset). Couverture globale 60.99 → 61.33% (+~58 lignes couvertes, décalage FIXE > variance). Seuil inchangé.
+- **Leçon** : Un seuil de couverture calé sur la moyenne exacte est une bombe à retardement (couverture non-déterministe). Garder une marge ≥0.3-0.5%. Quand ça flake au seuil : NE PAS baisser le seuil → ajouter de la couverture PURE et déterministe (fonctions pures, IO mocké).
+- **Fichiers** : tests/services/osrm-parsing.test.js, tests/services/location-permission.test.js
 - **Statut** : CORRIGÉ (CI en cours de vérification)
