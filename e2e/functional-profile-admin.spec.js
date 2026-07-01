@@ -23,6 +23,15 @@ async function setup(page) {
     })
   })
   await page.waitForTimeout(2000)
+  // Wait for the lazy background services (proximityNotify, nearbyFriends…) to finish
+  // registering their window.* handlers. They import AFTER Firebase init, so a fixed wait is
+  // racy on a loaded CI runner — poll for the last one instead. Non-fatal if it never loads
+  // (the per-test assertion still catches a genuinely missing handler).
+  await page.waitForFunction(
+    () => typeof window.initProximityNotify === 'function'
+      && typeof window.quickValidateSpot === 'function',
+    { timeout: 15000 },
+  ).catch(() => {})
   // Re-assert: Firebase onAuthStateChanged may have reset isLoggedIn during the wait
   await page.evaluate(() => window.setState?.({ isLoggedIn: true }))
 }
@@ -230,10 +239,16 @@ test.describe('Identity — Fonctionnel', () => {
   test('openIdentityVerification ouvre, close ferme', async ({ page }) => {
     await setup(page)
     await page.evaluate(() => window.openIdentityVerification?.())
-    await page.waitForTimeout(500)
-    expect(await page.evaluate(() => window.getState?.()?.showIdentityVerification)).toBe(true)
+    await expect.poll(() => page.evaluate(() => window.getState?.()?.showIdentityVerification), { timeout: 8000 }).toBe(true)
+    // The lazy modal module registers the REAL close handler; until it loads,
+    // closeIdentityVerification is a no-op _lazyStub that would leave the flag stuck true.
+    await page.waitForFunction(
+      () => typeof window.closeIdentityVerification === 'function'
+        && !window.closeIdentityVerification.toString().includes('[lazy]'),
+      { timeout: 8000 },
+    ).catch(() => {})
     await page.evaluate(() => window.closeIdentityVerification?.())
-    expect(await page.evaluate(() => window.getState?.()?.showIdentityVerification)).toBe(false)
+    await expect.poll(() => page.evaluate(() => window.getState?.()?.showIdentityVerification), { timeout: 8000 }).toBe(false)
   })
 
   test('Handlers identity existent', async ({ page }) => {

@@ -598,15 +598,20 @@ test.describe('1.8 Identity verification', () => {
   test('closeIdentityVerification closes modal', async () => {
     // Trigger lazy load first
     await session.page.evaluate(() => window.openIdentityVerification?.())
-    await session.page.waitForTimeout(2000)
+    // Wait for the lazy modal module to register the REAL close handler — until it loads,
+    // closeIdentityVerification is a no-op _lazyStub that would leave the modal stuck open.
+    await session.page.waitForFunction(
+      () => typeof window.closeIdentityVerification === 'function'
+        && !window.closeIdentityVerification.toString().includes('[lazy]'),
+      { timeout: 8000 },
+    ).catch(() => {})
 
     await session.page.evaluate(() => window.closeIdentityVerification?.())
-    await session.page.waitForTimeout(1000)
 
-    const isOpen = await session.page.evaluate(() =>
-      window.getState?.()?.showIdentityVerification === true
-    )
-    expect(isOpen).toBeFalsy()
+    await expect.poll(
+      () => session.page.evaluate(() => window.getState?.()?.showIdentityVerification === true),
+      { timeout: 8000 },
+    ).toBeFalsy()
 
     await snap(session.page, 1, '1.8-identity-verification-closed', 'after')
   })
