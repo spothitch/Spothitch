@@ -227,6 +227,10 @@ export async function openSecondBrowser(browser, email, password) {
       s.currentUser = { uid, email: e }
       s.userProfile = { uid, email: e, displayName: e.split('@')[0] }
       localStorage.setItem('spothitch_v4_state', JSON.stringify(s))
+      // Stash the uid in a dedicated key the app never touches — the app's own
+      // setState cycles can wipe currentUser from spothitch_v4_state during a test,
+      // but this key survives so getCurrentUid() can always recover the session uid.
+      localStorage.setItem('__e2e_fallback_uid', uid)
     }, { e: email, uid: syntheticUid })
   }
 
@@ -246,7 +250,10 @@ export async function getCurrentUid(page) {
     if (auth?.currentUser?.uid) return auth.currentUser.uid
     // Fallback to localStorage
     const state = JSON.parse(localStorage.getItem('spothitch_v4_state') || '{}')
-    return state.currentUser?.uid || state.userProfile?.uid || null
+    // Last resort: the dedicated CI fallback key, which the app never overwrites
+    // (spothitch_v4_state.currentUser can be wiped by the app's own setState).
+    return state.currentUser?.uid || state.userProfile?.uid ||
+      localStorage.getItem('__e2e_fallback_uid') || null
   })
 }
 
@@ -396,6 +403,9 @@ export async function initFirebasePage(browser, email, password) {
       s.currentUser = { uid, email: e }
       s.userProfile = { uid, email: e, displayName: e.split('@')[0] }
       localStorage.setItem('spothitch_v4_state', JSON.stringify(s))
+      // Dedicated key the app never touches, so getCurrentUid() can always recover
+      // the session uid even after the app's setState wipes currentUser.
+      localStorage.setItem('__e2e_fallback_uid', uid)
     }, { e: email, uid: syntheticUid })
     return { context, page, uid: syntheticUid }
   }

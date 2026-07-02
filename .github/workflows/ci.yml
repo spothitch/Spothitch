@@ -941,17 +941,40 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Start Firebase Emulators
         run: |
-          npx firebase emulators:start --only auth,firestore --project spothitch-emulator &
-          for i in $(seq 1 30); do
-            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && echo "Auth emulator ready" && break
+          npx firebase emulators:start --only auth,firestore,storage --project spothitch-emulator &
+          for i in $(seq 1 45); do
+            curl -s http://127.0.0.1:9099/ > /dev/null 2>&1 && curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && curl -s http://127.0.0.1:9199/ > /dev/null 2>&1 && echo "Emulators ready" && break
             sleep 1
           done
-          curl -s http://127.0.0.1:8080/ > /dev/null 2>&1 && echo "Firestore emulator ready" || sleep 5
-      - name: Download build
-        uses: actions/download-artifact@v8
-        with:
-          name: dist
-          path: dist/
+      # The multi-user phases drive REAL browser Firestore reads/writes (DMs, SOS contacts,
+      # gamification). Those only work when the browser reaches the emulator, which requires
+      # VITE_FIREBASE_EMULATOR_E2E=true (unlocks the emulator in the CSP + skips Messaging).
+      # The shared `dist` artifact is the standard build (no E2E flag), so the browser fell
+      # back to localStorage and every Firestore assertion failed. Build our OWN emulator dist
+      # here — same pattern as the e2e-firebase job.
+      - name: Build isolated emulator app (browser reaches the emulator)
+        run: npm run build
+        env:
+          VITE_FIREBASE_EMULATOR: 'true'
+          VITE_FIREBASE_EMULATOR_E2E: 'true'
+          VITE_FIREBASE_API_KEY: 'fake-api-key-for-emulator'
+          VITE_FIREBASE_AUTH_DOMAIN: 'localhost'
+          VITE_FIREBASE_PROJECT_ID: 'spothitch-emulator'
+          VITE_FIREBASE_STORAGE_BUCKET: 'spothitch-emulator.appspot.com'
+          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+          VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
+      - name: Seed test accounts (same project id as the build)
+        run: node scripts/firebase-test-setup.mjs
+        env:
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
+          FIRESTORE_EMULATOR_HOST: '127.0.0.1:8080'
+          VITE_FIREBASE_API_KEY: 'fake-api-key-for-emulator'
+          VITE_FIREBASE_AUTH_DOMAIN: 'localhost'
+          VITE_FIREBASE_PROJECT_ID: 'spothitch-emulator'
+          VITE_FIREBASE_STORAGE_BUCKET: 'spothitch-emulator.appspot.com'
+          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+          VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000'
       - name: Run multi-user phase ${{ matrix.phase }}
         run: npx playwright test --project=chromium e2e/multi-user-phase${{ matrix.phase }}*.spec.js
         env:
