@@ -286,4 +286,28 @@ test.describe('Firebase submit handlers', () => {
       }, uid)
     }, { timeout: 12000 }).toBeGreaterThan(0)
   })
+
+  test('submitGuideContribution writes a guideTip to Firestore (guideTips/{uid}_{cc}_{cat})', async () => {
+    const uid = await getCurrentUid(page)
+    // Load the Guides view so the real handler (lazy with Guides.js) is installed.
+    await page.evaluate(() => window.showGuides?.())
+    await page.waitForFunction(() => typeof window.submitGuideContribution === 'function', { timeout: 15000 })
+    await page.evaluate(() => {
+      window.requireOnline = () => true
+      window.setState({ selectedCountryGuide: 'FR', guideOpenCategory: 'safety', username: 'GuideAuthor' })
+      window._guideFormRating = 5
+      window._guideFormType = 'c'
+      let el = document.getElementById('guide-contrib-text')
+      if (!el) { el = document.createElement('textarea'); el.id = 'guide-contrib-text'; document.body.appendChild(el) }
+      el.value = 'E2E guide contribution ' + Date.now()
+      window.submitGuideContribution()
+    })
+    await expect.poll(async () => {
+      return await page.evaluate(async (uid) => {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'guideTips', `${uid}_FR_safety`))
+        return snap.exists()
+      }, uid)
+    }, { timeout: 12000 }).toBe(true)
+  })
 })
