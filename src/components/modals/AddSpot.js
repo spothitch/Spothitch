@@ -415,8 +415,11 @@ window.addSpotNextStep = async () => {
  }
  document.activeElement?.blur()
 
- // Check for nearby existing spots BEFORE going to step 2
- if (!window.spotFormData._duplicateConfirmed) {
+ // Check for nearby existing spots BEFORE going to step 2.
+ // Skip entirely when validating a known spot ("Mon expérience" on an existing spot):
+ // we're adding a review to THAT spot, not creating a new one, so the "create/validate"
+ // duplicate dialog must not appear (it would otherwise flag the spot being reviewed itself).
+ if (!window.spotFormData._duplicateConfirmed && !state.addSpotValidateId) {
  const allSpots = state.spots || []
  const userLat = Number(window.spotFormData.lat)
  const userLng = Number(window.spotFormData.lng)

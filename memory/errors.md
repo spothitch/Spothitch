@@ -1984,3 +1984,13 @@ Chaque erreur suit ce format :
 - **Leçon** : Un seuil de couverture calé sur la moyenne exacte est une bombe à retardement (couverture non-déterministe). Garder une marge ≥0.3-0.5%. Quand ça flake au seuil : NE PAS baisser le seuil → ajouter de la couverture PURE et déterministe (fonctions pures, IO mocké).
 - **Fichiers** : tests/services/osrm-parsing.test.js, tests/services/location-permission.test.js
 - **Statut** : CORRIGÉ (CI en cours de vérification)
+
+### ERR-168 — Valider un spot existant ("Mon expérience") propose de CRÉER un doublon
+- **Date** : 2026-07-02 (signalé par Antoine)
+- **Gravité** : MAJEUR (empêche l'ajout d'avis sur un spot existant → pas de moyenne d'avis)
+- **Description** : En cliquant "Mon expérience / J'ai fait du stop ici" sur un spot pour donner son avis (commentaire, destination, sécurité, trafic, solo/pouce…), l'app affichait la modale de doublon proche ("créer un nouveau spot / valider l'existant") au lieu d'aller directement au formulaire d'avis. Le contrôle de doublon (AddSpot.js, transition step 1 → step 2) trouvait le spot en cours de validation lui-même (< 500 m) et proposait d'en créer un deuxième au même endroit.
+- **Cause racine** : le contrôle ne s'appuyait que sur `window.spotFormData._duplicateConfirmed` (posé par `openTestSpot`), mais ce flag est effacé si `spotFormData` est réinitialisé. Il ne vérifiait PAS `state.addSpotValidateId` (le flag autoritaire "on valide un spot connu", stocké dans le state, qui survit aux resets de spotFormData).
+- **Correction** : `if (!window.spotFormData._duplicateConfirmed && !state.addSpotValidateId)` — on saute complètement le contrôle de doublon en mode validation. Régression testée : `e2e/validate-spot-no-duplicate.spec.js` (échoue SANS le fix, passe AVEC). Aucune régression sur le flux de création (5 specs AddSpot verts).
+- **Leçon** : Pour un mode/flag qui doit persister à travers des re-renders (ici "validation d'un spot connu"), se baser sur le STATE (survit) plutôt que sur un flag posé dans un objet mutable (spotFormData) qui peut être réinitialisé. Vérifier `addSpotValidateId` (state) et non seulement `_duplicateConfirmed` (spotFormData).
+- **Fichiers** : src/components/modals/AddSpot.js, e2e/validate-spot-no-duplicate.spec.js
+- **Statut** : CORRIGÉ (build OK, régression prouvée, CI en cours de vérification)
