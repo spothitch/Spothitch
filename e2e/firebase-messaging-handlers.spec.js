@@ -141,4 +141,28 @@ test.describe('Firebase messaging handlers', () => {
       }, { convId, text })
     }, { timeout: 12000 }).toBeGreaterThan(0)
   })
+
+  test('sendPrivateMessage delivers a DM from the private chat input', async () => {
+    expect(bobUid).toBeTruthy()
+    await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
+    expect(await getCurrentUid(page)).toBe(aliceUid)
+    const text = 'Private chat msg ' + Date.now()
+    const convId = convIdOf(aliceUid, bobUid)
+    await page.evaluate(() => { window.setState({ isLoggedIn: true }); window.changeTab('social') })
+    await page.waitForFunction(() => typeof window.sendPrivateMessage === 'function', { timeout: 15000 })
+    await page.evaluate(async ({ bobUid, text, aliceUid }) => {
+      window.setState({ username: 'Alice', isLoggedIn: true, user: { uid: aliceUid } })
+      let el = document.getElementById('private-chat-input')
+      if (!el) { el = document.createElement('input'); el.id = 'private-chat-input'; document.body.appendChild(el) }
+      el.value = text
+      await window.sendPrivateMessage(bobUid)
+    }, { bobUid, text, aliceUid })
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ convId, text }) => {
+        const { getDb, collection, getDocs, query, where } = window.__fb
+        const snap = await getDocs(query(collection(getDb(), 'directMessages', convId, 'messages'), where('text', '==', text)))
+        return snap.size
+      }, { convId, text })
+    }, { timeout: 12000 }).toBeGreaterThan(0)
+  })
 })
