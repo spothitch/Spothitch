@@ -337,4 +337,19 @@ test.describe('Firebase submit handlers', () => {
       }, { uid, catName })
     }, { timeout: 12000 }).toBe(true)
   })
+
+  test('submitPhotoVerification uploads the selfie to Storage and marks it pending', async () => {
+    const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+    await page.evaluate(() => window.setState({ showIdentityVerification: true }))
+    await page.waitForFunction(() => typeof window.submitPhotoVerification === 'function', { timeout: 15000 })
+    await page.evaluate((png) => {
+      window.setState({ pendingPhotoVerification: null })
+      window.identityVerificationState.photoPreview = png
+      window.submitPhotoVerification()
+    }, PNG)
+    // uploadVerificationPhoto uploads to Storage (verification/{uid}) then sets pending state.
+    await expect.poll(async () => {
+      return await page.evaluate(() => window.getState().pendingPhotoVerification?.status)
+    }, { timeout: 15000 }).toBe('pending')
+  })
 })
