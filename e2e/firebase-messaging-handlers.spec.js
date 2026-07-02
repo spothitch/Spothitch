@@ -119,4 +119,26 @@ test.describe('Firebase messaging handlers', () => {
     }, { aliceUid })
     expect(bobSeesReq).toBe(true)
   })
+
+  test('sendDirectMessageTo delivers a DM to Firestore (direct args)', async () => {
+    expect(bobUid).toBeTruthy()
+    await programmaticLogin(page, TEST_ACCOUNTS.alice.email)
+    expect(await getCurrentUid(page)).toBe(aliceUid)
+    const text = 'DirectTo msg ' + Date.now()
+    const convId = convIdOf(aliceUid, bobUid)
+    // Ensure the directMessages module is loaded (registers sendDirectMessageTo).
+    await page.evaluate(() => { window.setState({ isLoggedIn: true }); window.changeTab('social') })
+    await page.waitForFunction(() => typeof window.sendDirectMessageTo === 'function', { timeout: 15000 })
+    await page.evaluate(async ({ bobUid, text, aliceUid }) => {
+      window.setState({ username: 'Alice', isLoggedIn: true, user: { uid: aliceUid } })
+      await window.sendDirectMessageTo(bobUid, text)
+    }, { bobUid, text, aliceUid })
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ convId, text }) => {
+        const { getDb, collection, getDocs, query, where } = window.__fb
+        const snap = await getDocs(query(collection(getDb(), 'directMessages', convId, 'messages'), where('text', '==', text)))
+        return snap.size
+      }, { convId, text })
+    }, { timeout: 12000 }).toBeGreaterThan(0)
+  })
 })
