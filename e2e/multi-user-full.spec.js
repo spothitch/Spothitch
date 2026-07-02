@@ -586,13 +586,18 @@ test.describe('H. All Modals Open/Close', () => {
       // Call open — verify it doesn't crash and state is set
       const beforeOpen = await page.evaluate((key) => window.getState?.()?.[key], stateKey)
       await page.evaluate((fn) => window[fn]?.(), openFn)
-      await page.waitForTimeout(800)
+      // Wait for the lazy modal module to register the REAL close handler (not the no-op _lazyStub).
+      await page.waitForFunction(
+        (fn) => typeof window[fn] === 'function' && !window[fn].toString().includes('[lazy]'),
+        closeFn, { timeout: 8000 },
+      ).catch(() => {})
       // Call close — verify it doesn't crash
       await page.evaluate((fn) => window[fn]?.(), closeFn)
-      await page.waitForTimeout(300)
-      // Verify close reset the state (should be false or same as before)
-      const afterClose = await page.evaluate((key) => window.getState?.()?.[key], stateKey)
-      expect(afterClose === false || afterClose === beforeOpen).toBe(true)
+      // Verify close reset the state (poll — close may re-render async).
+      await expect.poll(async () => {
+        const afterClose = await page.evaluate((key) => window.getState?.()?.[key], stateKey)
+        return afterClose === false || afterClose === beforeOpen
+      }, { timeout: 8000 }).toBe(true)
     })
   }
 })
@@ -696,8 +701,7 @@ test.describe('K. Offline & PWA', () => {
     await setupPage(page)
     await waitForApp(page)
     const handlers = ['openOfflinePanel', 'getOfflineStorageInfo']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -712,8 +716,7 @@ test.describe('L. Spots Avancés', () => {
       'setSpotRating', 'handlePhotoSelect', 'saveSpotAsDraft', 'openSpotDraft',
       'reportSpotAction', 'translateSpotText', 'doCheckin', 'submitReview', 'voteSpot',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -730,8 +733,7 @@ test.describe('M. Social Avancé', () => {
       'joinEvent', 'leaveEvent', 'postEventComment', 'reactToEventComment',
       'submitBuddyAnnouncement', 'deleteBuddyAnnouncement',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -751,8 +753,7 @@ test.describe('N. Guardian Avancé', () => {
       'guardianUpdateDestination', 'guardianAddTripPhoto',
       'sosToggleSilent', 'sosOpenFakeCall', 'sosStartRecording', 'shareSOSLocation',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -767,8 +768,7 @@ test.describe('O. Profil & Voyage Avancé', () => {
       'downloadMyData', 'swapTripPoints', 'viewTripOnMap', 'toggleTripGasStations',
       'journalAddLeg', 'journalSaveLeg', 'journalEndTrip', 'journalTogglePublic', 'journalShareTrip',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -781,8 +781,7 @@ test.describe('P. Guides & FAQ', () => {
       'voteGuideTip', 'reportGuideError', 'submitCommunityTip', 'voteCommunityTip',
       'openFAQ', 'closeFAQ',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -794,8 +793,7 @@ test.describe('Q. Ambassadeurs & Share', () => {
       'registerAmbassador', 'searchAmbassadors', 'contactAmbassador',
       'shareApp', 'shareMyProfile', 'copyFriendLink', 'showFeatureIntro',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -809,8 +807,7 @@ test.describe('R. Divers', () => {
       'toggleGasStations', 'openCityPanel', 'downloadCountryOffline',
       'deleteOfflineCountry', 'clearAllOfflineData', 'togglePushNotifications',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -818,8 +815,7 @@ test.describe('S. Checkin Modal', () => {
   test('S: all checkin handlers batch check', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['openCheckinModal', 'closeCheckinModal', 'submitCheckin', 'setCheckinRideResult', 'triggerCheckinPhoto']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -832,8 +828,7 @@ test.describe('T. AddSpot Form Steps', () => {
       'setRideResult', 'setExperienceDate', 'addSpotDestination', 'removeSpotDestination',
       'removeSpotPhoto', 'showSpotSummary', 'handleAddSpot', 'setSpotTag',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -841,8 +836,7 @@ test.describe('U. Navigation Apps', () => {
   test('U: all navigation handlers batch check', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['showNavigationPicker', 'openInNavigationApp', 'selectNavigationApp', 'startSpotNavigation', 'stopNavigation']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -857,8 +851,7 @@ test.describe('V. Profile Actions', () => {
       'openPhotoManager', 'openExportData', 'openAppealForm',
       'sortMySpots', 'openMySpots', 'openMyValidations', 'togglePrivacy',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -870,8 +863,7 @@ test.describe('W. Events CRUD', () => {
       'openEventDetail', 'closeEventDetail', 'shareEvent',
       'replyEventComment', 'toggleReplyInput', 'deleteEventCommentAction',
     ]
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -879,64 +871,55 @@ test.describe('X-AF. Misc grouped handlers', () => {
   test('X: accessibility & PWA handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['showAccessibilityHelp', 'closeAccessibilityHelp', 'srAnnounce', 'showInstallBanner', 'dismissInstallBanner', 'centerOnUser']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('Y: trip planner handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['calculateTrip', 'clearTripResults', 'saveTripWithSpots', 'loadSavedTrip', 'deleteSavedTrip', 'renameSavedTrip', 'viewTripOnMap', 'closeTripMap']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('Z: identity verification handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['startVerificationStep', 'submitVerificationPhotos', 'getTrustLevel', 'getTrustBadge', 'getUserTrustScore', 'showTrustDetails']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('AA: cookie & consent handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['acceptAllCookies', 'refuseOptionalCookies', 'showCookieCustomize', 'saveCustomCookiePreferences']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('AB: loading & animations handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['showLoading', 'hideLoading', 'showSuccessAnimation', 'showErrorAnimation', 'launchConfetti']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('AC: community alerts handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['toggleCommunityAlerts', 'setCommunityRadius', 'setCommunityGenderFilter']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('AD: location permission handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['acceptLocationPermission', 'declineLocationPermission', 'closeLocationPermission']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('AE: nearby friends handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['toggleNearbyFriendsList', 'setNotificationRadius', 'toggleLocationSharing', 'showFriendOnMap']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('AF: proximity alerts handlers', async ({ page }) => {
     await setupPage(page); await waitForApp(page)
     const handlers = ['quickValidateSpot', 'quickReportSpot', 'dismissProximityAlert', 'initProximityNotify']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 })
 
@@ -1159,8 +1142,7 @@ test.describe('AH. Scénarios Croisés', () => {
     }
     // Verify all critical handlers exist
     const handlers = ['openAddSpot', 'openSOS', 'showGuardianModal', 'showGuides', 'openAuth']
-    const missing = await page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers)
-    expect(missing).toEqual([])
+    await expect.poll(async () => page.evaluate((hs) => hs.filter(h => typeof window[h] !== 'function'), handlers), { timeout: 10000 }).toEqual([])
   })
 
   test('AH2: Two users navigate different tabs simultaneously', async ({ browser }) => {
