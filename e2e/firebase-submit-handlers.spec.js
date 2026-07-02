@@ -338,6 +338,29 @@ test.describe('Firebase submit handlers', () => {
     }, { timeout: 12000 }).toBe(true)
   })
 
+  test('deleteGuideContribution removes a guideTip from Firestore', async () => {
+    const uid = await getCurrentUid(page)
+    await page.evaluate(() => window.showGuides?.())
+    await page.waitForFunction(() => typeof window.deleteGuideContribution === 'function', { timeout: 15000 })
+    const docId = `${uid}_FR_deltest`
+    // Create the tip directly, then delete it via the real handler.
+    await page.evaluate(async ({ uid, docId }) => {
+      const { getDb, doc, setDoc, serverTimestamp } = window.__fb
+      await setDoc(doc(getDb(), 'guideTips', docId), {
+        id: docId, userId: uid, countryCode: 'FR', category: 'deltest',
+        text: 'to delete', rating: 3, createdAt: serverTimestamp(),
+      })
+      await window.deleteGuideContribution(docId)
+    }, { uid, docId })
+    await expect.poll(async () => {
+      return await page.evaluate(async (docId) => {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'guideTips', docId))
+        return snap.exists()
+      }, docId)
+    }, { timeout: 12000 }).toBe(false)
+  })
+
   // NOTE: identity Storage-upload handlers (submitPhotoVerification / submitIdentityDocument /
   // submitSelfieIdVerification / submitVerificationPhotos) are NOT covered here — Firebase Storage
   // uploads don't complete from the browser in the isolated CI build (same limitation that gates
