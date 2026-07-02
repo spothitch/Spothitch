@@ -1,0 +1,44 @@
+import { test, expect } from '@playwright/test'
+
+/**
+ * Real-click marathon (Brique 2) — two handlers.
+ *  - handleLogout clears the auth state (isLoggedIn/currentUser/isAdmin → cleared).
+ *  - addDestinationToExistingSpot opens auth when signed out.
+ */
+async function boot(page) {
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem('spothitch_welcomed', 'true')
+      localStorage.setItem('spothitch_age_verified', 'true')
+      localStorage.setItem('spothitch_cookie_consent', 'true')
+      localStorage.setItem('spothitch_landing_seen', 'true')
+    } catch { /* ignore */ }
+  })
+  await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
+  await page.waitForFunction(() => typeof window.setState === 'function', { timeout: 15000 })
+}
+
+test('handleLogout clears the auth state', async ({ page }) => {
+  test.setTimeout(60000)
+  await boot(page)
+  await page.waitForFunction(() => typeof window.handleLogout === 'function', { timeout: 15000 })
+  await page.evaluate(() => window.setState({ isLoggedIn: true, currentUser: { uid: 'u1' }, user: { uid: 'u1' }, isAdmin: true }))
+  await page.evaluate(() => { window.handleLogout(); return true })
+  await expect.poll(() => page.evaluate(() => window.getState().isLoggedIn), { timeout: 12000 }).toBe(false)
+  expect(await page.evaluate(() => window.getState().currentUser)).toBe(null)
+})
+
+test('addDestinationToExistingSpot opens auth when signed out', async ({ page }) => {
+  test.setTimeout(60000)
+  await boot(page)
+  let ok = false
+  for (let i = 0; i < 4 && !ok; i++) {
+    await page.evaluate(() => window.setState({ showAddSpot: true }))
+    ok = await page.waitForFunction(() => typeof window.addDestinationToExistingSpot === 'function', { timeout: 10000 })
+      .then(() => true).catch(() => false)
+  }
+  expect(ok, 'addDestinationToExistingSpot should register').toBe(true)
+  await page.evaluate(() => window.setState({ showAuth: false }))
+  await page.evaluate(() => { window.addDestinationToExistingSpot('spot1'); return true })
+  await expect.poll(() => page.evaluate(() => window.getState().showAuth), { timeout: 8000 }).toBe(true)
+})
