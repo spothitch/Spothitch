@@ -361,6 +361,26 @@ test.describe('Firebase submit handlers', () => {
     }, { timeout: 12000 }).toBe(false)
   })
 
+  test('leaveCountryChatAction removes the user from the country group (Firestore)', async () => {
+    const uid = await getCurrentUid(page)
+    await page.evaluate(() => window.changeTab('social'))
+    await page.waitForFunction(() => typeof window.leaveCountryChatAction === 'function', { timeout: 15000 })
+    await page.evaluate(async (uid) => {
+      const { getDb, doc, setDoc, serverTimestamp } = window.__fb
+      await setDoc(doc(getDb(), 'groupConversations', 'country_FR'), {
+        type: 'country', members: [uid, 'other-user'], memberCount: 2, createdAt: serverTimestamp(),
+      })
+      await window.leaveCountryChatAction('FR')
+    }, uid)
+    await expect.poll(async () => {
+      return await page.evaluate(async (uid) => {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'groupConversations', 'country_FR'))
+        return snap.exists() ? (snap.data().members || []).includes(uid) : true
+      }, uid)
+    }, { timeout: 12000 }).toBe(false)
+  })
+
   test('deleteBuddyAnnouncement removes the user travelBuddy from Firestore', async () => {
     const uid = await getCurrentUid(page)
     page.on('dialog', (d) => d.accept())
