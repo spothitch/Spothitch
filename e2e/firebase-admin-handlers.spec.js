@@ -219,4 +219,42 @@ test.describe('Firebase admin handlers', () => {
       return snap.exists() ? snap.data().status : null
     }, reportId), { timeout: 15000 }).toBe('confirmed')
   })
+
+  test('loadAdminFeedback loads feedback into state', async () => {
+    await loadAdminPanel()
+    await page.waitForFunction(() => typeof window.loadAdminFeedback === 'function', { timeout: 15000 })
+    await page.evaluate(async () => {
+      const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+      await addDoc(collection(getDb(), 'feedback'), { type: 'bug', message: 'e2e fb', timestamp: serverTimestamp() })
+      window.setState({ adminFeedbackData: null })
+      await window.loadAdminFeedback()
+    })
+    await expect.poll(() => page.evaluate(() => (window.getState().adminFeedbackData || []).length), { timeout: 15000 }).toBeGreaterThan(0)
+  })
+
+  test('loadAdminIdVerifications loads pending verifications into state', async () => {
+    await loadAdminPanel()
+    await page.waitForFunction(() => typeof window.loadAdminIdVerifications === 'function', { timeout: 15000 })
+    await page.evaluate(async () => {
+      const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
+      await addDoc(collection(getDb(), 'id_verifications'), { userId: getAuth().currentUser?.uid, status: 'pending', createdAt: serverTimestamp() })
+      window.setState({ adminIdVerifications: null })
+      await window.loadAdminIdVerifications()
+    })
+    await expect.poll(() => page.evaluate(() => (window.getState().adminIdVerifications || []).length), { timeout: 15000 }).toBeGreaterThan(0)
+  })
+
+  test('loadAdminGuideTips loads pending guide tips into state', async () => {
+    await loadAdminPanel()
+    await page.evaluate(() => { window.changeTab('voyage'); window.setVoyageSubTab?.('guides') })
+    await page.waitForFunction(() => typeof window.loadAdminGuideTips === 'function', { timeout: 15000 })
+    await page.evaluate(async () => {
+      const { getDb, getAuth, doc, setDoc, serverTimestamp } = window.__fb
+      const uid = getAuth().currentUser?.uid
+      await setDoc(doc(getDb(), 'guideTips', `${uid}_FR_adminload`), { id: `${uid}_FR_adminload`, userId: uid, countryCode: 'FR', category: 'adminload', text: 'x', status: 'pending', createdAt: serverTimestamp() })
+      window.setState({ adminGuideTipsData: null })
+      await window.loadAdminGuideTips()
+    })
+    await expect.poll(() => page.evaluate(() => (window.getState().adminGuideTipsData || []).length), { timeout: 15000 }).toBeGreaterThan(0)
+  })
 })

@@ -1973,7 +1973,7 @@ Chaque erreur suit ce format :
 - **Correction** : `setup()` poll désormais jusqu'à l'enregistrement des services d'arrière-plan (couvre les ~20 tests d'existence du fichier d'un coup). Le test open/close attend le VRAI handler close (`toString()` ne contient pas `[lazy]`) puis `expect.poll` le flag. Même correctif propagé à `multi-user-phase1-auth.spec.js` (même pattern).
 - **Leçon** : Ne JAMAIS asserter l'existence d'un handler lazy ou l'effet d'un handler lazy après un `waitForTimeout` FIXE. Toujours `waitForFunction`/`expect.poll`. Pour un handler qui peut être un `_lazyStub`, attendre que `!fn.toString().includes('[lazy]')` avant de l'appeler.
 - **Fichiers** : e2e/functional-profile-admin.spec.js, e2e/multi-user-phase1-auth.spec.js, e2e/multi-user-full.spec.js (2026-07-02 : propagation — 27 "batch check" d'existence de handlers passés en expect.poll(10s), et le test open/close attend le VRAI handler close avant appel + poll de l'état)
-- **Statut** : CORRIGÉ (CI vert confirmé, propagé à multi-user-full)
+- **Statut** : CORRIGÉ (CI vert confirmé, propagé à multi-user-full ; 2026-07-02 propagé aussi au job E2E Coverage : misc-state-handlers `updateDonationLink` charge le profil + poll, delegation-handlers poll l'enregistrement du handler + poll l'effet au lieu d'un waitForTimeout(200) fixe)
 
 ### ERR-167 — Job Unit Tests flaky : couverture pile sur le seuil (60.99% vs 61%)
 - **Date** : 2026-07-01
