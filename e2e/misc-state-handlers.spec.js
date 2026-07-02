@@ -46,6 +46,15 @@ test('removeSpotDestination removes the destination from the form buffer', async
 
 test('updateDonationLink sets the PayPal link to the clamped amount', async ({ page }) => {
   await boot(page)
+  // updateDonationLink lives in DonationCard.js, which loads with the profile view — poll for it
+  // (asserting it globally at boot is racy: it registers only once the module lazy-loads).
+  let ok = false
+  for (let i = 0; i < 4 && !ok; i++) {
+    await page.evaluate(() => { window.setState({ isLoggedIn: true }); window.changeTab('profil') })
+    ok = await page.waitForFunction(() => typeof window.updateDonationLink === 'function', { timeout: 10000 })
+      .then(() => true).catch(() => false)
+  }
+  expect(ok, 'updateDonationLink should register').toBe(true)
   const href = await page.evaluate(() => {
     const a = document.createElement('a')
     a.id = 'donation-paypal-link'

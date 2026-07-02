@@ -29,25 +29,39 @@ test('delegation wrappers produce their delegated effect', async ({ page }) => {
   await page.goto('/', { waitUntil: 'load', timeout: 30000 }).catch(() => {})
   await page.waitForFunction(() => typeof window.setState === 'function' && typeof window.getState === 'function', { timeout: 15000 })
 
+  const snapshot = () => page.evaluate(() => {
+    const s = window.getState()
+    return JSON.parse(JSON.stringify({
+      showAddSpot: s.showAddSpot, showAccessibilityHelp: s.showAccessibilityHelp,
+      showAddPastTrip: s.showAddPastTrip, showLocationPermission: s.showLocationPermission,
+      showWelcome: s.showWelcome, selectedCity: s.selectedCity ?? null,
+      sosActive: s.sosActive, showSOS: s.showSOS, activeTab: s.activeTab,
+      showAuth: s.showAuth, showAuthModal: s.showAuthModal,
+    }))
+  })
+
   const fails = []
   for (const c of CASES) {
-    const res = await page.evaluate(async ({ fn, setup }) => {
+    // Poll for the (possibly lazy) handler to register before triggering it.
+    const registered = await page.waitForFunction((fn) => typeof window[fn] === 'function', c.fn, { timeout: 8000 })
+      .then(() => true).catch(() => false)
+    if (!registered) { fails.push(`${c.fn}:not-a-function`); continue }
+    const err = await page.evaluate(async ({ fn, setup }) => {
       if (setup) window.setState(setup)
-      if (typeof window[fn] !== 'function') return { err: 'not-a-function' }
-      try { await window[fn]() } catch (e) { return { err: 'threw ' + e.message } }
-      await new Promise((r) => setTimeout(r, 200))
-      const s = window.getState()
-      // return only serialisable scalar snapshot of the keys we check
-      return { state: JSON.parse(JSON.stringify({
-        showAddSpot: s.showAddSpot, showAccessibilityHelp: s.showAccessibilityHelp,
-        showAddPastTrip: s.showAddPastTrip, showLocationPermission: s.showLocationPermission,
-        showWelcome: s.showWelcome, selectedCity: s.selectedCity ?? null,
-        sosActive: s.sosActive, showSOS: s.showSOS, activeTab: s.activeTab,
-        showAuth: s.showAuth, showAuthModal: s.showAuthModal,
-      })) }
+      try { await window[fn]() } catch (e) { return 'threw ' + e.message }
+      return null
     }, { fn: c.fn, setup: c.setup })
-    if (res.err) fails.push(`${c.fn}:${res.err}`)
-    else if (!c.expect(res.state)) fails.push(`${c.fn}:${JSON.stringify(res.state)}`)
+    if (err) { fails.push(`${c.fn}:${err}`) }
+    else {
+      // Poll for the delegated effect (async re-renders / lazy delegations settle).
+      let last = null, effect = false
+      for (let t = 0; t < 20 && !effect; t++) {
+        last = await snapshot()
+        effect = c.expect(last)
+        if (!effect) await page.waitForTimeout(200)
+      }
+      if (!effect) fails.push(`${c.fn}:${JSON.stringify(last)}`)
+    }
     await page.evaluate(() => window.setState({ showAddSpot: false, showAccessibilityHelp: false, showAuth: false, showAuthModal: false }))
   }
 
