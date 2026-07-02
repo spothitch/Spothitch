@@ -361,6 +361,30 @@ test.describe('Firebase submit handlers', () => {
     }, { timeout: 12000 }).toBe(false)
   })
 
+  test('deleteBuddyAnnouncement removes the user travelBuddy from Firestore', async () => {
+    const uid = await getCurrentUid(page)
+    page.on('dialog', (d) => d.accept())
+    await page.evaluate(() => { window.changeTab('social'); window.showBuddyCreate?.() })
+    await page.waitForFunction(() => typeof window.deleteBuddyAnnouncement === 'function', { timeout: 15000 })
+    // Create a travelBuddy owned by the current user, then delete it via the real handler.
+    const buddyId = await page.evaluate(async (uid) => {
+      const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+      const ref = await addDoc(collection(getDb(), 'travelBuddies'), {
+        userId: uid, departure: 'DelDep', destination: 'DelDest', dateFrom: '2026-12-01',
+        description: 'to delete', createdAt: serverTimestamp(),
+      })
+      return ref.id
+    }, uid)
+    await page.evaluate((id) => window.deleteBuddyAnnouncement(id), buddyId)
+    await expect.poll(async () => {
+      return await page.evaluate(async (id) => {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'travelBuddies', id))
+        return snap.exists()
+      }, buddyId)
+    }, { timeout: 12000 }).toBe(false)
+  })
+
   // NOTE: identity Storage-upload handlers (submitPhotoVerification / submitIdentityDocument /
   // submitSelfieIdVerification / submitVerificationPhotos) are NOT covered here — Firebase Storage
   // uploads don't complete from the browser in the isolated CI build (same limitation that gates
