@@ -269,4 +269,19 @@ test.describe('Firebase admin handlers', () => {
     })
     await expect.poll(() => page.evaluate(() => (window.getState().adminReportsData || []).length), { timeout: 15000 }).toBeGreaterThan(0)
   })
+
+  test('adminViewSpot loads the spot into selectedSpot', async () => {
+    await loadAdminPanel()
+    await page.waitForFunction(() => typeof window.adminViewSpot === 'function', { timeout: 15000 })
+    const spotId = await page.evaluate(async () => {
+      const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
+      const ref = await addDoc(collection(getDb(), 'spots'), {
+        lat: 48.85, lng: 2.35, direction: 'north', type: 'city_exit', description: 'admin view target',
+        creatorId: getAuth().currentUser?.uid, createdAt: serverTimestamp(), rating: { safety: 4, traffic: 3, accessibility: 4 },
+      })
+      return ref.id
+    })
+    await page.evaluate(async (id) => { window.setState({ selectedSpot: null }); await window.adminViewSpot(id) }, spotId)
+    await expect.poll(() => page.evaluate(() => window.getState().selectedSpot?.id || null), { timeout: 15000 }).toBe(spotId)
+  })
 })
