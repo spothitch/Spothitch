@@ -257,4 +257,16 @@ test.describe('Firebase admin handlers', () => {
     })
     await expect.poll(() => page.evaluate(() => (window.getState().adminGuideTipsData || []).length), { timeout: 15000 }).toBeGreaterThan(0)
   })
+
+  test('loadAdminReports loads reports into state', async () => {
+    await loadAdminPanel()
+    await page.waitForFunction(() => typeof window.loadAdminReports === 'function', { timeout: 15000 })
+    await page.evaluate(async () => {
+      const { getDb, collection, addDoc, serverTimestamp } = window.__fb
+      await addDoc(collection(getDb(), 'reports'), { type: 'spot', targetId: 'admin-load-' + Date.now(), reason: 'spam', reporterId: 'x', status: 'pending', createdAt: serverTimestamp() })
+      window.setState({ adminReportsData: null })
+      await window.loadAdminReports()
+    })
+    await expect.poll(() => page.evaluate(() => (window.getState().adminReportsData || []).length), { timeout: 15000 }).toBeGreaterThan(0)
+  })
 })
