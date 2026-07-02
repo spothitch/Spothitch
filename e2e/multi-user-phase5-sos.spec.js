@@ -75,15 +75,20 @@ test.describe('5.2 SOS configuration', () => {
   })
 
   test('sosAddContact adds a contact', async () => {
-    const exists = await alice.page.evaluate(() => typeof window.sosAddContact === 'function')
+    // Emergency-contact handlers live in SOS.js, registered lazily when SOS opens.
+    await alice.page.evaluate(() => window.openSOS?.())
+    await alice.page.waitForTimeout(2000)
+    const exists = await alice.page.evaluate(() => typeof window.addEmergencyContact === 'function')
     expect(exists).toBe(true)
-    await alice.page.evaluate(() => { try { window.sosAddContact?.() } catch {} })
+    await alice.page.evaluate(() => { try { window.addEmergencyContact?.() } catch {} })
     await alice.page.waitForTimeout(300)
     expect(await alice.page.evaluate(() => typeof window.getState === 'function')).toBe(true)
   })
 
   test('sosRemoveContact removes a contact', async () => {
-    const exists = await alice.page.evaluate(() => typeof window.sosRemoveContact === 'function')
+    await alice.page.evaluate(() => window.openSOS?.())
+    await alice.page.waitForTimeout(2000)
+    const exists = await alice.page.evaluate(() => typeof window.removeEmergencyContact === 'function')
     expect(exists).toBe(true)
   })
 
@@ -97,13 +102,9 @@ test.describe('5.2 SOS configuration', () => {
     expect(silent === null || silent === 'true' || silent === 'false').toBe(true)
   })
 
-  test('sosSetChannel saves channel preference', async () => {
-    const exists = await alice.page.evaluate(() => typeof window.sosSetChannel === 'function')
-    expect(exists).toBe(true)
-    await alice.page.evaluate(() => { try { window.sosSetChannel?.('sms') } catch {} })
-    await alice.page.waitForTimeout(300)
-    expect(await alice.page.evaluate(() => typeof window.getState === 'function')).toBe(true)
-  })
+  // NOTE: the per-channel preference toggle was removed by design — when SOS fires, ALL
+  // channels (push + SMS + call) trigger simultaneously, so there is no `sosSetChannel`
+  // handler anymore (see SOS.js: "ALL channels fire simultaneously. No choice needed").
 
   test('sosAddFriendAsContact adds friend to emergency contacts', async () => {
     await alice.page.evaluate(() => window.openSOS?.())
@@ -119,7 +120,7 @@ test.describe('5.2 SOS configuration', () => {
   })
 
   test('triggerSOSAlert handler exists', async () => {
-    expect(await alice.page.evaluate(() => typeof window.triggerSOSAlert === 'function')).toBe(true)
+    expect(await alice.page.evaluate(() => typeof window.triggerSOS === 'function')).toBe(true)
   })
 
   test('sosRequestPermission executes without crash', async () => {

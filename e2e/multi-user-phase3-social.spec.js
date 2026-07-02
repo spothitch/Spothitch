@@ -50,8 +50,9 @@ test.describe('3.1 Friend requests', () => {
     await alice.page.waitForTimeout(1000)
     await alice.page.evaluate(() => window.showAddFriend?.())
     await alice.page.waitForTimeout(500)
-    const state = await getAppState(alice.page, 'showAddFriend')
-    expect(state).toBe(true)
+    // showAddFriend switches to the "messagerie" sub-tab and focuses the search input.
+    const subTab = await getAppState(alice.page, 'socialSubTab')
+    expect(subTab).toBe('messagerie')
     // Close it
     await alice.page.evaluate(() => window.closeAddFriend?.())
     await alice.page.waitForTimeout(300)
@@ -104,11 +105,11 @@ test.describe('3.2 Direct Messages', () => {
   })
 
   test('sendDirectMessage handler exists and can be called', async () => {
-    const exists = await alice.page.evaluate(() => typeof window.sendDirectMessage === 'function')
+    const exists = await alice.page.evaluate(() => typeof window.sendDirectMessageTo === 'function')
     expect(exists).toBe(true)
     // Try sending a message (may fail without friend relationship, that's OK)
     await alice.page.evaluate((uid) => {
-      try { window.sendDirectMessage?.(uid, 'Hello from Alice!') } catch {}
+      try { window.sendDirectMessageTo?.(uid, 'Hello from Alice!') } catch {}
     }, bob.uid)
     await alice.page.waitForTimeout(500)
     expect(await alice.page.evaluate(() => typeof window.getState === 'function')).toBe(true)
@@ -162,10 +163,10 @@ test.describe('3.3 Blocking', () => {
   })
 
   test('unblockUser handler exists and can be called', async () => {
-    const exists = await alice.page.evaluate(() => typeof window.unblockUser === 'function')
+    const exists = await alice.page.evaluate(() => typeof window.confirmUnblockUser === 'function')
     expect(exists).toBe(true)
     await alice.page.evaluate(() => {
-      try { window.unblockUser?.('fake-user-id') } catch {}
+      try { window.confirmUnblockUser?.('fake-user-id') } catch {}
     })
     await alice.page.waitForTimeout(500)
     expect(await alice.page.evaluate(() => typeof window.getState === 'function')).toBe(true)
@@ -199,7 +200,7 @@ test.describe('3.4 Reporting', () => {
   })
 
   test('reportUser handler exists', async () => {
-    const exists = await alice.page.evaluate(() => typeof window.reportUser === 'function')
+    const exists = await alice.page.evaluate(() => typeof window.openReport === 'function')
     expect(exists).toBe(true)
   })
 
@@ -211,11 +212,14 @@ test.describe('3.4 Reporting', () => {
     // Switch to reports tab
     await admin.page.evaluate(() => window.setAdminTab?.('reports'))
     await admin.page.waitForTimeout(500)
-    const tab = await getAppState(admin.page, 'adminTab')
+    const tab = await getAppState(admin.page, 'adminActiveTab')
     expect(tab).toBe('reports')
   })
 
   test('Admin can load reports', async () => {
+    // loadAdminReports is registered lazily when the admin panel module loads — open it first.
+    await admin.page.evaluate(() => window.openAdminPanel?.())
+    await admin.page.waitForTimeout(1000)
     const exists = await admin.page.evaluate(() => typeof window.loadAdminReports === 'function')
     expect(exists).toBe(true)
     await admin.page.evaluate(() => { try { window.loadAdminReports?.() } catch {} })
