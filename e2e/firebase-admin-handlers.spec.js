@@ -142,6 +142,30 @@ test.describe('Firebase admin handlers', () => {
     }, tipId), { timeout: 15000 }).toBe('rejected')
   })
 
+  test('adminApproveGuideTipAction approves a pending tip in Firestore', async () => {
+    await page.evaluate(() => { window.changeTab('voyage'); window.setVoyageSubTab?.('guides') })
+    await page.waitForFunction(() => typeof window.adminApproveGuideTipAction === 'function', { timeout: 15000 })
+    const tipId = await seedGuideTip('pending')
+    await page.evaluate((id) => window.adminApproveGuideTipAction(id), tipId)
+    await expect.poll(async () => page.evaluate(async (id) => {
+      const { getDb, doc, getDoc } = window.__fb
+      const snap = await getDoc(doc(getDb(), 'guideTips', id))
+      return snap.exists() ? snap.data().status : null
+    }, tipId), { timeout: 15000 }).toBe('approved')
+  })
+
+  test('adminRejectGuideTipAction rejects a pending tip in Firestore', async () => {
+    await page.evaluate(() => { window.changeTab('voyage'); window.setVoyageSubTab?.('guides') })
+    await page.waitForFunction(() => typeof window.adminRejectGuideTipAction === 'function', { timeout: 15000 })
+    const tipId = await seedGuideTip('pending')
+    await page.evaluate((id) => window.adminRejectGuideTipAction(id), tipId)
+    await expect.poll(async () => page.evaluate(async (id) => {
+      const { getDb, doc, getDoc } = window.__fb
+      const snap = await getDoc(doc(getDb(), 'guideTips', id))
+      return snap.exists() ? snap.data().status : null
+    }, tipId), { timeout: 15000 }).toBe('rejected')
+  })
+
   async function seedIdVerification() {
     return await page.evaluate(async () => {
       const { getDb, getAuth, collection, addDoc, serverTimestamp } = window.__fb
