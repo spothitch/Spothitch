@@ -310,4 +310,31 @@ test.describe('Firebase submit handlers', () => {
       }, uid)
     }, { timeout: 12000 }).toBe(true)
   })
+
+  test('submitCustomCategory writes a custom guideTip to Firestore', async () => {
+    const uid = await getCurrentUid(page)
+    await page.evaluate(() => window.showGuides?.())
+    await page.waitForFunction(() => typeof window.submitCustomCategory === 'function', { timeout: 15000 })
+    const catName = 'e2ecat'
+    await page.evaluate(({ catName }) => {
+      window.requireOnline = () => true
+      window.setState({ selectedCountryGuide: 'DE', username: 'CustomCatAuthor' })
+      window._guideFormRating = 4
+      const mk = (id, val, tag = 'input') => {
+        let el = document.getElementById(id)
+        if (!el) { el = document.createElement(tag); el.id = id; document.body.appendChild(el) }
+        el.value = val
+      }
+      mk('guide-custom-name', catName)
+      mk('guide-custom-text', 'E2E custom category tip', 'textarea')
+      window.submitCustomCategory()
+    }, { catName })
+    await expect.poll(async () => {
+      return await page.evaluate(async ({ uid, catName }) => {
+        const { getDb, doc, getDoc } = window.__fb
+        const snap = await getDoc(doc(getDb(), 'guideTips', `${uid}_DE_custom_${catName}`))
+        return snap.exists()
+      }, { uid, catName })
+    }, { timeout: 12000 }).toBe(true)
+  })
 })
