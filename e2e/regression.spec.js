@@ -188,6 +188,25 @@ test.describe('Regression: Auth Modal', () => {
     expect(html).toMatch(/Google|handleGoogleSignIn/i)
   })
 
+  test('Google sign-in button is visible and clickable (not hidden)', async ({ page }) => {
+    await skipOnboarding(page)
+    await page.evaluate(() => window.setState?.({ showAuth: true }))
+    // The real Google button must be visible — it was accidentally hidden during
+    // alpha, which locked out every Google-only account (no password to fall back on).
+    const btn = page.locator('#auth-google-btn')
+    await expect(btn).toBeVisible({ timeout: 8000 })
+    // The GIS overlay must exist so clicks go straight to Google (no Firebase page)
+    await expect(page.locator('#gis-overlay')).toHaveCount(1)
+    // Overlay is kept near-invisible so OUR styled button shows, not Google's
+    const overlayOpacity = await page.locator('#gis-overlay').evaluate(
+      el => getComputedStyle(el).opacity
+    )
+    expect(Number(overlayOpacity)).toBeLessThan(0.1)
+    // handleGoogleSignIn is the popup fallback wired to the button's onclick
+    const hasHandler = await page.evaluate(() => typeof window.handleGoogleSignIn === 'function')
+    expect(hasHandler).toBe(true)
+  })
+
   test('setAuthMode switches between login and register', async ({ page }) => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showAuth: true }))

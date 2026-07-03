@@ -262,30 +262,33 @@ export function setupGISOverlay(overlayContainer, onResult) {
       text: 'continue_with',
     })
 
-    // Make the rendered GIS iframe cover the overlay container (transparent)
-    // The user sees our styled button but clicks the real Google button
-    requestAnimationFrame(() => {
-      const iframe = overlayContainer.querySelector('iframe')
-      if (iframe) {
-        iframe.style.width = '100%'
-        iframe.style.height = '100%'
-        iframe.style.opacity = '0.01'
-        iframe.style.position = 'absolute'
-        iframe.style.top = '0'
-        iframe.style.left = '0'
-        // GIS iframe rendered — enable pointer events so clicks hit the real Google button
+    // The overlay container is ALWAYS opacity 0.01 (set in Auth.js markup), so
+    // whatever GIS renders inside (button div, iframe, One Tap) stays invisible
+    // and OUR styled button shows through. Opacity does not block clicks. We just
+    // need to (a) stretch GIS's rendered node to cover our button, and (b) enable
+    // pointer-events once GIS is actually ready so the real click reaches Google.
+    // GIS renders asynchronously, so poll until a child node appears (a single
+    // requestAnimationFrame can fire before GIS has rendered anything).
+    let tries = 0
+    const enableWhenReady = () => {
+      const child = overlayContainer.firstElementChild
+      if (child) {
+        // Stretch GIS's node (iframe or div) to fully cover our button
+        overlayContainer.querySelectorAll('iframe, div').forEach(el => {
+          el.style.width = '100%'
+          el.style.height = '100%'
+          el.style.position = 'absolute'
+          el.style.top = '0'
+          el.style.left = '0'
+        })
+        // GIS ready — clicks now hit the real (invisible) Google button
         overlayContainer.style.pointerEvents = 'auto'
+        return
       }
-      // Also make the container div from GIS fill the space
-      const gisDiv = overlayContainer.firstElementChild
-      if (gisDiv) {
-        gisDiv.style.width = '100%'
-        gisDiv.style.height = '100%'
-        gisDiv.style.position = 'absolute'
-        gisDiv.style.top = '0'
-        gisDiv.style.left = '0'
-      }
-    })
+      // Not ready yet — retry for up to ~3s (30 x 100ms)
+      if (tries++ < 30) setTimeout(enableWhenReady, 100)
+    }
+    enableWhenReady()
   }).catch(() => {
     // GIS unavailable — overlay stays pointer-events:none, clicks fall through to button onclick
   })
