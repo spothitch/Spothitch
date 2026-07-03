@@ -443,15 +443,15 @@ test.describe('Modal Content — Auth', () => {
     await expect(passwordInput.first()).toBeVisible()
   })
 
-  test('should have social login buttons (Google, Facebook, Apple)', async ({ page }) => {
+  test('should have the Google social login button', async ({ page }) => {
     await skipOnboarding(page)
     await page.evaluate(() => window.setState?.({ showAuth: true }))
     await page.waitForTimeout(2000)
-    const html = await page.evaluate(() => document.body.innerHTML)
-    // Check for social login buttons (text or onclick handlers)
-    expect(html).toMatch(/Google|handleGoogleSignIn/i)
-    expect(html).toMatch(/Facebook|handleFacebookSignIn/i)
-    expect(html).toMatch(/Apple|handleAppleSignIn/i)
+    // Only Google sign-in is offered during alpha. Facebook/Apple are not
+    // implemented (no Developer App configured), so we don't assert them.
+    await expect(page.locator('#auth-google-btn')).toBeVisible({ timeout: 5000 })
+    const hasHandler = await page.evaluate(() => typeof window.handleGoogleSignIn === 'function')
+    expect(hasHandler).toBe(true)
   })
 })
 
